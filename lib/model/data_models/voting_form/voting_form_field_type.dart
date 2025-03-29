@@ -1,0 +1,4 @@
+enum VotingFormFieldType {
+  numeric,
+  textual,
+}

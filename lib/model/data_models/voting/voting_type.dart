@@ -1,0 +1,4 @@
+enum VotingType {
+  timed,
+  notTimed,
+}
