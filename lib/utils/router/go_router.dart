@@ -10,6 +10,9 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dar
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_settings_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_page.dart';
+import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart';
+import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart';
+import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart';
 import 'package:swift_contest/view/pages/sign_in_page.dart';
 import 'package:swift_contest/view/pages/sign_up_page.dart';
 import 'package:swift_contest/view/pages/splash_page.dart';
@@ -73,8 +76,8 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
                   child: Scaffold(
                     appBar: CustomAppBar(title: 'Contest Details'),
                     body: Center(
-                      child:
-                      Text('You can not navigate to this page without providing a valid contest'),
+                      child: Text(
+                          'You can not navigate to this page without providing a valid contest'),
                     ),
                   ),
                 );
@@ -82,8 +85,8 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
               final contestId = state.extra as String;
               return MaterialPage(
                   child: OrganizerContestDetailsPage(
-                    contestId: contestId,
-                  ));
+                contestId: contestId,
+              ));
             },
             routes: [
               GoRoute(
@@ -103,7 +106,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
                   final participantAndWorkJson = state.extra as Map<String, dynamic>;
                   return MaterialPage(
                       child:
-                      OrganizerWorkDetailsPage(participantAndWorkJson: participantAndWorkJson));
+                          OrganizerWorkDetailsPage(participantAndWorkJson: participantAndWorkJson));
                 },
               ),
               GoRoute(
@@ -120,15 +123,16 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
                       ),
                     );
                   }
-                  final Map<String,dynamic> votingFormPlusContestIdJson = state.extra as Map<String, dynamic>;
+                  final Map<String, dynamic> votingFormPlusContestIdJson =
+                      state.extra as Map<String, dynamic>;
                   final String contestId = votingFormPlusContestIdJson['_contest_id'] as String;
                   votingFormPlusContestIdJson.remove('_contest_id');
-                  final Map<String,dynamic> votingFormJson = votingFormPlusContestIdJson;
+                  final Map<String, dynamic> votingFormJson = votingFormPlusContestIdJson;
                   return MaterialPage(
                       child: OrganizerVotingFormEditPage(
-                        contestId: contestId,
-                        votingFormJson: votingFormJson,
-                      ));
+                    contestId: contestId,
+                    votingFormJson: votingFormJson,
+                  ));
                 },
               ),
               GoRoute(
@@ -150,53 +154,54 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           ),
         ],
       ),
-      // GoRoute(
-      //   name: AppRouter.participantHome,
-      //   path: '/home/participant',
-      //   pageBuilder: (context, state) => MaterialPage(child: ParticipantHomePage()),
-      //   routes: [
-      //     GoRoute(
-      //         name: AppRouter.participantContestDetails,
-      //         path: '/contest_details',
-      //         pageBuilder: (context, state) {
-      //           if (state.extra == null) {
-      //             return MaterialPage(
-      //               child: Scaffold(
-      //                 appBar: CustomAppBar(title: 'Contest Details'),
-      //                 body: Center(
-      //                   child: Text('You can not navigate to this page directly'),
-      //                 ),
-      //               ),
-      //             );
-      //           }
-      //           final contestId = state.extra as String;
-      //           return MaterialPage(
-      //             child: ParticipantContestDetailsPage(contestId: contestId),
-      //           );
-      //         },
-      //         routes: [
-      //           GoRoute(
-      //             name: AppRouter.participantWorkSubmit,
-      //             path: '/work_submit',
-      //             pageBuilder: (context, state) {
-      //               if (state.extra == null) {
-      //                 return MaterialPage(
-      //                   child: Scaffold(
-      //                     appBar: CustomAppBar(title: 'Work Submit'),
-      //                     body: Center(
-      //                       child: Text('You can not navigate to this page directly'),
-      //                     ),
-      //                   ),
-      //                 );
-      //               }
-      //               final extendedContestJson = state.extra as Map<String, dynamic>;
-      //               return MaterialPage(
-      //                   child: ParticipantWorkSubmitPage(extendedContestJson: extendedContestJson));
-      //             },
-      //           ),
-      //         ]),
-      //   ],
-      // ),
+      GoRoute(
+        name: AppRouter.participantHome,
+        path: '/home/participant',
+        pageBuilder: (context, state) => MaterialPage(child: ParticipantHomePage()),
+        routes: [
+          GoRoute(
+            name: AppRouter.participantContestDetails,
+            path: '/contest_details',
+            pageBuilder: (context, state) {
+              if (state.extra == null) {
+                return MaterialPage(
+                  child: Scaffold(
+                    appBar: CustomAppBar(title: 'Contest Details'),
+                    body: Center(
+                      child: Text('You can not navigate to this page directly'),
+                    ),
+                  ),
+                );
+              }
+              final contestId = state.extra as String;
+              return MaterialPage(
+                child: ParticipantContestDetailsPage(contestId: contestId),
+              );
+            },
+                routes: [
+                  GoRoute(
+                    name: AppRouter.participantWorkSubmit,
+                    path: '/work_submit',
+                    pageBuilder: (context, state) {
+                      if (state.extra == null) {
+                        return MaterialPage(
+                          child: Scaffold(
+                            appBar: CustomAppBar(title: 'Work Submit'),
+                            body: Center(
+                              child: Text('You can not navigate to this page directly'),
+                            ),
+                          ),
+                        );
+                      }
+                      final contestId = state.extra as String;
+                      return MaterialPage(
+                          child: ParticipantWorkSubmitPage(contestId: contestId));
+                    },
+                  ),
+                ],
+          ),
+        ],
+      ),
       // GoRoute(
       //   name: AppRouter.jurorHome,
       //   path: '/home/juror',

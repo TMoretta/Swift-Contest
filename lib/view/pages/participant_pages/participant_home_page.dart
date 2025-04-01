@@ -29,11 +29,10 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
   late User user;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final appAuthState = context.read<AuthBloc>().state;
     user = (appAuthState as AuthAuthenticated).user;
-
     if (!context.read<ParticipantJoinedContestsBloc>().state.status.isSuccess) {
       context
           .read<ParticipantJoinedContestsBloc>()
@@ -137,6 +136,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                         if (state.status.isSuccess) {
                           context.pop();
                           showSnackBar(context: context, text: 'Joined contest successfully');
+                          context.read<ParticipantJoinedContestsGetJoinedContests>();
                         }
                       },
                       builder: (context, state) {
