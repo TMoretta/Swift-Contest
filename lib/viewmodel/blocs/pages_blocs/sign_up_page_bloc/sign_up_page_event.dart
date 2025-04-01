@@ -1,7 +1,8 @@
 part of 'sign_up_page_bloc.dart';
 
-@immutable
-sealed class SignUpPageEvent {}
+sealed class SignUpPageEvent extends Equatable {
+  const SignUpPageEvent();
+}
 
 final class SignUpPageSignUpWithEmailAndPassword extends SignUpPageEvent {
   final String email;
@@ -9,7 +10,13 @@ final class SignUpPageSignUpWithEmailAndPassword extends SignUpPageEvent {
   final String firstName;
   final String lastName;
 
-  SignUpPageSignUpWithEmailAndPassword({required this.email, required this.password, required this.firstName, required this.lastName,});
+  const SignUpPageSignUpWithEmailAndPassword({
+    required this.email,
+    required this.password,
+    required this.firstName,
+    required this.lastName,
+  });
 
+  @override
+  List<Object?> get props => [email, password, firstName, lastName];
 }
-

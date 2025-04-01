@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/app_auth_bloc/app_auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -14,9 +14,9 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   @override
-  void initState() {
-    super.initState();
-    context.read<AppAuthBloc>().add(AppAuthSplashPageDelay());
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<AuthBloc>().add(AuthCheckInitialSessionWithDelay());
   }
 
   @override
@@ -28,12 +28,12 @@ class _SplashPageState extends State<SplashPage> {
             return SizedBox(
               width: constraints.maxWidth,
               height: constraints.maxHeight,
-              child: BlocConsumer<AppAuthBloc, AppAuthState>(
+              child: BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state is AppAuthAuthenticated) {
+                  if (state is AuthAuthenticated) {
                     context.goNamed(AppRouter.home);
                   }
-                  if (state is AppAuthUnauthenticated) {
+                  if (state is AuthUnauthenticated) {
                     context.goNamed(AppRouter.signIn);
                   }
                 },

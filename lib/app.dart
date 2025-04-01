@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 
 
 class App extends StatelessWidget {
@@ -8,6 +10,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final goRouter = getGoRouter(authBloc: context.read<AuthBloc>());
     return MaterialApp.router(
       themeMode: ThemeMode.dark,
       theme: MaterialTheme.light(),

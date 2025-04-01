@@ -5,18 +5,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/data_models/user/user.dart' as my;
 import 'package:swift_contest/utils/exceptions/custom_exception.dart';
 
-class AppAuthChange {
+class AuthChange {
   final AuthChangeEvent event;
   final Session? session;
 
-  AppAuthChange({required this.event, required this.session});
+  AuthChange({required this.event, required this.session});
 }
 
 //* Interface
 abstract interface class UserService {
   Session? get currentSession;
 
-  Stream<AppAuthChange> get appAuthChanges;
+  Stream<AuthChange> get authChanges;
 
   my.User getCurrentUser();
 
@@ -44,8 +44,8 @@ class UserServiceImpl implements UserService {
   Session? get currentSession => _supabase.auth.currentSession;
 
   @override
-  Stream<AppAuthChange> get appAuthChanges => _supabase.auth.onAuthStateChange
-      .map((data) => AppAuthChange(event: data.event, session: data.session));
+  Stream<AuthChange> get authChanges => _supabase.auth.onAuthStateChange
+      .map((data) => AuthChange(event: data.event, session: data.session));
 
   @override
   my.User getCurrentUser() {

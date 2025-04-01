@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/profile/contest_role.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
-import 'package:swift_contest/viewmodel/blocs/app_contest_role_bloc/app_contest_role_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ContestRole contestRole;
@@ -95,11 +96,11 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
 }
 
 void _showSwitchRoleDialog({required BuildContext context}) {
-  final appContestRoleState = context.read<AppContestRoleBloc>().state;
+  final contestRoleState = context.read<ContestRoleBloc>().state;
 
   ContestRole selectedRole;
-  if (appContestRoleState is AppContestRoleSuccess) {
-    selectedRole = appContestRoleState.appContestRole;
+  if (contestRoleState.status.isSuccess) {
+    selectedRole = contestRoleState.contestRole!;
   } else {
     selectedRole = ContestRole.organizer;
   }
@@ -166,7 +167,7 @@ void _showSwitchRoleDialog({required BuildContext context}) {
                   ),
                   TextButton(
                     onPressed: () {
-                      context.read<AppContestRoleBloc>().add(AppContestRoleChangeRole(contestRole: selectedRole));
+                      context.read<ContestRoleBloc>().add(ContestRoleChangeRole(contestRole: selectedRole));
                       context.pop();
                       context.go('/home');
                     },

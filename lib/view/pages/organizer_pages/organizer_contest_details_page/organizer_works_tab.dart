@@ -5,8 +5,8 @@ import 'package:swift_contest/model/mixed_models/participant_and_work.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/organizer_pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
-import 'package:swift_contest/viewmodel/utils/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 
 class OrganizerWorksTab extends StatefulWidget {
   final String contestId;
@@ -18,17 +18,26 @@ class OrganizerWorksTab extends StatefulWidget {
 }
 
 class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
+late final String contestId;
 
   @override
   void initState() {
     super.initState();
-    final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if (state.contest == null) {
-      context
-          .read<OrganizerContestDetailsPageBloc>()
-          .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId));
-    }
+    contestId = widget.contestId;
+    // final state = context.read<OrganizerContestDetailsPageBloc>().state;
+    // if(state.status.isInitial ||state.contest == null) {
+    //   context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+    // }
   }
+
+@override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  final state = context.read<OrganizerContestDetailsPageBloc>().state;
+  if(state.status.isInitial || state.contest == null) {
+    context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -40,15 +49,15 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
             height: constraints.maxHeight,
             child: BlocConsumer<OrganizerContestDetailsPageBloc,OrganizerContestDetailsPageState>(
               listener: (context, state) {
-                if(state.status == BlocStatus.failure) {
+                if(state.status.isFailure) {
                   showSnackBar(context: context, text: state.message!);
                 }
               },
               builder: (context, state) {
-                if(state.status == BlocStatus.loading) {
+                if(state.status.isLoading) {
                   return Loader();
                 }
-                if(state.status == BlocStatus.success) {
+                if(state.status.isSuccess) {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId)),
                     child: ListView.builder(
@@ -75,7 +84,6 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                             },
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              // mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               spacing: 16,
                               children: [

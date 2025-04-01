@@ -1,24 +1,33 @@
 part of 'place_picker_field_bloc.dart';
 
 @immutable
-sealed class PlacePickerFieldState {}
-
-final class PlacePickerFieldInitial extends PlacePickerFieldState {}
-
-final class PlacePickerFieldLoading extends PlacePickerFieldState {}
-
-final class PlacePickerFieldSuccess extends PlacePickerFieldState {
+final class PlacePickerFieldState extends Equatable {
+  final BlocStatus status;
+  final String? message;
   final GooglePlace? googlePlace;
   final List<GooglePlaceSuggestion>? googlePlaceSuggestions;
 
-  PlacePickerFieldSuccess({
+  const PlacePickerFieldState({
+    required this.status,
+    this.message,
     this.googlePlace,
     this.googlePlaceSuggestions,
   });
-}
 
-final class PlacePickerFieldFailure extends PlacePickerFieldState {
-  final String message;
+  PlacePickerFieldState copyWith({
+    required BlocStatus status,
+    String? message,
+    GooglePlace? googlePlace,
+    List<GooglePlaceSuggestion>? googlePlaceSuggestions,
+  }) {
+    return PlacePickerFieldState(
+      status: status,
+      message: message,
+      googlePlace: googlePlace ?? this.googlePlace,
+      googlePlaceSuggestions: googlePlaceSuggestions ?? this.googlePlaceSuggestions,
+    );
+  }
 
-  PlacePickerFieldFailure({required this.message});
+  @override
+  List<Object?> get props => [status, message, googlePlace, googlePlaceSuggestions];
 }

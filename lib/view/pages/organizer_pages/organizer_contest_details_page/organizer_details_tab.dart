@@ -5,8 +5,8 @@ import 'package:swift_contest/model/data_models/contest/contest_status.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/organizer_pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
-import 'package:swift_contest/viewmodel/utils/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 
 class OrganizerDetailsTab extends StatefulWidget {
   final String contestId;
@@ -18,14 +18,24 @@ class OrganizerDetailsTab extends StatefulWidget {
 }
 
 class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
+  late final String contestId;
+
   @override
   void initState() {
     super.initState();
+    contestId = widget.contestId;
+    // final state = context.read<OrganizerContestDetailsPageBloc>().state;
+    // if(state.status.isInitial || state.contest == null) {
+    //   context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+    // }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if (state.contest == null) {
-      context
-          .read<OrganizerContestDetailsPageBloc>()
-          .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId));
+    if(state.status.isInitial || state.contest == null) {
+      context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
     }
   }
 
@@ -33,24 +43,20 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
   Widget build(BuildContext context) {
     return BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
       listener: (context, state) {
-        if(state.status == BlocStatus.failure) {
+        if(state.message!=null) {
           showSnackBar(context: context, text: state.message!);
         }
       },
       builder: (context, state) {
-        if (state.status == BlocStatus.loading) {
+        if (state.status.isLoading) {
           return Loader();
         }
-        if (state.status == BlocStatus.success) {
+        if (state.status.isSuccess) {
           return RefreshIndicator.adaptive(
             onRefresh: () async => context
                 .read<OrganizerContestDetailsPageBloc>()
                 .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId)),
             child: ListView(
-              // mainAxisSize: MainAxisSize.min,
-              // mainAxisAlignment: MainAxisAlignment.start,
-              // crossAxisAlignment: CrossAxisAlignment.start,
-              // spacing: 8,
               physics: AlwaysScrollableScrollPhysics(),
               children: [
                 //* Title and status
@@ -135,28 +141,6 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                   ),
                 ),
                 SizedBox(height: 8),
-                // CarouselSlider(
-                //   options: CarouselOptions(
-                //     height: 200,
-                //     enableInfiniteScroll: false,
-                //     clipBehavior: Clip.none,
-                //   ),
-                //   items: contestAndOrganizer.imagesUrls.map((imageUrl) {
-                //     return Builder(
-                //       builder: (BuildContext context) {
-                //         return Image.network(
-                //           imageUrl,
-                //           fit: BoxFit.contain,
-                //           // width: 10,
-                //           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                //             if (wasSynchronouslyLoaded || frame != null) return child;
-                //             return const Loader();
-                //           },
-                //         );
-                //       },
-                //     );
-                //   }).toList(),
-                // ),
                 //* Description
                 Column(
                   mainAxisSize: MainAxisSize.min,

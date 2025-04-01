@@ -1,21 +1,29 @@
 part of 'sign_up_page_bloc.dart';
 
 @immutable
-sealed class SignUpPageState {}
+final class SignUpPageState extends Equatable {
+  final BlocStatus status;
+  final String? message;
+  final User? user;
 
-final class SignUpPageInitial extends SignUpPageState {}
+  const SignUpPageState({
+    required this.status,
+    this.message,
+    this.user,
+  });
 
-final class SignUpPageLoading extends SignUpPageState {}
+  SignUpPageState copyWith({
+    required BlocStatus status,
+    String? message,
+    User? user,
+  }) {
+    return SignUpPageState(
+      status: status,
+      message: message,
+      user: user ?? this.user,
+    );
+  }
 
-final class SignUpPageSuccess extends SignUpPageState {
-  final User user;
-
-  SignUpPageSuccess({required this.user});
+  @override
+  List<Object?> get props => [status,message,user];
 }
-
-final class SignUpPageFailure extends SignUpPageState {
-  final String message;
-
-  SignUpPageFailure({required this.message});
-}
-

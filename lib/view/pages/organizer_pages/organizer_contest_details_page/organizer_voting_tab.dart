@@ -5,8 +5,9 @@ import 'package:swift_contest/model/data_models/voting_form/voting_form_field.da
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/organizer_pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
-import 'package:swift_contest/viewmodel/utils/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/data_transfer_bloc/data_transfer_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 
 class OrganizerVotingTab extends StatefulWidget {
   final String contestId;
@@ -18,14 +19,26 @@ class OrganizerVotingTab extends StatefulWidget {
 }
 
 class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
+  late final String contestId;
+
   @override
   void initState() {
     super.initState();
+    contestId = widget.contestId;
+    // final state = context.read<OrganizerContestDetailsPageBloc>().state;
+    // if (state.status.isInitial || state.contest == null) {
+    //   context
+    //       .read<OrganizerContestDetailsPageBloc>()
+    //       .add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+    // }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if (state.votingForm == null) {
-      context
-          .read<OrganizerContestDetailsPageBloc>()
-          .add(OrganizerContestDetailsPageGetVotingForm(contestId: widget.contestId));
+    if(state.status.isInitial || state.votingForm == null) {
+      context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetVotingForm(contestId: contestId));
     }
   }
 
@@ -36,15 +49,15 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
       children: [
         BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
           listener: (context, state) {
-            if (state.status == BlocStatus.failure) {
+            if (state.status.isFailure) {
               showSnackBar(context: context, text: state.message!);
             }
           },
           builder: (context, state) {
-            if (state.status == BlocStatus.loading) {
+            if (state.status.isLoading) {
               return Loader();
             }
-            if (state.status == BlocStatus.success && state.votingForm != null) {
+            if (state.status.isSuccess && state.votingForm != null) {
               final votingFormPlusContestIdJson = state.votingForm!.toJson();
               votingFormPlusContestIdJson.addAll({'_contest_id': widget.contestId});
               return Column(
@@ -125,20 +138,49 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
         ),
         BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
           listener: (context, state) {
-            if (state.status == BlocStatus.failure) {
+            if (state.status.isFailure) {
               showSnackBar(context: context, text: state.message!);
             }
           },
           builder: (context, state) {
-            return Positioned(
-              bottom: 32,
-              right: 16,
-              child: FilledButton(
-                  onPressed: (state.status == BlocStatus.loading) ? null : () {
-                    context.pushNamed(AppRouter.organizerVotingSettings);
+            if (state.status.isLoading) {
+              return SizedBox.shrink();
+            }
+            if (state.status.isSuccess) {
+              return Positioned(
+                bottom: 32,
+                right: 16,
+                child: FilledButton(
+                  onPressed: () {
+                    final participationsMaps =
+                    state.participations!.map((e) => e.toJson()).toList(growable: false);
+                    final participantsMaps =
+                    state.participants!.map((e) => e?.toJson()).toList(growable: false);
+                    final worksMaps =
+                    state.works!.map((e) => e?.toJson()).toList(growable: false);
+                    final jurationsMaps =
+                    state.jurations!.map((e) => e.toJson()).toList(growable: false);
+                    final jurorsMaps =
+                    state.jurors!.map((e) => e?.toJson()).toList(growable: false);
+
+                    // Real data structure: Map<String, List<Map<String, dynamic>?>>
+                    final Map<String, dynamic> data = {
+                      'participations' : participationsMaps,
+                      'participants': participantsMaps,
+                      'works': worksMaps,
+                      'jurations': jurationsMaps,
+                      'jurors': jurorsMaps,
+                    };
+
+                    context.pushNamed(AppRouter.organizerVotingSettings,extra: data);
+
+                    // context.read<DataTransferBloc>().add(DataTransferSetData(data: data));
                   },
-                  child: Text('Start voting')),
-            );
+                  child: Text('Start voting'),
+                ),
+              );
+            }
+            return SizedBox.shrink();
           },
         ),
         // BlocConsumer<OrganizerContestDetailsPageBloc,OrganizerContestDetailsPageState>(

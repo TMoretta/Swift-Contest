@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/utils/di/di.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/auth_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_page_bloc/sign_up_page_bloc.dart';
+import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -67,14 +68,15 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       //* Form
                       BlocProvider<SignUpPageBloc>(
-                        create: (context) => getIt<SignUpPageBloc>(),
+                        create: (context) =>
+                            SignUpPageBloc(userRepository: context.read<UserRepository>()),
                         child: BlocConsumer<SignUpPageBloc, SignUpPageState>(
                           //* SignUpPageBloc listener
                           listener: (context, state) {
-                            if (state is SignUpPageFailure) {
-                              showSnackBar(context: context, text: state.message);
+                            if (state.status.isFailure) {
+                              showSnackBar(context: context, text: state.message!);
                             }
-                            if (state is SignUpPageSuccess) {
+                            if (state.status.isSuccess) {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
@@ -98,7 +100,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           },
                           //* SignUpPageBloc builder
                           builder: (context, state) {
-                            if (state is SignUpPageLoading) {
+                            if (state.status.isLoading) {
                               return const Loader();
                             }
                             return Form(
@@ -143,8 +145,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                     AuthFormField(
                                       controller: _confirmPasswordController,
                                       label: 'Confirm password',
-                                      validator: (value) =>
-                                          _confirmPasswordValidator(value, _passwordController.text),
+                                      validator: (value) => _confirmPasswordValidator(
+                                          value, _passwordController.text),
                                       prefixIcon: Icon(Icons.check_circle_outlined),
                                     ),
                                     SizedBox(height: 2),

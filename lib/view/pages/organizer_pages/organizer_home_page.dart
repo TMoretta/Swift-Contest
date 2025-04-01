@@ -8,8 +8,9 @@ import 'package:swift_contest/view/widgets/contest_card.dart';
 import 'package:swift_contest/view/widgets/home_page_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/app_auth_bloc/app_auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/organizer_pages_blocs/organizer_home_page_bloc/organizer_home_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/organizer_created_contests_bloc/organizer_created_contests_bloc.dart';
 
 class OrganizerHomePage extends StatefulWidget {
   const OrganizerHomePage({super.key});
@@ -22,14 +23,14 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   late User user;
 
   @override
-  void initState() {
-    super.initState();
-    final appAuthState = context.read<AppAuthBloc>().state;
-    user = (appAuthState as AppAuthAuthenticated).user;
-    final organizerHomePageBloc = context.read<OrganizerHomePageBloc>();
-    final organizerHomePageState = organizerHomePageBloc.state;
-    if (organizerHomePageState is! OrganizerHomePageSuccess) {
-      organizerHomePageBloc.add(OrganizerHomePageGetCreatedContestsExtended(organizerId: user.id));
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final authState = context.read<AuthBloc>().state;
+    user = (authState as AuthAuthenticated).user;
+    if (!context.read<OrganizerCreatedContestsBloc>().state.status.isSuccess) {
+      context
+          .read<OrganizerCreatedContestsBloc>()
+          .add(OrganizerCreatedContestsGetCreatedContests(organizerId: user.id));
     }
   }
 
@@ -37,10 +38,10 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: HomePageAppBar(contestRole: ContestRole.organizer),
-      body: BlocConsumer<OrganizerHomePageBloc, OrganizerHomePageState>(
+      body: BlocConsumer<OrganizerCreatedContestsBloc, OrganizerCreatedContestsState>(
         listener: (context, state) {
-          if (state is OrganizerHomePageFailure) {
-            showSnackBar(context: context, text: state.message);
+          if (state.status.isFailure) {
+            showSnackBar(context: context, text: state.message!);
           }
         },
         builder: (context, state) {
@@ -50,28 +51,28 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                 return SizedBox(
                   width: constraints.maxWidth,
                   height: constraints.maxHeight,
-                  child: switch (state) {
-                    OrganizerHomePageInitial() => Loader(),
-                    OrganizerHomePageLoading() => Loader(),
-                    OrganizerHomePageSuccess() => RefreshIndicator.adaptive(
+                  child: switch (state.status) {
+                    BlocStatus.initial => Container(),
+                    BlocStatus.loading => Loader(),
+                    BlocStatus.success => RefreshIndicator.adaptive(
                         onRefresh: () async {
-                          context.read<OrganizerHomePageBloc>().add(
-                              OrganizerHomePageGetCreatedContestsExtended(organizerId: user.id));
+                          context.read<OrganizerCreatedContestsBloc>().add(
+                              OrganizerCreatedContestsGetCreatedContests(organizerId: user.id));
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: ListView.builder(
-                            itemCount: state.contests.length,
+                            itemCount: state.contests!.length,
                             itemBuilder: (context, index) {
-                              final contest = state.contests[index];
-                              final organizer = state.organizers[index];
-                              final participations = state.participations[index];
-                              final jurations = state.jurations[index];
+                              final contest = state.contests![index];
+                              final organizer = state.organizers![index];
+                              final participations = state.participations![index];
+                              final jurations = state.jurations![index];
                               return Column(
                                 children: [
                                   SizedBox(height: (index == 0) ? 16 : 0),
                                   ContestCard(
-                                    contest: state.contests[index],
+                                    contest: contest,
                                     organizer: organizer,
                                     participations: participations,
                                     jurations: jurations,
@@ -80,17 +81,17 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                                           extra: contest.id);
                                     },
                                   ),
-                                  SizedBox(height: (index == state.contests.length - 1) ? 80 : 8),
+                                  SizedBox(height: (index == state.contests!.length - 1) ? 80 : 8),
                                 ],
                               );
                             },
                           ),
                         ),
                       ),
-                    OrganizerHomePageFailure() => RefreshIndicator.adaptive(
+                    BlocStatus.failure => RefreshIndicator.adaptive(
                         onRefresh: () async {
-                          context.read<OrganizerHomePageBloc>().add(
-                              OrganizerHomePageGetCreatedContestsExtended(organizerId: user.id));
+                          context.read<OrganizerCreatedContestsBloc>().add(
+                              OrganizerCreatedContestsGetCreatedContests(organizerId: user.id));
                         },
                         child: ListView(),
                       ),
@@ -107,8 +108,8 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
           if (result == true) {
             if (context.mounted) {
               context
-                  .read<OrganizerHomePageBloc>()
-                  .add(OrganizerHomePageGetCreatedContestsExtended(organizerId: user.id));
+                  .read<OrganizerCreatedContestsBloc>()
+                  .add(OrganizerCreatedContestsGetCreatedContests(organizerId: user.id));
             }
           }
         },

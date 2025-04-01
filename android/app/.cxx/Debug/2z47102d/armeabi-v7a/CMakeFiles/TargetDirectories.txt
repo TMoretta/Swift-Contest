@@ -1,0 +1,2 @@
+C:/Users/Tommaso/Desktop/Swift-Contest/android/app/.cxx/Debug/2z47102d/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Tommaso/Desktop/Swift-Contest/android/app/.cxx/Debug/2z47102d/armeabi-v7a/CMakeFiles/rebuild_cache.dir

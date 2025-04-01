@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/utils/di/di.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/auth_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
+import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -63,20 +64,18 @@ class _SignInPageState extends State<SignInPage> {
                         height: 12,
                       ),
                       BlocProvider<SignInPageBloc>(
-                        create: (context) => getIt<SignInPageBloc>(),
+                        create: (context) =>
+                            SignInPageBloc(userRepository: context.read<UserRepository>()),
                         child: BlocConsumer<SignInPageBloc, SignInPageState>(
                           //* AuthBloc listener
                           listener: (context, state) {
-                            if (state is SignInPageFailure) {
-                              showSnackBar(context: context, text: state.message);
+                            if (state.status.isFailure) {
+                              showSnackBar(context: context, text: state.message!);
                             }
-                            // if (state is SignInPageSuccess) {
-                            //   context.go('/home');
-                            // }
                           },
                           //* AuthBloc builder
                           builder: (context, state) {
-                            if (state is SignInPageLoading) {
+                            if (state.status.isLoading) {
                               return const Loader();
                             }
                             //* Form
@@ -220,7 +219,9 @@ class _SignInPageState extends State<SignInPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    context.read<SignInPageBloc>().add(SignInPageSignInWithEmailAndPassword(email: email, password: password));
+    context
+        .read<SignInPageBloc>()
+        .add(SignInPageSignInWithEmailAndPassword(email: email, password: password));
   }
 
   //* Function (email validator)

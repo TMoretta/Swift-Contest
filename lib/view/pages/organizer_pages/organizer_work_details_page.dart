@@ -59,28 +59,6 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                     ),
                   ),
                   SizedBox(height: 8),
-                  // CarouselSlider(
-                  //   options: CarouselOptions(
-                  //     height: 200,
-                  //     enableInfiniteScroll: false,
-                  //     clipBehavior: Clip.none,
-                  //   ),
-                  //   items: contestAndOrganizer.imagesUrls.map((imageUrl) {
-                  //     return Builder(
-                  //       builder: (BuildContext context) {
-                  //         return Image.network(
-                  //           imageUrl,
-                  //           fit: BoxFit.contain,
-                  //           // width: 10,
-                  //           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                  //             if (wasSynchronouslyLoaded || frame != null) return child;
-                  //             return const Loader();
-                  //           },
-                  //         );
-                  //       },
-                  //     );
-                  //   }).toList(),
-                  // ),
                   //* Description
                   Column(
                     mainAxisSize: MainAxisSize.min,

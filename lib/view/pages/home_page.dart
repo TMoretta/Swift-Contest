@@ -5,7 +5,8 @@ import 'package:swift_contest/model/data_models/profile/contest_role.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/app_contest_role_bloc/app_contest_role_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,21 +19,21 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    final appContestRoleState = context.read<AppContestRoleBloc>().state;
-    if (appContestRoleState is AppContestRoleInitial) {
-      context.read<AppContestRoleBloc>().add(AppContestRoleInitRole());
+    final contestRoleState = context.read<ContestRoleBloc>().state;
+    if (contestRoleState.status.isInitial) {
+      context.read<ContestRoleBloc>().add(ContestRoleInitRole());
     } else {
-      context.read<AppContestRoleBloc>().add(AppContestRoleTriggerListener());
+      context.read<ContestRoleBloc>().add(ContestRoleTriggerListener());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AppContestRoleBloc, AppContestRoleState>(
+    return BlocConsumer<ContestRoleBloc, ContestRoleState>(
       listener: (context, state) {
-        if (state is AppContestRoleSuccess) {
-          final appContestRole = state.appContestRole;
-          switch (appContestRole) {
+        if (state.status.isSuccess) {
+          final contestRole = state.contestRole!;
+          switch (contestRole) {
             case ContestRole.organizer:
               context.goNamed(AppRouter.organizerHome);
               break;
@@ -44,8 +45,8 @@ class _HomePageState extends State<HomePage> {
               break;
           }
         }
-        if (state is AppContestRoleFailure) {
-          showSnackBar(context: context, text: state.message);
+        if (state.status.isFailure) {
+          showSnackBar(context: context, text: state.message!);
           context.goNamed(AppRouter.organizerHome);
         }
       },

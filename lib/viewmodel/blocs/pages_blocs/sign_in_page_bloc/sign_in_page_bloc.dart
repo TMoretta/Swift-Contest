@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:swift_contest/model/data_models/user/user.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
-import 'package:swift_contest/viewmodel/utils/bloc_status.dart';
 
 part 'sign_in_page_event.dart';
+
 part 'sign_in_page_state.dart';
 
 class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
@@ -12,7 +14,7 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
 
   SignInPageBloc({required UserRepository userRepository})
       : _userRepository = userRepository,
-        super(SignInPageInitial()) {
+        super(SignInPageState(status: BlocStatus.initial)) {
     on<SignInPageSignInWithEmailAndPassword>(_signInWithEmailAndPassword);
   }
 
@@ -20,14 +22,14 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
     SignInPageSignInWithEmailAndPassword event,
     Emitter<SignInPageState> emit,
   ) async {
-    emit(SignInPageLoading());
+    emit(SignInPageState(status: BlocStatus.loading));
     final res = await _userRepository.signInWithEmailAndPassword(
       email: event.email,
       password: event.password,
     );
     res.fold(
-      (failure) => emit(SignInPageFailure(message: failure.message)),
-      (success) => emit(SignInPageSuccess(user: success)),
+      (failure) => emit(SignInPageState(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(SignInPageState(status: BlocStatus.success, user: success)),
     );
   }
 }

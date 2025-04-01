@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/data_models/juration/juration.dart';
 import 'package:swift_contest/model/data_models/juration/juration_status.dart';
+import 'package:swift_contest/model/data_models/participation/participation.dart';
 import 'package:swift_contest/model/data_models/participation/participation_status.dart';
+import 'package:swift_contest/model/data_models/profile/profile.dart';
 import 'package:swift_contest/model/data_models/user/user.dart';
 import 'package:swift_contest/model/data_models/voting/review_type.dart';
 import 'package:swift_contest/model/data_models/voting/voting_type.dart';
+import 'package:swift_contest/model/data_models/work/work.dart';
 import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant_and_work.dart';
-import 'package:swift_contest/utils/di/di.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
-import 'package:swift_contest/viewmodel/blocs/app_auth_bloc/app_auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/organizer_pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/organizer_pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/data_transfer_bloc/data_transfer_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
 
 class OrganizerVotingSettingsPage extends StatefulWidget {
-  const OrganizerVotingSettingsPage({super.key});
+  final Map<String, dynamic> data;
 
-  // final String contestId;
-  // final List<Participation> participations;
-  // final List<Profile?> participants;
-  // final List<Work?> works;
-  // final List<Juration> jurations;
-  // final List<Profile?> jurors;
-  //
-  // const OrganizerVotingSettingsPage(
-  //     {super.key, required this.contestId, required this.participations, required this.participants, required this.works, required this.jurations, required this.jurors,});
+  const OrganizerVotingSettingsPage({super.key, required this.data});
 
   @override
   State<OrganizerVotingSettingsPage> createState() => _OrganizerVotingSettingsPageState();
@@ -34,6 +29,7 @@ class OrganizerVotingSettingsPage extends StatefulWidget {
 
 class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
   late User user;
+  late Map<String, dynamic> data;
   final List<ParticipationAndParticipantAndWork> joinedParticipationsAndParticipantsWithWorks = [];
   final List<ParticipationAndParticipant> joinedParticipationsAndParticipantsWithoutWorks = [];
   final List<JurationAndJuror> joinedJurationsAndJurors = [];
@@ -55,13 +51,38 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   void initState() {
     super.initState();
-    user = (context.read<AppAuthBloc>().state as AppAuthAuthenticated).user;
-    final contestDetailsState = context.read<OrganizerContestDetailsPageBloc>().state;
-    final participations = contestDetailsState.participations!;
-    final participants = contestDetailsState.participants!;
-    final works = contestDetailsState.works!;
-    final jurations = contestDetailsState.jurations!;
-    final jurors = contestDetailsState.jurors!;
+    user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+    data = widget.data;
+
+    // final data = (context.read<DataTransferBloc>().state as DataTransferSuccess).data;
+
+    final participations = data['participations']!
+        .map((json) => Participation.fromJson(json!))
+        .toList(growable: false);
+
+    final participants = data['participants']!
+        .map((json) => json != null ? Profile.fromJson(json) : null)
+        .toList(growable: false);
+
+    final works = data['works']!
+        .map((json) => json != null ? Work.fromJson(json) : null)
+        .toList(growable: false);
+
+    final jurations = data['jurations']!
+        .map((json) => Juration.fromJson(json!))
+        .toList(growable: false);
+
+    final jurors = data['jurors']!
+        .map((json) => json != null ? Profile.fromJson(json) : null)
+        .toList(growable: false);
+
+    // final contestDetailsState = context.read<OrganizerContestDetailsPageBloc>().state;
+    // final participations = contestDetailsState.participations!;
+    // final participants = contestDetailsState.participants!;
+    // final works = contestDetailsState.works!;
+    // final jurations = contestDetailsState.jurations!;
+    // final jurors = contestDetailsState.jurors!;
+
     for (var i = 0; i < participations.length; i++) {
       if (participations[i].status == ParticipationStatus.joined) {
         if (works[i] != null) {
@@ -94,8 +115,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerVotingSettingsPageBloc>(
-      create: (context) =>
-          getIt<OrganizerVotingSettingsPageBloc>()..add(OrganizerVotingSettingsPageInit()),
+      create: (context) => OrganizerVotingSettingsPageBloc(),
       child: Scaffold(
         appBar: AppBar(
           title: Text('Voting settings'),

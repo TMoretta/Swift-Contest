@@ -4,13 +4,19 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/contest/contest.dart';
 import 'package:swift_contest/model/data_models/juration/juration_status.dart';
 import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
-import 'package:swift_contest/utils/di/di.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/organizer_pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
-import 'package:swift_contest/viewmodel/utils/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
+import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/edge_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
 class OrganizerJurorsTab extends StatefulWidget {
   final String contestId;
@@ -22,16 +28,25 @@ class OrganizerJurorsTab extends StatefulWidget {
 }
 
 class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
+  late final String contestId;
   Contest? contest;
 
   @override
   void initState() {
     super.initState();
+    contestId = widget.contestId;
+    // final state = context.read<OrganizerContestDetailsPageBloc>().state;
+    // if(state.status.isInitial ||state.contest == null) {
+    //   context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+    // }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if (state.contest == null) {
-      context
-          .read<OrganizerContestDetailsPageBloc>()
-          .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId));
+    if(state.status.isInitial || state.contest == null) {
+      context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
     }
   }
 
@@ -39,15 +54,15 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
   Widget build(BuildContext context) {
     return BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
       listener: (context, state) {
-        if (state.status == BlocStatus.failure) {
+        if (state.status.isFailure) {
           showSnackBar(context: context, text: state.message!);
         }
       },
       builder: (context, state) {
-        if (state.status == BlocStatus.loading) {
+        if (state.status.isLoading) {
           return Loader();
         }
-        if (state.status == BlocStatus.success) {
+        if (state.status.isSuccess) {
           contest = state.contest!;
           final invitationFormKey = GlobalKey<FormState>();
           String? email;
@@ -259,22 +274,30 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                           ),
                           actions: [
                             BlocProvider<OrganizerContestDetailsPageBloc>(
-                              create: (context) => getIt<OrganizerContestDetailsPageBloc>(),
+                              create: (context) => OrganizerContestDetailsPageBloc(
+                                participationRepository: context.read<ParticipationRepository>(),
+                                jurationRepository: context.read<JurationRepository>(),
+                                edgeRepository: context.read<EdgeRepository>(),
+                                profileRepository: context.read<ProfileRepository>(),
+                                contestRepository: context.read<ContestRepository>(),
+                                workRepository: context.read<WorkRepository>(),
+                                votingFormRepository: context.read<VotingFormRepository>(),
+                              ),
                               child: BlocConsumer<OrganizerContestDetailsPageBloc,
                                   OrganizerContestDetailsPageState>(
                                 listener: (context, state) {
-                                  if (state.status == BlocStatus.success) {
+                                  if (state.status.isSuccess) {
                                     context.pop();
                                     showSnackBar(context: context, text: 'Email sent successfully');
                                   }
-                                  if (state.status == BlocStatus.failure) {
+                                  if (state.status.isFailure) {
                                     showSnackBar(
                                         context: context,
                                         text: 'Email not sent. Error: ${state.message}');
                                   }
                                 },
                                 builder: (context, state) {
-                                  if (state.status == BlocStatus.loading) {
+                                  if (state.status.isLoading) {
                                     return Loader();
                                   }
                                   return Row(

@@ -8,7 +8,7 @@ import 'package:swift_contest/utils/failures/failure.dart';
 
 //* Interface
 abstract interface class UserRepository {
-  Stream<AppAuthChange> get appAuthChanges;
+  Stream<AuthChange> get authChanges;
 
   Either<Failure, User> getCurrentUser();
 
@@ -36,7 +36,7 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl({required UserService userService}) : _userService = userService;
 
   @override
-  Stream<AppAuthChange> get appAuthChanges => _userService.appAuthChanges;
+  Stream<AuthChange> get authChanges => _userService.authChanges;
 
   @override
   Either<Failure, User> getCurrentUser() {

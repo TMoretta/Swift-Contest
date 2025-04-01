@@ -32,7 +32,6 @@ class ContestCard extends StatefulWidget {
 class _ContestCardState extends State<ContestCard> {
   @override
   Widget build(BuildContext context) {
-    // final extendedContest = widget.extendedContest;
     int participationsJoinedCount = 0;
     for (var participation in widget.participations) {
       if (participation.status == ParticipationStatus.joined) {

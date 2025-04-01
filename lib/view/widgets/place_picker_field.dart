@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
-import 'package:swift_contest/utils/di/di.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_field_bloc/place_picker_field_bloc.dart';
+import 'package:swift_contest/viewmodel/repositories/google_place_repository.dart';
 
 class PlacePickerField extends StatelessWidget {
   final TextEditingController controller;
@@ -82,13 +83,15 @@ Future<GooglePlace?> _showLocationSearchDialog({required BuildContext context}) 
     context: context,
     barrierDismissible: false,
     builder: (context) {
-      return BlocProvider<PlacePickerFieldBloc>(
-        create: (context) => getIt<PlacePickerFieldBloc>(),
-        child: StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Location'),
-              content: Column(
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Location'),
+            content: BlocProvider<PlacePickerFieldBloc>(
+              create: (context) => PlacePickerFieldBloc(
+                googlePlaceRepository: context.read<GooglePlaceRepository>(),
+              ),
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
@@ -115,15 +118,15 @@ Future<GooglePlace?> _showLocationSearchDialog({required BuildContext context}) 
                   const SizedBox(height: 10),
                   BlocConsumer<PlacePickerFieldBloc, PlacePickerFieldState>(
                     listener: (context, state) {
-                      if (state is PlacePickerFieldFailure) {
-                        showSnackBar(context: context, text: state.message);
+                      if (state.status.isFailure) {
+                        showSnackBar(context: context, text: state.message!);
                       }
                     },
                     builder: (context, state) {
-                      if (state is PlacePickerFieldLoading) {
+                      if (state.status.isLoading) {
                         return Loader();
                       }
-                      if (state is PlacePickerFieldSuccess) {
+                      if (state.status.isSuccess) {
                         final suggestions = state.googlePlaceSuggestions;
                         if (suggestions!.isNotEmpty) {
                           return SizedBox(
@@ -150,87 +153,51 @@ Future<GooglePlace?> _showLocationSearchDialog({required BuildContext context}) 
                   ),
                 ],
               ),
-              actions: [
-                BlocProvider<PlacePickerFieldBloc>(
-                  create: (context) => getIt<PlacePickerFieldBloc>(),
-                  child: BlocConsumer<PlacePickerFieldBloc,PlacePickerFieldState>(
-                    listener: (context, state) {
-                      if (state is PlacePickerFieldSuccess) {
-                        context.pop(state.googlePlace);
-                      }
-                      if (state is PlacePickerFieldFailure) {
-                        showSnackBar(context: context, text: state.message);
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is PlacePickerFieldLoading) {
-                        return Loader();
-                      }
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              context.pop();
-                            },
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: (selectedSuggestion != null)
-                                ? () {
-                                    context.read<PlacePickerFieldBloc>().add(
-                                        PlacePickerFieldFetchPlace(id: selectedSuggestion!.placeId));
-                                  }
-                                : null,
-                            child: Text('Confirm'),
-                          )
-                        ],
-                      );
-                    },
-                  ),
-                )
-                // BlocConsumer<GooglePlaceBloc, GooglePlaceState>(
-                //   listener: (context, state) {
-                //     if (state is GooglePlaceSuccess) {
-                //       context.pop(state.place);
-                //     }
-                //     if (state is GooglePlaceFailure) {
-                //       showSnackBar(context: context, text: state.message);
-                //     }
-                //   },
-                //   builder: (context, state) {
-                //     if (state is GooglePlaceLoading) {
-                //       return Loader();
-                //     }
-                //     return Row(
-                //       mainAxisSize: MainAxisSize.min,
-                //       mainAxisAlignment: MainAxisAlignment.end,
-                //       children: [
-                //         TextButton(
-                //           onPressed: () {
-                //             context.pop();
-                //           },
-                //           child: const Text('Cancel'),
-                //         ),
-                //         TextButton(
-                //           onPressed: (selectedSuggestion != null)
-                //               ? () {
-                //                   context
-                //                       .read<GooglePlaceBloc>()
-                //                       .add(GooglePlaceFetch(id: selectedSuggestion!.placeId));
-                //                 }
-                //               : null,
-                //           child: Text('Confirm'),
-                //         )
-                //       ],
-                //     );
-                //   },
-                // ),
-              ],
-            );
-          },
-        ),
+            ),
+            actions: [
+              BlocProvider<PlacePickerFieldBloc>(
+                create: (context) => PlacePickerFieldBloc(
+                    googlePlaceRepository: context.read<GooglePlaceRepository>()),
+                child: BlocConsumer<PlacePickerFieldBloc, PlacePickerFieldState>(
+                  listener: (context, state) {
+                    if (state.status.isSuccess) {
+                      context.pop(state.googlePlace);
+                    }
+                    if (state.status.isFailure) {
+                      showSnackBar(context: context, text: state.message!);
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state.status.isLoading) {
+                      return Loader();
+                    }
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            context.pop();
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: (selectedSuggestion != null)
+                              ? () {
+                                  context.read<PlacePickerFieldBloc>().add(
+                                      PlacePickerFieldFetchPlace(id: selectedSuggestion!.placeId));
+                                }
+                              : null,
+                          child: Text('Confirm'),
+                        )
+                      ],
+                    );
+                  },
+                ),
+              )
+            ],
+          );
+        },
       );
     },
   );
