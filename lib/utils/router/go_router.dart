@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/view/pages/home_page.dart';
+import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_contest_details_page.dart';
+import 'package:swift_contest/view/pages/juror_pages/juror_home_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_creation_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_contest_details_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart';
@@ -13,6 +15,7 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart';
+import 'package:swift_contest/view/pages/settings_page.dart';
 import 'package:swift_contest/view/pages/sign_in_page.dart';
 import 'package:swift_contest/view/pages/sign_up_page.dart';
 import 'package:swift_contest/view/pages/splash_page.dart';
@@ -51,11 +54,18 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(child: HomePage());
         },
       ),
-      GoRoute(
+      GoRoute( //Only to dispatch to the correct home page based on the role
         name: AppRouter.home,
         path: '/home',
         pageBuilder: (context, state) {
           return MaterialPage(child: HomePage());
+        },
+      ),
+      GoRoute(
+        name: AppRouter.settings,
+        path: '/settings',
+        pageBuilder: (context, state) {
+          return MaterialPage(child: SettingsPage());
         },
       ),
       GoRoute(
@@ -202,32 +212,32 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           ),
         ],
       ),
-      // GoRoute(
-      //   name: AppRouter.jurorHome,
-      //   path: '/home/juror',
-      //   pageBuilder: (context, state) => MaterialPage(child: JurorHomePage()),
-      //   routes: [
-      //     GoRoute(
-      //         name: AppRouter.jurorContestDetails,
-      //         path: '/contest_details',
-      //         pageBuilder: (context, state) {
-      //           if (state.extra == null) {
-      //             return MaterialPage(
-      //               child: Scaffold(
-      //                 appBar: CustomAppBar(title: 'Contest Details'),
-      //                 body: Center(
-      //                   child: Text('You can not navigate to this page directly'),
-      //                 ),
-      //               ),
-      //             );
-      //           }
-      //           final contestId = state.extra as String;
-      //           return MaterialPage(
-      //             child: ParticipantContestDetailsPage(contestId: contestId),
-      //           );
-      //         }),
-      //   ],
-      // ),
+      GoRoute(
+        name: AppRouter.jurorHome,
+        path: '/home/juror',
+        pageBuilder: (context, state) => MaterialPage(child: JurorHomePage()),
+        routes: [
+          GoRoute(
+              name: AppRouter.jurorContestDetails,
+              path: '/contest_details',
+              pageBuilder: (context, state) {
+                if (state.extra == null) {
+                  return MaterialPage(
+                    child: Scaffold(
+                      appBar: CustomAppBar(title: 'Contest Details'),
+                      body: Center(
+                        child: Text('You can not navigate to this page directly'),
+                      ),
+                    ),
+                  );
+                }
+                final contestId = state.extra as String;
+                return MaterialPage(
+                  child: JurorContestDetailsPage(contestId: contestId),
+                );
+              }),
+        ],
+      ),
     ],
     refreshListenable: AppAuthBlocNotifier(authBloc: authBloc),
     redirect: (context, state) {
@@ -237,12 +247,12 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
       if (matchedLocation == '/splash') {
         return null;
       }
-      if (authState is AuthUnauthenticated &&
+      if (authState.status.isUnauthenticated &&
           matchedLocation != '/signin' &&
           matchedLocation != '/signup') {
         return '/signin';
       }
-      if (authState is AuthAuthenticated &&
+      if (authState.status.isAuthenticated &&
           (matchedLocation == '/signin' || matchedLocation == '/signup')) {
         return '/home';
       }
@@ -260,6 +270,7 @@ final class AppRouter {
   static const String signIn = 'signIn';
   static const String signUp = 'signUp';
   static const String home = 'home';
+  static const String settings = 'settings';
 
   static const String organizerHome = 'organizerHome';
   static const String organizerContestCreation = 'organizerContestCreation';

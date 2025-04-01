@@ -11,31 +11,28 @@ import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/participant_joined_contests_bloc/participant_joined_contests_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_home_page_bloc/participant_home_page_bloc.dart';
-import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/juror_joined_contests_bloc/juror_joined_contests_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/juror_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 
-class ParticipantHomePage extends StatefulWidget {
-  const ParticipantHomePage({super.key});
+class JurorHomePage extends StatefulWidget {
+  const JurorHomePage({super.key});
 
   @override
-  State<ParticipantHomePage> createState() => _ParticipantHomePageState();
+  State<JurorHomePage> createState() => _JurorHomePageState();
 }
 
-class _ParticipantHomePageState extends State<ParticipantHomePage> {
+class _JurorHomePageState extends State<JurorHomePage> {
   late User user;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     user = context.read<AuthBloc>().state.user!;
-    if (!context.read<ParticipantJoinedContestsBloc>().state.status.isSuccess) {
+    if (!context.read<JurorJoinedContestsBloc>().state.status.isSuccess) {
       context
-          .read<ParticipantJoinedContestsBloc>()
-          .add(ParticipantJoinedContestsGetJoinedContests(participantId: user.id));
+          .read<JurorJoinedContestsBloc>()
+          .add(JurorJoinedContestsGetJoinedContests(jurorId: user.id));
     }
   }
 
@@ -43,11 +40,11 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
   Widget build(BuildContext context) {
     final joinContestFormKey = GlobalKey<FormState>();
     String? contestToken;
-    String? participantToken;
+    String? jurorToken;
 
     return Scaffold(
-      appBar: HomePageAppBar(contestRole: ContestRole.participant),
-      body: BlocConsumer<ParticipantJoinedContestsBloc, ParticipantJoinedContestsState>(
+      appBar: HomePageAppBar(contestRole: ContestRole.juror),
+      body: BlocConsumer<JurorJoinedContestsBloc, JurorJoinedContestsState>(
         listener: (context, state) {
           if (state.status.isFailure) {
             showSnackBar(context: context, text: state.message!);
@@ -60,8 +57,8 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
               padding: EdgeInsets.only(left: 16, right: 16),
               child: RefreshIndicator.adaptive(
                 onRefresh: () async => context
-                    .read<ParticipantJoinedContestsBloc>()
-                    .add(ParticipantJoinedContestsGetJoinedContests(participantId: user.id)),
+                    .read<JurorJoinedContestsBloc>()
+                    .add(JurorJoinedContestsGetJoinedContests(jurorId: user.id)),
                 child: ListView.builder(
                   itemCount: contests.length,
                   itemBuilder: (context, index) {
@@ -74,7 +71,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                           participations: state.participations![index],
                           jurations: state.jurations![index],
                           onTap: () {
-                            context.pushNamed(AppRouter.participantContestDetails,
+                            context.pushNamed(AppRouter.jurorContestDetails,
                                 extra: contest.id);
                           },
                         ),
@@ -98,7 +95,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text('Join as participant'),
+                title: Text('Join as juror'),
                 content: Form(
                   key: joinContestFormKey,
                   child: Column(
@@ -113,7 +110,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                       ),
                       CustomTextFormFieldUnderlined(
                         label: 'Invitation token',
-                        onChanged: (value) => participantToken = value,
+                        onChanged: (value) => jurorToken = value,
                         validator: (value) => noEmptyValidator(value?.trim()),
                       ),
                     ],
@@ -121,13 +118,10 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                 ),
                 actions: [
                   BlocProvider(
-                    create: (context) => ParticipantHomePageBloc(
-                      contestRepository: context.read<ContestRepository>(),
-                      participationRepository: context.read<ParticipationRepository>(),
-                      profileRepository: context.read<ProfileRepository>(),
+                    create: (context) => JurorHomePageBloc(
                       jurationRepository: context.read<JurationRepository>(),
                     ),
-                    child: BlocConsumer<ParticipantHomePageBloc, ParticipantHomePageState>(
+                    child: BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
                       listener: (context, state) {
                         if (state.status.isFailure) {
                           showSnackBar(context: context, text: state.message!);
@@ -135,7 +129,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                         if (state.status.isSuccess) {
                           context.pop();
                           showSnackBar(context: context, text: 'Joined contest successfully');
-                          context.read<ParticipantJoinedContestsGetJoinedContests>();
+                          context.read<JurorJoinedContestsGetJoinedContests>();
                         }
                       },
                       builder: (context, state) {
@@ -155,13 +149,13 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                             TextButton(
                               onPressed: () {
                                 if (joinContestFormKey.currentState?.validate() ?? false) {
-                                  context.read<ParticipantHomePageBloc>().add(
-                                        ParticipantHomePageJoinContest(
-                                          participantId: user.id,
-                                          contestToken: contestToken!,
-                                          participantToken: participantToken!,
-                                        ),
-                                      );
+                                  context.read<JurorHomePageBloc>().add(
+                                    JurorHomePageJoinContest(
+                                      jurorId: user.id,
+                                      contestToken: contestToken!,
+                                      jurorToken: jurorToken!,
+                                    ),
+                                  );
                                 }
                               },
                               child: Text('Ok'),

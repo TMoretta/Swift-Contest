@@ -15,6 +15,7 @@ import 'package:swift_contest/model/services/work_service.dart';
 import 'package:swift_contest/utils/constants/constants.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/juror_joined_contests_bloc/juror_joined_contests_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/organizer_created_contests_bloc/organizer_created_contests_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/participant_joined_contests_bloc/participant_joined_contests_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
@@ -118,6 +119,14 @@ void main() async {
           ),
           BlocProvider(
             create: (context) => ParticipantJoinedContestsBloc(
+              contestRepository: context.read<ContestRepository>(),
+              profileRepository: context.read<ProfileRepository>(),
+              participationRepository: context.read<ParticipationRepository>(),
+              jurationRepository: context.read<JurationRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => JurorJoinedContestsBloc(
               contestRepository: context.read<ContestRepository>(),
               profileRepository: context.read<ProfileRepository>(),
               participationRepository: context.read<ParticipationRepository>(),

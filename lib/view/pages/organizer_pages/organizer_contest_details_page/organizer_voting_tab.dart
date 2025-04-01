@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swift_contest/model/data_models/juration/juration_status.dart';
+import 'package:swift_contest/model/data_models/participation/participation.dart';
+import 'package:swift_contest/model/data_models/participation/participation_status.dart';
+import 'package:swift_contest/model/data_models/profile/profile.dart';
 import 'package:swift_contest/model/data_models/voting_form/voting_form_field.dart';
+import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
+import 'package:swift_contest/model/mixed_models/participation_and_participant.dart';
+import 'package:swift_contest/model/mixed_models/participation_and_participant_and_work.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -152,29 +159,92 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                 right: 16,
                 child: FilledButton(
                   onPressed: () {
-                    final participationsMaps =
-                    state.participations!.map((e) => e.toJson()).toList(growable: false);
-                    final participantsMaps =
-                    state.participants!.map((e) => e?.toJson()).toList(growable: false);
-                    final worksMaps =
-                    state.works!.map((e) => e?.toJson()).toList(growable: false);
-                    final jurationsMaps =
-                    state.jurations!.map((e) => e.toJson()).toList(growable: false);
-                    final jurorsMaps =
-                    state.jurors!.map((e) => e?.toJson()).toList(growable: false);
+                    final participations = state.participations!;
+                    final participants = state.participants!;
+                    final works = state.works!;
+                    final jurations = state.jurations!;
+                    final jurors = state.jurors!;
 
-                    // Real data structure: Map<String, List<Map<String, dynamic>?>>
+                    final List<ParticipationAndParticipantAndWork> joinedParticipationsAndParticipantsWithWorks = [];
+                    final List<ParticipationAndParticipant> joinedParticipationsAndParticipantsWithoutWorks = [];
+                    final List<JurationAndJuror> joinedJurationsAndJurors = [];
+
+                    for (var i = 0; i < participations.length; i++) {
+                      if (participations[i].status == ParticipationStatus.joined) {
+                        if (works[i] != null) {
+                          final ppw = ParticipationAndParticipantAndWork(
+                            participation: participations[i],
+                            participant: participants[i],
+                            work: works[i],
+                          );
+                          joinedParticipationsAndParticipantsWithWorks.add(ppw);
+                        } else {
+                          final pp = ParticipationAndParticipant(
+                            participation: participations[i],
+                            participant: participants[i],
+                          );
+                          joinedParticipationsAndParticipantsWithoutWorks.add(pp);
+                        }
+                      }
+                    }
+                    if(joinedParticipationsAndParticipantsWithWorks.isEmpty) {
+                      showSnackBar(context: context, text: 'At least one participant with submitted work is necessary');
+                      return;
+                    }
+                    if(joinedJurationsAndJurors.isEmpty) {
+                      showSnackBar(context: context, text: 'At least one juror is necessary');
+                      return;
+                    }
+
+                    for (var i = 0; i < jurations.length; i++) {
+                      if (jurations[i].status == JurationStatus.joined) {
+                        final jj = JurationAndJuror(
+                          juration: jurations[i],
+                          juror: jurors[i],
+                        );
+                        joinedJurationsAndJurors.add(jj);
+                      }
+                    }
+
+                    final joinedParticipationsAndParticipantsWithWorksMap = joinedParticipationsAndParticipantsWithWorks.map(
+                        (e) => e.toJson()
+                    ).toList(growable: false);
+                    final joinedParticipationsAndParticipantsWithoutWorksMap = joinedParticipationsAndParticipantsWithoutWorks.map(
+                            (e) => e.toJson()
+                    ).toList(growable: false);
+                    final joinedJurationsAndJurorsMap = joinedJurationsAndJurors.map(
+                            (e) => e.toJson()
+                    ).toList(growable: false);
+
                     final Map<String, dynamic> data = {
-                      'participations' : participationsMaps,
-                      'participants': participantsMaps,
-                      'works': worksMaps,
-                      'jurations': jurationsMaps,
-                      'jurors': jurorsMaps,
+                      'joined_participants_with_works' : joinedParticipationsAndParticipantsWithWorksMap,
+                      'joined_participants_without_works': joinedParticipationsAndParticipantsWithoutWorksMap,
+                      'joined_jurors': joinedJurationsAndJurorsMap,
                     };
 
                     context.pushNamed(AppRouter.organizerVotingSettings,extra: data);
 
-                    // context.read<DataTransferBloc>().add(DataTransferSetData(data: data));
+                    // final participationsMaps =
+                    // state.participations!.map((e) => e.toJson()).toList(growable: false);
+                    // final participantsMaps =
+                    // state.participants!.map((e) => e?.toJson()).toList(growable: false);
+                    // final worksMaps =
+                    // state.works!.map((e) => e?.toJson()).toList(growable: false);
+                    // final jurationsMaps =
+                    // state.jurations!.map((e) => e.toJson()).toList(growable: false);
+                    // final jurorsMaps =
+                    // state.jurors!.map((e) => e?.toJson()).toList(growable: false);
+                    //
+                    // // Real data structure: Map<String, List<Map<String, dynamic>?>>
+                    // final Map<String, dynamic> data = {
+                    //   'participations' : participationsMaps,
+                    //   'participants': participantsMaps,
+                    //   'works': worksMaps,
+                    //   'jurations': jurationsMaps,
+                    //   'jurors': jurorsMaps,
+                    // };
+                    //
+                    // context.pushNamed(AppRouter.organizerVotingSettings,extra: data);
                   },
                   child: Text('Start voting'),
                 ),

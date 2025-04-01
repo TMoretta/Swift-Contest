@@ -46,10 +46,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final appAuthState = context
-        .read<AuthBloc>()
-        .state;
-    user = (appAuthState as AuthAuthenticated).user;
+    user = context.read<AuthBloc>().state.user!;
   }
 
   @override

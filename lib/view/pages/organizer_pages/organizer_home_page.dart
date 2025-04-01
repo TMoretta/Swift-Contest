@@ -25,8 +25,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final authState = context.read<AuthBloc>().state;
-    user = (authState as AuthAuthenticated).user;
+    user = context.read<AuthBloc>().state.user!;
     if (!context.read<OrganizerCreatedContestsBloc>().state.status.isSuccess) {
       context
           .read<OrganizerCreatedContestsBloc>()

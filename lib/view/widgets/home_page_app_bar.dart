@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/profile/contest_role.dart';
+import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
@@ -72,14 +73,14 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
             children: [
               IconButton(
                 onPressed: () {
-                  context.go('/notifications');
+                  context.pushNamed('/notifications');
                 },
                 icon: Icon(Icons.notifications),
                 color: Theme.of(context).colorScheme.secondary,
               ),
               IconButton(
                 onPressed: () {
-                  context.go('/settings');
+                  context.pushNamed(AppRouter.settings);
                 },
                 icon: Icon(Icons.more_vert),
                 color: Theme.of(context).colorScheme.secondary,

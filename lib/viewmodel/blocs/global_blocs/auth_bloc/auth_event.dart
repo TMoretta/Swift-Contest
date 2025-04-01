@@ -4,11 +4,6 @@ sealed class AuthEvent extends Equatable {
   const AuthEvent();
 }
 
-// final class AuthCheckInitialSession extends AuthEvent {
-//   @override
-//   List<Object?> get props => [];
-// }
-
 final class AuthChanged extends AuthEvent {
   final AuthChange authChange;
 

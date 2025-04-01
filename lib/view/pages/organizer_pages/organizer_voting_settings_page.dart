@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/juration/juration.dart';
-import 'package:swift_contest/model/data_models/juration/juration_status.dart';
-import 'package:swift_contest/model/data_models/participation/participation.dart';
-import 'package:swift_contest/model/data_models/participation/participation_status.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
 import 'package:swift_contest/model/data_models/user/user.dart';
 import 'package:swift_contest/model/data_models/voting/review_type.dart';
 import 'package:swift_contest/model/data_models/voting/voting_type.dart';
-import 'package:swift_contest/model/data_models/work/work.dart';
 import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant_and_work.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/data_transfer_bloc/data_transfer_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
 
 class OrganizerVotingSettingsPage extends StatefulWidget {
@@ -30,9 +23,9 @@ class OrganizerVotingSettingsPage extends StatefulWidget {
 class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
   late User user;
   late Map<String, dynamic> data;
-  final List<ParticipationAndParticipantAndWork> joinedParticipationsAndParticipantsWithWorks = [];
-  final List<ParticipationAndParticipant> joinedParticipationsAndParticipantsWithoutWorks = [];
-  final List<JurationAndJuror> joinedJurationsAndJurors = [];
+  late List<ParticipationAndParticipantAndWork> joinedParticipationsAndParticipantsWithWorks;
+  late List<ParticipationAndParticipant> joinedParticipationsAndParticipantsWithoutWorks;
+  late List<JurationAndJuror> joinedJurationsAndJurors;
 
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
@@ -49,67 +42,77 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   final List<ParticipantAndJuror> votingExclusions = [];
 
   @override
-  void initState() {
-    super.initState();
-    user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = context.read<AuthBloc>().state.user!;
     data = widget.data;
 
-    // final data = (context.read<DataTransferBloc>().state as DataTransferSuccess).data;
+    joinedParticipationsAndParticipantsWithWorks =
+        (data['joined_participants_with_works'] as List<dynamic>)
+            .map((e) => ParticipationAndParticipantAndWork.fromJson(e))
+            .toList(growable: false);
 
-    final participations = data['participations']!
-        .map((json) => Participation.fromJson(json!))
+    joinedParticipationsAndParticipantsWithoutWorks =
+        (data['joined_participants_without_works'] as List<dynamic>)
+            .map((e) => ParticipationAndParticipant.fromJson(e))
+            .toList(growable: false);
+
+    joinedJurationsAndJurors = (data['joined_jurors'] as List<dynamic>)
+        .map((e) => JurationAndJuror.fromJson(e))
         .toList(growable: false);
+  }
 
-    final participants = data['participants']!
-        .map((json) => json != null ? Profile.fromJson(json) : null)
-        .toList(growable: false);
+  @override
+  void initState() {
+    super.initState();
 
-    final works = data['works']!
-        .map((json) => json != null ? Work.fromJson(json) : null)
-        .toList(growable: false);
-
-    final jurations = data['jurations']!
-        .map((json) => Juration.fromJson(json!))
-        .toList(growable: false);
-
-    final jurors = data['jurors']!
-        .map((json) => json != null ? Profile.fromJson(json) : null)
-        .toList(growable: false);
-
-    // final contestDetailsState = context.read<OrganizerContestDetailsPageBloc>().state;
-    // final participations = contestDetailsState.participations!;
-    // final participants = contestDetailsState.participants!;
-    // final works = contestDetailsState.works!;
-    // final jurations = contestDetailsState.jurations!;
-    // final jurors = contestDetailsState.jurors!;
-
-    for (var i = 0; i < participations.length; i++) {
-      if (participations[i].status == ParticipationStatus.joined) {
-        if (works[i] != null) {
-          final ppw = ParticipationAndParticipantAndWork(
-            participation: participations[i],
-            participant: participants[i],
-            work: works[i],
-          );
-          joinedParticipationsAndParticipantsWithWorks.add(ppw);
-        } else {
-          final pp = ParticipationAndParticipant(
-            participation: participations[i],
-            participant: participants[i],
-          );
-          joinedParticipationsAndParticipantsWithoutWorks.add(pp);
-        }
-      }
-    }
-    for (var i = 0; i < jurations.length; i++) {
-      if (jurations[i].status == JurationStatus.joined) {
-        final jj = JurationAndJuror(
-          juration: jurations[i],
-          juror: jurors[i],
-        );
-        joinedJurationsAndJurors.add(jj);
-      }
-    }
+    // final participations = data['participations']!
+    //     .map((json) => Participation.fromJson(json!))
+    //     .toList(growable: false);
+    //
+    // final participants = data['participants']!
+    //     .map((json) => json != null ? Profile.fromJson(json) : null)
+    //     .toList(growable: false);
+    //
+    // final works = data['works']!
+    //     .map((json) => json != null ? Work.fromJson(json) : null)
+    //     .toList(growable: false);
+    //
+    // final jurations = data['jurations']!
+    //     .map((json) => Juration.fromJson(json!))
+    //     .toList(growable: false);
+    //
+    // final jurors = data['jurors']!
+    //     .map((json) => json != null ? Profile.fromJson(json) : null)
+    //     .toList(growable: false);
+    //
+    // for (var i = 0; i < participations.length; i++) {
+    //   if (participations[i].status == ParticipationStatus.joined) {
+    //     if (works[i] != null) {
+    //       final ppw = ParticipationAndParticipantAndWork(
+    //         participation: participations[i],
+    //         participant: participants[i],
+    //         work: works[i],
+    //       );
+    //       joinedParticipationsAndParticipantsWithWorks.add(ppw);
+    //     } else {
+    //       final pp = ParticipationAndParticipant(
+    //         participation: participations[i],
+    //         participant: participants[i],
+    //       );
+    //       joinedParticipationsAndParticipantsWithoutWorks.add(pp);
+    //     }
+    //   }
+    // }
+    // for (var i = 0; i < jurations.length; i++) {
+    //   if (jurations[i].status == JurationStatus.joined) {
+    //     final jj = JurationAndJuror(
+    //       juration: jurations[i],
+    //       juror: jurors[i],
+    //     );
+    //     joinedJurationsAndJurors.add(jj);
+    //   }
+    // }
   }
 
   @override
@@ -128,7 +131,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                 height: constraints.maxHeight,
                 child: Stepper(
                   type: StepperType.horizontal,
-                  physics: ScrollPhysics(),
+                  physics: NeverScrollableScrollPhysics(),
                   currentStep: currentStep,
                   onStepContinue: () {
                     final isLastStep = (currentStep == getSteps().length - 1);
@@ -228,53 +231,63 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           ),
           content: Form(
             key: firstFormKey,
-            child: Column(
-              children: [
-                ReorderableListView(
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
-                      final ParticipationAndParticipantAndWork ppw =
-                          joinedParticipationsAndParticipantsWithWorks.removeAt(oldIndex);
-                      joinedParticipationsAndParticipantsWithWorks.insert(newIndex, ppw);
-                    });
-                  },
-                  children: [
-                    for (var i = 0; i < joinedParticipationsAndParticipantsWithWorks.length; i++)
-                      ListTile(
-                        title: Column(
-                          children: [
-                            Text(joinedParticipationsAndParticipantsWithWorks[i].work!.name),
-                            Text(
-                                '${joinedParticipationsAndParticipantsWithWorks[i].participant!.firstName} '
-                                '${joinedParticipationsAndParticipantsWithWorks[i].participant!.lastName}'),
-                          ],
-                        ),
+            child: SizedBox(
+              height: 400,
+              child: ReorderableListView(
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (oldIndex < newIndex) {
+                      newIndex -= 1;
+                    }
+                    final ParticipationAndParticipantAndWork ppw =
+                        joinedParticipationsAndParticipantsWithWorks.removeAt(oldIndex);
+                    joinedParticipationsAndParticipantsWithWorks.insert(newIndex, ppw);
+                  });
+                },
+                children: [
+                  for (var i = 0; i < joinedParticipationsAndParticipantsWithWorks.length; i++)
+                    ListTile(
+                      key: ValueKey(
+                          joinedParticipationsAndParticipantsWithWorks[i].participation.id),
+                      title: Column(
+                        children: [
+                          Text(joinedParticipationsAndParticipantsWithWorks[i].work!.name),
+                          Text(
+                              '${joinedParticipationsAndParticipantsWithWorks[i].participant!.firstName} '
+                              '${joinedParticipationsAndParticipantsWithWorks[i].participant!.lastName}'),
+                        ],
                       ),
-                  ],
-                ),
-                if (joinedParticipationsAndParticipantsWithoutWorks.isNotEmpty)
-                  Column(
-                    children: [
-                      Text('Note: there are some participants that not submitted a work'),
-                      ListView.builder(
-                        itemCount: joinedParticipationsAndParticipantsWithoutWorks.length,
-                        shrinkWrap: true, // opzionale ma utile in questo contesto
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(
-                                '${joinedParticipationsAndParticipantsWithoutWorks[index].participant!.firstName} '
-                                '${joinedParticipationsAndParticipantsWithoutWorks[index].participant!.lastName}'),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-              ],
+                    ),
+                ],
+              ),
             ),
           ),
+          // content: Form(
+          //   key: firstFormKey,
+          //   child: Column(
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: [
+          //
+          //       // if (joinedParticipationsAndParticipantsWithoutWorks.isNotEmpty)
+          //       //   Text('Note: there are some participants that not submitted a work'),
+          //       // if (joinedParticipationsAndParticipantsWithoutWorks.isNotEmpty)
+          //       //   Flexible(
+          //       //     fit: FlexFit.loose,
+          //       //     child: ListView.builder(
+          //       //       itemCount: joinedParticipationsAndParticipantsWithoutWorks.length,
+          //       //       shrinkWrap: true, // opzionale ma utile in questo contesto
+          //       //       itemBuilder: (context, index) {
+          //       //         return ListTile(
+          //       //           title: Text(
+          //       //               '${joinedParticipationsAndParticipantsWithoutWorks[index].participant!.firstName} '
+          //       //                   '${joinedParticipationsAndParticipantsWithoutWorks[index].participant!.lastName}'),
+          //       //         );
+          //       //       },
+          //       //     ),
+          //       //   ),
+          //     ],
+          //   ),
+          // ),
         ),
         //* Second step
         Step(
@@ -292,63 +305,83 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           ),
           content: Form(
             key: secondFormKey,
-            child: ListView(
-              children: [
-                Text('Who can vote'),
-                RadioListTile<bool>.adaptive(
-                  title: Text('Only invited jurors'),
-                  value: false,
-                  groupValue: isNonInvitedJurorVotingAllowed,
-                  onChanged: (value) {
-                    setState(() {
-                      isNonInvitedJurorVotingAllowed = value!;
-                    });
-                  },
-                ),
-                RadioListTile<bool>.adaptive(
-                  title: Text('Anyone with contest identifier'),
-                  value: true,
-                  groupValue: isNonInvitedJurorVotingAllowed,
-                  onChanged: (value) {
-                    setState(() {
-                      isNonInvitedJurorVotingAllowed = value!;
-                    });
-                  },
-                ),
-                Text('Voting exclusions'),
-                ListView.builder(
-                  itemCount: votingExclusions.length + 1,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Text('Juror: '),
-                              Text('${votingExclusions[index].juror.firstName} '
-                                  '${votingExclusions[index].juror.lastName}'),
-                            ],
+            child: SizedBox(
+              height: 400,
+              child: ListView(
+                children: [
+                  Text('Who can vote'),
+                  RadioListTile<bool>.adaptive(
+                    title: Text('Only invited jurors'),
+                    value: false,
+                    groupValue: isNonInvitedJurorVotingAllowed,
+                    onChanged: (value) {
+                      setState(() {
+                        isNonInvitedJurorVotingAllowed = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<bool>.adaptive(
+                    title: Text('Anyone with contest identifier'),
+                    value: true,
+                    groupValue: isNonInvitedJurorVotingAllowed,
+                    onChanged: (value) {
+                      setState(() {
+                        isNonInvitedJurorVotingAllowed = value!;
+                      });
+                    },
+                  ),
+                  Text('Voting exclusions'),
+                  SizedBox(
+                    height: 200,
+                    child: (votingExclusions.isNotEmpty)
+                        ? ListView.builder(
+                            itemCount: votingExclusions.length + 1,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text('Juror: '),
+                                        Text('${votingExclusions[index].juror.firstName} '
+                                            '${votingExclusions[index].juror.lastName}'),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text('Participant: '),
+                                        Text('${votingExclusions[index].participant.firstName} '
+                                            '${votingExclusions[index].participant.lastName}'),
+                                      ],
+                                    ),
+                                    if (index == votingExclusions.length)
+                                      FilledButton(
+                                        onPressed: () {
+                                          //todo aggiungere dialog per esclusioni
+                                        },
+                                        child: Text('Add'),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          )
+                        : FilledButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    //todo dialog per aggiunta esclusione
+                                  );
+                                },
+                              );
+                            },
+                            child: Text('Add'),
                           ),
-                          Row(
-                            children: [
-                              Text('Participant: '),
-                              Text('${votingExclusions[index].participant.firstName} '
-                                  '${votingExclusions[index].participant.lastName}'),
-                            ],
-                          ),
-                          if (index == votingExclusions.length)
-                            FilledButton(
-                              onPressed: () {
-                                //todo aggiungere dialog per esclusioni
-                              },
-                              child: Text('Add'),
-                            ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -366,62 +399,66 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   : Theme.of(context).colorScheme.grey9,
             ),
           ),
-          content: Form(
-            key: thirdFormKey,
-            child: ListView(
-              children: [
-                Text('Voting type'),
-                RadioListTile<VotingType>.adaptive(
-                  title: Text('Not timed'),
-                  value: VotingType.notTimed,
-                  groupValue: votingType,
-                  onChanged: (value) {
-                    setState(() {
-                      votingType = value!;
-                      reviewType = ReviewType.absent;
-                    });
-                  },
-                ),
-                RadioListTile<VotingType>.adaptive(
-                  title: Text('Timed'),
-                  value: VotingType.timed,
-                  groupValue: votingType,
-                  onChanged: (value) {
-                    setState(() {
-                      votingType = value!;
-                    });
-                  },
-                ),
-                (votingType == VotingType.timed)
-                    ? Column(
-                        children: [
-                          Text('Review'),
-                          RadioListTile<ReviewType>.adaptive(
-                            title: Text('Absent'),
-                            value: ReviewType.absent,
-                            groupValue: reviewType,
-                            onChanged: (value) {
-                              setState(() {
-                                reviewType = ReviewType.absent;
-                              });
-                            },
-                          ),
-                          RadioListTile<ReviewType>.adaptive(
-                            title: Text('Timed'),
-                            value: ReviewType.timed,
-                            groupValue: reviewType,
-                            onChanged: (value) {
-                              setState(() {
-                                reviewType = ReviewType.timed;
-                              });
-                            },
-                          ),
-                        ],
-                      )
-                    : SizedBox.shrink(),
-              ],
-            ),
-          ),
+          content: Placeholder(),
+          // content: Form(
+          //   key: thirdFormKey,
+          //   child: Flexible(
+          //     fit: FlexFit.tight,
+          //     child: ListView(
+          //       children: [
+          //         Text('Voting type'),
+          //         RadioListTile<VotingType>.adaptive(
+          //           title: Text('Not timed'),
+          //           value: VotingType.notTimed,
+          //           groupValue: votingType,
+          //           onChanged: (value) {
+          //             setState(() {
+          //               votingType = value!;
+          //               reviewType = ReviewType.absent;
+          //             });
+          //           },
+          //         ),
+          //         RadioListTile<VotingType>.adaptive(
+          //           title: Text('Timed'),
+          //           value: VotingType.timed,
+          //           groupValue: votingType,
+          //           onChanged: (value) {
+          //             setState(() {
+          //               votingType = value!;
+          //             });
+          //           },
+          //         ),
+          //         (votingType == VotingType.timed)
+          //             ? Column(
+          //                 children: [
+          //                   Text('Review'),
+          //                   RadioListTile<ReviewType>.adaptive(
+          //                     title: Text('Absent'),
+          //                     value: ReviewType.absent,
+          //                     groupValue: reviewType,
+          //                     onChanged: (value) {
+          //                       setState(() {
+          //                         reviewType = ReviewType.absent;
+          //                       });
+          //                     },
+          //                   ),
+          //                   RadioListTile<ReviewType>.adaptive(
+          //                     title: Text('Timed'),
+          //                     value: ReviewType.timed,
+          //                     groupValue: reviewType,
+          //                     onChanged: (value) {
+          //                       setState(() {
+          //                         reviewType = ReviewType.timed;
+          //                       });
+          //                     },
+          //                   ),
+          //                 ],
+          //               )
+          //             : SizedBox.shrink(),
+          //       ],
+          //     ),
+          //   ),
+          // ),
         ),
         //* Fourth step
         Step(
@@ -437,10 +474,11 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   : Theme.of(context).colorScheme.grey9,
             ),
           ),
-          content: Form(
-            key: fourthFormKey,
-            child: Placeholder(),
-          ),
+          content: Placeholder(),
+          // content: Form(
+          //   key: fourthFormKey,
+          //   child: Placeholder(),
+          // ),
         ),
       ];
 }

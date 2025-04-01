@@ -2,26 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/data_models/user/user.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
-import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_details_tab.dart';
-import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_voting_tab.dart';
-import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_your_work_tab.dart';
+import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
+import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_voting_tab.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
-class ParticipantContestDetailsPage extends StatefulWidget {
+class JurorContestDetailsPage extends StatefulWidget {
   final String contestId;
 
-  const ParticipantContestDetailsPage({required this.contestId, super.key});
+  const JurorContestDetailsPage({required this.contestId, super.key});
 
   @override
-  State<ParticipantContestDetailsPage> createState() => _ParticipantContestDetailsPageState();
+  State<JurorContestDetailsPage> createState() => _JurorContestDetailsPageState();
 }
 
-class _ParticipantContestDetailsPageState extends State<ParticipantContestDetailsPage> {
+class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
   late String contestId;
   late User user;
 
@@ -39,12 +38,12 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ParticipantContestDetailsPageBloc>(
-      create: (context) => ParticipantContestDetailsPageBloc(
+    return BlocProvider(
+      create: (context) => JurorContestDetailsPageBloc(
+        workRepository: context.read<WorkRepository>(),
         contestRepository: context.read<ContestRepository>(),
         profileRepository: context.read<ProfileRepository>(),
         participationRepository: context.read<ParticipationRepository>(),
-        workRepository: context.read<WorkRepository>(),
       ),
       child: Scaffold(
         appBar: AppBar(
@@ -76,7 +75,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
                 child: DefaultTabController(
-                  length: 3,
+                  length: 2,
                   child: Column(
                     children: [
                       Padding(
@@ -104,7 +103,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                                   ),
                                   tabs: [
                                     Tab(text: 'Details'),
-                                    Tab(text: 'Your work'),
+                                    // Tab(text: 'Works'),
                                     Tab(text: 'Voting'),
                                   ],
                                 ),
@@ -119,12 +118,8 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                           child: TabBarView(
                             physics: NeverScrollableScrollPhysics(),
                             children: [
-                              ParticipantDetailsTab(contestId: contestId),
-                              ParticipantYourWorkTab(
-                                contestId: contestId,
-                                userId: user.id,
-                              ),
-                              ParticipantVotingTab(),
+                              JurorDetailsTab(contestId: contestId),
+                              JurorVotingTab(),
                             ],
                           ),
                         ),

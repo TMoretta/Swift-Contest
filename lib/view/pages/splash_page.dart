@@ -30,10 +30,10 @@ class _SplashPageState extends State<SplashPage> {
               height: constraints.maxHeight,
               child: BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state is AuthAuthenticated) {
+                  if (state.status.isAuthenticated) {
                     context.goNamed(AppRouter.home);
                   }
-                  if (state is AuthUnauthenticated) {
+                  if (state.status.isUnauthenticated) {
                     context.goNamed(AppRouter.signIn);
                   }
                 },
