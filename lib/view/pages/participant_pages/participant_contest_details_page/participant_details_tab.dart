@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/contest/contest_status.dart';
+import 'package:swift_contest/model/enums/contest_status.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 
@@ -26,7 +26,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
     if(state.contest == null) {
       context
           .read<ParticipantContestDetailsPageBloc>()
-          .add(ParticipantContestDetailsPageGetExtendedContest(contestId: widget.contestId));
+          .add(ParticipantContestDetailsPageGetContestMainInfo(contestId: widget.contestId));
     }
   }
 
@@ -45,10 +45,11 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
         if (state.status.isSuccess) {
           final contest = state.contest!;
           final organizer = state.organizer!;
+          final place = state.place!;
           return RefreshIndicator.adaptive(
             onRefresh: () async {
               context.read<ParticipantContestDetailsPageBloc>().add(
-                  ParticipantContestDetailsPageGetExtendedContest(contestId: widget.contestId));
+                  ParticipantContestDetailsPageGetContestMainInfo(contestId: widget.contestId));
             },
             child: ListView(
               children: [
@@ -72,7 +73,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         Icon(
                           Icons.circle,
                           size: 20,
-                          color: switch (contest.status) {
+                          color: switch (contest.contestStatus) {
                             ContestStatus.preparationPhase =>
                               Theme.of(context).colorScheme.statusPreparation,
                             ContestStatus.participationPhase =>
@@ -84,7 +85,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           },
                         ),
                         Text(
-                          switch (contest.status) {
+                          switch (contest.contestStatus) {
                             ContestStatus.preparationPhase => 'Preparation phase',
                             ContestStatus.participationPhase => 'Participation phase',
                             ContestStatus.votingPhase => 'Voting phase',
@@ -94,7 +95,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: switch (contest.status) {
+                            color: switch (contest.contestStatus) {
                               ContestStatus.preparationPhase =>
                                 Theme.of(context).colorScheme.statusPreparation,
                               ContestStatus.participationPhase =>
@@ -181,7 +182,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                     ),
                     Expanded(
                       child: Text(
-                        '${organizer.firstName} ${organizer.lastName}',
+                        organizer.fullName,
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -201,7 +202,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                     ),
                     Expanded(
                       child: Text(
-                        contest.place.address,
+                        place.address,
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -246,7 +247,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                       children: [
                         Text('From:'),
                         Text(
-                          DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksDateTimeFrom),
+                          DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionFrom),
                         ),
                       ],
                     ),
@@ -258,7 +259,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                       children: [
                         Text('To:'),
                         Text(
-                          DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksDateTimeTo),
+                          DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionTo),
                         ),
                       ],
                     ),
@@ -272,7 +273,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
           onRefresh: () async {
             context
                 .read<ParticipantContestDetailsPageBloc>()
-                .add(ParticipantContestDetailsPageGetExtendedContest(contestId: widget.contestId));
+                .add(ParticipantContestDetailsPageGetContestMainInfo(contestId: widget.contestId));
           },
           child: ListView(),
         );

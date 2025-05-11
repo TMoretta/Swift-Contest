@@ -1,17 +1,17 @@
-import 'package:swift_contest/model/data_models/juration/juration.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
+import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/data_models/juration.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 
-class JurationAndJuror {
+class JurationAndJuror extends Equatable {
   final Juration juration;
-  final Profile? juror;
+  final Juror? juror;
 
-  JurationAndJuror({required this.juration, required this.juror});
+  const JurationAndJuror({required this.juration, required this.juror});
 
   factory JurationAndJuror.fromJson(Map<String, dynamic> map) {
-    final jurorMap = map['juror'];
     return JurationAndJuror(
       juration: Juration.fromJson(map['juration'] as Map<String, dynamic>),
-      juror: (jurorMap != null) ? Profile.fromJson(map['juror'] as Map<String, dynamic>) : null,
+      juror: map['juror'] != null ? Juror.fromJson(map['juror'] as Map<String, dynamic>) : null,
     );
   }
 
@@ -21,4 +21,7 @@ class JurationAndJuror {
       'juror': juror?.toJson(),
     };
   }
+
+  @override
+  List<Object?> get props => [juration, juror];
 }

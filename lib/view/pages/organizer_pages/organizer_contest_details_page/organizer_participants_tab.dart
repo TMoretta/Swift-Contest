@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/contest/contest.dart';
-import 'package:swift_contest/model/data_models/participation/participation_status.dart';
+import 'package:swift_contest/model/data_models/contest.dart';
+import 'package:swift_contest/model/data_models/invitation.dart';
+import 'package:swift_contest/model/enums/participant_status.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/edge_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/voting_form_field_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
@@ -27,7 +32,8 @@ class OrganizerParticipantsTab extends StatefulWidget {
   });
 
   @override
-  State<OrganizerParticipantsTab> createState() => _OrganizerParticipantsTabState();
+  State<OrganizerParticipantsTab> createState() =>
+      _OrganizerParticipantsTabState();
 }
 
 class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
@@ -38,26 +44,24 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
   void initState() {
     super.initState();
     contestId = widget.contestId;
-    // final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    // if(state.status.isInitial ||state.contest == null) {
-    //   context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
-    // }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if(state.status.isInitial || state.contest == null) {
-      context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+    if (state.status.isInitial || state.contest == null) {
+      context.read<OrganizerContestDetailsPageBloc>().add(
+          OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+    return BlocConsumer<OrganizerContestDetailsPageBloc,
+        OrganizerContestDetailsPageState>(
       listener: (context, state) {
-        if(state.status.isFailure) {
+        if (state.status.isFailure) {
           showSnackBar(context: context, text: state.message!);
         }
       },
@@ -68,27 +72,28 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
         if (state.status.isSuccess) {
           contest = state.contest!;
           final invitationFormKey = GlobalKey<FormState>();
-          String? email;
 
-          final List<ParticipationAndParticipant> participationsAndParticipantsJoined = [];
-          final List<ParticipationAndParticipant> participationsAndParticipantsAttended = [];
-          final List<ParticipationAndParticipant> participationsAndParticipantsLeft = [];
+          final List<ParticipationAndParticipant>
+              participationsAndParticipantsJoined = [];
+          final List<Invitation> participantsInvitations = state.participantsInvitations!;
+          final List<ParticipationAndParticipant>
+              participationsAndParticipantsLeft = [];
 
           for (var i = 0; i < state.participations!.length; i++) {
             final participation = state.participations![i];
             final participant = state.participants![i];
-            switch (participation.status) {
-              case ParticipationStatus.joined:
+            switch (participation.participantStatus) {
+              case ParticipantStatus.joined:
                 participationsAndParticipantsJoined.add(
-                    ParticipationAndParticipant(participation: participation, participant: participant));
+                    ParticipationAndParticipant(
+                        participation: participation,
+                        participant: participant));
                 break;
-              case ParticipationStatus.attended:
-                participationsAndParticipantsAttended.add(
-                    ParticipationAndParticipant(participation: participation, participant: participant));
-                break;
-              case ParticipationStatus.left:
+              case ParticipantStatus.left:
                 participationsAndParticipantsLeft.add(
-                    ParticipationAndParticipant(participation: participation, participant: participant));
+                    ParticipationAndParticipant(
+                        participation: participation,
+                        participant: participant));
                 break;
             }
           }
@@ -105,7 +110,8 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                   children: [
                     Text(
                       'Participants',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                     ),
                     Align(
                       alignment: Alignment.center,
@@ -115,7 +121,8 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                           height: 30,
                           child: TabBar(
                             labelColor: Theme.of(context).colorScheme.white,
-                            unselectedLabelColor: Theme.of(context).colorScheme.grey7,
+                            unselectedLabelColor:
+                                Theme.of(context).colorScheme.grey7,
                             isScrollable: true,
                             dividerColor: Colors.transparent,
                             tabAlignment: TabAlignment.center,
@@ -142,121 +149,122 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                           //* Joined
                           (participationsAndParticipantsJoined.isEmpty)
                               ? RefreshIndicator.adaptive(
-                              onRefresh: () async => context
-                                  .read<OrganizerContestDetailsPageBloc>()
-                                  .add(OrganizerContestDetailsPageGetExtendedContest(
-                                  contestId: widget.contestId)),
-                              child: ListView(children: [Text('No participant joined yet.')]))
+                                  onRefresh: () async => context
+                                      .read<OrganizerContestDetailsPageBloc>()
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView(children: [
+                                    Text('No participant joined yet.')
+                                  ]))
                               : RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<OrganizerContestDetailsPageBloc>()
-                                .add(OrganizerContestDetailsPageGetExtendedContest(
-                                contestId: widget.contestId)),
-                            child: ListView.builder(
-                              itemCount: participationsAndParticipantsJoined.length,
-                              itemBuilder: (context, index) {
-                                if (participationsAndParticipantsJoined[index]
-                                    .participation
-                                    .status ==
-                                    ParticipationStatus.joined) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        // top: BorderSide(color: Colors.grey),
-                                        bottom: BorderSide(color: Colors.grey),
-                                      ),
-                                    ),
-                                    child: ListTile(
-                                      title: Text(
-                                          '${participationsAndParticipantsJoined[index].participant!.firstName} '
-                                              '${participationsAndParticipantsJoined[index].participant!.lastName}'),
-                                      subtitle: Text(
-                                          'Invite email: ${participationsAndParticipantsJoined[index].participation.inviteEmail}'),
-                                    ),
-                                  );
-                                }
-                                return SizedBox.shrink();
-                              },
-                            ),
-                          ),
+                                  onRefresh: () async => context
+                                      .read<OrganizerContestDetailsPageBloc>()
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView.builder(
+                                    itemCount:
+                                        participationsAndParticipantsJoined
+                                            .length,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            // top: BorderSide(color: Colors.grey),
+                                            bottom:
+                                                BorderSide(color: Colors.grey),
+                                          ),
+                                        ),
+                                        child: ListTile(
+                                          title: Text(
+                                              participationsAndParticipantsJoined[
+                                                      index]
+                                                  .participant!
+                                                  .fullName),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
 
                           //* Attended
-                          (participationsAndParticipantsAttended.isEmpty)
+                          (participantsInvitations.isEmpty)
                               ? RefreshIndicator.adaptive(
-                              onRefresh: () async => context
-                                  .read<OrganizerContestDetailsPageBloc>()
-                                  .add(OrganizerContestDetailsPageGetExtendedContest(
-                                  contestId: widget.contestId)),
-                              child:
-                              ListView(children: [Text('No participant attended. Invite one')]))
+                                  onRefresh: () async => context
+                                      .read<OrganizerContestDetailsPageBloc>()
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView(children: [
+                                    Text('No participant attended. Invite one')
+                                  ]))
                               : RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<OrganizerContestDetailsPageBloc>()
-                                .add(OrganizerContestDetailsPageGetExtendedContest(
-                                contestId: widget.contestId)),
-                            child: ListView.builder(
-                              itemCount: participationsAndParticipantsAttended.length,
-                              itemBuilder: (context, index) {
-                                if (participationsAndParticipantsAttended[index]
-                                    .participation
-                                    .status ==
-                                    ParticipationStatus.attended) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        // top: BorderSide(color: Colors.grey),
-                                        bottom: BorderSide(color: Colors.grey),
-                                      ),
-                                    ),
-                                    child: ListTile(
-                                      title: Text(participationsAndParticipantsAttended[index]
-                                          .participation
-                                          .inviteEmail),
-                                    ),
-                                  );
-                                }
-                                return SizedBox.shrink();
-                              },
-                            ),
-                          ),
+                                  onRefresh: () async => context
+                                      .read<OrganizerContestDetailsPageBloc>()
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView.builder(
+                                    itemCount: participantsInvitations.length,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            // top: BorderSide(color: Colors.grey),
+                                            bottom:
+                                                BorderSide(color: Colors.grey),
+                                          ),
+                                        ),
+                                        child: ListTile(
+                                          title: Text(
+                                              participantsInvitations[index]
+                                                  .email),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
 
                           //* Left
                           (participationsAndParticipantsLeft.isEmpty)
                               ? RefreshIndicator.adaptive(
-                              onRefresh: () async => context
-                                  .read<OrganizerContestDetailsPageBloc>()
-                                  .add(OrganizerContestDetailsPageGetExtendedContest(
-                                  contestId: widget.contestId)),
-                              child: ListView(children: [Text('No participant left')]))
+                                  onRefresh: () async => context
+                                      .read<OrganizerContestDetailsPageBloc>()
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView(
+                                      children: [Text('No participant left')]))
                               : RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<OrganizerContestDetailsPageBloc>()
-                                .add(OrganizerContestDetailsPageGetExtendedContest(
-                                contestId: widget.contestId)),
-                            child: ListView.builder(
-                              itemCount: participationsAndParticipantsLeft.length,
-                              itemBuilder: (context, index) {
-                                if (participationsAndParticipantsLeft[index].participation.status ==
-                                    ParticipationStatus.left) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        // top: BorderSide(color: Colors.grey),
-                                        bottom: BorderSide(color: Colors.grey),
-                                      ),
-                                    ),
-                                    child: ListTile(
-                                      title: Text(
-                                          '${participationsAndParticipantsLeft[index].participant!.firstName} ${participationsAndParticipantsLeft[index].participant!.lastName}'),
-                                      subtitle: Text(
-                                          'Invite email: ${participationsAndParticipantsLeft[index].participation.inviteEmail}'),
-                                    ),
-                                  );
-                                }
-                                return SizedBox.shrink();
-                              },
-                            ),
-                          ),
+                                  onRefresh: () async => context
+                                      .read<OrganizerContestDetailsPageBloc>()
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView.builder(
+                                    itemCount: participationsAndParticipantsLeft
+                                        .length,
+                                    itemBuilder: (context, index) {
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              // top: BorderSide(color: Colors.grey),
+                                              bottom: BorderSide(
+                                                  color: Colors.grey),
+                                            ),
+                                          ),
+                                          child: ListTile(
+                                            title: Text(
+                                                participationsAndParticipantsLeft[
+                                                        index]
+                                                    .participant!
+                                                    .fullName),
+                                          ),
+                                        );
+                                    },
+                                  ),
+                                ),
                         ],
                       ),
                     ),
@@ -269,6 +277,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                 right: 0,
                 child: FilledButton(
                   onPressed: () {
+                    final emailController = TextEditingController();
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -279,33 +288,48 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                           content: Form(
                             key: invitationFormKey,
                             child: CustomTextFormFieldUnderlined(
+                              controller: emailController,
                               label: 'Email',
-                              onChanged: (value) => email = value,
                               validator: _emailValidator,
                             ),
                           ),
                           actions: [
                             BlocProvider<OrganizerContestDetailsPageBloc>(
-                              create: (context) => OrganizerContestDetailsPageBloc(
-                                participationRepository: context.read<ParticipationRepository>(),
-                                jurationRepository: context.read<JurationRepository>(),
-                                edgeRepository: context.read<EdgeRepository>(),
-                                profileRepository: context.read<ProfileRepository>(),
-                                contestRepository: context.read<ContestRepository>(),
-                                workRepository: context.read<WorkRepository>(),
-                                votingFormRepository: context.read<VotingFormRepository>(),
-                              ),
-                              child: BlocConsumer<OrganizerContestDetailsPageBloc,
+                              create: (context) =>
+                                  OrganizerContestDetailsPageBloc(
+                                    participationRepository: context.read(),
+                                    jurationRepository: context.read(),
+                                    edgeRepository: context.read(),
+                                    profileRepository: context.read(),
+                                    contestRepository: context.read(),
+                                    workRepository: context.read(),
+                                    votingFormRepository: context.read(),
+                                    utilsRepository: context.read(),
+                                    votingFormFieldRepository: context.read(),
+                                    placeRepository: context.read(),
+                                    invitationRepository: context.read(),
+                                    voteRepository: context.read(),
+                                    votingRepository: context.read(),
+                                    votingSessionProcedureRepository: context.read(),
+                                    votingSessionRepository: context.read(),
+                                    votingSessionParticipantRepository: context.read(),
+                                    votingSessionJurorRepository: context.read(),
+                                  ),
+                              child: BlocConsumer<
+                                  OrganizerContestDetailsPageBloc,
                                   OrganizerContestDetailsPageState>(
                                 listener: (context, state) {
                                   if (state.status == BlocStatus.success) {
                                     context.pop();
-                                    showSnackBar(context: context, text: 'Email sent successfully');
+                                    showSnackBar(
+                                        context: context,
+                                        text: 'Email sent successfully');
                                   }
                                   if (state.status == BlocStatus.failure) {
                                     showSnackBar(
                                         context: context,
-                                        text: 'Email not sent. Error: ${state.message}');
+                                        text:
+                                            'Email not sent. Error: ${state.message}');
                                   }
                                 },
                                 builder: (context, state) {
@@ -323,13 +347,18 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          if (invitationFormKey.currentState?.validate() ?? false) {
+                                          if (invitationFormKey.currentState
+                                                  ?.validate() ??
+                                              false) {
                                             context
-                                                .read<OrganizerContestDetailsPageBloc>()
-                                                .add(OrganizerContestDetailsPageSendParticipantInvite(
-                                              contest: contest!,
-                                              email: email!,
-                                            ));
+                                                .read<
+                                                    OrganizerContestDetailsPageBloc>()
+                                                .add(
+                                                    OrganizerContestDetailsPageSendParticipantInvite(
+                                                  contest: contest!,
+                                                  email: emailController.text
+                                                      .trim(),
+                                                ));
                                           }
                                         },
                                         child: const Text('Ok'),
@@ -350,11 +379,12 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
             ],
           );
         }
-        return RefreshIndicator.adaptive(onRefresh: () async {
-          context
-              .read<OrganizerContestDetailsPageBloc>()
-              .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId));
-        },
+        return RefreshIndicator.adaptive(
+          onRefresh: () async {
+            context.read<OrganizerContestDetailsPageBloc>().add(
+                OrganizerContestDetailsPageGetContestMainInfo(
+                    contestId: widget.contestId));
+          },
           child: ListView(),
         );
       },

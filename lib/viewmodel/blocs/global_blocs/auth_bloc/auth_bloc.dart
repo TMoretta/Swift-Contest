@@ -4,8 +4,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
-import 'package:swift_contest/model/data_models/user/user.dart' as my;
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/data_models/user.dart' as my;
 import 'package:swift_contest/model/services/user_service.dart';
 import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
 
@@ -20,6 +20,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         super(AuthState(status: AuthStatus.initial)) {
     on<AuthChanged>(_authChanged);
     on<AuthCheckInitialSessionWithDelay>(_checkInitialSessionWithDelay);
+    on<AuthUnauthenticate>(_unauthenticate);
     _userRepository.authChanges.listen((authChange) {
       add(AuthChanged(authChange: authChange));
     });
@@ -50,7 +51,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthState(status: AuthStatus.authenticated, user: user));
         break;
       case AuthChangeEvent.signedOut:
-        emit(AuthState(status: AuthStatus.unauthenticated));
+        // emit(AuthState(status: AuthStatus.unauthenticated));
         break;
       case AuthChangeEvent.tokenRefreshed:
         // if (session == null) {
@@ -76,5 +77,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           (failure) => emit(AuthState(status: AuthStatus.unauthenticated)),
           (user) => emit(AuthState(status: AuthStatus.authenticated, user: user)),
     );
+  }
+
+  FutureOr<void> _unauthenticate(AuthUnauthenticate event, Emitter<AuthState> emit,)async {
+    emit(AuthState(status: AuthStatus.unauthenticated));
   }
 }

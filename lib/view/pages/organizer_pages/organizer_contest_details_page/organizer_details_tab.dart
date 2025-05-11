@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/contest/contest_status.dart';
+import 'package:swift_contest/model/enums/contest_status.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 
@@ -24,10 +24,6 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
   void initState() {
     super.initState();
     contestId = widget.contestId;
-    // final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    // if(state.status.isInitial || state.contest == null) {
-    //   context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
-    // }
   }
 
   @override
@@ -35,7 +31,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
     super.didChangeDependencies();
     final state = context.read<OrganizerContestDetailsPageBloc>().state;
     if(state.status.isInitial || state.contest == null) {
-      context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+      context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId));
     }
   }
 
@@ -55,7 +51,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
           return RefreshIndicator.adaptive(
             onRefresh: () async => context
                 .read<OrganizerContestDetailsPageBloc>()
-                .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId)),
+                .add(OrganizerContestDetailsPageGetContestMainInfo(contestId: widget.contestId)),
             child: ListView(
               physics: AlwaysScrollableScrollPhysics(),
               children: [
@@ -80,7 +76,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         Icon(
                           Icons.circle,
                           size: 20,
-                          color: switch (state.contest!.status) {
+                          color: switch (state.contest!.contestStatus) {
                             ContestStatus.preparationPhase =>
                             Theme.of(context).colorScheme.statusPreparation,
                             ContestStatus.participationPhase =>
@@ -92,7 +88,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           },
                         ),
                         Text(
-                          switch (state.contest!.status) {
+                          switch (state.contest!.contestStatus) {
                             ContestStatus.preparationPhase => 'Preparation phase',
                             ContestStatus.participationPhase => 'Participation phase',
                             ContestStatus.votingPhase => 'Voting phase',
@@ -102,7 +98,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: switch (state.contest!.status) {
+                            color: switch (state.contest!.contestStatus) {
                               ContestStatus.preparationPhase =>
                               Theme.of(context).colorScheme.statusPreparation,
                               ContestStatus.participationPhase =>
@@ -128,14 +124,20 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: Image.network(
+                        child: (state.contest!.imagesUrls.isNotEmpty) ? Image.network(
                           state.contest!.imagesUrls[index],
                           fit: BoxFit.contain,
                           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                             if (wasSynchronouslyLoaded || frame != null) return child;
                             return const Loader();
                           },
-                        ),
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/images/image_not_found.jpg',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ) : Image.asset('assets/images/image_not_found.jpg', fit: BoxFit.contain),
                       );
                     },
                   ),
@@ -169,7 +171,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                     ),
                     Expanded(
                       child: Text(
-                        '${state.organizer!.firstName} ${state.organizer!.lastName}',
+                        state.organizer!.fullName,
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -190,7 +192,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                     ),
                     Expanded(
                       child: Text(
-                        state.contest!.place.address,
+                        state.place!.address,
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -237,7 +239,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                       children: [
                         Text('From:'),
                         Text(
-                          DateFormat('dd MMM, yyyy | HH:mm').format(state.contest!.worksDateTimeFrom),
+                          DateFormat('dd MMM, yyyy | HH:mm').format(state.contest!.worksSubmissionFrom),
                         ),
                       ],
                     ),
@@ -249,7 +251,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                       children: [
                         Text('To:'),
                         Text(
-                          DateFormat('dd MMM, yyyy | HH:mm').format(state.contest!.worksDateTimeTo),
+                          DateFormat('dd MMM, yyyy | HH:mm').format(state.contest!.worksSubmissionTo),
                         ),
                       ],
                     ),
@@ -267,7 +269,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      (state.contest!.worksPreviewJurors) ? 'At participation\'s closure' : 'Never',
+                      (state.contest!.isJurorsWorksPreviewEnabled) ? 'At participation\'s closure' : 'Never',
                       style: TextStyle(fontSize: 16),
                     ),
                   ],
@@ -279,9 +281,9 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
         return RefreshIndicator.adaptive(onRefresh: () async {
           context
               .read<OrganizerContestDetailsPageBloc>()
-              .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId));
+              .add(OrganizerContestDetailsPageGetContestMainInfo(contestId: widget.contestId));
         },
-        child: ListView(),
+          child: ListView(),
         );
       },
     );

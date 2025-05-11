@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
-import 'package:swift_contest/model/data_models/user/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/juror_joined_contests_bloc/juror_joined_contests_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/organizer_created_contests_bloc/organizer_created_contests_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/global_blocs/participant_joined_contests_bloc/participant_joined_contests_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/settings_page_bloc/settings_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
@@ -162,7 +166,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
                               ),
                               Text(
-                                profile.prefAppTheme.name,
+                                profile.prefTheme.name,
                                 style: TextStyle(
                                     fontSize: 12, color: Theme.of(context).colorScheme.grey8),
                               ),
@@ -205,69 +209,58 @@ class _SettingsPageState extends State<SettingsPage> {
                         ],
                       ),
                     ),
-                    //* Language option
-                    TextButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(LinearBorder()),
-                        padding: WidgetStatePropertyAll(
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 24)),
-                      ),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Icon(
-                            Icons.language,
-                            size: 28,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                profile.prefAppLanguage.name,
-                                style: TextStyle(
-                                    fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                              ),
-                              Text(
-                                'English',
-                                style: TextStyle(
-                                    fontSize: 12, color: Theme.of(context).colorScheme.grey8),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
                     //* Logout option
-                    TextButton(
-                      onPressed: () {
-                        context.read<SettingsPageBloc>().add(SettingsPageSignOut());
-                      },
-                      style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(LinearBorder()),
-                        padding: WidgetStatePropertyAll(
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 24)),
+                    BlocProvider<SettingsPageBloc>(
+                      create: (context) => SettingsPageBloc(
+                        userRepository: context.read<UserRepository>(),
+                        profileRepository: context.read<ProfileRepository>(),
                       ),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Icon(
-                            Icons.logout,
-                            size: 28,
-                            color: Theme.of(context).colorScheme.statusRed,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Logout',
-                                style: TextStyle(
-                                    fontSize: 16, color: Theme.of(context).colorScheme.statusRed),
-                              ),
-                            ],
-                          ),
-                        ],
+                      child: BlocConsumer<SettingsPageBloc, SettingsPageState>(
+                        listener: (context, state) async {
+                          if (state.status.isFailure) {
+                            showSnackBar(context: context, text: state.message!);
+                          }
+                          if (state.status.isSuccess) {
+                            context.read<ContestRoleBloc>().add(ContestRoleClear());
+                            context.read<OrganizerCreatedContestsBloc>().add(OrganizerCreatedContestsClear());
+                            context.read<ParticipantJoinedContestsBloc>().add(ParticipantJoinedContestsClear());
+                            context.read<JurorJoinedContestsBloc>().add(JurorJoinedContestsClear());
+                            context.read<AuthBloc>().add(AuthUnauthenticate());
+                          }
+                        },
+                        builder: (context, state) {
+                          return TextButton(
+                            onPressed: () async {
+                              context.read<SettingsPageBloc>().add(SettingsPageSignOut());
+                            },
+                            style: ButtonStyle(
+                              shape: WidgetStatePropertyAll(LinearBorder()),
+                              padding: WidgetStatePropertyAll(
+                                  EdgeInsets.symmetric(horizontal: 16, vertical: 24)),
+                            ),
+                            child: Row(
+                              spacing: 12,
+                              children: [
+                                Icon(
+                                  Icons.logout,
+                                  size: 28,
+                                  color: Theme.of(context).colorScheme.statusRed,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Logout',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.statusRed),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],

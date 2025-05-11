@@ -1,27 +1,28 @@
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/contest/place.dart';
-import 'package:swift_contest/model/data_models/user/user.dart';
+import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/date_picker_field.dart';
+import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/place_picker_field.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/view/widgets/time_picker_field.dart';
+import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
+import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_creation_page_bloc/organizer_contest_creation_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/storage_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
 
 class OrganizerContestCreationPage extends StatefulWidget {
   const OrganizerContestCreationPage({super.key});
@@ -46,11 +47,11 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   TimeOfDay? time;
   final placeController = TextEditingController();
   GooglePlace? place;
-  final worksDateTimeFromController = TextEditingController();
-  DateTime? worksDateTimeFrom;
-  final worksDateTimeToController = TextEditingController();
-  DateTime? worksDateTimeTo;
-  bool worksPreviewJurors = false;
+  final worksSubmissionFromController = TextEditingController();
+  DateTime? worksSubmissionFrom;
+  final worksSubmissionToController = TextEditingController();
+  DateTime? worksSubmissionTo;
+  bool isJurorsWorksPreviewEnabled = false;
   final List<XFile> images = [];
 
   @override
@@ -65,8 +66,16 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
       create: (context) => OrganizerContestCreationPageBloc(
         contestRepository: context.read<ContestRepository>(),
         storageRepository: context.read<StorageRepository>(),
+        placeRepository: context.read<PlaceRepository>(),
+        utilsRepository: context.read<UtilsRepository>(),
+        votingFormRepository: context.read<VotingFormRepository>(),
       ),
-      child: BlocBuilder<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
+      child: BlocConsumer<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
+        listener: (context, state) {
+          if(state.status.isFailure) {
+            showSnackBar(context: context, text: state.message!);
+          }
+        },
         builder: (context, state) {
           return Scaffold(
             appBar: CustomAppBar(title: 'Contest Creation'),
@@ -83,20 +92,22 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                     final name = nameController.text;
                     final description = descriptionController.text;
                     final dateTime =
-                        DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
+                    DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
                     context.read<OrganizerContestCreationPageBloc>().add(
-                          OrganizerContestCreationPageCreateContest(
-                            name: name,
-                            description: description,
-                            organizerId: user.id,
-                            place: Place(address: place!.address, lat: place!.lat, lon: place!.lon),
-                            worksPreviewJurors: worksPreviewJurors,
-                            dateTime: dateTime,
-                            worksDateTimeFrom: worksDateTimeFrom!,
-                            worksDateTimeTo: worksDateTimeTo!,
-                            images: images,
-                          ),
-                        );
+                      OrganizerContestCreationPageCreateContest(
+                        name: name,
+                        description: description,
+                        organizerId: user.id,
+                        placeAddress: place!.address,
+                        placeLat: place!.lat,
+                        placeLon: place!.lon,
+                        isJurorsWorksPreviewEnabled: isJurorsWorksPreviewEnabled,
+                        dateTime: dateTime,
+                        worksSubmissionFrom: worksSubmissionFrom!,
+                        worksSubmissionTo: worksSubmissionTo!,
+                        images: images,
+                      ),
+                    );
                   } else {
                     setState(() => ++currentStep);
                   }
@@ -111,7 +122,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   margin: EdgeInsets.only(top: 20),
                   child: Row(
                     mainAxisAlignment:
-                        (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
+                    (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
                     spacing: 12,
                     children: [
                       if (details.currentStep != 0)
@@ -123,21 +134,21 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                         onPressed: details.onStepContinue,
                         child: isLastStep
                             ? BlocConsumer<OrganizerContestCreationPageBloc,
-                                OrganizerContestCreationPageState>(
-                                listener: (context, state) {
-                                  if (state.status.isSuccess) {
-                                    showSnackBar(
-                                        context: context, text: 'Contest created successfully');
-                                    context.pop(true);
-                                  }
-                                },
-                                builder: (context, state) {
-                                  if (state.status.isLoading) {
-                                    return Loader();
-                                  }
-                                  return Text('Create');
-                                },
-                              )
+                            OrganizerContestCreationPageState>(
+                          listener: (context, state) {
+                            if (state.status.isSuccess) {
+                              showSnackBar(
+                                  context: context, text: 'Contest created successfully');
+                              context.pop(true);
+                            }
+                          },
+                          builder: (context, state) {
+                            if (state.status.isLoading) {
+                              return Loader();
+                            }
+                            return Text('Create');
+                          },
+                        )
                             : Text('Next'),
                       ),
                     ],
@@ -153,220 +164,225 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
 
   //* Steps
   List<Step> getSteps() => [
-        //* Details
-        Step(
-          state: currentStep >= 1 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 0,
-          title: Text(
-            'Details',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: (currentStep == 0)
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.grey9,
-            ),
-          ),
-          content: Form(
-            key: detailsFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                CustomTextFormFieldOutlined(
-                  controller: nameController,
-                  label: 'Name',
-                  validator: (value) => nameValidator(value?.trim()),
-                ),
-                CustomTextFormFieldOutlined(
-                  controller: descriptionController,
-                  label: 'Description',
-                  validator: (value) => descriptionValidator(value?.trim()),
-                ),
-                DatePickerField(
-                  controller: dateController,
-                  label: 'Date',
-                  validator: (value) => dateValidator(value),
-                  onSelected: (dateValue) => date = dateValue,
-                ),
-                TimePickerField(
-                  controller: timeController,
-                  label: 'Time',
-                  validator: (value) => timeValidator(value),
-                  onSelected: (timeValue) => time = timeValue,
-                ),
-                PlacePickerField(
-                  controller: placeController,
-                  label: 'Location',
-                  validator: (value) => locationValidator(value),
-                  onSelected: (placeValue) => place = placeValue,
-                ),
-              ],
-            ),
-          ),
+    //* Details
+    Step(
+      state: currentStep >= 1 ? StepState.complete : StepState.indexed,
+      isActive: currentStep >= 0,
+      title: Text(
+        'Details',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: (currentStep == 0)
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.grey9,
         ),
-        //* Images
-        Step(
-          state: currentStep >= 2 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 1,
-          title: Text(
-            'Images',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: (currentStep == 1)
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.grey9,
+      ),
+      content: Form(
+        key: detailsFormKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            CustomTextFormFieldOutlined(
+              controller: nameController,
+              label: 'Name',
+              validator: (value) => nameValidator(value?.trim()),
             ),
-          ),
-          content: Form(
-            key: imagesFormKey,
-            child: FormField(
-              validator: (value) => imagesValidator(images),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              builder: (field) {
-                return Column(
-                  children: [
-                    (images.isEmpty)
-                        ? Center(child: Text('No images selected yet.'))
-                        : GridView.builder(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisSpacing: 4,
-                              crossAxisSpacing: 4,
-                            ),
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: images.length,
-                            itemBuilder: (context, index) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: (kIsWeb)
-                                    // ? buildImageForWeb(images[index])
-                                    ? Image.network(
-                                        images[index].path,
-                                        filterQuality: FilterQuality.medium,
-                                      )
-                                    : Image.file(
-                                        File(images[index].path),
-                                        fit: BoxFit.cover,
-                                        width: 5,
-                                        filterQuality: FilterQuality.medium,
-                                        frameBuilder:
-                                            (context, child, frame, wasSynchronouslyLoaded) {
-                                          if (wasSynchronouslyLoaded || frame != null) return child;
-                                          return const Loader();
-                                        },
-                                      ),
-                              );
-                            },
-                          ),
-                    FilledButton(
-                      onPressed: () async {
-                        final choice = await showImagesDialog(context: context);
-                        if (choice) {
-                          var res = await pickMultipleImages();
-                          if (res.isEmpty) return;
-                          if (res.length > 6) {
-                            res = res.getRange(0, 6).toList(growable: false);
-                            if (mounted) {
-                              showSnackBar(
-                                context: context,
-                                text: 'Exceeded images have been discarded',
-                              );
-                            }
-                          }
-                          setState(() {
-                            images.clear();
-                            images.addAll(res);
-                            field.didChange(images);
-                          });
+            CustomTextFormFieldOutlined(
+              controller: descriptionController,
+              label: 'Description',
+              validator: (value) => descriptionValidator(value?.trim()),
+            ),
+            DatePickerFormField(
+              controller: dateController,
+              label: 'Date',
+              validator: (value) => dateValidator(value),
+              onSelected: (dateValue) => date = dateValue,
+              prefixIcon: Icon(Icons.calendar_today_outlined),
+            ),
+            TimePickerFormField(
+              controller: timeController,
+              label: 'Time',
+              validator: (value) => timeValidator(value),
+              onSelected: (timeValue) => time = timeValue,
+              prefixIcon: Icon(Icons.access_time_outlined),
+            ),
+            PlacePickerFormField(
+              controller: placeController,
+              label: 'Location',
+              validator: (value) => locationValidator(value),
+              onSelected: (placeValue) => place = placeValue,
+              prefixIcon: Icon(Icons.place_outlined),
+            ),
+          ],
+        ),
+      ),
+    ),
+    //* Images
+    Step(
+      state: currentStep >= 2 ? StepState.complete : StepState.indexed,
+      isActive: currentStep >= 1,
+      title: Text(
+        'Images',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: (currentStep == 1)
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.grey9,
+        ),
+      ),
+      content: Form(
+        key: imagesFormKey,
+        child: FormField(
+          validator: (value) => imagesValidator(images),
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          builder: (field) {
+            return Column(
+              children: [
+                (images.isEmpty)
+                    ? Center(child: Text('No images selected yet.'))
+                    : GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 4,
+                    crossAxisSpacing: 4,
+                  ),
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: images.length,
+                  itemBuilder: (context, index) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: (kIsWeb)
+                      // ? buildImageForWeb(images[index])
+                          ? Image.network(
+                        images[index].path,
+                        filterQuality: FilterQuality.medium,
+                      )
+                          : Image.file(
+                        File(images[index].path),
+                        fit: BoxFit.cover,
+                        width: 5,
+                        filterQuality: FilterQuality.medium,
+                        frameBuilder:
+                            (context, child, frame, wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded || frame != null) return child;
+                          return const Loader();
+                        },
+                      ),
+                    );
+                  },
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final choice = await showImagesDialog(context: context);
+                    if (choice) {
+                      var res = await pickMultipleImages();
+                      if (res.isEmpty) return;
+                      if (res.length > 6) {
+                        res = res.getRange(0, 6).toList(growable: false);
+                        if (mounted) {
+                          showSnackBar(
+                            context: context,
+                            text: 'Exceeded images have been discarded',
+                          );
                         }
-                      },
-                      child: Text('Pick images'),
-                    ),
-                    if (field.hasError)
-                      Text('Select at least one image', style: TextStyle(color: Colors.red)),
-                  ],
+                      }
+                      setState(() {
+                        images.clear();
+                        images.addAll(res);
+                        field.didChange(images);
+                      });
+                    }
+                  },
+                  child: Text('Pick images'),
+                ),
+                if (field.hasError)
+                  Text('Select at least one image', style: TextStyle(color: Colors.red)),
+              ],
+            );
+          },
+        ),
+      ),
+    ),
+    //* Settings
+    Step(
+      state: currentStep >= 3 ? StepState.complete : StepState.indexed,
+      isActive: currentStep >= 2,
+      title: Text(
+        'Settings',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: (currentStep == 2)
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.grey9,
+        ),
+      ),
+      content: Form(
+        key: settingsFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            Text('Work upload deadline for participants',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            SizedBox(height: 10),
+            DatePickerFormField(
+              controller: worksSubmissionFromController,
+              label: 'Date from',
+              validator: (value) => workDateFromValidator(value),
+              onSelected: (workDateFromValue) => worksSubmissionFrom = workDateFromValue,
+              prefixIcon: Icon(Icons.calendar_today_outlined),
+            ),
+            DatePickerFormField(
+              controller: worksSubmissionToController,
+              label: 'Date to',
+              validator: (value) => workDateToValidator(value),
+              onSelected: (workDateToValue) => worksSubmissionTo = workDateToValue,
+              prefixIcon: Icon(Icons.calendar_today_outlined),
+            ),
+            SizedBox(height: 10),
+            Text('Works preview for invited jurors',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            RadioListTile<bool>(
+              title: Text('Never'),
+              value: false,
+              groupValue: isJurorsWorksPreviewEnabled,
+              contentPadding: EdgeInsets.all(1),
+              shape: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              onChanged: (value) {
+                setState(
+                      () => isJurorsWorksPreviewEnabled = value!,
                 );
               },
             ),
-          ),
-        ),
-        //* Settings
-        Step(
-          state: currentStep >= 3 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 2,
-          title: Text(
-            'Settings',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: (currentStep == 2)
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.grey9,
+            RadioListTile<bool>(
+              title: Text('At participation\'s closure'),
+              value: true,
+              groupValue: isJurorsWorksPreviewEnabled,
+              contentPadding: EdgeInsets.all(1),
+              shape: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              onChanged: (value) {
+                setState(
+                      () => isJurorsWorksPreviewEnabled = value!,
+                );
+              },
             ),
-          ),
-          content: Form(
-            key: settingsFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                Text('Work upload deadline for participants',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                SizedBox(height: 10),
-                DatePickerField(
-                  controller: worksDateTimeFromController,
-                  label: 'Date from',
-                  validator: (value) => workDateFromValidator(value),
-                  onSelected: (workDateFromValue) => worksDateTimeFrom = workDateFromValue,
-                ),
-                DatePickerField(
-                  controller: worksDateTimeToController,
-                  label: 'Date to',
-                  validator: (value) => workDateToValidator(value),
-                  onSelected: (workDateToValue) => worksDateTimeTo = workDateToValue,
-                ),
-                SizedBox(height: 10),
-                Text('Works preview for invited jurors',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                RadioListTile<bool>(
-                  title: Text('Never'),
-                  value: false,
-                  groupValue: worksPreviewJurors,
-                  contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  onChanged: (value) {
-                    setState(
-                      () => worksPreviewJurors = value!,
-                    );
-                  },
-                ),
-                RadioListTile<bool>(
-                  title: Text('At participation\'s closure'),
-                  value: true,
-                  groupValue: worksPreviewJurors,
-                  contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  onChanged: (value) {
-                    setState(
-                      () => worksPreviewJurors = value!,
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
-      ];
+      ),
+    ),
+  ];
 
   Future<bool> showImagesDialog({required BuildContext context}) async {
     bool choice = false;
@@ -400,12 +416,12 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
     if (value == null || value.isEmpty) {
       return '';
     }
-    if (worksDateTimeTo == null) {
+    if (worksSubmissionTo == null) {
       return null;
     }
     try {
       final DateTime workDateFrom = DateFormat('dd/MM/yyyy').parse(value);
-      if (workDateFrom.isAfter(worksDateTimeTo!)) {
+      if (workDateFrom.isAfter(worksSubmissionTo!)) {
         return 'Date from can\'t be after date to';
       }
     } catch (e) {
@@ -418,12 +434,12 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
     if (value == null || value.isEmpty) {
       return '';
     }
-    if (worksDateTimeFrom == null) {
+    if (worksSubmissionFrom == null) {
       return null;
     }
     try {
       final DateTime workDateTo = DateFormat('dd/MM/yyyy').parse(value);
-      if (workDateTo.isBefore(worksDateTimeFrom!)) {
+      if (workDateTo.isBefore(worksSubmissionFrom!)) {
         return 'Date to can\'t be before date from';
       }
     } catch (e) {

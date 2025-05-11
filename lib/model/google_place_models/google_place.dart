@@ -1,11 +1,13 @@
-class GooglePlace {
+import 'package:equatable/equatable.dart';
+
+class GooglePlace extends Equatable {
   final String id;
   final String address;
   final String shortAddress;
   final double lat;
   final double lon;
 
-  GooglePlace({
+  const GooglePlace({
     required this.id,
     required this.address,
     required this.shortAddress,
@@ -48,6 +50,13 @@ class GooglePlace {
       lon: lon ?? this.lon,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        id,
+        address,
+        shortAddress,
+        lat,
+        lon,
+      ];
 }
-
-

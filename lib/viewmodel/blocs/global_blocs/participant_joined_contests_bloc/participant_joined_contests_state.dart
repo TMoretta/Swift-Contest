@@ -6,6 +6,7 @@ final class ParticipantJoinedContestsState extends Equatable {
   final String? message;
   final List<Contest>? contests;
   final List<Profile>? organizers;
+  final List<Place>? places;
   final List<List<Participation>>? participations;
   final List<List<Juration>>? jurations;
 
@@ -14,6 +15,7 @@ final class ParticipantJoinedContestsState extends Equatable {
     this.message,
     this.contests,
     this.organizers,
+    this.places,
     this.participations,
     this.jurations,
   });
@@ -23,6 +25,7 @@ final class ParticipantJoinedContestsState extends Equatable {
     String? message,
     List<Contest>? contests,
     List<Profile>? organizers,
+    List<Place>? places,
     List<List<Participation>>? participations,
     List<List<Juration>>? jurations,
   }) {
@@ -31,11 +34,20 @@ final class ParticipantJoinedContestsState extends Equatable {
       message: message,
       contests: contests ?? this.contests,
       organizers: organizers ?? this.organizers,
+      places: places ?? this.places,
       participations: participations ?? this.participations,
       jurations: jurations ?? this.jurations,
     );
   }
 
   @override
-  List<Object?> get props => [status, message, contests, organizers, participations, jurations];
+  List<Object?> get props => [
+        status,
+        message,
+        contests,
+        organizers,
+        places,
+        participations,
+        jurations,
+      ];
 }

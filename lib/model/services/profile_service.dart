@@ -1,24 +1,20 @@
+import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
-import 'package:swift_contest/model/data_models/user/user.dart' as my;
-import 'package:swift_contest/utils/exceptions/custom_exception.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/data_models/user.dart' as my;
+import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
 //* Interface
 abstract interface class ProfileService {
-  Session? get currentSession;
-
   Future<Profile> getCurrentProfile();
 
+  Future<Profile> updateProfileById({required String id, required Profile profile});
+
+  Future<Unit> deleteProfileById({required String id});
+  
   Future<List<Profile>> getAllProfiles();
 
   Future<Profile> getProfileById({required String id});
-
-  Future<Profile> updateProfileById({
-    required String id,
-    String? firstName,
-    String? lastName,
-    bool? isAlive,
-  });
 }
 
 //* Implementation
@@ -27,7 +23,6 @@ class ProfileServiceImpl implements ProfileService {
 
   ProfileServiceImpl({required SupabaseClient supabaseClient}) : _supabase = supabaseClient;
 
-  @override
   Session? get currentSession => _supabase.auth.currentSession;
 
   @override
@@ -35,53 +30,57 @@ class ProfileServiceImpl implements ProfileService {
     try {
       final session = currentSession;
       if (session == null) {
-        throw CustomException(message: 'No valid session');
+        throw UnsafeException(message: 'No valid session');
       }
       final user = my.User.fromJson(session.user.toJson());
       return await getProfileById(id: user.id);
     } catch (e) {
-      throw CustomException(message: e.toString());
+      throw UnsafeException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<Profile> updateProfileById({required String id, required Profile profile}) async {
+    try {
+      final List<Map<String, dynamic>> results = await _supabase
+          .from('profiles')
+          .update(profile.toJson())
+          .eq('id', id)
+          .select();
+      return Profile.fromJson(results[0]);
+    } catch (e) {
+      throw UnsafeException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<Unit> deleteProfileById({required String id}) async {
+    try {
+      await _supabase.from('profiles').delete().eq('id', id);
+      return unit;
+    } catch (e) {
+      throw UnsafeException(message: e.toString());
     }
   }
 
   @override
   Future<List<Profile>> getAllProfiles() async {
     try {
-      final List<Map<String, dynamic>> profilesMaps = await _supabase.rpc('get_all_profiles');
-      return profilesMaps.map((profileMap) => Profile.fromJson(profileMap)).toList(growable: false);
+      final List<Map<String, dynamic>> results = await _supabase.from('profiles').select();
+      return results.map((e) => Profile.fromJson(e)).toList(growable: false);
     } catch (e) {
-      throw CustomException(message: e.toString());
+      throw UnsafeException(message: e.toString());
     }
   }
 
   @override
   Future<Profile> getProfileById({required String id}) async {
     try {
-      final Map<String, dynamic> profileMap =
-          await _supabase.rpc('get_profile_by_id', params: {'p_id': id});
-      return Profile.fromJson(profileMap);
+      final List<Map<String, dynamic>> results = await _supabase.from('profiles').select().eq('id', id);
+      return Profile.fromJson(results[0]);
     } catch (e) {
-      throw CustomException(message: e.toString());
+      throw UnsafeException(message: e.toString());
     }
   }
 
-  @override
-  Future<Profile> updateProfileById({
-    required String id,
-    String? firstName,
-    String? lastName,
-    bool? isAlive,
-  }) async {
-    try {
-      final Map<String, dynamic> profileMap = await _supabase.rpc('update_profile_by_id', params: {
-        'p_id': id,
-        'p_first_name': firstName,
-        'p_last_name': lastName,
-        'p_is_alive': isAlive,
-      });
-      return Profile.fromJson(profileMap);
-    } catch (e) {
-      throw CustomException(message: e.toString());
-    }
-  }
 }

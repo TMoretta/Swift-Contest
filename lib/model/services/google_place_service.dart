@@ -1,8 +1,10 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
-import 'package:swift_contest/utils/exceptions/custom_exception.dart';
+import 'package:swift_contest/utils/exceptions/safe_exception.dart';
+import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
 //* Interface
 abstract interface class GooglePlaceService {
@@ -31,20 +33,23 @@ class GooglePlaceServiceImpl implements GooglePlaceService {
       http.StreamedResponse response = await request.send();
       String result = await response.stream.bytesToString();
       if (response.statusCode != 200) {
-        throw CustomException(message: 'Failed to fetch place: $result');
+        throw UnsafeException(message: 'Failed to fetch place: $result');
       }
       final jsonData = json.decode(result);
       final place = GooglePlace.fromJson(jsonData);
 
       return place;
     } catch (e) {
-      throw CustomException(message: e.toString());
+      throw UnsafeException(message: e.toString());
     }
 
   }
 
   @override
   Future<List<GooglePlaceSuggestion>> searchPlaceSuggestions({required String query}) async {
+    if(query.trim().isEmpty) {
+      return [];
+    }
     try {
       var headers = {
         'Content-Type': 'application/json',
@@ -52,18 +57,20 @@ class GooglePlaceServiceImpl implements GooglePlaceService {
         'X-Goog-FieldMask':
         'suggestions.placePrediction.placeId,suggestions.placePrediction.text.text'
       };
-      var request =
-      http.Request('POST', Uri.parse('https://places.googleapis.com/v1/places:autocomplete'));
+      var request = http.Request('POST', Uri.parse('https://places.googleapis.com/v1/places:autocomplete'));
       request.headers.addAll(headers);
       request.body = json.encode({'input': query});
 
       http.StreamedResponse response = await request.send();
       String result = await response.stream.bytesToString();
       if (response.statusCode != 200) {
-        throw CustomException(message: 'Failed to fetch suggestions: $result');
+        throw UnsafeException(message: 'Failed to fetch suggestions: $result');
       }
 
-      final jsonData = json.decode(result)['suggestions'];
+      final jsonData = await json.decode(result)['suggestions'];
+      if(jsonData == null) {
+        throw SafeException(message: 'jsonData is null');
+      }
       final suggestionsList = (jsonData as List<dynamic>).map((suggestion) {
         final placePrediction = suggestion['placePrediction'] as Map<String, dynamic>;
         final placeId = placePrediction['placeId'] as String;
@@ -73,8 +80,10 @@ class GooglePlaceServiceImpl implements GooglePlaceService {
       }).toList(growable: false);
 
       return suggestionsList;
+    } on SafeException {
+      rethrow;
     } catch (e) {
-      throw CustomException(message: e.toString());
+      throw UnsafeException(message: e.toString());
     }
   }
 }

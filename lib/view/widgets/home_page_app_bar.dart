@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/profile/contest_role.dart';
+import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
@@ -126,7 +126,7 @@ void _showSwitchRoleDialog({required BuildContext context}) {
                   shape: OutlineInputBorder(borderSide:  BorderSide.none,borderRadius: BorderRadius.circular(16),),
                   onChanged: (value) {
                     setState(
-                      () => selectedRole = value!,
+                          () => selectedRole = value!,
                     );
                   },
                 ),
@@ -138,7 +138,7 @@ void _showSwitchRoleDialog({required BuildContext context}) {
                   shape: OutlineInputBorder(borderSide:  BorderSide.none,borderRadius: BorderRadius.circular(16),),
                   onChanged: (value) {
                     setState(
-                      () => selectedRole = value!,
+                          () => selectedRole = value!,
                     );
                   },
                 ),
@@ -150,7 +150,7 @@ void _showSwitchRoleDialog({required BuildContext context}) {
                   shape: OutlineInputBorder(borderSide:  BorderSide.none,borderRadius: BorderRadius.circular(16),),
                   onChanged: (value) {
                     setState(
-                      () => selectedRole = value!,
+                          () => selectedRole = value!,
                     );
                   },
                 ),
@@ -183,4 +183,3 @@ void _showSwitchRoleDialog({required BuildContext context}) {
     },
   );
 }
-

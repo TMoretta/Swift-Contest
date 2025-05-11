@@ -12,3 +12,9 @@ final class OrganizerCreatedContestsGetCreatedContests extends OrganizerCreatedC
   @override
   List<Object> get props => [organizerId];
 }
+
+final class OrganizerCreatedContestsClear extends OrganizerCreatedContestsEvent {
+  @override
+  List<Object?> get props => [];
+}
+

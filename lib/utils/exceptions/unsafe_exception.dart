@@ -1,0 +1,10 @@
+class UnsafeException implements Exception {
+  final String message;
+
+  UnsafeException({required this.message});
+
+  @override
+  String toString() {
+    return message;
+  }
+}

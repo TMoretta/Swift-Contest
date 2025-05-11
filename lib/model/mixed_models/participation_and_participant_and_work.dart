@@ -1,24 +1,23 @@
-import 'package:swift_contest/model/data_models/participation/participation.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
-import 'package:swift_contest/model/data_models/work/work.dart';
+import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/data_models/participation.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/data_models/work.dart';
 
-class ParticipationAndParticipantAndWork {
+class ParticipationAndParticipantAndWork extends Equatable {
   final Participation participation;
-  final Profile? participant;
+  final Participant? participant;
   final Work? work;
 
-  ParticipationAndParticipantAndWork(
+  const ParticipationAndParticipantAndWork(
       {required this.participation, required this.participant, required this.work});
 
   factory ParticipationAndParticipantAndWork.fromJson(Map<String, dynamic> map) {
-    final participantMap = map['participant'];
-    final workMap = map['work'];
     return ParticipationAndParticipantAndWork(
       participation: Participation.fromJson(map['participation'] as Map<String, dynamic>),
-      participant: (participantMap != null)
-          ? Profile.fromJson(map['participant'] as Map<String, dynamic>)
+      participant: (map['participant'] != null)
+          ? Participant.fromJson(map['participant'] as Map<String, dynamic>)
           : null,
-      work: (participantMap != null && workMap != null)
+      work: (map['participant'] != null && map['work'] != null)
           ? Work.fromJson(map['work'] as Map<String, dynamic>)
           : null,
     );
@@ -31,4 +30,7 @@ class ParticipationAndParticipantAndWork {
       'work': work?.toJson(),
     };
   }
+
+  @override
+  List<Object?> get props => [participation, participant, work];
 }

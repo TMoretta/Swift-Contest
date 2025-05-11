@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/contest/contest.dart';
-import 'package:swift_contest/model/data_models/juration/juration_status.dart';
+import 'package:swift_contest/model/data_models/contest.dart';
+import 'package:swift_contest/model/data_models/invitation.dart';
+import 'package:swift_contest/model/enums/juror_status.dart';
 import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/edge_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/voting_form_field_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
@@ -37,7 +42,7 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
     contestId = widget.contestId;
     // final state = context.read<OrganizerContestDetailsPageBloc>().state;
     // if(state.status.isInitial ||state.contest == null) {
-    //   context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+    //   context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId));
     // }
   }
 
@@ -45,14 +50,16 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if(state.status.isInitial || state.contest == null) {
-      context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageGetExtendedContest(contestId: contestId));
+    if (state.status.isInitial || state.contest == null) {
+      context.read<OrganizerContestDetailsPageBloc>().add(
+          OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+    return BlocConsumer<OrganizerContestDetailsPageBloc,
+        OrganizerContestDetailsPageState>(
       listener: (context, state) {
         if (state.status.isFailure) {
           showSnackBar(context: context, text: state.message!);
@@ -65,24 +72,22 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
         if (state.status.isSuccess) {
           contest = state.contest!;
           final invitationFormKey = GlobalKey<FormState>();
-          String? email;
 
           final List<JurationAndJuror> jurationsAndJurorsJoined = [];
-          final List<JurationAndJuror> jurationsAndJurorsAttended = [];
+          final List<Invitation> jurorsInvitations = state.jurorsInvitations!;
           final List<JurationAndJuror> jurationsAndJurorsLeft = [];
 
           for (var i = 0; i < state.jurations!.length; i++) {
             final juration = state.jurations![i];
             final juror = state.jurors![i];
-            switch (juration.status) {
-              case JurationStatus.joined:
-                jurationsAndJurorsJoined.add(JurationAndJuror(juration: juration, juror: juror));
+            switch (juration.jurorStatus) {
+              case JurorStatus.joined:
+                jurationsAndJurorsJoined
+                    .add(JurationAndJuror(juration: juration, juror: juror));
                 break;
-              case JurationStatus.attended:
-                jurationsAndJurorsAttended.add(JurationAndJuror(juration: juration, juror: juror));
-                break;
-              case JurationStatus.left:
-                jurationsAndJurorsLeft.add(JurationAndJuror(juration: juration, juror: juror));
+              case JurorStatus.left:
+                jurationsAndJurorsLeft
+                    .add(JurationAndJuror(juration: juration, juror: juror));
                 break;
             }
           }
@@ -99,7 +104,8 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                   children: [
                     Text(
                       'Jurors',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                     ),
                     Align(
                       alignment: Alignment.center,
@@ -109,7 +115,8 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                           height: 30,
                           child: TabBar(
                             labelColor: Theme.of(context).colorScheme.white,
-                            unselectedLabelColor: Theme.of(context).colorScheme.grey7,
+                            unselectedLabelColor:
+                                Theme.of(context).colorScheme.grey7,
                             isScrollable: true,
                             dividerColor: Colors.transparent,
                             tabAlignment: TabAlignment.center,
@@ -138,73 +145,71 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                               ? RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageGetExtendedContest(
-                                          contestId: widget.contestId)),
-                                  child: ListView(children: [Text('No juror joined yet')]))
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView(
+                                      children: [Text('No juror joined yet')]))
                               : RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageGetExtendedContest(
-                                          contestId: widget.contestId)),
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
                                   child: ListView.builder(
                                     itemCount: jurationsAndJurorsJoined.length,
                                     itemBuilder: (context, index) {
-                                      if (jurationsAndJurorsJoined[index].juration.status ==
-                                          JurationStatus.joined) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              // top: BorderSide(color: Colors.grey),
-                                              bottom: BorderSide(color: Colors.grey),
-                                            ),
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            // top: BorderSide(color: Colors.grey),
+                                            bottom:
+                                                BorderSide(color: Colors.grey),
                                           ),
-                                          child: ListTile(
-                                            title: Text(
-                                                '${jurationsAndJurorsJoined[index].juror!.firstName} '
-                                                '${jurationsAndJurorsJoined[index].juror!.lastName}'),
-                                            subtitle: Text(
-                                                'Invite email: ${jurationsAndJurorsJoined[index].juration.inviteEmail}'),
-                                          ),
-                                        );
-                                      }
-                                      return SizedBox.shrink();
+                                        ),
+                                        child: ListTile(
+                                          title: Text(
+                                              jurationsAndJurorsJoined[index]
+                                                  .juror!
+                                                  .fullName),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
                           //* Attended
-                          (jurationsAndJurorsAttended.isEmpty)
+                          (jurorsInvitations.isEmpty)
                               ? RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageGetExtendedContest(
-                                          contestId: widget.contestId)),
-                                  child:
-                                      ListView(children: [Text('No juror attended. Invite one')]))
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView(children: [
+                                    Text('No juror attended. Invite one')
+                                  ]))
                               : RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageGetExtendedContest(
-                                          contestId: widget.contestId)),
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
                                   child: ListView.builder(
-                                    itemCount: jurationsAndJurorsAttended.length,
+                                    itemCount: jurorsInvitations.length,
                                     itemBuilder: (context, index) {
-                                      if (jurationsAndJurorsAttended[index].juration.status ==
-                                          JurationStatus.attended) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              // top: BorderSide(color: Colors.grey),
-                                              bottom: BorderSide(color: Colors.grey),
-                                            ),
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            // top: BorderSide(color: Colors.grey),
+                                            bottom:
+                                                BorderSide(color: Colors.grey),
                                           ),
-                                          child: ListTile(
-                                            title: Text(jurationsAndJurorsAttended[index]
-                                                .juration
-                                                .inviteEmail),
-                                          ),
-                                        );
-                                      }
-                                      return SizedBox.shrink();
+                                        ),
+                                        child: ListTile(
+                                          title: Text(
+                                              jurorsInvitations[index].email),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
@@ -213,31 +218,37 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                               ? RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageGetExtendedContest(
-                                          contestId: widget.contestId)),
-                                  child: ListView(children: [Text('No juror left')]))
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
+                                  child: ListView(
+                                      children: [Text('No juror left')]))
                               : RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageGetExtendedContest(
-                                          contestId: widget.contestId)),
+                                      .add(
+                                          OrganizerContestDetailsPageGetContestMainInfo(
+                                              contestId: widget.contestId)),
                                   child: ListView.builder(
                                     itemCount: jurationsAndJurorsLeft.length,
                                     itemBuilder: (context, index) {
-                                      if (jurationsAndJurorsLeft[index].juration.status ==
-                                          JurationStatus.left) {
+                                      if (jurationsAndJurorsLeft[index]
+                                              .juration
+                                              .jurorStatus ==
+                                          JurorStatus.left) {
                                         return Container(
                                           decoration: BoxDecoration(
                                             border: Border(
                                               // top: BorderSide(color: Colors.grey),
-                                              bottom: BorderSide(color: Colors.grey),
+                                              bottom: BorderSide(
+                                                  color: Colors.grey),
                                             ),
                                           ),
                                           child: ListTile(
                                             title: Text(
-                                                '${jurationsAndJurorsLeft[index].juror!.firstName} ${jurationsAndJurorsLeft[index].juror!.lastName}'),
-                                            subtitle: Text(
-                                                'Invite email: ${jurationsAndJurorsLeft[index].juration.inviteEmail}'),
+                                                jurationsAndJurorsLeft[index]
+                                                    .juror!
+                                                    .fullName),
                                           ),
                                         );
                                       }
@@ -257,6 +268,7 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                 right: 0,
                 child: FilledButton(
                   onPressed: () {
+                    final emailController = TextEditingController();
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -267,33 +279,48 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                           content: Form(
                             key: invitationFormKey,
                             child: CustomTextFormFieldUnderlined(
+                              controller: emailController,
                               label: 'Email',
-                              onChanged: (value) => email = value,
                               validator: _emailValidator,
                             ),
                           ),
                           actions: [
                             BlocProvider<OrganizerContestDetailsPageBloc>(
-                              create: (context) => OrganizerContestDetailsPageBloc(
-                                participationRepository: context.read<ParticipationRepository>(),
-                                jurationRepository: context.read<JurationRepository>(),
-                                edgeRepository: context.read<EdgeRepository>(),
-                                profileRepository: context.read<ProfileRepository>(),
-                                contestRepository: context.read<ContestRepository>(),
-                                workRepository: context.read<WorkRepository>(),
-                                votingFormRepository: context.read<VotingFormRepository>(),
-                              ),
-                              child: BlocConsumer<OrganizerContestDetailsPageBloc,
+                              create: (context) =>
+                                  OrganizerContestDetailsPageBloc(
+                                    participationRepository: context.read(),
+                                    jurationRepository: context.read(),
+                                    edgeRepository: context.read(),
+                                    profileRepository: context.read(),
+                                    contestRepository: context.read(),
+                                    workRepository: context.read(),
+                                    votingFormRepository: context.read(),
+                                    utilsRepository: context.read(),
+                                    votingFormFieldRepository: context.read(),
+                                    placeRepository: context.read(),
+                                    invitationRepository: context.read(),
+                                    voteRepository: context.read(),
+                                    votingRepository: context.read(),
+                                    votingSessionProcedureRepository: context.read(),
+                                    votingSessionRepository: context.read(),
+                                    votingSessionParticipantRepository: context.read(),
+                                    votingSessionJurorRepository: context.read(),
+                                  ),
+                              child: BlocConsumer<
+                                  OrganizerContestDetailsPageBloc,
                                   OrganizerContestDetailsPageState>(
                                 listener: (context, state) {
                                   if (state.status.isSuccess) {
                                     context.pop();
-                                    showSnackBar(context: context, text: 'Email sent successfully');
+                                    showSnackBar(
+                                        context: context,
+                                        text: 'Email sent successfully');
                                   }
                                   if (state.status.isFailure) {
                                     showSnackBar(
                                         context: context,
-                                        text: 'Email not sent. Error: ${state.message}');
+                                        text:
+                                            'Email not sent. Error: ${state.message}');
                                   }
                                 },
                                 builder: (context, state) {
@@ -311,12 +338,17 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          if (invitationFormKey.currentState?.validate() ?? false) {
+                                          if (invitationFormKey.currentState
+                                                  ?.validate() ??
+                                              false) {
                                             context
-                                                .read<OrganizerContestDetailsPageBloc>()
-                                                .add(OrganizerContestDetailsPageSendJurorInvite(
+                                                .read<
+                                                    OrganizerContestDetailsPageBloc>()
+                                                .add(
+                                                    OrganizerContestDetailsPageSendJurorInvite(
                                                   contest: contest!,
-                                                  email: email!,
+                                                  email: emailController.text
+                                                      .trim(),
                                                 ));
                                             // context.pop();
                                           }
@@ -341,9 +373,9 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
         }
         return RefreshIndicator.adaptive(
           onRefresh: () async {
-            context
-                .read<OrganizerContestDetailsPageBloc>()
-                .add(OrganizerContestDetailsPageGetExtendedContest(contestId: widget.contestId));
+            context.read<OrganizerContestDetailsPageBloc>().add(
+                OrganizerContestDetailsPageGetContestMainInfo(
+                    contestId: widget.contestId));
           },
           child: ListView(),
         );

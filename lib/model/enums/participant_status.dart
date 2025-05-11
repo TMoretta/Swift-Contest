@@ -1,0 +1,4 @@
+enum ParticipantStatus {
+  joined,
+  left,
+}

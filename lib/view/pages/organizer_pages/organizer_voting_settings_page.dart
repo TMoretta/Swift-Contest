@@ -1,13 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/user/user.dart';
-import 'package:swift_contest/model/data_models/voting/review_type.dart';
-import 'package:swift_contest/model/data_models/voting/voting_type.dart';
+import 'package:go_router/go_router.dart';
+import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant_and_work.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
+import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
 
@@ -22,7 +26,8 @@ class OrganizerVotingSettingsPage extends StatefulWidget {
 
 class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
   late User user;
-  late Map<String, dynamic> data;
+  late String contestId;
+  late String votingFormId;
   late List<ParticipationAndParticipantAndWork> joinedParticipationsAndParticipantsWithWorks;
   late List<ParticipationAndParticipant> joinedParticipationsAndParticipantsWithoutWorks;
   late List<JurationAndJuror> joinedJurationsAndJurors;
@@ -30,95 +35,56 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
-  final fourthFormKey = GlobalKey<FormState>();
 
-  List<GlobalKey<FormState>> get formKeys =>
-      [firstFormKey, secondFormKey, thirdFormKey, fourthFormKey];
+  List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
 
-  VotingType votingType = VotingType.notTimed;
-  ReviewType reviewType = ReviewType.absent;
-  bool isNonInvitedJurorVotingAllowed = false;
+   bool isSimpleJurorAllowed = false;
   final List<ParticipantAndJuror> votingExclusions = [];
+  Duration workTimer = Duration(minutes: 0, seconds: 10);
+  Duration intermissionTimer = Duration(minutes: 0, seconds: 10);
+  Duration reviewTimer = Duration(minutes: 0, seconds: 20);
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     user = context.read<AuthBloc>().state.user!;
-    data = widget.data;
-
-    joinedParticipationsAndParticipantsWithWorks =
-        (data['joined_participants_with_works'] as List<dynamic>)
-            .map((e) => ParticipationAndParticipantAndWork.fromJson(e))
-            .toList(growable: false);
-
-    joinedParticipationsAndParticipantsWithoutWorks =
-        (data['joined_participants_without_works'] as List<dynamic>)
-            .map((e) => ParticipationAndParticipant.fromJson(e))
-            .toList(growable: false);
-
-    joinedJurationsAndJurors = (data['joined_jurors'] as List<dynamic>)
-        .map((e) => JurationAndJuror.fromJson(e))
-        .toList(growable: false);
   }
 
   @override
   void initState() {
     super.initState();
 
-    // final participations = data['participations']!
-    //     .map((json) => Participation.fromJson(json!))
-    //     .toList(growable: false);
-    //
-    // final participants = data['participants']!
-    //     .map((json) => json != null ? Profile.fromJson(json) : null)
-    //     .toList(growable: false);
-    //
-    // final works = data['works']!
-    //     .map((json) => json != null ? Work.fromJson(json) : null)
-    //     .toList(growable: false);
-    //
-    // final jurations = data['jurations']!
-    //     .map((json) => Juration.fromJson(json!))
-    //     .toList(growable: false);
-    //
-    // final jurors = data['jurors']!
-    //     .map((json) => json != null ? Profile.fromJson(json) : null)
-    //     .toList(growable: false);
-    //
-    // for (var i = 0; i < participations.length; i++) {
-    //   if (participations[i].status == ParticipationStatus.joined) {
-    //     if (works[i] != null) {
-    //       final ppw = ParticipationAndParticipantAndWork(
-    //         participation: participations[i],
-    //         participant: participants[i],
-    //         work: works[i],
-    //       );
-    //       joinedParticipationsAndParticipantsWithWorks.add(ppw);
-    //     } else {
-    //       final pp = ParticipationAndParticipant(
-    //         participation: participations[i],
-    //         participant: participants[i],
-    //       );
-    //       joinedParticipationsAndParticipantsWithoutWorks.add(pp);
-    //     }
-    //   }
-    // }
-    // for (var i = 0; i < jurations.length; i++) {
-    //   if (jurations[i].status == JurationStatus.joined) {
-    //     final jj = JurationAndJuror(
-    //       juration: jurations[i],
-    //       juror: jurors[i],
-    //     );
-    //     joinedJurationsAndJurors.add(jj);
-    //   }
-    // }
+    final Map<String, dynamic> data = widget.data;
+    contestId = data['contest_id'] as String;
+    votingFormId = data['voting_form_id'] as String;
+    joinedParticipationsAndParticipantsWithWorks =
+        (data['joined_participants_with_works'] as List<dynamic>)
+            .map((e) => ParticipationAndParticipantAndWork.fromJson(e))
+            .toList();
+    joinedParticipationsAndParticipantsWithoutWorks =
+        (data['joined_participants_without_works'] as List<dynamic>)
+            .map((e) => ParticipationAndParticipant.fromJson(e))
+            .toList(growable: false);
+    joinedJurationsAndJurors = (data['joined_jurors'] as List<dynamic>)
+        .map((e) => JurationAndJuror.fromJson(e))
+        .toList(growable: false);
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerVotingSettingsPageBloc>(
-      create: (context) => OrganizerVotingSettingsPageBloc(),
+      create: (context) => OrganizerVotingSettingsPageBloc(
+        votingFormRepository: context.read(),
+        votingSessionRepository: context.read(),
+        votingFormFieldRepository: context.read(),
+        votingSessionParticipantRepository: context.read(),
+        votingSessionJurorRepository: context.read(),
+        votingSessionProcedureRepository: context.read(),
+        votingRepository: context.read(),
+        utilsRepository: context.read(),
+        votingSessionTokenRepository: context.read(),
+      ),
       child: Scaffold(
         appBar: AppBar(
           title: Text('Voting settings'),
@@ -129,81 +95,88 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
               return SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                child: Stepper(
-                  type: StepperType.horizontal,
-                  physics: NeverScrollableScrollPhysics(),
-                  currentStep: currentStep,
-                  onStepContinue: () {
-                    final isLastStep = (currentStep == getSteps().length - 1);
-                    if (formKeys[currentStep].currentState?.validate() ?? false) {
-                      if (isLastStep) {
-                        //   final name = nameController.text;
-                        //   final description = descriptionController.text;
-                        //   final dateTime =
-                        //   DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
-                        //   context.read<OrganizerContestCreationPageBloc>().add(
-                        //     OrganizerContestCreationPageCreateContest(
-                        //       name: name,
-                        //       description: description,
-                        //       organizerId: user.id,
-                        //       place:
-                        //       Place(address: place!.address, lat: place!.lat, lon: place!.lon),
-                        //       worksPreviewJurors: worksPreviewJurors,
-                        //       dateTime: dateTime,
-                        //       worksDateTimeFrom: worksDateTimeFrom!,
-                        //       worksDateTimeTo: worksDateTimeTo!,
-                        //       images: images,
-                        //     ),
-                        //   );
-                      } else {
-                        setState(() => ++currentStep);
-                      }
+                child:
+                    BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
+                  listener: (context, state) {
+                    if (state.status.isFailure) {
+                      showSnackBar(context: context, text: state.message!);
+                    }
+                    if (state.status.isSuccess) {
+                      context.replaceNamed(AppRouter.organizerVotingProcedure, extra: contestId);
                     }
                   },
-                  onStepCancel: () {
-                    (currentStep == 0) ? null : setState(() => --currentStep);
-                  },
-                  controlsBuilder: (context, details) {
-                    final isLastStep = details.currentStep == getSteps().length - 1;
-                    return Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Row(
-                        mainAxisAlignment: (currentStep == 0)
-                            ? MainAxisAlignment.end
-                            : MainAxisAlignment.spaceBetween,
-                        spacing: 12,
-                        children: [
-                          if (details.currentStep != 0)
-                            ElevatedButton(
-                              onPressed: details.onStepCancel,
-                              child: Text('Back'),
-                            ),
-                          ElevatedButton(
-                            onPressed: details.onStepContinue,
-                            child: (isLastStep) ? Text('Start') : Text('Next'),
-                            // isLastStep
-                            //     ? BlocConsumer<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
-                            //   listener: (context, state) {
-                            //     if (state is OrganizerContestCreationPageSuccess) {
-                            //       showSnackBar(
-                            //           context: context, text: 'Contest created successfully');
-                            //       context.pop(true);
-                            //     }
-                            //   },
-                            //   builder: (context, state) {
-                            //     if (state is OrganizerContestCreationPageLoading) {
-                            //       return Loader();
-                            //     }
-                            //     return Text('Create');
-                            //   },
-                            // )
-                            //     : Text('Next'),
+                  builder: (context, state) {
+                    return Stepper(
+                      type: StepperType.horizontal,
+                      physics: NeverScrollableScrollPhysics(),
+                      currentStep: currentStep,
+                      onStepContinue: () {
+                        final isLastStep = (currentStep == getSteps().length - 1);
+                        if (formKeys[currentStep].currentState?.validate() ?? false) {
+                          if (isLastStep) {
+                            context
+                                .read<OrganizerVotingSettingsPageBloc>()
+                                .add(OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure(
+                                  contestId: contestId,
+                                  votingFormId: votingFormId,
+                                  isSimpleJurorAllowed: isSimpleJurorAllowed,
+                                  votingExclusions: votingExclusions,
+                                  votingParticipants: joinedParticipationsAndParticipantsWithWorks
+                                      .map((e) => e.participant!)
+                                      .toList(growable: false),
+                                  votingJurors: joinedJurationsAndJurors
+                                      .map((e) => e.juror!)
+                                      .toList(growable: false),
+                                  workTimer: workTimer,
+                                  intermissionTimer: intermissionTimer,
+                                  reviewTimer: reviewTimer,
+                                ));
+                          } else {
+                            setState(() => ++currentStep);
+                          }
+                        }
+                      },
+                      onStepCancel: () {
+                        (currentStep == 0) ? null : setState(() => --currentStep);
+                      },
+                      controlsBuilder: (context, details) {
+                        final isLastStep = details.currentStep == getSteps().length - 1;
+                        return Container(
+                          margin: EdgeInsets.only(top: 20),
+                          child: Row(
+                            mainAxisAlignment: (currentStep == 0)
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.spaceBetween,
+                            spacing: 12,
+                            children: [
+                              if (details.currentStep != 0)
+                                ElevatedButton(
+                                  onPressed: details.onStepCancel,
+                                  child: Text('Back'),
+                                ),
+                              ElevatedButton(
+                                onPressed: details.onStepContinue,
+                                child: isLastStep
+                                    ? BlocConsumer<OrganizerVotingSettingsPageBloc,
+                                        OrganizerVotingSettingsPageState>(
+                                        listener: (context, state) {
+                                        },
+                                        builder: (context, state) {
+                                          if (state.status.isLoading) {
+                                            return Loader();
+                                          }
+                                          return Text('Start');
+                                        },
+                                      )
+                                    : Text('Next'),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
+                      steps: getSteps(),
                     );
                   },
-                  steps: getSteps(),
                 ),
               );
             },
@@ -232,7 +205,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           content: Form(
             key: firstFormKey,
             child: SizedBox(
-              height: 400,
+              height: 450,
               child: ReorderableListView(
                 onReorder: (oldIndex, newIndex) {
                   setState(() {
@@ -252,9 +225,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                       title: Column(
                         children: [
                           Text(joinedParticipationsAndParticipantsWithWorks[i].work!.name),
-                          Text(
-                              '${joinedParticipationsAndParticipantsWithWorks[i].participant!.firstName} '
-                              '${joinedParticipationsAndParticipantsWithWorks[i].participant!.lastName}'),
+                          Text(joinedParticipationsAndParticipantsWithWorks[i]
+                              .participant!
+                              .fullName),
                         ],
                       ),
                     ),
@@ -262,32 +235,6 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
               ),
             ),
           ),
-          // content: Form(
-          //   key: firstFormKey,
-          //   child: Column(
-          //     mainAxisSize: MainAxisSize.min,
-          //     children: [
-          //
-          //       // if (joinedParticipationsAndParticipantsWithoutWorks.isNotEmpty)
-          //       //   Text('Note: there are some participants that not submitted a work'),
-          //       // if (joinedParticipationsAndParticipantsWithoutWorks.isNotEmpty)
-          //       //   Flexible(
-          //       //     fit: FlexFit.loose,
-          //       //     child: ListView.builder(
-          //       //       itemCount: joinedParticipationsAndParticipantsWithoutWorks.length,
-          //       //       shrinkWrap: true, // opzionale ma utile in questo contesto
-          //       //       itemBuilder: (context, index) {
-          //       //         return ListTile(
-          //       //           title: Text(
-          //       //               '${joinedParticipationsAndParticipantsWithoutWorks[index].participant!.firstName} '
-          //       //                   '${joinedParticipationsAndParticipantsWithoutWorks[index].participant!.lastName}'),
-          //       //         );
-          //       //       },
-          //       //     ),
-          //       //   ),
-          //     ],
-          //   ),
-          // ),
         ),
         //* Second step
         Step(
@@ -313,72 +260,146 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   RadioListTile<bool>.adaptive(
                     title: Text('Only invited jurors'),
                     value: false,
-                    groupValue: isNonInvitedJurorVotingAllowed,
+                    groupValue: isSimpleJurorAllowed,
                     onChanged: (value) {
                       setState(() {
-                        isNonInvitedJurorVotingAllowed = value!;
+                        isSimpleJurorAllowed = value!;
                       });
                     },
                   ),
                   RadioListTile<bool>.adaptive(
                     title: Text('Anyone with contest identifier'),
                     value: true,
-                    groupValue: isNonInvitedJurorVotingAllowed,
+                    groupValue: isSimpleJurorAllowed,
                     onChanged: (value) {
                       setState(() {
-                        isNonInvitedJurorVotingAllowed = value!;
+                        isSimpleJurorAllowed = value!;
                       });
                     },
                   ),
                   Text('Voting exclusions'),
                   SizedBox(
                     height: 200,
-                    child: (votingExclusions.isNotEmpty)
-                        ? ListView.builder(
-                            itemCount: votingExclusions.length + 1,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Column(
+                    child: ListView.builder(
+                      itemCount: votingExclusions.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index != votingExclusions.length) {
+                          return ListTile(
+                            title: Column(
+                              children: [
+                                Row(
                                   children: [
-                                    Row(
-                                      children: [
-                                        Text('Juror: '),
-                                        Text('${votingExclusions[index].juror.firstName} '
-                                            '${votingExclusions[index].juror.lastName}'),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text('Participant: '),
-                                        Text('${votingExclusions[index].participant.firstName} '
-                                            '${votingExclusions[index].participant.lastName}'),
-                                      ],
-                                    ),
-                                    if (index == votingExclusions.length)
-                                      FilledButton(
-                                        onPressed: () {
-                                          //todo aggiungere dialog per esclusioni
-                                        },
-                                        child: Text('Add'),
-                                      ),
+                                    Text('Juror: '),
+                                    Text(votingExclusions[index].juror.fullName),
                                   ],
                                 ),
-                              );
-                            },
-                          )
-                        : FilledButton(
+                                Row(
+                                  children: [
+                                    Text('Participant: '),
+                                    Text(votingExclusions[index].participant.fullName),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return FilledButton(
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (context) {
+                                  ParticipationAndParticipantAndWork? chosenParticipant;
+                                  JurationAndJuror? chosenJuror;
                                   return AlertDialog(
-                                    //todo dialog per aggiunta esclusione
+                                    title: Text('Exclusion'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('Participant'),
+                                        DropdownMenu(
+                                          enableSearch: false,
+                                          onSelected: (value) {
+                                            if (value != null) {
+                                              setState(() {
+                                                chosenParticipant = value;
+                                              });
+                                            }
+                                          },
+                                          dropdownMenuEntries: [
+                                            for (var element
+                                                in joinedParticipationsAndParticipantsWithWorks)
+                                              DropdownMenuEntry(
+                                                  value: element,
+                                                  label: element.participant!.fullName),
+                                          ],
+                                        ),
+                                        Text('Juror'),
+                                        DropdownMenu(
+                                          enableSearch: false,
+                                          onSelected: (value) {
+                                            if (value != null) {
+                                              setState(() {
+                                                chosenJuror = value;
+                                              });
+                                            }
+                                          },
+                                          dropdownMenuEntries: [
+                                            for (var element in joinedJurationsAndJurors)
+                                              DropdownMenuEntry(
+                                                value: element,
+                                                label: element.juror!.fullName,
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              context.pop();
+                                            },
+                                            child: Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              if (chosenParticipant == null ||
+                                                  chosenJuror == null) {
+                                                showSnackBar(
+                                                    context: context, text: 'Fill all the fields');
+                                                return;
+                                              }
+                                              final participantAndJuror = ParticipantAndJuror(
+                                                participant: chosenParticipant!.participant!,
+                                                juror: chosenJuror!.juror!,
+                                              );
+                                              if (votingExclusions.contains(participantAndJuror)) {
+                                                showSnackBar(
+                                                    context: context,
+                                                    text: 'Exclusion already added');
+                                                return;
+                                              }
+                                              setState(() {
+                                                votingExclusions.add(participantAndJuror);
+                                              });
+                                              context.pop();
+                                            },
+                                            child: Text('Add'),
+                                          ),
+                                        ],
+                                      )
+                                    ],
                                   );
                                 },
                               );
                             },
                             child: Text('Add'),
-                          ),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -399,86 +420,99 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   : Theme.of(context).colorScheme.grey9,
             ),
           ),
-          content: Placeholder(),
-          // content: Form(
-          //   key: thirdFormKey,
-          //   child: Flexible(
-          //     fit: FlexFit.tight,
-          //     child: ListView(
-          //       children: [
-          //         Text('Voting type'),
-          //         RadioListTile<VotingType>.adaptive(
-          //           title: Text('Not timed'),
-          //           value: VotingType.notTimed,
-          //           groupValue: votingType,
-          //           onChanged: (value) {
-          //             setState(() {
-          //               votingType = value!;
-          //               reviewType = ReviewType.absent;
-          //             });
-          //           },
-          //         ),
-          //         RadioListTile<VotingType>.adaptive(
-          //           title: Text('Timed'),
-          //           value: VotingType.timed,
-          //           groupValue: votingType,
-          //           onChanged: (value) {
-          //             setState(() {
-          //               votingType = value!;
-          //             });
-          //           },
-          //         ),
-          //         (votingType == VotingType.timed)
-          //             ? Column(
-          //                 children: [
-          //                   Text('Review'),
-          //                   RadioListTile<ReviewType>.adaptive(
-          //                     title: Text('Absent'),
-          //                     value: ReviewType.absent,
-          //                     groupValue: reviewType,
-          //                     onChanged: (value) {
-          //                       setState(() {
-          //                         reviewType = ReviewType.absent;
-          //                       });
-          //                     },
-          //                   ),
-          //                   RadioListTile<ReviewType>.adaptive(
-          //                     title: Text('Timed'),
-          //                     value: ReviewType.timed,
-          //                     groupValue: reviewType,
-          //                     onChanged: (value) {
-          //                       setState(() {
-          //                         reviewType = ReviewType.timed;
-          //                       });
-          //                     },
-          //                   ),
-          //                 ],
-          //               )
-          //             : SizedBox.shrink(),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-        ),
-        //* Fourth step
-        Step(
-          state: currentStep >= 4 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 3,
-          title: Text(
-            '',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: (currentStep == 3)
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.grey9,
+          content: Form(
+            key: thirdFormKey,
+            child: SizedBox(
+              height: 400,
+              child: ListView(
+                children: [
+                  // Text('Voting type'),
+                  // RadioListTile<VotingType>.adaptive(
+                  //   title: Text('Free'),
+                  //   value: VotingType.free,
+                  //   groupValue: votingType,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       votingType = value!;
+                  //       reviewType = ReviewType.absent;
+                  //     });
+                  //   },
+                  // ),
+                  // RadioListTile<VotingType>.adaptive(
+                  //   title: Text('Timed'),
+                  //   value: VotingType.timed,
+                  //   groupValue: votingType,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       votingType = value!;
+                  //     });
+                  //   },
+                  // ),
+                  // (votingType == VotingType.timed)
+                  //     ? Column(
+                  //         children: [
+                  //           Text('Review'),
+                  //           RadioListTile<ReviewType>.adaptive(
+                  //             title: Text('Absent'),
+                  //             value: ReviewType.absent,
+                  //             groupValue: reviewType,
+                  //             onChanged: (value) {
+                  //               setState(() {
+                  //                 reviewType = ReviewType.absent;
+                  //               });
+                  //             },
+                  //           ),
+                  //           RadioListTile<ReviewType>.adaptive(
+                  //             title: Text('Timed'),
+                  //             value: ReviewType.timed,
+                  //             groupValue: reviewType,
+                  //             onChanged: (value) {
+                  //               setState(() {
+                  //                 reviewType = ReviewType.timed;
+                  //               });
+                  //             },
+                  //           ),
+                  //         ],
+                  //       )
+                  //     : SizedBox.shrink(),
+                  // if (votingType == VotingType.timed)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Work timer'),
+                      CupertinoTimerPicker(
+                        mode: CupertinoTimerPickerMode.ms,
+                        initialTimerDuration:
+                            Duration(minutes: workTimer.inMinutes, seconds: workTimer.inSeconds),
+                        onTimerDurationChanged: (Duration newDuration) {
+                          workTimer = newDuration;
+                        },
+                      ),
+                      Text('Intermission timer'),
+                      CupertinoTimerPicker(
+                        mode: CupertinoTimerPickerMode.ms,
+                        initialTimerDuration: Duration(
+                            minutes: intermissionTimer.inMinutes,
+                            seconds: intermissionTimer.inSeconds),
+                        onTimerDurationChanged: (Duration newDuration) {
+                          intermissionTimer = newDuration;
+                        },
+                      ),
+                      Text('Review timer'),
+                      CupertinoTimerPicker(
+                        mode: CupertinoTimerPickerMode.ms,
+                        initialTimerDuration: Duration(
+                            minutes: reviewTimer.inMinutes, seconds: reviewTimer.inSeconds),
+                        onTimerDurationChanged: (Duration newDuration) {
+                          reviewTimer = newDuration;
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
-          content: Placeholder(),
-          // content: Form(
-          //   key: fourthFormKey,
-          //   child: Placeholder(),
-          // ),
         ),
       ];
 }

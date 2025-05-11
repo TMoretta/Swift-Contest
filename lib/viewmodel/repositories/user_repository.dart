@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
-import 'package:swift_contest/model/data_models/user/user.dart';
+import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/services/user_service.dart';
-import 'package:swift_contest/utils/exceptions/custom_exception.dart';
+import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 import 'package:swift_contest/utils/failures/failure.dart';
 
 //* Interface
@@ -22,8 +22,7 @@ abstract interface class UserRepository {
   Future<Either<Failure, User>> signUpWithEmailAndPassword({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
+    required String fullName,
   });
 
   Future<Either<Failure, Unit>> signOut();
@@ -41,9 +40,9 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Either<Failure, User> getCurrentUser() {
     try {
-      final res = _userService.getCurrentUser();
-      return right(res);
-    } on CustomException catch (e) {
+      final result = _userService.getCurrentUser();
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }
@@ -51,9 +50,9 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<Either<Failure, User>> getUserById({required String id}) async {
     try {
-      final res = await _userService.getUserById(id: id);
-      return right(res);
-    } on CustomException catch (e) {
+      final result = await _userService.getUserById(id: id);
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }
@@ -64,9 +63,20 @@ class UserRepositoryImpl implements UserRepository {
     required String password,
   }) async {
     try {
-      final res = await _userService.signInWithEmailAndPassword(email: email, password: password);
-      return right(res);
-    } on CustomException catch (e) {
+      final result =
+          await _userService.signInWithEmailAndPassword(email: email, password: password);
+      return right(result);
+    } on UnsafeException catch (e) {
+      return left(Failure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> signOut() async {
+    try {
+      final result = await _userService.signOut();
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }
@@ -75,23 +85,13 @@ class UserRepositoryImpl implements UserRepository {
   Future<Either<Failure, User>> signUpWithEmailAndPassword({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
+    required String fullName,
   }) async {
     try {
-      final res = await _userService.signUpWithEmailAndPassword(email: email, password: password, firstName: firstName, lastName: lastName,);
-      return right(res);
-    } on CustomException catch (e) {
-      return left(Failure(message: e.message));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> signOut() async {
-    try {
-      await _userService.signOut();
-      return right(unit);
-    } on CustomException catch (e) {
+      final result = await _userService.signUpWithEmailAndPassword(
+          email: email, password: password, fullName: fullName);
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }

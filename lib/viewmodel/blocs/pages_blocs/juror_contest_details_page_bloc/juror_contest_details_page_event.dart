@@ -5,10 +5,19 @@ sealed class JurorContestDetailsPageEvent extends Equatable {
   const JurorContestDetailsPageEvent();
 }
 
-final class JurorContestDetailsPageGetExtendedContest extends JurorContestDetailsPageEvent {
+final class JurorContestDetailsPageGetContestMainInfo extends JurorContestDetailsPageEvent {
   final String contestId;
 
-  const JurorContestDetailsPageGetExtendedContest({required this.contestId});
+  const JurorContestDetailsPageGetContestMainInfo({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+}
+
+final class JurorContestDetailsPageGetVotingTabInfo extends JurorContestDetailsPageEvent {
+  final String contestId;
+
+  const JurorContestDetailsPageGetVotingTabInfo({required this.contestId});
 
   @override
   List<Object?> get props => [contestId];

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
-import 'package:swift_contest/view/widgets/auth_form_field.dart';
+import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_page_bloc/sign_up_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
@@ -18,11 +18,10 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -68,13 +67,14 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       //* Form
                       BlocProvider<SignUpPageBloc>(
-                        create: (context) =>
-                            SignUpPageBloc(userRepository: context.read<UserRepository>()),
+                        create: (context) => SignUpPageBloc(
+                            userRepository: context.read<UserRepository>()),
                         child: BlocConsumer<SignUpPageBloc, SignUpPageState>(
                           //* SignUpPageBloc listener
                           listener: (context, state) {
                             if (state.status.isFailure) {
-                              showSnackBar(context: context, text: state.message!);
+                              showSnackBar(
+                                  context: context, text: state.message!);
                             }
                             if (state.status.isSuccess) {
                               showDialog(
@@ -109,45 +109,41 @@ class _SignUpPageState extends State<SignUpPage> {
                                 padding: EdgeInsets.all(16),
                                 child: Column(
                                   children: [
-                                    //* First name field
-                                    AuthFormField(
-                                      controller: _firstNameController,
-                                      label: 'First name',
-                                      validator: _nameValidator,
-                                      prefixIcon: Icon(Icons.person_outline),
-                                    ),
-                                    SizedBox(height: 12),
-                                    //* Last name field
-                                    AuthFormField(
-                                      controller: _lastNameController,
-                                      label: 'Last name',
-                                      validator: _nameValidator,
-                                      prefixIcon: Icon(Icons.perm_identity),
+                                    //* Full name field
+                                    CustomTextFormFieldOutlined(
+                                      controller: _fullNameController,
+                                      label: 'Full name',
+                                      validator: (value) =>
+                                          _fullNameValidator(value?.trim()),
+                                      prefixIcon: Icon(Icons.person_outlined),
                                     ),
                                     SizedBox(height: 12),
                                     //* Email field
-                                    AuthFormField(
+                                    CustomTextFormFieldOutlined(
                                       controller: _emailController,
                                       label: 'Email',
-                                      validator: _emailValidator,
+                                      validator: (value) =>
+                                          _emailValidator(value?.trim()),
                                       prefixIcon: Icon(Icons.email_outlined),
                                     ),
                                     SizedBox(height: 12),
                                     //* Password field
-                                    AuthFormField(
+                                    CustomTextFormFieldOutlined(
                                       controller: _passwordController,
                                       label: 'Password',
-                                      validator: _passwordValidator,
+                                      validator: (value) =>
+                                          _passwordValidator(value?.trim()),
                                       prefixIcon: Icon(Icons.lock_outlined),
                                     ),
                                     SizedBox(height: 12),
                                     //* Confirm password field
-                                    AuthFormField(
+                                    CustomTextFormFieldOutlined(
                                       controller: _confirmPasswordController,
                                       label: 'Confirm password',
-                                      validator: (value) => _confirmPasswordValidator(
-                                          value, _passwordController.text),
-                                      prefixIcon: Icon(Icons.check_circle_outlined),
+                                      validator: (value) =>
+                                          _confirmPasswordValidator(value?.trim(), _confirmPasswordController.text.trim()),
+                                      prefixIcon:
+                                          Icon(Icons.check_circle_outlined),
                                     ),
                                     SizedBox(height: 2),
                                     //* Forgot password button
@@ -159,7 +155,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                         child: Text(
                                           'Forgot password?',
                                           style: TextStyle(
-                                              color: Theme.of(context).colorScheme.secondary),
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary),
                                         ),
                                       ),
                                     ),
@@ -168,12 +166,16 @@ class _SignUpPageState extends State<SignUpPage> {
                                       width: double.infinity,
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          if (_formKey.currentState?.validate() ?? false) {
+                                          if (_formKey.currentState
+                                                  ?.validate() ??
+                                              false) {
                                             _handleSignUpPage(context);
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Theme.of(context).colorScheme.primary,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                           foregroundColor: Colors.white,
                                         ),
                                         child: const Text(
@@ -194,26 +196,32 @@ class _SignUpPageState extends State<SignUpPage> {
                                           Text(
                                             'Already have an account?',
                                             style: TextStyle(
-                                              color: Theme.of(context).colorScheme.onSurface,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
                                             ),
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              context.go(AppRouter.signIn);
+                                              context.goNamed(AppRouter.signIn);
                                             },
                                             style: ButtonStyle(),
                                             child: DecoratedBox(
                                               decoration: BoxDecoration(
                                                 border: Border(
                                                   bottom: BorderSide(
-                                                    color: Theme.of(context).colorScheme.primary,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
                                                   ),
                                                 ),
                                               ),
                                               child: Text(
                                                 'Sign in',
                                                 style: TextStyle(
-                                                  color: Theme.of(context).colorScheme.primary,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -231,13 +239,17 @@ class _SignUpPageState extends State<SignUpPage> {
                                         decoration: BoxDecoration(
                                           border: Border(
                                             bottom: BorderSide(
-                                                color: Theme.of(context).colorScheme.secondary),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary),
                                           ),
                                         ),
                                         child: Text(
                                           'Vote in a contest as a guest',
                                           style: TextStyle(
-                                            color: Theme.of(context).colorScheme.secondary,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                             // color: Theme.of(context).colorScheme.surface,
@@ -263,23 +275,17 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  //* Function (handle sign up)
+  //* Handle sign up
   void _handleSignUpPage(BuildContext context) {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final firstName = _firstNameController.text.trim();
-    final lastName = _lastNameController.text.trim();
-
     context.read<SignUpPageBloc>().add(SignUpPageSignUpWithEmailAndPassword(
-          email: email,
-          password: password,
-          firstName: firstName,
-          lastName: lastName,
+          fullName: _fullNameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         ));
   }
 
-  //* Function (name validator)
-  String? _nameValidator(String? value) {
+  //* Full name validator
+  String? _fullNameValidator(String? value) {
     String? valueTrm = value?.trim();
 
     if (valueTrm == null || valueTrm.isEmpty) {
@@ -294,7 +300,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return null;
   }
 
-  //* Function (email validator)
+  //* Email validator
   String? _emailValidator(String? value) {
     String? valueTrm = value?.trim();
     if (valueTrm == null || valueTrm.isEmpty) {
@@ -309,7 +315,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return null;
   }
 
-  //* Function (password validator)
+  //* Password validator
   String? _passwordValidator(String? value) {
     String? valueTrm = value?.trim();
     if (valueTrm == null || valueTrm.isEmpty) {
@@ -333,7 +339,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return null;
   }
 
-  //* Function (confirm password validator)
+  //* Confirm password validator
   String? _confirmPasswordValidator(String? value, String password) {
     String? valueTrm = value?.trim();
     if (valueTrm == null || valueTrm.isEmpty) {

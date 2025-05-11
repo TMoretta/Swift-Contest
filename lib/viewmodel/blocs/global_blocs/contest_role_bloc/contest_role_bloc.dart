@@ -1,11 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:swift_contest/model/data_models/profile/contest_role.dart';
+import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 
 part 'contest_role_event.dart';
+
 part 'contest_role_state.dart';
 
 class ContestRoleBloc extends Bloc<ContestRoleEvent, ContestRoleState> {
@@ -17,6 +20,7 @@ class ContestRoleBloc extends Bloc<ContestRoleEvent, ContestRoleState> {
     on<ContestRoleInitRole>(_contestRoleInit);
     on<ContestRoleChangeRole>(_contestRoleChange);
     on<ContestRoleTriggerListener>(_contestRoleTriggerListener);
+    on<ContestRoleClear>(_clear);
   }
 
   Future<void> _contestRoleInit(
@@ -46,5 +50,12 @@ class ContestRoleBloc extends Bloc<ContestRoleEvent, ContestRoleState> {
     final currentState = state;
     emit(state.copyWith(status: BlocStatus.loading));
     emit(currentState);
+  }
+
+  void _clear(
+    ContestRoleClear event,
+    Emitter<ContestRoleState> emit,
+  ) {
+    emit(ContestRoleState(status: BlocStatus.initial));
   }
 }

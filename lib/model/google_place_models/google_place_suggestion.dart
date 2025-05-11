@@ -1,8 +1,10 @@
-class GooglePlaceSuggestion {
+import 'package:equatable/equatable.dart';
+
+class GooglePlaceSuggestion extends Equatable {
   final String placeId;
   final String address;
 
-  GooglePlaceSuggestion({
+  const GooglePlaceSuggestion({
     required this.placeId,
     required this.address,
   });
@@ -13,4 +15,18 @@ class GooglePlaceSuggestion {
       address: map['description'] as String,
     );
   }
+
+  GooglePlaceSuggestion copyWith({
+    String? placeId,
+    String? address,
+  }) {
+    return GooglePlaceSuggestion(
+      placeId: placeId ?? this.placeId,
+      address: address ?? this.address,
+    );
+  }
+
+
+  @override
+  List<Object?> get props => [placeId, address];
 }

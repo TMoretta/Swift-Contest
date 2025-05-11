@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/contest/contest.dart';
-import 'package:swift_contest/model/data_models/juration/juration.dart';
-import 'package:swift_contest/model/data_models/participation/participation.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
+import 'package:swift_contest/model/data_models/contest.dart';
+import 'package:swift_contest/model/data_models/juration.dart';
+import 'package:swift_contest/model/data_models/participation.dart';
+import 'package:swift_contest/model/data_models/place.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 
 part 'organizer_created_contests_event.dart';
@@ -22,18 +24,22 @@ class OrganizerCreatedContestsBloc
   final ProfileRepository _profileRepository;
   final ParticipationRepository _participationRepository;
   final JurationRepository _jurationRepository;
+  final PlaceRepository _placeRepository;
 
   OrganizerCreatedContestsBloc({
     required ContestRepository contestRepository,
     required ProfileRepository profileRepository,
     required ParticipationRepository participationRepository,
     required JurationRepository jurationRepository,
+    required PlaceRepository placeRepository,
   })  : _contestRepository = contestRepository,
         _profileRepository = profileRepository,
         _participationRepository = participationRepository,
         _jurationRepository = jurationRepository,
+  _placeRepository = placeRepository,
         super(OrganizerCreatedContestsState(status: BlocStatus.initial)) {
     on<OrganizerCreatedContestsGetCreatedContests>(_getCreatedContests);
+    on<OrganizerCreatedContestsClear>(_clear);
   }
 
   Future<void> _getCreatedContests(
@@ -43,6 +49,7 @@ class OrganizerCreatedContestsBloc
     emit(OrganizerCreatedContestsState(status: BlocStatus.loading));
 
     final List<Contest> contests = [];
+    final List<Place> places = [];
     final List<Profile> organizers = [];
     final List<List<Participation>> participations = [];
     final List<List<Juration>> jurations = [];
@@ -68,6 +75,18 @@ class OrganizerCreatedContestsBloc
       );
 
       if (resOrganizer.isLeft()) return;
+    }
+
+    //* Ottengo il place per ogni contest
+    for (var contest in contests) {
+      final resPlace = await _placeRepository.getPlaceById(id: contest.placeId);
+      resPlace.fold(
+            (failure) => emit(
+            OrganizerCreatedContestsState(status: BlocStatus.failure, message: failure.message)),
+            (success) => places.add(success),
+      );
+
+      if (resPlace.isLeft()) return;
     }
 
     //* Ottengo le participations per ogni contest
@@ -101,6 +120,11 @@ class OrganizerCreatedContestsBloc
       organizers: organizers.reversed.toList(growable: false),
       participations: participations.reversed.toList(growable: false),
       jurations: jurations.reversed.toList(growable: false),
+      places: places.reversed.toList(growable: false),
     ));
+  }
+
+  void _clear(OrganizerCreatedContestsClear event, Emitter<OrganizerCreatedContestsState> emit,) {
+    emit(OrganizerCreatedContestsState(status: BlocStatus.initial));
   }
 }

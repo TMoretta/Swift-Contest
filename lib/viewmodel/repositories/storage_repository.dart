@@ -1,26 +1,31 @@
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/services/storage_service.dart';
-import 'package:swift_contest/utils/exceptions/custom_exception.dart';
+import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 import 'package:swift_contest/utils/failures/failure.dart';
 
 //* Interface
 abstract interface class StorageRepository {
-  Future<Either<Failure,List<String>>> uploadImages({required List<XFile> images});
+  Future<Either<Failure, List<String>>> uploadImages(
+      {required String bucket, required List<XFile> images});
 }
 
 //* Implementation
 class StorageRepositoryImpl implements StorageRepository {
   final StorageService _storageService;
 
-  StorageRepositoryImpl({required StorageService storageService}) : _storageService = storageService;
+  StorageRepositoryImpl({required StorageService storageService})
+      : _storageService = storageService;
 
   @override
-  Future<Either<Failure,List<String>>> uploadImages({required List<XFile> images}) async {
+  Future<Either<Failure, List<String>>> uploadImages({
+    required String bucket,
+    required List<XFile> images,
+  }) async {
     try {
-      final res = await _storageService.uploadImages(images: images);
-      return right(res);
-    } on CustomException catch (e) {
+      final result = await _storageService.uploadImages(bucket: bucket, images: images);
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }

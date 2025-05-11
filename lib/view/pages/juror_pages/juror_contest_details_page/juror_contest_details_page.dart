@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/user/user.dart';
+import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_voting_tab.dart';
@@ -8,6 +8,7 @@ import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.d
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
@@ -44,6 +45,9 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
         contestRepository: context.read<ContestRepository>(),
         profileRepository: context.read<ProfileRepository>(),
         participationRepository: context.read<ParticipationRepository>(),
+        placeRepository: context.read<PlaceRepository>(),
+        votingSessionRepository: context.read(),
+        votingSessionProcedureRepository: context.read(),
       ),
       child: Scaffold(
         appBar: AppBar(
@@ -119,7 +123,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                             physics: NeverScrollableScrollPhysics(),
                             children: [
                               JurorDetailsTab(contestId: contestId),
-                              JurorVotingTab(),
+                              JurorVotingTab(contestId: contestId),
                             ],
                           ),
                         ),

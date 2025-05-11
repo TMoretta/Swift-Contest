@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
-import 'package:swift_contest/view/widgets/auth_form_field.dart';
+import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
@@ -64,13 +64,14 @@ class _SignInPageState extends State<SignInPage> {
                         height: 12,
                       ),
                       BlocProvider<SignInPageBloc>(
-                        create: (context) =>
-                            SignInPageBloc(userRepository: context.read<UserRepository>()),
+                        create: (context) => SignInPageBloc(
+                            userRepository: context.read<UserRepository>()),
                         child: BlocConsumer<SignInPageBloc, SignInPageState>(
                           //* AuthBloc listener
                           listener: (context, state) {
                             if (state.status.isFailure) {
-                              showSnackBar(context: context, text: state.message!);
+                              showSnackBar(
+                                  context: context, text: state.message!);
                             }
                           },
                           //* AuthBloc builder
@@ -86,18 +87,20 @@ class _SignInPageState extends State<SignInPage> {
                                 child: Column(
                                   children: [
                                     //* Email field
-                                    AuthFormField(
+                                    CustomTextFormFieldOutlined(
                                       controller: _emailController,
                                       label: 'Email',
-                                      validator: _emailValidator,
+                                      validator: (value) =>
+                                          _emailValidator(value?.trim()),
                                       prefixIcon: Icon(Icons.email_outlined),
                                     ),
                                     SizedBox(height: 12),
                                     //* Password field
-                                    AuthFormField(
+                                    CustomTextFormFieldOutlined(
                                       controller: _passwordController,
                                       label: 'Password',
-                                      validator: _passwordValidator,
+                                      validator: (value) =>
+                                          _passwordValidator(value?.trim()),
                                       prefixIcon: Icon(Icons.lock_outlined),
                                     ),
                                     SizedBox(height: 2),
@@ -110,7 +113,9 @@ class _SignInPageState extends State<SignInPage> {
                                         child: Text(
                                           'Forgot password?',
                                           style: TextStyle(
-                                              color: Theme.of(context).colorScheme.secondary),
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary),
                                         ),
                                       ),
                                     ),
@@ -119,12 +124,16 @@ class _SignInPageState extends State<SignInPage> {
                                       width: double.infinity,
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          if (_formKey.currentState?.validate() ?? false) {
+                                          if (_formKey.currentState
+                                                  ?.validate() ??
+                                              false) {
                                             _handleSignInPage(context);
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Theme.of(context).colorScheme.primary,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                           foregroundColor: Colors.white,
                                         ),
                                         child: const Text(
@@ -145,7 +154,9 @@ class _SignInPageState extends State<SignInPage> {
                                           Text(
                                             'Don\'t have an account?',
                                             style: TextStyle(
-                                              color: Theme.of(context).colorScheme.onSurface,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
                                             ),
                                           ),
                                           TextButton(
@@ -157,14 +168,18 @@ class _SignInPageState extends State<SignInPage> {
                                               decoration: BoxDecoration(
                                                 border: Border(
                                                   bottom: BorderSide(
-                                                    color: Theme.of(context).colorScheme.primary,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
                                                   ),
                                                 ),
                                               ),
                                               child: Text(
                                                 'Sign up',
                                                 style: TextStyle(
-                                                  color: Theme.of(context).colorScheme.primary,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -182,13 +197,17 @@ class _SignInPageState extends State<SignInPage> {
                                         decoration: BoxDecoration(
                                           border: Border(
                                             bottom: BorderSide(
-                                                color: Theme.of(context).colorScheme.secondary),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary),
                                           ),
                                         ),
                                         child: Text(
                                           'Vote in a contest as a guest',
                                           style: TextStyle(
-                                            color: Theme.of(context).colorScheme.secondary,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                             // color: Theme.of(context).colorScheme.surface,
@@ -214,17 +233,15 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  //* Function (handle sign in)
+  //* Handle sign in
   void _handleSignInPage(BuildContext context) {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    context
-        .read<SignInPageBloc>()
-        .add(SignInPageSignInWithEmailAndPassword(email: email, password: password));
+    context.read<SignInPageBloc>().add(SignInPageSignInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        ));
   }
 
-  //* Function (email validator)
+  //* Email validator
   String? _emailValidator(String? value) {
     String? valueTrm = value?.trim();
     if (valueTrm == null || valueTrm.isEmpty) {
@@ -239,7 +256,7 @@ class _SignInPageState extends State<SignInPage> {
     return null;
   }
 
-  //* Function (Password validator)
+  //* Password validator
   String? _passwordValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your password';

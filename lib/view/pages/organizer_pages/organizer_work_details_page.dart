@@ -4,18 +4,21 @@ import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 
 class OrganizerWorkDetailsPage extends StatefulWidget {
-  final Map<String,dynamic> participantAndWorkJson;
+  final Map<String, dynamic> participantAndWorkJson;
 
-  const OrganizerWorkDetailsPage({required this.participantAndWorkJson, super.key});
+  const OrganizerWorkDetailsPage(
+      {required this.participantAndWorkJson, super.key});
 
   @override
-  State<OrganizerWorkDetailsPage> createState() => _OrganizerWorkDetailsPageState();
+  State<OrganizerWorkDetailsPage> createState() =>
+      _OrganizerWorkDetailsPageState();
 }
 
 class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
   @override
   Widget build(BuildContext context) {
-    final participantAndWork = ParticipantAndWork.fromJson(widget.participantAndWorkJson);
+    final participantAndWork =
+        ParticipantAndWork.fromJson(widget.participantAndWorkJson);
     return Scaffold(
       appBar: CustomAppBar(title: 'Work'),
       body: SafeArea(child: LayoutBuilder(
@@ -46,14 +49,23 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
-                          child: Image.network(
+                          child: (participantAndWork.work.imagesUrls.isNotEmpty) ? Image.network(
                             participantAndWork.work.imagesUrls[index],
                             fit: BoxFit.contain,
-                            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                              if (wasSynchronouslyLoaded || frame != null) return child;
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/images/image_not_found.jpg',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                            frameBuilder: (context, child, frame,
+                                wasSynchronouslyLoaded) {
+                              if (wasSynchronouslyLoaded || frame != null) {
+                                return child;
+                              }
                               return const Loader();
                             },
-                          ),
+                          ) : Image.asset('assets/images/image_not_found.jpg', fit: BoxFit.cover),
                         );
                       },
                     ),
@@ -67,9 +79,11 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                     children: [
                       Text(
                         'Description',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
                       ),
-                      Text(participantAndWork.work.description, style: TextStyle(fontSize: 18)),
+                      Text(participantAndWork.work.description,
+                          style: TextStyle(fontSize: 18)),
                     ],
                   ),
                   SizedBox(height: 8),
@@ -87,9 +101,9 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                       ),
                       Expanded(
                         child: Text(
-                          '${participantAndWork.participant.firstName} '
-                          '${participantAndWork.participant.lastName}',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                          participantAndWork.participant.fullName,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],

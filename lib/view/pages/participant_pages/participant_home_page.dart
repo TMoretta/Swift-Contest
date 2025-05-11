@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/profile/contest_role.dart';
-import 'package:swift_contest/model/data_models/user/user.dart';
+import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/enums/contest_role.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/home_page_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/participant_joined_contests_bloc/participant_joined_contests_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_home_page_bloc/participant_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 
 class ParticipantHomePage extends StatefulWidget {
   const ParticipantHomePage({super.key});
@@ -33,21 +32,17 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
     super.didChangeDependencies();
     user = context.read<AuthBloc>().state.user!;
     if (!context.read<ParticipantJoinedContestsBloc>().state.status.isSuccess) {
-      context
-          .read<ParticipantJoinedContestsBloc>()
-          .add(ParticipantJoinedContestsGetJoinedContests(participantId: user.id));
+      context.read<ParticipantJoinedContestsBloc>().add(
+          ParticipantJoinedContestsGetJoinedContests(participantId: user.id));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final joinContestFormKey = GlobalKey<FormState>();
-    String? contestToken;
-    String? participantToken;
-
     return Scaffold(
       appBar: HomePageAppBar(contestRole: ContestRole.participant),
-      body: BlocConsumer<ParticipantJoinedContestsBloc, ParticipantJoinedContestsState>(
+      body: BlocConsumer<ParticipantJoinedContestsBloc,
+          ParticipantJoinedContestsState>(
         listener: (context, state) {
           if (state.status.isFailure) {
             showSnackBar(context: context, text: state.message!);
@@ -61,7 +56,8 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
               child: RefreshIndicator.adaptive(
                 onRefresh: () async => context
                     .read<ParticipantJoinedContestsBloc>()
-                    .add(ParticipantJoinedContestsGetJoinedContests(participantId: user.id)),
+                    .add(ParticipantJoinedContestsGetJoinedContests(
+                        participantId: user.id)),
                 child: ListView.builder(
                   itemCount: contests.length,
                   itemBuilder: (context, index) {
@@ -74,9 +70,11 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                           participations: state.participations![index],
                           jurations: state.jurations![index],
                           onTap: () {
-                            context.pushNamed(AppRouter.participantContestDetails,
+                            context.pushNamed(
+                                AppRouter.participantContestDetails,
                                 extra: contest.id);
                           },
+                          place: state.places![index],
                         ),
                         SizedBox(height: 8),
                       ],
@@ -94,6 +92,9 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
       ),
       floatingActionButton: FilledButton(
         onPressed: () {
+          final joinContestFormKey = GlobalKey<FormState>();
+          final contestTokenController = TextEditingController();
+          final participantTokenController = TextEditingController();
           showDialog(
             context: context,
             builder: (context) {
@@ -107,13 +108,13 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       CustomTextFormFieldUnderlined(
+                        controller: contestTokenController,
                         label: 'Contest token',
-                        onChanged: (value) => contestToken = value,
                         validator: (value) => noEmptyValidator(value?.trim()),
                       ),
                       CustomTextFormFieldUnderlined(
+                        controller: participantTokenController,
                         label: 'Invitation token',
-                        onChanged: (value) => participantToken = value,
                         validator: (value) => noEmptyValidator(value?.trim()),
                       ),
                     ],
@@ -123,19 +124,23 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                   BlocProvider(
                     create: (context) => ParticipantHomePageBloc(
                       contestRepository: context.read<ContestRepository>(),
-                      participationRepository: context.read<ParticipationRepository>(),
-                      profileRepository: context.read<ProfileRepository>(),
-                      jurationRepository: context.read<JurationRepository>(),
+                      participationRepository:
+                          context.read<ParticipationRepository>(),
+                      invitationRepository: context.read<InvitationRepository>(),
                     ),
-                    child: BlocConsumer<ParticipantHomePageBloc, ParticipantHomePageState>(
+                    child: BlocConsumer<ParticipantHomePageBloc,
+                        ParticipantHomePageState>(
                       listener: (context, state) {
                         if (state.status.isFailure) {
                           showSnackBar(context: context, text: state.message!);
                         }
                         if (state.status.isSuccess) {
                           context.pop();
-                          showSnackBar(context: context, text: 'Joined contest successfully');
-                          context.read<ParticipantJoinedContestsGetJoinedContests>();
+                          showSnackBar(
+                              context: context,
+                              text: 'Joined contest successfully');
+                          context.read<
+                              ParticipantJoinedContestsGetJoinedContests>();
                         }
                       },
                       builder: (context, state) {
@@ -154,12 +159,14 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                             ),
                             TextButton(
                               onPressed: () {
-                                if (joinContestFormKey.currentState?.validate() ?? false) {
+                                if (joinContestFormKey.currentState
+                                        ?.validate() ??
+                                    false) {
                                   context.read<ParticipantHomePageBloc>().add(
                                         ParticipantHomePageJoinContest(
                                           participantId: user.id,
-                                          contestToken: contestToken!,
-                                          participantToken: participantToken!,
+                                          contestToken: contestTokenController.text.trim(),
+                                          participantToken: participantTokenController.text.trim(),
                                         ),
                                       );
                                 }

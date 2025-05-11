@@ -8,7 +8,7 @@
 // import 'package:swift_contest/model/services/profile_service.dart';
 // import 'package:swift_contest/model/services/storage_service.dart';
 // import 'package:swift_contest/model/services/user_service.dart';
-// import 'package:swift_contest/model/services/voting_form_service.dart';
+// import 'package:swift_contest/model/services/voting_session_form_service.dart';
 // import 'package:swift_contest/model/services/work_service.dart';
 // import 'package:swift_contest/utils/constants/constants.dart';
 // import 'package:swift_contest/viewmodel/blocs/general_blocs/auth_bloc/auth_bloc.dart';

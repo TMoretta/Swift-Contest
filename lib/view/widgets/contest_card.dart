@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/contest/contest.dart';
-import 'package:swift_contest/model/data_models/contest/contest_status.dart';
-import 'package:swift_contest/model/data_models/juration/juration.dart';
-import 'package:swift_contest/model/data_models/juration/juration_status.dart';
-import 'package:swift_contest/model/data_models/participation/participation.dart';
-import 'package:swift_contest/model/data_models/participation/participation_status.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
+import 'package:swift_contest/model/data_models/contest.dart';
+import 'package:swift_contest/model/data_models/juration.dart';
+import 'package:swift_contest/model/data_models/participation.dart';
+import 'package:swift_contest/model/data_models/place.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/enums/contest_status.dart';
+import 'package:swift_contest/model/enums/juror_status.dart';
+import 'package:swift_contest/model/enums/participant_status.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 
 class ContestCard extends StatefulWidget {
   final Contest contest;
+  final Place place;
   final Profile organizer;
   final List<Participation> participations;
   final List<Juration> jurations;
@@ -18,6 +20,7 @@ class ContestCard extends StatefulWidget {
 
   const ContestCard({
     required this.contest,
+    required this.place,
     required this.organizer,
     required this.participations,
     required this.jurations,
@@ -34,13 +37,13 @@ class _ContestCardState extends State<ContestCard> {
   Widget build(BuildContext context) {
     int participationsJoinedCount = 0;
     for (var participation in widget.participations) {
-      if (participation.status == ParticipationStatus.joined) {
+      if (participation.participantStatus == ParticipantStatus.joined) {
         ++participationsJoinedCount;
       }
     }
     int jurationsJoinedCount = 0;
     for (var juration in widget.jurations) {
-      if (juration.status == JurationStatus.joined) {
+      if (juration.jurorStatus == JurorStatus.joined) {
         ++jurationsJoinedCount;
       }
     }
@@ -78,14 +81,14 @@ class _ContestCardState extends State<ContestCard> {
                         alignment: Alignment.center,
                         child: (widget.contest.imagesUrls.isNotEmpty)
                             ? Image.network(
-                                widget.contest.imagesUrls[0],
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/images/image_not_found.jpg',
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              )
+                          widget.contest.imagesUrls[0],
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/images/image_not_found.jpg',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        )
                             : Image.asset('assets/images/image_not_found.jpg', fit: BoxFit.cover),
                       ),
                     ),
@@ -117,14 +120,14 @@ class _ContestCardState extends State<ContestCard> {
                         Icon(
                           Icons.circle,
                           size: 20,
-                          color: switch (widget.contest.status) {
+                          color: switch (widget.contest.contestStatus) {
                             ContestStatus.preparationPhase =>
-                              Theme.of(context).colorScheme.statusPreparation,
+                            Theme.of(context).colorScheme.statusPreparation,
                             ContestStatus.participationPhase =>
-                              Theme.of(context).colorScheme.statusParticipation,
+                            Theme.of(context).colorScheme.statusParticipation,
                             ContestStatus.votingPhase => Theme.of(context).colorScheme.statusVoting,
                             ContestStatus.terminated =>
-                              Theme.of(context).colorScheme.statusTerminated,
+                            Theme.of(context).colorScheme.statusTerminated,
                             ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
                           },
                         ),
@@ -143,7 +146,7 @@ class _ContestCardState extends State<ContestCard> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            '${widget.organizer.firstName} ${widget.organizer.lastName}',
+                            widget.organizer.fullName,
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -162,7 +165,7 @@ class _ContestCardState extends State<ContestCard> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            widget.contest.place.address,
+                            widget.place.address,
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -210,7 +213,7 @@ class _ContestCardState extends State<ContestCard> {
                     ),
                     //* Status
                     Text(
-                      switch (widget.contest.status) {
+                      switch (widget.contest.contestStatus) {
                         ContestStatus.preparationPhase => 'Preparation phase',
                         ContestStatus.participationPhase => 'Participation phase',
                         ContestStatus.votingPhase => 'Voting phase',
@@ -220,14 +223,14 @@ class _ContestCardState extends State<ContestCard> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: switch (widget.contest.status) {
+                        color: switch (widget.contest.contestStatus) {
                           ContestStatus.preparationPhase =>
-                            Theme.of(context).colorScheme.statusPreparation,
+                          Theme.of(context).colorScheme.statusPreparation,
                           ContestStatus.participationPhase =>
-                            Theme.of(context).colorScheme.statusParticipation,
+                          Theme.of(context).colorScheme.statusParticipation,
                           ContestStatus.votingPhase => Theme.of(context).colorScheme.statusVoting,
                           ContestStatus.terminated =>
-                            Theme.of(context).colorScheme.statusTerminated,
+                          Theme.of(context).colorScheme.statusTerminated,
                           ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
                         },
                       ),

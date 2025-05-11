@@ -1,0 +1,4 @@
+enum FormFieldType {
+  textual,
+  numeric,
+}

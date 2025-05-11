@@ -1,15 +1,17 @@
-import 'package:swift_contest/model/data_models/profile/profile.dart';
-import 'package:swift_contest/model/data_models/work/work.dart';
+import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/data_models/work.dart';
 
-final class ParticipantAndWork {
-  final Profile participant;
+final class ParticipantAndWork extends Equatable{
+  final Participant participant;
   final Work work;
 
-  ParticipantAndWork({required this.participant, required this.work});
+  const ParticipantAndWork({required this.participant, required this.work});
 
   factory ParticipantAndWork.fromJson(Map<String, dynamic> map) {
     return ParticipantAndWork(
-      participant: Profile.fromJson(map['participant']),
+      participant: Participant.fromJson(map['participant']),
       work: Work.fromJson(map['work']),
     );
   }
@@ -20,4 +22,7 @@ final class ParticipantAndWork {
       'work': work.toJson(),
     };
   }
+
+  @override
+  List<Object?> get props => [participant,work];
 }

@@ -12,3 +12,9 @@ final class ParticipantJoinedContestsGetJoinedContests extends ParticipantJoined
   @override
   List<Object?> get props => [participantId];
 }
+
+final class ParticipantJoinedContestsClear extends ParticipantJoinedContestsEvent {
+  @override
+  List<Object?> get props => [];
+}
+

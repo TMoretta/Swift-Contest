@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final List<Widget>? actions;
 
-  const CustomAppBar({required this.title, super.key});
+
+  const CustomAppBar({required this.title, this.actions, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,22 +21,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      actions: [
-        // IconButton(
-        //   onPressed: () {
-        //     context.go('/notifications');
-        //   },
-        //   icon: Icon(Icons.notifications),
-        //   color: Theme.of(context).colorScheme.secondary,
-        // ),
-        IconButton(
-          onPressed: () {
-            context.go('/settings');
-          },
-          icon: Icon(Icons.more_vert),
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-      ],
+      actions: actions,
       shadowColor: Theme.of(context).colorScheme.black,
       surfaceTintColor: Theme.of(context).colorScheme.surface,
       elevation: 0.8,

@@ -6,10 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/view/pages/home_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_contest_details_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_home_page.dart';
+import 'package:swift_contest/view/pages/juror_pages/juror_voting_procedure_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_creation_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_contest_details_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart';
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_procedure_page.dart';
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_results_export_page.dart';
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_results_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_settings_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_page.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart';
@@ -22,6 +26,7 @@ import 'package:swift_contest/view/pages/splash_page.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 
+//* GoRouter
 GoRouter getGoRouter({required AuthBloc authBloc}) {
   return GoRouter(
     initialLocation: '/splash',
@@ -35,14 +40,14 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
       ),
       GoRoute(
         name: AppRouter.signIn,
-        path: '/signin',
+        path: '/sign_in',
         pageBuilder: (context, state) {
           return MaterialPage(child: SignInPage());
         },
       ),
       GoRoute(
         name: AppRouter.signUp,
-        path: '/signup',
+        path: '/sign_up',
         pageBuilder: (context, state) {
           return MaterialPage(child: SignUpPage());
         },
@@ -54,7 +59,8 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(child: HomePage());
         },
       ),
-      GoRoute( //Only to dispatch to the correct home page based on the role
+      GoRoute(
+        //Only to dispatch to the correct home page based on the role
         name: AppRouter.home,
         path: '/home',
         pageBuilder: (context, state) {
@@ -77,6 +83,13 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           );
         },
         routes: [
+          GoRoute(
+            name: AppRouter.organizerContestCreation,
+            path: '/contest_creation',
+            pageBuilder: (context, state) {
+              return MaterialPage(child: OrganizerContestCreationPage());
+            },
+          ),
           GoRoute(
             name: AppRouter.organizerContestDetails,
             path: '/contest_details',
@@ -133,15 +146,11 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
                       ),
                     );
                   }
-                  final Map<String, dynamic> votingFormPlusContestIdJson =
-                      state.extra as Map<String, dynamic>;
-                  final String contestId = votingFormPlusContestIdJson['_contest_id'] as String;
-                  votingFormPlusContestIdJson.remove('_contest_id');
-                  final Map<String, dynamic> votingFormJson = votingFormPlusContestIdJson;
+                  final List<Map<String, dynamic>> votingFormFieldsJson =
+                      state.extra as List<Map<String, dynamic>>;
                   return MaterialPage(
                       child: OrganizerVotingFormEditPage(
-                    contestId: contestId,
-                    votingFormJson: votingFormJson,
+                    votingFormFieldsJson: votingFormFieldsJson,
                   ));
                 },
               ),
@@ -152,15 +161,43 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
                   final Map<String, dynamic> data = state.extra as Map<String, dynamic>;
                   return MaterialPage(child: OrganizerVotingSettingsPage(data: data));
                 },
-              )
+                routes: [
+                  GoRoute(
+                    name: AppRouter.organizerVotingProcedure,
+                    path: '/voting_procedure',
+                    pageBuilder: (context, state) {
+                      final String contestId = state.extra! as String;
+                      return MaterialPage(
+                          child: OrganizerVotingProcedurePage(contestId: contestId));
+                    },
+                  ),
+                ],
+              ),
+              GoRoute(
+                name: AppRouter.organizerVotingResults,
+                path: '/voting_results',
+                pageBuilder: (context, state) {
+                  final Map<String, dynamic> data = state.extra as Map<String, dynamic>;
+                  final contestId = data['contest_id'];
+                  final votingSessionId = data['voting_session_id'];
+                  return MaterialPage(
+                      child: OrganizerVotingResultsPage(
+                    contestId: contestId,
+                    votingSessionId: votingSessionId,
+                  ));
+                },
+                routes: [
+                  GoRoute(
+                    name: AppRouter.organizerVotingResultsExport,
+                    path: '/export',
+                    pageBuilder: (context, state) {
+                      final Map<String, dynamic> data = state.extra as Map<String, dynamic>;
+                      return MaterialPage(child: OrganizerVotingResultsExportPage(data: data));
+                    },
+                  ),
+                ],
+              ),
             ],
-          ),
-          GoRoute(
-            name: AppRouter.organizerContestCreation,
-            path: '/contest_creation',
-            pageBuilder: (context, state) {
-              return MaterialPage(child: OrganizerContestCreationPage());
-            },
           ),
         ],
       ),
@@ -188,27 +225,26 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
                 child: ParticipantContestDetailsPage(contestId: contestId),
               );
             },
-                routes: [
-                  GoRoute(
-                    name: AppRouter.participantWorkSubmit,
-                    path: '/work_submit',
-                    pageBuilder: (context, state) {
-                      if (state.extra == null) {
-                        return MaterialPage(
-                          child: Scaffold(
-                            appBar: CustomAppBar(title: 'Work Submit'),
-                            body: Center(
-                              child: Text('You can not navigate to this page directly'),
-                            ),
-                          ),
-                        );
-                      }
-                      final contestId = state.extra as String;
-                      return MaterialPage(
-                          child: ParticipantWorkSubmitPage(contestId: contestId));
-                    },
-                  ),
-                ],
+            routes: [
+              GoRoute(
+                name: AppRouter.participantWorkSubmit,
+                path: '/work_submit',
+                pageBuilder: (context, state) {
+                  if (state.extra == null) {
+                    return MaterialPage(
+                      child: Scaffold(
+                        appBar: CustomAppBar(title: 'Work Submit'),
+                        body: Center(
+                          child: Text('You can not navigate to this page directly'),
+                        ),
+                      ),
+                    );
+                  }
+                  final contestId = state.extra as String;
+                  return MaterialPage(child: ParticipantWorkSubmitPage(contestId: contestId));
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -218,24 +254,35 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         pageBuilder: (context, state) => MaterialPage(child: JurorHomePage()),
         routes: [
           GoRoute(
-              name: AppRouter.jurorContestDetails,
-              path: '/contest_details',
-              pageBuilder: (context, state) {
-                if (state.extra == null) {
-                  return MaterialPage(
-                    child: Scaffold(
-                      appBar: CustomAppBar(title: 'Contest Details'),
-                      body: Center(
-                        child: Text('You can not navigate to this page directly'),
-                      ),
-                    ),
-                  );
-                }
-                final contestId = state.extra as String;
+            name: AppRouter.jurorContestDetails,
+            path: '/contest_details',
+            pageBuilder: (context, state) {
+              if (state.extra == null) {
                 return MaterialPage(
-                  child: JurorContestDetailsPage(contestId: contestId),
+                  child: Scaffold(
+                    appBar: CustomAppBar(title: 'Contest Details'),
+                    body: Center(
+                      child: Text('You can not navigate to this page directly'),
+                    ),
+                  ),
                 );
-              }),
+              }
+              final contestId = state.extra as String;
+              return MaterialPage(
+                child: JurorContestDetailsPage(contestId: contestId),
+              );
+            },
+            routes: [
+              GoRoute(
+                name: AppRouter.jurorVotingProcedure,
+                path: '/voting_procedure',
+                pageBuilder: (context, state) {
+                  final String contestId = state.extra! as String;
+                  return MaterialPage(child: JurorVotingProcedurePage(contestId: contestId));
+                },
+              ),
+            ],
+          ),
         ],
       ),
     ],
@@ -248,12 +295,12 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         return null;
       }
       if (authState.status.isUnauthenticated &&
-          matchedLocation != '/signin' &&
-          matchedLocation != '/signup') {
-        return '/signin';
+          matchedLocation != '/sign_in' &&
+          matchedLocation != '/sign_up') {
+        return '/sign_in';
       }
       if (authState.status.isAuthenticated &&
-          (matchedLocation == '/signin' || matchedLocation == '/signup')) {
+          (matchedLocation == '/sign_in' || matchedLocation == '/sign_up')) {
         return '/home';
       }
       return null; // nessun redirect
@@ -278,6 +325,9 @@ final class AppRouter {
   static const String organizerWorkDetails = 'organizerWorkDetails';
   static const String organizerVotingFormEdit = 'organizerVotingFormEdit';
   static const String organizerVotingSettings = 'organizerVotingSettings';
+  static const String organizerVotingProcedure = 'organizerVotingProcedure';
+  static const String organizerVotingResults = 'organizerVotingResults';
+  static const String organizerVotingResultsExport = 'organizerVotingResultsExport';
 
   static const String participantHome = 'participantHome';
   static const String participantContestDetails = 'participantContestDetails';
@@ -285,6 +335,7 @@ final class AppRouter {
 
   static const String jurorHome = 'jurorHome';
   static const String jurorContestDetails = 'jurorContestDetails';
+  static const String jurorVotingProcedure = 'jurorVotingProcedure';
 }
 
 //* AppAuthBlocNotifier

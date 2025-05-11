@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/user/user.dart';
+import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_details_tab.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_voting_tab.dart';
@@ -9,6 +9,7 @@ import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.d
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
@@ -45,6 +46,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
         profileRepository: context.read<ProfileRepository>(),
         participationRepository: context.read<ParticipationRepository>(),
         workRepository: context.read<WorkRepository>(),
+        placeRepository: context.read<PlaceRepository>(),
       ),
       child: Scaffold(
         appBar: AppBar(

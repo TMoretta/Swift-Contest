@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/utils/exceptions/custom_exception.dart';
+import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
 //* Interface
 abstract interface class EdgeService {
@@ -33,13 +33,13 @@ class EdgeServiceImpl implements EdgeService {
       await _supabase.functions.invoke('send-invite', body: {
         'email': email,
         'subject': 'You are invited to participate!',
-        'html': '<p>Hi, you are invited to join our contest.</br>'
-            'Contest token: $contestToken</br>'
+        'html': '<p>Hi, you are invited to join our contest.<br>'
+            'Contest token: $contestToken<br>'
             'Invitation token: $participantToken</p>',
       });
       return unit;
     } catch (e) {
-      throw CustomException(message: e.toString());
+      throw UnsafeException(message: e.toString());
     }
   }
 
@@ -53,13 +53,13 @@ class EdgeServiceImpl implements EdgeService {
       await _supabase.functions.invoke('send-invite', body: {
         'email': email,
         'subject': 'You are invited to vote!',
-        'html': '<p>Hi, you are invited to join our contest.</br>'
-            'Contest token: $contestToken</br>'
+        'html': '<p>Hi, you are invited to join our contest.<br>'
+            'Contest token: $contestToken<br>'
             'Invitation token: $jurorToken</p>',
       });
       return unit;
     } catch (e) {
-      throw CustomException(message: e.toString());
+      throw UnsafeException(message: e.toString());
     }
   }
 }

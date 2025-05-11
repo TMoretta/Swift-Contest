@@ -13,3 +13,8 @@ final class JurorJoinedContestsGetJoinedContests extends JurorJoinedContestsEven
   List<Object?> get props => [jurorId];
 }
 
+final class JurorJoinedContestsClear extends JurorJoinedContestsEvent {
+  @override
+  List<Object?> get props => [];
+}
+

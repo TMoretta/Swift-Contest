@@ -1,19 +1,18 @@
-import 'package:swift_contest/model/data_models/participation/participation.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
+import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/data_models/participation.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 
-class ParticipationAndParticipant {
+class ParticipationAndParticipant extends Equatable {
   final Participation participation;
-  final Profile? participant;
+  final Participant? participant;
 
-  ParticipationAndParticipant({required this.participation, required this.participant});
+  const ParticipationAndParticipant({required this.participation, required this.participant});
 
   factory ParticipationAndParticipant.fromJson(Map<String, dynamic> map) {
-    final participantMap = map['participant'];
     return ParticipationAndParticipant(
-      participation:
-          Participation.fromJson(map['participation'] as Map<String, dynamic>),
-      participant: (participantMap != null)
-          ? Profile.fromJson(map['participant'] as Map<String, dynamic>)
+      participation: Participation.fromJson(map['participation'] as Map<String, dynamic>),
+      participant: (map['participant'] != null)
+          ? Participant.fromJson(map['participant'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -24,4 +23,7 @@ class ParticipationAndParticipant {
       'participant': participant?.toJson(),
     };
   }
+
+  @override
+  List<Object?> get props => [participation, participant];
 }

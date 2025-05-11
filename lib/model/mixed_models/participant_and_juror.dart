@@ -1,15 +1,16 @@
-import 'package:swift_contest/model/data_models/profile/profile.dart';
+import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 
-class ParticipantAndJuror {
-  final Profile participant;
-  final Profile juror;
+class ParticipantAndJuror extends Equatable{
+  final Participant participant;
+  final Juror juror;
 
-  ParticipantAndJuror({required this.participant, required this.juror});
+  const ParticipantAndJuror({required this.participant, required this.juror});
 
   factory ParticipantAndJuror.fromJson(Map<String, dynamic> map) {
     return ParticipantAndJuror(
-      participant: Profile.fromJson(map['participant']),
-      juror: Profile.fromJson(map['juror']),
+      participant: Participant.fromJson(map['participant']),
+      juror: Juror.fromJson(map['juror']),
     );
   }
 
@@ -19,4 +20,7 @@ class ParticipantAndJuror {
       'juror': juror.toJson(),
     };
   }
+
+  @override
+  List<Object?> get props => [participant,juror];
 }

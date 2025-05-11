@@ -1,23 +1,21 @@
 import 'package:dartz/dartz.dart';
-import 'package:swift_contest/model/data_models/profile/profile.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/services/profile_service.dart';
-import 'package:swift_contest/utils/exceptions/custom_exception.dart';
+import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 import 'package:swift_contest/utils/failures/failure.dart';
 
 //* Interface
 abstract interface class ProfileRepository {
   Future<Either<Failure, Profile>> getCurrentProfile();
 
+  Future<Either<Failure, Profile>> updateProfileById(
+      {required String id, required Profile profile});
+
+  Future<Either<Failure, Unit>> deleteProfileById({required String id});
+
   Future<Either<Failure, List<Profile>>> getAllProfiles();
 
   Future<Either<Failure, Profile>> getProfileById({required String id});
-
-  Future<Either<Failure, Profile>> updateProfileById({
-    required String id,
-    String? firstName,
-    String? lastName,
-    bool? isAlive,
-  });
 }
 
 //* Implementation
@@ -28,11 +26,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
       : _profileService = profileService;
 
   @override
-  Future<Either<Failure, Profile>> getCurrentProfile() async {
+  Future<Either<Failure, Unit>> deleteProfileById({required String id}) async {
     try {
-      final res = await _profileService.getCurrentProfile();
-      return right(res);
-    } on CustomException catch (e) {
+      final result = await _profileService.deleteProfileById(id: id);
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }
@@ -40,9 +38,19 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, List<Profile>>> getAllProfiles() async {
     try {
-      final res = await _profileService.getAllProfiles();
-      return right(res);
-    } on CustomException catch (e) {
+      final result = await _profileService.getAllProfiles();
+      return right(result);
+    } on UnsafeException catch (e) {
+      return left(Failure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Profile>> getCurrentProfile() async {
+    try {
+      final result = await _profileService.getCurrentProfile();
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }
@@ -50,9 +58,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, Profile>> getProfileById({required String id}) async {
     try {
-      final res = await _profileService.getProfileById(id: id);
-      return right(res);
-    } on CustomException catch (e) {
+      final result = await _profileService.getProfileById(id: id);
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }
@@ -60,19 +68,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<Failure, Profile>> updateProfileById({
     required String id,
-    String? firstName,
-    String? lastName,
-    bool? isAlive,
+    required Profile profile,
   }) async {
     try {
-      final res = await _profileService.updateProfileById(
-        id: id,
-        firstName: firstName,
-        lastName: lastName,
-        isAlive: isAlive,
-      );
-      return right(res);
-    } on CustomException catch (e) {
+      final result = await _profileService.updateProfileById(id: id, profile: profile);
+      return right(result);
+    } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
     }
   }

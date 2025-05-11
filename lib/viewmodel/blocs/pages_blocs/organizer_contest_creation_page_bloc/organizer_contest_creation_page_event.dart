@@ -6,38 +6,44 @@ sealed class OrganizerContestCreationPageEvent extends Equatable {
 }
 
 final class OrganizerContestCreationPageCreateContest extends OrganizerContestCreationPageEvent {
+  final String organizerId;
   final String name;
   final String description;
-  final String organizerId;
-  final Place place;
-  final bool worksPreviewJurors;
+  final bool isJurorsWorksPreviewEnabled;
   final DateTime dateTime;
-  final DateTime worksDateTimeFrom;
-  final DateTime worksDateTimeTo;
+  final DateTime worksSubmissionFrom;
+  final DateTime worksSubmissionTo;
   final List<XFile> images;
+  final String placeAddress;
+  final double placeLon;
+  final double placeLat;
 
   const OrganizerContestCreationPageCreateContest({
+    required this.organizerId,
     required this.name,
     required this.description,
-    required this.organizerId,
-    required this.place,
-    required this.worksPreviewJurors,
+    required this.isJurorsWorksPreviewEnabled,
     required this.dateTime,
-    required this.worksDateTimeFrom,
-    required this.worksDateTimeTo,
+    required this.worksSubmissionFrom,
+    required this.worksSubmissionTo,
     required this.images,
+    required this.placeAddress,
+    required this.placeLon,
+    required this.placeLat,
   });
 
   @override
   List<Object?> get props => [
+        organizerId,
         name,
         description,
-        organizerId,
-        place,
-        worksPreviewJurors,
+        isJurorsWorksPreviewEnabled,
         dateTime,
-        worksDateTimeFrom,
-        worksDateTimeTo,
+        worksSubmissionFrom,
+        worksSubmissionTo,
+        placeAddress,
+        placeLat,
+        placeLon,
         images,
       ];
 }

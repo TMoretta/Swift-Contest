@@ -18,3 +18,8 @@ final class AuthCheckInitialSessionWithDelay extends AuthEvent {
   List<Object?> get props => [];
 }
 
+final class AuthUnauthenticate extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+

@@ -1,11 +1,12 @@
-import 'package:swift_contest/model/data_models/participation/participation.dart';
-import 'package:swift_contest/model/data_models/work/work.dart';
+import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/data_models/participation.dart';
+import 'package:swift_contest/model/data_models/work.dart';
 
-final class ParticipationAndWork {
+final class ParticipationAndWork extends Equatable {
   final Participation participation;
   final Work work;
 
-  ParticipationAndWork({required this.participation, required this.work});
+  const ParticipationAndWork({required this.participation, required this.work});
 
   factory ParticipationAndWork.fromJson(Map<String, dynamic> map) {
     return ParticipationAndWork(
@@ -20,4 +21,7 @@ final class ParticipationAndWork {
       'work': work.toJson(),
     };
   }
+
+  @override
+  List<Object?> get props => [participation, work];
 }

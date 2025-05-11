@@ -29,49 +29,30 @@ final class OrganizerContestDetailsPageSendJurorInvite extends OrganizerContestD
   List<Object?> get props => [contest, email];
 }
 
-final class OrganizerContestDetailsPageGetExtendedContest extends OrganizerContestDetailsPageEvent {
+final class OrganizerContestDetailsPageGetContestMainInfo extends OrganizerContestDetailsPageEvent {
   final String contestId;
 
-  const OrganizerContestDetailsPageGetExtendedContest({required this.contestId});
+  const OrganizerContestDetailsPageGetContestMainInfo({required this.contestId});
 
   @override
   List<Object?> get props => [contestId];
 }
 
-// final class OrganizerContestDetailsPageGetWorks extends OrganizerContestDetailsPageEvent {
-//   final String contestId;
-//
-//   OrganizerContestDetailsPageGetWorks({required this.contestId});
-// }
-
-final class OrganizerContestDetailsPageGetVotingForm extends OrganizerContestDetailsPageEvent {
+final class OrganizerContestDetailsPageGetVotingTabInfo extends OrganizerContestDetailsPageEvent {
   final String contestId;
 
-  const OrganizerContestDetailsPageGetVotingForm({required this.contestId});
+  const OrganizerContestDetailsPageGetVotingTabInfo({required this.contestId});
 
   @override
   List<Object?> get props => [contestId];
 }
 
-final class OrganizerContestDetailsPageUpdateVotingForm extends OrganizerContestDetailsPageEvent {
-  final String contestId;
-  final List<VotingFormField> updatedFields;
+final class OrganizerContestDetailsPageUpdateVotingFormFields extends OrganizerContestDetailsPageEvent {
+  final List<RawVotingFormField> rawVotingFormFields;
+  final String votingFormId;
 
-  const OrganizerContestDetailsPageUpdateVotingForm({
-    required this.contestId,
-    required this.updatedFields,
-  });
+  const OrganizerContestDetailsPageUpdateVotingFormFields({required this.rawVotingFormFields, required this.votingFormId,});
 
   @override
-  List<Object?> get props => [contestId, updatedFields];
-}
-
-final class OrganizerContestDetailsPageCleanAndGetExtendedContest
-    extends OrganizerContestDetailsPageEvent {
-  final String contestId;
-
-  const OrganizerContestDetailsPageCleanAndGetExtendedContest({required this.contestId});
-
-  @override
-  List<Object?> get props => [contestId];
+  List<Object?> get props => [rawVotingFormFields, votingFormId];
 }

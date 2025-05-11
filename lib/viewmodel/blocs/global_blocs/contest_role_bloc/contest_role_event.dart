@@ -22,3 +22,9 @@ final class ContestRoleTriggerListener extends ContestRoleEvent {
   @override
   List<Object?> get props => [];
 }
+
+final class ContestRoleClear extends ContestRoleEvent {
+  @override
+  List<Object?> get props => [];
+}
+

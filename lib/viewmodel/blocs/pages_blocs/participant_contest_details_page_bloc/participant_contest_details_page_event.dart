@@ -10,9 +10,9 @@ final class ParticipantContestDetailsPageGetOwnWork extends ParticipantContestDe
   ParticipantContestDetailsPageGetOwnWork({required this.contestId, required this.participantId});
 }
 
-final class ParticipantContestDetailsPageGetExtendedContest
+final class ParticipantContestDetailsPageGetContestMainInfo
     extends ParticipantContestDetailsPageEvent {
   final String contestId;
 
-  ParticipantContestDetailsPageGetExtendedContest({required this.contestId});
+  ParticipantContestDetailsPageGetContestMainInfo({required this.contestId});
 }

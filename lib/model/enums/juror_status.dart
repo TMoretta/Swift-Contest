@@ -1,0 +1,4 @@
+enum JurorStatus {
+  joined,
+  left,
+}
