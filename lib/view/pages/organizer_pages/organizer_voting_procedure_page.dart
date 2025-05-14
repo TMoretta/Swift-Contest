@@ -40,7 +40,6 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
         workRepository: context.read(),
         participationRepository: context.read(),
         profileRepository: context.read(),
-        votingSessionTokenRepository: context.read(),
       )..add(OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure(
           contestId: widget.contestId)),
       child: Scaffold(
@@ -81,7 +80,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
               if(currentStep == VotingSessionProcedureStep.preparation) {
                 return Column(
                   children: [
-                    Text('Simple juror access token: ${state.votingSessionToken!.token}'),
+                    Text('Simple juror access token: ${state.votingSession!.token}'),
                     FilledButton(onPressed: (){
                       context.read<OrganizerVotingProcedurePageBloc>().add(OrganizerVotingProcedurePageStartVotingSessionProcedure(contestId: widget.contestId));
                     }, child: Text('Start'),),
@@ -97,7 +96,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                 return Column(
                   key: UniqueKey(),
                   children: [
-                    Text('Simple juror access token: ${state.votingSessionToken!.token}'),
+                    Text('Simple juror access token: ${state.votingSession!.token}'),
                     Text('Jurors are voting'),
                     TimerCountdown(endTime: currentStepDeadline),
                     Text('Current participant: ${currentParticipant.fullName}'),
@@ -114,7 +113,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                 return Column(
                   key: UniqueKey(),
                   children: [
-                    Text('Simple juror access token: ${state.votingSessionToken!.token}'),
+                    Text('Simple juror access token: ${state.votingSession!.token}'),
                     Text('Intermission'),
                     TimerCountdown(endTime: currentStepDeadline),
                   ],
@@ -126,7 +125,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                 return Column(
                   key: UniqueKey(),
                   children: [
-                    Text('Simple juror access token: ${state.votingSessionToken!.token}'),
+                    Text('Simple juror access token: ${state.votingSession!.token}'),
                     Text('Jurors are reviewing'),
                     TimerCountdown(endTime: currentStepDeadline),
                   ],

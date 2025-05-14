@@ -12,7 +12,6 @@ class OrganizerVotingProcedurePageState extends Equatable {
   final List<ParticipantAndJuror>? votingSessionExclusions;
   final List<Participant>? participants;
   final List<Juror>? jurors;
-  final VotingSessionToken? votingSessionToken;
 
   const OrganizerVotingProcedurePageState({
     required this.status,
@@ -25,7 +24,6 @@ class OrganizerVotingProcedurePageState extends Equatable {
     this.votingSessionExclusions,
     this.participants,
     this.jurors,
-    this.votingSessionToken,
   });
 
   OrganizerVotingProcedurePageState copyWith({
@@ -39,7 +37,6 @@ class OrganizerVotingProcedurePageState extends Equatable {
     List<ParticipantAndJuror>? votingSessionExclusions,
     List<Participant>? participants,
     List<Juror>? jurors,
-    VotingSessionToken? votingSessionToken,
   }) {
     return OrganizerVotingProcedurePageState(
       status: status ?? this.status,
@@ -52,7 +49,6 @@ class OrganizerVotingProcedurePageState extends Equatable {
       votingSessionExclusions: votingSessionExclusions ?? this.votingSessionExclusions,
       participants: participants ?? this.participants,
       jurors: jurors ?? this.jurors,
-      votingSessionToken: votingSessionToken ?? this.votingSessionToken,
     );
   }
 
@@ -68,6 +64,5 @@ class OrganizerVotingProcedurePageState extends Equatable {
         votingSessionExclusions,
         participants,
         jurors,
-        votingSessionToken,
       ];
 }

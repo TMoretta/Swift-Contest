@@ -15,13 +15,15 @@ final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
   });
 
   @override
-  List<Object?> get props => [contestId, jurorId];
+  List<Object?> get props => [contestId, jurorId,];
 }
 
-final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {
+final class JurorVotingProcedurePageSubmitVotes
+    extends JurorVotingProcedurePageEvent {
   final String jurorId;
   final String votingSessionId;
-  final Map<VotingSessionParticipant, Map<VotingFormField, String>> votesPerParticipantMap;
+  final Map<VotingSessionParticipant, Map<VotingFormField, String>>
+      votesPerParticipantMap;
 
   const JurorVotingProcedurePageSubmitVotes({
     required this.jurorId,
@@ -31,31 +33,32 @@ final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePage
 
   @override
   List<Object?> get props => [
-    jurorId,
-    votingSessionId,
-    votesPerParticipantMap,
+        jurorId,
+        votingSessionId,
+        votesPerParticipantMap,
       ];
 }
 
-final class JurorVotingProcedurePageJoinVotingSessionProcedure
-    extends JurorVotingProcedurePageEvent {
-  final String contestId;
-
-  const JurorVotingProcedurePageJoinVotingSessionProcedure({
-    required this.contestId,
-  });
-
-  @override
-  List<Object?> get props => [contestId];
-}
-
-final class JurorVotingProcedurePageExitVotingSessionProcedure
-    extends JurorVotingProcedurePageEvent {
-  final String votingSessionProcedureId;
-
-  const JurorVotingProcedurePageExitVotingSessionProcedure(
-      {required this.votingSessionProcedureId});
-
-  @override
-  List<Object?> get props => [votingSessionProcedureId];
-}
+// final class JurorVotingProcedurePageJoinVotingSessionProcedure
+//     extends JurorVotingProcedurePageEvent {
+//   final String contestId;
+//
+//   const JurorVotingProcedurePageJoinVotingSessionProcedure({
+//     required this.contestId,
+//   });
+//
+//   @override
+//   List<Object?> get props => [contestId];
+// }
+//
+// final class JurorVotingProcedurePageExitVotingSessionProcedure
+//     extends JurorVotingProcedurePageEvent {
+//   final String votingSessionProcedureId;
+//
+//   const JurorVotingProcedurePageExitVotingSessionProcedure({
+//     required this.votingSessionProcedureId,
+//   });
+//
+//   @override
+//   List<Object?> get props => [votingSessionProcedureId];
+// }

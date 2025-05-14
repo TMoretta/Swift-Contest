@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/model/enums/form_field_type.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 
 class OrganizerVotingFormEditPage extends StatefulWidget {
@@ -20,13 +19,13 @@ class OrganizerVotingFormEditPage extends StatefulWidget {
 class _OrganizerVotingFormEditPageState
     extends State<OrganizerVotingFormEditPage> {
   bool isEdited = false;
-  late List<RawVotingFormField> fields;
+  late List<VotingFormFieldRaw> fields;
 
   @override
   void initState() {
     super.initState();
     fields = widget.votingFormFieldsJson
-        .map((e) => RawVotingFormField.fromJson(e))
+        .map((e) => VotingFormFieldRaw.fromJson(e))
         .toList();
   }
 
@@ -67,33 +66,17 @@ class _OrganizerVotingFormEditPageState
                               children: [
                                 Row(
                                   children: [
-                                    Text(field.name),
-                                    (field.isOptional)
-                                        ? Text(' [Optional]')
-                                        : SizedBox.shrink(),
+                                    Text('['),
+                                    ((field).minValue == null)
+                                        ? Text('und')
+                                        : Text((field).minValue.toString()),
+                                    Text(' - '),
+                                    ((field).maxValue == null)
+                                        ? Text('und')
+                                        : Text((field).maxValue.toString()),
+                                    Text(']'),
                                   ],
                                 ),
-                                if (field.fieldType == FormFieldType.textual)
-                                  Row(
-                                    children: [
-                                      Text('textual'),
-                                    ],
-                                  ),
-                                if (field.fieldType == FormFieldType.numeric)
-                                  Row(
-                                    children: [
-                                      Text('numeric '),
-                                      Text('['),
-                                      ((field).minValue == null)
-                                          ? Text('und')
-                                          : Text((field).minValue.toString()),
-                                      Text(' - '),
-                                      ((field).maxValue == null)
-                                          ? Text('und')
-                                          : Text((field).maxValue.toString()),
-                                      Text(']'),
-                                    ],
-                                  ),
                               ],
                             ),
                             trailing: Row(
@@ -118,7 +101,7 @@ class _OrganizerVotingFormEditPageState
                   right: 16,
                   child: IconButton(
                     onPressed: () async {
-                      final RawVotingFormField? newField =
+                      final VotingFormFieldRaw? newField =
                           await showAddFieldDialog(context);
                       if (newField != null) {
                         setState(() {
@@ -139,15 +122,13 @@ class _OrganizerVotingFormEditPageState
   }
 }
 
-Future<RawVotingFormField?> showAddFieldDialog(BuildContext context) async {
+Future<VotingFormFieldRaw?> showAddFieldDialog(BuildContext context) async {
   final formKey = GlobalKey<FormState>();
-  FormFieldType selectedFormFieldType = FormFieldType.textual;
-  bool isOptional = false;
   final nameController = TextEditingController();
   final minValueController = TextEditingController();
   final maxValueController = TextEditingController();
 
-  return await showDialog<RawVotingFormField?>(
+  return await showDialog<VotingFormFieldRaw?>(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -160,102 +141,22 @@ Future<RawVotingFormField?> showAddFieldDialog(BuildContext context) async {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
-                          child: RadioListTile<FormFieldType>(
-                            title: const Text('Textual'),
-                            value: FormFieldType.textual,
-                            groupValue: selectedFormFieldType,
-                            contentPadding: EdgeInsets.all(1),
-                            shape: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            onChanged: (value) {
-                              setState(
-                                () => selectedFormFieldType = value!,
-                              );
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: RadioListTile<FormFieldType>(
-                            title: const Text('Numeric'),
-                            value: FormFieldType.numeric,
-                            groupValue: selectedFormFieldType,
-                            contentPadding: EdgeInsets.all(1),
-                            shape: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            onChanged: (value) {
-                              setState(
-                                () => selectedFormFieldType = value!,
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
-                          child: RadioListTile<bool>(
-                            title: const Text('True'),
-                            value: true,
-                            groupValue: isOptional,
-                            contentPadding: EdgeInsets.all(1),
-                            shape: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            onChanged: (value) {
-                              setState(
-                                () => isOptional = value!,
-                              );
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: RadioListTile<bool>(
-                            title: const Text('False'),
-                            value: false,
-                            groupValue: isOptional,
-                            contentPadding: EdgeInsets.all(1),
-                            shape: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            onChanged: (value) {
-                              setState(
-                                () => isOptional = value!,
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
                     CustomTextFormFieldUnderlined(
                       controller: nameController,
                       label: 'Name',
                     ),
-                    (selectedFormFieldType == FormFieldType.numeric)
-                        ? Column(
-                            children: [
-                              CustomTextFormFieldUnderlined(
-                                controller: minValueController,
-                                label: 'Min value',
-                              ),
-                              CustomTextFormFieldUnderlined(
-                                controller: maxValueController,
-                                label: 'Max value',
-                              ),
-                            ],
-                          )
-                        : SizedBox.shrink(),
+                    Column(
+                      children: [
+                        CustomTextFormFieldUnderlined(
+                          controller: minValueController,
+                          label: 'Min value',
+                        ),
+                        CustomTextFormFieldUnderlined(
+                          controller: maxValueController,
+                          label: 'Max value',
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -272,29 +173,16 @@ Future<RawVotingFormField?> showAddFieldDialog(BuildContext context) async {
                     TextButton(
                         onPressed: () {
                           if (formKey.currentState?.validate() ?? false) {
-                            if (selectedFormFieldType ==
-                                FormFieldType.textual) {
-                              final newField = RawVotingFormField(
-                                name: nameController.text.trim(),
-                                isOptional: isOptional,
-                                fieldType: FormFieldType.textual,
-                              );
-                              context.pop(newField);
-                            } else if (selectedFormFieldType ==
-                                FormFieldType.numeric) {
-                              final minValueInt =
-                                  int.tryParse(minValueController.text.trim());
-                              final maxValueInt =
-                                  int.tryParse(maxValueController.text.trim());
-                              final newField = RawVotingFormField(
-                                name: nameController.text.trim(),
-                                fieldType: FormFieldType.numeric,
-                                isOptional: isOptional,
-                                minValue: minValueInt,
-                                maxValue: maxValueInt,
-                              );
-                              context.pop(newField);
-                            }
+                            final minValueInt =
+                                int.tryParse(minValueController.text.trim());
+                            final maxValueInt =
+                                int.tryParse(maxValueController.text.trim());
+                            final newField = VotingFormFieldRaw(
+                              name: nameController.text.trim(),
+                              minValue: minValueInt,
+                              maxValue: maxValueInt,
+                            );
+                            context.pop(newField);
                           }
                         },
                         child: Text('Add')),

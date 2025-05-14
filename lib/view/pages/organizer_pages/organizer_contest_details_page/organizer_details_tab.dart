@@ -258,22 +258,22 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                   ],
                 ),
                 SizedBox(height: 8),
-                //* Works preview for jurors
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Works preview for invited jurors',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      (state.contest!.isJurorsWorksPreviewEnabled) ? 'At participation\'s closure' : 'Never',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
+                // Works preview for jurors
+                // Column(
+                //   mainAxisSize: MainAxisSize.min,
+                //   mainAxisAlignment: MainAxisAlignment.start,
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     Text(
+                //       'Works preview for invited jurors',
+                //       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                //     ),
+                //     Text(
+                //       (state.contest!.isJurorsWorksPreviewEnabled) ? 'At participation\'s closure' : 'Never',
+                //       style: TextStyle(fontSize: 16),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           );

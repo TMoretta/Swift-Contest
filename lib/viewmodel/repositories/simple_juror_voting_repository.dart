@@ -26,6 +26,12 @@ abstract interface class SimpleJurorVotingRepository {
       getSimpleJurorVotingsByVotingSessionSimpleJurorId({
     required String votingSessionSimpleJurorId,
   });
+
+  Future<Either<Failure, SimpleJurorVoting>>
+      getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
+    required String votingSessionSimpleJurorId,
+    required String votingSessionParticipantId,
+  });
 }
 
 class SimpleJurorVotingRepositoryImpl implements SimpleJurorVotingRepository {
@@ -98,6 +104,23 @@ class SimpleJurorVotingRepositoryImpl implements SimpleJurorVotingRepository {
       final result =
           await _simpleJurorVotingService.updateSimpleJurorVotingById(
               id: id, simpleJurorVoting: simpleJurorVoting);
+      return right(result);
+    } on UnsafeException catch (e) {
+      return left(Failure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, SimpleJurorVoting>>
+      getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
+    required String votingSessionSimpleJurorId,
+    required String votingSessionParticipantId,
+  }) async {
+    try {
+      final result = await _simpleJurorVotingService
+          .getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId(
+              votingSessionSimpleJurorId: votingSessionSimpleJurorId,
+              votingSessionParticipantId: votingSessionParticipantId);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

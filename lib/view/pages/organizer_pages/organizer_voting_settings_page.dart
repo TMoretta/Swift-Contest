@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
 import 'package:swift_contest/model/mixed_models/participation_and_participant.dart';
@@ -10,7 +11,9 @@ import 'package:swift_contest/model/mixed_models/participation_and_participant_a
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
+import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
@@ -21,29 +24,39 @@ class OrganizerVotingSettingsPage extends StatefulWidget {
   const OrganizerVotingSettingsPage({super.key, required this.data});
 
   @override
-  State<OrganizerVotingSettingsPage> createState() => _OrganizerVotingSettingsPageState();
+  State<OrganizerVotingSettingsPage> createState() =>
+      _OrganizerVotingSettingsPageState();
 }
 
-class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
+class _OrganizerVotingSettingsPageState
+    extends State<OrganizerVotingSettingsPage> {
   late User user;
   late String contestId;
   late String votingFormId;
-  late List<ParticipationAndParticipantAndWork> joinedParticipationsAndParticipantsWithWorks;
-  late List<ParticipationAndParticipant> joinedParticipationsAndParticipantsWithoutWorks;
+  late List<ParticipationAndParticipantAndWork>
+      joinedParticipationsAndParticipantsWithWorks;
+  late List<ParticipationAndParticipant>
+      joinedParticipationsAndParticipantsWithoutWorks;
   late List<JurationAndJuror> joinedJurationsAndJurors;
 
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
 
-  List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
+  List<GlobalKey<FormState>> get formKeys =>
+      [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
 
-   bool isSimpleJurorAllowed = false;
+  bool areSimpleJurorsAllowed = false;
   final List<ParticipantAndJuror> votingExclusions = [];
   Duration workTimer = Duration(minutes: 0, seconds: 10);
   Duration intermissionTimer = Duration(minutes: 0, seconds: 10);
   Duration reviewTimer = Duration(minutes: 0, seconds: 20);
+
+  bool isGeoRestricted = false;
+  final geoRestrictionPlaceController = TextEditingController();
+  GooglePlace? geoRestrictionPlace;
+  final geoRestrictionRadiusController = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -81,9 +94,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         votingSessionParticipantRepository: context.read(),
         votingSessionJurorRepository: context.read(),
         votingSessionProcedureRepository: context.read(),
-        votingRepository: context.read(),
+        jurorVotingRepository: context.read(),
         utilsRepository: context.read(),
-        votingSessionTokenRepository: context.read(),
+        placeRepository: context.read(),
       ),
       child: Scaffold(
         appBar: AppBar(
@@ -95,41 +108,55 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
               return SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                child:
-                    BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
+                child: BlocConsumer<OrganizerVotingSettingsPageBloc,
+                    OrganizerVotingSettingsPageState>(
                   listener: (context, state) {
                     if (state.status.isFailure) {
                       showSnackBar(context: context, text: state.message!);
                     }
                     if (state.status.isSuccess) {
-                      context.replaceNamed(AppRouter.organizerVotingProcedure, extra: contestId);
+                      context.replaceNamed(AppRouter.organizerVotingProcedure,
+                          extra: contestId);
                     }
                   },
                   builder: (context, state) {
                     return Stepper(
                       type: StepperType.horizontal,
-                      physics: NeverScrollableScrollPhysics(),
                       currentStep: currentStep,
                       onStepContinue: () {
-                        final isLastStep = (currentStep == getSteps().length - 1);
-                        if (formKeys[currentStep].currentState?.validate() ?? false) {
+                        final isLastStep =
+                            (currentStep == getSteps().length - 1);
+                        if (formKeys[currentStep].currentState?.validate() ??
+                            false) {
                           if (isLastStep) {
-                            context
-                                .read<OrganizerVotingSettingsPageBloc>()
-                                .add(OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure(
+                            context.read<OrganizerVotingSettingsPageBloc>().add(
+                                    OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure(
                                   contestId: contestId,
                                   votingFormId: votingFormId,
-                                  isSimpleJurorAllowed: isSimpleJurorAllowed,
+                                  areSimpleJurorsAllowed:
+                                      areSimpleJurorsAllowed,
                                   votingExclusions: votingExclusions,
-                                  votingParticipants: joinedParticipationsAndParticipantsWithWorks
-                                      .map((e) => e.participant!)
-                                      .toList(growable: false),
+                                  votingParticipants:
+                                      joinedParticipationsAndParticipantsWithWorks
+                                          .map((e) => e.participant!)
+                                          .toList(growable: false),
                                   votingJurors: joinedJurationsAndJurors
                                       .map((e) => e.juror!)
                                       .toList(growable: false),
                                   workTimer: workTimer,
                                   intermissionTimer: intermissionTimer,
                                   reviewTimer: reviewTimer,
+                                  isGeoRestricted: isGeoRestricted,
+                                  geoRestrictionPlaceAddress:
+                                      geoRestrictionPlace?.address,
+                                  geoRestrictionPlaceLat:
+                                      geoRestrictionPlace?.lat,
+                                  geoRestrictionPlaceLon:
+                                      geoRestrictionPlace?.lon,
+                                  geoRestrictionRadius:
+                                      (geoRestrictionRadiusController.text.isNotEmpty)
+                                          ? int.tryParse(geoRestrictionRadiusController.text)
+                                          : null,
                                 ));
                           } else {
                             setState(() => ++currentStep);
@@ -137,10 +164,13 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                         }
                       },
                       onStepCancel: () {
-                        (currentStep == 0) ? null : setState(() => --currentStep);
+                        (currentStep == 0)
+                            ? null
+                            : setState(() => --currentStep);
                       },
                       controlsBuilder: (context, details) {
-                        final isLastStep = details.currentStep == getSteps().length - 1;
+                        final isLastStep =
+                            details.currentStep == getSteps().length - 1;
                         return Container(
                           margin: EdgeInsets.only(top: 20),
                           child: Row(
@@ -157,10 +187,10 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                               ElevatedButton(
                                 onPressed: details.onStepContinue,
                                 child: isLastStep
-                                    ? BlocConsumer<OrganizerVotingSettingsPageBloc,
+                                    ? BlocConsumer<
+                                        OrganizerVotingSettingsPageBloc,
                                         OrganizerVotingSettingsPageState>(
-                                        listener: (context, state) {
-                                        },
+                                        listener: (context, state) {},
                                         builder: (context, state) {
                                           if (state.status.isLoading) {
                                             return Loader();
@@ -205,32 +235,92 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           content: Form(
             key: firstFormKey,
             child: SizedBox(
-              height: 450,
-              child: ReorderableListView(
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (oldIndex < newIndex) {
-                      newIndex -= 1;
-                    }
-                    final ParticipationAndParticipantAndWork ppw =
-                        joinedParticipationsAndParticipantsWithWorks.removeAt(oldIndex);
-                    joinedParticipationsAndParticipantsWithWorks.insert(newIndex, ppw);
-                  });
-                },
+              height: 400,
+              child: ListView(
                 children: [
-                  for (var i = 0; i < joinedParticipationsAndParticipantsWithWorks.length; i++)
-                    ListTile(
-                      key: ValueKey(
-                          joinedParticipationsAndParticipantsWithWorks[i].participation.id),
-                      title: Column(
-                        children: [
-                          Text(joinedParticipationsAndParticipantsWithWorks[i].work!.name),
-                          Text(joinedParticipationsAndParticipantsWithWorks[i]
-                              .participant!
-                              .fullName),
-                        ],
-                      ),
+                  Text('Geo restriction'),
+                  RadioListTile<bool>(
+                    title: Text('True'),
+                    value: true,
+                    groupValue: isGeoRestricted,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          isGeoRestricted = value;
+                        });
+                      }
+                    },
+                  ),
+                  RadioListTile<bool>(
+                    title: Text('False'),
+                    value: false,
+                    groupValue: isGeoRestricted,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          isGeoRestricted = value;
+                        });
+                      }
+                    },
+                  ),
+                  PlacePickerFormField(
+                    enabled: isGeoRestricted,
+                    controller: geoRestrictionPlaceController,
+                    label: 'Restricted location',
+                    validator: (value) => locationValidator(value),
+                    onSelected: (placeValue) =>
+                        geoRestrictionPlace = placeValue,
+                    prefixIcon: Icon(Icons.place_outlined),
+                  ),
+                  CustomTextFormFieldOutlined(
+                    enabled: isGeoRestricted,
+                    controller: geoRestrictionRadiusController,
+                    label: 'Restriction radius',
+                  ),
+                  SizedBox(
+                    height: 200,
+                    child: ReorderableListView(
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          if (oldIndex < newIndex) {
+                            newIndex -= 1;
+                          }
+                          final ParticipationAndParticipantAndWork ppw =
+                              joinedParticipationsAndParticipantsWithWorks
+                                  .removeAt(oldIndex);
+                          joinedParticipationsAndParticipantsWithWorks.insert(
+                              newIndex, ppw);
+                        });
+                      },
+                      children: [
+                        for (var i = 0;
+                            i <
+                                joinedParticipationsAndParticipantsWithWorks
+                                    .length;
+                            i++)
+                          ListTile(
+                            key: ValueKey(
+                                joinedParticipationsAndParticipantsWithWorks[i]
+                                    .participation
+                                    .id),
+                            title: Column(
+                              children: [
+                                Text(
+                                    joinedParticipationsAndParticipantsWithWorks[
+                                            i]
+                                        .work!
+                                        .name),
+                                Text(
+                                    joinedParticipationsAndParticipantsWithWorks[
+                                            i]
+                                        .participant!
+                                        .fullName),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
+                  ),
                 ],
               ),
             ),
@@ -260,20 +350,20 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   RadioListTile<bool>.adaptive(
                     title: Text('Only invited jurors'),
                     value: false,
-                    groupValue: isSimpleJurorAllowed,
+                    groupValue: areSimpleJurorsAllowed,
                     onChanged: (value) {
                       setState(() {
-                        isSimpleJurorAllowed = value!;
+                        areSimpleJurorsAllowed = value!;
                       });
                     },
                   ),
                   RadioListTile<bool>.adaptive(
                     title: Text('Anyone with contest identifier'),
                     value: true,
-                    groupValue: isSimpleJurorAllowed,
+                    groupValue: areSimpleJurorsAllowed,
                     onChanged: (value) {
                       setState(() {
-                        isSimpleJurorAllowed = value!;
+                        areSimpleJurorsAllowed = value!;
                       });
                     },
                   ),
@@ -290,13 +380,16 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                 Row(
                                   children: [
                                     Text('Juror: '),
-                                    Text(votingExclusions[index].juror.fullName),
+                                    Text(
+                                        votingExclusions[index].juror.fullName),
                                   ],
                                 ),
                                 Row(
                                   children: [
                                     Text('Participant: '),
-                                    Text(votingExclusions[index].participant.fullName),
+                                    Text(votingExclusions[index]
+                                        .participant
+                                        .fullName),
                                   ],
                                 ),
                               ],
@@ -308,7 +401,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  ParticipationAndParticipantAndWork? chosenParticipant;
+                                  ParticipationAndParticipantAndWork?
+                                      chosenParticipant;
                                   JurationAndJuror? chosenJuror;
                                   return AlertDialog(
                                     title: Text('Exclusion'),
@@ -330,7 +424,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                                 in joinedParticipationsAndParticipantsWithWorks)
                                               DropdownMenuEntry(
                                                   value: element,
-                                                  label: element.participant!.fullName),
+                                                  label: element
+                                                      .participant!.fullName),
                                           ],
                                         ),
                                         Text('Juror'),
@@ -344,7 +439,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                             }
                                           },
                                           dropdownMenuEntries: [
-                                            for (var element in joinedJurationsAndJurors)
+                                            for (var element
+                                                in joinedJurationsAndJurors)
                                               DropdownMenuEntry(
                                                 value: element,
                                                 label: element.juror!.fullName,
@@ -355,7 +451,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                     ),
                                     actions: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
                                         children: [
                                           TextButton(
                                             onPressed: () {
@@ -368,21 +465,28 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                               if (chosenParticipant == null ||
                                                   chosenJuror == null) {
                                                 showSnackBar(
-                                                    context: context, text: 'Fill all the fields');
+                                                    context: context,
+                                                    text:
+                                                        'Fill all the fields');
                                                 return;
                                               }
-                                              final participantAndJuror = ParticipantAndJuror(
-                                                participant: chosenParticipant!.participant!,
+                                              final participantAndJuror =
+                                                  ParticipantAndJuror(
+                                                participant: chosenParticipant!
+                                                    .participant!,
                                                 juror: chosenJuror!.juror!,
                                               );
-                                              if (votingExclusions.contains(participantAndJuror)) {
+                                              if (votingExclusions.contains(
+                                                  participantAndJuror)) {
                                                 showSnackBar(
                                                     context: context,
-                                                    text: 'Exclusion already added');
+                                                    text:
+                                                        'Exclusion already added');
                                                 return;
                                               }
                                               setState(() {
-                                                votingExclusions.add(participantAndJuror);
+                                                votingExclusions
+                                                    .add(participantAndJuror);
                                               });
                                               context.pop();
                                             },
@@ -482,8 +586,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                       Text('Work timer'),
                       CupertinoTimerPicker(
                         mode: CupertinoTimerPickerMode.ms,
-                        initialTimerDuration:
-                            Duration(minutes: workTimer.inMinutes, seconds: workTimer.inSeconds),
+                        initialTimerDuration: Duration(
+                            minutes: workTimer.inMinutes,
+                            seconds: workTimer.inSeconds),
                         onTimerDurationChanged: (Duration newDuration) {
                           workTimer = newDuration;
                         },
@@ -502,7 +607,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                       CupertinoTimerPicker(
                         mode: CupertinoTimerPickerMode.ms,
                         initialTimerDuration: Duration(
-                            minutes: reviewTimer.inMinutes, seconds: reviewTimer.inSeconds),
+                            minutes: reviewTimer.inMinutes,
+                            seconds: reviewTimer.inSeconds),
                         onTimerDurationChanged: (Duration newDuration) {
                           reviewTimer = newDuration;
                         },
@@ -515,4 +621,11 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           ),
         ),
       ];
+}
+
+String? locationValidator(String? value) {
+  if (value == null || value.isEmpty) {
+    return '';
+  }
+  return null;
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +9,6 @@ import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_juror.dart';
 import 'package:swift_contest/model/data_models/voting_session_participant.dart';
 import 'package:swift_contest/model/data_models/voting_session_procedure.dart';
-import 'package:swift_contest/model/data_models/voting_session_token.dart';
 import 'package:swift_contest/model/data_models/work.dart';
 import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
 import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
@@ -17,11 +17,9 @@ import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_participant_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_procedure_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_token_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
 part 'organizer_voting_procedure_page_event.dart';
-
 part 'organizer_voting_procedure_page_state.dart';
 
 class OrganizerVotingProcedurePageBloc
@@ -32,7 +30,6 @@ class OrganizerVotingProcedurePageBloc
   final WorkRepository _workRepository;
   final ParticipationRepository _participationRepository;
   final ProfileRepository _profileRepository;
-  final VotingSessionTokenRepository _votingSessionTokenRepository;
 
   OrganizerVotingProcedurePageBloc({
     required VotingSessionRepository votingSessionRepository,
@@ -41,14 +38,12 @@ class OrganizerVotingProcedurePageBloc
     required WorkRepository workRepository,
     required ParticipationRepository participationRepository,
     required ProfileRepository profileRepository,
-    required VotingSessionTokenRepository votingSessionTokenRepository,
   })  : _votingSessionRepository = votingSessionRepository,
         _votingSessionProcedureRepository = votingSessionProcedureRepository,
         _votingSessionParticipantRepository = votingSessionParticipantRepository,
         _workRepository = workRepository,
         _participationRepository = participationRepository,
         _profileRepository = profileRepository,
-        _votingSessionTokenRepository = votingSessionTokenRepository,
         super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
     on<OrganizerVotingProcedurePageStartVotingSessionProcedure>(_startVotingSessionProcedure);
     on<OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure>(
@@ -199,23 +194,12 @@ class OrganizerVotingProcedurePageBloc
       }
     }
 
-    late final VotingSessionToken votingSessionToken;
-    final eitherVotingSessionToken = await _votingSessionTokenRepository.getVotingSessionTokenByVotingSessionId(votingSessionId: votingSession!.id);
-    eitherVotingSessionToken.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => votingSessionToken = success,
-    );
-    if(eitherVotingSessionToken.isLeft()) {
-      return;
-    }
-
     emit(state.copyWith(
       status: BlocStatus.loading,
       votingSession: votingSession,
       votingSessionParticipants: votingSessionParticipants,
       participants: participants,
       works: works,
-      votingSessionToken: votingSessionToken,
     ));
 
     late Stream<VotingSessionProcedure> votingSessionProcedureStream;

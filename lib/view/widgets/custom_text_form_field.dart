@@ -19,6 +19,7 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
   final TextStyle? prefixStyle;
   final Widget? suffix;
   final TextStyle? suffixStyle;
+  final bool? enabled;
 
   const CustomTextFormFieldOutlined({
     required this.controller,
@@ -38,12 +39,14 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
     this.prefixStyle,
     this.suffix,
     this.suffixStyle,
+    this.enabled,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      enabled: enabled,
       cursorColor: Theme.of(context).colorScheme.onSurface,
       style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       controller: controller,

@@ -4,14 +4,14 @@ class VotingSessionSimpleJuror extends Equatable {
   final String id;
   final DateTime createdAt;
   final String votingSessionId;
-  final String fullName;
+  final String simpleJurorId;
   final bool hasSubmitted;
 
   const VotingSessionSimpleJuror({
     required this.id,
     required this.createdAt,
     required this.votingSessionId,
-    required this.fullName,
+    required this.simpleJurorId,
     required this.hasSubmitted,
   });
 
@@ -20,7 +20,7 @@ class VotingSessionSimpleJuror extends Equatable {
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
       votingSessionId: json['voting_session_id'] as String,
-      fullName: json['full_name'] as String,
+      simpleJurorId: json['simple_juror_id'] as String,
       hasSubmitted: json['has_submitted'] as bool,
     );
   }
@@ -30,7 +30,7 @@ class VotingSessionSimpleJuror extends Equatable {
       'id': id,
       'created_at': createdAt.toUtc().toIso8601String(),
       'voting_session_id': votingSessionId,
-      'full_name': fullName,
+      'simple_juror_id': simpleJurorId,
       'has_submitted': hasSubmitted,
     };
   }
@@ -39,14 +39,14 @@ class VotingSessionSimpleJuror extends Equatable {
     String? id,
     DateTime? createdAt,
     String? votingSessionId,
-    String? fullName,
+    String? simpleJurorId,
     bool? hasSubmitted,
   }) {
     return VotingSessionSimpleJuror(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       votingSessionId: votingSessionId ?? this.votingSessionId,
-      fullName: fullName ?? this.fullName,
+      simpleJurorId: simpleJurorId ?? this.simpleJurorId,
       hasSubmitted: hasSubmitted ?? this.hasSubmitted,
     );
   }
@@ -56,7 +56,7 @@ class VotingSessionSimpleJuror extends Equatable {
         id,
         createdAt,
         votingSessionId,
-        fullName,
+        simpleJurorId,
         hasSubmitted,
       ];
 }

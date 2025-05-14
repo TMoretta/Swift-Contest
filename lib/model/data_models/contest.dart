@@ -7,7 +7,6 @@ class Contest extends Equatable {
   final String organizerId;
   final String name;
   final String description;
-  final bool isJurorsWorksPreviewEnabled;
   final DateTime dateTime;
   final DateTime worksSubmissionFrom;
   final DateTime worksSubmissionTo;
@@ -24,7 +23,6 @@ class Contest extends Equatable {
     required this.organizerId,
     required this.name,
     required this.description,
-    required this.isJurorsWorksPreviewEnabled,
     required this.dateTime,
     required this.worksSubmissionFrom,
     required this.worksSubmissionTo,
@@ -43,7 +41,6 @@ class Contest extends Equatable {
       organizerId: json['organizer_id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      isJurorsWorksPreviewEnabled: json['is_jurors_works_preview_enabled'] as bool,
       dateTime: DateTime.parse(json['date_time']).toLocal(),
       worksSubmissionFrom: DateTime.parse(json['works_submission_from']).toLocal(),
       worksSubmissionTo: DateTime.parse(json['works_submission_to']).toLocal(),
@@ -63,7 +60,6 @@ class Contest extends Equatable {
       'organizer_id': organizerId,
       'name': name,
       'description': description,
-      'is_jurors_works_preview_enabled': isJurorsWorksPreviewEnabled,
       'date_time': dateTime.toUtc().toIso8601String(),
       'works_submission_from': worksSubmissionFrom.toUtc().toIso8601String(),
       'works_submission_to': worksSubmissionTo.toUtc().toIso8601String(),
@@ -82,7 +78,6 @@ class Contest extends Equatable {
     String? organizerId,
     String? name,
     String? description,
-    bool? isJurorsWorksPreviewEnabled,
     DateTime? dateTime,
     DateTime? worksSubmissionFrom,
     DateTime? worksSubmissionTo,
@@ -99,7 +94,6 @@ class Contest extends Equatable {
       organizerId: organizerId ?? this.organizerId,
       name: name ?? this.name,
       description: description ?? this.description,
-      isJurorsWorksPreviewEnabled: isJurorsWorksPreviewEnabled ?? this.isJurorsWorksPreviewEnabled,
       dateTime: dateTime ?? this.dateTime,
       worksSubmissionFrom: worksSubmissionFrom ?? this.worksSubmissionFrom,
       worksSubmissionTo: worksSubmissionTo ?? this.worksSubmissionTo,
@@ -119,7 +113,6 @@ class Contest extends Equatable {
         organizerId,
         name,
         description,
-        isJurorsWorksPreviewEnabled,
         dateTime,
         worksSubmissionFrom,
         worksSubmissionTo,

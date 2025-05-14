@@ -7,8 +7,6 @@ class VotingFormField extends Equatable {
   final String votingFormId;
   final String name;
   final int orderIndex;
-  final FormFieldType fieldType;
-  final bool isOptional;
   final int? minValue;
   final int? maxValue;
 
@@ -18,8 +16,6 @@ class VotingFormField extends Equatable {
     required this.votingFormId,
     required this.name,
     required this.orderIndex,
-    required this.fieldType,
-    required this.isOptional,
     this.minValue,
     this.maxValue,
   });
@@ -31,8 +27,6 @@ class VotingFormField extends Equatable {
       votingFormId: json['voting_form_id'] as String,
       name: json['name'] as String,
       orderIndex: json['order_index'] as int,
-      fieldType: FormFieldType.values.byName(json['field_type']),
-      isOptional: json['is_optional'] as bool,
       minValue: json['min_value'] != null ? json['min_value'] as int : null,
       maxValue: json['max_value'] != null ? json['max_value'] as int : null,
     );
@@ -45,8 +39,6 @@ class VotingFormField extends Equatable {
       'voting_form_id': votingFormId,
       'name': name,
       'order_index': orderIndex,
-      'field_type': fieldType.name,
-      'is_optional': isOptional,
       'min_value': minValue,
       'max_value': maxValue,
     };
@@ -58,8 +50,6 @@ class VotingFormField extends Equatable {
     String? votingFormId,
     String? name,
     int? orderIndex,
-    FormFieldType? fieldType,
-    bool? isOptional,
     int? minValue,
     int? maxValue,
   }) {
@@ -69,8 +59,6 @@ class VotingFormField extends Equatable {
       name: name ?? this.name,
       votingFormId: votingFormId ?? this.votingFormId,
       orderIndex: orderIndex ?? this.orderIndex,
-      fieldType: fieldType ?? this.fieldType,
-      isOptional: isOptional ?? this.isOptional,
       minValue: minValue ?? this.minValue,
       maxValue: maxValue ?? this.maxValue,
     );
@@ -83,33 +71,25 @@ class VotingFormField extends Equatable {
         name,
         votingFormId,
         orderIndex,
-        fieldType,
-        isOptional,
         minValue,
         maxValue,
       ];
 }
 
-class RawVotingFormField {
+class VotingFormFieldRaw {
   final String name;
-  final FormFieldType fieldType;
-  final bool isOptional;
   final int? minValue;
   final int? maxValue;
 
-  RawVotingFormField({
+  VotingFormFieldRaw({
     required this.name,
-    required this.fieldType,
-    required this.isOptional,
     this.minValue,
     this.maxValue,
   });
 
-  factory RawVotingFormField.fromJson(Map<String, dynamic> json) {
-    return RawVotingFormField(
+  factory VotingFormFieldRaw.fromJson(Map<String, dynamic> json) {
+    return VotingFormFieldRaw(
       name: json['name'] as String,
-      fieldType: FormFieldType.values.byName(json['field_type']),
-      isOptional: json['is_optional'] as bool,
       minValue: json['min_value'] != null ? json['min_value'] as int : null,
       maxValue: json['max_value'] != null ? json['max_value'] as int : null,
     );
@@ -118,8 +98,6 @@ class RawVotingFormField {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'field_type': fieldType.name,
-      'is_optional': isOptional,
       'min_value': minValue,
       'max_value': maxValue,
     };

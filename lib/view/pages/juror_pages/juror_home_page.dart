@@ -13,9 +13,6 @@ import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/juror_joined_contests_bloc/juror_joined_contests_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/juror_home_page_bloc.dart';
-import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
 
 class JurorHomePage extends StatefulWidget {
   const JurorHomePage({super.key});
@@ -90,23 +87,33 @@ class _JurorHomePageState extends State<JurorHomePage> {
         },
       ),
       floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           FilledButton(
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (context) {
-                  final votingContestFormKey = GlobalKey<FormState>();
+                  final votingOnlyFormKey = GlobalKey<FormState>();
+                  final fullNameController = TextEditingController();
                   final votingTokenController = TextEditingController();
                   return AlertDialog(
                     title: Text('Vote as a simple juror'),
                     content: Form(
-                      key: votingContestFormKey,
+                      key: votingOnlyFormKey,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          CustomTextFormFieldUnderlined(
+                            controller: fullNameController,
+                            label: 'Your full name',
+                            validator: (value) =>
+                                noEmptyValidator(value?.trim()),
+                          ),
                           CustomTextFormFieldUnderlined(
                             controller: votingTokenController,
                             label: 'Voting token',
@@ -119,11 +126,16 @@ class _JurorHomePageState extends State<JurorHomePage> {
                     actions: [
                       BlocProvider(
                         create: (context) => JurorHomePageBloc(
-                          jurationRepository:
-                              context.read<JurationRepository>(),
-                          contestRepository: context.read<ContestRepository>(),
-                          invitationRepository:
-                              context.read<InvitationRepository>(),
+                          jurationRepository: context.read(),
+                          contestRepository: context.read(),
+                          invitationRepository: context.read(),
+                          simpleJurorVotingRepository: context.read(),
+                          votingSessionParticipantRepository: context.read(),
+                          votingSessionProcedureRepository: context.read(),
+                          votingSessionRepository: context.read(),
+                          votingSessionSimpleJurorRepository: context.read(),
+                          simpleJurorRepository: context.read(),
+                          placeRepository: context.read(),
                         ),
                         child:
                             BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
@@ -131,6 +143,13 @@ class _JurorHomePageState extends State<JurorHomePage> {
                             if (state.status.isFailure) {
                               showSnackBar(
                                   context: context, text: state.message!);
+                            }
+                            if (state.status.isSuccess) {
+                              final Map<String,dynamic> jsonData = {
+                                'voting_session' : state.votingSession!,
+                                'voting_session_simple_juror' : state.votingSessionSimpleJuror!,
+                              };
+                              context.pushNamed(AppRouter.simpleJurorVotingProcedure, extra: jsonData);
                             }
                           },
                           builder: (context, state) {
@@ -148,9 +167,16 @@ class _JurorHomePageState extends State<JurorHomePage> {
                                   child: Text('Cancel'),
                                 ),
                                 TextButton(
-                                  onPressed: () {
-                                    if (votingContestFormKey.currentState?.validate() ?? false) {
-                                      //todo
+                                  onPressed: () async {
+                                    if (votingOnlyFormKey.currentState?.validate() ?? false) {
+                                      if(context.mounted) {
+                                        context.read<JurorHomePageBloc>().add(
+                                            JurorHomePageJoinVotingAsSimpleJuror(
+                                                fullName: fullNameController.text.trim(),
+                                                votingSessionToken:
+                                                votingTokenController.text
+                                                    .trim()));
+                                      }
                                     }
                                   },
                                   child: Text('Ok'),
@@ -203,10 +229,17 @@ class _JurorHomePageState extends State<JurorHomePage> {
                       BlocProvider(
                         create: (context) => JurorHomePageBloc(
                           jurationRepository:
-                              context.read<JurationRepository>(),
-                          contestRepository: context.read<ContestRepository>(),
+                              context.read(),
+                          contestRepository: context.read(),
                           invitationRepository:
-                              context.read<InvitationRepository>(),
+                              context.read(),
+                          votingSessionSimpleJurorRepository: context.read(),
+                          votingSessionRepository: context.read(),
+                          votingSessionProcedureRepository: context.read(),
+                          votingSessionParticipantRepository: context.read(),
+                          simpleJurorVotingRepository: context.read(),
+                          simpleJurorRepository: context.read(),
+                          placeRepository: context.read(),
                         ),
                         child:
                             BlocConsumer<JurorHomePageBloc, JurorHomePageState>(

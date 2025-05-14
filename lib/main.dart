@@ -10,20 +10,21 @@ import 'package:swift_contest/model/services/juration_service.dart';
 import 'package:swift_contest/model/services/participation_service.dart';
 import 'package:swift_contest/model/services/place_service.dart';
 import 'package:swift_contest/model/services/profile_service.dart';
+import 'package:swift_contest/model/services/simple_juror_service.dart';
+import 'package:swift_contest/model/services/simple_juror_vote_service.dart';
 import 'package:swift_contest/model/services/simple_juror_voting_service.dart';
 import 'package:swift_contest/model/services/storage_service.dart';
 import 'package:swift_contest/model/services/user_service.dart';
 import 'package:swift_contest/model/services/utils_service.dart';
-import 'package:swift_contest/model/services/vote_service.dart';
+import 'package:swift_contest/model/services/juror_vote_service.dart';
 import 'package:swift_contest/model/services/voting_form_field_service.dart';
 import 'package:swift_contest/model/services/voting_form_service.dart';
-import 'package:swift_contest/model/services/voting_service.dart';
+import 'package:swift_contest/model/services/juror_voting_service.dart';
 import 'package:swift_contest/model/services/voting_session_juror_service.dart';
 import 'package:swift_contest/model/services/voting_session_participant_service.dart';
 import 'package:swift_contest/model/services/voting_session_procedure_service.dart';
 import 'package:swift_contest/model/services/voting_session_service.dart';
 import 'package:swift_contest/model/services/voting_session_simple_juror_service.dart';
-import 'package:swift_contest/model/services/voting_session_token_service.dart';
 import 'package:swift_contest/model/services/work_service.dart';
 import 'package:swift_contest/utils/constants/constants.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
@@ -39,20 +40,21 @@ import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/simple_juror_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/simple_juror_vote_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/simple_juror_voting_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/storage_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/vote_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/juror_vote_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_form_field_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/juror_voting_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_juror_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_participant_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_procedure_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_simple_juror_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_token_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
 void main() async {
@@ -75,19 +77,20 @@ void main() async {
       GooglePlaceServiceImpl(apiKey: Constants.googlePlacesApiKey);
   final InvitationService invitationService = InvitationServiceImpl(supabaseClient: supabaseClient);
   final JurationService jurationService = JurationServiceImpl(supabaseClient: supabaseClient);
-  final ParticipationService participationService =
-      ParticipationServiceImpl(supabaseClient: supabaseClient);
+  final ParticipationService participationService = ParticipationServiceImpl(supabaseClient: supabaseClient);
   final PlaceService placeService = PlaceServiceImpl(supabaseClient: supabaseClient);
   final ProfileService profileService = ProfileServiceImpl(supabaseClient: supabaseClient);
+  final SimpleJurorService simpleJurorService = SimpleJurorServiceImpl(supabaseClient: supabaseClient);
+  final SimpleJurorVoteService simpleJurorVoteService = SimpleJurorVoteServiceImpl(supabaseClient: supabaseClient);
   final SimpleJurorVotingService simpleJurorVotingService = SimpleJurorVotingServiceImpl(supabaseClient: supabaseClient);
   final StorageService storageService = StorageServiceImpl(supabaseClient: supabaseClient);
   final UserService userService = UserServiceImpl(supabaseClient: supabaseClient);
   final UtilsService utilsService = UtilsServiceImpl(supabaseClient: supabaseClient);
-  final VoteService voteService = VoteServiceImpl(supabaseClient: supabaseClient);
+  final JurorVoteService jurorVoteService = JurorVoteServiceImpl(supabaseClient: supabaseClient);
   final VotingFormFieldService votingFormFieldService =
       VotingFormFieldServiceImpl(supabaseClient: supabaseClient);
   final VotingFormService votingFormService = VotingFormServiceImpl(supabaseClient: supabaseClient);
-  final VotingService votingService = VotingServiceImpl(supabaseClient: supabaseClient);
+  final JurorVotingService jurorVotingService = JurorVotingServiceImpl(supabaseClient: supabaseClient);
   final VotingSessionJurorService votingSessionJurorService =
       VotingSessionJurorServiceImpl(supabaseClient: supabaseClient);
   final VotingSessionParticipantService votingSessionParticipantService =
@@ -97,7 +100,6 @@ void main() async {
   final VotingSessionService votingSessionService =
       VotingSessionServiceImpl(supabaseClient: supabaseClient);
   final VotingSessionSimpleJurorService votingSessionSimpleJurorService = VotingSessionSimpleJurorServiceImpl(supabaseClient: supabaseClient);
-  final VotingSessionTokenService votingSessionTokenService = VotingSessionTokenServiceImpl(supabaseClient: supabaseClient);
   final WorkService workService = WorkServiceImpl(supabaseClient: supabaseClient);
 
   runApp(
@@ -129,6 +131,12 @@ void main() async {
         RepositoryProvider<ProfileRepository>(
           create: (context) => ProfileRepositoryImpl(profileService: profileService),
         ),
+        RepositoryProvider<SimpleJurorRepository>(
+          create: (context) => SimpleJurorRepositoryImpl(simpleJurorService: simpleJurorService),
+        ),
+        RepositoryProvider<SimpleJurorVoteRepository>(
+          create: (context) => SimpleJurorVoteRepositoryImpl(simpleJurorVoteService: simpleJurorVoteService),
+        ),
         RepositoryProvider<SimpleJurorVotingRepository>(
           create: (context) => SimpleJurorVotingRepositoryImpl(simpleJurorVotingService: simpleJurorVotingService),
         ),
@@ -140,8 +148,8 @@ void main() async {
         ),
         RepositoryProvider<UtilsRepository>(
             create: (context) => UtilsRepositoryImpl(utilsService: utilsService)),
-        RepositoryProvider<VoteRepository>(
-          create: (context) => VoteRepositoryImpl(voteService: voteService),
+        RepositoryProvider<JurorVoteRepository>(
+          create: (context) => JurorVoteRepositoryImpl(jurorVoteService: jurorVoteService),
         ),
         RepositoryProvider<VotingFormFieldRepository>(
           create: (context) =>
@@ -150,8 +158,8 @@ void main() async {
         RepositoryProvider<VotingFormRepository>(
           create: (context) => VotingFormRepositoryImpl(votingFormService: votingFormService),
         ),
-        RepositoryProvider<VotingRepository>(
-          create: (context) => VotingRepositoryImpl(votingService: votingService),
+        RepositoryProvider<JurorVotingRepository>(
+          create: (context) => JurorVotingRepositoryImpl(jurorVotingService: jurorVotingService),
         ),
         RepositoryProvider<VotingSessionJurorRepository>(
           create: (context) => VotingSessionJurorRepositoryImpl(
@@ -171,9 +179,6 @@ void main() async {
         ),
         RepositoryProvider<VotingSessionSimpleJurorRepository>(
           create: (context) => VotingSessionSimpleJurorRepositoryImpl(votingSessionSimpleJurorService: votingSessionSimpleJurorService),
-        ),
-        RepositoryProvider<VotingSessionTokenRepository>(
-          create: (context) => VotingSessionTokenRepositoryImpl(votingSessionTokenService: votingSessionTokenService),
         ),
         RepositoryProvider<WorkRepository>(
           create: (context) => WorkRepositoryImpl(workService: workService),

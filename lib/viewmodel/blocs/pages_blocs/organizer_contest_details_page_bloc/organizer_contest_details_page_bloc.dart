@@ -26,10 +26,10 @@ import 'package:swift_contest/viewmodel/repositories/participation_repository.da
 import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/vote_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/juror_vote_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_form_field_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_repository.dart';
+import 'package:swift_contest/viewmodel/repositories/juror_voting_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_juror_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_participant_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_session_procedure_repository.dart';
@@ -54,8 +54,8 @@ class OrganizerContestDetailsPageBloc
   final InvitationRepository _invitationRepository;
   final VotingSessionRepository _votingSessionRepository;
   final VotingSessionProcedureRepository _votingSessionProcedureRepository;
-  final VotingRepository _votingRepository;
-  final VoteRepository _voteRepository;
+  final JurorVotingRepository _jurorVotingRepository;
+  final JurorVoteRepository _jurorVoteRepository;
   final VotingSessionParticipantRepository _votingSessionParticipantRepository;
   final VotingSessionJurorRepository _votingSessionJurorRepository;
 
@@ -73,8 +73,8 @@ class OrganizerContestDetailsPageBloc
     required InvitationRepository invitationRepository,
     required VotingSessionRepository votingSessionRepository,
     required VotingSessionProcedureRepository votingSessionProcedureRepository,
-    required VotingRepository votingRepository,
-    required VoteRepository voteRepository,
+    required JurorVotingRepository jurorVotingRepository,
+    required JurorVoteRepository jurorVoteRepository,
     required VotingSessionParticipantRepository votingSessionParticipantRepository,
     required VotingSessionJurorRepository votingSessionJurorRepository,
   })  : _participationRepository = participationRepository,
@@ -90,8 +90,8 @@ class OrganizerContestDetailsPageBloc
         _invitationRepository = invitationRepository,
         _votingSessionRepository = votingSessionRepository,
         _votingSessionProcedureRepository = votingSessionProcedureRepository,
-        _votingRepository = votingRepository,
-        _voteRepository = voteRepository,
+        _jurorVotingRepository = jurorVotingRepository,
+        _jurorVoteRepository = jurorVoteRepository,
         _votingSessionParticipantRepository = votingSessionParticipantRepository,
         _votingSessionJurorRepository = votingSessionJurorRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
@@ -515,8 +515,6 @@ class OrganizerContestDetailsPageBloc
         votingFormId: event.votingFormId,
         name: raw.name,
         orderIndex: i,
-        fieldType: raw.fieldType,
-        isOptional: raw.isOptional,
       ));
     }
 

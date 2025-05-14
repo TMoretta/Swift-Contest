@@ -21,6 +21,7 @@ class PlacePickerFormField extends StatelessWidget {
   final Color? externalIconColor;
   final Icon? prefixIcon;
   final Color? prefixIconColor;
+  final bool? enabled;
 
   const PlacePickerFormField({
     required this.controller,
@@ -34,6 +35,7 @@ class PlacePickerFormField extends StatelessWidget {
     this.externalIconColor,
     this.prefixIcon,
     this.prefixIconColor,
+    this.enabled,
     super.key,
   });
 
@@ -41,6 +43,7 @@ class PlacePickerFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       readOnly: true,
+      enabled: enabled,
       style: TextStyle(
           fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
       controller: controller,

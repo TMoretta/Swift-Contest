@@ -21,14 +21,16 @@ class JurorVotingProcedurePage extends StatefulWidget {
   const JurorVotingProcedurePage({required this.contestId, super.key});
 
   @override
-  State<JurorVotingProcedurePage> createState() => _JurorVotingProcedurePageState();
+  State<JurorVotingProcedurePage> createState() =>
+      _JurorVotingProcedurePageState();
 }
 
 class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   late User user;
   String? votingSessionProcedureId;
   String? votingSessionId;
-  Map<VotingSessionParticipant, Map<VotingFormField, String>> votesPerParticipantMap = {};
+  Map<VotingSessionParticipant, Map<VotingFormField, String>>
+      votesPerParticipantMap = {};
 
   @override
   void initState() {
@@ -49,23 +51,33 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         votingFormRepository: context.read(),
         votingFormFieldRepository: context.read(),
         votingSessionJurorRepository: context.read(),
-        votingRepository: context.read(),
-        voteRepository: context.read(),
+        jurorVotingRepository: context.read(),
+        jurorVoteRepository: context.read(),
+        placeRepository: context.read(),
       )..add(JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
           contestId: widget.contestId, jurorId: user.id)),
       child: Scaffold(
         appBar: CustomAppBar(title: 'Voting'),
-        body: BlocConsumer<JurorVotingProcedurePageBloc, JurorVotingProcedurePageState>(
+        body: BlocConsumer<JurorVotingProcedurePageBloc,
+            JurorVotingProcedurePageState>(
           listener: (context, state) {
             if (state.status.isFailure) {
               showSnackBar(context: context, text: state.message!);
             }
-            if (state.status.isSuccess && state.votingSessionProcedure?.currentStep == VotingSessionProcedureStep.end) {
-              showSnackBar(context: context, text: 'Voting session procedure is ended');
+            if (state.status.isSuccess &&
+                state.votingSessionProcedure?.currentStep ==
+                    VotingSessionProcedureStep.end) {
+              showSnackBar(
+                  context: context, text: 'Voting session procedure is ended');
               context.pop();
             }
-            if (state.status.isSuccess && state.votingSessionProcedure?.currentStep == VotingSessionProcedureStep.cancelled) {
-              showSnackBar(context: context, text: 'Voting session procedure has been cancelled by the organizer');
+            if (state.status.isSuccess &&
+                state.votingSessionProcedure?.currentStep ==
+                    VotingSessionProcedureStep.cancelled) {
+              showSnackBar(
+                  context: context,
+                  text:
+                      'Voting session procedure has been cancelled by the organizer');
               context.pop();
             }
           },
@@ -95,19 +107,25 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
               }
 
               if (currentStep == VotingSessionProcedureStep.work) {
-                final currentStepDeadline = votingSessionProcedure.currentStepDeadline!;
-                final currentParticipantIndex = votingSessionProcedure.currentParticipantIndex!;
-                final currentParticipant = state.participants![currentParticipantIndex];
+                final currentStepDeadline =
+                    votingSessionProcedure.currentStepDeadline!;
+                final currentParticipantIndex =
+                    votingSessionProcedure.currentParticipantIndex!;
+                final currentParticipant =
+                    state.participants![currentParticipantIndex];
                 final currentVotingSessionParticipant =
                     state.votingSessionParticipants![currentParticipantIndex];
                 final currentWork = state.works![currentParticipantIndex];
-                final currentVotingSessionParticipantId =
-                    state.votingSessionParticipants![currentParticipantIndex].id;
+                final currentVotingSessionParticipantId = state
+                    .votingSessionParticipants![currentParticipantIndex].id;
                 final votingFormFields = state.votingFormFields!;
 
-                if (state.excludedFromParticipants!.contains(currentParticipant)) {
-                  votesPerParticipantMap.addAll({currentVotingSessionParticipant: {}});
-                  return Text('The organizer excluded you from voting to this participant');
+                if (state.excludedFromParticipants!
+                    .contains(currentParticipant)) {
+                  votesPerParticipantMap
+                      .addAll({currentVotingSessionParticipant: {}});
+                  return Text(
+                      'The organizer excluded you from voting to this participant');
                 }
 
                 return WorkVotingPage(
@@ -122,7 +140,8 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
               }
 
               if (currentStep == VotingSessionProcedureStep.intermission) {
-                final currentStepDeadline = votingSessionProcedure.currentStepDeadline!;
+                final currentStepDeadline =
+                    votingSessionProcedure.currentStepDeadline!;
                 return Column(
                   key: UniqueKey(),
                   children: [
@@ -133,7 +152,8 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
               }
 
               if (currentStep == VotingSessionProcedureStep.review) {
-                final currentStepDeadline = votingSessionProcedure.currentStepDeadline!;
+                final currentStepDeadline =
+                    votingSessionProcedure.currentStepDeadline!;
                 return Column(
                   key: UniqueKey(),
                   children: [
@@ -149,14 +169,18 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                         profileRepository: context.read(),
                         votingFormRepository: context.read(),
                         votingFormFieldRepository: context.read(),
-                        votingRepository: context.read(),
-                        voteRepository: context.read(),
+                        jurorVotingRepository: context.read(),
+                        jurorVoteRepository: context.read(),
                         votingSessionJurorRepository: context.read(),
+                        placeRepository: context.read(),
                       ),
-                      child: BlocConsumer<JurorVotingProcedurePageBloc,JurorVotingProcedurePageState>(
+                      child: BlocConsumer<JurorVotingProcedurePageBloc,
+                          JurorVotingProcedurePageState>(
                         listener: (context, state) {
-                          if(state.status.isSuccess) {
-                            showSnackBar(context: context, text: 'Votes submitted successfully');
+                          if (state.status.isSuccess) {
+                            showSnackBar(
+                                context: context,
+                                text: 'Votes submitted successfully');
                             context.pop();
                           }
                         },
@@ -168,7 +192,8 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                   .add(JurorVotingProcedurePageSubmitVotes(
                                     jurorId: user.id,
                                     votingSessionId: votingSessionId!,
-                                    votesPerParticipantMap: votesPerParticipantMap,
+                                    votesPerParticipantMap:
+                                        votesPerParticipantMap,
                                   ));
                               // for (var v in votesPerParticipantMap.entries) {
                               //   final votes = v.value.entries;
@@ -204,7 +229,8 @@ class WorkVotingPage extends StatelessWidget {
   final List<VotingFormField> votingFormFields;
   final VotingSessionProcedureStep currentStep;
   final DateTime currentStepDeadline;
-  final Map<VotingSessionParticipant, Map<VotingFormField, String>> votesPerParticipantMap;
+  final Map<VotingSessionParticipant, Map<VotingFormField, String>>
+      votesPerParticipantMap;
 
   const WorkVotingPage({
     super.key,
@@ -234,11 +260,13 @@ class WorkVotingPage extends StatelessWidget {
               if (votesPerParticipantMap[votingSessionParticipant] == null) {
                 votesPerParticipantMap.addAll({votingSessionParticipant: {}});
               }
-              votesPerParticipantMap[votingSessionParticipant]!.addAll({field: ''});
+              votesPerParticipantMap[votingSessionParticipant]!
+                  .addAll({field: ''});
               return TextField(
                 decoration: InputDecoration(label: Text(field.name)),
                 onChanged: (value) {
-                  votesPerParticipantMap[votingSessionParticipant]!.addAll({field: value});
+                  votesPerParticipantMap[votingSessionParticipant]!
+                      .addAll({field: value});
                 },
               );
             },

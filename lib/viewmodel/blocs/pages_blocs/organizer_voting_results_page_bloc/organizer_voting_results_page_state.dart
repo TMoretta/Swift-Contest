@@ -9,10 +9,15 @@ final class OrganizerVotingResultsPageState extends Equatable {
   final List<Juror>? jurorsThatSubmitted;
   final List<Juror>? jurorsThatNotSubmitted;
   final List<Participant>? participants;
-  final Map<Juror, Map<Participant, List<Vote>?>>? votesPerJurorMap;
-  final Map<Participant, Map<Juror, List<Vote>?>>? votesPerParticipantMap;
+  final Map<Juror, Map<Participant, List<JurorVote>?>>? jurorVotesPerJurorMap;
+  final Map<Participant, Map<Juror, List<JurorVote>?>>? jurorVotesPerParticipantMap;
   final List<VotingFormField>? votingFormFields;
   final Map<Juror, List<Participant>>? participantsExclusionsPerJurorMap;
+  final List<SimpleJuror>? simpleJurors;
+  final List<SimpleJuror>? simpleJurorsThatSubmitted;
+  final List<SimpleJuror>? simpleJurorsThatNotSubmitted;
+  final Map<SimpleJuror, Map<Participant, List<SimpleJurorVote>>>? simpleJurorVotesPerSimpleJurorMap;
+  final Map<Participant, Map<SimpleJuror, List<SimpleJurorVote>>>? simpleJurorVotesPerParticipantMap;
 
   const OrganizerVotingResultsPageState({
     required this.status,
@@ -22,10 +27,15 @@ final class OrganizerVotingResultsPageState extends Equatable {
     this.jurorsThatSubmitted,
     this.jurorsThatNotSubmitted,
     this.participants,
-    this.votesPerJurorMap,
-    this.votesPerParticipantMap,
+    this.jurorVotesPerJurorMap,
+    this.jurorVotesPerParticipantMap,
     this.votingFormFields,
     this.participantsExclusionsPerJurorMap,
+    this.simpleJurors,
+    this.simpleJurorsThatSubmitted,
+    this.simpleJurorsThatNotSubmitted,
+    this.simpleJurorVotesPerSimpleJurorMap,
+    this.simpleJurorVotesPerParticipantMap,
   });
 
   OrganizerVotingResultsPageState copyWith({
@@ -36,10 +46,17 @@ final class OrganizerVotingResultsPageState extends Equatable {
     List<Juror>? jurorsThatSubmitted,
     List<Juror>? jurorsThatNotSubmitted,
     List<Participant>? participants,
-    Map<Juror, Map<Participant, List<Vote>?>>? votesPerJurorMap,
-    Map<Participant, Map<Juror, List<Vote>?>>? votesPerParticipantMap,
+    Map<Juror, Map<Participant, List<JurorVote>?>>? jurorVotesPerJurorMap,
+    Map<Participant, Map<Juror, List<JurorVote>?>>? jurorVotesPerParticipantMap,
     List<VotingFormField>? votingFormFields,
     Map<Juror, List<Participant>>? participantsExclusionsPerJurorMap,
+    List<SimpleJuror>? simpleJurors,
+    List<SimpleJuror>? simpleJurorsThatSubmitted,
+    List<SimpleJuror>? simpleJurorsThatNotSubmitted,
+    Map<SimpleJuror, Map<Participant, List<SimpleJurorVote>>>?
+        simpleJurorVotesPerSimpleJurorMap,
+    Map<Participant, Map<SimpleJuror, List<SimpleJurorVote>>>?
+        simpleJurorVotesPerParticipantMap,
   }) {
     return OrganizerVotingResultsPageState(
       status: status ?? this.status,
@@ -49,11 +66,16 @@ final class OrganizerVotingResultsPageState extends Equatable {
       jurorsThatSubmitted: jurorsThatSubmitted ?? this.jurorsThatSubmitted,
       jurorsThatNotSubmitted: jurorsThatNotSubmitted ?? this.jurorsThatNotSubmitted,
       participants: participants ?? this.participants,
-      votesPerJurorMap: votesPerJurorMap ?? this.votesPerJurorMap,
-      votesPerParticipantMap: votesPerParticipantMap ?? this.votesPerParticipantMap,
+      jurorVotesPerJurorMap: jurorVotesPerJurorMap ?? this.jurorVotesPerJurorMap,
+      jurorVotesPerParticipantMap: jurorVotesPerParticipantMap ?? this.jurorVotesPerParticipantMap,
       votingFormFields: votingFormFields ?? this.votingFormFields,
       participantsExclusionsPerJurorMap:
           participantsExclusionsPerJurorMap ?? this.participantsExclusionsPerJurorMap,
+      simpleJurors: simpleJurors ?? this.simpleJurors,
+      simpleJurorsThatSubmitted: simpleJurorsThatSubmitted ?? this.simpleJurorsThatSubmitted,
+      simpleJurorsThatNotSubmitted: simpleJurorsThatNotSubmitted ?? this.simpleJurorsThatNotSubmitted,
+      simpleJurorVotesPerSimpleJurorMap: simpleJurorVotesPerSimpleJurorMap ?? this.simpleJurorVotesPerSimpleJurorMap,
+      simpleJurorVotesPerParticipantMap: simpleJurorVotesPerParticipantMap ?? this.simpleJurorVotesPerParticipantMap,
     );
   }
 
@@ -66,9 +88,14 @@ final class OrganizerVotingResultsPageState extends Equatable {
         jurorsThatSubmitted,
         jurorsThatNotSubmitted,
         participants,
-        votesPerJurorMap,
-        votesPerParticipantMap,
+        jurorVotesPerJurorMap,
+    jurorVotesPerParticipantMap,
         votingFormFields,
         participantsExclusionsPerJurorMap,
+        simpleJurors,
+        simpleJurorsThatSubmitted,
+        simpleJurorsThatNotSubmitted,
+        simpleJurorVotesPerSimpleJurorMap,
+        simpleJurorVotesPerParticipantMap,
       ];
 }

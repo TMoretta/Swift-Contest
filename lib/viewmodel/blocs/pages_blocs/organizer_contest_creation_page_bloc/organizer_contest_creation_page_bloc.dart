@@ -129,7 +129,6 @@ class OrganizerContestCreationPageBloc
       organizerId: event.organizerId,
       name: event.name,
       description: event.description,
-      isJurorsWorksPreviewEnabled: event.isJurorsWorksPreviewEnabled,
       dateTime: event.dateTime,
       worksSubmissionFrom: event.worksSubmissionFrom,
       worksSubmissionTo: event.worksSubmissionTo,

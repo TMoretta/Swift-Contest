@@ -48,7 +48,7 @@ final class OrganizerContestDetailsPageGetVotingTabInfo extends OrganizerContest
 }
 
 final class OrganizerContestDetailsPageUpdateVotingFormFields extends OrganizerContestDetailsPageEvent {
-  final List<RawVotingFormField> rawVotingFormFields;
+  final List<VotingFormFieldRaw> rawVotingFormFields;
   final String votingFormId;
 
   const OrganizerContestDetailsPageUpdateVotingFormFields({required this.rawVotingFormFields, required this.votingFormId,});

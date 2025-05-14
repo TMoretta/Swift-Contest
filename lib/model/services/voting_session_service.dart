@@ -23,6 +23,8 @@ abstract interface class VotingSessionService {
   Future<List<VotingSession>> getVotingSessionsByContestId({
     required String contestId,
   });
+
+  Future<VotingSession> getVotingSessionByToken({required String token});
 }
 
 //* Implementation
@@ -88,6 +90,17 @@ class VotingSessionServiceImpl implements VotingSessionService {
       final List<Map<String, dynamic>> results =
           await _supabase.from('voting_sessions').select().eq('contest_id', contestId);
       return results.map((e) => VotingSession.fromJson(e)).toList(growable: false);
+    } catch (e) {
+      throw UnsafeException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<VotingSession> getVotingSessionByToken({required String token}) async{
+    try {
+      final List<Map<String, dynamic>> results =
+      await _supabase.from('voting_sessions').select().eq('token', token);
+      return VotingSession.fromJson(results[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }

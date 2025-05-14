@@ -59,11 +59,9 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
             return Loader();
           }
           if (state.status.isSuccess && state.votingForm != null) {
-            final List<RawVotingFormField> rawVotingFormFields = state.votingFormFields!.map((e) {
-              return RawVotingFormField(
+            final List<VotingFormFieldRaw> rawVotingFormFields = state.votingFormFields!.map((e) {
+              return VotingFormFieldRaw(
                 name: e.name,
-                fieldType: e.fieldType,
-                isOptional: e.isOptional,
                 minValue: e.minValue,
                 maxValue: e.maxValue,
               );
@@ -87,7 +85,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                               extra: rawVotingFormFieldsJson,
                             ) as List<Map<String, dynamic>>?;
                             final updatedFields = updatedFieldsJson
-                                ?.map((e) => RawVotingFormField.fromJson(e))
+                                ?.map((e) => VotingFormFieldRaw.fromJson(e))
                                 .toList(growable: false);
                             if (updatedFields != null) {
                               if (context.mounted) {
@@ -124,9 +122,6 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                   Row(
                                     children: [
                                       Text(field.name),
-                                      (field.isOptional)
-                                          ? Text('[Optional]')
-                                          : SizedBox.shrink(),
                                     ],
                                   )
                                 ],

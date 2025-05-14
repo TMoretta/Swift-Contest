@@ -23,6 +23,12 @@ abstract interface class SimpleJurorVotingService {
       getSimpleJurorVotingsByVotingSessionSimpleJurorId({
     required String votingSessionSimpleJurorId,
   });
+
+  Future<SimpleJurorVoting>
+      getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
+    required String votingSessionSimpleJurorId,
+    required String votingSessionParticipantId,
+  });
 }
 
 class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
@@ -100,6 +106,24 @@ class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
           .update(simpleJurorVoting.toJson())
           .eq('id', id)
           .select();
+      return SimpleJurorVoting.fromJson(results[0]);
+    } catch (e) {
+      throw UnsafeException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<SimpleJurorVoting>
+      getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
+    required String votingSessionSimpleJurorId,
+    required String votingSessionParticipantId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> results = await _supabase
+          .from('simple_juror_votings')
+          .select()
+          .eq('voting_session_simple_juror_id', votingSessionSimpleJurorId)
+          .eq('voting_session_participant_id', votingSessionParticipantId);
       return SimpleJurorVoting.fromJson(results[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());

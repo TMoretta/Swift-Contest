@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
-import 'package:swift_contest/model/data_models/vote.dart';
+import 'package:swift_contest/model/data_models/juror_vote.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
@@ -29,8 +29,8 @@ class _OrganizerVotingResultsExportPageState
   late List<Juror> jurorsThatSubmitted;
   late List<Juror> jurorsThatNotSubmitted;
   late List<VotingFormField> votingFormFields;
-  late Map<Juror, Map<Participant, List<Vote>?>> votesPerJurorMap;
-  late Map<Participant, Map<Juror, List<Vote>?>> votesPerParticipantMap;
+  late Map<Juror, Map<Participant, List<JurorVote>?>> jurorVotesPerJurorMap;
+  late Map<Participant, Map<Juror, List<JurorVote>?>> jurorVotesPerParticipantMap;
   late Map<Profile, List<Profile>> participantsExclusionsPerJurorMap;
 
   List<Participant> selectedParticipants = [];
@@ -60,16 +60,16 @@ class _OrganizerVotingResultsExportPageState
         .map((e) => VotingFormField.fromJson(e as Map<String, dynamic>))
         .toList();
 
-    votesPerJurorMap = (data['votes_per_juror_map'] as Map<Map<String, dynamic>,
+    jurorVotesPerJurorMap = (data['juror_votes_per_juror_map'] as Map<Map<String, dynamic>,
             Map<Map<String, dynamic>, List<Map<String, dynamic>>?>>)
-        .map<Juror, Map<Participant, List<Vote>?>>(
+        .map<Juror, Map<Participant, List<JurorVote>?>>(
             (jurorJson, participantAndVotesMapJson) {
       final juror = Juror.fromJson(jurorJson);
       final participantAndVotes = participantAndVotesMapJson.map(
         (key, value) {
           final participant = Participant.fromJson(key);
-          final List<Vote>? votes = (value != null)
-              ? value.map((e) => Vote.fromJson(e)).toList(growable: false)
+          final List<JurorVote>? votes = (value != null)
+              ? value.map((e) => JurorVote.fromJson(e)).toList(growable: false)
               : null;
           return MapEntry(participant, votes);
         },
@@ -77,17 +77,17 @@ class _OrganizerVotingResultsExportPageState
       return MapEntry(juror, participantAndVotes);
     });
 
-    votesPerParticipantMap = (data['votes_per_participant_map'] as Map<
+    jurorVotesPerParticipantMap = (data['juror_votes_per_participant_map'] as Map<
             Map<String, dynamic>,
             Map<Map<String, dynamic>, List<Map<String, dynamic>>?>>)
-        .map<Participant, Map<Juror, List<Vote>?>>(
+        .map<Participant, Map<Juror, List<JurorVote>?>>(
             (participantJson, jurorAndVotesMapJson) {
       final participant = Participant.fromJson(participantJson);
       final jurorAndVotes = jurorAndVotesMapJson.map(
         (key, value) {
           final juror = Juror.fromJson(key);
-          final List<Vote>? votes = (value != null)
-              ? value.map((e) => Vote.fromJson(e)).toList(growable: false)
+          final List<JurorVote>? votes = (value != null)
+              ? value.map((e) => JurorVote.fromJson(e)).toList(growable: false)
               : null;
           return MapEntry(juror, votes);
         },
@@ -200,7 +200,7 @@ class _OrganizerVotingResultsExportPageState
             sheet.getRangeByIndex(1, start).cellStyle.hAlign = HAlignType.center;
             col = end + 1;
           }
-          sheet.getRangeByIndex(1,1).setText('Partecipante');
+          sheet.getRangeByIndex(1,1).setText('Participant');
           sheet.getRangeByIndex(1,1).cellStyle.hAlign = HAlignType.center;
 
           // Riga 2: nomi dei campi
@@ -220,7 +220,7 @@ class _OrganizerVotingResultsExportPageState
             sheet.getRangeByIndex(i + 3, 1).setText(participant.fullName);
             col = 2;
             for (var juror in selectedJurors) {
-              final voteList = votesPerParticipantMap[participant]?[juror];
+              final voteList = jurorVotesPerParticipantMap[participant]?[juror];
               if (voteList == null) {
                 // riempi con "Excluded"
                 for (int k = 0; k < selectedFields.length; k++) {

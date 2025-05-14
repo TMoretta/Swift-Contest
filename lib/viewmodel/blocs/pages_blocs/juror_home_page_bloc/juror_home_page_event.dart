@@ -18,3 +18,19 @@ final class JurorHomePageJoinContest extends JurorHomePageEvent {
   @override
   List<Object?> get props => [jurorId, contestToken, jurorToken];
 }
+
+final class JurorHomePageJoinVotingAsSimpleJuror extends JurorHomePageEvent {
+  final String votingSessionToken;
+  final String fullName;
+
+  const JurorHomePageJoinVotingAsSimpleJuror({
+    required this.votingSessionToken,
+    required this.fullName,
+  });
+
+  @override
+  List<Object?> get props => [
+        votingSessionToken,
+        fullName,
+      ];
+}
