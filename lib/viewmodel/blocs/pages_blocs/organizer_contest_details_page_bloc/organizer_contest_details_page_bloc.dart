@@ -17,7 +17,7 @@ import 'package:swift_contest/model/enums/member_role.dart';
 import 'package:swift_contest/model/enums/participant_status.dart';
 import 'package:swift_contest/model/enums/work_status.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/edge_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';

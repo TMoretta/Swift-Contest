@@ -1,15 +1,16 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/data_models/simple_juror_voting.dart';
+import 'package:swift_contest/utils/exceptions/safe_exception.dart';
 import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
+//* Interface
 abstract interface class SimpleJurorVotingService {
   Future<SimpleJurorVoting> createSimpleJurorVoting({
     required SimpleJurorVoting simpleJurorVoting,
   });
 
-  Future<SimpleJurorVoting> updateSimpleJurorVotingById({
-    required String id,
+  Future<SimpleJurorVoting> updateSimpleJurorVoting({
     required SimpleJurorVoting simpleJurorVoting,
   });
 
@@ -20,17 +21,18 @@ abstract interface class SimpleJurorVotingService {
   });
 
   Future<List<SimpleJurorVoting>>
-      getSimpleJurorVotingsByVotingSessionSimpleJurorId({
+  getSimpleJurorVotingsByVotingSessionSimpleJurorId({
     required String votingSessionSimpleJurorId,
   });
 
   Future<SimpleJurorVoting>
-      getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
+  getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
     required String votingSessionSimpleJurorId,
     required String votingSessionParticipantId,
   });
 }
 
+//* Implementation
 class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
   final SupabaseClient _supabase;
 
@@ -42,11 +44,15 @@ class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
     required SimpleJurorVoting simpleJurorVoting,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('simple_juror_votings')
-          .insert(simpleJurorVoting.toJson())
-          .select();
-      return SimpleJurorVoting.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'create_simple_juror_voting',
+          params: simpleJurorVoting.toRpcJson());
+      if (res.isEmpty) {
+        throw SafeException(message: 'SimpleJurorVoting creation failed');
+      }
+      return SimpleJurorVoting.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -57,8 +63,11 @@ class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
     required String id,
   }) async {
     try {
-      await _supabase.from('simple_juror_votings').delete().eq('id', id);
+      await _supabase
+          .rpc('delete_simple_juror_voting_by_id', params: {'p_id': id});
       return unit;
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -69,9 +78,14 @@ class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
     required String id,
   }) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('simple_juror_votings').select().eq('id', id);
-      return SimpleJurorVoting.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase
+          .rpc('get_simple_juror_voting_by_id', params: {'p_id': id});
+      if (res.isEmpty) {
+        throw SafeException(message: 'No SimpleJurorVoting found');
+      }
+      return SimpleJurorVoting.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -79,34 +93,37 @@ class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
 
   @override
   Future<List<SimpleJurorVoting>>
-      getSimpleJurorVotingsByVotingSessionSimpleJurorId({
+  getSimpleJurorVotingsByVotingSessionSimpleJurorId({
     required String votingSessionSimpleJurorId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('simple_juror_votings')
-          .select()
-          .eq('voting_session_simple_juror_id', votingSessionSimpleJurorId);
-      return results
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_simple_juror_votings_by_voting_session_simple_juror_id',
+          params: {'p_voting_session_simple_juror_id': votingSessionSimpleJurorId});
+      return res
           .map((e) => SimpleJurorVoting.fromJson(e))
           .toList(growable: false);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
   }
 
   @override
-  Future<SimpleJurorVoting> updateSimpleJurorVotingById({
-    required String id,
+  Future<SimpleJurorVoting> updateSimpleJurorVoting({
     required SimpleJurorVoting simpleJurorVoting,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('simple_juror_votings')
-          .update(simpleJurorVoting.toJson())
-          .eq('id', id)
-          .select();
-      return SimpleJurorVoting.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'update_simple_juror_voting',
+          params: simpleJurorVoting.toRpcJson());
+      if (res.isEmpty) {
+        throw SafeException(message: 'SimpleJurorVoting update failed');
+      }
+      return SimpleJurorVoting.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -114,17 +131,23 @@ class SimpleJurorVotingServiceImpl implements SimpleJurorVotingService {
 
   @override
   Future<SimpleJurorVoting>
-      getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
+  getVotingByVotingSessionSimpleJurorIdAndVotingSessionParticipantId({
     required String votingSessionSimpleJurorId,
     required String votingSessionParticipantId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('simple_juror_votings')
-          .select()
-          .eq('voting_session_simple_juror_id', votingSessionSimpleJurorId)
-          .eq('voting_session_participant_id', votingSessionParticipantId);
-      return SimpleJurorVoting.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_voting_by_voting_session_simple_juror_id_and_voting_session_participant_id',
+          params: {
+            'p_voting_session_simple_juror_id': votingSessionSimpleJurorId,
+            'p_voting_session_participant_id': votingSessionParticipantId
+          });
+      if (res.isEmpty) {
+        throw SafeException(message: 'No SimpleJurorVoting found');
+      }
+      return SimpleJurorVoting.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }

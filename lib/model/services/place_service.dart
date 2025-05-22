@@ -1,13 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/data_models/place.dart';
+import 'package:swift_contest/utils/exceptions/safe_exception.dart';
 import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
 //* Interface
 abstract interface class PlaceService {
   Future<Place> createPlace({required Place place});
 
-  Future<Place> updatePlaceById({required String id, required Place place});
+  Future<Place> updatePlace({required Place place});
 
   Future<Unit> deletePlaceById({required String id});
 
@@ -23,23 +24,30 @@ class PlaceServiceImpl implements PlaceService {
   @override
   Future<Place> createPlace({required Place place}) async {
     try {
-      final List<Map<String, dynamic>> results =
-      await _supabase.from('places').insert(place.toJson()).select();
-      return Place.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+      await _supabase.rpc('create_place', params: place.toRpcJson());
+      if (res.isEmpty) {
+        throw SafeException(message: 'Place creation failed');
+      }
+      return Place.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
   }
 
   @override
-  Future<Place> updatePlaceById({required String id, required Place place}) async {
+  Future<Place> updatePlace({required Place place}) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('places')
-          .update(place.toJson())
-          .eq('id', id)
-          .select();
-      return Place.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+      await _supabase.rpc('update_place', params: place.toRpcJson());
+      if (res.isEmpty) {
+        throw SafeException(message: 'Place update failed');
+      }
+      return Place.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -48,8 +56,10 @@ class PlaceServiceImpl implements PlaceService {
   @override
   Future<Unit> deletePlaceById({required String id}) async {
     try {
-      await _supabase.from('places').delete().eq('id', id);
+      await _supabase.rpc('delete_place_by_id', params: {'p_id': id});
       return unit;
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -58,9 +68,14 @@ class PlaceServiceImpl implements PlaceService {
   @override
   Future<Place> getPlaceById({required String id}) async {
     try {
-      final List<Map<String, dynamic>> results =
-      await _supabase.from('places').select().eq('id', id);
-      return Place.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+      await _supabase.rpc('get_place_by_id', params: {'p_id': id});
+      if (res.isEmpty) {
+        throw SafeException(message: 'No Place found');
+      }
+      return Place.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }

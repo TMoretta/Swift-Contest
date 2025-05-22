@@ -8,8 +8,8 @@ import 'package:swift_contest/utils/failures/failure.dart';
 abstract interface class ProfileRepository {
   Future<Either<Failure, Profile>> getCurrentProfile();
 
-  Future<Either<Failure, Profile>> updateProfileById(
-      {required String id, required Profile profile});
+  Future<Either<Failure, Profile>> updateProfile(
+      {required Profile profile,});
 
   Future<Either<Failure, Unit>> deleteProfileById({required String id});
 
@@ -66,12 +66,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, Profile>> updateProfileById({
-    required String id,
+  Future<Either<Failure, Profile>> updateProfile({
     required Profile profile,
   }) async {
     try {
-      final result = await _profileService.updateProfileById(id: id, profile: profile);
+      final result = await _profileService.updateProfile(profile: profile);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

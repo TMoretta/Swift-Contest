@@ -16,7 +16,7 @@ import 'package:swift_contest/model/data_models/voting_session_participant.dart'
 import 'package:swift_contest/model/data_models/voting_session_procedure.dart';
 import 'package:swift_contest/model/data_models/work.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
@@ -441,8 +441,7 @@ class JurorVotingProcedurePageBloc
     }
 
     final eitherVotingSessionJurorUpdate =
-        await _votingSessionJurorRepository.updateVotingSessionJurorById(
-      id: votingSessionJuror.id,
+        await _votingSessionJurorRepository.updateVotingSessionJuror(
       votingSessionJuror: votingSessionJuror.copyWith(hasSubmitted: true),
     );
     eitherVotingSessionJurorUpdate.fold(

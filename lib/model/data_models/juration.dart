@@ -36,6 +36,16 @@ class Juration extends Equatable {
     };
   }
 
+  Map<String, dynamic> toRpcJson() {
+    return {
+      'p_id': id,
+      'p_created_at': createdAt.toUtc().toIso8601String(),
+      'p_contest_id': contestId,
+      'p_juror_id': jurorId,
+      'p_juror_status': jurorStatus.name,
+    };
+  }
+
   Juration copyWith({
     String? id,
     DateTime? createdAt,

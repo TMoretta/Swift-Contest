@@ -2,46 +2,36 @@ part of 'auth_bloc.dart';
 
 @immutable
 final class AuthState extends Equatable {
-  final AuthStatus status;
+  final BlocStatus blocStatus;
+  final AuthStatus authStatus;
   final String? message;
-  final my.User? user;
+  final User? user;
+  final Profile? profile;
 
   const AuthState({
-    required this.status,
+    required this.blocStatus,
+    required this.authStatus,
     this.message,
     this.user,
+    this.profile,
   });
 
   AuthState copyWith({
-    required AuthStatus status,
+    required BlocStatus blocStatus,
+    AuthStatus? authStatus,
     String? message,
-    my.User? user,
+    User? user,
     Profile? profile,
   }) {
     return AuthState(
-      status: status,
+      blocStatus: blocStatus,
+      authStatus: authStatus ?? this.authStatus,
       message: message,
       user: user ?? this.user,
+      profile: profile ?? this.profile,
     );
   }
 
   @override
-  List<Object?> get props => [status, message, user];
-}
-
-enum AuthStatus {
-  initial,
-  loading,
-  authenticated,
-  unauthenticated,
-}
-
-extension AuthStatusX on AuthStatus {
-  bool get isInitial => this == AuthStatus.initial;
-
-  bool get isLoading => this == AuthStatus.loading;
-
-  bool get isAuthenticated => this == AuthStatus.authenticated;
-
-  bool get isUnauthenticated => this == AuthStatus.unauthenticated;
+  List<Object?> get props => [authStatus, blocStatus, message, user, profile];
 }

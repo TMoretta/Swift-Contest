@@ -8,8 +8,7 @@ import 'package:swift_contest/utils/failures/failure.dart';
 abstract interface class JurationRepository {
   Future<Either<Failure, Juration>> createJuration({required Juration juration});
 
-  Future<Either<Failure, Juration>> updateJurationById({
-    required String id,
+  Future<Either<Failure, Juration>> updateJuration({
     required Juration juration,
   });
 
@@ -45,10 +44,10 @@ class JurationRepositoryImpl implements JurationRepository {
   }
 
   @override
-  Future<Either<Failure, Juration>> updateJurationById(
-      {required String id, required Juration juration}) async {
+  Future<Either<Failure, Juration>> updateJuration(
+      {required Juration juration,}) async {
     try {
-      final result = await _jurationService.updateJurationById(id: id, juration: juration);
+      final result = await _jurationService.updateJuration(juration: juration);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

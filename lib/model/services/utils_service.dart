@@ -16,12 +16,12 @@ class UtilsServiceImpl implements UtilsService {
   @override
   Future<String> genUniqueToken({required String tableName, required String columnName, required int length}) async {
     try {
-      final result = await  _supabase.rpc('gen_unique_token', params: {
+      final res = await  _supabase.rpc('gen_unique_token', params: {
         'p_table_name' : tableName,
         'p_column_name' : columnName,
         'p_length' : length,
       });
-      return result;
+      return res;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }

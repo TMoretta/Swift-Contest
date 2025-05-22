@@ -8,8 +8,7 @@ import 'package:swift_contest/utils/failures/failure.dart';
 abstract interface class WorkRepository {
   Future<Either<Failure, Work>> createWork({required Work work});
 
-  Future<Either<Failure, Work>> updateWorkById(
-      {required String id, required Work work});
+  Future<Either<Failure, Work>> updateWork({required Work work});
 
   Future<Either<Failure, Unit>> deleteWorkById({required String id});
 
@@ -24,8 +23,7 @@ abstract interface class WorkRepository {
 class WorkRepositoryImpl implements WorkRepository {
   final WorkService _workService;
 
-  WorkRepositoryImpl({required WorkService workService})
-      : _workService = workService;
+  WorkRepositoryImpl({required WorkService workService}) : _workService = workService;
 
   @override
   Future<Either<Failure, Work>> createWork({required Work work}) async {
@@ -70,10 +68,9 @@ class WorkRepositoryImpl implements WorkRepository {
   }
 
   @override
-  Future<Either<Failure, Work>> updateWorkById(
-      {required String id, required Work work}) async {
+  Future<Either<Failure, Work>> updateWork({required Work work}) async {
     try {
-      final result = await _workService.updateWorkById(id: id, work: work);
+      final result = await _workService.updateWork(work: work);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

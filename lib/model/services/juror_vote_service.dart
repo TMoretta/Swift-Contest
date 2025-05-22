@@ -1,13 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/data_models/juror_vote.dart';
+import 'package:swift_contest/utils/exceptions/safe_exception.dart';
 import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
 //* Interface
 abstract interface class JurorVoteService {
   Future<JurorVote> createJurorVote({required JurorVote jurorVote});
 
-  Future<JurorVote> updateJurorVoteById({required String id, required JurorVote jurorVote});
+  Future<JurorVote> updateJurorVote({required JurorVote jurorVote});
 
   Future<Unit> deleteJurorVoteById({required String id});
 
@@ -25,20 +26,31 @@ class JurorVoteServiceImpl implements JurorVoteService {
   @override
   Future<JurorVote> createJurorVote({required JurorVote jurorVote}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('juror_votes').insert(jurorVote.toJson()).select();
-      return JurorVote.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'create_juror_vote', params: jurorVote.toRpcJson());
+      if (res.isEmpty) {
+        throw SafeException(message: 'JurorVote creation failed');
+      }
+      return JurorVote.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
   }
 
   @override
-  Future<JurorVote> updateJurorVoteById({required String id, required JurorVote jurorVote}) async {
+  Future<JurorVote> updateJurorVote({required JurorVote jurorVote}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('juror_votes').update(jurorVote.toJson()).eq('id', id).select();
-      return JurorVote.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'update_juror_vote',
+          params: jurorVote.toRpcJson());
+      if (res.isEmpty) {
+        throw SafeException(message: 'JurorVote update failed');
+      }
+      return JurorVote.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -47,8 +59,10 @@ class JurorVoteServiceImpl implements JurorVoteService {
   @override
   Future<Unit> deleteJurorVoteById({required String id}) async {
     try {
-      await _supabase.from('juror_votes').delete().eq('id', id);
+      await _supabase.rpc('delete_juror_vote_by_id', params: {'p_id': id});
       return unit;
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -57,9 +71,14 @@ class JurorVoteServiceImpl implements JurorVoteService {
   @override
   Future<JurorVote> getJurorVoteById({required String id}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('juror_votes').select().eq('id', id);
-      return JurorVote.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_juror_vote_by_id', params: {'p_id': id});
+      if (res.isEmpty) {
+        throw SafeException(message: 'No JurorVote found');
+      }
+      return JurorVote.fromJson(res[0]);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -68,12 +87,12 @@ class JurorVoteServiceImpl implements JurorVoteService {
   @override
   Future<List<JurorVote>> getJurorVotesByJurorVotingId({required String jurorVotingId}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('juror_votes').select().eq('juror_voting_id', jurorVotingId);
-      if(results.isEmpty) {
-        return [];
-      }
-      return results.map((e) => JurorVote.fromJson(e)).toList(growable: false);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_juror_votes_by_juror_voting_id',
+          params: {'p_juror_voting_id': jurorVotingId});
+      return res.map((e) => JurorVote.fromJson(e)).toList(growable: false);
+    } on SafeException {
+      rethrow;
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }

@@ -16,7 +16,7 @@ import 'package:swift_contest/model/data_models/voting_session_simple_juror.dart
 import 'package:swift_contest/model/enums/juror_status.dart';
 import 'package:swift_contest/model/enums/member_role.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
@@ -72,7 +72,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
         _placeRepository = placeRepository,
         super(JurorHomePageState(status: BlocStatus.initial)) {
     on<JurorHomePageJoinContest>(_joinContest);
-    on<JurorHomePageJoinVotingAsSimpleJuror>(_joinVotingAsSimpleJuror);
+    on<JurorHomePageVoteAsSimpleJuror>(_joinVotingAsSimpleJuror);
   }
 
   Future<void> _joinContest(
@@ -146,7 +146,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
   }
 
   FutureOr<void> _joinVotingAsSimpleJuror(
-    JurorHomePageJoinVotingAsSimpleJuror event,
+    JurorHomePageVoteAsSimpleJuror event,
     Emitter<JurorHomePageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading));

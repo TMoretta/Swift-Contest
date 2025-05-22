@@ -10,8 +10,7 @@ abstract interface class VotingFormFieldRepository {
     required VotingFormField votingFormField,
   });
 
-  Future<Either<Failure, VotingFormField>> updateVotingFormFieldById({
-    required String id,
+  Future<Either<Failure, VotingFormField>> updateVotingFormField({
     required VotingFormField votingFormField,
   });
 
@@ -78,13 +77,11 @@ class VotingFormFieldRepositoryImpl implements VotingFormFieldRepository {
   }
 
   @override
-  Future<Either<Failure, VotingFormField>> updateVotingFormFieldById({
-    required String id,
+  Future<Either<Failure, VotingFormField>> updateVotingFormField({
     required VotingFormField votingFormField,
   }) async {
     try {
-      final result = await _votingFormFieldService.updateVotingFormFieldById(
-          id: id, votingFormField: votingFormField);
+      final result = await _votingFormFieldService.updateVotingFormField(votingFormField: votingFormField);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

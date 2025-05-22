@@ -7,7 +7,7 @@ import 'package:swift_contest/model/enums/voting_session_procedure_step.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_procedure_page_bloc/organizer_voting_procedure_page_bloc.dart';
 

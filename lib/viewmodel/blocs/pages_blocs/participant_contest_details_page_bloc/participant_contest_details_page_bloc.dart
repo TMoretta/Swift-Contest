@@ -11,7 +11,7 @@ import 'package:swift_contest/viewmodel/repositories/participation_repository.da
 import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'participant_contest_details_page_event.dart';
 

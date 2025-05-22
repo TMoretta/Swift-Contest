@@ -9,7 +9,7 @@ import 'package:swift_contest/view/widgets/contest_card.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/home_page_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/juror_joined_contests_bloc/juror_joined_contests_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/juror_home_page_bloc.dart';
@@ -171,7 +171,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                                     if (votingOnlyFormKey.currentState?.validate() ?? false) {
                                       if(context.mounted) {
                                         context.read<JurorHomePageBloc>().add(
-                                            JurorHomePageJoinVotingAsSimpleJuror(
+                                            JurorHomePageVoteAsSimpleJuror(
                                                 fullName: fullNameController.text.trim(),
                                                 votingSessionToken:
                                                 votingTokenController.text

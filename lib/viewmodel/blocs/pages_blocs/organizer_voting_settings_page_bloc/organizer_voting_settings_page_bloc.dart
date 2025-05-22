@@ -13,7 +13,7 @@ import 'package:swift_contest/model/data_models/voting_session_participant.dart'
 import 'package:swift_contest/model/data_models/voting_session_procedure.dart';
 import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/voting_form_field_repository.dart';

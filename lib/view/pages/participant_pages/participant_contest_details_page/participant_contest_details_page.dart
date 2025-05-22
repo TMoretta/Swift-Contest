@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/data_models/user.dart';
-import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_details_tab.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_voting_tab.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_your_work_tab.dart';

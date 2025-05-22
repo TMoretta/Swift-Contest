@@ -8,8 +8,9 @@ import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 abstract interface class ContestService {
   Future<Contest> createContest({required Contest contest});
 
-  Future<Contest> updateContestById(
-      {required String id, required Contest contest,});
+  Future<Contest> updateContest({
+    required Contest contest,
+  });
 
   Future<Unit> deleteContestById({required String id});
 
@@ -26,15 +27,17 @@ abstract interface class ContestService {
 class ContestServiceImpl implements ContestService {
   final SupabaseClient _supabase;
 
-  ContestServiceImpl({required SupabaseClient supabaseClient})
-      : _supabase = supabaseClient;
+  ContestServiceImpl({required SupabaseClient supabaseClient}) : _supabase = supabaseClient;
 
   @override
   Future<Contest> createContest({required Contest contest}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('contests').insert(contest.toJson()).select();
-      return Contest.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'create_contest', params: contest.toRpcJson());
+      if(res.isEmpty) {
+        throw SafeException(message: 'Contest creation failed');
+      }
+      return Contest.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -43,17 +46,16 @@ class ContestServiceImpl implements ContestService {
   }
 
   @override
-  Future<Contest> updateContestById({
-    required String id,
+  Future<Contest> updateContest({
     required Contest contest,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('contests')
-          .update(contest.toJson())
-          .eq('id', id)
-          .select();
-      return Contest.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+      await _supabase.rpc('update_contest',params: contest.toRpcJson());
+      if(res.isEmpty) {
+        throw SafeException(message: 'Contest update failed');
+      }
+      return Contest.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -64,7 +66,7 @@ class ContestServiceImpl implements ContestService {
   @override
   Future<Unit> deleteContestById({required String id}) async {
     try {
-      await _supabase.from('contests').delete().eq('id', id);
+      await _supabase.rpc('delete_contest_by_id',params: {'p_id':id});
       return unit;
     } on SafeException {
       rethrow;
@@ -76,9 +78,8 @@ class ContestServiceImpl implements ContestService {
   @override
   Future<List<Contest>> getAllContests() async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('contests').select();
-      return results.map((e) => Contest.fromJson(e)).toList(growable: false);
+      final List<Map<String, dynamic>> res = await _supabase.rpc('get_all_contests');
+      return res.map((e) => Contest.fromJson(e)).toList(growable: false);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -89,9 +90,12 @@ class ContestServiceImpl implements ContestService {
   @override
   Future<Contest> getContestById({required String id}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('contests').select().eq('id', id);
-      return Contest.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+      await _supabase.rpc('get_contest_by_id',params: {'p_id':id});
+      if(res.isEmpty) {
+        throw SafeException(message: 'No contest found');
+      }
+      return Contest.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -104,11 +108,9 @@ class ContestServiceImpl implements ContestService {
     required String organizerId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('contests')
-          .select()
-          .eq('organizer_id', organizerId);
-      return results.map((e) => Contest.fromJson(e)).toList(growable: false);
+      final List<Map<String, dynamic>> res =
+      await _supabase.rpc('get_contests_by_organizer_id',params: {'p_organizer_id':organizerId});
+      return res.map((e) => Contest.fromJson(e)).toList(growable: false);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -119,14 +121,12 @@ class ContestServiceImpl implements ContestService {
   @override
   Future<Contest> getContestByToken({required String token}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('contests').select().eq('token', token);
-      if (results.isEmpty) {
-        throw UnsafeException(
-            message:
-                'Invalid invite credentials'); //TODO: Change this exception to safe
+      final List<Map<String, dynamic>> res =
+      await _supabase.rpc('get_contest_by_token',params: {'p_token':token});
+      if (res.isEmpty) {
+        throw SafeException(message: 'No contest found');
       }
-      return Contest.fromJson(results[0]);
+      return Contest.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {

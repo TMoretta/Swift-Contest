@@ -5,11 +5,11 @@ import 'package:swift_contest/model/enums/member_role.dart';
 import 'package:swift_contest/utils/exceptions/safe_exception.dart';
 import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
+//* Interface
 abstract interface class InvitationService {
   Future<Invitation> createInvitation({required Invitation invitation});
 
-  Future<Invitation> updateInvitationById({
-    required String id,
+  Future<Invitation> updateInvitation({
     required Invitation invitation,
   });
 
@@ -32,20 +32,21 @@ abstract interface class InvitationService {
   });
 }
 
+//* Implementation
 class InvitationServiceImpl implements InvitationService {
   final SupabaseClient _supabase;
 
-  InvitationServiceImpl({required SupabaseClient supabaseClient})
-      : _supabase = supabaseClient;
+  InvitationServiceImpl({required SupabaseClient supabaseClient}) : _supabase = supabaseClient;
 
   @override
   Future<Invitation> createInvitation({required Invitation invitation}) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('invitations')
-          .insert(invitation.toJson())
-          .select();
-      return Invitation.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('create_invitation', params: invitation.toRpcJson());
+      if (res.isEmpty) {
+        throw SafeException(message: 'Invitation creation failed');
+      }
+      return Invitation.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -56,7 +57,7 @@ class InvitationServiceImpl implements InvitationService {
   @override
   Future<Unit> deleteInvitationById({required String id}) async {
     try {
-      await _supabase.from('invitations').delete().eq('id', id);
+      await _supabase.rpc('delete_invitation_by_id', params: {'p_id': id});
       return unit;
     } on SafeException {
       rethrow;
@@ -71,12 +72,13 @@ class InvitationServiceImpl implements InvitationService {
     required String token,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('invitations')
-          .select()
-          .eq('contest_id', contestId)
-          .eq('token', token);
-      return Invitation.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_invitation_by_contest_id_and_token',
+          params: {'p_contest_id': contestId, 'p_token': token});
+      if (res.isEmpty) {
+        throw SafeException(message: 'No invitation found');
+      }
+      return Invitation.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -87,9 +89,12 @@ class InvitationServiceImpl implements InvitationService {
   @override
   Future<Invitation> getInvitationById({required String id}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('invitations').select().eq('id', id);
-      return Invitation.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('get_invitation_by_id', params: {'p_id': id});
+      if (res.isEmpty) {
+        throw SafeException(message: 'No invitation found');
+      }
+      return Invitation.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -102,11 +107,9 @@ class InvitationServiceImpl implements InvitationService {
     required String contestId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('invitations')
-          .select()
-          .eq('contest_id', contestId);
-      return results.map((e) => Invitation.fromJson(e)).toList(growable: false);
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('get_invitations_by_contest_id',params: {'p_contest_id':contestId});
+      return res.map((e) => Invitation.fromJson(e)).toList(growable: false);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -115,17 +118,16 @@ class InvitationServiceImpl implements InvitationService {
   }
 
   @override
-  Future<Invitation> updateInvitationById({
-    required String id,
+  Future<Invitation> updateInvitation({
     required Invitation invitation,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('invitations')
-          .update(invitation.toJson())
-          .eq('id', id)
-          .select();
-      return Invitation.fromJson(results[0]);
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('update_invitation',params: invitation.toRpcJson());
+      if(res.isEmpty) {
+        throw SafeException(message: 'Invitation update failed');
+      }
+      return Invitation.fromJson(res[0]);
     } on SafeException {
       rethrow;
     } catch (e) {
@@ -139,12 +141,9 @@ class InvitationServiceImpl implements InvitationService {
     required MemberRole memberRole,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('invitations')
-          .select()
-          .eq('contest_id', contestId)
-          .eq('member_role', memberRole.name);
-      return results.map((e) => Invitation.fromJson(e)).toList(growable: false);
+      final List<Map<String, dynamic>> res = await _supabase
+          .rpc('get_invitations_by_contest_id_and_member_role',params: {'p_contest_id':contestId,'p_member_role':memberRole});
+      return res.map((e) => Invitation.fromJson(e)).toList(growable: false);
     } on SafeException {
       rethrow;
     } catch (e) {

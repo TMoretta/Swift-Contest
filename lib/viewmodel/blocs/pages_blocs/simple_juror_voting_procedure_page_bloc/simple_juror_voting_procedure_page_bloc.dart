@@ -15,7 +15,7 @@ import 'package:swift_contest/model/data_models/voting_session_procedure.dart';
 import 'package:swift_contest/model/data_models/voting_session_simple_juror.dart';
 import 'package:swift_contest/model/data_models/work.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/simple_juror_vote_repository.dart';
@@ -301,8 +301,7 @@ class SimpleJurorVotingProcedurePageBloc extends Bloc<
     }
 
     final eitherVotingSessionSimpleJurorUpdate =
-        await _votingSessionSimpleJurorRepository.updateVotingSessionSimpleJurorById(
-      id: event.votingSessionSimpleJuror.id,
+        await _votingSessionSimpleJurorRepository.updateVotingSessionSimpleJuror(
       votingSessionSimpleJuror: event.votingSessionSimpleJuror.copyWith(hasSubmitted: true),
     );
     eitherVotingSessionSimpleJurorUpdate.fold(

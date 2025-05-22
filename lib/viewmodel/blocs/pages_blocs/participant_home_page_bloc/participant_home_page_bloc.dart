@@ -9,7 +9,7 @@ import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/member_role.dart';
 import 'package:swift_contest/model/enums/participant_status.dart';
 import 'package:swift_contest/model/enums/work_status.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';

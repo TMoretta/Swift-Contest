@@ -8,8 +8,7 @@ import 'package:swift_contest/utils/failures/failure.dart';
 abstract interface class VotingFormRepository {
   Future<Either<Failure, VotingForm>> createVotingForm({required VotingForm votingForm});
 
-  Future<Either<Failure, VotingForm>> updateVotingFormById({
-    required String id,
+  Future<Either<Failure, VotingForm>> updateVotingForm({
     required VotingForm votingForm,
   });
 
@@ -56,12 +55,11 @@ class VotingFormRepositoryImpl implements VotingFormRepository {
   }
 
   @override
-  Future<Either<Failure, VotingForm>> updateVotingFormById({
-    required String id,
+  Future<Either<Failure, VotingForm>> updateVotingForm({
     required VotingForm votingForm,
   }) async {
     try {
-      final result = await _votingFormService.updateVotingFormById(id: id, votingForm: votingForm);
+      final result = await _votingFormService.updateVotingForm(votingForm: votingForm);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

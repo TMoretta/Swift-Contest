@@ -10,8 +10,7 @@ abstract interface class VotingSessionJurorRepository {
     required VotingSessionJuror votingSessionJuror,
   });
 
-  Future<Either<Failure, VotingSessionJuror>> updateVotingSessionJurorById({
-    required String id,
+  Future<Either<Failure, VotingSessionJuror>> updateVotingSessionJuror({
     required VotingSessionJuror votingSessionJuror,
   });
 
@@ -101,13 +100,11 @@ class VotingSessionJurorRepositoryImpl implements VotingSessionJurorRepository {
   }
 
   @override
-  Future<Either<Failure, VotingSessionJuror>> updateVotingSessionJurorById({
-    required String id,
+  Future<Either<Failure, VotingSessionJuror>> updateVotingSessionJuror({
     required VotingSessionJuror votingSessionJuror,
   }) async {
     try {
-      final result = await _votingSessionJurorService.updateVotingSessionJurorById(
-          id: id, votingSessionJuror: votingSessionJuror);
+      final result = await _votingSessionJurorService.updateVotingSessionJuror(votingSessionJuror: votingSessionJuror);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

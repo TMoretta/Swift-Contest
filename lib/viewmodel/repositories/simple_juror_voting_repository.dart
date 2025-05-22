@@ -9,8 +9,7 @@ abstract interface class SimpleJurorVotingRepository {
     required SimpleJurorVoting simpleJurorVoting,
   });
 
-  Future<Either<Failure, SimpleJurorVoting>> updateSimpleJurorVotingById({
-    required String id,
+  Future<Either<Failure, SimpleJurorVoting>> updateSimpleJurorVoting({
     required SimpleJurorVoting simpleJurorVoting,
   });
 
@@ -96,14 +95,12 @@ class SimpleJurorVotingRepositoryImpl implements SimpleJurorVotingRepository {
   }
 
   @override
-  Future<Either<Failure, SimpleJurorVoting>> updateSimpleJurorVotingById({
-    required String id,
+  Future<Either<Failure, SimpleJurorVoting>> updateSimpleJurorVoting({
     required SimpleJurorVoting simpleJurorVoting,
   }) async {
     try {
       final result =
-          await _simpleJurorVotingService.updateSimpleJurorVotingById(
-              id: id, simpleJurorVoting: simpleJurorVoting);
+          await _simpleJurorVotingService.updateSimpleJurorVoting(simpleJurorVoting: simpleJurorVoting);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

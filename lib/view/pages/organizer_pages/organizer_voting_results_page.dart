@@ -6,10 +6,10 @@ import 'package:swift_contest/model/data_models/simple_juror.dart';
 import 'package:swift_contest/model/data_models/simple_juror_vote.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
-import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_results_page_bloc/organizer_voting_results_page_bloc.dart';
 

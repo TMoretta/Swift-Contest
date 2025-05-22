@@ -27,6 +27,14 @@ class SimpleJuror extends Equatable {
     };
   }
 
+  Map<String, dynamic> toRpcJson() {
+    return {
+      'p_id': id,
+      'p_created_at': createdAt.toUtc().toIso8601String(),
+      'p_full_name': fullName,
+    };
+  }
+
   SimpleJuror copyWith({
     String? id,
     DateTime? createdAt,

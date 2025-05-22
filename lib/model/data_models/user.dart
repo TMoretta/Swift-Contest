@@ -9,10 +9,10 @@ class User extends Equatable{
     required this.email,
   });
 
-  factory User.fromJson(Map<String, dynamic> map) {
+  factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: map['id'] as String,
-      email: map['email'] as String,
+      id: json['id'] as String,
+      email: json['email'] as String,
     );
   }
 
@@ -20,6 +20,13 @@ class User extends Equatable{
     return {
       'id': id,
       'email': email,
+    };
+  }
+
+  Map<String, dynamic> toRpcJson() {
+    return {
+      'p_id': id,
+      'p_email': email,
     };
   }
 

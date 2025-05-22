@@ -7,11 +7,11 @@ import 'package:swift_contest/utils/failures/failure.dart';
 
 //* Interface
 abstract interface class InvitationRepository {
-  Future<Either<Failure, Invitation>> createInvitation(
-      {required Invitation invitation});
+  Future<Either<Failure, Invitation>> createInvitation({
+    required Invitation invitation,
+  });
 
-  Future<Either<Failure, Invitation>> updateInvitationById({
-    required String id,
+  Future<Either<Failure, Invitation>> updateInvitation({
     required Invitation invitation,
   });
 
@@ -24,9 +24,9 @@ abstract interface class InvitationRepository {
     required String token,
   });
 
-  // Future<Either<Failure, List<Invitation>>> getInvitationsByContestId({
-  //   required String contestId,
-  // });
+  Future<Either<Failure, List<Invitation>>> getInvitationsByContestId({
+    required String contestId,
+  });
 
   Future<Either<Failure, List<Invitation>>> getInvitationsByContestIdAndMemberRole({
     required String contestId,
@@ -71,7 +71,8 @@ class InvitationRepositoryImpl implements InvitationRepository {
     required String token,
   }) async {
     try {
-      final result = await _invitationService.getInvitationByContestIdAndToken(contestId: contestId, token: token);
+      final result = await _invitationService.getInvitationByContestIdAndToken(
+          contestId: contestId, token: token);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
@@ -103,12 +104,11 @@ class InvitationRepositoryImpl implements InvitationRepository {
   }
 
   @override
-  Future<Either<Failure, Invitation>> updateInvitationById({
-    required String id,
+  Future<Either<Failure, Invitation>> updateInvitation({
     required Invitation invitation,
   }) async {
     try {
-      final result = await _invitationService.updateInvitationById(id: id, invitation: invitation);
+      final result = await _invitationService.updateInvitation(invitation: invitation);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
@@ -116,9 +116,13 @@ class InvitationRepositoryImpl implements InvitationRepository {
   }
 
   @override
-  Future<Either<Failure, List<Invitation>>> getInvitationsByContestIdAndMemberRole({required String contestId, required MemberRole memberRole,}) async{
+  Future<Either<Failure, List<Invitation>>> getInvitationsByContestIdAndMemberRole({
+    required String contestId,
+    required MemberRole memberRole,
+  }) async {
     try {
-      final result = await _invitationService.getInvitationsByContestIdAndMemberRole(contestId: contestId,memberRole: memberRole);
+      final result = await _invitationService.getInvitationsByContestIdAndMemberRole(
+          contestId: contestId, memberRole: memberRole);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

@@ -10,11 +10,11 @@ import 'package:swift_contest/model/mixed_models/participation_and_participant.d
 import 'package:swift_contest/model/mixed_models/participation_and_participant_and_work.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
-import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
 

@@ -8,7 +8,7 @@ import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/model/enums/juror_status.dart';
 import 'package:swift_contest/model/enums/participant_status.dart';
-import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 class ContestCard extends StatefulWidget {
   final Contest contest;

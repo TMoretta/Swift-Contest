@@ -8,8 +8,7 @@ import 'package:swift_contest/utils/failures/failure.dart';
 abstract interface class ContestRepository {
   Future<Either<Failure, Contest>> createContest({required Contest contest});
 
-  Future<Either<Failure, Contest>> updateContestById({
-    required String id,
+  Future<Either<Failure, Contest>> updateContest({
     required Contest contest,
   });
 
@@ -20,7 +19,8 @@ abstract interface class ContestRepository {
   Future<Either<Failure, Contest>> getContestById({required String id});
 
   Future<Either<Failure, List<Contest>>> getContestsByOrganizerId({required String organizerId});
-  Future<Either<Failure,Contest>> getContestByToken({required String token});
+
+  Future<Either<Failure, Contest>> getContestByToken({required String token});
 }
 
 //* Implementation
@@ -41,10 +41,11 @@ class ContestRepositoryImpl implements ContestRepository {
   }
 
   @override
-  Future<Either<Failure, Contest>> updateContestById(
-      {required String id, required Contest contest}) async {
+  Future<Either<Failure, Contest>> updateContest({
+    required Contest contest,
+  }) async {
     try {
-      final result = await _contestService.updateContestById(id: id, contest: contest);
+      final result = await _contestService.updateContest(contest: contest);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));
@@ -94,7 +95,7 @@ class ContestRepositoryImpl implements ContestRepository {
   }
 
   @override
-  Future<Either<Failure, Contest>> getContestByToken({required String token}) async{
+  Future<Either<Failure, Contest>> getContestByToken({required String token}) async {
     try {
       final result = await _contestService.getContestByToken(token: token);
       return right(result);

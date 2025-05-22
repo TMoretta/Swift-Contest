@@ -8,7 +8,7 @@ import 'package:swift_contest/utils/failures/failure.dart';
 abstract interface class PlaceRepository {
   Future<Either<Failure,Place>> createPlace({required Place place});
 
-  Future<Either<Failure,Place>> updatePlaceById({required String id, required Place place});
+  Future<Either<Failure,Place>> updatePlace({required Place place});
 
   Future<Either<Failure,Unit>> deletePlaceById({required String id});
 
@@ -52,9 +52,9 @@ class PlaceRepositoryImpl implements PlaceRepository {
   }
 
   @override
-  Future<Either<Failure, Place>> updatePlaceById({required String id, required Place place,}) async{
+  Future<Either<Failure, Place>> updatePlace({required Place place,}) async{
     try {
-      final result = await _placeService.updatePlaceById(id: id, place: place);
+      final result = await _placeService.updatePlace(place: place);
     return right(result);
     } on UnsafeException catch (e) {
     return left(Failure(message: e.message));

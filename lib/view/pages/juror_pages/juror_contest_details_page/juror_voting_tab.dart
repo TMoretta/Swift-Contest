@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 

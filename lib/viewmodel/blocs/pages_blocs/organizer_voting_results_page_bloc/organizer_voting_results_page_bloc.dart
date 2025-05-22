@@ -15,7 +15,7 @@ import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_juror.dart';
 import 'package:swift_contest/model/data_models/voting_session_participant.dart';
 import 'package:swift_contest/model/data_models/voting_session_simple_juror.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/simple_juror_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/simple_juror_vote_repository.dart';

@@ -1,4 +1,0 @@
-enum MemberRole {
-  participant,
-  juror,
-}

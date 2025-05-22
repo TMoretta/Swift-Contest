@@ -9,7 +9,9 @@ abstract interface class VotingSessionJurorService {
     required VotingSessionJuror votingSessionJuror,
   });
 
-  Future<VotingSessionJuror> updateVotingSessionJurorById({required String id, required VotingSessionJuror votingSessionJuror,});
+  Future<VotingSessionJuror> updateVotingSessionJuror({
+    required VotingSessionJuror votingSessionJuror,
+  });
 
   Future<Unit> deleteVotingSessionJurorById({required String id});
 
@@ -36,23 +38,30 @@ class VotingSessionJurorServiceImpl implements VotingSessionJurorService {
   Future<VotingSessionJuror> createVotingSessionJuror(
       {required VotingSessionJuror votingSessionJuror}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('voting_session_jurors').insert(votingSessionJuror.toJson()).select();
-      return VotingSessionJuror.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'create_voting_session_juror',
+          params: votingSessionJuror.toRpcJson());
+      if (res.isEmpty) {
+        throw UnsafeException(message: 'VotingSessionJuror creation failed');
+      }
+      return VotingSessionJuror.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
   }
 
   @override
-  Future<VotingSessionJuror> updateVotingSessionJurorById({required String id, required VotingSessionJuror votingSessionJuror,}) async {
+  Future<VotingSessionJuror> updateVotingSessionJuror({
+    required VotingSessionJuror votingSessionJuror,
+  }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('voting_session_jurors')
-          .update(votingSessionJuror.toJson())
-          .eq('id', id)
-          .select();
-      return VotingSessionJuror.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'update_voting_session_juror',
+          params: votingSessionJuror.toRpcJson());
+      if (res.isEmpty) {
+        throw UnsafeException(message: 'VotingSessionJuror update failed');
+      }
+      return VotingSessionJuror.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -61,7 +70,8 @@ class VotingSessionJurorServiceImpl implements VotingSessionJurorService {
   @override
   Future<Unit> deleteVotingSessionJurorById({required String id}) async {
     try {
-      await _supabase.from('voting_session_jurors').delete().eq('id', id);
+      await _supabase
+          .rpc('delete_voting_session_juror_by_id', params: {'p_id': id});
       return unit;
     } catch (e) {
       throw UnsafeException(message: e.toString());
@@ -71,9 +81,12 @@ class VotingSessionJurorServiceImpl implements VotingSessionJurorService {
   @override
   Future<VotingSessionJuror> getVotingSessionJurorById({required String id}) async {
     try {
-      final List<Map<String, dynamic>> results =
-          await _supabase.from('voting_session_jurors').select().eq('id', id);
-      return VotingSessionJuror.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_voting_session_juror_by_id', params: {'p_id': id});
+      if (res.isEmpty) {
+        throw UnsafeException(message: 'No VotingSessionJuror found');
+      }
+      return VotingSessionJuror.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -85,12 +98,13 @@ class VotingSessionJurorServiceImpl implements VotingSessionJurorService {
     required String jurorId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('voting_session_jurors')
-          .select()
-          .eq('voting_session_id', votingSessionId)
-          .eq('juror_id', jurorId);
-      return VotingSessionJuror.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_voting_session_juror_by_voting_session_id_and_juror_id',
+          params: {'p_voting_session_id': votingSessionId, 'p_juror_id': jurorId});
+      if (res.isEmpty) {
+        throw UnsafeException(message: 'No VotingSessionJuror found');
+      }
+      return VotingSessionJuror.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -101,11 +115,12 @@ class VotingSessionJurorServiceImpl implements VotingSessionJurorService {
     required String votingSessionId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('voting_session_jurors')
-          .select()
-          .eq('voting_session_id', votingSessionId);
-      return results.map((e) => VotingSessionJuror.fromJson(e)).toList(growable: false);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_voting_session_jurors_by_voting_session_id',
+          params: {'p_voting_session_id': votingSessionId});
+      return res
+          .map((e) => VotingSessionJuror.fromJson(e))
+          .toList(growable: false);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }

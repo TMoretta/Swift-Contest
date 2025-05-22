@@ -8,7 +8,7 @@ import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
 import 'package:swift_contest/view/widgets/home_page_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/organizer_created_contests_bloc/organizer_created_contests_bloc.dart';
 

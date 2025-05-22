@@ -8,11 +8,19 @@ import 'package:swift_contest/utils/failures/failure.dart';
 
 //* Interface
 abstract interface class UserRepository {
-  Stream<AuthChange> get authChanges;
+  // Stream<AuthChanged> get authChanges;
 
   Either<Failure, User> getCurrentUser();
 
   Future<Either<Failure, User>> getUserById({required String id});
+
+  Future<Either<Failure, Unit>> signInWithEmail({required String email});
+
+  Future<Either<Failure, Unit>> signUpWithEmail({required String email, required String fullName});
+
+  Future<Either<Failure, User>> signInVerifyOtp({required String email, required String otp});
+
+  Future<Either<Failure, User>> signUpVerifyOtp({required String email, required String otp});
 
   Future<Either<Failure, User>> signInWithEmailAndPassword({
     required String email,
@@ -34,8 +42,8 @@ class UserRepositoryImpl implements UserRepository {
 
   UserRepositoryImpl({required UserService userService}) : _userService = userService;
 
-  @override
-  Stream<AuthChange> get authChanges => _userService.authChanges;
+  // @override
+  // Stream<AuthChanged> get authChanges => _userService.authChanges;
 
   @override
   Either<Failure, User> getCurrentUser() {
@@ -51,6 +59,55 @@ class UserRepositoryImpl implements UserRepository {
   Future<Either<Failure, User>> getUserById({required String id}) async {
     try {
       final result = await _userService.getUserById(id: id);
+      return right(result);
+    } on UnsafeException catch (e) {
+      return left(Failure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> signInWithEmail({required String email}) async {
+    try {
+      final result = await _userService.signInWithEmail(email: email);
+      return right(result);
+    } on UnsafeException catch (e) {
+      return left(Failure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> signUpWithEmail({
+    required String email,
+    required String fullName,
+  }) async {
+    try {
+      final result = await _userService.signUpWithEmail(email: email, fullName: fullName);
+      return right(result);
+    } on UnsafeException catch (e) {
+      return left(Failure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> signInVerifyOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final result = await _userService.signInVerifyOtp(email: email, otp: otp);
+      return right(result);
+    } on UnsafeException catch (e) {
+      return left(Failure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> signUpVerifyOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final result = await _userService.signUpVerifyOtp(email: email, otp: otp);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

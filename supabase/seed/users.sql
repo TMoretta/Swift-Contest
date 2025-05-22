@@ -1,0 +1,1346 @@
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'c3175dc1-0ca3-41f5-a519-fdf0d5977d6c', 'authenticated', 'authenticated', 'organizer1@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "c3175dc1-0ca3-41f5-a519-fdf0d5977d6c", "email": "organizer1@example.com", "full_name": "Organizer1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '40ce65a9-fd33-4e15-813e-fb0e67bafee3', 'authenticated', 'authenticated', 'organizer2@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "40ce65a9-fd33-4e15-813e-fb0e67bafee3", "email": "organizer2@example.com", "full_name": "Organizer2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '930eaab4-f073-4710-ba46-a798a2b0ee7d', 'authenticated', 'authenticated', 'organizer3@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "930eaab4-f073-4710-ba46-a798a2b0ee7d", "email": "organizer3@example.com", "full_name": "Organizer3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'e1e32719-fa6f-480f-975c-953e1672fadf', 'authenticated', 'authenticated', 'organizer4@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "e1e32719-fa6f-480f-975c-953e1672fadf", "email": "organizer4@example.com", "full_name": "Organizer4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'afa18c76-b6e5-46f4-b16a-acf7bf8f0a71', 'authenticated', 'authenticated', 'organizer5@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "afa18c76-b6e5-46f4-b16a-acf7bf8f0a71", "email": "organizer5@example.com", "full_name": "Organizer5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'c511edc1-2d96-4505-b5e4-bf622034212e', 'authenticated', 'authenticated', 'organizer6@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "c511edc1-2d96-4505-b5e4-bf622034212e", "email": "organizer6@example.com", "full_name": "Organizer6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '9bd263e9-2b28-4fc5-9fbc-322c39068aac', 'authenticated', 'authenticated', 'organizer7@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "9bd263e9-2b28-4fc5-9fbc-322c39068aac", "email": "organizer7@example.com", "full_name": "Organizer7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'ecf50108-21cc-4fe7-ad64-34a1e7a71765', 'authenticated', 'authenticated', 'organizer8@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "ecf50108-21cc-4fe7-ad64-34a1e7a71765", "email": "organizer8@example.com", "full_name": "Organizer8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '0ef5d711-5122-4709-9cba-87114d354e6c', 'authenticated', 'authenticated', 'organizer9@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "0ef5d711-5122-4709-9cba-87114d354e6c", "email": "organizer9@example.com", "full_name": "Organizer9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'ae32d7f2-7626-48ea-85d0-d3471aa9ea00', 'authenticated', 'authenticated', 'participant1@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "ae32d7f2-7626-48ea-85d0-d3471aa9ea00", "email": "participant1@example.com", "full_name": "Participant1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'd6758a31-2792-4ac5-bd3b-f0fb340d04c8', 'authenticated', 'authenticated', 'participant2@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "d6758a31-2792-4ac5-bd3b-f0fb340d04c8", "email": "participant2@example.com", "full_name": "Participant2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'f2c6084b-4fc2-4a0e-a566-4efc12d6e2d7', 'authenticated', 'authenticated', 'participant3@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "f2c6084b-4fc2-4a0e-a566-4efc12d6e2d7", "email": "participant3@example.com", "full_name": "Participant3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '8c98577a-cb4f-4a4a-bb0e-76609eae3ef6', 'authenticated', 'authenticated', 'participant4@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "8c98577a-cb4f-4a4a-bb0e-76609eae3ef6", "email": "participant4@example.com", "full_name": "Participant4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'd5371f4b-c8c9-46a9-8ada-2072e5e1e311', 'authenticated', 'authenticated', 'participant5@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "d5371f4b-c8c9-46a9-8ada-2072e5e1e311", "email": "participant5@example.com", "full_name": "Participant5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '4dd395aa-e6eb-4a00-9f48-54d39161056c', 'authenticated', 'authenticated', 'participant6@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "4dd395aa-e6eb-4a00-9f48-54d39161056c", "email": "participant6@example.com", "full_name": "Participant6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '78173507-61c5-4cf1-aa87-68536f7a19a0', 'authenticated', 'authenticated', 'participant7@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "78173507-61c5-4cf1-aa87-68536f7a19a0", "email": "participant7@example.com", "full_name": "Participant7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '8af8346f-d03f-48b3-babb-8a8f0c445c14', 'authenticated', 'authenticated', 'participant8@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "8af8346f-d03f-48b3-babb-8a8f0c445c14", "email": "participant8@example.com", "full_name": "Participant8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'e57c0c88-a507-4f25-bc0b-c6d8efc2ab8f', 'authenticated', 'authenticated', 'participant9@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "e57c0c88-a507-4f25-bc0b-c6d8efc2ab8f", "email": "participant9@example.com", "full_name": "Participant9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '3cb3a852-7072-41fc-84cb-b2f153eb4289', 'authenticated', 'authenticated', 'juror1@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "3cb3a852-7072-41fc-84cb-b2f153eb4289", "email": "juror1@example.com", "full_name": "Juror1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'f790c1fb-f9bc-4a7c-b0b8-53085e63b852', 'authenticated', 'authenticated', 'juror2@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "f790c1fb-f9bc-4a7c-b0b8-53085e63b852", "email": "juror2@example.com", "full_name": "Juror2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '2b98800c-aa60-462d-b032-37f183f6316f', 'authenticated', 'authenticated', 'juror3@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "2b98800c-aa60-462d-b032-37f183f6316f", "email": "juror3@example.com", "full_name": "Juror3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '0b29d2ba-6def-41f4-8404-63a145092c0f', 'authenticated', 'authenticated', 'juror4@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "0b29d2ba-6def-41f4-8404-63a145092c0f", "email": "juror4@example.com", "full_name": "Juror4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '3496982e-3564-4aa8-8594-7626de690dbe', 'authenticated', 'authenticated', 'juror5@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "3496982e-3564-4aa8-8594-7626de690dbe", "email": "juror5@example.com", "full_name": "Juror5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '15726380-028b-45f2-ad80-a5d2ef16dcf1', 'authenticated', 'authenticated', 'juror6@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "15726380-028b-45f2-ad80-a5d2ef16dcf1", "email": "juror6@example.com", "full_name": "Juror6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'a6e24079-bf6e-4700-9f2a-09409eee1db7', 'authenticated', 'authenticated', 'juror7@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "a6e24079-bf6e-4700-9f2a-09409eee1db7", "email": "juror7@example.com", "full_name": "Juror7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '7de74d3b-d92b-4a48-afa5-60aa03a332e8', 'authenticated', 'authenticated', 'juror8@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "7de74d3b-d92b-4a48-afa5-60aa03a332e8", "email": "juror8@example.com", "full_name": "Juror8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '631885f1-072a-4450-b30f-e151d4981c62', 'authenticated', 'authenticated', 'juror9@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "631885f1-072a-4450-b30f-e151d4981c62", "email": "juror9@example.com", "full_name": "Juror9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '32def165-4c89-4d2f-91f1-339331d75db6', 'authenticated', 'authenticated', 'simplejuror1@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "32def165-4c89-4d2f-91f1-339331d75db6", "email": "simplejuror1@example.com", "full_name": "Simplejuror1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '886963fa-639a-427a-b936-9d1f5ea224e2', 'authenticated', 'authenticated', 'simplejuror2@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "886963fa-639a-427a-b936-9d1f5ea224e2", "email": "simplejuror2@example.com", "full_name": "Simplejuror2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  'cd4332ef-e74d-4a5d-8a9c-84a3712873fa', 'authenticated', 'authenticated', 'simplejuror3@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "cd4332ef-e74d-4a5d-8a9c-84a3712873fa", "email": "simplejuror3@example.com", "full_name": "Simplejuror3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '4d7b2245-ccfc-4ef4-a653-d4866ad1a9bc', 'authenticated', 'authenticated', 'simplejuror4@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "4d7b2245-ccfc-4ef4-a653-d4866ad1a9bc", "email": "simplejuror4@example.com", "full_name": "Simplejuror4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '8e7d95a0-466e-464f-a699-e9f51c0a4a89', 'authenticated', 'authenticated', 'simplejuror5@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "8e7d95a0-466e-464f-a699-e9f51c0a4a89", "email": "simplejuror5@example.com", "full_name": "Simplejuror5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '94f9e521-88a6-4dee-8e74-4f296e987d39', 'authenticated', 'authenticated', 'simplejuror6@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "94f9e521-88a6-4dee-8e74-4f296e987d39", "email": "simplejuror6@example.com", "full_name": "Simplejuror6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '4ebb8000-5ad6-4113-ae60-1d21196e3c21', 'authenticated', 'authenticated', 'simplejuror7@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "4ebb8000-5ad6-4113-ae60-1d21196e3c21", "email": "simplejuror7@example.com", "full_name": "Simplejuror7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '18e7ec65-e4db-4bac-bed9-b27dbf7ae6da', 'authenticated', 'authenticated', 'simplejuror8@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "18e7ec65-e4db-4bac-bed9-b27dbf7ae6da", "email": "simplejuror8@example.com", "full_name": "Simplejuror8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.users (
+--  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at,
+--  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+--  email_change_token_new, email_change, email_change_sent_at, last_sign_in_at,
+--  raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone,
+--  phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at,
+--  email_change_token_current, email_change_confirm_status, banned_until,
+--  reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous
+--)
+--VALUES (
+--  '00000000-0000-0000-0000-000000000000',
+--  '3b2df6df-6fd5-469e-a105-22d669877994', 'authenticated', 'authenticated', 'simplejuror9@example.com',
+--  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+--  '2025-05-22 15:52:58.042+00', NULL, '', '2025-05-22 15:52:58.042+00', '', NULL, '', '', NULL,
+--  '2025-05-22 15:52:58.042+00', '{"provider": "email", "providers": ["email"]}',
+--  '{"sub": "3b2df6df-6fd5-469e-a105-22d669877994", "email": "simplejuror9@example.com", "full_name": "Simplejuror9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  NULL, '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', NULL, NULL, '', '', NULL, '', '0', NULL, '', NULL, 'false', NULL, 'false'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'c3175dc1-0ca3-41f5-a519-fdf0d5977d6c', 'c3175dc1-0ca3-41f5-a519-fdf0d5977d6c',
+--  '{"sub": "c3175dc1-0ca3-41f5-a519-fdf0d5977d6c", "email": "organizer1@example.com", "full_name": "Organizer1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '839f6ac3-e4b8-4c40-a9cb-a27d0f5411fd'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '40ce65a9-fd33-4e15-813e-fb0e67bafee3', '40ce65a9-fd33-4e15-813e-fb0e67bafee3',
+--  '{"sub": "40ce65a9-fd33-4e15-813e-fb0e67bafee3", "email": "organizer2@example.com", "full_name": "Organizer2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '210d58cd-8728-4217-b6c5-ff4324b184f1'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '930eaab4-f073-4710-ba46-a798a2b0ee7d', '930eaab4-f073-4710-ba46-a798a2b0ee7d',
+--  '{"sub": "930eaab4-f073-4710-ba46-a798a2b0ee7d", "email": "organizer3@example.com", "full_name": "Organizer3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2a4180dc-fac1-4bc9-8cdb-cdb8ec40dca0'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'e1e32719-fa6f-480f-975c-953e1672fadf', 'e1e32719-fa6f-480f-975c-953e1672fadf',
+--  '{"sub": "e1e32719-fa6f-480f-975c-953e1672fadf", "email": "organizer4@example.com", "full_name": "Organizer4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '6d69e2e5-9f6a-4d3e-bcb9-43c1069805be'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'afa18c76-b6e5-46f4-b16a-acf7bf8f0a71', 'afa18c76-b6e5-46f4-b16a-acf7bf8f0a71',
+--  '{"sub": "afa18c76-b6e5-46f4-b16a-acf7bf8f0a71", "email": "organizer5@example.com", "full_name": "Organizer5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'b7720bbd-cb4d-422a-9c3f-2dc7853946f5'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'c511edc1-2d96-4505-b5e4-bf622034212e', 'c511edc1-2d96-4505-b5e4-bf622034212e',
+--  '{"sub": "c511edc1-2d96-4505-b5e4-bf622034212e", "email": "organizer6@example.com", "full_name": "Organizer6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '9a28d312-2608-46db-8ac8-73ea002d6eec'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '9bd263e9-2b28-4fc5-9fbc-322c39068aac', '9bd263e9-2b28-4fc5-9fbc-322c39068aac',
+--  '{"sub": "9bd263e9-2b28-4fc5-9fbc-322c39068aac", "email": "organizer7@example.com", "full_name": "Organizer7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'f254d321-f54b-4627-8c35-bdaa06917b3b'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'ecf50108-21cc-4fe7-ad64-34a1e7a71765', 'ecf50108-21cc-4fe7-ad64-34a1e7a71765',
+--  '{"sub": "ecf50108-21cc-4fe7-ad64-34a1e7a71765", "email": "organizer8@example.com", "full_name": "Organizer8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'ffbc558a-7769-4416-89c1-2842ecbb0b0c'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '0ef5d711-5122-4709-9cba-87114d354e6c', '0ef5d711-5122-4709-9cba-87114d354e6c',
+--  '{"sub": "0ef5d711-5122-4709-9cba-87114d354e6c", "email": "organizer9@example.com", "full_name": "Organizer9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'b0bad0c8-f57b-400a-94bf-b035be122bec'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'ae32d7f2-7626-48ea-85d0-d3471aa9ea00', 'ae32d7f2-7626-48ea-85d0-d3471aa9ea00',
+--  '{"sub": "ae32d7f2-7626-48ea-85d0-d3471aa9ea00", "email": "participant1@example.com", "full_name": "Participant1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'a3cb5d56-8e53-478d-9035-d7c89fbaed40'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'd6758a31-2792-4ac5-bd3b-f0fb340d04c8', 'd6758a31-2792-4ac5-bd3b-f0fb340d04c8',
+--  '{"sub": "d6758a31-2792-4ac5-bd3b-f0fb340d04c8", "email": "participant2@example.com", "full_name": "Participant2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'ef049739-1b31-424d-84db-96f8db6f6df5'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'f2c6084b-4fc2-4a0e-a566-4efc12d6e2d7', 'f2c6084b-4fc2-4a0e-a566-4efc12d6e2d7',
+--  '{"sub": "f2c6084b-4fc2-4a0e-a566-4efc12d6e2d7", "email": "participant3@example.com", "full_name": "Participant3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '26b13b32-0afd-43c1-a8a1-bbe1201fe98e'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '8c98577a-cb4f-4a4a-bb0e-76609eae3ef6', '8c98577a-cb4f-4a4a-bb0e-76609eae3ef6',
+--  '{"sub": "8c98577a-cb4f-4a4a-bb0e-76609eae3ef6", "email": "participant4@example.com", "full_name": "Participant4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'f0033a6b-1e64-4e19-9c1b-b4fc5203aeae'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'd5371f4b-c8c9-46a9-8ada-2072e5e1e311', 'd5371f4b-c8c9-46a9-8ada-2072e5e1e311',
+--  '{"sub": "d5371f4b-c8c9-46a9-8ada-2072e5e1e311", "email": "participant5@example.com", "full_name": "Participant5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'eecd482a-3581-478c-b309-d9154bf0f540'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '4dd395aa-e6eb-4a00-9f48-54d39161056c', '4dd395aa-e6eb-4a00-9f48-54d39161056c',
+--  '{"sub": "4dd395aa-e6eb-4a00-9f48-54d39161056c", "email": "participant6@example.com", "full_name": "Participant6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '8c406ffd-4dcc-4270-a23d-6b8b3afa585e'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '78173507-61c5-4cf1-aa87-68536f7a19a0', '78173507-61c5-4cf1-aa87-68536f7a19a0',
+--  '{"sub": "78173507-61c5-4cf1-aa87-68536f7a19a0", "email": "participant7@example.com", "full_name": "Participant7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '0dc46216-fa84-44c9-98b4-896fe1bdbd7d'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '8af8346f-d03f-48b3-babb-8a8f0c445c14', '8af8346f-d03f-48b3-babb-8a8f0c445c14',
+--  '{"sub": "8af8346f-d03f-48b3-babb-8a8f0c445c14", "email": "participant8@example.com", "full_name": "Participant8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '9f633a57-a1d9-4c9e-982e-6d489c537799'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'e57c0c88-a507-4f25-bc0b-c6d8efc2ab8f', 'e57c0c88-a507-4f25-bc0b-c6d8efc2ab8f',
+--  '{"sub": "e57c0c88-a507-4f25-bc0b-c6d8efc2ab8f", "email": "participant9@example.com", "full_name": "Participant9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "participant"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '90e62e0a-e731-46ae-bfbf-7a078971cd9b'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '3cb3a852-7072-41fc-84cb-b2f153eb4289', '3cb3a852-7072-41fc-84cb-b2f153eb4289',
+--  '{"sub": "3cb3a852-7072-41fc-84cb-b2f153eb4289", "email": "juror1@example.com", "full_name": "Juror1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'adaf695f-73cb-4513-b188-2797095f5984'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'f790c1fb-f9bc-4a7c-b0b8-53085e63b852', 'f790c1fb-f9bc-4a7c-b0b8-53085e63b852',
+--  '{"sub": "f790c1fb-f9bc-4a7c-b0b8-53085e63b852", "email": "juror2@example.com", "full_name": "Juror2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '1385c55e-44e3-4d57-8200-df0705549327'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '2b98800c-aa60-462d-b032-37f183f6316f', '2b98800c-aa60-462d-b032-37f183f6316f',
+--  '{"sub": "2b98800c-aa60-462d-b032-37f183f6316f", "email": "juror3@example.com", "full_name": "Juror3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '00418469-cc1d-4de8-9fb6-5a073be992e7'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '0b29d2ba-6def-41f4-8404-63a145092c0f', '0b29d2ba-6def-41f4-8404-63a145092c0f',
+--  '{"sub": "0b29d2ba-6def-41f4-8404-63a145092c0f", "email": "juror4@example.com", "full_name": "Juror4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '1116c6e9-850f-41ae-beac-4c5b53045072'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '3496982e-3564-4aa8-8594-7626de690dbe', '3496982e-3564-4aa8-8594-7626de690dbe',
+--  '{"sub": "3496982e-3564-4aa8-8594-7626de690dbe", "email": "juror5@example.com", "full_name": "Juror5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '47625a58-f030-4d81-b26f-0871060c8af1'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '15726380-028b-45f2-ad80-a5d2ef16dcf1', '15726380-028b-45f2-ad80-a5d2ef16dcf1',
+--  '{"sub": "15726380-028b-45f2-ad80-a5d2ef16dcf1", "email": "juror6@example.com", "full_name": "Juror6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '16a04f55-02b9-4900-99b6-c83f5a8514ea'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'a6e24079-bf6e-4700-9f2a-09409eee1db7', 'a6e24079-bf6e-4700-9f2a-09409eee1db7',
+--  '{"sub": "a6e24079-bf6e-4700-9f2a-09409eee1db7", "email": "juror7@example.com", "full_name": "Juror7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '335a266a-4bf0-4a89-a00f-73b672a7ed73'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '7de74d3b-d92b-4a48-afa5-60aa03a332e8', '7de74d3b-d92b-4a48-afa5-60aa03a332e8',
+--  '{"sub": "7de74d3b-d92b-4a48-afa5-60aa03a332e8", "email": "juror8@example.com", "full_name": "Juror8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'ac975d8d-26d9-4a97-94a0-b5308c9076e7'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '631885f1-072a-4450-b30f-e151d4981c62', '631885f1-072a-4450-b30f-e151d4981c62',
+--  '{"sub": "631885f1-072a-4450-b30f-e151d4981c62", "email": "juror9@example.com", "full_name": "Juror9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '4f62f519-bd8d-44ee-a8d0-fb35e62d0aab'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '32def165-4c89-4d2f-91f1-339331d75db6', '32def165-4c89-4d2f-91f1-339331d75db6',
+--  '{"sub": "32def165-4c89-4d2f-91f1-339331d75db6", "email": "simplejuror1@example.com", "full_name": "Simplejuror1", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'cc9495bd-18a7-4911-a2aa-277d9d83dd80'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '886963fa-639a-427a-b936-9d1f5ea224e2', '886963fa-639a-427a-b936-9d1f5ea224e2',
+--  '{"sub": "886963fa-639a-427a-b936-9d1f5ea224e2", "email": "simplejuror2@example.com", "full_name": "Simplejuror2", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'c00a78ba-b67a-4562-a747-8319fa28c7be'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  'cd4332ef-e74d-4a5d-8a9c-84a3712873fa', 'cd4332ef-e74d-4a5d-8a9c-84a3712873fa',
+--  '{"sub": "cd4332ef-e74d-4a5d-8a9c-84a3712873fa", "email": "simplejuror3@example.com", "full_name": "Simplejuror3", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'ba152ff7-40f6-4b25-b395-b48ad8ed3b23'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '4d7b2245-ccfc-4ef4-a653-d4866ad1a9bc', '4d7b2245-ccfc-4ef4-a653-d4866ad1a9bc',
+--  '{"sub": "4d7b2245-ccfc-4ef4-a653-d4866ad1a9bc", "email": "simplejuror4@example.com", "full_name": "Simplejuror4", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '485787a8-0f12-46a1-9cf4-71c141f580b7'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '8e7d95a0-466e-464f-a699-e9f51c0a4a89', '8e7d95a0-466e-464f-a699-e9f51c0a4a89',
+--  '{"sub": "8e7d95a0-466e-464f-a699-e9f51c0a4a89", "email": "simplejuror5@example.com", "full_name": "Simplejuror5", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '0c6e49d8-5a62-4cd2-a229-e4c747d5c4f0'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '94f9e521-88a6-4dee-8e74-4f296e987d39', '94f9e521-88a6-4dee-8e74-4f296e987d39',
+--  '{"sub": "94f9e521-88a6-4dee-8e74-4f296e987d39", "email": "simplejuror6@example.com", "full_name": "Simplejuror6", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '133e6eca-42e3-4864-9b69-772243788858'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '4ebb8000-5ad6-4113-ae60-1d21196e3c21', '4ebb8000-5ad6-4113-ae60-1d21196e3c21',
+--  '{"sub": "4ebb8000-5ad6-4113-ae60-1d21196e3c21", "email": "simplejuror7@example.com", "full_name": "Simplejuror7", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '38c7a9a6-db5c-4e3b-aa49-c260bd7bb7fd'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '18e7ec65-e4db-4bac-bed9-b27dbf7ae6da', '18e7ec65-e4db-4bac-bed9-b27dbf7ae6da',
+--  '{"sub": "18e7ec65-e4db-4bac-bed9-b27dbf7ae6da", "email": "simplejuror8@example.com", "full_name": "Simplejuror8", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'cdeaa284-5ebc-452b-a838-eb66e98b2aeb'
+--);
+--
+--INSERT INTO auth.identities (
+--  provider_id, user_id, identity_data, provider, last_sign_in_at,
+--  created_at, updated_at, id
+--)
+--VALUES (
+--  '3b2df6df-6fd5-469e-a105-22d669877994', '3b2df6df-6fd5-469e-a105-22d669877994',
+--  '{"sub": "3b2df6df-6fd5-469e-a105-22d669877994", "email": "simplejuror9@example.com", "full_name": "Simplejuror9", "created_at": "2025-05-22T15:52:58.042944Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "juror"}',
+--  'email', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', '2025-05-22 15:52:58.042+00', 'ec72107d-7917-4ab5-a2eb-dd47366feee6'
+--);
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+------ ORGANIZER 1
+----INSERT INTO auth.users (
+----  instance_id,
+----  id,
+----  aud,
+----  role,
+----  email,
+----  encrypted_password,
+----  email_confirmed_at,
+----  invited_at,
+----  confirmation_token,
+----  confirmation_sent_at,
+----  recovery_token,
+----  recovery_sent_at,
+----  email_change_token_new,
+----  email_change,
+----  email_change_sent_at,
+----  last_sign_in_at,
+----  raw_app_meta_data,
+----  raw_user_meta_data,
+----  is_super_admin,
+----  created_at,
+----  updated_at,
+----  phone,
+----  phone_confirmed_at,
+----  phone_change,
+----  phone_change_token,
+----  phone_change_sent_at,
+----  email_change_token_current,
+----  email_change_confirm_status,
+----  banned_until,
+----  reauthentication_token,
+----  reauthentication_sent_at,
+----  is_sso_user,
+----  deleted_at,
+----  is_anonymous
+----)
+----VALUES (
+----  '00000000-0000-0000-0000-000000000000',
+----  '645f86db-e1ae-4219-a438-eda6c0aa25b8',
+----  'authenticated',
+----  'authenticated',
+----  'organizer1@example.com',
+----  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+----  '2025-05-22 10:32:55.787124+00',
+----  NULL,
+----  '',
+----  '2025-05-22 10:32:44.893187+00',
+----  '',
+----  NULL,
+----  '',
+----  '',
+----  NULL,
+----  '2025-05-22 10:32:55.790868+00',
+----  '{"provider": "email", "providers": ["email"]}',
+----  '{"sub": "645f86db-e1ae-4219-a438-eda6c0aa25b8", "email": "organizer1@example.com", "full_name": "Organizer1", "created_at": "2025-05-22T10:32:59.588Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+----  NULL,
+----  '2025-05-22 10:32:44.816514+00',
+----  '2025-05-22 10:32:55.815607+00',
+----  NULL,
+----  NULL,
+----  '',
+----  '',
+----  NULL,
+----  '',
+----  '0',
+----  NULL,
+----  '',
+----  NULL,
+----  'false',
+----  NULL,
+----  'false'
+----);
+----
+----INSERT INTO auth.identities (
+----  provider_id,
+----  user_id,
+----  identity_data,
+----  provider,
+----  last_sign_in_at,
+----  created_at,
+----  updated_at,
+----  id
+----)
+----VALUES (
+----  '645f86db-e1ae-4219-a438-eda6c0aa25b8',
+----  '645f86db-e1ae-4219-a438-eda6c0aa25b8',
+----  '{"sub": "645f86db-e1ae-4219-a438-eda6c0aa25b8", "email": "organizer1@example.com", "full_name": "Organizer1", "created_at": "2025-05-22T10:32:59.588Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+----  'email',
+----  '2025-05-22 10:32:44.859226+00',
+----  '2025-05-22 10:32:44.859278+00',
+----  '2025-05-22 10:32:44.859278+00',
+----  'bc044928-3e38-4cf4-b4d6-ae459255bdd6'
+----);
+----
+------ ORGANIZER 2
+----INSERT INTO auth.users (
+----  instance_id,
+----  id,
+----  aud,
+----  role,
+----  email,
+----  encrypted_password,
+----  email_confirmed_at,
+----  invited_at,
+----  confirmation_token,
+----  confirmation_sent_at,
+----  recovery_token,
+----  recovery_sent_at,
+----  email_change_token_new,
+----  email_change,
+----  email_change_sent_at,
+----  last_sign_in_at,
+----  raw_app_meta_data,
+----  raw_user_meta_data,
+----  is_super_admin,
+----  created_at,
+----  updated_at,
+----  phone,
+----  phone_confirmed_at,
+----  phone_change,
+----  phone_change_token,
+----  phone_change_sent_at,
+----  email_change_token_current,
+----  email_change_confirm_status,
+----  banned_until,
+----  reauthentication_token,
+----  reauthentication_sent_at,
+----  is_sso_user,
+----  deleted_at,
+----  is_anonymous
+----)
+----VALUES (
+----  '00000000-0000-0000-0000-000000000000',
+----  '4ac4d3a5-e014-463e-b590-839c1f15c50e',
+----  'authenticated',
+----  'authenticated',
+----  'organizer2@example.com',
+----  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+----  '2025-05-22 10:32:55.787124+00',
+----  NULL,
+----  '',
+----  '2025-05-22 10:32:44.893187+00',
+----  '',
+----  NULL,
+----  '',
+----  '',
+----  NULL,
+----  '2025-05-22 10:32:55.790868+00',
+----  '{"provider": "email", "providers": ["email"]}',
+----  '{"sub": "4ac4d3a5-e014-463e-b590-839c1f15c50e", "email": "organizer2@example.com", "full_name": "Organizer2", "created_at": "2025-05-22T10:32:59.588Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+----  NULL,
+----  '2025-05-22 10:32:44.816514+00',
+----  '2025-05-22 10:32:55.815607+00',
+----  NULL,
+----  NULL,
+----  '',
+----  '',
+----  NULL,
+----  '',
+----  '0',
+----  NULL,
+----  '',
+----  NULL,
+----  'false',
+----  NULL,
+----  'false'
+----);
+----
+----INSERT INTO auth.identities (
+----  provider_id,
+----  user_id,
+----  identity_data,
+----  provider,
+----  last_sign_in_at,
+----  created_at,
+----  updated_at,
+----  id
+----)
+----VALUES (
+----  '4ac4d3a5-e014-463e-b590-839c1f15c50e',
+----  '4ac4d3a5-e014-463e-b590-839c1f15c50e',
+----  '{"sub": "4ac4d3a5-e014-463e-b590-839c1f15c50e", "email": "organizer2@example.com", "full_name": "Organizer2", "created_at": "2025-05-22T10:32:59.588Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+----  'email',
+----  '2025-05-22 10:32:44.859226+00',
+----  '2025-05-22 10:32:44.859278+00',
+----  '2025-05-22 10:32:44.859278+00',
+----  '66516e8c-b39e-40b9-b038-1098ae3b45c6'
+----);
+----
+------ ORGANIZER 3
+----INSERT INTO auth.users (
+----  instance_id,
+----  id,
+----  aud,
+----  role,
+----  email,
+----  encrypted_password,
+----  email_confirmed_at,
+----  invited_at,
+----  confirmation_token,
+----  confirmation_sent_at,
+----  recovery_token,
+----  recovery_sent_at,
+----  email_change_token_new,
+----  email_change,
+----  email_change_sent_at,
+----  last_sign_in_at,
+----  raw_app_meta_data,
+----  raw_user_meta_data,
+----  is_super_admin,
+----  created_at,
+----  updated_at,
+----  phone,
+----  phone_confirmed_at,
+----  phone_change,
+----  phone_change_token,
+----  phone_change_sent_at,
+----  email_change_token_current,
+----  email_change_confirm_status,
+----  banned_until,
+----  reauthentication_token,
+----  reauthentication_sent_at,
+----  is_sso_user,
+----  deleted_at,
+----  is_anonymous
+----)
+----VALUES (
+----  '00000000-0000-0000-0000-000000000000',
+----  '866da2d2-a02b-420a-92a5-2eed65228d84',
+----  'authenticated',
+----  'authenticated',
+----  'organizer3@example.com',
+----  '$2a$10$Ar8nTN0JMUf.CRi2t5fjSusNBJ9JDNHL7Qp61RS00stabNUqHNRvu',
+----  '2025-05-22 10:32:55.787124+00',
+----  NULL,
+----  '',
+----  '2025-05-22 10:32:44.893187+00',
+----  '',
+----  NULL,
+----  '',
+----  '',
+----  NULL,
+----  '2025-05-22 10:32:55.790868+00',
+----  '{"provider": "email", "providers": ["email"]}',
+----  '{"sub": "866da2d2-a02b-420a-92a5-2eed65228d84", "email": "organizer3@example.com", "full_name": "Organizer3", "created_at": "2025-05-22T10:32:59.588Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+----  NULL,
+----  '2025-05-22 10:32:44.816514+00',
+----  '2025-05-22 10:32:55.815607+00',
+----  NULL,
+----  NULL,
+----  '',
+----  '',
+----  NULL,
+----  '',
+----  '0',
+----  NULL,
+----  '',
+----  NULL,
+----  'false',
+----  NULL,
+----  'false'
+----);
+----
+----INSERT INTO auth.identities (
+----  provider_id,
+----  user_id,
+----  identity_data,
+----  provider,
+----  last_sign_in_at,
+----  created_at,
+----  updated_at,
+----  id
+----)
+----VALUES (
+----  '866da2d2-a02b-420a-92a5-2eed65228d84',
+----  '866da2d2-a02b-420a-92a5-2eed65228d84',
+----  '{"sub": "866da2d2-a02b-420a-92a5-2eed65228d84", "email": "organizer3@example.com", "full_name": "Organizer3", "created_at": "2025-05-22T10:32:59.588Z", "is_deleted": false, "pref_theme": "system", "email_verified": true, "phone_verified": false, "pref_contest_role": "organizer"}',
+----  'email',
+----  '2025-05-22 10:32:44.859226+00',
+----  '2025-05-22 10:32:44.859278+00',
+----  '2025-05-22 10:32:44.859278+00',
+----  '22461a9b-7086-4cfd-8db8-cefae9328b3e'
+----);

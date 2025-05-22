@@ -10,8 +10,7 @@ abstract interface class ParticipationRepository {
     required Participation participation,
   });
 
-  Future<Either<Failure, Participation>> updateParticipationById({
-    required String id,
+  Future<Either<Failure, Participation>> updateParticipation({
     required Participation participation,
   });
 
@@ -59,13 +58,12 @@ class ParticipationRepositoryImpl implements ParticipationRepository {
   }
 
   @override
-  Future<Either<Failure, Participation>> updateParticipationById({
-    required String id,
+  Future<Either<Failure, Participation>> updateParticipation({
     required Participation participation,
   }) async {
     try {
       final result =
-          await _participationService.updateParticipationById(id: id, participation: participation);
+          await _participationService.updateParticipation(participation: participation);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

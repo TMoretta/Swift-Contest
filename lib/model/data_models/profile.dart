@@ -41,6 +41,17 @@ class Profile extends Equatable {
     };
   }
 
+  Map<String, dynamic> toRpcJson() {
+    return {
+      'p_id': id,
+      'p_created_at': createdAt.toUtc().toIso8601String(),
+      'p_full_name': fullName,
+      'p_pref_theme': prefTheme.name,
+      'p_pref_contest_role': prefContestRole.name,
+      'p_is_deleted': isDeleted,
+    };
+  }
+
   Profile copyWith({
     String? id,
     DateTime? createdAt,

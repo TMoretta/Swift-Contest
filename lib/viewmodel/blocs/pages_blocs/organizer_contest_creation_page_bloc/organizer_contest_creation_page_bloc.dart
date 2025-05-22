@@ -7,7 +7,7 @@ import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/model/services/storage_service.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/storage_repository.dart';

@@ -72,6 +72,25 @@ class Contest extends Equatable {
     };
   }
 
+  Map<String, dynamic> toRpcJson() {
+    return {
+      'p_id': id,
+      'p_created_at': createdAt.toUtc().toIso8601String(),
+      'p_organizer_id': organizerId,
+      'p_name': name,
+      'p_description': description,
+      'p_date_time': dateTime.toUtc().toIso8601String(),
+      'p_works_submission_from': worksSubmissionFrom.toUtc().toIso8601String(),
+      'p_works_submission_to': worksSubmissionTo.toUtc().toIso8601String(),
+      'p_place_id': placeId,
+      'p_contest_status': contestStatus.name,
+      'p_images_urls': imagesUrls,
+      'p_token': token,
+      'p_voting_form_id': votingFormId,
+      'p_is_deleted': isDeleted,
+    };
+  }
+
   Contest copyWith({
     String? id,
     DateTime? createdAt,

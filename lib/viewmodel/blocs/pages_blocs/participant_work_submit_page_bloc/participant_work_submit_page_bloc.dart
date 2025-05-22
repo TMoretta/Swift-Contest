@@ -6,7 +6,7 @@ import 'package:swift_contest/model/data_models/participation.dart';
 import 'package:swift_contest/model/data_models/work.dart';
 import 'package:swift_contest/model/enums/work_status.dart';
 import 'package:swift_contest/model/services/storage_service.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/storage_repository.dart';
 import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
@@ -81,8 +81,7 @@ class ParticipantWorkSubmitPageBloc
     );
     if (eitherWork.isLeft()) return;
 
-    final eitherParticipationUpdate = await _participationRepository.updateParticipationById(
-      id: participation.id,
+    final eitherParticipationUpdate = await _participationRepository.updateParticipation(
       participation: participation.copyWith(workStatus: WorkStatus.submitted),
     );
     eitherParticipationUpdate.fold(

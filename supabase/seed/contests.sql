@@ -1,0 +1,109 @@
+--SET session_replication_role = replica;
+--
+----
+---- PostgreSQL database dump
+----
+--
+---- Dumped from database version 15.8
+---- Dumped by pg_dump version 15.8
+--
+----SET statement_timeout = 0;
+----SET lock_timeout = 0;
+----SET idle_in_transaction_session_timeout = 0;
+----SET client_encoding = 'UTF8';
+----SET standard_conforming_strings = on;
+----SELECT pg_catalog.set_config('search_path', '', false);
+----SET check_function_bodies = false;
+----SET xmloption = content;
+----SET client_min_messages = warning;
+----SET row_security = off;
+--
+----
+---- Data for Name: audit_log_entries; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+----
+--
+--INSERT INTO "auth"."audit_log_entries" ("instance_id", "id", "payload", "created_at", "ip_address") VALUES
+--	('00000000-0000-0000-0000-000000000000', '1beefde5-8e24-4228-bac8-5f0f52ee0837', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"organizer1@example.com","user_id":"7775a401-dead-4d1d-93fb-f1e9e6f58f30","user_phone":""}}', '2025-05-22 20:21:13.450865+00', ''),
+--	('00000000-0000-0000-0000-000000000000', 'b1212fc5-f53a-483e-9685-ff9cdf783d90', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"organizer2@example.com","user_id":"dc766310-ad6c-400f-9543-c0cb1e3c73fb","user_phone":""}}', '2025-05-22 20:21:28.364631+00', ''),
+--	('00000000-0000-0000-0000-000000000000', '428c5e29-f9d2-42c0-a471-9a81e22a322e', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"organizer3@example.com","user_id":"2f91cb73-246d-4e66-a034-3c2824dd5d90","user_phone":""}}', '2025-05-22 20:21:42.572878+00', ''),
+--	('00000000-0000-0000-0000-000000000000', 'b3a2771f-f63a-4845-915d-bef62d55fe31', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"participant1@example.com","user_id":"ba7585d6-d08a-4dba-9657-5b7987d5b7ed","user_phone":""}}', '2025-05-22 20:22:03.467734+00', ''),
+--	('00000000-0000-0000-0000-000000000000', '447c30a0-0534-43dd-a63c-7a6de853aa95', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"participant2@example.com","user_id":"1dbd3711-9f38-46dc-99b2-751a8e122ae2","user_phone":""}}', '2025-05-22 20:22:16.08548+00', ''),
+--	('00000000-0000-0000-0000-000000000000', '7ab7ce58-8335-4c9b-86ff-8ae4f97e5900', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"participant3@example.com","user_id":"ee76f595-cc95-45df-805c-f40fa0be4ef8","user_phone":""}}', '2025-05-22 20:22:39.126216+00', ''),
+--	('00000000-0000-0000-0000-000000000000', '9b52f528-42f1-4aa9-9044-a5f461fd78d4', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"juror1@example.com","user_id":"bdab3617-6873-4ae3-bfeb-72d4d68caa1d","user_phone":""}}', '2025-05-22 20:22:55.05076+00', ''),
+--	('00000000-0000-0000-0000-000000000000', '72b0589f-7697-490c-b0a2-87ed690ee207', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"juror2@example.com","user_id":"b159bd16-1408-471d-89a7-7bfbed710c32","user_phone":""}}', '2025-05-22 20:23:11.028561+00', ''),
+--	('00000000-0000-0000-0000-000000000000', 'd2f67154-205a-4aae-9673-155f7320931b', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"juror3@example.com","user_id":"b06ff666-9735-4b1c-ba37-2481aac8d3e7","user_phone":""}}', '2025-05-22 20:23:49.645367+00', ''),
+--	('00000000-0000-0000-0000-000000000000', 'a57c25c7-9a6f-480e-a834-d4fc90168b42', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"simplejuror1@example.com","user_id":"5b9c3f57-bcf4-4e19-97b0-49db3dcbc79c","user_phone":""}}', '2025-05-22 20:24:16.572306+00', ''),
+--	('00000000-0000-0000-0000-000000000000', 'a5fd55f0-c6c7-408d-af88-7d3e6c2c7815', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"simplejuror2@example.com","user_id":"7c698dc4-5eb8-4372-8921-795fc9f049ea","user_phone":""}}', '2025-05-22 20:24:27.854833+00', ''),
+--	('00000000-0000-0000-0000-000000000000', '983f61da-0099-400e-a75b-02b24ff435df', '{"action":"user_signedup","actor_id":"00000000-0000-0000-0000-000000000000","actor_username":"service_role","actor_via_sso":false,"log_type":"team","traits":{"user_email":"simplejuror3@example.com","user_id":"9639036b-eee8-4996-a547-3eef0708cadc","user_phone":""}}', '2025-05-22 20:24:50.56897+00', '');
+--
+--INSERT INTO "auth"."users" ("instance_id", "id", "aud", "role", "email", "encrypted_password", "email_confirmed_at", "invited_at", "confirmation_token", "confirmation_sent_at", "recovery_token", "recovery_sent_at", "email_change_token_new", "email_change", "email_change_sent_at", "last_sign_in_at", "raw_app_meta_data", "raw_user_meta_data", "is_super_admin", "created_at", "updated_at", "phone", "phone_confirmed_at", "phone_change", "phone_change_token", "phone_change_sent_at", "email_change_token_current", "email_change_confirm_status", "banned_until", "reauthentication_token", "reauthentication_sent_at", "is_sso_user", "deleted_at", "is_anonymous") VALUES
+--	('00000000-0000-0000-0000-000000000000', '7c698dc4-5eb8-4372-8921-795fc9f049ea', 'authenticated', 'authenticated', 'simplejuror2@example.com', '$2a$10$mw/vcboesPwWrjPO39TGN.ZPm7lSbTC9N.zFRlQGSd4F549.GfGNO', '2025-05-22 20:24:27.855741+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:24:27.853112+00', '2025-05-22 20:24:27.856423+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', '7775a401-dead-4d1d-93fb-f1e9e6f58f30', 'authenticated', 'authenticated', 'organizer1@example.com', '$2a$10$Ws1fo9EQCTC7a3ts5YqaU.ktBfHwT1Ut1XEPJLxt5hpkCNFehMi2C', '2025-05-22 20:21:13.457444+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:21:13.427473+00', '2025-05-22 20:21:13.459874+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', 'bdab3617-6873-4ae3-bfeb-72d4d68caa1d', 'authenticated', 'authenticated', 'juror1@example.com', '$2a$10$LBKCIb6.vmK3tdVzb.w9hePJSXKnaRaBYj58WgQPb/hHNxzFYcgdm', '2025-05-22 20:22:55.052344+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:22:55.049121+00', '2025-05-22 20:22:55.053043+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', 'dc766310-ad6c-400f-9543-c0cb1e3c73fb', 'authenticated', 'authenticated', 'organizer2@example.com', '$2a$10$oGWugx82i3Xe0OgztrUFuOlbOUOGEmvVUCwbINKOjkvERedNiDsDO', '2025-05-22 20:21:28.365625+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:21:28.362734+00', '2025-05-22 20:21:28.366317+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', '2f91cb73-246d-4e66-a034-3c2824dd5d90', 'authenticated', 'authenticated', 'organizer3@example.com', '$2a$10$9z31DjaovwTewEt8kpWwWuikk6.dIfzokUrjMMY887BMPdEEaQG/y', '2025-05-22 20:21:42.573831+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:21:42.571097+00', '2025-05-22 20:21:42.5745+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', 'b159bd16-1408-471d-89a7-7bfbed710c32', 'authenticated', 'authenticated', 'juror2@example.com', '$2a$10$bAp7Sqzi1LJBVgwxOmfTYOhkfWkQ9QlA9aFziCTxOBZieanCvwa9K', '2025-05-22 20:23:11.029447+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:23:11.0269+00', '2025-05-22 20:23:11.030168+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', 'ba7585d6-d08a-4dba-9657-5b7987d5b7ed', 'authenticated', 'authenticated', 'participant1@example.com', '$2a$10$U5XVMvVU3th8xKClwvk6zepCJXPw.ZcjJMplhFLseM.icic6zgciy', '2025-05-22 20:22:03.468649+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:22:03.466077+00', '2025-05-22 20:22:03.469275+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', '9639036b-eee8-4996-a547-3eef0708cadc', 'authenticated', 'authenticated', 'simplejuror3@example.com', '$2a$10$DRZ84FjDrBByya11lyIuwuOzgo.Mf2qthWEppTjZJRpNEmZ6Q.S8C', '2025-05-22 20:24:50.569816+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:24:50.567322+00', '2025-05-22 20:24:50.5704+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', '1dbd3711-9f38-46dc-99b2-751a8e122ae2', 'authenticated', 'authenticated', 'participant2@example.com', '$2a$10$ntTKh2GmvFs2oEiuLuw41OHjEqr6p4xY4N63HewIBuz/yA/0OBeZ6', '2025-05-22 20:22:16.08644+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:22:16.083666+00', '2025-05-22 20:22:16.087092+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', 'b06ff666-9735-4b1c-ba37-2481aac8d3e7', 'authenticated', 'authenticated', 'juror3@example.com', '$2a$10$LHUUimEFYBz27GFTxUOdx.PLlmC.DK9rkmMCMQJAMYL5sU374SWmC', '2025-05-22 20:23:49.646394+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:23:49.641157+00', '2025-05-22 20:23:49.647015+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', 'ee76f595-cc95-45df-805c-f40fa0be4ef8', 'authenticated', 'authenticated', 'participant3@example.com', '$2a$10$63uqHmgr7xsmvryrz8.D3OdGXeZzq8v2ea2icLltTG1wAt.6qXNzC', '2025-05-22 20:22:39.127847+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:22:39.123773+00', '2025-05-22 20:22:39.128497+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
+--	('00000000-0000-0000-0000-000000000000', '5b9c3f57-bcf4-4e19-97b0-49db3dcbc79c', 'authenticated', 'authenticated', 'simplejuror1@example.com', '$2a$10$h1RW/k0UqVkUmoueISD5CexKIifjx3WKI6qej39w/BX48VjjzSMZC', '2025-05-22 20:24:16.573314+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:24:16.570608+00', '2025-05-22 20:24:16.573986+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false);
+--
+--INSERT INTO "auth"."identities" ("provider_id", "user_id", "identity_data", "provider", "last_sign_in_at", "created_at", "updated_at", "id") VALUES
+--	('7775a401-dead-4d1d-93fb-f1e9e6f58f30', '7775a401-dead-4d1d-93fb-f1e9e6f58f30', '{"sub": "7775a401-dead-4d1d-93fb-f1e9e6f58f30", "email": "organizer1@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:21:13.447878+00', '2025-05-22 20:21:13.447943+00', '2025-05-22 20:21:13.447943+00', 'd4788408-abe2-42ac-bd61-d3259ab7d486'),
+--	('dc766310-ad6c-400f-9543-c0cb1e3c73fb', 'dc766310-ad6c-400f-9543-c0cb1e3c73fb', '{"sub": "dc766310-ad6c-400f-9543-c0cb1e3c73fb", "email": "organizer2@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:21:28.363757+00', '2025-05-22 20:21:28.363809+00', '2025-05-22 20:21:28.363809+00', '4731aa91-fa5b-430a-9e51-730b499e1e82'),
+--	('2f91cb73-246d-4e66-a034-3c2824dd5d90', '2f91cb73-246d-4e66-a034-3c2824dd5d90', '{"sub": "2f91cb73-246d-4e66-a034-3c2824dd5d90", "email": "organizer3@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:21:42.572133+00', '2025-05-22 20:21:42.572186+00', '2025-05-22 20:21:42.572186+00', '24f74b85-66f3-4945-bc21-d16cc4c9497a'),
+--	('ba7585d6-d08a-4dba-9657-5b7987d5b7ed', 'ba7585d6-d08a-4dba-9657-5b7987d5b7ed', '{"sub": "ba7585d6-d08a-4dba-9657-5b7987d5b7ed", "email": "participant1@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:22:03.467013+00', '2025-05-22 20:22:03.46706+00', '2025-05-22 20:22:03.46706+00', '3978e2c7-8f71-43c9-9fce-1cdc7c8c83b3'),
+--	('1dbd3711-9f38-46dc-99b2-751a8e122ae2', '1dbd3711-9f38-46dc-99b2-751a8e122ae2', '{"sub": "1dbd3711-9f38-46dc-99b2-751a8e122ae2", "email": "participant2@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:22:16.0847+00', '2025-05-22 20:22:16.084748+00', '2025-05-22 20:22:16.084748+00', '01ae6b88-dc98-4ca5-97b1-d61f0543522a'),
+--	('ee76f595-cc95-45df-805c-f40fa0be4ef8', 'ee76f595-cc95-45df-805c-f40fa0be4ef8', '{"sub": "ee76f595-cc95-45df-805c-f40fa0be4ef8", "email": "participant3@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:22:39.125437+00', '2025-05-22 20:22:39.125488+00', '2025-05-22 20:22:39.125488+00', '3ca74700-e1d2-461f-8858-833cf81bff83'),
+--	('bdab3617-6873-4ae3-bfeb-72d4d68caa1d', 'bdab3617-6873-4ae3-bfeb-72d4d68caa1d', '{"sub": "bdab3617-6873-4ae3-bfeb-72d4d68caa1d", "email": "juror1@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:22:55.050123+00', '2025-05-22 20:22:55.050168+00', '2025-05-22 20:22:55.050168+00', '777ed4c3-9548-4a9b-b328-3f245fd7c063'),
+--	('b159bd16-1408-471d-89a7-7bfbed710c32', 'b159bd16-1408-471d-89a7-7bfbed710c32', '{"sub": "b159bd16-1408-471d-89a7-7bfbed710c32", "email": "juror2@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:23:11.027908+00', '2025-05-22 20:23:11.027962+00', '2025-05-22 20:23:11.027962+00', '0be196ce-34aa-40d0-93d8-66bba46a0ebe'),
+--	('b06ff666-9735-4b1c-ba37-2481aac8d3e7', 'b06ff666-9735-4b1c-ba37-2481aac8d3e7', '{"sub": "b06ff666-9735-4b1c-ba37-2481aac8d3e7", "email": "juror3@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:23:49.642173+00', '2025-05-22 20:23:49.642245+00', '2025-05-22 20:23:49.642245+00', '733c354a-44d3-442e-9a77-118bc2810f96'),
+--	('5b9c3f57-bcf4-4e19-97b0-49db3dcbc79c', '5b9c3f57-bcf4-4e19-97b0-49db3dcbc79c', '{"sub": "5b9c3f57-bcf4-4e19-97b0-49db3dcbc79c", "email": "simplejuror1@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:24:16.571573+00', '2025-05-22 20:24:16.571619+00', '2025-05-22 20:24:16.571619+00', 'c6f504ae-af14-4f10-92f6-40e697e246dd'),
+--	('7c698dc4-5eb8-4372-8921-795fc9f049ea', '7c698dc4-5eb8-4372-8921-795fc9f049ea', '{"sub": "7c698dc4-5eb8-4372-8921-795fc9f049ea", "email": "simplejuror2@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:24:27.854113+00', '2025-05-22 20:24:27.854159+00', '2025-05-22 20:24:27.854159+00', '519859f1-ced7-40e8-b629-368cb3de88a9'),
+--	('9639036b-eee8-4996-a547-3eef0708cadc', '9639036b-eee8-4996-a547-3eef0708cadc', '{"sub": "9639036b-eee8-4996-a547-3eef0708cadc", "email": "simplejuror3@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:24:50.568268+00', '2025-05-22 20:24:50.568317+00', '2025-05-22 20:24:50.568317+00', '22dbf2cf-da9a-48f0-8f3e-9f6011d104ee');
+--
+---- PROFILES
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('1beefde5-8e24-4228-bac8-5f0f52ee0837',now(),'Organizer1','dark','organizer','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('b1212fc5-f53a-483e-9685-ff9cdf783d90',now(),'Organizer2','dark','organizer','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('428c5e29-f9d2-42c0-a471-9a81e22a322e',now(),'Organizer3','dark','organizer','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('b3a2771f-f63a-4845-915d-bef62d55fe31',now(),'Participant1','dark','participant','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('447c30a0-0534-43dd-a63c-7a6de853aa95',now(),'Participant2','dark','participant','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('7ab7ce58-8335-4c9b-86ff-8ae4f97e5900',now(),'Participant3','dark','participant','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('9b52f528-42f1-4aa9-9044-a5f461fd78d4',now(),'Juror1','dark','juror','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('72b0589f-7697-490c-b0a2-87ed690ee207',now(),'Juror2','dark','juror','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('d2f67154-205a-4aae-9673-155f7320931b',now(),'Juror3','dark','juror','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('a57c25c7-9a6f-480e-a834-d4fc90168b42',now(),'SimpleJuror1','dark','juror','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('a5fd55f0-c6c7-408d-af88-7d3e6c2c7815',now(),'SimpleJuror2','dark','juror','false');
+--
+--INSERT INTO public.profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+--VALUES ('983f61da-0099-400e-a75b-02b24ff435df',now(),'SimpleJuror3','dark','juror','false');
+--
+--
+--SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 21, true);
+--
+--
+--
+--RESET ALL;

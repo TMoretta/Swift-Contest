@@ -39,6 +39,7 @@ dependencies:
   syncfusion_flutter_datagrid: ^29.1.41
   syncfusion_flutter_xlsio: ^29.1.41
   geolocator: ^14.0.0
+  connectivity_plus: ^6.1.4
 
 dev_dependencies:
   flutter_test:

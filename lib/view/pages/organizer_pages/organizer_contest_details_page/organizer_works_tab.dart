@@ -5,7 +5,7 @@ import 'package:swift_contest/model/mixed_models/participant_and_work.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 
 class OrganizerWorksTab extends StatefulWidget {

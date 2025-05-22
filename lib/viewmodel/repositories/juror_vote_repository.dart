@@ -8,7 +8,7 @@ import 'package:swift_contest/utils/failures/failure.dart';
 abstract interface class JurorVoteRepository {
   Future<Either<Failure, JurorVote>> createJurorVote({required JurorVote jurorVote});
 
-  Future<Either<Failure, JurorVote>> updateJurorVoteById({required String id, required JurorVote jurorVote});
+  Future<Either<Failure, JurorVote>> updateJurorVote({required JurorVote jurorVote});
 
   Future<Either<Failure, Unit>> deleteJurorVoteById({required String id});
 
@@ -64,9 +64,9 @@ class JurorVoteRepositoryImpl implements JurorVoteRepository {
   }
 
   @override
-  Future<Either<Failure, JurorVote>> updateJurorVoteById({required String id, required JurorVote jurorVote}) async {
+  Future<Either<Failure, JurorVote>> updateJurorVote({required JurorVote jurorVote}) async {
     try {
-      final result = await _jurorVoteService.updateJurorVoteById(id: id, jurorVote: jurorVote);
+      final result = await _jurorVoteService.updateJurorVote(jurorVote: jurorVote);
       return right(result);
     } on UnsafeException catch (e) {
       return left(Failure(message: e.message));

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 class MaterialTheme {
   static const TextTheme textTheme = TextTheme();

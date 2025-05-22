@@ -5,53 +5,70 @@ import 'package:swift_contest/utils/exceptions/unsafe_exception.dart';
 
 //* Interface
 abstract interface class VotingSessionParticipantService {
-  Future<VotingSessionParticipant> createVotingSessionParticipant(
-      {required VotingSessionParticipant votingSessionParticipant,});
+  Future<VotingSessionParticipant> createVotingSessionParticipant({
+    required VotingSessionParticipant votingSessionParticipant,
+  });
 
-  Future<VotingSessionParticipant> updateVotingSessionParticipantById({required String id, required VotingSessionParticipant votingSessionParticipant,});
+  Future<VotingSessionParticipant> updateVotingSessionParticipant({
+    required VotingSessionParticipant votingSessionParticipant,
+  });
 
   Future<Unit> deleteVotingSessionParticipantById({required String id});
 
-  Future<VotingSessionParticipant> getVotingSessionParticipantById({required String id});
+  Future<VotingSessionParticipant> getVotingSessionParticipantById(
+      {required String id});
 
-  Future<VotingSessionParticipant> getVotingSessionParticipantByVotingSessionIdAndParticipantId({
+  Future<VotingSessionParticipant>
+  getVotingSessionParticipantByVotingSessionIdAndParticipantId({
     required String votingSessionId,
     required String participantId,
   });
 
-  Future<List<VotingSessionParticipant>> getVotingSessionParticipantsByVotingSessionId({
+  Future<List<VotingSessionParticipant>>
+  getVotingSessionParticipantsByVotingSessionId({
     required String votingSessionId,
   });
 }
 
 //* Implementation
-class VotingSessionParticipantServiceImpl implements VotingSessionParticipantService {
+class VotingSessionParticipantServiceImpl
+    implements VotingSessionParticipantService {
   final SupabaseClient _supabase;
 
   VotingSessionParticipantServiceImpl({required SupabaseClient supabaseClient})
       : _supabase = supabaseClient;
 
   @override
-  Future<VotingSessionParticipant> createVotingSessionParticipant(
-      {required VotingSessionParticipant votingSessionParticipant,}) async {
+  Future<VotingSessionParticipant> createVotingSessionParticipant({
+    required VotingSessionParticipant votingSessionParticipant,
+  }) async {
     try {
-      final List<Map<String, dynamic>> results =
-      await _supabase.from('voting_session_participants').insert(votingSessionParticipant.toJson()).select();
-      return VotingSessionParticipant.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'create_voting_session_participant',
+          params: votingSessionParticipant.toRpcJson());
+      if (res.isEmpty) {
+        throw UnsafeException(
+            message: 'VotingSessionParticipant creation failed');
+      }
+      return VotingSessionParticipant.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
   }
 
   @override
-  Future<VotingSessionParticipant> updateVotingSessionParticipantById({required String id, required VotingSessionParticipant votingSessionParticipant,}) async {
+  Future<VotingSessionParticipant> updateVotingSessionParticipant({
+    required VotingSessionParticipant votingSessionParticipant,
+  }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('voting_session_participants')
-          .update(votingSessionParticipant.toJson())
-          .eq('id', id)
-          .select();
-      return VotingSessionParticipant.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'update_voting_session_participant',
+          params: votingSessionParticipant.toRpcJson());
+      if (res.isEmpty) {
+        throw UnsafeException(
+            message: 'VotingSessionParticipant update failed');
+      }
+      return VotingSessionParticipant.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
@@ -60,7 +77,8 @@ class VotingSessionParticipantServiceImpl implements VotingSessionParticipantSer
   @override
   Future<Unit> deleteVotingSessionParticipantById({required String id}) async {
     try {
-      await _supabase.from('voting_session_participants').delete().eq('id', id);
+      await _supabase.rpc('delete_voting_session_participant_by_id',
+          params: {'p_id': id});
       return unit;
     } catch (e) {
       throw UnsafeException(message: e.toString());
@@ -68,43 +86,55 @@ class VotingSessionParticipantServiceImpl implements VotingSessionParticipantSer
   }
 
   @override
-  Future<VotingSessionParticipant> getVotingSessionParticipantById({required String id}) async {
+  Future<VotingSessionParticipant> getVotingSessionParticipantById(
+      {required String id}) async {
     try {
-      final List<Map<String, dynamic>> results =
-      await _supabase.from('voting_session_participants').select().eq('id', id);
-      return VotingSessionParticipant.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_voting_session_participant_by_id',
+          params: {'p_id': id});
+      if (res.isEmpty) {
+        throw UnsafeException(message: 'No VotingSessionParticipant found');
+      }
+      return VotingSessionParticipant.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
   }
 
   @override
-  Future<VotingSessionParticipant> getVotingSessionParticipantByVotingSessionIdAndParticipantId({
+  Future<VotingSessionParticipant>
+  getVotingSessionParticipantByVotingSessionIdAndParticipantId({
     required String votingSessionId,
     required String participantId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('voting_session_participants')
-          .select()
-          .eq('voting_session_id', votingSessionId)
-          .eq('participant_id', participantId);
-      return VotingSessionParticipant.fromJson(results[0]);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_voting_session_participant_by_voting_session_id_and_participant_id',
+          params: {
+            'p_voting_session_id': votingSessionId,
+            'p_participant_id': participantId
+          });
+      if (res.isEmpty) {
+        throw UnsafeException(message: 'No VotingSessionParticipant found');
+      }
+      return VotingSessionParticipant.fromJson(res[0]);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }
   }
 
   @override
-  Future<List<VotingSessionParticipant>> getVotingSessionParticipantsByVotingSessionId({
+  Future<List<VotingSessionParticipant>>
+  getVotingSessionParticipantsByVotingSessionId({
     required String votingSessionId,
   }) async {
     try {
-      final List<Map<String, dynamic>> results = await _supabase
-          .from('voting_session_participants')
-          .select()
-          .eq('voting_session_id', votingSessionId);
-      return results.map((e) => VotingSessionParticipant.fromJson(e)).toList(growable: false);
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'get_voting_session_participants_by_voting_session_id',
+          params: {'p_voting_session_id': votingSessionId});
+      return res
+          .map((e) => VotingSessionParticipant.fromJson(e))
+          .toList(growable: false);
     } catch (e) {
       throw UnsafeException(message: e.toString());
     }

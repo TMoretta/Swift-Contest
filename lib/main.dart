@@ -77,12 +77,16 @@ void main() async {
       GooglePlaceServiceImpl(apiKey: Constants.googlePlacesApiKey);
   final InvitationService invitationService = InvitationServiceImpl(supabaseClient: supabaseClient);
   final JurationService jurationService = JurationServiceImpl(supabaseClient: supabaseClient);
-  final ParticipationService participationService = ParticipationServiceImpl(supabaseClient: supabaseClient);
+  final ParticipationService participationService =
+      ParticipationServiceImpl(supabaseClient: supabaseClient);
   final PlaceService placeService = PlaceServiceImpl(supabaseClient: supabaseClient);
   final ProfileService profileService = ProfileServiceImpl(supabaseClient: supabaseClient);
-  final SimpleJurorService simpleJurorService = SimpleJurorServiceImpl(supabaseClient: supabaseClient);
-  final SimpleJurorVoteService simpleJurorVoteService = SimpleJurorVoteServiceImpl(supabaseClient: supabaseClient);
-  final SimpleJurorVotingService simpleJurorVotingService = SimpleJurorVotingServiceImpl(supabaseClient: supabaseClient);
+  final SimpleJurorService simpleJurorService =
+      SimpleJurorServiceImpl(supabaseClient: supabaseClient);
+  final SimpleJurorVoteService simpleJurorVoteService =
+      SimpleJurorVoteServiceImpl(supabaseClient: supabaseClient);
+  final SimpleJurorVotingService simpleJurorVotingService =
+      SimpleJurorVotingServiceImpl(supabaseClient: supabaseClient);
   final StorageService storageService = StorageServiceImpl(supabaseClient: supabaseClient);
   final UserService userService = UserServiceImpl(supabaseClient: supabaseClient);
   final UtilsService utilsService = UtilsServiceImpl(supabaseClient: supabaseClient);
@@ -90,7 +94,8 @@ void main() async {
   final VotingFormFieldService votingFormFieldService =
       VotingFormFieldServiceImpl(supabaseClient: supabaseClient);
   final VotingFormService votingFormService = VotingFormServiceImpl(supabaseClient: supabaseClient);
-  final JurorVotingService jurorVotingService = JurorVotingServiceImpl(supabaseClient: supabaseClient);
+  final JurorVotingService jurorVotingService =
+      JurorVotingServiceImpl(supabaseClient: supabaseClient);
   final VotingSessionJurorService votingSessionJurorService =
       VotingSessionJurorServiceImpl(supabaseClient: supabaseClient);
   final VotingSessionParticipantService votingSessionParticipantService =
@@ -99,7 +104,8 @@ void main() async {
       VotingSessionProcedureServiceImpl(supabaseClient: supabaseClient);
   final VotingSessionService votingSessionService =
       VotingSessionServiceImpl(supabaseClient: supabaseClient);
-  final VotingSessionSimpleJurorService votingSessionSimpleJurorService = VotingSessionSimpleJurorServiceImpl(supabaseClient: supabaseClient);
+  final VotingSessionSimpleJurorService votingSessionSimpleJurorService =
+      VotingSessionSimpleJurorServiceImpl(supabaseClient: supabaseClient);
   final WorkService workService = WorkServiceImpl(supabaseClient: supabaseClient);
 
   runApp(
@@ -135,10 +141,12 @@ void main() async {
           create: (context) => SimpleJurorRepositoryImpl(simpleJurorService: simpleJurorService),
         ),
         RepositoryProvider<SimpleJurorVoteRepository>(
-          create: (context) => SimpleJurorVoteRepositoryImpl(simpleJurorVoteService: simpleJurorVoteService),
+          create: (context) =>
+              SimpleJurorVoteRepositoryImpl(simpleJurorVoteService: simpleJurorVoteService),
         ),
         RepositoryProvider<SimpleJurorVotingRepository>(
-          create: (context) => SimpleJurorVotingRepositoryImpl(simpleJurorVotingService: simpleJurorVotingService),
+          create: (context) =>
+              SimpleJurorVotingRepositoryImpl(simpleJurorVotingService: simpleJurorVotingService),
         ),
         RepositoryProvider<StorageRepository>(
           create: (context) => StorageRepositoryImpl(storageService: storageService),
@@ -178,7 +186,8 @@ void main() async {
               VotingSessionRepositoryImpl(votingSessionService: votingSessionService),
         ),
         RepositoryProvider<VotingSessionSimpleJurorRepository>(
-          create: (context) => VotingSessionSimpleJurorRepositoryImpl(votingSessionSimpleJurorService: votingSessionSimpleJurorService),
+          create: (context) => VotingSessionSimpleJurorRepositoryImpl(
+              votingSessionSimpleJurorService: votingSessionSimpleJurorService),
         ),
         RepositoryProvider<WorkRepository>(
           create: (context) => WorkRepositoryImpl(workService: workService),
@@ -194,13 +203,14 @@ void main() async {
             lazy: false,
             create: (context) => AuthBloc(
               userRepository: context.read<UserRepository>(),
-            ),
-          ),
-          BlocProvider(
-            create: (context) => ContestRoleBloc(
               profileRepository: context.read<ProfileRepository>(),
             ),
           ),
+          // BlocProvider(
+          //   create: (context) => ContestRoleBloc(
+          //     profileRepository: context.read<ProfileRepository>(),
+          //   ),
+          // ),
           BlocProvider(
             create: (context) => OrganizerCreatedContestsBloc(
               contestRepository: context.read<ContestRepository>(),

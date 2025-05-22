@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
-import 'package:swift_contest/utils/themes/color_scheme_extension.dart';
-import 'package:swift_contest/viewmodel/blocs/bloc_status.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -42,7 +42,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
               ),
             ),
             TextButton(
-              onPressed: () => _showSwitchRoleDialog(context: context),
+              onPressed: () => _showSwitchRoleDialog(context: context, selectedRole: widget.contestRole),
               style: ButtonStyle(
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)),
               ),
@@ -96,15 +96,15 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
   }
 }
 
-void _showSwitchRoleDialog({required BuildContext context}) {
-  final contestRoleState = context.read<ContestRoleBloc>().state;
+void _showSwitchRoleDialog({required BuildContext context, required ContestRole selectedRole}) {
+  // final contestRoleState = context.read<ContestRoleBloc>().state;
 
-  ContestRole selectedRole;
-  if (contestRoleState.status.isSuccess) {
-    selectedRole = contestRoleState.contestRole!;
-  } else {
-    selectedRole = ContestRole.organizer;
-  }
+  // ContestRole selectedRole;
+  // if (contestRoleState.status.isSuccess) {
+  //   selectedRole = contestRoleState.contestRole!;
+  // } else {
+  //   selectedRole = ContestRole.organizer;
+  // }
 
   showDialog(
     context: context,
@@ -168,9 +168,20 @@ void _showSwitchRoleDialog({required BuildContext context}) {
                   ),
                   TextButton(
                     onPressed: () {
-                      context.read<ContestRoleBloc>().add(ContestRoleChangeRole(contestRole: selectedRole));
-                      context.pop();
-                      context.go('/home');
+                      switch(selectedRole) {
+                        case ContestRole.organizer:
+                          context.goNamed(AppRouter.organizerHome);
+                          context.pop();
+                          break;
+                        case ContestRole.participant:
+                          context.goNamed(AppRouter.participantHome);
+                          context.pop();
+                          break;
+                        case ContestRole.juror:
+                          context.goNamed(AppRouter.jurorHome);
+                          context.pop();
+                          break;
+                      }
                     },
                     child: const Text('Confirm'),
                   ),
