@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ContestRole contestRole;
@@ -22,6 +19,7 @@ class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
 class _HomePageAppBarState extends State<HomePageAppBar> {
   @override
   Widget build(BuildContext context) {
+    final contestRole = widget.contestRole;
     return AppBar(
       title: FittedBox(
         child: Row(
@@ -30,7 +28,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
           spacing: 4,
           children: [
             Text(
-              switch (widget.contestRole) {
+              switch (contestRole) {
                 ContestRole.organizer => 'Organizer',
                 ContestRole.participant => 'Participant',
                 ContestRole.juror => 'Juror',
@@ -42,7 +40,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
               ),
             ),
             TextButton(
-              onPressed: () => _showSwitchRoleDialog(context: context, selectedRole: widget.contestRole),
+              onPressed: () => _showSwitchRoleDialog(context: context, currentRole: contestRole),
               style: ButtonStyle(
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)),
               ),
@@ -73,13 +71,6 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
             children: [
               IconButton(
                 onPressed: () {
-                  context.pushNamed('/notifications');
-                },
-                icon: Icon(Icons.notifications),
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              IconButton(
-                onPressed: () {
                   context.pushNamed(AppRouter.settings);
                 },
                 icon: Icon(Icons.more_vert),
@@ -96,19 +87,12 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
   }
 }
 
-void _showSwitchRoleDialog({required BuildContext context, required ContestRole selectedRole}) {
-  // final contestRoleState = context.read<ContestRoleBloc>().state;
-
-  // ContestRole selectedRole;
-  // if (contestRoleState.status.isSuccess) {
-  //   selectedRole = contestRoleState.contestRole!;
-  // } else {
-  //   selectedRole = ContestRole.organizer;
-  // }
+void _showSwitchRoleDialog({required BuildContext context, required ContestRole currentRole}) {
+  ContestRole selectedRole = currentRole;
 
   showDialog(
     context: context,
-    builder: (BuildContext context) {
+    builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
@@ -123,10 +107,13 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   value: ContestRole.organizer,
                   groupValue: selectedRole,
                   contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(borderSide:  BorderSide.none,borderRadius: BorderRadius.circular(16),),
+                  shape: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   onChanged: (value) {
                     setState(
-                          () => selectedRole = value!,
+                      () => selectedRole = value!,
                     );
                   },
                 ),
@@ -135,10 +122,13 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   value: ContestRole.participant,
                   groupValue: selectedRole,
                   contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(borderSide:  BorderSide.none,borderRadius: BorderRadius.circular(16),),
+                  shape: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   onChanged: (value) {
                     setState(
-                          () => selectedRole = value!,
+                      () => selectedRole = value!,
                     );
                   },
                 ),
@@ -147,10 +137,13 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   value: ContestRole.juror,
                   groupValue: selectedRole,
                   contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(borderSide:  BorderSide.none,borderRadius: BorderRadius.circular(16),),
+                  shape: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   onChanged: (value) {
                     setState(
-                          () => selectedRole = value!,
+                      () => selectedRole = value!,
                     );
                   },
                 ),
@@ -168,20 +161,18 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   ),
                   TextButton(
                     onPressed: () {
-                      switch(selectedRole) {
+                      switch (selectedRole) {
                         case ContestRole.organizer:
-                          context.goNamed(AppRouter.organizerHome);
-                          context.pop();
+                          context.replaceNamed(AppRouter.organizerHome);
                           break;
                         case ContestRole.participant:
-                          context.goNamed(AppRouter.participantHome);
-                          context.pop();
+                          context.replaceNamed(AppRouter.participantHome);
                           break;
                         case ContestRole.juror:
-                          context.goNamed(AppRouter.jurorHome);
-                          context.pop();
+                          context.replaceNamed(AppRouter.jurorHome);
                           break;
                       }
+                      context.pop();
                     },
                     child: const Text('Confirm'),
                   ),

@@ -48,16 +48,12 @@ anon USING (TRUE);
 CREATE POLICY "JurorVotings All" ON public.juror_votings FOR ALL TO authenticated,
 anon USING (TRUE);
 
--- VOTING SESSION JURORS
-CREATE POLICY "VotingSessionJurors All" ON public.voting_session_jurors FOR ALL TO authenticated,
+-- VOTING SESSION JURATIONS
+CREATE POLICY "VotingSessionJurations All" ON public.voting_session_jurations FOR ALL TO authenticated,
 anon USING (TRUE);
 
--- VOTING SESSION PARTICIPANTS
-CREATE POLICY "VotingSessionParticipants All" ON public.voting_session_participants FOR ALL TO authenticated,
-anon USING (TRUE);
-
--- VOTING SESSION PARTICIPANTS
-CREATE POLICY "VotingSessionProcedures All" ON public.voting_session_procedures FOR ALL TO authenticated,
+-- VOTING SESSION PARTICIPATIONS
+CREATE POLICY "VotingSessionParticipations All" ON public.voting_session_participations FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTING SESSIONS
@@ -78,6 +74,9 @@ CREATE POLICY "SimpleJurorVotes All" ON public.simple_juror_votes FOR ALL TO aut
 anon USING (TRUE);
 
 CREATE POLICY "SimpleJurors All" ON public.simple_jurors FOR ALL TO authenticated,
+anon USING (TRUE);
+
+CREATE POLICY "VotingSessionExclusions All" ON public.voting_session_exclusions FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- 1. Abilita RLS sulle tabelle di storage

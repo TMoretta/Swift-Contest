@@ -1,23 +1,19 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/participation.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/bundles/organizer_voting_session_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
-import 'package:swift_contest/model/data_models/voting_session_juror.dart';
-import 'package:swift_contest/model/data_models/voting_session_participant.dart';
-import 'package:swift_contest/model/data_models/voting_session_procedure.dart';
-import 'package:swift_contest/model/data_models/work.dart';
-import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/participation_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/profile_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_session_participation_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_session_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/work_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_participant_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_procedure_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
 
 part 'organizer_voting_procedure_page_event.dart';
 part 'organizer_voting_procedure_page_state.dart';
@@ -25,80 +21,44 @@ part 'organizer_voting_procedure_page_state.dart';
 class OrganizerVotingProcedurePageBloc
     extends Bloc<OrganizerVotingProcedurePageEvent, OrganizerVotingProcedurePageState> {
   final VotingSessionRepository _votingSessionRepository;
-  final VotingSessionProcedureRepository _votingSessionProcedureRepository;
-  final VotingSessionParticipantRepository _votingSessionParticipantRepository;
+  final VotingSessionParticipationRepository _votingSessionParticipationRepository;
   final WorkRepository _workRepository;
   final ParticipationRepository _participationRepository;
   final ProfileRepository _profileRepository;
+  final OrganizerRepository _organizerRepository;
 
   OrganizerVotingProcedurePageBloc({
     required VotingSessionRepository votingSessionRepository,
-    required VotingSessionProcedureRepository votingSessionProcedureRepository,
-    required VotingSessionParticipantRepository votingSessionParticipantRepository,
+    required VotingSessionParticipationRepository votingSessionParticipationRepository,
     required WorkRepository workRepository,
     required ParticipationRepository participationRepository,
     required ProfileRepository profileRepository,
-  })  : _votingSessionRepository = votingSessionRepository,
-        _votingSessionProcedureRepository = votingSessionProcedureRepository,
-        _votingSessionParticipantRepository = votingSessionParticipantRepository,
+    required OrganizerRepository organizerRepository,
+  })  :
+        _votingSessionRepository = votingSessionRepository,
+        _votingSessionParticipationRepository = votingSessionParticipationRepository,
         _workRepository = workRepository,
         _participationRepository = participationRepository,
         _profileRepository = profileRepository,
+        _organizerRepository = organizerRepository,
         super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
-    on<OrganizerVotingProcedurePageStartVotingSessionProcedure>(_startVotingSessionProcedure);
+    on<OrganizerVotingProcedurePageStartVotingSessionProcedure>(_startVotingProcedure);
     on<OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure>(
         _subscribeToVotingSessionProcedure);
     on<OrganizerVotingProcedurePageCancelVotingSessionProcedure>(_cancelVotingSessionProcedure);
+    on<OrganizerVotingProcedurePageEndVotingSessionProcedure>(_endVotingSessionProcedure);
   }
 
-  FutureOr<void> _startVotingSessionProcedure(
+  Future<void> _startVotingProcedure(
     OrganizerVotingProcedurePageStartVotingSessionProcedure event,
     Emitter<OrganizerVotingProcedurePageState> emit,
   ) async {
-    late final List<VotingSession> votingSessions;
-    final eitherVotingSession =
-        await _votingSessionRepository.getVotingSessionsByContestId(contestId: event.contestId);
-    eitherVotingSession.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => votingSessions = success,
-    );
-    if (eitherVotingSession.isLeft()) {
-      return;
-    }
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    VotingSession? votingSession;
-    VotingSessionProcedure? liveVotingSessionProcedure;
-    for (var session in votingSessions) {
-      final eitherVotingProcedure = await _votingSessionProcedureRepository
-          .getVotingSessionProcedureByVotingSessionId(votingSessionId: session.id);
-      eitherVotingProcedure.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) {
-          if (success.isLive == true) {
-            liveVotingSessionProcedure = success;
-            votingSession = session;
-          }
-        },
-      );
-      if (eitherVotingProcedure.isLeft()) {
-        return;
-      }
-      if (liveVotingSessionProcedure != null) {
-        break;
-      }
-    }
-    if (liveVotingSessionProcedure == null) {
-      emit(state.copyWith(status: BlocStatus.failure, message: 'No live voting session procedure'));
-    }
-
-    final eitherStartProcedure = await _votingSessionProcedureRepository
-        .startVotingSessionProcedureById(id: liveVotingSessionProcedure!.id);
-    eitherStartProcedure.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(
-          status: BlocStatus.success,
-          votingSession: votingSession,
-          votingSessionProcedure: liveVotingSessionProcedure)),
+    final eitherStartSession = await _organizerRepository.startVotingSession(votingSessionId: event.votingSessionId);
+    eitherStartSession.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 
@@ -106,125 +66,44 @@ class OrganizerVotingProcedurePageBloc
     OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure event,
     Emitter<OrganizerVotingProcedurePageState> emit,
   ) async {
-    emit(state.copyWith(status: BlocStatus.loading));
-
-    late final List<VotingSession> votingSessions;
-    final eitherVotingSession =
-        await _votingSessionRepository.getVotingSessionsByContestId(contestId: event.contestId);
-    eitherVotingSession.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => votingSessions = success,
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event, votingSessionBundle: event.votingSessionBundle));
+    
+    late final Stream<Either<Failure,VotingSession?>> votingSessionStream;
+    final eitherVotingSessionStream = await _organizerRepository.getVotingSessionStream(votingSessionId: event.votingSessionBundle.votingSession.id);
+    eitherVotingSessionStream.fold(
+        (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
+        (success) => votingSessionStream = success,
     );
-    if (eitherVotingSession.isLeft()) {
+    if(eitherVotingSessionStream.isLeft()) {
       return;
     }
 
-    VotingSession? votingSession;
-    VotingSessionProcedure? liveVotingSessionProcedure;
-    for (var session in votingSessions) {
-      final eitherVotingProcedures = await _votingSessionProcedureRepository
-          .getVotingSessionProcedureByVotingSessionId(votingSessionId: session.id);
-      eitherVotingProcedures.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) {
-          if (success.isLive == true) {
-            liveVotingSessionProcedure = success;
-            votingSession = session;
-          }
-        },
-      );
-      if (eitherVotingProcedures.isLeft()) {
-        return;
-      }
-
-      if (liveVotingSessionProcedure != null) {
-        break;
-      }
-    }
-    if (liveVotingSessionProcedure == null) {
-      emit(state.copyWith(status: BlocStatus.failure, message: 'No live voting session procedure'));
-    }
-
-    late final List<VotingSessionParticipant> votingSessionParticipants;
-    final eitherVotingSessionParticipants =
-        await _votingSessionParticipantRepository.getVotingSessionParticipantsByVotingSessionId(
-      votingSessionId: votingSession!.id,
-    );
-    eitherVotingSessionParticipants.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => votingSessionParticipants = success,
-    );
-    if (eitherVotingSessionParticipants.isLeft()) {
-      return;
-    }
-
-    final List<Participant> participants = [];
-    final List<Work> works = [];
-    for (var votingSessionParticipant in votingSessionParticipants) {
-      late final Participation participation;
-      final eitherParticipation =
-          await _participationRepository.getParticipationByContestIdAndParticipantId(
-              contestId: event.contestId, participantId: votingSessionParticipant.participantId);
-      eitherParticipation.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => participation = success,
-      );
-      if (eitherParticipation.isLeft()) {
-        return;
-      }
-
-      final eitherParticipant =
-          await _profileRepository.getProfileById(id: participation.participantId);
-      eitherParticipant.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => participants.add(success),
-      );
-      if (eitherParticipant.isLeft()) {
-        return;
-      }
-
-      final eitherWork =
-          await _workRepository.getWorkByParticipationId(participationId: participation.id);
-      eitherWork.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => works.add(success),
-      );
-      if (eitherWork.isLeft()) {
-        return;
-      }
-    }
-
-    emit(state.copyWith(
-      status: BlocStatus.loading,
-      votingSession: votingSession,
-      votingSessionParticipants: votingSessionParticipants,
-      participants: participants,
-      works: works,
-    ));
-
-    late Stream<VotingSessionProcedure> votingSessionProcedureStream;
-    final result = await _votingSessionProcedureRepository.getVotingSessionProcedureStream(
-      votingSessionProcedureId: liveVotingSessionProcedure!.id,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => votingSessionProcedureStream = success,
-    );
-    if (result.isLeft()) {
-      return;
-    }
+    emit(state.copyWith(status: BlocStatus.success, votingSessionBundle: event.votingSessionBundle));
 
     await emit.forEach(
-      votingSessionProcedureStream,
-      onData: (newVotingSessionProcedure) {
-        final oldVotingSessionProcedure = state.votingSessionProcedure;
-        if (newVotingSessionProcedure == oldVotingSessionProcedure) {
+      votingSessionStream,
+      onData: (eitherNewVotingSession) {
+        late VotingSession? newVotingSession;
+
+        eitherNewVotingSession.fold(
+            (failure) => null,
+            (success) => newVotingSession = success,
+        );
+        if(eitherNewVotingSession.isLeft()) {
+          return state.copyWith(status: BlocStatus.failure, message: 'No data received');
+        }
+
+        if(newVotingSession == null) {
+          return state;
+        }
+        final oldVotingSessionProcedure = state.votingSessionBundle!.votingSession;
+        if (newVotingSession == oldVotingSessionProcedure) {
           return state;
         }
 
         return state.copyWith(
           status: BlocStatus.success,
-          votingSessionProcedure: newVotingSessionProcedure,
+          votingSessionBundle: state.votingSessionBundle!.copyWith(votingSession: newVotingSession),
         );
       },
       onError: (error, stackTrace) {
@@ -237,12 +116,25 @@ class OrganizerVotingProcedurePageBloc
     OrganizerVotingProcedurePageCancelVotingSessionProcedure event,
     Emitter<OrganizerVotingProcedurePageState> emit,
   ) async {
-    emit(state.copyWith(status: BlocStatus.loading));
-    final eitherCancelProcedure = await _votingSessionProcedureRepository
-        .cancelVotingSessionProcedureById(id: event.votingSessionProcedureId);
-    eitherCancelProcedure.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherStartSession = await _organizerRepository.cancelVotingSession(votingSessionId: event.votingSessionId);
+    eitherStartSession.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _endVotingSessionProcedure(
+      OrganizerVotingProcedurePageEndVotingSessionProcedure event,
+      Emitter<OrganizerVotingProcedurePageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherStartSession = await _organizerRepository.endVotingSession(votingSessionId: event.votingSessionId);
+    eitherStartSession.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 }

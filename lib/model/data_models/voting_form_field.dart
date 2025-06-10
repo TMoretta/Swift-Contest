@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:swift_contest/model/enums/form_field_type.dart';
 
 class VotingFormField extends Equatable {
   final String id;
@@ -88,30 +87,30 @@ class VotingFormField extends Equatable {
       ];
 }
 
-class VotingFormFieldRaw {
-  final String name;
-  final int? minValue;
-  final int? maxValue;
-
-  VotingFormFieldRaw({
-    required this.name,
-    this.minValue,
-    this.maxValue,
-  });
-
-  factory VotingFormFieldRaw.fromJson(Map<String, dynamic> json) {
-    return VotingFormFieldRaw(
-      name: json['name'] as String,
-      minValue: json['min_value'] != null ? json['min_value'] as int : null,
-      maxValue: json['max_value'] != null ? json['max_value'] as int : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'min_value': minValue,
-      'max_value': maxValue,
-    };
-  }
-}
+// class VotingFormFieldRaw {
+//   final String name;
+//   final int? minValue;
+//   final int? maxValue;
+//
+//   VotingFormFieldRaw({
+//     required this.name,
+//     this.minValue,
+//     this.maxValue,
+//   });
+//
+//   factory VotingFormFieldRaw.fromJson(Map<String, dynamic> json) {
+//     return VotingFormFieldRaw(
+//       name: json['name'] as String,
+//       minValue: json['min_value'] != null ? json['min_value'] as int : null,
+//       maxValue: json['max_value'] != null ? json['max_value'] as int : null,
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'name': name,
+//       'min_value': minValue,
+//       'max_value': maxValue,
+//     };
+//   }
+// }

@@ -1,0 +1,34 @@
+import 'dart:async';
+
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/user_repository.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+
+part 'sign_up_verify_page_event.dart';
+
+part 'sign_up_verify_page_state.dart';
+
+class SignUpVerifyPageBloc extends Bloc<SignUpVerifyPageEvent, SignUpVerifyPageState> {
+  final UserRepository _userRepository;
+
+  SignUpVerifyPageBloc({required UserRepository userRepository})
+      : _userRepository = userRepository,
+        super(SignUpVerifyPageState(status: BlocStatus.initial)) {
+    on<SignUpVerifyOtp>(_verifyOtp);
+  }
+
+  FutureOr<void> _verifyOtp(
+    SignUpVerifyOtp event,
+    Emitter<SignUpVerifyPageState> emit,
+  ) async {
+    emit(SignUpVerifyPageState(status: BlocStatus.loading, sourceEvent: event));
+
+    final res = await _userRepository.signUpVerifyOtp(email: event.email, otp: event.otp);
+    res.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+}

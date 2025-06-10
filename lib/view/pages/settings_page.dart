@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
-import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
+import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/juror_joined_contests_bloc/juror_joined_contests_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/organizer_created_contests_bloc/organizer_created_contests_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/participant_joined_contests_bloc/participant_joined_contests_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/pages_blocs/settings_page_bloc/settings_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -25,320 +19,372 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _AuthState extends State<SettingsPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
+      appBar: CustomAppBar(title: 'Settings'),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.message != null) {
             showSnackBar(context: context, text: state.message!);
           }
+          if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
+            context.goNamed(AppRouter.splash);
+          }
         },
         builder: (context, state) {
-          if(state.blocStatus.isLoading) {
-            return Loader();
+          switch (state.blocStatus) {
+            case BlocStatus.initial:
+              return SizedBox.shrink();
+            case BlocStatus.loading:
+              return Loader();
+            case BlocStatus.failure:
+            case BlocStatus.success:
+              final profile = state.profile!;
+              return ListView(
+                children: [
+                  //* Account option
+                  TextButton(
+                    onPressed: () {
+                      context.pushNamed(AppRouter.account);
+                    },
+                    style: ButtonStyle(
+                      shape: WidgetStatePropertyAll(LinearBorder()),
+                      padding: WidgetStatePropertyAll(
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+                    ),
+                    child: Row(
+                      spacing: 12,
+                      children: [
+                        Icon(
+                          Icons.person,
+                          size: 28,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Account',
+                              style: TextStyle(
+                                  fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+                            ),
+                            Text(
+                              'Full name',
+                              style: TextStyle(
+                                  fontSize: 12, color: Theme.of(context).colorScheme.grey8),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  //* Theme option
+                  TextButton(
+                    onPressed: () async {
+                      final bool? res = await _showEditThemeDialog(
+                          context: context,
+                          currentTheme: profile.prefTheme);
+                      if (res == true) {
+                        if (context.mounted) {
+                          context.read<AuthBloc>().add(AuthFetchProfile());
+                        }
+                      }
+                    },
+                    style: ButtonStyle(
+                      shape: WidgetStatePropertyAll(LinearBorder()),
+                      padding: WidgetStatePropertyAll(
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+                    ),
+                    child: Row(
+                      spacing: 12,
+                      children: [
+                        Icon(
+                          Icons.contrast,
+                          size: 28,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Theme',
+                              style: TextStyle(
+                                  fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+                            ),
+                            Text(
+                              profile.prefTheme.name,
+                              style: TextStyle(
+                                  fontSize: 12, color: Theme.of(context).colorScheme.grey8),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  //* Preferred role option
+                  TextButton(
+                    onPressed: () async {
+                      final bool? res = await _showEditPrefRoleDialog(
+                          context: context,
+                          currentPrefRole: profile.prefContestRole);
+                      if (res == true) {
+                        if (context.mounted) {
+                          context.read<AuthBloc>().add(AuthFetchProfile());
+                        }
+                      }
+                    },
+                    style: ButtonStyle(
+                      shape: WidgetStatePropertyAll(LinearBorder()),
+                      padding: WidgetStatePropertyAll(
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+                    ),
+                    child: Row(
+                      spacing: 12,
+                      children: [
+                        Icon(
+                          Icons.face,
+                          size: 28,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Preferred role',
+                              style: TextStyle(
+                                  fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+                            ),
+                            Text(
+                              profile.prefContestRole.name,
+                              style: TextStyle(
+                                  fontSize: 12, color: Theme.of(context).colorScheme.grey8),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  //* Logout option
+                  TextButton(
+                    onPressed: () async {
+                      context.read<AuthBloc>().add(AuthSignOut());
+                    },
+                    style: ButtonStyle(
+                      shape: WidgetStatePropertyAll(LinearBorder()),
+                      padding: WidgetStatePropertyAll(
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+                    ),
+                    child: Row(
+                      spacing: 12,
+                      children: [
+                        Icon(
+                          Icons.logout,
+                          size: 28,
+                          color: Theme.of(context).colorScheme.statusRed,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Logout',
+                              style: TextStyle(
+                                  fontSize: 16, color: Theme.of(context).colorScheme.statusRed),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              );
           }
-          final user = state.user!;
-          final profile = state.profile!;
-          return ListView(
-            children: [
-              // Divider(
-              //   color: Theme.of(context).colorScheme.greyA,
-              //   thickness: 0.7,
-              // ),
-              // //* Account option
-              // InkWell(
-              //   onTap: (){},
-              //   child: Padding(
-              //     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              //     child: Row(
-              //       mainAxisAlignment: MainAxisAlignment.start,
-              //       crossAxisAlignment: CrossAxisAlignment.center,
-              //       spacing: 16,
-              //       children: [
-              //         SizedBox(
-              //           width: 60,
-              //           height: 60,
-              //           child: CircleAvatar(
-              //             backgroundImage: AssetImage('assets/images/image.jpeg'),
-              //             // backgroundColor: Colors.transparent,
-              //           ),
-              //         ),
-              //         Column(
-              //           mainAxisAlignment: MainAxisAlignment.center,
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           children: [
-              //             Text(
-              //               'Mario',
-              //               style: TextStyle(
-              //                 fontSize: 16,
-              //                 fontWeight: FontWeight.w600,
-              //               ),
-              //             ),
-              //             Text(
-              //               'Rossi',
-              //               style: TextStyle(
-              //                 fontSize: 14,
-              //                 fontWeight: FontWeight.w500,
-              //                 color: Theme.of(context).colorScheme.grey8,
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              // Divider(
-              //   color: Theme.of(context).colorScheme.greyA,
-              //   thickness: 0.7,
-              // ),
-              //* Account option
-              TextButton(
-                onPressed: () => context.pushNamed(AppRouter.account),
-                style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(LinearBorder()),
-                  padding:
-                      WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
-                ),
-                child: Row(
-                  spacing: 12,
-                  children: [
-                    Icon(
-                      Icons.person,
-                      size: 28,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Account',
-                          style: TextStyle(
-                              fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                        Text(
-                          'Full name',
-                          style:
-                              TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.grey8),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              //* Theme option
-              TextButton(
-                onPressed: () {
-                  _showEditThemeDialog(context: context, currentTheme: profile.prefTheme);
-                },
-                style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(LinearBorder()),
-                  padding:
-                      WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
-                ),
-                child: Row(
-                  spacing: 12,
-                  children: [
-                    Icon(
-                      Icons.contrast,
-                      size: 28,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Theme',
-                          style: TextStyle(
-                              fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                        Text(
-                          profile.prefTheme.name,
-                          style:
-                              TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.grey8),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              //* Preferred role option
-              TextButton(
-                onPressed: () {},
-                style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(LinearBorder()),
-                  padding:
-                      WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
-                ),
-                child: Row(
-                  spacing: 12,
-                  children: [
-                    Icon(
-                      Icons.face,
-                      size: 28,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Preferred role',
-                          style: TextStyle(
-                              fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                        Text(
-                          profile.prefContestRole.name,
-                          style:
-                              TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.grey8),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              //* Logout option
-              BlocProvider<AuthBloc>(
-                create: (context) => AuthBloc(
-                  userRepository: context.read<UserRepository>(),
-                  profileRepository: context.read<ProfileRepository>(),
-                ),
-                child: BlocConsumer<AuthBloc, AuthState>(
-                  listener: (context, state) async {
-                    if (state.message!=null) {
-                      showSnackBar(context: context, text: state.message!);
-                    }
-                    if (state.blocStatus.isSuccess) {
-                      context.goNamed(AppRouter.signIn);
-                    }
-                  },
-                  builder: (context, state) {
-                    return TextButton(
-                      onPressed: () async {
-                        context
-                            .read<OrganizerCreatedContestsBloc>()
-                            .add(OrganizerCreatedContestsClear());
-                        context
-                            .read<ParticipantJoinedContestsBloc>()
-                            .add(ParticipantJoinedContestsClear());
-                        context.read<JurorJoinedContestsBloc>().add(JurorJoinedContestsClear());
-                        context.read<AuthBloc>().add(AuthSignOut());
-                      },
-                      style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(LinearBorder()),
-                        padding: WidgetStatePropertyAll(
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
-                      ),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Icon(
-                            Icons.logout,
-                            size: 28,
-                            color: Theme.of(context).colorScheme.statusRed,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Logout',
-                                style: TextStyle(
-                                    fontSize: 16, color: Theme.of(context).colorScheme.statusRed),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
         },
       ),
     );
   }
 }
 
-void _showEditThemeDialog({required BuildContext context, required AppTheme currentTheme}) {
-  showDialog(
+Future<bool?> _showEditThemeDialog({
+  required BuildContext context,
+  required AppTheme currentTheme,
+}) {
+  final authBloc = context.read<AuthBloc>();
+
+  return showDialog<bool?>(
     context: context,
     builder: (context) {
+      AppTheme selectedTheme = currentTheme;
       return StatefulBuilder(
         builder: (context, setState) {
-          AppTheme selectedTheme = currentTheme;
-          return BlocConsumer<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state.message != null) {
-                showSnackBar(context: context, text: state.message!);
-              }
-              if (state.blocStatus.isSuccess) {
-                showSnackBar(context: context, text: 'Theme changed successfully');
-              }
-            },
-            builder: (context, state) {
-              return AbsorbPointer(
-                absorbing: state.blocStatus.isLoading,
-                child: AlertDialog(
-                  title: Text('Theme'),
-                  content: Column(
-                    children: [
-                      RadioListTile<AppTheme>(
-                        title: Text('System'),
-                        groupValue: selectedTheme,
-                        value: AppTheme.system,
-                        onChanged: (value) {
-                          setState(
-                            () => selectedTheme = value!,
-                          );
-                        },
-                      ),
-                      RadioListTile<AppTheme>(
-                        title: Text('Light'),
-                        groupValue: selectedTheme,
-                        value: AppTheme.light,
-                        onChanged: (value) {
-                          setState(
-                            () => selectedTheme = value!,
-                          );
-                        },
-                      ),
-                      RadioListTile<AppTheme>(
-                        title: Text('Dark'),
-                        groupValue: selectedTheme,
-                        value: AppTheme.dark,
-                        onChanged: (value) {
-                          setState(
-                            () => selectedTheme = value!,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    Row(
+          return BlocProvider.value(
+            value: authBloc,
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state.message != null) {
+                  showSnackBar(context: context, text: state.message!);
+                }
+                if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditPrefTheme) {
+                  showSnackBar(context: context, text: 'Theme changed successfully');
+                  context.pop(true);
+                }
+              },
+              builder: (context, state) {
+                return AbsorbPointer(
+                  absorbing: state.blocStatus.isLoading,
+                  child: AlertDialog(
+                    title: Text('Theme'),
+                    content: Column(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextButton(
-                          onPressed: () => context.pop(),
-                          child: Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            context.read<AuthBloc>().add(AuthEditPrefTheme(prefTheme: selectedTheme));
+                        RadioListTile<AppTheme>(
+                          title: Text('System'),
+                          groupValue: selectedTheme,
+                          value: AppTheme.system,
+                          onChanged: (value) {
+                            setState(
+                              () => selectedTheme = value!,
+                            );
                           },
-                          child: Text('Ok'),
+                        ),
+                        RadioListTile<AppTheme>(
+                          title: Text('Light'),
+                          groupValue: selectedTheme,
+                          value: AppTheme.light,
+                          onChanged: (value) {
+                            setState(
+                              () => selectedTheme = value!,
+                            );
+                          },
+                        ),
+                        RadioListTile<AppTheme>(
+                          title: Text('Dark'),
+                          groupValue: selectedTheme,
+                          value: AppTheme.dark,
+                          onChanged: (value) {
+                            setState(
+                              () => selectedTheme = value!,
+                            );
+                          },
                         ),
                       ],
-                    )
-                  ],
-                ),
-              );
-            },
+                    ),
+                    actions: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => context.pop(),
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              final profile = context.read<AuthBloc>().state.profile!;
+                              context.read<AuthBloc>().add(AuthEditPrefTheme(
+                                  profile: profile, prefTheme: selectedTheme));
+                            },
+                            child: Text('Ok'),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+Future<bool?> _showEditPrefRoleDialog({required BuildContext context, required ContestRole currentPrefRole}) async {
+  final authBloc = context.read<AuthBloc>();
+
+  return showDialog<bool?>(
+    context: context,
+    builder: (context) {
+      ContestRole selectedRole = currentPrefRole;
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return BlocProvider.value(
+            value: authBloc,
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state.message != null) {
+                  showSnackBar(context: context, text: state.message!);
+                }
+                if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditPrefRole) {
+                  showSnackBar(context: context, text: 'Preferred role changed successfully');
+                  context.pop(true);
+                }
+              },
+              builder: (context, state) {
+                return AbsorbPointer(
+                  absorbing: state.blocStatus.isLoading,
+                  child: AlertDialog(
+                    title: Text('Theme'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RadioListTile<ContestRole>(
+                          title: Text('Organizer'),
+                          groupValue: selectedRole,
+                          value: ContestRole.organizer,
+                          onChanged: (value) {
+                            setState(
+                                  () => selectedRole = value!,
+                            );
+                          },
+                        ),
+                        RadioListTile<ContestRole>(
+                          title: Text('Participant'),
+                          groupValue: selectedRole,
+                          value: ContestRole.participant,
+                          onChanged: (value) {
+                            setState(
+                                  () => selectedRole = value!,
+                            );
+                          },
+                        ),
+                        RadioListTile<ContestRole>(
+                          title: Text('Juror'),
+                          groupValue: selectedRole,
+                          value: ContestRole.juror,
+                          onChanged: (value) {
+                            setState(
+                                  () => selectedRole = value!,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => context.pop(),
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              final profile = context.read<AuthBloc>().state.profile!;
+                              context.read<AuthBloc>().add(AuthEditPrefRole(
+                                  profile: profile, prefRole: selectedRole));
+                            },
+                            child: Text('Ok'),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),
           );
         },
       );

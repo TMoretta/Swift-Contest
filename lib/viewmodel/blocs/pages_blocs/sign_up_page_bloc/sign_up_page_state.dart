@@ -1,0 +1,25 @@
+part of 'sign_up_page_bloc.dart';
+
+@immutable
+final class SignUpPageState extends Equatable {
+  final BlocStatus status;
+  final SignUpPageEvent? sourceEvent;
+  final String? message;
+
+  const SignUpPageState({required this.status, this.sourceEvent, this.message});
+
+  SignUpPageState copyWith({
+    required BlocStatus status,
+    SignUpPageEvent? sourceEvent,
+    String? message,
+  }) {
+    return SignUpPageState(
+      status: status,
+      sourceEvent: sourceEvent ?? this.sourceEvent,
+      message: message,
+    );
+  }
+
+  @override
+  List<Object?> get props => [status, sourceEvent, message];
+}

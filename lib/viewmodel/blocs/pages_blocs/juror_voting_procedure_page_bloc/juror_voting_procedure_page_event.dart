@@ -6,59 +6,38 @@ sealed class JurorVotingProcedurePageEvent extends Equatable {
 
 final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
     extends JurorVotingProcedurePageEvent {
-  final String contestId;
+  final ContestDetailsBundle contestDetailsBundle;
   final String jurorId;
 
   const JurorVotingProcedurePageSubscribeToVotingSessionProcedure({
-    required this.contestId,
+    required this.contestDetailsBundle,
     required this.jurorId,
   });
 
   @override
-  List<Object?> get props => [contestId, jurorId,];
+  List<Object?> get props => [contestDetailsBundle, jurorId,];
 }
 
 final class JurorVotingProcedurePageSubmitVotes
     extends JurorVotingProcedurePageEvent {
   final String jurorId;
-  final String votingSessionId;
-  final Map<VotingSessionParticipant, Map<VotingFormField, String>>
-      votesPerParticipantMap;
+  final VotingSession votingSession;
+  final String contestId;
+  final Map<VotingSessionParticipation, Map<VotingFormField, int>>
+  votesPerParticipantMap;
 
   const JurorVotingProcedurePageSubmitVotes({
     required this.jurorId,
-    required this.votingSessionId,
+    required this.votingSession,
+    required this.contestId,
     required this.votesPerParticipantMap,
   });
 
   @override
   List<Object?> get props => [
-        jurorId,
-        votingSessionId,
-        votesPerParticipantMap,
-      ];
+    jurorId,
+    votingSession,
+    contestId,
+    votesPerParticipantMap,
+  ];
 }
-
-// final class JurorVotingProcedurePageJoinVotingSessionProcedure
-//     extends JurorVotingProcedurePageEvent {
-//   final String contestId;
-//
-//   const JurorVotingProcedurePageJoinVotingSessionProcedure({
-//     required this.contestId,
-//   });
-//
-//   @override
-//   List<Object?> get props => [contestId];
-// }
-//
-// final class JurorVotingProcedurePageExitVotingSessionProcedure
-//     extends JurorVotingProcedurePageEvent {
-//   final String votingSessionProcedureId;
-//
-//   const JurorVotingProcedurePageExitVotingSessionProcedure({
-//     required this.votingSessionProcedureId,
-//   });
-//
-//   @override
-//   List<Object?> get props => [votingSessionProcedureId];
-// }

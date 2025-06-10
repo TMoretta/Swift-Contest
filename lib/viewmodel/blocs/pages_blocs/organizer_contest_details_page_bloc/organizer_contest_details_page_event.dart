@@ -1,58 +1,46 @@
 part of 'organizer_contest_details_page_bloc.dart';
 
-@immutable
 sealed class OrganizerContestDetailsPageEvent extends Equatable {
   const OrganizerContestDetailsPageEvent();
 }
 
-final class OrganizerContestDetailsPageSendParticipantInvite
-    extends OrganizerContestDetailsPageEvent {
-  final Contest contest;
+final class OrganizerContestDetailsPageInit extends OrganizerContestDetailsPageEvent {
+  final String contestId;
+
+  const OrganizerContestDetailsPageInit({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+}
+
+// final class OrganizerContestDetailsPageGetRemainingInfo extends OrganizerContestDetailsPageEvent {
+//   final HomeContestBundle homeContestBundle;
+//
+//   const OrganizerContestDetailsPageGetRemainingInfo({required this.homeContestBundle});
+//
+//   @override
+//   List<Object?> get props => [homeContestBundle];
+// }
+
+final class OrganizerContestDetailsPageSendParticipantInvite extends OrganizerContestDetailsPageEvent {
+  final String contestId;
   final String email;
 
   const OrganizerContestDetailsPageSendParticipantInvite({
-    required this.contest,
+    required this.contestId,
     required this.email,
   });
 
   @override
-  List<Object> get props => [contest, email];
+  List<Object> get props => [contestId, email];
 }
 
 final class OrganizerContestDetailsPageSendJurorInvite extends OrganizerContestDetailsPageEvent {
-  final Contest contest;
+  final String contestId;
   final String email;
 
-  const OrganizerContestDetailsPageSendJurorInvite({required this.contest, required this.email});
+  const OrganizerContestDetailsPageSendJurorInvite({required this.contestId, required this.email});
 
   @override
-  List<Object?> get props => [contest, email];
-}
-
-final class OrganizerContestDetailsPageGetContestMainInfo extends OrganizerContestDetailsPageEvent {
-  final String contestId;
-
-  const OrganizerContestDetailsPageGetContestMainInfo({required this.contestId});
-
-  @override
-  List<Object?> get props => [contestId];
-}
-
-final class OrganizerContestDetailsPageGetVotingTabInfo extends OrganizerContestDetailsPageEvent {
-  final String contestId;
-
-  const OrganizerContestDetailsPageGetVotingTabInfo({required this.contestId});
-
-  @override
-  List<Object?> get props => [contestId];
-}
-
-final class OrganizerContestDetailsPageUpdateVotingFormFields extends OrganizerContestDetailsPageEvent {
-  final List<VotingFormFieldRaw> rawVotingFormFields;
-  final String votingFormId;
-
-  const OrganizerContestDetailsPageUpdateVotingFormFields({required this.rawVotingFormFields, required this.votingFormId,});
-
-  @override
-  List<Object?> get props => [rawVotingFormFields, votingFormId];
+  List<Object?> get props => [contestId, email];
 }

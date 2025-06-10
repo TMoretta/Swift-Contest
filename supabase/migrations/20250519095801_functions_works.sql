@@ -1,93 +1,132 @@
 -- CREATE WORK
-CREATE OR REPLACE FUNCTION public.create_work (
-  p_id uuid,
-  p_created_at timestamptz,
-  p_participation_id uuid,
-  p_name character varying(20),
-  p_description character varying(200),
-  p_images_urls text[]
+CREATE OR REPLACE FUNCTION create_work (
+  p_work works
 )
-RETURNS SETOF public.works AS $$
+RETURNS works AS $$
+DECLARE
+  v_work works;
 BEGIN
-  RETURN QUERY
-    INSERT INTO public.works (
-      id,
-      created_at,
-      participation_id,
-      name,
-      description,
-      images_urls
-    )
-    VALUES (
-      p_id,
-      p_created_at,
-      p_participation_id,
-      p_name,
-      p_description,
-      p_images_urls
-    )
-    RETURNING *;
+  INSERT INTO works (
+    id,
+    created_at,
+    participation_id,
+    name,
+    description,
+    images_urls
+  )
+  VALUES (
+    p_work.id,
+    p_work.created_at,
+    p_work.participation_id,
+    p_work.name,
+    p_work.description,
+    p_work.images_urls
+  )
+  RETURNING * INTO STRICT v_work;
+
+  RETURN v_work;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while creating the work';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- UPDATE WORK BY ID
-CREATE OR REPLACE FUNCTION public.update_work (
-  p_id uuid,
-  p_created_at timestamptz,
-  p_participation_id uuid,
-  p_name character varying(20),
-  p_description character varying(200),
-  p_images_urls text[]
+CREATE OR REPLACE FUNCTION update_work (
+  p_work works
 )
-RETURNS SETOF public.works AS $$
+RETURNS works AS $$
+DECLARE
+  v_work works;
 BEGIN
-  RETURN QUERY
-    UPDATE public.works
-    SET
-      created_at = p_created_at,
-      participation_id = p_participation_id,
-      name = p_name,
-      description = p_description,
-      images_urls = p_images_urls
-    WHERE id = p_id
-    RETURNING *;
+  -- Verify if the work exists
+  IF NOT EXISTS (SELECT 1 FROM works WHERE id = p_work.id) THEN
+    RAISE EXCEPTION 'No work found';
+  END IF;
+  
+  UPDATE works
+  SET
+    participation_id = p_work.participation_id,
+    name = p_work.name,
+    description = p_work.description,
+    images_urls = p_work.images_urls
+  WHERE id = p_work.id
+  RETURNING * INTO STRICT v_work;
+  
+  RETURN v_work;
+  
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while updating the work';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- DELETE WORK BY ID
-CREATE OR REPLACE FUNCTION public.delete_work_by_id(
+CREATE OR REPLACE FUNCTION delete_work_by_id (
   p_id uuid
 )
-RETURNS void AS $$
+RETURNS works AS $$
+DECLARE
+  v_work works;
 BEGIN
-  DELETE FROM public.works
-  WHERE id = p_id;
+  -- Verify if the work exists
+  IF NOT EXISTS (SELECT 1 FROM works WHERE id = p_id) THEN
+    RAISE EXCEPTION 'No work found';
+  END IF;
+  
+  DELETE FROM works
+  WHERE id = p_id
+  RETURNING * INTO STRICT v_work;
+  
+  RETURN v_work;
+  
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while deleting the work';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- GET WORK BY ID
-CREATE OR REPLACE FUNCTION public.get_work_by_id(
+CREATE OR REPLACE FUNCTION get_work_by_id(
   p_id uuid
 )
-RETURNS SETOF public.works AS $$
+RETURNS SETOF works AS $$
 BEGIN
   RETURN QUERY
     SELECT *
-    FROM public.works
+    FROM works
     WHERE id = p_id;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the work';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- GET WORK BY PARTICIPATION ID
-CREATE OR REPLACE FUNCTION public.get_work_by_participation_id(
+CREATE OR REPLACE FUNCTION get_work_by_participation_id(
   p_participation_id uuid
 )
-RETURNS SETOF public.works AS $$
+RETURNS SETOF works AS $$
 BEGIN
   RETURN QUERY
     SELECT *
-    FROM public.works
-    WHERE participation_id = p_participation_id
-    LIMIT 1; -- Assuming one work per participation or returning the first one.
+    FROM works
+    WHERE participation_id = p_participation_id;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the work';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

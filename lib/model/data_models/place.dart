@@ -61,7 +61,6 @@ class Place extends Equatable {
     );
   }
 
-
   @override
   List<Object?> get props => [id, createdAt, address, lat, lon];
 }

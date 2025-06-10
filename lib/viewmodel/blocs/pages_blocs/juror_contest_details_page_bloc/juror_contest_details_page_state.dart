@@ -3,39 +3,31 @@ part of 'juror_contest_details_page_bloc.dart';
 @immutable
 final class JurorContestDetailsPageState extends Equatable {
   final BlocStatus status;
+  final JurorContestDetailsPageEvent? sourceEvent;
   final String? message;
-  final Contest? contest;
-  final Place? place;
-  final Profile? organizer;
-  final bool isVotingSessionProcedureLive;
+  final ContestDetailsBundle? contestDetailsBundle;
 
   const JurorContestDetailsPageState({
     required this.status,
+    this.sourceEvent,
     this.message,
-    this.contest,
-    this.place,
-    this.organizer,
-    this.isVotingSessionProcedureLive = false,
+    this.contestDetailsBundle,
   });
 
   JurorContestDetailsPageState copyWith({
     required BlocStatus status,
+    JurorContestDetailsPageEvent? sourceEvent,
     String? message,
-    Contest? contest,
-    Profile? organizer,
-    Place? place,
-    bool? isVotingSessionProcedureLive,
+    ContestDetailsBundle? contestDetailsBundle,
   }) {
     return JurorContestDetailsPageState(
       status: status,
+      sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      contest: contest ?? this.contest,
-      organizer: organizer ?? this.organizer,
-      place: place ?? this.place,
-      isVotingSessionProcedureLive: isVotingSessionProcedureLive ?? this.isVotingSessionProcedureLive,
+      contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
     );
   }
 
   @override
-  List<Object?> get props => [status, message, contest, organizer, place, isVotingSessionProcedureLive,];
+  List<Object?> get props => [status, sourceEvent, message, contestDetailsBundle];
 }

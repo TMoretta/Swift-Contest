@@ -5,7 +5,7 @@ import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_page_bloc/sign_up_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -25,215 +25,188 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SizedBox(
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      //* Title
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Swift Contest',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 48,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          Text(
-                            'Welcome to your contest manager',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 12,
-                      ),
-                      //* Form
-                      BlocConsumer<AuthBloc, AuthState>(
-                        //* SignUpPageBloc listener
-                        listener: (context, state) {
-                          //* Show a message if there is one
-                          if (state.message != null) {
-                            showSnackBar(context: context, text: state.message!);
-                          }
-                          //* Show a message to verify email and go to sign up verify page
-                          if (state.blocStatus.isSuccess) {
-                            showSnackBar(
-                              context: context,
-                              text: 'A code has been sent to your email. '
-                                  'Please check your inbox and verify your account.',
-                            );
-                            context.goNamed(AppRouter.signUpVerify,
-                                extra: _emailController.text.trim());
-
-                            // showDialog(
-                            //   context: context,
-                            //   builder: (context) => AlertDialog(
-                            //     title: const Text('Verify email'),
-                            //     content: Text(
-                            //       'A code has been sent to your email. '
-                            //       'Please check your inbox and verify your account.',
-                            //     ),
-                            //     actions: [
-                            //       TextButton(
-                            //         onPressed: () {
-                            //           context.pop();
-                            //           context.pushNamed(AppRouter.signInVerify,
-                            //               extra: _emailController.text.trim());
-                            //         },
-                            //         child: const Text('OK'),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // );
-                          }
-                        },
-                        //* SignUpPageBloc builder
-                        builder: (context, state) {
-                          if (state.blocStatus.isLoading) {
-                            return const Loader();
-                          }
-                          return Form(
-                            key: _formKey,
-                            child: Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  //* Full name field
-                                  CustomTextFormFieldOutlined(
-                                    controller: _fullNameController,
-                                    label: 'Full name',
-                                    validator: (value) => _fullNameValidator(value?.trim()),
-                                    prefixIcon: Icon(Icons.person_outlined),
-                                  ),
-                                  SizedBox(height: 12),
-                                  //* Email field
-                                  CustomTextFormFieldOutlined(
-                                    controller: _emailController,
-                                    label: 'Email',
-                                    validator: (value) => _emailValidator(value?.trim()),
-                                    prefixIcon: Icon(Icons.email_outlined),
-                                  ),
-                                  //* Password field
-                                  CustomTextFormFieldOutlined(
-                                    controller: _passwordController,
-                                    label: 'Password',
-                                    prefixIcon: Icon(Icons.lock),
-                                  ),
-                                  SizedBox(height: 10),
-                                  //* Sign up button
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        if (_formKey.currentState?.validate() ?? false) {
-                                          context.read<AuthBloc>().add(
-                                              AuthSignUpWithEmailAndPassword(
-                                                  email: _emailController.text.trim(),
-                                                  fullName: _fullNameController.text.trim(),
-                                                  password: _passwordController.text.trim()));
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Theme.of(context).colorScheme.primary,
-                                        foregroundColor: Colors.white,
-                                      ),
-                                      child: const Text(
-                                        'Sign up',
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  //* Sign in instead button
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Already have an account?',
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.onSurface,
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            context.goNamed(AppRouter.signIn);
-                                          },
-                                          style: ButtonStyle(),
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              border: Border(
-                                                bottom: BorderSide(
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                ),
-                                              ),
-                                            ),
-                                            child: Text(
-                                              'Sign in',
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.primary,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: 24),
-                                  //* Vote as a guest button
-                                  TextButton(
-                                    onPressed: () {},
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                              color: Theme.of(context).colorScheme.secondary),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'Vote in a contest as a guest',
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.secondary,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          // color: Theme.of(context).colorScheme.surface,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+        child: Center(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              //* Title
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Swift Contest',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 48,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
+                  Text(
+                    'Welcome to your contest manager',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-            );
-          },
+              SizedBox(
+                height: 12,
+              ),
+              //* Form
+              BlocConsumer<SignUpPageBloc, SignUpPageState>(
+                listener: (context, state) {
+                  //* Show a message in case of failure if there is one
+                  if (state.message != null) {
+                    showSnackBar(context: context, text: state.message!);
+                  }
+                  //* Show a message to verify email and go to sign up verify page
+                  if (state.status.isSuccess && state.sourceEvent is SignUpWithEmailAndPassword) {
+                    showSnackBar(
+                      context: context,
+                      text: 'A code has been sent to your email. '
+                          'Please check your inbox and verify your account.',
+                    );
+                    context.pushNamed(AppRouter.signUpVerify,
+                        extra: _emailController.text.trim());
+                  }
+                },
+                //* SignUpPageBloc builder
+                builder: (context, state) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return SizedBox.shrink();
+                    case BlocStatus.loading:
+                      return const Loader();
+                    case BlocStatus.failure:
+                    case BlocStatus.success:
+                      return Form(
+                        key: _formKey,
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              //* Full name field
+                              CustomTextFormFieldOutlined(
+                                controller: _fullNameController,
+                                label: 'Full name',
+                                validator: (value) => _fullNameValidator(value?.trim()),
+                                prefixIcon: Icon(Icons.person_outlined),
+                              ),
+                              SizedBox(height: 12),
+                              //* Email field
+                              CustomTextFormFieldOutlined(
+                                controller: _emailController,
+                                label: 'Email',
+                                validator: (value) => _emailValidator(value?.trim()),
+                                prefixIcon: Icon(Icons.email_outlined),
+                              ),
+                              //* Password field
+                              CustomTextFormFieldOutlined(
+                                controller: _passwordController,
+                                label: 'Password',
+                                prefixIcon: Icon(Icons.lock),
+                              ),
+                              SizedBox(height: 10),
+                              //* Sign up button
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (_formKey.currentState?.validate() ?? false) {
+                                      context.read<SignUpPageBloc>().add(
+                                          SignUpWithEmailAndPassword(
+                                              email: _emailController.text.trim(),
+                                              fullName: _fullNameController.text.trim(),
+                                              password: _passwordController.text.trim()));
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context).colorScheme.primary,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text(
+                                    'Sign up',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              //* Sign in instead button
+                              Align(
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Already have an account?',
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        context.replaceNamed(AppRouter.signIn);
+                                      },
+                                      style: ButtonStyle(),
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: Theme.of(context).colorScheme.primary,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Sign in',
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.primary,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 24),
+                              //* Vote as a guest button
+                              TextButton(
+                                onPressed: () {},
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                          color: Theme.of(context).colorScheme.secondary),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Vote in a contest as a guest',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.secondary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      // color: Theme.of(context).colorScheme.surface,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

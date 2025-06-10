@@ -3,47 +3,30 @@ part of 'juror_home_page_bloc.dart';
 @immutable
 final class JurorHomePageState extends Equatable {
   final BlocStatus status;
+  final JurorHomePageEvent? sourceEvent;
   final String? message;
-  final Juration? jurationJoin;
-  final String? contestId;
-  final VotingSession? votingSession;
-  final VotingSessionSimpleJuror? votingSessionSimpleJuror;
+  final List<HomeContestBundle>? joinedContestsBundles;
 
   const JurorHomePageState({
     required this.status,
+    this.sourceEvent,
     this.message,
-    this.jurationJoin,
-    this.contestId,
-    this.votingSession,
-    this.votingSessionSimpleJuror,
+    this.joinedContestsBundles,
   });
 
   JurorHomePageState copyWith({
     required BlocStatus status,
+    JurorHomePageEvent? sourceEvent,
     String? message,
-    Juration? jurationJoin,
-    String? contestId,
-    VotingSession? votingSession,
-    VotingSessionSimpleJuror? votingSessionSimpleJuror,
+    List<HomeContestBundle>? joinedContestsBundles,
   }) {
     return JurorHomePageState(
-      status: status,
-      message: message,
-      jurationJoin: jurationJoin ?? this.jurationJoin,
-      contestId: contestId ?? this.contestId,
-      votingSession: votingSession ?? this.votingSession,
-      votingSessionSimpleJuror:
-          votingSessionSimpleJuror ?? this.votingSessionSimpleJuror,
-    );
+        status: status,
+        sourceEvent: sourceEvent ?? this.sourceEvent,
+        message: message,
+        joinedContestsBundles: joinedContestsBundles ?? this.joinedContestsBundles);
   }
 
   @override
-  List<Object?> get props => [
-        status,
-        message,
-        jurationJoin,
-        contestId,
-        votingSession,
-        votingSessionSimpleJuror,
-      ];
+  List<Object?> get props => [status, sourceEvent, message, joinedContestsBundles];
 }

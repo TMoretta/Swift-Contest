@@ -11,12 +11,9 @@ import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submit_page_bloc/participant_work_submit_page_bloc.dart';
-import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/storage_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class ParticipantWorkSubmitPage extends StatefulWidget {
   final String contestId;
@@ -54,9 +51,9 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ParticipantWorkSubmitPageBloc(
-        workRepository: context.read<WorkRepository>(),
-        storageRepository: context.read<StorageRepository>(),
-        participationRepository: context.read<ParticipationRepository>(),
+        workRepository: context.read(),
+        storageRepository: context.read(),
+        participationRepository: context.read(),
       ),
       child: BlocBuilder<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
         builder: (context, state) {
@@ -112,7 +109,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                             if (state.status.isSuccess) {
                               showSnackBar(
                                   context: context, text: 'Work submitted successfully');
-                              context.pop();
+                              context.pop(true);
                             }
                             if(state.status.isFailure) {
                               showSnackBar(context: context, text: state.message!);
@@ -315,13 +312,6 @@ String? descriptionValidator(String? value) {
 
 String? imagesValidator(List<XFile> images) {
   if (images.isEmpty) {
-    return '';
-  }
-  return null;
-}
-
-String? noEmptyValidator(String? value) {
-  if (value == null || value.isEmpty) {
     return '';
   }
   return null;

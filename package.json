@@ -1,5 +1,8 @@
 {
   "devDependencies": {
-    "supabase": "^2.22.12"
+    "supabase": "^2.24.3"
+  },
+  "dependencies": {
+    "deno": "^2.3.3"
   }
 }

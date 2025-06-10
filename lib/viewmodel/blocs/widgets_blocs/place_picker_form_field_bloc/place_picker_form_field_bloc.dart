@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
+import 'package:swift_contest/model/repositories/google_place_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/repositories/google_place_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 part 'place_picker_form_field_event.dart';
@@ -25,28 +25,28 @@ class PlacePickerFormFieldBloc extends Bloc<PlacePickerFormFieldEvent, PlacePick
   }
 
   Future<void> _fetchPlace(
-    PlacePickerFormFieldFetchPlace event,
-    Emitter<PlacePickerFormFieldState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading));
+      PlacePickerFormFieldFetchPlace event,
+      Emitter<PlacePickerFormFieldState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
     final res = await _googlePlaceRepository.fetchPlace(id: event.id);
     res.fold(
-      (failure) =>
+          (failure) =>
           emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, googlePlace: success)),
+          (success) => emit(state.copyWith(status: BlocStatus.success, googlePlace: success)),
     );
   }
 
   Future<void> _searchPlaceSuggestions(
-    PlacePickerFormFieldSearchPlaceSuggestions event,
-    Emitter<PlacePickerFormFieldState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading));
+      PlacePickerFormFieldSearchPlaceSuggestions event,
+      Emitter<PlacePickerFormFieldState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
     final res = await _googlePlaceRepository.searchPlaceSuggestions(query: event.query);
     res.fold(
-      (failure) =>
+          (failure) =>
           emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) =>
+          (success) =>
           emit(state.copyWith(status: BlocStatus.success, googlePlaceSuggestions: success)),
     );
   }

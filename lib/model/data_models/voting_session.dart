@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/enums/voting_session_status.dart';
 
 class VotingSession extends Equatable {
   final String id;
@@ -10,11 +11,15 @@ class VotingSession extends Equatable {
   final Duration workTimer;
   final Duration intermissionTimer;
   final Duration reviewTimer;
-  final bool isEnded;
   final String token;
   final bool isGeoRestricted;
   final String? geoRestrictionPlaceId;
   final int? geoRestrictionRadius;
+
+  // Procedure attributes
+  final VotingSessionStatus sessionStatus;
+  final int? currentParticipantIndex;
+  final DateTime? currentStepDeadline;
 
   const VotingSession({
     required this.id,
@@ -26,11 +31,13 @@ class VotingSession extends Equatable {
     required this.workTimer,
     required this.intermissionTimer,
     required this.reviewTimer,
-    required this.isEnded,
     required this.token,
     required this.isGeoRestricted,
     required this.geoRestrictionPlaceId,
     required this.geoRestrictionRadius,
+    required this.sessionStatus,
+    this.currentParticipantIndex,
+    this.currentStepDeadline,
   });
 
   factory VotingSession.fromJson(Map<String, dynamic> json) {
@@ -44,11 +51,15 @@ class VotingSession extends Equatable {
       workTimer: Duration(seconds: json['work_timer']),
       intermissionTimer: Duration(seconds: json['intermission_timer']),
       reviewTimer: Duration(seconds: json['review_timer']),
-      isEnded: json['is_ended'] as bool,
       token: json['token'] as String,
       isGeoRestricted: json['is_geo_restricted'] as bool,
       geoRestrictionPlaceId: json['geo_restriction_place_id'] as String?,
       geoRestrictionRadius: json['geo_restriction_radius'] as int?,
+      sessionStatus: VotingSessionStatus.values.byName(json['session_status']),
+      currentParticipantIndex: json['current_participant_index'] as int?,
+      currentStepDeadline: (json['current_step_deadline'] != null)
+          ? DateTime.parse(json['current_step_deadline']).toLocal()
+          : null,
     );
   }
 
@@ -63,11 +74,13 @@ class VotingSession extends Equatable {
       'work_timer': workTimer.inSeconds,
       'intermission_timer': intermissionTimer.inSeconds,
       'review_timer': reviewTimer.inSeconds,
-      'is_ended': isEnded,
       'token': token,
       'is_geo_restricted': isGeoRestricted,
       'geo_restriction_place_id': geoRestrictionPlaceId,
       'geo_restriction_radius': geoRestrictionRadius,
+      'session_status': sessionStatus.name,
+      'current_participant_index': currentParticipantIndex,
+      'current_step_deadline': currentStepDeadline?.toUtc().toIso8601String(),
     };
   }
 
@@ -82,11 +95,13 @@ class VotingSession extends Equatable {
       'p_work_timer': workTimer.inSeconds,
       'p_intermission_timer': intermissionTimer.inSeconds,
       'p_review_timer': reviewTimer.inSeconds,
-      'p_is_ended': isEnded,
       'p_token': token,
       'p_is_geo_restricted': isGeoRestricted,
       'p_geo_restriction_place_id': geoRestrictionPlaceId,
       'p_geo_restriction_radius': geoRestrictionRadius,
+      'p_session_status': sessionStatus.name,
+      'p_current_participant_index': currentParticipantIndex,
+      'p_current_step_deadline': currentStepDeadline?.toUtc().toIso8601String(),
     };
   }
 
@@ -100,11 +115,13 @@ class VotingSession extends Equatable {
     Duration? workTimer,
     Duration? intermissionTimer,
     Duration? reviewTimer,
-    bool? isEnded,
     String? token,
     bool? isGeoRestricted,
     String? geoRestrictionPlaceId,
     int? geoRestrictionRadius,
+    VotingSessionStatus? sessionStatus,
+    int? currentParticipantIndex,
+    DateTime? currentStepDeadline,
   }) {
     return VotingSession(
       id: id ?? this.id,
@@ -116,11 +133,13 @@ class VotingSession extends Equatable {
       workTimer: workTimer ?? this.workTimer,
       intermissionTimer: intermissionTimer ?? this.intermissionTimer,
       reviewTimer: reviewTimer ?? this.reviewTimer,
-      isEnded: isEnded ?? this.isEnded,
       token: token ?? this.token,
       isGeoRestricted: isGeoRestricted ?? this.isGeoRestricted,
       geoRestrictionPlaceId: geoRestrictionPlaceId ?? this.geoRestrictionPlaceId,
       geoRestrictionRadius: geoRestrictionRadius ?? this.geoRestrictionRadius,
+      sessionStatus: sessionStatus ?? this.sessionStatus,
+      currentParticipantIndex: currentParticipantIndex ?? this.currentParticipantIndex,
+      currentStepDeadline: currentStepDeadline ?? this.currentStepDeadline,
     );
   }
 
@@ -135,10 +154,12 @@ class VotingSession extends Equatable {
         workTimer,
         intermissionTimer,
         reviewTimer,
-        isEnded,
         token,
         isGeoRestricted,
         geoRestrictionPlaceId,
         geoRestrictionRadius,
+        sessionStatus,
+        currentParticipantIndex,
+        currentStepDeadline,
       ];
 }

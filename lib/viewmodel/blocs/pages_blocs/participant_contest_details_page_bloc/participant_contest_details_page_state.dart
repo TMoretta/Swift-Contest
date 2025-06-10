@@ -1,42 +1,48 @@
 part of 'participant_contest_details_page_bloc.dart';
 
 @immutable
-class ParticipantContestDetailsPageState {
+final class ParticipantContestDetailsPageState extends Equatable {
   final BlocStatus status;
+  final ParticipantContestDetailsPageEvent? sourceEvent;
   final String? message;
-  final Contest? contest;
-  final Place? place;
-  final Profile? organizer;
-  final Participation? ownParticipation;
-  final Work? ownWork;
+  final ContestDetailsBundle? contestDetailsBundle;
+  final Work? submittedWork;
+  // final Participation? ownParticipation;
 
   const ParticipantContestDetailsPageState({
     required this.status,
+    this.sourceEvent,
     this.message,
-     this.contest,
-    this.place,
-     this.organizer,
-     this.ownParticipation,
-     this.ownWork,
+    this.contestDetailsBundle,
+    this.submittedWork,
+    // this.ownParticipation,
   });
 
   ParticipantContestDetailsPageState copyWith({
     required BlocStatus status,
+    ParticipantContestDetailsPageEvent? sourceEvent,
     String? message,
-    Contest? contest,
-    Place? place,
-    Profile? organizer,
+    ContestDetailsBundle? contestDetailsBundle,
+    Work? submittedWork,
     Participation? ownParticipation,
-    Work? ownWork,
   }) {
     return ParticipantContestDetailsPageState(
       status: status,
+      sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      place: place ?? this.place,
-      contest: contest ?? this.contest,
-      organizer: organizer ?? this.organizer,
-      ownParticipation: ownParticipation ?? this.ownParticipation,
-      ownWork: ownWork ?? this.ownWork,
+      contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
+      submittedWork: submittedWork ?? this.submittedWork,
+      // ownParticipation: ownParticipation ?? this.ownParticipation,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        status,
+        sourceEvent,
+        message,
+        contestDetailsBundle,
+        submittedWork,
+        // ownParticipation,
+      ];
 }

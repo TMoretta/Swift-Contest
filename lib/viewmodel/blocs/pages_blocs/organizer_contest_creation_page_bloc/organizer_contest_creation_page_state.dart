@@ -3,27 +3,23 @@ part of 'organizer_contest_creation_page_bloc.dart';
 @immutable
 final class OrganizerContestCreationPageState extends Equatable {
   final BlocStatus status;
+  final OrganizerContestCreationPageEvent? sourceEvent;
   final String? message;
-  final Contest? contest;
 
-  const OrganizerContestCreationPageState({
-    required this.status,
-    this.message,
-    this.contest,
-  });
+  const OrganizerContestCreationPageState({required this.status, this.sourceEvent, this.message,});
 
   OrganizerContestCreationPageState copyWith({
     required BlocStatus status,
+    OrganizerContestCreationPageEvent? sourceEvent,
     String? message,
-    Contest? contest,
   }) {
     return OrganizerContestCreationPageState(
       status: status,
+      sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      contest: contest ?? this.contest,
     );
   }
 
   @override
-  List<Object?> get props => [status, message, contest];
+  List<Object?> get props => [status, sourceEvent, message];
 }

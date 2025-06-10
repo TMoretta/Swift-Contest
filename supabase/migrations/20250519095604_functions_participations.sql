@@ -1,119 +1,171 @@
 -- CREATE PARTICIPATION
-CREATE OR REPLACE FUNCTION public.create_participation (
-  p_id uuid,
-  p_created_at timestamptz,
-  p_contest_id uuid,
-  p_participant_id uuid,
-  p_participant_status public.participant_status,
-  p_work_status public.work_status
+CREATE OR REPLACE FUNCTION create_participation (
+  p_participation participations
 )
-RETURNS SETOF public.participations AS $$
+RETURNS participations AS $$
+DECLARE
+  v_participation participations;
 BEGIN
-  RETURN QUERY
-    INSERT INTO public.participations (
-      id,
-      created_at,
-      contest_id,
-      participant_id,
-      participant_status,
-      work_status
-    )
-    VALUES (
-      p_id,
-      p_created_at,
-      p_contest_id,
-      p_participant_id,
-      p_participant_status,
-      p_work_status
-    )
-    RETURNING *;
+  INSERT INTO participations (
+    id,
+    created_at,
+    contest_id,
+    participant_id,
+    participant_status,
+    has_submitted
+  )
+  VALUES (
+    p_participation.id,
+    p_participation.created_at,
+    p_participation.contest_id,
+    p_participation.participant_id,
+    p_participation.participant_status,
+    p_participation.has_submitted
+  )
+  RETURNING * INTO STRICT v_participation;
+
+  RETURN v_participation;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while creating the participation';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- UPDATE PARTICIPATION BY ID
-CREATE OR REPLACE FUNCTION public.update_participation (
-  p_id uuid,
-  p_created_at timestamptz,
-  p_contest_id uuid,
-  p_participant_id uuid,
-  p_participant_status public.participant_status,
-  p_work_status public.work_status
+CREATE OR REPLACE FUNCTION update_participation (
+  p_participation participations
 )
-RETURNS SETOF public.participations AS $$
+RETURNS participations AS $$
+DECLARE
+  v_participation participations;
 BEGIN
-  RETURN QUERY
-    UPDATE public.participations
-    SET
-      created_at = p_created_at,
-      contest_id = p_contest_id,
-      participant_id = p_participant_id,
-      participant_status = p_participant_status,
-      work_status = p_work_status
-    WHERE id = p_id
-    RETURNING *;
+  -- Verify if the participation exists
+  IF NOT EXISTS (SELECT 1 FROM participations WHERE id = p_participation.id) THEN
+    RAISE EXCEPTION 'No participation found';
+  END IF;
+
+  UPDATE participations
+  SET
+    contest_id = p_participation.contest_id,
+    participant_id = p_participation.participant_id,
+    participant_status = p_participation.participant_status,
+    has_submitted = p_participation.has_submitted
+  WHERE id = p_participation.id
+  RETURNING * INTO STRICT v_participation;
+
+  RETURN v_participation;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while updating the participation';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- DELETE PARTICIPATION BY ID
-CREATE OR REPLACE FUNCTION public.delete_participation_by_id(
+CREATE OR REPLACE FUNCTION delete_participation_by_id(
   p_id uuid
 )
-RETURNS void AS $$
+RETURNS participations AS $$
+DECLARE
+  v_participation participations;
 BEGIN
-  DELETE FROM public.participations
-  WHERE id = p_id;
+  -- Verify if the participation exists
+  IF NOT EXISTS (SELECT 1 FROM participations WHERE id = p_id) THEN
+    RAISE EXCEPTION 'No participation found';
+  END IF;
+
+  DELETE FROM participations
+  WHERE id = p_id
+  RETURNING * INTO STRICT v_participation;
+
+  RETURN v_participation;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while deleting the participation';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- GET PARTICIPATION BY ID
-CREATE OR REPLACE FUNCTION public.get_participation_by_id(
+CREATE OR REPLACE FUNCTION get_participation_by_id(
   p_id uuid
 )
-RETURNS SETOF public.participations AS $$
+RETURNS SETOF participations AS $$
 BEGIN
   RETURN QUERY
     SELECT *
-    FROM public.participations
+    FROM participations
     WHERE id = p_id;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the participation';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- GET PARTICIPATION BY CONTEST ID AND PARTICIPANT ID
-CREATE OR REPLACE FUNCTION public.get_participation_by_contest_id_and_participant_id(
+CREATE OR REPLACE FUNCTION get_participation_by_contest_id_and_participant_id(
   p_contest_id uuid,
   p_participant_id uuid
 )
-RETURNS SETOF public.participations AS $$
+RETURNS SETOF participations AS $$
 BEGIN
   RETURN QUERY
     SELECT *
-    FROM public.participations
+    FROM participations
     WHERE contest_id = p_contest_id AND participant_id = p_participant_id;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the participation';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- GET PARTICIPATIONS BY CONTEST ID
-CREATE OR REPLACE FUNCTION public.get_participations_by_contest_id(
+CREATE OR REPLACE FUNCTION get_participations_by_contest_id(
   p_contest_id uuid
 )
-RETURNS SETOF public.participations AS $$
+RETURNS SETOF participations AS $$
 BEGIN
   RETURN QUERY
   SELECT *
-  FROM public.participations
+  FROM participations
   WHERE contest_id = p_contest_id;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the participations';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- GET PARTICIPATIONS BY PARTICIPANT ID
-CREATE OR REPLACE FUNCTION public.get_participations_by_participant_id(
+CREATE OR REPLACE FUNCTION get_participations_by_participant_id(
   p_participant_id uuid
 )
-RETURNS SETOF public.participations AS $$
+RETURNS SETOF participations AS $$
 BEGIN
   RETURN QUERY
   SELECT *
-  FROM public.participations
+  FROM participations
   WHERE participant_id = p_participant_id;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the participations';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

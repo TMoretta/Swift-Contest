@@ -4,33 +4,24 @@ sealed class JurorHomePageEvent extends Equatable {
   const JurorHomePageEvent();
 }
 
+final class JurorHomePageGetJoinedContests extends JurorHomePageEvent {
+  final String jurorId;
+
+  const JurorHomePageGetJoinedContests({required this.jurorId});
+
+  @override
+  List<Object?> get props => [jurorId];
+}
+
 final class JurorHomePageJoinContest extends JurorHomePageEvent {
   final String jurorId;
-  final String contestToken;
-  final String jurorToken;
+  final String token;
 
   const JurorHomePageJoinContest({
     required this.jurorId,
-    required this.contestToken,
-    required this.jurorToken,
+    required this.token,
   });
 
   @override
-  List<Object?> get props => [jurorId, contestToken, jurorToken];
-}
-
-final class JurorHomePageVoteAsSimpleJuror extends JurorHomePageEvent {
-  final String votingSessionToken;
-  final String fullName;
-
-  const JurorHomePageVoteAsSimpleJuror({
-    required this.votingSessionToken,
-    required this.fullName,
-  });
-
-  @override
-  List<Object?> get props => [
-        votingSessionToken,
-        fullName,
-      ];
+  List<Object?> get props => [jurorId, token];
 }

@@ -5,14 +5,14 @@ class SimpleJurorVoting extends Equatable {
   final DateTime createdAt;
   final String votingSessionId;
   final String votingSessionSimpleJurorId;
-  final String votingSessionParticipantId;
+  final String votingSessionParticipationId;
 
   const SimpleJurorVoting({
     required this.id,
     required this.createdAt,
     required this.votingSessionId,
     required this.votingSessionSimpleJurorId,
-    required this.votingSessionParticipantId,
+    required this.votingSessionParticipationId,
   });
 
   factory SimpleJurorVoting.fromJson(Map<String, dynamic> json) {
@@ -22,8 +22,8 @@ class SimpleJurorVoting extends Equatable {
       votingSessionId: json['voting_session_id'] as String,
       votingSessionSimpleJurorId:
           json['voting_session_simple_juror_id'] as String,
-      votingSessionParticipantId:
-          json['voting_session_participant_id'] as String,
+      votingSessionParticipationId:
+          json['voting_session_participation_id'] as String,
     );
   }
 
@@ -33,7 +33,7 @@ class SimpleJurorVoting extends Equatable {
       'created_at': createdAt.toUtc().toIso8601String(),
       'voting_session_id': votingSessionId,
       'voting_session_simple_juror_id': votingSessionSimpleJurorId,
-      'voting_session_participant_id': votingSessionParticipantId,
+      'voting_session_participation_id': votingSessionParticipationId,
     };
   }
 
@@ -43,7 +43,7 @@ class SimpleJurorVoting extends Equatable {
       'p_created_at': createdAt.toUtc().toIso8601String(),
       'p_voting_session_id': votingSessionId,
       'p_voting_session_simple_juror_id': votingSessionSimpleJurorId,
-      'p_voting_session_participant_id': votingSessionParticipantId,
+      'p_voting_session_participation_id': votingSessionParticipationId,
     };
   }
 
@@ -53,6 +53,6 @@ class SimpleJurorVoting extends Equatable {
         createdAt,
         votingSessionId,
         votingSessionSimpleJurorId,
-        votingSessionParticipantId,
+        votingSessionParticipationId,
       ];
 }

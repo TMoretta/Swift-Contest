@@ -1,2 +1,2 @@
 ALTER PUBLICATION supabase_realtime
-ADD TABLE public.voting_session_procedures;
+ADD TABLE public.voting_sessions;

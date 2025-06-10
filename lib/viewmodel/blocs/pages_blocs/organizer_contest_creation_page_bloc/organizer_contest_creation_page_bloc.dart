@@ -1,19 +1,22 @@
+import 'dart:async';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
-import 'package:swift_contest/model/services/storage_service.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/contest_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/place_repository.dart';
+import 'package:swift_contest/model/repositories/storage_repository.dart';
+import 'package:swift_contest/model/repositories/utils_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_form_repository.dart';
+import 'package:swift_contest/utils/functions/gen_uuid.dart';
+import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/storage_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
-import 'package:uuid/uuid.dart';
 
 part 'organizer_contest_creation_page_event.dart';
 
@@ -26,6 +29,7 @@ class OrganizerContestCreationPageBloc
   final PlaceRepository _placeRepository;
   final UtilsRepository _utilsRepository;
   final VotingFormRepository _votingFormRepository;
+  final OrganizerRepository _organizerRepository;
 
   OrganizerContestCreationPageBloc({
     required ContestRepository contestRepository,
@@ -33,119 +37,86 @@ class OrganizerContestCreationPageBloc
     required PlaceRepository placeRepository,
     required UtilsRepository utilsRepository,
     required VotingFormRepository votingFormRepository,
+    required OrganizerRepository organizerRepository,
   })  : _contestRepository = contestRepository,
         _storageRepository = storageRepository,
-        _utilsRepository = utilsRepository,
         _placeRepository = placeRepository,
+        _utilsRepository = utilsRepository,
         _votingFormRepository = votingFormRepository,
+        _organizerRepository = organizerRepository,
         super(OrganizerContestCreationPageState(status: BlocStatus.initial)) {
     on<OrganizerContestCreationPageCreateContest>(_createContest);
   }
 
-  Future<void> _createContest(
+  FutureOr<void> _createContest(
     OrganizerContestCreationPageCreateContest event,
     Emitter<OrganizerContestCreationPageState> emit,
   ) async {
-    emit(OrganizerContestCreationPageState(status: BlocStatus.loading));
+    emit(OrganizerContestCreationPageState(status: BlocStatus.loading, sourceEvent: event));
 
-    late final Place place;
-    final eitherPlace = await _placeRepository.createPlace(
-        place: Place(
-            id: Uuid().v4(),
-            createdAt: DateTime.now(),
-            address: event.placeAddress,
-            lat: event.placeLat,
-            lon: event.placeLon));
-    eitherPlace.fold(
-      (failure) => emit(
-          OrganizerContestCreationPageState(status: BlocStatus.failure, message: failure.message)),
-      (success) => place = success,
+    final Place place = Place(
+      id: genUuid(),
+      createdAt: now(),
+      address: event.placeAddress,
+      lat: event.placeLat,
+      lon: event.placeLon,
     );
-    if (eitherPlace.isLeft()) return;
+
+    final VotingForm votingForm = VotingForm(
+      id: genUuid(),
+      createdAt: now(),
+    );
 
     late final List<String> imagesUrls;
     final eitherImagesUrls = await _storageRepository.uploadImages(
         bucket: StorageBucket.contestsImages, images: event.images);
     eitherImagesUrls.fold(
-      (failure) => emit(
-          OrganizerContestCreationPageState(status: BlocStatus.failure, message: failure.message)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => imagesUrls = success,
     );
     if (eitherImagesUrls.isLeft()) return;
 
     late final String token;
     final eitherToken = await _utilsRepository.genUniqueToken(
-        tableName: 'contests', columnName: 'token', length: 8);
+        tableName: 'contests', columnName: 'token', length: 14);
     eitherToken.fold(
-      (failure) => emit(
-          OrganizerContestCreationPageState(status: BlocStatus.failure, message: failure.message)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => token = success,
     );
     if (eitherToken.isLeft()) return;
 
-    late final VotingForm votingForm;
-    final eitherVotingForm = await _votingFormRepository.createVotingForm(
-        votingForm: VotingForm(id: Uuid().v4(), createdAt: DateTime.now()));
-
-    eitherVotingForm.fold(
-      (failure) => emit(
-          OrganizerContestCreationPageState(status: BlocStatus.failure, message: failure.message)),
-      (success) => votingForm = success,
-    );
-    if (eitherVotingForm.isLeft()) return;
-
-    // late final VotingConfiguration votingConfiguration;
-    // final eitherVotingConfiguration =
-    //     await _votingConfigurationRepository.createVotingConfiguration(
-    //   votingConfiguration: VotingConfiguration(
-    //     id: Uuid().v4(),
-    //     createdAt: DateTime.now(),
-    //     votingFormId: votingForm.id,
-    //   ),
-    // );
-    //
-    // eitherVotingConfiguration.fold(
-    //   (failure) => emit(
-    //       OrganizerContestCreationPageState(status: BlocStatus.failure, message: failure.message)),
-    //   (success) => votingConfiguration = success,
-    // );
-    // if (eitherVotingConfiguration.isLeft()) return;
-
     late final ContestStatus contestStatus;
-    final now = DateTime.now();
-    if (now.isBefore(event.worksSubmissionFrom)) {
+    final nowt = DateTime.now();
+    if (nowt.isBefore(event.worksSubmissionFrom)) {
       contestStatus = ContestStatus.preparationPhase;
-    } else if (now.isBefore(event.worksSubmissionTo)) {
+    } else if (nowt.isBefore(event.worksSubmissionTo)) {
       contestStatus = ContestStatus.preparationPhase;
     } else {
       contestStatus = ContestStatus.votingPhase;
     }
 
-    late final Contest contest;
-    final eitherContest = await _contestRepository.createContest(
-        contest: Contest(
-      id: Uuid().v4(),
-      createdAt: DateTime.now(),
+    final Contest contest = Contest(
+      id: genUuid(),
+      createdAt: now(),
       organizerId: event.organizerId,
       name: event.name,
       description: event.description,
       dateTime: event.dateTime,
       worksSubmissionFrom: event.worksSubmissionFrom,
       worksSubmissionTo: event.worksSubmissionTo,
+      imagesUrls: imagesUrls,
       placeId: place.id,
       contestStatus: contestStatus,
-      imagesUrls: imagesUrls,
       token: token,
       votingFormId: votingForm.id,
       isDeleted: false,
-    ));
-    eitherContest.fold(
-      (failure) => emit(
-          OrganizerContestCreationPageState(status: BlocStatus.failure, message: failure.message)),
-      (success) => contest = success,
     );
-    if (eitherContest.isLeft()) return;
 
-    emit(OrganizerContestCreationPageState(status: BlocStatus.success, contest: contest));
+    final eitherCreateContest = await _organizerRepository.createContest(
+        contest: contest, place: place, votingForm: votingForm);
+    eitherCreateContest.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
   }
 }

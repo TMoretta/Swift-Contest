@@ -3,28 +3,22 @@ import 'package:equatable/equatable.dart';
 class JurorVoting extends Equatable {
   final String id;
   final DateTime createdAt;
-  final String votingSessionId;
-  final String votingSessionJurorId;
-  final String votingSessionParticipantId;
-  final bool isExcluded;
+  final String votingSessionJurationId;
+  final String votingSessionParticipationId;
 
   const JurorVoting({
     required this.id,
     required this.createdAt,
-    required this.votingSessionId,
-    required this.votingSessionJurorId,
-    required this.votingSessionParticipantId,
-    required this.isExcluded,
+    required this.votingSessionJurationId,
+    required this.votingSessionParticipationId,
   });
 
   factory JurorVoting.fromJson(Map<String, dynamic> json) {
     return JurorVoting(
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
-      votingSessionId: json['voting_session_id'] as String,
-      votingSessionJurorId: json['voting_session_juror_id'] as String,
-      votingSessionParticipantId: json['voting_session_participant_id'] as String,
-      isExcluded: json['is_excluded'] as bool,
+      votingSessionJurationId: json['voting_session_juration_id'] as String,
+      votingSessionParticipationId: json['voting_session_participation_id'] as String,
     );
   }
 
@@ -32,10 +26,8 @@ class JurorVoting extends Equatable {
     return {
       'id': id,
       'created_at': createdAt.toUtc().toIso8601String(),
-      'voting_session_id': votingSessionId,
-      'voting_session_juror_id': votingSessionJurorId,
-      'voting_session_participant_id': votingSessionParticipantId,
-      'is_excluded': isExcluded,
+      'voting_session_juration_id': votingSessionJurationId,
+      'voting_session_participation_id': votingSessionParticipationId,
     };
   }
 
@@ -43,28 +35,23 @@ class JurorVoting extends Equatable {
     return {
       'p_id': id,
       'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_voting_session_id': votingSessionId,
-      'p_voting_session_juror_id': votingSessionJurorId,
-      'p_voting_session_participant_id': votingSessionParticipantId,
-      'p_is_excluded': isExcluded,
+      'p_voting_session_juration_id': votingSessionJurationId,
+      'p_voting_session_participation_id': votingSessionParticipationId,
     };
   }
 
   JurorVoting copyWith({
     String? id,
     DateTime? createdAt,
-    String? votingSessionId,
-    String? votingSessionJurorId,
-    String? votingSessionParticipantId,
-    bool? isExcluded,
+    String? votingSessionJurationId,
+    String? votingSessionParticipationId,
   }) {
     return JurorVoting(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
-      votingSessionId: votingSessionId ?? this.votingSessionId,
-      votingSessionJurorId: votingSessionJurorId ?? this.votingSessionJurorId,
-      votingSessionParticipantId: votingSessionParticipantId ?? this.votingSessionParticipantId,
-      isExcluded: isExcluded ?? this.isExcluded,
+      votingSessionJurationId: votingSessionJurationId ?? this.votingSessionJurationId,
+      votingSessionParticipationId:
+          votingSessionParticipationId ?? this.votingSessionParticipationId,
     );
   }
 
@@ -72,9 +59,7 @@ class JurorVoting extends Equatable {
   List<Object?> get props => [
         id,
         createdAt,
-        votingSessionId,
-        votingSessionJurorId,
-        votingSessionParticipantId,
-        isExcluded,
+        votingSessionJurationId,
+        votingSessionParticipationId,
       ];
 }

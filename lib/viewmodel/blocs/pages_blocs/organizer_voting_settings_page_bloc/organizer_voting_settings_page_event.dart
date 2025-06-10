@@ -1,18 +1,17 @@
 part of 'organizer_voting_settings_page_bloc.dart';
 
-@immutable
 sealed class OrganizerVotingSettingsPageEvent extends Equatable {
   const OrganizerVotingSettingsPageEvent();
 }
 
-final class OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure
+final class OrganizerVotingSettingsPageBeginVotingProcedure
     extends OrganizerVotingSettingsPageEvent {
   final String contestId;
   final String votingFormId;
   final bool areSimpleJurorsAllowed;
-  final List<Participant> votingParticipants;
-  final List<Juror> votingJurors;
-  final List<ParticipantAndJuror> votingExclusions;
+  final List<ParticipationBundle> votingParticipationsBundles;
+  final List<JurationBundle> votingJurationsBundles;
+  final List<VotingExclusionBundle> votingExclusionsBundles;
   final Duration workTimer;
   final Duration intermissionTimer;
   final Duration reviewTimer;
@@ -23,13 +22,13 @@ final class OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure
   final int? geoRestrictionRadius;
 
 
-  const OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure({
+  const OrganizerVotingSettingsPageBeginVotingProcedure({
     required this.contestId,
     required this.votingFormId,
     required this.areSimpleJurorsAllowed,
-    required this.votingParticipants,
-    required this.votingJurors,
-    required this.votingExclusions,
+    required this.votingParticipationsBundles,
+    required this.votingJurationsBundles,
+    required this.votingExclusionsBundles,
     required this.workTimer,
     required this.intermissionTimer,
     required this.reviewTimer,
@@ -42,21 +41,21 @@ final class OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure
 
   @override
   List<Object?> get props => [
-        contestId,
-        votingFormId,
-        areSimpleJurorsAllowed,
-        votingExclusions,
-        workTimer,
-        intermissionTimer,
-        reviewTimer,
-        votingParticipants,
-        votingJurors,
-        isGeoRestricted,
-        geoRestrictionPlaceAddress,
-        geoRestrictionPlaceLat,
-        geoRestrictionPlaceLon,
-        geoRestrictionRadius,
-      ];
+    contestId,
+    votingFormId,
+    areSimpleJurorsAllowed,
+    votingExclusionsBundles,
+    workTimer,
+    intermissionTimer,
+    reviewTimer,
+    votingParticipationsBundles,
+    votingJurationsBundles,
+    isGeoRestricted,
+    geoRestrictionPlaceAddress,
+    geoRestrictionPlaceLat,
+    geoRestrictionPlaceLon,
+    geoRestrictionRadius,
+  ];
 }
 
 final class OrganizerVotingSettingsPageStartVotingSessionProcedure extends OrganizerVotingSettingsPageEvent {

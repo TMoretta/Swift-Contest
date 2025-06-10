@@ -1,4 +1,0 @@
-enum FormFieldType {
-  textual,
-  numeric,
-}

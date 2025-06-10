@@ -2,53 +2,45 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/bundles/juration_bundle.dart';
+import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/bundles/participation_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_exclusion_bundle.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
-import 'package:swift_contest/model/mixed_models/juration_and_juror.dart';
-import 'package:swift_contest/model/mixed_models/participant_and_juror.dart';
-import 'package:swift_contest/model/mixed_models/participation_and_participant.dart';
-import 'package:swift_contest/model/mixed_models/participation_and_participant_and_work.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class OrganizerVotingSettingsPage extends StatefulWidget {
-  final Map<String, dynamic> data;
+  final ContestDetailsBundle contestDetailsBundle;
 
-  const OrganizerVotingSettingsPage({super.key, required this.data});
+  const OrganizerVotingSettingsPage({required this.contestDetailsBundle, super.key});
 
   @override
-  State<OrganizerVotingSettingsPage> createState() =>
-      _OrganizerVotingSettingsPageState();
+  State<OrganizerVotingSettingsPage> createState() => _OrganizerVotingSettingsPageState();
 }
 
-class _OrganizerVotingSettingsPageState
-    extends State<OrganizerVotingSettingsPage> {
+class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
   late User user;
-  late String contestId;
-  late String votingFormId;
-  late List<ParticipationAndParticipantAndWork>
-      joinedParticipationsAndParticipantsWithWorks;
-  late List<ParticipationAndParticipant>
-      joinedParticipationsAndParticipantsWithoutWorks;
-  late List<JurationAndJuror> joinedJurationsAndJurors;
+  late ContestDetailsBundle contestDetailsBundle;
 
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
 
-  List<GlobalKey<FormState>> get formKeys =>
-      [firstFormKey, secondFormKey, thirdFormKey];
+  List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
 
   bool areSimpleJurorsAllowed = false;
-  final List<ParticipantAndJuror> votingExclusions = [];
+  final List<VotingExclusionBundle> votingExclusions = [];
   Duration workTimer = Duration(minutes: 0, seconds: 10);
   Duration intermissionTimer = Duration(minutes: 0, seconds: 10);
   Duration reviewTimer = Duration(minutes: 0, seconds: 20);
@@ -57,31 +49,21 @@ class _OrganizerVotingSettingsPageState
   final geoRestrictionPlaceController = TextEditingController();
   GooglePlace? geoRestrictionPlace;
   final geoRestrictionRadiusController = TextEditingController();
+  final List<ParticipationBundle> votingParticipationsBundles = [];
+  final List<JurationBundle> votingJurationsBundles = [];
+
+  @override
+  void initState() {
+    super.initState();
+    contestDetailsBundle = widget.contestDetailsBundle;
+    votingParticipationsBundles.addAll(contestDetailsBundle.joinedParticipationsWithWorksBundles);
+    votingJurationsBundles.addAll(contestDetailsBundle.joinedJurationsBundles);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     user = context.read<AuthBloc>().state.user!;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    final Map<String, dynamic> data = widget.data;
-    contestId = data['contest_id'] as String;
-    votingFormId = data['voting_form_id'] as String;
-    joinedParticipationsAndParticipantsWithWorks =
-        (data['joined_participants_with_works'] as List<dynamic>)
-            .map((e) => ParticipationAndParticipantAndWork.fromJson(e))
-            .toList();
-    joinedParticipationsAndParticipantsWithoutWorks =
-        (data['joined_participants_without_works'] as List<dynamic>)
-            .map((e) => ParticipationAndParticipant.fromJson(e))
-            .toList(growable: false);
-    joinedJurationsAndJurors = (data['joined_jurors'] as List<dynamic>)
-        .map((e) => JurationAndJuror.fromJson(e))
-        .toList(growable: false);
   }
 
   @override
@@ -91,12 +73,12 @@ class _OrganizerVotingSettingsPageState
         votingFormRepository: context.read(),
         votingSessionRepository: context.read(),
         votingFormFieldRepository: context.read(),
-        votingSessionParticipantRepository: context.read(),
-        votingSessionJurorRepository: context.read(),
-        votingSessionProcedureRepository: context.read(),
-        jurorVotingRepository: context.read(),
+        votingSessionParticipationRepository: context.read(),
+        votingSessionJurationRepository: context.read(),
         utilsRepository: context.read(),
         placeRepository: context.read(),
+        votingSessionExclusionRepository: context.read(),
+        organizerRepository: context.read(),
       ),
       child: Scaffold(
         appBar: AppBar(
@@ -108,15 +90,15 @@ class _OrganizerVotingSettingsPageState
               return SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                child: BlocConsumer<OrganizerVotingSettingsPageBloc,
-                    OrganizerVotingSettingsPageState>(
+                child:
+                    BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
                   listener: (context, state) {
                     if (state.status.isFailure) {
                       showSnackBar(context: context, text: state.message!);
                     }
                     if (state.status.isSuccess) {
                       context.replaceNamed(AppRouter.organizerVotingProcedure,
-                          extra: contestId);
+                          extra: state.votingSessionBundle!.toJson());
                     }
                   },
                   builder: (context, state) {
@@ -124,35 +106,25 @@ class _OrganizerVotingSettingsPageState
                       type: StepperType.horizontal,
                       currentStep: currentStep,
                       onStepContinue: () {
-                        final isLastStep =
-                            (currentStep == getSteps().length - 1);
-                        if (formKeys[currentStep].currentState?.validate() ??
-                            false) {
+                        final isLastStep = (currentStep == getSteps().length - 1);
+                        if (formKeys[currentStep].currentState?.validate() ?? false) {
                           if (isLastStep) {
-                            context.read<OrganizerVotingSettingsPageBloc>().add(
-                                    OrganizerVotingSettingsPageCreateVotingSessionAndBeginProcedure(
-                                  contestId: contestId,
-                                  votingFormId: votingFormId,
-                                  areSimpleJurorsAllowed:
-                                      areSimpleJurorsAllowed,
-                                  votingExclusions: votingExclusions,
-                                  votingParticipants:
-                                      joinedParticipationsAndParticipantsWithWorks
-                                          .map((e) => e.participant!)
-                                          .toList(growable: false),
-                                  votingJurors: joinedJurationsAndJurors
-                                      .map((e) => e.juror!)
-                                      .toList(growable: false),
+                            context
+                                .read<OrganizerVotingSettingsPageBloc>()
+                                .add(OrganizerVotingSettingsPageBeginVotingProcedure(
+                                  contestId: contestDetailsBundle.contest.id,
+                                  votingFormId: contestDetailsBundle.votingFormBundle.votingForm.id,
+                                  areSimpleJurorsAllowed: areSimpleJurorsAllowed,
+                                  votingExclusionsBundles: votingExclusions,
+                                  votingParticipationsBundles: votingParticipationsBundles,
+                                  votingJurationsBundles: votingJurationsBundles,
                                   workTimer: workTimer,
                                   intermissionTimer: intermissionTimer,
                                   reviewTimer: reviewTimer,
                                   isGeoRestricted: isGeoRestricted,
-                                  geoRestrictionPlaceAddress:
-                                      geoRestrictionPlace?.address,
-                                  geoRestrictionPlaceLat:
-                                      geoRestrictionPlace?.lat,
-                                  geoRestrictionPlaceLon:
-                                      geoRestrictionPlace?.lon,
+                                  geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
+                                  geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
+                                  geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
                                   geoRestrictionRadius:
                                       (geoRestrictionRadiusController.text.isNotEmpty)
                                           ? int.tryParse(geoRestrictionRadiusController.text)
@@ -164,13 +136,10 @@ class _OrganizerVotingSettingsPageState
                         }
                       },
                       onStepCancel: () {
-                        (currentStep == 0)
-                            ? null
-                            : setState(() => --currentStep);
+                        (currentStep == 0) ? null : setState(() => --currentStep);
                       },
                       controlsBuilder: (context, details) {
-                        final isLastStep =
-                            details.currentStep == getSteps().length - 1;
+                        final isLastStep = details.currentStep == getSteps().length - 1;
                         return Container(
                           margin: EdgeInsets.only(top: 20),
                           child: Row(
@@ -187,8 +156,7 @@ class _OrganizerVotingSettingsPageState
                               ElevatedButton(
                                 onPressed: details.onStepContinue,
                                 child: isLastStep
-                                    ? BlocConsumer<
-                                        OrganizerVotingSettingsPageBloc,
+                                    ? BlocConsumer<OrganizerVotingSettingsPageBloc,
                                         OrganizerVotingSettingsPageState>(
                                         listener: (context, state) {},
                                         builder: (context, state) {
@@ -267,9 +235,8 @@ class _OrganizerVotingSettingsPageState
                     enabled: isGeoRestricted,
                     controller: geoRestrictionPlaceController,
                     label: 'Restricted location',
-                    validator: (value) => locationValidator(value),
-                    onSelected: (placeValue) =>
-                        geoRestrictionPlace = placeValue,
+                    validator: (isGeoRestricted) ? (value) => locationValidator(value) : null,
+                    onSelected: (placeValue) => geoRestrictionPlace = placeValue,
                     prefixIcon: Icon(Icons.place_outlined),
                   ),
                   CustomTextFormFieldOutlined(
@@ -285,36 +252,19 @@ class _OrganizerVotingSettingsPageState
                           if (oldIndex < newIndex) {
                             newIndex -= 1;
                           }
-                          final ParticipationAndParticipantAndWork ppw =
-                              joinedParticipationsAndParticipantsWithWorks
-                                  .removeAt(oldIndex);
-                          joinedParticipationsAndParticipantsWithWorks.insert(
-                              newIndex, ppw);
+                          final ParticipationBundle ppw =
+                              votingParticipationsBundles.removeAt(oldIndex);
+                          votingParticipationsBundles.insert(newIndex, ppw);
                         });
                       },
                       children: [
-                        for (var i = 0;
-                            i <
-                                joinedParticipationsAndParticipantsWithWorks
-                                    .length;
-                            i++)
+                        for (var i = 0; i < votingParticipationsBundles.length; i++)
                           ListTile(
-                            key: ValueKey(
-                                joinedParticipationsAndParticipantsWithWorks[i]
-                                    .participation
-                                    .id),
+                            key: ValueKey(votingParticipationsBundles[i].participation.id),
                             title: Column(
                               children: [
-                                Text(
-                                    joinedParticipationsAndParticipantsWithWorks[
-                                            i]
-                                        .work!
-                                        .name),
-                                Text(
-                                    joinedParticipationsAndParticipantsWithWorks[
-                                            i]
-                                        .participant!
-                                        .fullName),
+                                Text(votingParticipationsBundles[i].work!.name),
+                                Text(votingParticipationsBundles[i].participant.fullName),
                               ],
                             ),
                           ),
@@ -358,7 +308,7 @@ class _OrganizerVotingSettingsPageState
                     },
                   ),
                   RadioListTile<bool>.adaptive(
-                    title: Text('Anyone with contest identifier'),
+                    title: Text('Anyone with a session token (showed during the procedure)'),
                     value: true,
                     groupValue: areSimpleJurorsAllowed,
                     onChanged: (value) {
@@ -380,14 +330,14 @@ class _OrganizerVotingSettingsPageState
                                 Row(
                                   children: [
                                     Text('Juror: '),
-                                    Text(
-                                        votingExclusions[index].juror.fullName),
+                                    Text(votingExclusions[index].jurationBundle.juror.fullName),
                                   ],
                                 ),
                                 Row(
                                   children: [
                                     Text('Participant: '),
                                     Text(votingExclusions[index]
+                                        .participationBundle
                                         .participant
                                         .fullName),
                                   ],
@@ -401,9 +351,8 @@ class _OrganizerVotingSettingsPageState
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  ParticipationAndParticipantAndWork?
-                                      chosenParticipant;
-                                  JurationAndJuror? chosenJuror;
+                                  ParticipationBundle? chosenParticipationBundle;
+                                  JurationBundle? chosenJurationBundle;
                                   return AlertDialog(
                                     title: Text('Exclusion'),
                                     content: Column(
@@ -415,17 +364,15 @@ class _OrganizerVotingSettingsPageState
                                           onSelected: (value) {
                                             if (value != null) {
                                               setState(() {
-                                                chosenParticipant = value;
+                                                chosenParticipationBundle = value;
                                               });
                                             }
                                           },
                                           dropdownMenuEntries: [
-                                            for (var element
-                                                in joinedParticipationsAndParticipantsWithWorks)
+                                            for (var element in votingParticipationsBundles)
                                               DropdownMenuEntry(
                                                   value: element,
-                                                  label: element
-                                                      .participant!.fullName),
+                                                  label: element.participant.fullName),
                                           ],
                                         ),
                                         Text('Juror'),
@@ -434,16 +381,15 @@ class _OrganizerVotingSettingsPageState
                                           onSelected: (value) {
                                             if (value != null) {
                                               setState(() {
-                                                chosenJuror = value;
+                                                chosenJurationBundle = value;
                                               });
                                             }
                                           },
                                           dropdownMenuEntries: [
-                                            for (var element
-                                                in joinedJurationsAndJurors)
+                                            for (var element in votingJurationsBundles)
                                               DropdownMenuEntry(
                                                 value: element,
-                                                label: element.juror!.fullName,
+                                                label: element.juror.fullName,
                                               ),
                                           ],
                                         ),
@@ -451,8 +397,7 @@ class _OrganizerVotingSettingsPageState
                                     ),
                                     actions: [
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
                                           TextButton(
                                             onPressed: () {
@@ -462,31 +407,25 @@ class _OrganizerVotingSettingsPageState
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              if (chosenParticipant == null ||
-                                                  chosenJuror == null) {
+                                              if (chosenParticipationBundle == null ||
+                                                  chosenJurationBundle == null) {
                                                 showSnackBar(
-                                                    context: context,
-                                                    text:
-                                                        'Fill all the fields');
+                                                    context: context, text: 'Fill all the fields');
                                                 return;
                                               }
-                                              final participantAndJuror =
-                                                  ParticipantAndJuror(
-                                                participant: chosenParticipant!
-                                                    .participant!,
-                                                juror: chosenJuror!.juror!,
+                                              final votingExclusionBundle = VotingExclusionBundle(
+                                                participationBundle: chosenParticipationBundle!,
+                                                jurationBundle: chosenJurationBundle!,
                                               );
-                                              if (votingExclusions.contains(
-                                                  participantAndJuror)) {
+                                              if (votingExclusions
+                                                  .contains(votingExclusionBundle)) {
                                                 showSnackBar(
                                                     context: context,
-                                                    text:
-                                                        'Exclusion already added');
+                                                    text: 'Exclusion already added');
                                                 return;
                                               }
                                               setState(() {
-                                                votingExclusions
-                                                    .add(participantAndJuror);
+                                                votingExclusions.add(votingExclusionBundle);
                                               });
                                               context.pop();
                                             },
@@ -586,9 +525,8 @@ class _OrganizerVotingSettingsPageState
                       Text('Work timer'),
                       CupertinoTimerPicker(
                         mode: CupertinoTimerPickerMode.ms,
-                        initialTimerDuration: Duration(
-                            minutes: workTimer.inMinutes,
-                            seconds: workTimer.inSeconds),
+                        initialTimerDuration:
+                            Duration(minutes: workTimer.inMinutes, seconds: workTimer.inSeconds),
                         onTimerDurationChanged: (Duration newDuration) {
                           workTimer = newDuration;
                         },
@@ -607,8 +545,7 @@ class _OrganizerVotingSettingsPageState
                       CupertinoTimerPicker(
                         mode: CupertinoTimerPickerMode.ms,
                         initialTimerDuration: Duration(
-                            minutes: reviewTimer.inMinutes,
-                            seconds: reviewTimer.inSeconds),
+                            minutes: reviewTimer.inMinutes, seconds: reviewTimer.inSeconds),
                         onTimerDurationChanged: (Duration newDuration) {
                           reviewTimer = newDuration;
                         },

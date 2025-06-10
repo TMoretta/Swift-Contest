@@ -2,63 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/app.dart';
-import 'package:swift_contest/model/services/contest_service.dart';
-import 'package:swift_contest/model/services/edge_service.dart';
-import 'package:swift_contest/model/services/google_place_service.dart';
-import 'package:swift_contest/model/services/invitation_service.dart';
-import 'package:swift_contest/model/services/juration_service.dart';
-import 'package:swift_contest/model/services/participation_service.dart';
-import 'package:swift_contest/model/services/place_service.dart';
-import 'package:swift_contest/model/services/profile_service.dart';
-import 'package:swift_contest/model/services/simple_juror_service.dart';
-import 'package:swift_contest/model/services/simple_juror_vote_service.dart';
-import 'package:swift_contest/model/services/simple_juror_voting_service.dart';
-import 'package:swift_contest/model/services/storage_service.dart';
-import 'package:swift_contest/model/services/user_service.dart';
-import 'package:swift_contest/model/services/utils_service.dart';
-import 'package:swift_contest/model/services/juror_vote_service.dart';
-import 'package:swift_contest/model/services/voting_form_field_service.dart';
-import 'package:swift_contest/model/services/voting_form_service.dart';
-import 'package:swift_contest/model/services/juror_voting_service.dart';
-import 'package:swift_contest/model/services/voting_session_juror_service.dart';
-import 'package:swift_contest/model/services/voting_session_participant_service.dart';
-import 'package:swift_contest/model/services/voting_session_procedure_service.dart';
-import 'package:swift_contest/model/services/voting_session_service.dart';
-import 'package:swift_contest/model/services/voting_session_simple_juror_service.dart';
-import 'package:swift_contest/model/services/work_service.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/contest_repository.dart';
+import 'package:swift_contest/model/repositories/edge_repository.dart';
+import 'package:swift_contest/model/repositories/google_place_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/invitation_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/juration_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/juror_vote_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/juror_voting_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/participant_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/juror_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/participation_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/place_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/profile_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/simple_juror_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/simple_juror_vote_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/simple_juror_voting_repository.dart';
+import 'package:swift_contest/model/repositories/storage_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/user_repository.dart';
+import 'package:swift_contest/model/repositories/utils_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_form_field_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_form_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_session_exclusion_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_session_juration_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_session_participation_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_session_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/voting_session_simple_juror_repository.dart';
+import 'package:swift_contest/model/repositories/crud_repositories/work_repository.dart';
 import 'package:swift_contest/utils/constants/constants.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/contest_role_bloc/contest_role_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/juror_joined_contests_bloc/juror_joined_contests_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/organizer_created_contests_bloc/organizer_created_contests_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/participant_joined_contests_bloc/participant_joined_contests_bloc.dart';
-import 'package:swift_contest/viewmodel/repositories/contest_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/edge_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/google_place_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/invitation_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/juration_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/participation_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/place_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/profile_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/simple_juror_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/simple_juror_vote_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/simple_juror_voting_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/storage_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/user_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/utils_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/juror_vote_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_form_field_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_form_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/juror_voting_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_juror_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_participant_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_procedure_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/voting_session_simple_juror_repository.dart';
-import 'package:swift_contest/viewmodel/repositories/work_repository.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: Constants.supabaseUrl,
     anonKey: Constants.supabaseAnonKey,
@@ -70,172 +46,101 @@ void main() async {
 
   final supabaseClient = Supabase.instance.client;
 
-  //* Services
-  final ContestService contestService = ContestServiceImpl(supabaseClient: supabaseClient);
-  final EdgeService edgeService = EdgeServiceImpl(supabaseClient: supabaseClient);
-  final GooglePlaceService googlePlaceService =
-      GooglePlaceServiceImpl(apiKey: Constants.googlePlacesApiKey);
-  final InvitationService invitationService = InvitationServiceImpl(supabaseClient: supabaseClient);
-  final JurationService jurationService = JurationServiceImpl(supabaseClient: supabaseClient);
-  final ParticipationService participationService =
-      ParticipationServiceImpl(supabaseClient: supabaseClient);
-  final PlaceService placeService = PlaceServiceImpl(supabaseClient: supabaseClient);
-  final ProfileService profileService = ProfileServiceImpl(supabaseClient: supabaseClient);
-  final SimpleJurorService simpleJurorService =
-      SimpleJurorServiceImpl(supabaseClient: supabaseClient);
-  final SimpleJurorVoteService simpleJurorVoteService =
-      SimpleJurorVoteServiceImpl(supabaseClient: supabaseClient);
-  final SimpleJurorVotingService simpleJurorVotingService =
-      SimpleJurorVotingServiceImpl(supabaseClient: supabaseClient);
-  final StorageService storageService = StorageServiceImpl(supabaseClient: supabaseClient);
-  final UserService userService = UserServiceImpl(supabaseClient: supabaseClient);
-  final UtilsService utilsService = UtilsServiceImpl(supabaseClient: supabaseClient);
-  final JurorVoteService jurorVoteService = JurorVoteServiceImpl(supabaseClient: supabaseClient);
-  final VotingFormFieldService votingFormFieldService =
-      VotingFormFieldServiceImpl(supabaseClient: supabaseClient);
-  final VotingFormService votingFormService = VotingFormServiceImpl(supabaseClient: supabaseClient);
-  final JurorVotingService jurorVotingService =
-      JurorVotingServiceImpl(supabaseClient: supabaseClient);
-  final VotingSessionJurorService votingSessionJurorService =
-      VotingSessionJurorServiceImpl(supabaseClient: supabaseClient);
-  final VotingSessionParticipantService votingSessionParticipantService =
-      VotingSessionParticipantServiceImpl(supabaseClient: supabaseClient);
-  final VotingSessionProcedureService votingSessionProcedureService =
-      VotingSessionProcedureServiceImpl(supabaseClient: supabaseClient);
-  final VotingSessionService votingSessionService =
-      VotingSessionServiceImpl(supabaseClient: supabaseClient);
-  final VotingSessionSimpleJurorService votingSessionSimpleJurorService =
-      VotingSessionSimpleJurorServiceImpl(supabaseClient: supabaseClient);
-  final WorkService workService = WorkServiceImpl(supabaseClient: supabaseClient);
-
   runApp(
     MultiRepositoryProvider(
       //* Repositories
       providers: [
         RepositoryProvider<ContestRepository>(
-          create: (context) => ContestRepositoryImpl(contestService: contestService),
+          create: (context) => ContestRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<EdgeRepository>(
-          create: (context) => EdgeRepositoryImpl(edgeService: edgeService),
+          create: (context) => EdgeRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<GooglePlaceRepository>(
-          create: (context) => GooglePlaceRepositoryImpl(googlePlaceService: googlePlaceService),
+          create: (context) => GooglePlaceRepositoryImpl(apiKey: Constants.googlePlacesApiKey),
         ),
         RepositoryProvider<InvitationRepository>(
-          create: (context) => InvitationRepositoryImpl(invitationService: invitationService),
+          create: (context) => InvitationRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<JurationRepository>(
-          create: (context) => JurationRepositoryImpl(jurationService: jurationService),
+          create: (context) => JurationRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<ParticipationRepository>(
-          create: (context) =>
-              ParticipationRepositoryImpl(participationService: participationService),
+          create: (context) => ParticipationRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<PlaceRepository>(
-          create: (context) => PlaceRepositoryImpl(placeService: placeService),
+          create: (context) => PlaceRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<ProfileRepository>(
-          create: (context) => ProfileRepositoryImpl(profileService: profileService),
+          create: (context) => ProfileRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<SimpleJurorRepository>(
-          create: (context) => SimpleJurorRepositoryImpl(simpleJurorService: simpleJurorService),
+          create: (context) => SimpleJurorRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<SimpleJurorVoteRepository>(
-          create: (context) =>
-              SimpleJurorVoteRepositoryImpl(simpleJurorVoteService: simpleJurorVoteService),
+          create: (context) => SimpleJurorVoteRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<SimpleJurorVotingRepository>(
-          create: (context) =>
-              SimpleJurorVotingRepositoryImpl(simpleJurorVotingService: simpleJurorVotingService),
+          create: (context) => SimpleJurorVotingRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<StorageRepository>(
-          create: (context) => StorageRepositoryImpl(storageService: storageService),
+          create: (context) => StorageRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<UserRepository>(
-          create: (context) => UserRepositoryImpl(userService: userService),
+          create: (context) => UserRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<UtilsRepository>(
-            create: (context) => UtilsRepositoryImpl(utilsService: utilsService)),
+            create: (context) => UtilsRepositoryImpl(supabaseClient: supabaseClient)),
         RepositoryProvider<JurorVoteRepository>(
-          create: (context) => JurorVoteRepositoryImpl(jurorVoteService: jurorVoteService),
+          create: (context) => JurorVoteRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<VotingFormFieldRepository>(
-          create: (context) =>
-              VotingFormFieldRepositoryImpl(votingFormFieldService: votingFormFieldService),
+          create: (context) => VotingFormFieldRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<VotingFormRepository>(
-          create: (context) => VotingFormRepositoryImpl(votingFormService: votingFormService),
+          create: (context) => VotingFormRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<JurorVotingRepository>(
-          create: (context) => JurorVotingRepositoryImpl(jurorVotingService: jurorVotingService),
+          create: (context) => JurorVotingRepositoryImpl(supabaseClient: supabaseClient),
         ),
-        RepositoryProvider<VotingSessionJurorRepository>(
-          create: (context) => VotingSessionJurorRepositoryImpl(
-              votingSessionJurorService: votingSessionJurorService),
+        RepositoryProvider<VotingSessionExclusionRepository>(
+          create: (context) => VotingSessionExclusionRepositoryImpl(supabaseClient: supabaseClient),
         ),
-        RepositoryProvider<VotingSessionParticipantRepository>(
-          create: (context) => VotingSessionParticipantRepositoryImpl(
-              votingSessionParticipantService: votingSessionParticipantService),
+        RepositoryProvider<VotingSessionJurationRepository>(
+          create: (context) => VotingSessionJurationRepositoryImpl(supabaseClient: supabaseClient),
         ),
-        RepositoryProvider<VotingSessionProcedureRepository>(
-          create: (context) => VotingSessionProcedureRepositoryImpl(
-              votingSessionProcedureService: votingSessionProcedureService),
+        RepositoryProvider<VotingSessionParticipationRepository>(
+          create: (context) =>
+              VotingSessionParticipationRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<VotingSessionRepository>(
-          create: (context) =>
-              VotingSessionRepositoryImpl(votingSessionService: votingSessionService),
+          create: (context) => VotingSessionRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<VotingSessionSimpleJurorRepository>(
-          create: (context) => VotingSessionSimpleJurorRepositoryImpl(
-              votingSessionSimpleJurorService: votingSessionSimpleJurorService),
+          create: (context) =>
+              VotingSessionSimpleJurorRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<WorkRepository>(
-          create: (context) => WorkRepositoryImpl(workService: workService),
+          create: (context) => WorkRepositoryImpl(supabaseClient: supabaseClient),
+        ),
+        RepositoryProvider<OrganizerRepository>(
+          create: (context) => OrganizerRepositoryImpl(supabaseClient: supabaseClient),
+        ),
+        RepositoryProvider<ParticipantRepository>(
+          create: (context) => ParticipantRepositoryImpl(supabaseClient: supabaseClient),
+        ),
+        RepositoryProvider<JurorRepository>(
+          create: (context) => JurorRepositoryImpl(supabaseClient: supabaseClient),
         ),
       ],
       child: MultiBlocProvider(
-        //* Global Blocs
         providers: [
-          // BlocProvider(
-          //   create: (context) => DataTransferBloc()
-          // ),
+          //* AuthBloc provide authentication management through all the app
           BlocProvider(
             lazy: false,
             create: (context) => AuthBloc(
               userRepository: context.read<UserRepository>(),
               profileRepository: context.read<ProfileRepository>(),
-            ),
-          ),
-          // BlocProvider(
-          //   create: (context) => ContestRoleBloc(
-          //     profileRepository: context.read<ProfileRepository>(),
-          //   ),
-          // ),
-          BlocProvider(
-            create: (context) => OrganizerCreatedContestsBloc(
-              contestRepository: context.read<ContestRepository>(),
-              profileRepository: context.read<ProfileRepository>(),
-              participationRepository: context.read<ParticipationRepository>(),
-              jurationRepository: context.read<JurationRepository>(),
-              placeRepository: context.read<PlaceRepository>(),
-            ),
-          ),
-          BlocProvider(
-            create: (context) => ParticipantJoinedContestsBloc(
-              contestRepository: context.read<ContestRepository>(),
-              profileRepository: context.read<ProfileRepository>(),
-              participationRepository: context.read<ParticipationRepository>(),
-              jurationRepository: context.read<JurationRepository>(),
-              placeRepository: context.read<PlaceRepository>(),
-            ),
-          ),
-          BlocProvider(
-            create: (context) => JurorJoinedContestsBloc(
-              contestRepository: context.read<ContestRepository>(),
-              profileRepository: context.read<ProfileRepository>(),
-              participationRepository: context.read<ParticipationRepository>(),
-              jurationRepository: context.read<JurationRepository>(),
-              placeRepository: context.read<PlaceRepository>(),
             ),
           ),
         ],

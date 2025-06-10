@@ -71,6 +71,6 @@ class Invitation extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [id, createdAt, contestId, token, email, memberRole, token];
+  List<Object?> get props => [id, createdAt, contestId, token, email, memberRole, token];
 }
+

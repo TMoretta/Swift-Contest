@@ -1,29 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/contest.dart';
-import 'package:swift_contest/model/data_models/juration.dart';
-import 'package:swift_contest/model/data_models/participation.dart';
-import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
+
+import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
-import 'package:swift_contest/model/enums/juror_status.dart';
-import 'package:swift_contest/model/enums/participant_status.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 class ContestCard extends StatefulWidget {
-  final Contest contest;
-  final Place place;
-  final Profile organizer;
-  final List<Participation> participations;
-  final List<Juration> jurations;
+  final HomeContestBundle contestCardBundle;
   final void Function() onTap;
 
   const ContestCard({
-    required this.contest,
-    required this.place,
-    required this.organizer,
-    required this.participations,
-    required this.jurations,
+    required this.contestCardBundle,
     required this.onTap,
     super.key,
   });
@@ -35,18 +22,13 @@ class ContestCard extends StatefulWidget {
 class _ContestCardState extends State<ContestCard> {
   @override
   Widget build(BuildContext context) {
-    int participationsJoinedCount = 0;
-    for (var participation in widget.participations) {
-      if (participation.participantStatus == ParticipantStatus.joined) {
-        ++participationsJoinedCount;
-      }
-    }
-    int jurationsJoinedCount = 0;
-    for (var juration in widget.jurations) {
-      if (juration.jurorStatus == JurorStatus.joined) {
-        ++jurationsJoinedCount;
-      }
-    }
+    final contestCardBundle = widget.contestCardBundle;
+    final contest = contestCardBundle.contest;
+    final organizer = contestCardBundle.organizer;
+    final place = contestCardBundle.place;
+    final joinedParticipations = contestCardBundle.joinedParticipations;
+    final joinedJurations = contestCardBundle.joinedJurations;
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -79,9 +61,9 @@ class _ContestCardState extends State<ContestCard> {
                         fit: BoxFit.cover,
                         clipBehavior: Clip.antiAlias,
                         alignment: Alignment.center,
-                        child: (widget.contest.imagesUrls.isNotEmpty)
+                        child: (contest.imagesUrls.isNotEmpty)
                             ? Image.network(
-                          widget.contest.imagesUrls[0],
+                          contest.imagesUrls[0],
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
                               'assets/images/image_not_found.jpg',
@@ -112,7 +94,7 @@ class _ContestCardState extends State<ContestCard> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            widget.contest.name,
+                            contest.name,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                           ),
                         ),
@@ -120,7 +102,7 @@ class _ContestCardState extends State<ContestCard> {
                         Icon(
                           Icons.circle,
                           size: 20,
-                          color: switch (widget.contest.contestStatus) {
+                          color: switch (contest.contestStatus) {
                             ContestStatus.preparationPhase =>
                             Theme.of(context).colorScheme.statusPreparation,
                             ContestStatus.participationPhase =>
@@ -146,7 +128,7 @@ class _ContestCardState extends State<ContestCard> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            widget.organizer.fullName,
+                            organizer.fullName,
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -165,7 +147,7 @@ class _ContestCardState extends State<ContestCard> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            widget.place.address,
+                            place.address,
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -186,7 +168,7 @@ class _ContestCardState extends State<ContestCard> {
                           child: Text(
                             // '12Jan, 2025 | 15:00',
                             DateFormat('dd MMM, yyyy | HH:mm')
-                                .format(widget.contest.dateTime),
+                                .format(contest.dateTime),
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -205,7 +187,7 @@ class _ContestCardState extends State<ContestCard> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            'Participants: $participationsJoinedCount | Jurors: $jurationsJoinedCount',
+                            'Participants: ${joinedParticipations.length} | Jurors: ${joinedJurations.length}',
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -213,7 +195,7 @@ class _ContestCardState extends State<ContestCard> {
                     ),
                     //* Status
                     Text(
-                      switch (widget.contest.contestStatus) {
+                      switch (contest.contestStatus) {
                         ContestStatus.preparationPhase => 'Preparation phase',
                         ContestStatus.participationPhase => 'Participation phase',
                         ContestStatus.votingPhase => 'Voting phase',
@@ -223,7 +205,7 @@ class _ContestCardState extends State<ContestCard> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: switch (widget.contest.contestStatus) {
+                        color: switch (contest.contestStatus) {
                           ContestStatus.preparationPhase =>
                           Theme.of(context).colorScheme.statusPreparation,
                           ContestStatus.participationPhase =>

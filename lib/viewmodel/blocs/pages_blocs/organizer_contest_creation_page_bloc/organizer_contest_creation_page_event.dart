@@ -1,6 +1,5 @@
 part of 'organizer_contest_creation_page_bloc.dart';
 
-@immutable
 sealed class OrganizerContestCreationPageEvent extends Equatable {
   const OrganizerContestCreationPageEvent();
 }
@@ -9,7 +8,6 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
   final String organizerId;
   final String name;
   final String description;
-  final bool isJurorsWorksPreviewEnabled;
   final DateTime dateTime;
   final DateTime worksSubmissionFrom;
   final DateTime worksSubmissionTo;
@@ -22,7 +20,6 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
     required this.organizerId,
     required this.name,
     required this.description,
-    required this.isJurorsWorksPreviewEnabled,
     required this.dateTime,
     required this.worksSubmissionFrom,
     required this.worksSubmissionTo,
@@ -34,16 +31,15 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
 
   @override
   List<Object?> get props => [
-        organizerId,
-        name,
-        description,
-        isJurorsWorksPreviewEnabled,
-        dateTime,
-        worksSubmissionFrom,
-        worksSubmissionTo,
-        placeAddress,
-        placeLat,
-        placeLon,
-        images,
-      ];
+    organizerId,
+    name,
+    description,
+    dateTime,
+    worksSubmissionFrom,
+    worksSubmissionTo,
+    images,
+    placeAddress,
+    placeLon,
+    placeLat,
+  ];
 }

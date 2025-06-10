@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/mixed_models/participant_and_work.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class OrganizerWorksTab extends StatefulWidget {
   final String contestId;
 
-  const OrganizerWorksTab({super.key, required this.contestId});
+  const OrganizerWorksTab({required this.contestId, super.key});
 
   @override
   State<OrganizerWorksTab> createState() => _OrganizerWorksTabState();
@@ -30,10 +29,10 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if (state.status.isInitial || state.works == null) {
+    if (state.status.isInitial) {
       context
           .read<OrganizerContestDetailsPageBloc>()
-          .add(OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId));
+          .add(OrganizerContestDetailsPageInit(contestId: contestId));
     }
   }
 
@@ -56,19 +55,21 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                 if (state.status.isLoading) {
                   return Loader();
                 }
-                if (state.status.isSuccess && state.works != null) {
+                if (state.status.isSuccess) {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<OrganizerContestDetailsPageBloc>()
-                        .add(OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId)),
-                    child: (state.works!.isNotEmpty)
+                        .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                    child: (state.contestDetailsBundle!.participationsBundles.where((e)=> e.work!=null).isNotEmpty)
                         ? ListView.builder(
                             physics: AlwaysScrollableScrollPhysics(),
-                            itemCount: state.works!.length,
+                            itemCount: state.contestDetailsBundle!.participationsBundles.length,
                             itemBuilder: (context, index) {
-                              final work = state.works![index];
-                              final participant = state.participants![index];
-                              if (work == null || participant == null) {
+                              final participationBundle = state.contestDetailsBundle!.participationsBundles[index];
+                              final participation = participationBundle.participation;
+                              final work = participationBundle.work;
+                              final participant = participationBundle.participant;
+                              if (work == null) {
                                 return SizedBox.shrink();
                               }
                               return Card(
@@ -78,14 +79,9 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                     borderRadius: BorderRadius.circular(12)),
                                 child: InkWell(
                                   onTap: () {
-                                    final participantAndWork =
-                                        ParticipantAndWork(
-                                      participant: state.participants![index]!,
-                                      work: state.works![index]!,
-                                    );
                                     context.pushNamed(
                                         AppRouter.organizerWorkDetails,
-                                        extra: participantAndWork.toJson());
+                                        extra: participationBundle);
                                   },
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -146,7 +142,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                             onRefresh: () async {
                               context
                                   .read<OrganizerContestDetailsPageBloc>()
-                                  .add(OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId));
+                                  .add(OrganizerContestDetailsPageInit(contestId: contestId));
                             },
                             child: ListView(
                               children: [Text('No work submitted yet')],
@@ -157,7 +153,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                 return RefreshIndicator.adaptive(
                   onRefresh: () async => context
                       .read<OrganizerContestDetailsPageBloc>()
-                      .add(OrganizerContestDetailsPageGetContestMainInfo(contestId: contestId)),
+                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
                   child: ListView(),
                 );
               },

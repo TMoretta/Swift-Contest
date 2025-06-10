@@ -4,22 +4,21 @@ sealed class SignInPageEvent extends Equatable {
   const SignInPageEvent();
 }
 
-// final class SignInPageSignInWithEmailAndPassword extends SignInPageEvent {
-//   final String email;
-//   final String password;
-//
-//   const SignInPageSignInWithEmailAndPassword({required this.email, required this.password});
-//
-//   @override
-//   List<Object?> get props => [email, password];
-// }
+final class SignInWithEmailAndPassword extends SignInPageEvent {
+  final String email;
+  final String password;
 
-final class SignInPageVoteAsSimpleJuror extends SignInPageEvent {
-  final String fullName;
-  final String votingSessionToken;
-
-  const SignInPageVoteAsSimpleJuror({required this.fullName, required this.votingSessionToken});
+  const SignInWithEmailAndPassword({required this.email, required this.password});
 
   @override
-  List<Object?> get props => [fullName, votingSessionToken];
+  List<Object> get props => [email, password];
+}
+
+final class SignInWithEmail extends SignInPageEvent {
+  final String email;
+
+  const SignInWithEmail({required this.email});
+
+  @override
+  List<Object> get props => [email];
 }

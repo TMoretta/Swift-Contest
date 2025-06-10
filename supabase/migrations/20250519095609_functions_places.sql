@@ -1,74 +1,110 @@
 -- CREATE PLACE
-CREATE OR REPLACE FUNCTION public.create_place (
-  p_id uuid,
-  p_created_at timestamptz,
-  p_address varchar(150),
-  p_lat double precision,
-  p_lon double precision
+CREATE OR REPLACE FUNCTION create_place (
+  p_place places
 )
-RETURNS SETOF public.places AS $$
+RETURNS places AS $$
+DECLARE
+  v_place places;
 BEGIN
-  RETURN QUERY
-    INSERT INTO public.places (
-      id,
-      created_at,
-      address,
-      lat,
-      lon
-    )
-    VALUES (
-      p_id,
-      p_created_at,
-      p_address,
-      p_lat,
-      p_lon
-    )
-    RETURNING *;
+  INSERT INTO places (
+    id,
+    created_at,
+    address,
+    lat,
+    lon
+  )
+  VALUES (
+    p_place.id,
+    p_place.created_at,
+    p_place.address,
+    p_place.lat,
+    p_place.lon
+  )
+  RETURNING * INTO STRICT v_place;
+
+  RETURN v_place;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while creating the place';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- UPDATE PLACE BY ID
-CREATE OR REPLACE FUNCTION public.update_place (
-  p_id uuid,
-  p_created_at timestamptz,
-  p_address varchar(150),
-  p_lat double precision,
-  p_lon double precision
+CREATE OR REPLACE FUNCTION update_place (
+  p_place places
 )
-RETURNS SETOF public.places AS $$
+RETURNS places AS $$
+DECLARE
+  v_place places;
 BEGIN
-  RETURN QUERY
-    UPDATE public.places
-    SET
-      created_at = p_created_at,
-      address = p_address,
-      lat = p_lat,
-      lon = p_lon
-    WHERE id = p_id
-    RETURNING *;
+  -- Verify if the place exists
+  IF NOT EXISTS (SELECT 1 FROM places WHERE id = p_place.id) THEN
+    RAISE EXCEPTION 'No place found';
+  END IF;
+
+  UPDATE places
+  SET
+    address = p_place.address,
+    lat = p_place.lat,
+    lon = p_place.lon
+  WHERE id = p_place.id
+  RETURNING * INTO STRICT v_place;
+
+  RETURN v_place;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while updating the place';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- DELETE PLACE BY ID
-CREATE OR REPLACE FUNCTION public.delete_place_by_id(
+CREATE OR REPLACE FUNCTION delete_place_by_id(
   p_id uuid
 )
-RETURNS void AS $$
+RETURNS places AS $$
+DECLARE
+  v_place places;
 BEGIN
-  DELETE FROM public.places
-  WHERE id = p_id;
+  -- Verify if the place exists
+  IF NOT EXISTS (SELECT 1 FROM places WHERE id = p_id) THEN
+    RAISE EXCEPTION 'No place found';
+  END IF;
+
+  DELETE FROM places
+  WHERE id = p_id
+  RETURNING * INTO STRICT v_place;
+
+  RETURN v_place;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while deleting the place';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- GET PLACE BY ID
-CREATE OR REPLACE FUNCTION public.get_place_by_id(
+CREATE OR REPLACE FUNCTION get_place_by_id(
   p_id uuid
 )
-RETURNS SETOF public.places AS $$
+RETURNS SETOF places AS $$
 BEGIN
   RETURN QUERY
     SELECT *
-    FROM public.places
+    FROM places
     WHERE id = p_id;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the place';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

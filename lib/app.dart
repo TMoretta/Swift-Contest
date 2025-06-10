@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
 
+import 'viewmodel/blocs/auth_bloc/auth_bloc.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -20,28 +20,20 @@ class _AppState extends State<App> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    //* Get goRouter instance and passing AuthBloc to allow redirect base on auth state
     goRouter = getGoRouter(authBloc: context.read<AuthBloc>());
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc,AuthState>(
-      builder:(context, state) {
-        late ThemeMode themeMode;
-        switch(state.profile?.prefTheme) {
-          case null:
-            themeMode = ThemeMode.system;
-            break;
-          case AppTheme.system:
-            themeMode = ThemeMode.system;
-            break;
-          case AppTheme.light:
-            themeMode = ThemeMode.light;
-            break;
-          case AppTheme.dark:
-            themeMode = ThemeMode.dark;
-            break;
-        }
+    late ThemeMode themeMode;
+    return BlocBuilder<AuthBloc, AuthState>(
+      //* Rebuild only when the pref theme changes
+      buildWhen: (previous, current) => current.profile?.prefTheme != previous.profile?.prefTheme,
+      builder: (context, state) {
+        //* Change dynamically the theme mode based on user pref theme
+        final appTheme = context.read<AuthBloc>().state.profile?.prefTheme ?? AppTheme.system;
+        themeMode = ThemeMode.values.byName(appTheme.name);
         return MaterialApp.router(
           themeMode: themeMode,
           theme: MaterialTheme.light(),
@@ -51,7 +43,7 @@ class _AppState extends State<App> {
           debugShowCheckedModeBanner: false,
           routerConfig: goRouter,
         );
-      }
+      },
     );
   }
 }

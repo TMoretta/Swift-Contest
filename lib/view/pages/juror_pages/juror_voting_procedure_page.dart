@@ -2,146 +2,132 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_participation_bundle.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/model/data_models/voting_session_participant.dart';
-import 'package:swift_contest/model/data_models/work.dart';
-import 'package:swift_contest/model/enums/voting_session_procedure_step.dart';
+import 'package:swift_contest/model/data_models/voting_session.dart';
+import 'package:swift_contest/model/data_models/voting_session_participation.dart';
+import 'package:swift_contest/model/enums/voting_session_status.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/viewmodel/blocs/global_blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_voting_procedure_page_bloc/juror_voting_procedure_page_bloc.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status_failure_type.dart';
 
 class JurorVotingProcedurePage extends StatefulWidget {
-  final String contestId;
+  final ContestDetailsBundle contestDetailsBundle;
 
-  const JurorVotingProcedurePage({required this.contestId, super.key});
+  const JurorVotingProcedurePage({required this.contestDetailsBundle, super.key});
 
   @override
-  State<JurorVotingProcedurePage> createState() =>
-      _JurorVotingProcedurePageState();
+  State<JurorVotingProcedurePage> createState() => _JurorVotingProcedurePageState();
 }
 
 class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   late User user;
-  String? votingSessionProcedureId;
-  String? votingSessionId;
-  Map<VotingSessionParticipant, Map<VotingFormField, String>>
-      votesPerParticipantMap = {};
+  late ContestDetailsBundle contestDetailsBundle;
+  VotingSession? votingSessionBackup;
+  Map<VotingSessionParticipation, Map<VotingFormField, int>> votesPerParticipantMap = {};
 
   @override
   void initState() {
     super.initState();
     user = context.read<AuthBloc>().state.user!;
+    contestDetailsBundle = widget.contestDetailsBundle;
+    context.read<JurorVotingProcedurePageBloc>().add(
+        JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
+            jurorId: user.id, contestDetailsBundle: contestDetailsBundle));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<JurorVotingProcedurePageBloc>(
-      create: (context) => JurorVotingProcedurePageBloc(
-        votingSessionRepository: context.read(),
-        votingSessionProcedureRepository: context.read(),
-        votingSessionParticipantRepository: context.read(),
-        workRepository: context.read(),
-        participationRepository: context.read(),
-        profileRepository: context.read(),
-        votingFormRepository: context.read(),
-        votingFormFieldRepository: context.read(),
-        votingSessionJurorRepository: context.read(),
-        jurorVotingRepository: context.read(),
-        jurorVoteRepository: context.read(),
-        placeRepository: context.read(),
-      )..add(JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
-          contestId: widget.contestId, jurorId: user.id)),
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Voting'),
-        body: BlocConsumer<JurorVotingProcedurePageBloc,
-            JurorVotingProcedurePageState>(
-          listener: (context, state) {
-            if (state.status.isFailure) {
-              showSnackBar(context: context, text: state.message!);
-            }
-            if (state.status.isSuccess &&
-                state.votingSessionProcedure?.currentStep ==
-                    VotingSessionProcedureStep.end) {
-              showSnackBar(
-                  context: context, text: 'Voting session procedure is ended');
-              context.pop();
-            }
-            if (state.status.isSuccess &&
-                state.votingSessionProcedure?.currentStep ==
-                    VotingSessionProcedureStep.cancelled) {
-              showSnackBar(
-                  context: context,
-                  text:
-                      'Voting session procedure has been cancelled by the organizer');
-              context.pop();
-            }
-          },
-          builder: (context, state) {
-            if (state.status.isFailure) {
-              return FilledButton(
-                  onPressed: () {
-                    context.read<JurorVotingProcedurePageBloc>().add(
-                        JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
-                            contestId: widget.contestId, jurorId: user.id));
-                  },
-                  child: Text('Reconnect'));
-            }
+    return Scaffold(
+      appBar: CustomAppBar(title: 'Voting'),
+      body: BlocConsumer<JurorVotingProcedurePageBloc, JurorVotingProcedurePageState>(
+        listener: (context, state) {
+          if (state.status.isFailure && state.message != null) {
+            showSnackBar(context: context, text: state.message!);
+          }
+          // if (state.status.isFailure && state.failureType == BlocStatusFailureType.requestPop) {
+          //   context.pop();
+          // }
+          if (state.status.isSuccess &&
+              state.votingSessionBundle!.votingSession.sessionStatus ==
+                  VotingSessionStatus.ended) {
+            showSnackBar(context: context, text: 'Voting session procedure is ended');
+            context.pop();
+          }
+          if (state.status.isSuccess &&
+              state.votingSessionBundle!.votingSession.sessionStatus ==
+                  VotingSessionStatus.cancelled) {
+            showSnackBar(
+                context: context,
+                text: 'Voting session procedure has been cancelled by the organizer');
+            context.pop();
+          }
+        },
+        builder: (context, state) {
+          switch (state.status) {
+            case BlocStatus.initial:
+              return SizedBox.shrink();
+            case BlocStatus.loading:
+              return Loader();
+            case BlocStatus.failure:
+              // switch (state.failureType) {
+              //   case null:
+              //   case BlocStatusFailureType.requestRefresh:
+              //     return RefreshIndicator.adaptive(
+              //       onRefresh: () async {
+              //         context.read<JurorVotingProcedurePageBloc>().add(
+              //             JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
+              //                 contestDetailsBundle: contestDetailsBundle, jurorId: user.id));
+              //       },
+              //       child: ListView(physics: AlwaysScrollableScrollPhysics()),
+              //     );
+              //   case BlocStatusFailureType.requestPop:
+              //     return SizedBox.shrink();
+              //   case BlocStatusFailureType.showPreviousState:
+              //     continue successCase;
+              // }
+            successCase:
+            case BlocStatus.success:
+              votingSessionBackup = state.votingSessionBundle!.votingSession;
+              final votingSession = state.votingSessionBundle!.votingSession;
+              final sessionStatus = votingSession.sessionStatus;
 
-            if (state.status.isSuccess) {
-              if (state.votingSession != null) {
-                votingSessionId = state.votingSession!.id;
-              }
-              votingSessionProcedureId = state.votingSessionProcedure!.id;
-              final votingSessionProcedure = state.votingSessionProcedure!;
-              final currentStep = votingSessionProcedure.currentStep!;
-              // final nextParticipant = state.participants![(currentParticipantIndex + 1) % state.participants!.length];
-              // final nextWork = state.works![(currentParticipantIndex + 1) % state.works!.length];
-
-              if (currentStep == VotingSessionProcedureStep.preparation) {
+              if (sessionStatus == VotingSessionStatus.initialized) {
                 return Text('Await here the beginning of the voting session');
               }
 
-              if (currentStep == VotingSessionProcedureStep.work) {
-                final currentStepDeadline =
-                    votingSessionProcedure.currentStepDeadline!;
-                final currentParticipantIndex =
-                    votingSessionProcedure.currentParticipantIndex!;
-                final currentParticipant =
-                    state.participants![currentParticipantIndex];
-                final currentVotingSessionParticipant =
-                    state.votingSessionParticipants![currentParticipantIndex];
-                final currentWork = state.works![currentParticipantIndex];
-                final currentVotingSessionParticipantId = state
-                    .votingSessionParticipants![currentParticipantIndex].id;
-                final votingFormFields = state.votingFormFields!;
+              if (sessionStatus == VotingSessionStatus.work) {
+                final currentStepDeadline = votingSession.currentStepDeadline!;
+                final currentParticipantIndex = votingSession.currentParticipantIndex!;
+                final currentVotingSessionParticipationBundle = state.votingSessionBundle!
+                    .votingSessionParticipationsBundles[currentParticipantIndex];
+                final votingFormFields =
+                    state.votingSessionBundle!.votingFormBundle.votingFormFields;
 
-                if (state.excludedFromParticipants!
-                    .contains(currentParticipant)) {
-                  votesPerParticipantMap
-                      .addAll({currentVotingSessionParticipant: {}});
-                  return Text(
-                      'The organizer excluded you from voting to this participant');
+                if (state.votingSessionBundle!.votingSessionParticipationsExcludedFrom
+                    .contains(currentVotingSessionParticipationBundle.votingSessionParticipation)) {
+                  votesPerParticipantMap.addAll(
+                      {currentVotingSessionParticipationBundle.votingSessionParticipation: {}});
+                  return Text('The organizer excluded you from voting to this participant');
                 }
 
                 return WorkVotingPage(
-                  votingSessionParticipant: currentVotingSessionParticipant,
-                  participant: currentParticipant,
-                  work: currentWork,
+                  votingSessionParticipationBundle: currentVotingSessionParticipationBundle,
                   votingFormFields: votingFormFields,
-                  currentStep: currentStep,
+                  sessionStatus: sessionStatus,
                   currentStepDeadline: currentStepDeadline,
                   votesPerParticipantMap: votesPerParticipantMap,
                 );
               }
 
-              if (currentStep == VotingSessionProcedureStep.intermission) {
-                final currentStepDeadline =
-                    votingSessionProcedure.currentStepDeadline!;
+              if (sessionStatus == VotingSessionStatus.intermission) {
+                final currentStepDeadline = votingSession.currentStepDeadline!;
                 return Column(
                   key: UniqueKey(),
                   children: [
@@ -151,9 +137,8 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                 );
               }
 
-              if (currentStep == VotingSessionProcedureStep.review) {
-                final currentStepDeadline =
-                    votingSessionProcedure.currentStepDeadline!;
+              if (sessionStatus == VotingSessionStatus.review) {
+                final currentStepDeadline = votingSession.currentStepDeadline!;
                 return Column(
                   key: UniqueKey(),
                   children: [
@@ -161,47 +146,37 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                     TimerCountdown(endTime: currentStepDeadline),
                     BlocProvider<JurorVotingProcedurePageBloc>(
                       create: (context) => JurorVotingProcedurePageBloc(
-                        votingSessionRepository: context.read(),
-                        votingSessionProcedureRepository: context.read(),
-                        votingSessionParticipantRepository: context.read(),
-                        workRepository: context.read(),
-                        participationRepository: context.read(),
-                        profileRepository: context.read(),
-                        votingFormRepository: context.read(),
-                        votingFormFieldRepository: context.read(),
                         jurorVotingRepository: context.read(),
                         jurorVoteRepository: context.read(),
-                        votingSessionJurorRepository: context.read(),
                         placeRepository: context.read(),
+                        jurationRepository: context.read(),
+                        votingSessionExclusionsBundles: context.read(),
+                        votingSessionJurationRepository: context.read(),
+                        votingSessionParticipationRepository: context.read(),
+                        jurorRepository: context.read(),
                       ),
-                      child: BlocConsumer<JurorVotingProcedurePageBloc,
-                          JurorVotingProcedurePageState>(
+                      child:
+                          BlocConsumer<JurorVotingProcedurePageBloc, JurorVotingProcedurePageState>(
                         listener: (context, state) {
                           if (state.status.isSuccess) {
-                            showSnackBar(
-                                context: context,
-                                text: 'Votes submitted successfully');
+                            showSnackBar(context: context, text: 'Votes submitted successfully');
                             context.pop();
                           }
                         },
                         builder: (context, state) {
                           return FilledButton(
                             onPressed: () {
+                              if (votingSessionBackup == null) {
+                                return;
+                              }
                               context
                                   .read<JurorVotingProcedurePageBloc>()
                                   .add(JurorVotingProcedurePageSubmitVotes(
                                     jurorId: user.id,
-                                    votingSessionId: votingSessionId!,
-                                    votesPerParticipantMap:
-                                        votesPerParticipantMap,
+                                    votingSession: votingSessionBackup!,
+                                    votesPerParticipantMap: votesPerParticipantMap,
+                                    contestId: contestDetailsBundle.contest.id,
                                   ));
-                              // for (var v in votesPerParticipantMap.entries) {
-                              //   final votes = v.value.entries;
-                              //   for (var vote in votes) {
-                              //     debugPrint(
-                              //         'PARTICIPANT: ${v.key.fullName}, FIELD: ${vote.key.name}, VALUE: ${vote.value}');
-                              //   }
-                              // }
                             },
                             child: Text('Submit'),
                           );
@@ -211,40 +186,35 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                   ],
                 );
               }
-
-              if (currentStep == VotingSessionProcedureStep.end) {}
-            }
-            return Loader();
-          },
-        ),
+              return SizedBox.shrink();
+          }
+        },
       ),
     );
   }
 }
 
 class WorkVotingPage extends StatelessWidget {
-  final VotingSessionParticipant votingSessionParticipant;
-  final Participant participant;
-  final Work work;
+  final VotingSessionParticipationBundle votingSessionParticipationBundle;
   final List<VotingFormField> votingFormFields;
-  final VotingSessionProcedureStep currentStep;
+  final VotingSessionStatus sessionStatus;
   final DateTime currentStepDeadline;
-  final Map<VotingSessionParticipant, Map<VotingFormField, String>>
-      votesPerParticipantMap;
+  final Map<VotingSessionParticipation, Map<VotingFormField, int>> votesPerParticipantMap;
 
   const WorkVotingPage({
     super.key,
-    required this.votingSessionParticipant,
-    required this.participant,
-    required this.work,
+    required this.votingSessionParticipationBundle,
     required this.votingFormFields,
-    required this.currentStep,
+    required this.sessionStatus,
     required this.currentStepDeadline,
     required this.votesPerParticipantMap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final participant = votingSessionParticipationBundle.participationBundle.participant;
+    final work = votingSessionParticipationBundle.participationBundle.work!;
+    final votingSessionParticipation = votingSessionParticipationBundle.votingSessionParticipation;
     return Column(
       key: UniqueKey(),
       children: [
@@ -257,16 +227,14 @@ class WorkVotingPage extends StatelessWidget {
             itemCount: votingFormFields.length,
             itemBuilder: (context, index) {
               final field = votingFormFields[index];
-              if (votesPerParticipantMap[votingSessionParticipant] == null) {
-                votesPerParticipantMap.addAll({votingSessionParticipant: {}});
+              if (votesPerParticipantMap[votingSessionParticipation] == null) {
+                votesPerParticipantMap.addAll({votingSessionParticipation: {}});
               }
-              votesPerParticipantMap[votingSessionParticipant]!
-                  .addAll({field: ''});
+              // votesPerParticipantMap[votingSessionParticipation]!.addAll({field: ''});
               return TextField(
                 decoration: InputDecoration(label: Text(field.name)),
                 onChanged: (value) {
-                  votesPerParticipantMap[votingSessionParticipant]!
-                      .addAll({field: value});
+                  votesPerParticipantMap[votingSessionParticipation]!.addAll({field: int.parse(value)});
                 },
               );
             },

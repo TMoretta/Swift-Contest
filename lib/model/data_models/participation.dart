@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:swift_contest/model/enums/participant_status.dart';
-import 'package:swift_contest/model/enums/work_status.dart';
 
 class Participation extends Equatable {
   final String id;
@@ -8,7 +7,7 @@ class Participation extends Equatable {
   final String contestId;
   final String participantId;
   final ParticipantStatus participantStatus;
-  final WorkStatus workStatus;
+  final bool hasSubmitted;
 
   const Participation({
     required this.id,
@@ -16,7 +15,7 @@ class Participation extends Equatable {
     required this.contestId,
     required this.participantId,
     required this.participantStatus,
-    required this.workStatus,
+    required this.hasSubmitted,
   });
 
   factory Participation.fromJson(Map<String, dynamic> json) {
@@ -26,7 +25,7 @@ class Participation extends Equatable {
       contestId: json['contest_id'] as String,
       participantId: json['participant_id'] as String,
       participantStatus: ParticipantStatus.values.byName(json['participant_status'] as String),
-      workStatus: WorkStatus.values.byName(json['work_status'] as String),
+      hasSubmitted: json['has_submitted'] as bool,
     );
   }
 
@@ -37,7 +36,7 @@ class Participation extends Equatable {
       'contest_id': contestId,
       'participant_id': participantId,
       'participant_status': participantStatus.name,
-      'work_status': workStatus.name,
+      'has_submitted': hasSubmitted,
     };
   }
 
@@ -48,7 +47,7 @@ class Participation extends Equatable {
       'p_contest_id': contestId,
       'p_participant_id': participantId,
       'p_participant_status': participantStatus.name,
-      'p_work_status': workStatus.name,
+      'p_has_submitted': hasSubmitted,
     };
   }
 
@@ -58,7 +57,7 @@ class Participation extends Equatable {
     String? contestId,
     String? participantId,
     ParticipantStatus? participantStatus,
-    WorkStatus? workStatus,
+    bool? hasSubmitted,
   }) {
     return Participation(
       id: id ?? this.id,
@@ -66,7 +65,7 @@ class Participation extends Equatable {
       contestId: contestId ?? this.contestId,
       participantId: participantId ?? this.participantId,
       participantStatus: participantStatus ?? this.participantStatus,
-      workStatus: workStatus ?? this.workStatus,
+      hasSubmitted: hasSubmitted ?? this.hasSubmitted,
     );
   }
 
@@ -77,6 +76,6 @@ class Participation extends Equatable {
         contestId,
         participantId,
         participantStatus,
-        workStatus,
+        hasSubmitted,
       ];
 }

@@ -10,9 +10,9 @@ class Contest extends Equatable {
   final DateTime dateTime;
   final DateTime worksSubmissionFrom;
   final DateTime worksSubmissionTo;
+  final List<String> imagesUrls;
   final String placeId;
   final ContestStatus contestStatus;
-  final List<String> imagesUrls;
   final String token;
   final String votingFormId;
   final bool isDeleted;
@@ -26,9 +26,9 @@ class Contest extends Equatable {
     required this.dateTime,
     required this.worksSubmissionFrom,
     required this.worksSubmissionTo,
+    required this.imagesUrls,
     required this.placeId,
     required this.contestStatus,
-    required this.imagesUrls,
     required this.token,
     required this.votingFormId,
     required this.isDeleted,
