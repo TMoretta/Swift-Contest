@@ -1,8 +1,29 @@
 {
-  "devDependencies": {
-    "supabase": "^2.24.3"
+  "name": "swift-contest",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/TMoretta/Swift-Contest#readme",
+  "bugs": {
+    "url": "https://github.com/TMoretta/Swift-Contest/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TMoretta/Swift-Contest.git"
+  },
+  "license": "ISC",
+  "author": "Tommaso",
+  "type": "flutter",
+  "main": "main.dart",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "deno": "^2.3.3"
+  },
+  "devDependencies": {
+    "supabase": "^2.24.3"
   }
 }
