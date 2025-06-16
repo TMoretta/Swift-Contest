@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/app.dart';
+import 'package:swift_contest/model/repositories/auth_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/contest_repository.dart';
 import 'package:swift_contest/model/repositories/edge_repository.dart';
 import 'package:swift_contest/model/repositories/google_place_repository.dart';
@@ -123,6 +124,9 @@ void main() async {
         RepositoryProvider<WorkRepository>(
           create: (context) => WorkRepositoryImpl(supabaseClient: supabaseClient),
         ),
+        RepositoryProvider<AuthRepository>(
+          create: (context) => AuthRepositoryImpl(supabaseClient: supabaseClient),
+        ),
         RepositoryProvider<OrganizerRepository>(
           create: (context) => OrganizerRepositoryImpl(supabaseClient: supabaseClient),
         ),
@@ -139,8 +143,8 @@ void main() async {
           BlocProvider(
             lazy: false,
             create: (context) => AuthBloc(
-              userRepository: context.read<UserRepository>(),
               profileRepository: context.read<ProfileRepository>(),
+              authRepository: context.read<AuthRepository>(),
             ),
           ),
         ],

@@ -9,8 +9,8 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
   final String name;
   final String description;
   final DateTime dateTime;
-  final DateTime worksSubmissionFrom;
-  final DateTime worksSubmissionTo;
+  final DateTime worksSubmissionStart;
+  final DateTime worksSubmissionEnd;
   final List<XFile> images;
   final String placeAddress;
   final double placeLon;
@@ -21,8 +21,8 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
     required this.name,
     required this.description,
     required this.dateTime,
-    required this.worksSubmissionFrom,
-    required this.worksSubmissionTo,
+    required this.worksSubmissionStart,
+    required this.worksSubmissionEnd,
     required this.images,
     required this.placeAddress,
     required this.placeLon,
@@ -35,8 +35,8 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
     name,
     description,
     dateTime,
-    worksSubmissionFrom,
-    worksSubmissionTo,
+    worksSubmissionStart,
+    worksSubmissionEnd,
     images,
     placeAddress,
     placeLon,

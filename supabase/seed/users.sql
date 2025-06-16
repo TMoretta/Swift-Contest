@@ -39,20 +39,24 @@ VALUES
 -- PROFILES
 INSERT INTO profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
 VALUES
-  ((SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),now(),'Organizer1','dark','organizer','false'),
-  ((SELECT id FROM auth.users WHERE email = 'organizer2@example.com'),now(),'Organizer2','dark','organizer','false'),
-  ((SELECT id FROM auth.users WHERE email = 'organizer3@example.com'),now(),'Organizer3','dark','organizer','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant1@example.com'),now(),'Participant1','dark','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant2@example.com'),now(),'Participant2','dark','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant3@example.com'),now(),'Participant3','dark','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant4@example.com'),now(),'Participant4','dark','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant5@example.com'),now(),'Participant5','dark','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror1@example.com'),now(),'Juror1','dark','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror2@example.com'),now(),'Juror2','dark','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror3@example.com'),now(),'Juror3','dark','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror4@example.com'),now(),'Juror4','dark','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror5@example.com'),now(),'Juror5','dark','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'simplejuror1@example.com'),now(),'SimpleJuror1','dark','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'simplejuror2@example.com'),now(),'SimpleJuror2','dark','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'),now(),'SimpleJuror3','dark','juror','false');
+  ((SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),now(),'Organizer1','system','organizer','false'),
+  ((SELECT id FROM auth.users WHERE email = 'organizer2@example.com'),now(),'Organizer2','system','organizer','false'),
+  ((SELECT id FROM auth.users WHERE email = 'organizer3@example.com'),now(),'Organizer3','system','organizer','false'),
+  ((SELECT id FROM auth.users WHERE email = 'participant1@example.com'),now(),'Participant1','system','participant','false'),
+  ((SELECT id FROM auth.users WHERE email = 'participant2@example.com'),now(),'Participant2','system','participant','false'),
+  ((SELECT id FROM auth.users WHERE email = 'participant3@example.com'),now(),'Participant3','system','participant','false'),
+  ((SELECT id FROM auth.users WHERE email = 'participant4@example.com'),now(),'Participant4','system','participant','false'),
+  ((SELECT id FROM auth.users WHERE email = 'participant5@example.com'),now(),'Participant5','system','participant','false'),
+  ((SELECT id FROM auth.users WHERE email = 'juror1@example.com'),now(),'Juror1','system','juror','false'),
+  ((SELECT id FROM auth.users WHERE email = 'juror2@example.com'),now(),'Juror2','system','juror','false'),
+  ((SELECT id FROM auth.users WHERE email = 'juror3@example.com'),now(),'Juror3','system','juror','false'),
+  ((SELECT id FROM auth.users WHERE email = 'juror4@example.com'),now(),'Juror4','system','juror','false'),
+  ((SELECT id FROM auth.users WHERE email = 'juror5@example.com'),now(),'Juror5','system','juror','false'),
+  ((SELECT id FROM auth.users WHERE email = 'simplejuror1@example.com'),now(),'SimpleJuror1','system','juror','false'),
+  ((SELECT id FROM auth.users WHERE email = 'simplejuror2@example.com'),now(),'SimpleJuror2','system','juror','false'),
+  ((SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'),now(),'SimpleJuror3','system','juror','false');
+
+-- todo: Remove
+ALTER TABLE auth.users
+ENABLE TRIGGER user_created_trigger;
 

@@ -32,7 +32,7 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
     final state = context.read<JurorContestDetailsPageBloc>().state;
     if(state.status.isInitial) {
       context

@@ -32,7 +32,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
     context
         .read<ParticipantContestDetailsPageBloc>()
         .add(ParticipantContestDetailsPageInit(contestId: contestId,participantId: user.id));

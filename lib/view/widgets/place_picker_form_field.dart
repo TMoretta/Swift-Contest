@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
-import 'package:swift_contest/model/repositories/google_place_repository.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_form_field_bloc/place_picker_form_field_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -22,8 +20,9 @@ class PlacePickerFormField extends StatelessWidget {
   final Icon? prefixIcon;
   final Color? prefixIconColor;
   final bool? enabled;
+  final FocusNode focusNode = FocusNode();
 
-  const PlacePickerFormField({
+  PlacePickerFormField({
     required this.controller,
     this.label,
     this.onSelected,
@@ -44,8 +43,6 @@ class PlacePickerFormField extends StatelessWidget {
     return TextFormField(
       readOnly: true,
       enabled: enabled,
-      style: TextStyle(
-          fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
       controller: controller,
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
@@ -60,6 +57,7 @@ class PlacePickerFormField extends StatelessWidget {
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
           onPressed: () async {
+            FocusScope.of(context).requestFocus(focusNode);
             final place = await _showLocationSearchDialog(context: context);
             if (place != null) {
               controller.text = place.address;
@@ -73,9 +71,23 @@ class PlacePickerFormField extends StatelessWidget {
         helperText: '',
         helperStyle: TextStyle(height: 1),
         errorStyle: TextStyle(height: 1),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         enabledBorder: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceDim,
+          ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         errorBorder: OutlineInputBorder(
@@ -87,125 +99,142 @@ class PlacePickerFormField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        border: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
-          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );
   }
 }
 
-Future<GooglePlace?> _showLocationSearchDialog(
-    {required BuildContext context}) async {
+Future<GooglePlace?> _showLocationSearchDialog({
+  required BuildContext context,
+}) async {
   final TextEditingController searchController = TextEditingController();
   GooglePlaceSuggestion? selectedSuggestion;
+  final placePickerFormFieldBloc = context.read<PlacePickerFormFieldBloc>();
 
   return await showDialog<GooglePlace?>(
     context: context,
-    barrierDismissible: false,
     builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Location'),
-            content: BlocProvider<PlacePickerFormFieldBloc>(
-              create: (context) => PlacePickerFormFieldBloc(
-                  googlePlaceRepository: context.read<GooglePlaceRepository>()),
-              child: Builder(
-                builder:(context) =>  Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: searchController,
-                        decoration: const InputDecoration(
-                          labelText: 'Search',
-                          prefixIcon: Icon(Icons.search, size: 24),
+      return StatefulBuilder(builder: (context, setState) {
+        return BlocProvider.value(
+          value: placePickerFormFieldBloc,
+          child: BlocListener<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
+            listener: (context, state) {
+              if (state.message != null) {
+                showSnackBar(context: context, text: state.message!);
+              }
+              if (state.status.isSuccess && state.sourceEvent is PlacePickerFormFieldFetchPlace) {
+                context.pop(state.googlePlace);
+              }
+            },
+            child: AlertDialog(
+              title: const Text('Location'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
+                    builder: (context, state) {
+                      return SizedBox(
+                        width: 250,
+                        child: TextField(
+                          controller: searchController,
+                          decoration: const InputDecoration(
+                            labelText: 'Search',
+                            prefixIcon: Icon(Icons.search, size: 24),
+                          ),
+                          onChanged: (value) {
+                            context
+                                .read<PlacePickerFormFieldBloc>()
+                                .add(PlacePickerFormFieldSearchPlaceSuggestions(query: value));
+                          },
                         ),
-                        onChanged: (value) {
-                          context.read<PlacePickerFormFieldBloc>().add(
-                              PlacePickerFormFieldSearchPlaceSuggestions(
-                                  query: value));
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    BlocConsumer<PlacePickerFormFieldBloc,
-                        PlacePickerFormFieldState>(
-                      listener: (context, state) {
-                        if (state.status.isFailure) {
-                          showSnackBar(context: context, text: state.message!);
-                        }
-                      },
-                      builder: (context, state) {
-                        final suggestions = state.googlePlaceSuggestions;
-                        if (suggestions == null) {
-                          return const Center(child: Text('No suggestion'));
-                        }
-                        if (suggestions.isNotEmpty) {
-                          return SizedBox(
-                            width: 250,
-                            height: 150,
-                            child: ListView.builder(
-                              itemCount: (suggestions.length > 5)
-                                  ? 5
-                                  : suggestions.length,
-                              itemBuilder: (context, index) {
-                                final suggestion = suggestions[index];
-                                return ListTile(
-                                  title: Text(suggestion.address),
-                                  onTap: () {
-                                    searchController.text = suggestion.address;
-                                    setState(
-                                        () => selectedSuggestion = suggestion);
-                                  },
-                                );
-                              },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
+                    builder: (context, state) {
+                      if (state.googlePlaceSuggestions == null ||
+                          state.googlePlaceSuggestions!.isEmpty) {
+                        return SizedBox.shrink();
+                      } else {
+                        final suggestions = state.googlePlaceSuggestions!;
+                        return SizedBox(
+                          height: 150,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                for (var suggestion in suggestions)
+                                  ListTile(
+                                    title: Text(suggestion.address),
+                                    onTap: () {
+                                      searchController.text = suggestion.address;
+                                      setState(() => selectedSuggestion = suggestion);
+                                    },
+                                  )
+                              ],
                             ),
-                          );
-                        }
-                        if (suggestions.isEmpty) {
-                          return const Center(child: Text('No suggestion'));
-                        }
-                        return Container();
-                      },
-                    ),
-                  ],
-                ),
+                          ),
+                          // child: ListView.builder(
+                          //   // shrinkWrap: true,
+                          //   itemCount: 4,
+                          //   itemBuilder: (context, index) {
+                          //     final suggestion = suggestions[index];
+                          //     return ListTile(
+                          //       title: Text(suggestion.address),
+                          //       onTap: () {
+                          //         searchController.text = suggestion.address;
+                          //         setState(() => selectedSuggestion = suggestion);
+                          //       },
+                          //     );
+                          //   },
+                          // ),
+                        );
+                      }
+                      // if (suggestions == null) {
+                      //   return const Center(child: Text('No suggestion'));
+                      // }
+                      // if (suggestions.isNotEmpty) {
+                      //   return SizedBox(
+                      //     width: 250,
+                      //     height: 150,
+                      //     child: ListView.builder(
+                      //       itemCount: (suggestions.length > 5) ? 5 : suggestions.length,
+                      //       itemBuilder: (context, index) {
+                      //         final suggestion = suggestions[index];
+                      //         return ListTile(
+                      //           title: Text(suggestion.address),
+                      //           onTap: () {
+                      //             searchController.text = suggestion.address;
+                      //             setState(() => selectedSuggestion = suggestion);
+                      //           },
+                      //         );
+                      //       },
+                      //     ),
+                      //   );
+                      // }
+                      // if (suggestions.isEmpty) {
+                      //   return const Center(child: Text('No suggestion'));
+                      // }
+                      // return Container();
+                    },
+                  ),
+                ],
               ),
-            ),
-            actions: [
-              BlocProvider<PlacePickerFormFieldBloc>(
-                create: (context) => PlacePickerFormFieldBloc(
-                    googlePlaceRepository:
-                        context.read<GooglePlaceRepository>()),
-                child: BlocConsumer<PlacePickerFormFieldBloc,
-                    PlacePickerFormFieldState>(
-                  listener: (context, state) {
-                    if (state.status.isSuccess) {
-                      context.pop(state.googlePlace);
-                    }
-                    if (state.status.isFailure) {
-                      showSnackBar(context: context, text: state.message!);
-                    }
-                  },
+              actions: [
+                BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
                   builder: (context, state) {
-                    if (state.status.isLoading) {
-                      return Loader();
-                    }
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -229,12 +258,12 @@ Future<GooglePlace?> _showLocationSearchDialog(
                       ],
                     );
                   },
-                ),
-              )
-            ],
-          );
-        },
-      );
+                )
+              ],
+            ),
+          ),
+        );
+      });
     },
   );
 }

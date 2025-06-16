@@ -18,12 +18,13 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
   })  :
         _jurorRepository = jurorRepository,
         super(JurorHomePageState(status: BlocStatus.initial)) {
-    on<JurorHomePageGetJoinedContests>(_getJoinedContests);
+    on<JurorHomePageInit>(_init);
+    on<JurorHomePageRefresh>(_refresh);
     on<JurorHomePageJoinContest>(_joinContest);
   }
 
-  FutureOr<void> _getJoinedContests(
-    JurorHomePageGetJoinedContests event,
+  FutureOr<void> _init(
+    JurorHomePageInit event,
     Emitter<JurorHomePageState> emit,
   ) async {
     emit(JurorHomePageState(status: BlocStatus.loading, sourceEvent: event));
@@ -163,6 +164,16 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     // ));
   }
 
+  FutureOr<void> _refresh(JurorHomePageRefresh event, Emitter<JurorHomePageState> emit,) async{
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherContests = await _jurorRepository.getJoinedContests(jurorId: event.jurorId);
+    eitherContests.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success,joinedContestsBundles: success)),
+    );
+  }
+
   //* Join contest
   FutureOr<void> _joinContest(
     JurorHomePageJoinContest event,
@@ -235,4 +246,6 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     // emit(JurorHomePageState(
     //     status: BlocStatus.failure, message: 'No invitation found with these credentials'));
   }
+
+
 }

@@ -44,94 +44,87 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ParticipantWorkSubmitPageBloc(
-        workRepository: context.read(),
-        storageRepository: context.read(),
-        participationRepository: context.read(),
-      ),
-      child: BlocBuilder<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Submit work'),
-            body: Stepper(
-              type: StepperType.horizontal,
-              physics: ScrollPhysics(),
-              elevation: 0,
-              steps: getSteps(),
-              currentStep: currentStep,
-              onStepContinue: () {
-                final isLastStep = (currentStep == getSteps().length - 1);
-                if (formKeys[currentStep].currentState?.validate() ?? false) {
-                  if (isLastStep) {
-                    final name = nameController.text;
-                    final description = descriptionController.text;
-                    context.read<ParticipantWorkSubmitPageBloc>().add(ParticipantWorkSubmitPageSubmitWork(
-                      contestId: contestId,
-                      participantId: user.id,
-                      name: name,
-                      description: description,
-                      images: images,
-                    ));
-                  } else {
-                    setState(() => ++currentStep);
-                  }
+    return BlocBuilder<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Submit work'),
+          body: Stepper(
+            type: StepperType.horizontal,
+            physics: ScrollPhysics(),
+            elevation: 0,
+            steps: getSteps(),
+            currentStep: currentStep,
+            onStepContinue: () {
+              final isLastStep = (currentStep == getSteps().length - 1);
+              if (formKeys[currentStep].currentState?.validate() ?? false) {
+                if (isLastStep) {
+                  final name = nameController.text;
+                  final description = descriptionController.text;
+                  context.read<ParticipantWorkSubmitPageBloc>().add(ParticipantWorkSubmitPageSubmitWork(
+                    contestId: contestId,
+                    participantId: user.id,
+                    name: name,
+                    description: description,
+                    images: images,
+                  ));
+                } else {
+                  setState(() => ++currentStep);
                 }
-              },
-              onStepCancel: () {
-                (currentStep == 0) ? null : setState(() => --currentStep);
-              },
-              controlsBuilder: (context, details) {
-                final isLastStep = details.currentStep == getSteps().length - 1;
-                return Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment: (currentStep == 0)
-                        ? MainAxisAlignment.end
-                        : MainAxisAlignment.spaceBetween,
-                    spacing: 12,
-                    children: [
-                      if (details.currentStep != 0)
-                        ElevatedButton(
-                          onPressed: details.onStepCancel,
-                          child: Text('Back'),
-                        ),
+              }
+            },
+            onStepCancel: () {
+              (currentStep == 0) ? null : setState(() => --currentStep);
+            },
+            controlsBuilder: (context, details) {
+              final isLastStep = details.currentStep == getSteps().length - 1;
+              return Container(
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                  mainAxisAlignment: (currentStep == 0)
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.spaceBetween,
+                  spacing: 12,
+                  children: [
+                    if (details.currentStep != 0)
                       ElevatedButton(
-                        onPressed: details.onStepContinue,
-                        child: isLastStep
-                            ? BlocConsumer<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
-                          listener: (context, state) {
-                            if (state.status.isSuccess) {
-                              showSnackBar(
-                                  context: context, text: 'Work submitted successfully');
-                              context.pop(true);
-                            }
-                            if(state.status.isFailure) {
-                              showSnackBar(context: context, text: state.message!);
-                            }
-                          },
-                          builder: (context, state) {
-                            if (state.status.isLoading) {
-                              return Loader();
-                            }
-                            return Text('Submit');
-                          },
-                        )
-                            : Text('Next'),
+                        onPressed: details.onStepCancel,
+                        child: Text('Back'),
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+                    ElevatedButton(
+                      onPressed: details.onStepContinue,
+                      child: isLastStep
+                          ? BlocConsumer<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
+                        listener: (context, state) {
+                          if (state.status.isSuccess) {
+                            showSnackBar(
+                                context: context, text: 'Work submitted successfully');
+                            context.pop(true);
+                          }
+                          if(state.status.isFailure) {
+                            showSnackBar(context: context, text: state.message!);
+                          }
+                        },
+                        builder: (context, state) {
+                          if (state.status.isLoading) {
+                            return Loader();
+                          }
+                          return Text('Submit');
+                        },
+                      )
+                          : Text('Next'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

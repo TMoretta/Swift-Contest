@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
-import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_exclusion_bundle.dart';
 import 'package:swift_contest/model/data_models/user.dart';
@@ -12,6 +11,7 @@ import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
@@ -35,8 +35,10 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
+  final fourthFormKey = GlobalKey<FormState>();
 
-  List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
+  List<GlobalKey<FormState>> get formKeys =>
+      [firstFormKey, secondFormKey, thirdFormKey, fourthFormKey];
   int currentStep = 0;
 
   bool areSimpleJurorsAllowed = false;
@@ -50,6 +52,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   GooglePlace? geoRestrictionPlace;
   final geoRestrictionRadiusController = TextEditingController();
   final List<ParticipationBundle> votingParticipationsBundles = [];
+  final List<ParticipationBundle> excludedVotingParticipationsBundles = [];
   final List<JurationBundle> votingJurationsBundles = [];
 
   @override
@@ -63,119 +66,100 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerVotingSettingsPageBloc>(
-      create: (context) => OrganizerVotingSettingsPageBloc(
-        votingFormRepository: context.read(),
-        votingSessionRepository: context.read(),
-        votingFormFieldRepository: context.read(),
-        votingSessionParticipationRepository: context.read(),
-        votingSessionJurationRepository: context.read(),
-        utilsRepository: context.read(),
-        placeRepository: context.read(),
-        votingSessionExclusionRepository: context.read(),
-        organizerRepository: context.read(),
-      ),
+    return BlocListener<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
+      listener: (context, state) {
+        if (state.status.isFailure) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
+          context.replaceNamed(AppRouter.organizerVotingProcedure,
+              extra: state.votingSessionBundle!.toJson());
+        }
+      },
       child: Scaffold(
         appBar: AppBar(
           title: Text('Voting settings'),
         ),
         body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SizedBox(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-                child:
-                    BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
-                  listener: (context, state) {
-                    if (state.status.isFailure) {
-                      showSnackBar(context: context, text: state.message!);
+          child: BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              return Stepper(
+                type: StepperType.horizontal,
+                currentStep: currentStep,
+                onStepContinue: () {
+                  final isLastStep = (currentStep == getSteps().length - 1);
+                  if (formKeys[currentStep].currentState?.validate() ?? false) {
+                    if (isLastStep) {
+                      context
+                          .read<OrganizerVotingSettingsPageBloc>()
+                          .add(OrganizerVotingSettingsPageInitVotingProcedure(
+                            contestId: contestDetailsBundle.contest.id,
+                            votingFormId: contestDetailsBundle.votingFormBundle.votingForm.id,
+                            areSimpleJurorsAllowed: areSimpleJurorsAllowed,
+                            votingExclusionsBundles: votingExclusions,
+                            votingParticipationsBundles: votingParticipationsBundles,
+                            votingJurationsBundles: votingJurationsBundles,
+                            workTimer: workTimer,
+                            intermissionTimer: intermissionTimer,
+                            reviewTimer: reviewTimer,
+                            isGeoRestricted: isGeoRestricted,
+                            geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
+                            geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
+                            geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
+                            geoRestrictionRadius: (geoRestrictionRadiusController.text.isNotEmpty)
+                                ? int.tryParse(geoRestrictionRadiusController.text)
+                                : null,
+                          ));
+                    } else {
+                      setState(() => ++currentStep);
                     }
-                    if (state.status.isSuccess) {
-                      context.replaceNamed(AppRouter.organizerVotingProcedure,
-                          extra: state.votingSessionBundle!.toJson());
-                    }
-                  },
-                  builder: (context, state) {
-                    return Stepper(
-                      type: StepperType.horizontal,
-                      currentStep: currentStep,
-                      onStepContinue: () {
-                        final isLastStep = (currentStep == getSteps().length - 1);
-                        if (formKeys[currentStep].currentState?.validate() ?? false) {
-                          if (isLastStep) {
-                            context
-                                .read<OrganizerVotingSettingsPageBloc>()
-                                .add(OrganizerVotingSettingsPageBeginVotingProcedure(
-                                  contestId: contestDetailsBundle.contest.id,
-                                  votingFormId: contestDetailsBundle.votingFormBundle.votingForm.id,
-                                  areSimpleJurorsAllowed: areSimpleJurorsAllowed,
-                                  votingExclusionsBundles: votingExclusions,
-                                  votingParticipationsBundles: votingParticipationsBundles,
-                                  votingJurationsBundles: votingJurationsBundles,
-                                  workTimer: workTimer,
-                                  intermissionTimer: intermissionTimer,
-                                  reviewTimer: reviewTimer,
-                                  isGeoRestricted: isGeoRestricted,
-                                  geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
-                                  geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
-                                  geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
-                                  geoRestrictionRadius:
-                                      (geoRestrictionRadiusController.text.isNotEmpty)
-                                          ? int.tryParse(geoRestrictionRadiusController.text)
-                                          : null,
-                                ));
-                          } else {
-                            setState(() => ++currentStep);
-                          }
-                        }
-                      },
-                      onStepCancel: () {
-                        (currentStep == 0) ? null : setState(() => --currentStep);
-                      },
-                      controlsBuilder: (context, details) {
-                        final isLastStep = details.currentStep == getSteps().length - 1;
-                        return Container(
-                          margin: EdgeInsets.only(top: 20),
-                          child: Row(
-                            mainAxisAlignment: (currentStep == 0)
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.spaceBetween,
-                            spacing: 12,
-                            children: [
-                              if (details.currentStep != 0)
-                                ElevatedButton(
-                                  onPressed: details.onStepCancel,
-                                  child: Text('Back'),
-                                ),
-                              ElevatedButton(
-                                onPressed: details.onStepContinue,
-                                child: isLastStep
-                                    ? BlocConsumer<OrganizerVotingSettingsPageBloc,
-                                        OrganizerVotingSettingsPageState>(
-                                        listener: (context, state) {},
-                                        builder: (context, state) {
-                                          if (state.status.isLoading) {
-                                            return Loader();
-                                          }
-                                          return Text('Start');
-                                        },
-                                      )
-                                    : Text('Next'),
-                              ),
-                            ],
+                  }
+                },
+                onStepCancel: () {
+                  (currentStep == 0) ? null : setState(() => --currentStep);
+                },
+                controlsBuilder: (context, details) {
+                  final isLastStep = details.currentStep == getSteps().length - 1;
+                  return Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: (currentStep == 0)
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.spaceBetween,
+                      spacing: 12,
+                      children: [
+                        if (details.currentStep != 0)
+                          ElevatedButton(
+                            onPressed: details.onStepCancel,
+                            child: Text('Back'),
                           ),
-                        );
-                      },
-                      steps: getSteps(),
-                    );
-                  },
-                ),
+                        ElevatedButton(
+                          onPressed: details.onStepContinue,
+                          child: isLastStep
+                              ? BlocConsumer<OrganizerVotingSettingsPageBloc,
+                                  OrganizerVotingSettingsPageState>(
+                                  listener: (context, state) {},
+                                  builder: (context, state) {
+                                    if (state.status.isLoading) {
+                                      return Loader();
+                                    }
+                                    return Text('Start');
+                                  },
+                                )
+                              : Text('Next'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                steps: getSteps(),
               );
             },
           ),
@@ -202,6 +186,87 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           ),
           content: Form(
             key: firstFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if(votingParticipationsBundles.isNotEmpty)
+                SizedBox(
+                  height: 200,
+                  child: ReorderableListView(
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final ParticipationBundle ppw =
+                        votingParticipationsBundles.removeAt(oldIndex);
+                        votingParticipationsBundles.insert(newIndex, ppw);
+                      });
+                    },
+                    children: [
+                      for (var i = 0; i < votingParticipationsBundles.length; i++)
+                        ListTile(
+                          key: ValueKey(votingParticipationsBundles[i].participation.id),
+                          title: Column(
+                            children: [
+                              Text(votingParticipationsBundles[i].work!.name),
+                              Text(votingParticipationsBundles[i].participant.fullName),
+                            ],
+                          ),
+                          trailing: IconButton(onPressed: (){
+                            setState(() {
+                              votingParticipationsBundles.removeAt(i);
+                              excludedVotingParticipationsBundles.add(votingParticipationsBundles[i]);
+                            });
+                          }, icon: Icon(Icons.remove),),
+                        ),
+                    ],
+                  ),
+                ),
+                if(excludedVotingParticipationsBundles.isNotEmpty)
+                  SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      itemCount: excludedVotingParticipationsBundles.length,
+                        itemBuilder:  (context, index) {
+                          final excludedParticipationBundle = excludedVotingParticipationsBundles[index];
+                          return ListTile(
+                            title: Column(
+                              children: [
+                                Text(excludedParticipationBundle.work!.name),
+                                Text(excludedParticipationBundle.participant.fullName),
+                              ],
+                            ),
+                            trailing: IconButton(onPressed: (){
+                              setState(() {
+                                excludedVotingParticipationsBundles.removeAt(index);
+                                votingParticipationsBundles.add(excludedParticipationBundle);
+                              });
+                            }, icon: Icon(Icons.add),),
+                          );
+                        },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        //* Second step
+        Step(
+          state: currentStep >= 2 ? StepState.complete : StepState.indexed,
+          isActive: currentStep >= 1,
+          title: Text(
+            '',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: (currentStep == 1)
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.grey9,
+            ),
+          ),
+          content: Form(
+            key: secondFormKey,
             child: SizedBox(
               height: 400,
               child: ListView(
@@ -235,7 +300,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     enabled: isGeoRestricted,
                     controller: geoRestrictionPlaceController,
                     label: 'Restricted location',
-                    validator: (isGeoRestricted) ? (value) => locationValidator(value) : null,
+                    validator: (isGeoRestricted) ? noEmptyValidator : null,
                     onSelected: (placeValue) => geoRestrictionPlace = placeValue,
                     prefixIcon: Icon(Icons.place_outlined),
                   ),
@@ -276,22 +341,22 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
             ),
           ),
         ),
-        //* Second step
+        //* Third step
         Step(
-          state: currentStep >= 2 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 1,
+          state: currentStep >= 3 ? StepState.complete : StepState.indexed,
+          isActive: currentStep >= 2,
           title: Text(
             '',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: (currentStep == 1)
+              color: (currentStep == 2)
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.grey9,
             ),
           ),
           content: Form(
-            key: secondFormKey,
+            key: thirdFormKey,
             child: SizedBox(
               height: 400,
               child: ListView(
@@ -449,22 +514,22 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
             ),
           ),
         ),
-        //* Third step
+        //* Fourth step
         Step(
-          state: currentStep >= 3 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 2,
+          state: currentStep >= 4 ? StepState.complete : StepState.indexed,
+          isActive: currentStep >= 3,
           title: Text(
             '',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: (currentStep == 2)
+              color: (currentStep == 3)
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.grey9,
             ),
           ),
           content: Form(
-            key: thirdFormKey,
+            key: fourthFormKey,
             child: SizedBox(
               height: 400,
               child: ListView(
@@ -522,33 +587,59 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Work timer'),
-                      CupertinoTimerPicker(
-                        mode: CupertinoTimerPickerMode.ms,
-                        initialTimerDuration:
-                            Duration(minutes: workTimer.inMinutes, seconds: workTimer.inSeconds),
-                        onTimerDurationChanged: (Duration newDuration) {
-                          workTimer = newDuration;
-                        },
+                      Text(
+                        'Work timer',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
-                      Text('Intermission timer'),
-                      CupertinoTimerPicker(
-                        mode: CupertinoTimerPickerMode.ms,
-                        initialTimerDuration: Duration(
-                            minutes: intermissionTimer.inMinutes,
-                            seconds: intermissionTimer.inSeconds),
-                        onTimerDurationChanged: (Duration newDuration) {
-                          intermissionTimer = newDuration;
-                        },
+                      SizedBox(height: 4),
+                      SizedBox(
+                        width: 200,
+                        height: 100,
+                        child: CupertinoTimerPicker(
+                          mode: CupertinoTimerPickerMode.ms,
+                          initialTimerDuration:
+                              Duration(minutes: workTimer.inMinutes, seconds: workTimer.inSeconds),
+                          onTimerDurationChanged: (Duration newDuration) {
+                            workTimer = newDuration;
+                          },
+                        ),
                       ),
-                      Text('Review timer'),
-                      CupertinoTimerPicker(
-                        mode: CupertinoTimerPickerMode.ms,
-                        initialTimerDuration: Duration(
-                            minutes: reviewTimer.inMinutes, seconds: reviewTimer.inSeconds),
-                        onTimerDurationChanged: (Duration newDuration) {
-                          reviewTimer = newDuration;
-                        },
+                      SizedBox(height: 16),
+                      Text(
+                        'Intermission timer',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(height: 4),
+                      SizedBox(
+                        width: 200,
+                        height: 100,
+                        child: CupertinoTimerPicker(
+                          mode: CupertinoTimerPickerMode.ms,
+                          initialTimerDuration: Duration(
+                              minutes: intermissionTimer.inMinutes,
+                              seconds: intermissionTimer.inSeconds),
+                          onTimerDurationChanged: (Duration newDuration) {
+                            intermissionTimer = newDuration;
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Review timer',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(height: 4),
+                      SizedBox(
+                        width: 200,
+                        height: 100,
+                        child: CupertinoTimerPicker(
+                          mode: CupertinoTimerPickerMode.ms,
+                          initialTimerDuration: Duration(
+                              minutes: reviewTimer.inMinutes, seconds: reviewTimer.inSeconds),
+                          onTimerDurationChanged: (Duration newDuration) {
+                            reviewTimer = newDuration;
+                          },
+                        ),
                       ),
                     ],
                   )
@@ -558,11 +649,4 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           ),
         ),
       ];
-}
-
-String? locationValidator(String? value) {
-  if (value == null || value.isEmpty) {
-    return '';
-  }
-  return null;
 }

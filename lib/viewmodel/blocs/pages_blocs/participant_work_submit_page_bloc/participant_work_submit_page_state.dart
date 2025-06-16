@@ -5,13 +5,12 @@ final class ParticipantWorkSubmitPageState extends Equatable {
   final BlocStatus status;
   final ParticipantWorkSubmitPageEvent? sourceEvent;
   final String? message;
-  final Work? work;
+  // final Work? work;
 
   const ParticipantWorkSubmitPageState({
     required this.status,
     this.sourceEvent,
     this.message,
-    this.work,
   });
 
   ParticipantWorkSubmitPageState copyWith({
@@ -24,10 +23,9 @@ final class ParticipantWorkSubmitPageState extends Equatable {
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      work: work ?? this.work,
     );
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, message, work];
+  List<Object?> get props => [status, sourceEvent, message];
 }

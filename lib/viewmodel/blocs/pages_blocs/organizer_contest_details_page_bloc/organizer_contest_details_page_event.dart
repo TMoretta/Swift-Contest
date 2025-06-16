@@ -13,6 +13,15 @@ final class OrganizerContestDetailsPageInit extends OrganizerContestDetailsPageE
   List<Object?> get props => [contestId];
 }
 
+final class OrganizerContestDetailsPageRefresh extends OrganizerContestDetailsPageEvent {
+  final String contestId;
+
+  const OrganizerContestDetailsPageRefresh({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+}
+
 // final class OrganizerContestDetailsPageGetRemainingInfo extends OrganizerContestDetailsPageEvent {
 //   final HomeContestBundle homeContestBundle;
 //

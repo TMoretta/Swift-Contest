@@ -267,7 +267,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           children: [
                             Text('From:'),
                             Text(
-                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionFrom),
+                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionStart),
                             ),
                           ],
                         ),
@@ -279,7 +279,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           children: [
                             Text('To:'),
                             Text(
-                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionTo),
+                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionEnd),
                             ),
                           ],
                         ),

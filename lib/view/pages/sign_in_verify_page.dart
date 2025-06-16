@@ -23,105 +23,106 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              //* Title
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Swift Contest',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 48,
-                      fontWeight: FontWeight.w900,
+    return BlocListener<SignInVerifyPageBloc, SignInVerifyPageState>(
+      listener: (context, state) {
+        //* Show a message if there is one
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        //* Show a message to verify email and go to 'sign in' in case of success
+        if (state.status.isSuccess && state.sourceEvent is SignInVerifyOtp) {
+          context.goNamed(AppRouter.root, extra: 0);
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                //* Title
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Swift Contest',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 48,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Welcome to your contest manager',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                    Text(
+                      'Welcome to your contest manager',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 12,
-              ),
-              //* Form
-              BlocConsumer<SignInVerifyPageBloc, SignInVerifyPageState>(
-                listener: (context, state) {
-                  //* Show a message if there is one
-                  if (state.message != null) {
-                    showSnackBar(context: context, text: state.message!);
-                  }
-                  //* Show a message to verify email and go to 'sign in' in case of success
-                  if (state.status.isSuccess && state.sourceEvent is SignInVerifyOtp) {
-                    context.goNamed(AppRouter.splash, extra: 0);
-                  }
-                },
-                builder: (context, state) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return SizedBox.shrink();
-                    case BlocStatus.loading:
-                      return Loader();
-                    case BlocStatus.failure:
-                    case BlocStatus.success:
-                      return Form(
-                        key: _formKey,
-                        child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              //* Otp field
-                              CustomTextFormFieldOutlined(
-                                controller: _otpController,
-                                label: 'OTP',
-                                prefixIcon: Icon(Icons.lock),
-                              ),
-                              SizedBox(height: 10),
-                              //* Verify button
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState?.validate() ?? false) {
-                                      context.read<SignInVerifyPageBloc>().add(SignInVerifyOtp(
-                                          email: widget.email,
-                                          otp: _otpController.text.trim()));
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(context).colorScheme.primary,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  child: const Text(
-                                    'Verify',
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w500,
+                  ],
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                //* Form
+                BlocBuilder<SignInVerifyPageBloc, SignInVerifyPageState>(
+                  builder: (context, state) {
+                    switch (state.status) {
+                      case BlocStatus.initial:
+                        return SizedBox.shrink();
+                      case BlocStatus.loading:
+                        return Loader();
+                      case BlocStatus.failure:
+                      case BlocStatus.success:
+                        return Form(
+                          key: _formKey,
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                //* Otp field
+                                CustomTextFormFieldOutlined(
+                                  controller: _otpController,
+                                  label: 'OTP',
+                                  prefixIcon: Icon(Icons.lock),
+                                ),
+                                SizedBox(height: 10),
+                                //* Verify button
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState?.validate() ?? false) {
+                                        context.read<SignInVerifyPageBloc>().add(SignInVerifyOtp(
+                                            email: widget.email, otp: _otpController.text.trim()));
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context).colorScheme.primary,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text(
+                                      'Verify',
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                  }
-                },
-              ),
-            ],
+                        );
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

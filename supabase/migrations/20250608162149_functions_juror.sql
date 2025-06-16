@@ -30,7 +30,8 @@ BEGIN
     JOIN places pla ON cont.place_id = pla.id
     JOIN profiles org ON cont.organizer_id = org.id
     JOIN jurations jura ON jura.contest_id = cont.id AND jura.juror_status = 'joined'
-    WHERE jura.juror_id = p_juror_id;
+    WHERE jura.juror_id = p_juror_id
+    ORDER BY cont.created_at DESC;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -43,7 +44,7 @@ $$ LANGUAGE plpgsql SECURITY definer;
 -- JUROR JOIN CONTEST
 CREATE OR REPLACE FUNCTION juror_join_contest(
   p_juror_id uuid,
-  p_token char
+  p_token varchar
 )
 RETURNS void AS $$
 DECLARE

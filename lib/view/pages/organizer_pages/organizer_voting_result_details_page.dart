@@ -37,7 +37,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
     votingSession = widget.votingSession;
     contestDetailsBundle = widget.contestDetailsBundle;
     context.read<OrganizerVotingResultDetailsPageBloc>().add(OrganizerVotingResultDetailsPageGetResultInfo(contestDetailsBundle: contestDetailsBundle, votingSession: votingSession));

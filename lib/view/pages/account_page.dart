@@ -19,67 +19,59 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(title: 'Account'),
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if(state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-        },
-        builder: (context, state) {
-          switch(state.blocStatus) {
-            case BlocStatus.initial:
-              return SizedBox.shrink();
-            case BlocStatus.loading:
-              return Loader();
-            case BlocStatus.failure:
-            case BlocStatus.success:
-              final profile = state.profile!;
-              return ListView(
-                children: [
-                  ListTile(
-                    title: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      spacing: 12,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Full name',
-                              style:
-                              TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.grey8),
-                            ),
-                            Text(
-                              profile.fullName,
-                              style: TextStyle(
-                                  fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            _showEditFullNameDialog(context: context);
-                          },
-                          icon: Icon(Icons.edit),
-                        ),
-                      ],
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(title: 'Account'),
+        body: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            switch (state.blocStatus) {
+              case BlocStatus.initial:
+                return SizedBox.shrink();
+              case BlocStatus.loading:
+                return Loader();
+              case BlocStatus.failure:
+              case BlocStatus.success:
+                final profile = state.authBundle!.profile;
+                return ListView(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        'Full name',
+                      ),
+                      titleTextStyle: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                      subtitle: Text(
+                        profile.fullName,
+                      ),
+                      subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
+                      trailing: IconButton(
+                        onPressed: () {
+                          _showEditFullNameDialog(context: context);
+                        },
+                        icon: Icon(Icons.edit),
+                      ),
                     ),
-                  ),
-                ],
-              );
-          }
-        },
+                  ],
+                );
+            }
+          },
+        ),
       ),
     );
   }
 }
 
 void _showEditFullNameDialog({required BuildContext context}) {
-  final fullNameController = TextEditingController();
   final authBloc = context.read<AuthBloc>();
+  final fullNameController =
+      TextEditingController(text: authBloc.state.authBundle!.profile.fullName);
 
   showDialog(
     context: context,
@@ -91,39 +83,45 @@ void _showEditFullNameDialog({required BuildContext context}) {
             if (state.blocStatus.isSuccess) {
               showSnackBar(context: context, text: 'Full name updated successfully');
               context.read<AuthBloc>().add(AuthFetchProfile());
-              context.pop();
+              context.pop(true);
             }
           },
           builder: (context, state) {
-            return AbsorbPointer(
-              absorbing: state.blocStatus.isLoading,
-              child: AlertDialog(
-                title: Text('Edit full name'),
-                content: CustomTextFormFieldUnderlined(
-                  controller: fullNameController,
-                ),
-                actions: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        child: Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          context.read<AuthBloc>().add(AuthEditFullName(
-                              fullName: fullNameController.text.trim()));
-                        },
-                        child: Text('Edit'),
-                      ),
-                    ],
-                  ),
+            return AlertDialog(
+              title: Text('Edit full name'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  (state.blocStatus.isLoading)
+                      ? Loader()
+                      : ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 200),
+                          child: CustomTextFormFieldUnderlined(
+                            controller: fullNameController,
+                          ),
+                        ),
                 ],
               ),
+              actions: [
+                TextButton(
+                  onPressed: (!state.blocStatus.isLoading)
+                      ? () {
+                          context.pop();
+                        }
+                      : null,
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: (!state.blocStatus.isLoading)
+                      ? () {
+                          context
+                              .read<AuthBloc>()
+                              .add(AuthEditFullName(fullName: fullNameController.text.trim()));
+                        }
+                      : null,
+                  child: Text('Edit'),
+                ),
+              ],
             );
           },
         ),

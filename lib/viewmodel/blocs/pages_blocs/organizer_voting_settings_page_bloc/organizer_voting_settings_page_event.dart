@@ -4,7 +4,7 @@ sealed class OrganizerVotingSettingsPageEvent extends Equatable {
   const OrganizerVotingSettingsPageEvent();
 }
 
-final class OrganizerVotingSettingsPageBeginVotingProcedure
+final class OrganizerVotingSettingsPageInitVotingProcedure
     extends OrganizerVotingSettingsPageEvent {
   final String contestId;
   final String votingFormId;
@@ -22,7 +22,7 @@ final class OrganizerVotingSettingsPageBeginVotingProcedure
   final int? geoRestrictionRadius;
 
 
-  const OrganizerVotingSettingsPageBeginVotingProcedure({
+  const OrganizerVotingSettingsPageInitVotingProcedure({
     required this.contestId,
     required this.votingFormId,
     required this.areSimpleJurorsAllowed,

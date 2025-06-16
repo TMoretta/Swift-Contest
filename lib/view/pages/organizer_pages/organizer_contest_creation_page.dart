@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
@@ -18,6 +17,7 @@ import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_creation_page_bloc/organizer_contest_creation_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_form_field_bloc/place_picker_form_field_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class OrganizerContestCreationPage extends StatefulWidget {
@@ -29,11 +29,11 @@ class OrganizerContestCreationPage extends StatefulWidget {
 
 class _OrganizerContestCreationPageState extends State<OrganizerContestCreationPage> {
   late User user;
-  final detailsFormKey = GlobalKey<FormState>();
-  final imagesFormKey = GlobalKey<FormState>();
-  final settingsFormKey = GlobalKey<FormState>();
+  final firstFormKey = GlobalKey<FormState>();
+  final secondFormKey = GlobalKey<FormState>();
+  final thirdFormKey = GlobalKey<FormState>();
 
-  List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey, settingsFormKey];
+  List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
@@ -43,45 +43,40 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   TimeOfDay? time;
   final placeController = TextEditingController();
   GooglePlace? place;
-  final worksSubmissionFromController = TextEditingController();
-  DateTime? worksSubmissionFrom;
-  final worksSubmissionToController = TextEditingController();
-  DateTime? worksSubmissionTo;
+  final worksSubmissionStartController = TextEditingController();
+  DateTime? worksSubmissionStart;
+  final worksSubmissionEndController = TextEditingController();
+  DateTime? worksSubmissionEnd;
   final List<XFile> images = [];
 
   @override
   void initState() {
     super.initState();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => OrganizerContestCreationPageBloc(
-        contestRepository: context.read(),
-        storageRepository: context.read(),
-        placeRepository: context.read(),
-        utilsRepository: context.read(),
-        votingFormRepository: context.read(),
-        organizerRepository: context.read(),
-      ),
-      child: BlocConsumer<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
-        listener: (context, state) {
-          if (state.status.isFailure && state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isSuccess) {
-            showSnackBar(context: context, text: 'Contest created successfully');
-            context.pop(true);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Contest Creation'),
-            body: Stepper(
+    return BlocListener<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerContestCreationPageCreateContest) {
+          showSnackBar(context: context, text: 'Contest created successfully');
+          context.pop(true);
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(title: 'Contest Creation'),
+        body: BlocBuilder<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
+          builder: (context, state) {
+            if (state.status.isLoading) {
+              return Loader();
+            }
+            return Stepper(
               type: StepperType.horizontal,
-              physics: ScrollPhysics(),
               elevation: 0,
               steps: getSteps(),
               currentStep: currentStep,
@@ -102,8 +97,8 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                             placeLat: place!.lat,
                             placeLon: place!.lon,
                             dateTime: dateTime,
-                            worksSubmissionFrom: worksSubmissionFrom!,
-                            worksSubmissionTo: worksSubmissionTo!,
+                            worksSubmissionStart: worksSubmissionStart!,
+                            worksSubmissionEnd: worksSubmissionEnd!,
                             images: images,
                           ),
                         );
@@ -145,9 +140,9 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   ),
                 );
               },
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -158,18 +153,9 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
         Step(
           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 0,
-          title: Text(
-            'Details',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: (currentStep == 0)
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.grey9,
-            ),
-          ),
+          title: Text(''),
           content: Form(
-            key: detailsFormKey,
+            key: firstFormKey,
             child: Column(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,13 +185,17 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   onSelected: (timeValue) => time = timeValue,
                   prefixIcon: Icon(Icons.access_time_outlined),
                 ),
-                PlacePickerFormField(
-                  controller: placeController,
-                  label: 'Location',
-                  validator: (value) => locationValidator(value),
-                  onSelected: (placeValue) => place = placeValue,
-                  prefixIcon: Icon(Icons.place_outlined),
-                ),
+                BlocProvider<PlacePickerFormFieldBloc>(
+                  create: (context) =>
+                      PlacePickerFormFieldBloc(googlePlaceRepository: context.read()),
+                  child: PlacePickerFormField(
+                    controller: placeController,
+                    label: 'Location',
+                    validator: (value) => locationValidator(value),
+                    onSelected: (placeValue) => place = placeValue,
+                    prefixIcon: Icon(Icons.place_outlined),
+                  ),
+                )
               ],
             ),
           ),
@@ -214,18 +204,9 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
         Step(
           state: currentStep >= 2 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 1,
-          title: Text(
-            'Images',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: (currentStep == 1)
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.grey9,
-            ),
-          ),
+          title: Text(''),
           content: Form(
-            key: imagesFormKey,
+            key: secondFormKey,
             child: FormField(
               validator: (value) => imagesValidator(images),
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -233,7 +214,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 return Column(
                   children: [
                     (images.isEmpty)
-                        ? Center(child: Text('No images selected yet.'))
+                        ? Center(child: Text('No image selected yet.'))
                         : GridView.builder(
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
@@ -259,19 +240,24 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                                         filterQuality: FilterQuality.medium,
                                         frameBuilder:
                                             (context, child, frame, wasSynchronouslyLoaded) {
-                                          if (wasSynchronouslyLoaded || frame != null) return child;
+                                          if (wasSynchronouslyLoaded || frame != null) {
+                                            return child;
+                                          }
                                           return const Loader();
                                         },
                                       ),
                               );
                             },
                           ),
+                    SizedBox(height: 10),
                     FilledButton(
                       onPressed: () async {
                         final choice = await showImagesDialog(context: context);
-                        if (choice) {
+                        if (choice == true) {
                           var res = await pickMultipleImages();
-                          if (res.isEmpty) return;
+                          if (res.isEmpty) {
+                            return;
+                          }
                           if (res.length > 6) {
                             res = res.getRange(0, 6).toList(growable: false);
                             if (mounted) {
@@ -281,17 +267,21 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                               );
                             }
                           }
+                          images.clear();
                           setState(() {
-                            images.clear();
                             images.addAll(res);
-                            field.didChange(images);
                           });
+                          field.didChange(images);
                         }
                       },
                       child: Text('Pick images'),
                     ),
                     if (field.hasError)
-                      Text('Select at least one image', style: TextStyle(color: Colors.red)),
+                      Text('Select at least one image',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(color: Theme.of(context).colorScheme.error)),
                   ],
                 );
               },
@@ -302,37 +292,29 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
         Step(
           state: currentStep >= 3 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
-          title: Text(
-            'Settings',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: (currentStep == 2)
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.grey9,
-            ),
-          ),
+          title: Text(''),
           content: Form(
-            key: settingsFormKey,
+            key: thirdFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
-                Text('Work upload deadline for participants',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                Text('Work upload deadline for participants',style: Theme.of(context).textTheme.titleMedium,),
                 SizedBox(height: 10),
                 DatePickerFormField(
-                  controller: worksSubmissionFromController,
-                  label: 'Date from',
-                  validator: (value) => workDateFromValidator(value),
-                  onSelected: (workDateFromValue) => worksSubmissionFrom = workDateFromValue,
+                  controller: worksSubmissionStartController,
+                  label: 'Start date',
+                  validator: (value) =>
+                      _worksSubmissionStartValidator(value, date!, worksSubmissionEnd),
+                  onSelected: (workDateStartValue) => worksSubmissionStart = workDateStartValue,
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                 ),
                 DatePickerFormField(
-                  controller: worksSubmissionToController,
-                  label: 'Date to',
-                  validator: (value) => workDateToValidator(value),
-                  onSelected: (workDateToValue) => worksSubmissionTo = workDateToValue,
+                  controller: worksSubmissionEndController,
+                  label: 'End date',
+                  validator: (value) =>
+                      _worksSubmissionEndValidator(value, date!, worksSubmissionStart),
+                  onSelected: (workDateEndValue) => worksSubmissionEnd = workDateEndValue,
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                 ),
               ],
@@ -340,70 +322,75 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
           ),
         ),
       ];
+}
 
-  Future<bool> showImagesDialog({required BuildContext context}) async {
-    bool choice = false;
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Pick images'),
-        content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
-            'The first image will represent the cover of the contest'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.pop();
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              choice = true;
-              context.pop();
-            },
-            child: const Text('Ok'),
-          ),
-        ],
-      ),
-    );
-    return choice;
+Future<bool?> showImagesDialog({required BuildContext context}) async {
+  return await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Pick images'),
+      content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
+          'The first image will represent the cover of the contest'),
+      actions: [
+        TextButton(
+          onPressed: () {
+            context.pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            context.pop(true);
+          },
+          child: const Text('Ok'),
+        ),
+      ],
+    ),
+  );
+}
+
+String? _worksSubmissionStartValidator(String? value, DateTime date, DateTime? worksSubmissionEnd) {
+  if (value == null || value.isEmpty) {
+    return '';
   }
 
-  String? workDateFromValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return '';
+  try {
+    final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy').parse(value);
+    if (worksSubmissionStart.isAfter(date)) {
+      return 'Can\'t be before contest date';
     }
-    if (worksSubmissionTo == null) {
+    if (worksSubmissionEnd == null) {
       return null;
     }
-    try {
-      final DateTime workDateFrom = DateFormat('dd/MM/yyyy').parse(value);
-      if (workDateFrom.isAfter(worksSubmissionTo!)) {
-        return 'Date from can\'t be after date to';
-      }
-    } catch (e) {
-      return 'Invalid date format';
+    if (worksSubmissionStart.isAfter(worksSubmissionEnd)) {
+      return 'Can\'t be after the date of the end';
     }
-    return null;
+  } catch (e) {
+    return 'Invalid date format';
+  }
+  return null;
+}
+
+String? _worksSubmissionEndValidator(String? value, DateTime date, DateTime? worksSubmissionStart) {
+  if (value == null || value.isEmpty) {
+    return '';
   }
 
-  String? workDateToValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return '';
+  try {
+    final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy').parse(value);
+    if (worksSubmissionEnd.isAfter(date)) {
+      return 'Can\'t be before contest date';
     }
-    if (worksSubmissionFrom == null) {
+    if (worksSubmissionStart == null) {
       return null;
     }
-    try {
-      final DateTime workDateTo = DateFormat('dd/MM/yyyy').parse(value);
-      if (workDateTo.isBefore(worksSubmissionFrom!)) {
-        return 'Date to can\'t be before date from';
-      }
-    } catch (e) {
-      return 'Invalid date format';
+    if (worksSubmissionEnd.isBefore(worksSubmissionStart)) {
+      return 'Can\'t be before the date of begin';
     }
-    return null;
+  } catch (e) {
+    return 'Invalid date format';
   }
+  return null;
 }
 
 String? imagesValidator(List<XFile> images) {
@@ -456,7 +443,7 @@ String? locationValidator(String? value) {
 
 Future<List<XFile>> pickMultipleImages() async {
   final ImagePicker picker = ImagePicker();
-  final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 90);
+  final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 80);
 
   return pickedImages;
 }

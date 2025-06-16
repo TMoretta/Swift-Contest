@@ -212,7 +212,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
       });
       return right(unit);
     } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
+      return left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }

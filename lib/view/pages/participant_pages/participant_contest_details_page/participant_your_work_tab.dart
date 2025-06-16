@@ -32,7 +32,7 @@ class _ParticipantYourWorkTabState extends State<ParticipantYourWorkTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<ParticipantContestDetailsPageBloc>().state;
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
     if (state.status.isInitial) {
       context
           .read<ParticipantContestDetailsPageBloc>()
@@ -44,7 +44,7 @@ class _ParticipantYourWorkTabState extends State<ParticipantYourWorkTab> {
   Widget build(BuildContext context) {
     return BlocConsumer<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
       listener: (context, state) {
-        if ( state.message != null) {
+        if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
       },
@@ -52,8 +52,8 @@ class _ParticipantYourWorkTabState extends State<ParticipantYourWorkTab> {
         switch (state.status) {
           case BlocStatus.initial:
           case BlocStatus.loading:
-          case (BlocStatus.failure || BlocStatus.success):
-            if (state.contestDetailsBundle == null) {
+          case BlocStatus.failure:
+            if (state.sourceEvent is ParticipantContestDetailsPageInit) {
               return RefreshIndicator.adaptive(
                 onRefresh: () async {
                   context.read<ParticipantContestDetailsPageBloc>().add(
@@ -65,98 +65,96 @@ class _ParticipantYourWorkTabState extends State<ParticipantYourWorkTab> {
                 ),
               );
             } else {
-              return Scaffold(
-                body: RefreshIndicator.adaptive(
-                  onRefresh: () async => context
-                      .read<ParticipantContestDetailsPageBloc>()
-                      .add(ParticipantContestDetailsPageInit(
-                        contestId: contestId,
-                        participantId: user.id,
-                      )),
-                  child: (state.submittedWork == null)
-                      ? ListView(
-                          children: [
-                            Center(
-                              child: Text('No work submitted yet'),
-                            )
-                          ],
-                        )
-                      : ListView(
-                          children: [
-                            //*Title
-                            Text(
-                              state.submittedWork!.name,
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                            ),
-                            //* Images carousel
-                            SizedBox(
-                              height: 180,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: state.submittedWork!.imagesUrls.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: Image.network(
-                                      state.submittedWork!.imagesUrls[index],
-                                      fit: BoxFit.contain,
-                                      frameBuilder:
-                                          (context, child, frame, wasSynchronouslyLoaded) {
-                                        if (wasSynchronouslyLoaded || frame != null) {
-                                          return child;
-                                        }
-                                        return const Loader();
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            //* Description
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Description',
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                                ),
-                                Text(state.submittedWork!.description,
-                                    style: TextStyle(fontSize: 18)),
-                              ],
-                            ),
-                          ],
-                        ),
-                ),
-                floatingActionButton: BlocBuilder<ParticipantContestDetailsPageBloc,
-                    ParticipantContestDetailsPageState>(
-                  builder: (context, state) {
-                    if (state.submittedWork == null) {
-                      return Positioned(
-                        bottom: 16,
-                        right: 0,
-                        child: FilledButton(
-                          onPressed: () async {
-                            final res = await context.pushNamed(AppRouter.participantWorkSubmit,
-                                extra: contestId);
-                            if (res == true) {
-                              if (context.mounted) {
-                                context.read<ParticipantContestDetailsPageBloc>().add(
-                                    ParticipantContestDetailsPageInit(
-                                        contestId: contestId, participantId: user.id));
-                              }
-                            }
-                          },
-                          child: Text('Submit your work'),
-                        ),
-                      );
-                    }
-                    return SizedBox.shrink();
-                  },
-                ),
-              );
+              continue successCase;
             }
+          successCase:
+          case BlocStatus.success:
+            return Scaffold(
+              body: RefreshIndicator.adaptive(
+                onRefresh: () async => context
+                    .read<ParticipantContestDetailsPageBloc>()
+                    .add(ParticipantContestDetailsPageInit(
+                      contestId: contestId,
+                      participantId: user.id,
+                    )),
+                child: (state.submittedWork == null)
+                    ? ListView(
+                        children: [
+                          Center(
+                            child: Text('No work submitted yet'),
+                          )
+                        ],
+                      )
+                    : ListView(
+                        children: [
+                          //*Title
+                          Text(
+                            state.submittedWork!.name,
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                          ),
+                          //* Images carousel
+                          SizedBox(
+                            height: 180,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: state.submittedWork!.imagesUrls.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Image.network(
+                                    state.submittedWork!.imagesUrls[index],
+                                    fit: BoxFit.contain,
+                                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                      if (wasSynchronouslyLoaded || frame != null) {
+                                        return child;
+                                      }
+                                      return const Loader();
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          //* Description
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Description',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                              Text(state.submittedWork!.description,
+                                  style: TextStyle(fontSize: 18)),
+                            ],
+                          ),
+                        ],
+                      ),
+              ),
+              floatingActionButton: BlocBuilder<ParticipantContestDetailsPageBloc,
+                  ParticipantContestDetailsPageState>(
+                builder: (context, state) {
+                  if (state.submittedWork == null) {
+                    return FilledButton(
+                      onPressed: () async {
+                        final bool? res = await context.pushNamed(AppRouter.participantWorkSubmit,
+                            extra: contestId);
+                        if (res == true) {
+                          if (context.mounted) {
+                            context.read<ParticipantContestDetailsPageBloc>().add(
+                                ParticipantContestDetailsPageInit(
+                                    contestId: contestId, participantId: user.id));
+                          }
+                        }
+                      },
+                      child: Text('Submit your work'),
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
+              ),
+            );
         }
       },
     );

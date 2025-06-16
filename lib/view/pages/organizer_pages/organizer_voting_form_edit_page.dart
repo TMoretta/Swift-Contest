@@ -35,102 +35,127 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Voting Form',
-        actions: [
-          BlocConsumer<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
-            listener: (context, state) {
-              if (state.message != null) {
-                showSnackBar(context: context, text: state.message!);
-              }
-              if (state.status.isSuccess && state.sourceEvent is OrganizerVotingFormEditPageUpdateVotingForm) {
-                context.pop(true);
-              }
-            },
+    return BlocListener<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerVotingFormEditPageUpdateVotingForm) {
+          context.pop(true);
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: 'Voting Form',
+          actions: [
+            BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
+              builder: (context, state) {
+                switch (state.status) {
+                  case BlocStatus.loading:
+                    return FilledButton(
+                      onPressed: null,
+                      child: Text('Save'),
+                    );
+                  case BlocStatus.initial:
+                  case BlocStatus.failure:
+                  case BlocStatus.success:
+                    return FilledButton(
+                      onPressed: (isEdited)
+                          ? () {
+                              context.read<OrganizerVotingFormEditPageBloc>().add(
+                                  OrganizerVotingFormEditPageUpdateVotingForm(
+                                      votingFormId: votingFormBundle.votingForm.id,
+                                      votingFormFields: updatedFields));
+                            }
+                          : null,
+                      child: Text('Save'),
+                    );
+                }
+              },
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
             builder: (context, state) {
-              return FilledButton(
-                onPressed: (isEdited)
-                    ? () {
-                        context.read<OrganizerVotingFormEditPageBloc>().add(
-                            OrganizerVotingFormEditPageUpdateVotingForm(
-                                votingFormId: votingFormBundle.votingForm.id,
-                                votingFormFields: updatedFields));
-                      }
-                    : null,
-                child: Text('Save'),
-              );
+              if (state.status.isLoading) {
+                return Loader();
+              }
+              return (updatedFields.isEmpty)
+                  ? Text('No field added yet')
+                  : ListView.builder(
+                      itemCount: updatedFields.length,
+                      itemBuilder: (context, index) {
+                        final field = updatedFields[index];
+                        return ListTile(
+                          title: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(field.name),
+                              Row(
+                                children: [
+                                  Text('min: '),
+                                  ((field).minValue == null)
+                                      ? Text('0, ')
+                                      : Text((field).minValue.toString()),
+                                  Text('max: '),
+                                  ((field).maxValue == null)
+                                      ? Text('\u221E', style: TextStyle(fontSize: 24))
+                                      : Text((field).maxValue.toString()),
+                                ],
+                              ),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isEdited = true;
+                                    updatedFields.remove(field);
+                                  });
+                                },
+                                icon: Icon(Icons.remove),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
             },
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
+        ),
+        floatingActionButton:
+            BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
           builder: (context, state) {
-            if (state.status.isLoading) {
-              return Loader();
+            switch (state.status) {
+              case BlocStatus.loading:
+                return SizedBox.shrink();
+              case BlocStatus.initial:
+              case BlocStatus.failure:
+              case BlocStatus.success:
+                return IconButton(
+                  onPressed: () async {
+                    final VotingFormField? newField = await showAddFieldDialog(
+                        context: context,
+                        votingFormId: votingFormBundle.votingForm.id,
+                        orderIndex: updatedFields.length);
+                    if (newField != null) {
+                      setState(() {
+                        isEdited = true;
+                        updatedFields.add(newField);
+                      });
+                    }
+                  },
+                  icon: Icon(Icons.add),
+                );
             }
-            return (updatedFields.isEmpty)
-                ? Text('No field added yet')
-                : ListView.builder(
-                    itemCount: updatedFields.length,
-                    itemBuilder: (context, index) {
-                      final field = updatedFields[index];
-                      return ListTile(
-                        title: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(field.name),
-                            Row(
-                              children: [
-                                Text('min: '),
-                                ((field).minValue == null)
-                                    ? Text('0, ')
-                                    : Text((field).minValue.toString()),
-                                Text('max: '),
-                                ((field).maxValue == null)
-                                    ? Text('\u221E', style: TextStyle(fontSize: 24))
-                                    : Text((field).maxValue.toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isEdited = true;
-                                  updatedFields.remove(field);
-                                });
-                              },
-                              icon: Icon(Icons.remove),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
           },
         ),
-      ),
-      floatingActionButton: IconButton(
-        onPressed: () async {
-          final VotingFormField? newField = await showAddFieldDialog(
-              context: context,
-              votingFormId: votingFormBundle.votingForm.id,
-              orderIndex: updatedFields.length);
-          if (newField != null) {
-            setState(() {
-              isEdited = true;
-              updatedFields.add(newField);
-            });
-          }
-        },
-        icon: Icon(Icons.add),
       ),
     );
 
@@ -244,8 +269,11 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   }
 }
 
-Future<VotingFormField?> showAddFieldDialog(
-    {required BuildContext context, required String votingFormId, required int orderIndex}) async {
+Future<VotingFormField?> showAddFieldDialog({
+  required BuildContext context,
+  required String votingFormId,
+  required int orderIndex,
+}) async {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final minValueController = TextEditingController();

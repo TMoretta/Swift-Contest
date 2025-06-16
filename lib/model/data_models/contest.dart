@@ -8,8 +8,8 @@ class Contest extends Equatable {
   final String name;
   final String description;
   final DateTime dateTime;
-  final DateTime worksSubmissionFrom;
-  final DateTime worksSubmissionTo;
+  final DateTime worksSubmissionStart;
+  final DateTime worksSubmissionEnd;
   final List<String> imagesUrls;
   final String placeId;
   final ContestStatus contestStatus;
@@ -24,8 +24,8 @@ class Contest extends Equatable {
     required this.name,
     required this.description,
     required this.dateTime,
-    required this.worksSubmissionFrom,
-    required this.worksSubmissionTo,
+    required this.worksSubmissionStart,
+    required this.worksSubmissionEnd,
     required this.imagesUrls,
     required this.placeId,
     required this.contestStatus,
@@ -42,8 +42,8 @@ class Contest extends Equatable {
       name: json['name'] as String,
       description: json['description'] as String,
       dateTime: DateTime.parse(json['date_time']).toLocal(),
-      worksSubmissionFrom: DateTime.parse(json['works_submission_from']).toLocal(),
-      worksSubmissionTo: DateTime.parse(json['works_submission_to']).toLocal(),
+      worksSubmissionStart: DateTime.parse(json['works_submission_start']).toLocal(),
+      worksSubmissionEnd: DateTime.parse(json['works_submission_end']).toLocal(),
       placeId: json['place_id'] as String,
       contestStatus: ContestStatus.values.byName(json['contest_status'] as String),
       imagesUrls: List<String>.from(json['images_urls']),
@@ -61,8 +61,8 @@ class Contest extends Equatable {
       'name': name,
       'description': description,
       'date_time': dateTime.toUtc().toIso8601String(),
-      'works_submission_from': worksSubmissionFrom.toUtc().toIso8601String(),
-      'works_submission_to': worksSubmissionTo.toUtc().toIso8601String(),
+      'works_submission_start': worksSubmissionStart.toUtc().toIso8601String(),
+      'works_submission_end': worksSubmissionEnd.toUtc().toIso8601String(),
       'place_id': placeId,
       'contest_status': contestStatus.name,
       'images_urls': imagesUrls,
@@ -80,8 +80,8 @@ class Contest extends Equatable {
       'p_name': name,
       'p_description': description,
       'p_date_time': dateTime.toUtc().toIso8601String(),
-      'p_works_submission_from': worksSubmissionFrom.toUtc().toIso8601String(),
-      'p_works_submission_to': worksSubmissionTo.toUtc().toIso8601String(),
+      'p_works_submission_from': worksSubmissionStart.toUtc().toIso8601String(),
+      'p_works_submission_to': worksSubmissionEnd.toUtc().toIso8601String(),
       'p_place_id': placeId,
       'p_contest_status': contestStatus.name,
       'p_images_urls': imagesUrls,
@@ -98,8 +98,8 @@ class Contest extends Equatable {
     String? name,
     String? description,
     DateTime? dateTime,
-    DateTime? worksSubmissionFrom,
-    DateTime? worksSubmissionTo,
+    DateTime? worksSubmissionStart,
+    DateTime? worksSubmissionEnd,
     String? placeId,
     ContestStatus? contestStatus,
     List<String>? imagesUrls,
@@ -114,8 +114,8 @@ class Contest extends Equatable {
       name: name ?? this.name,
       description: description ?? this.description,
       dateTime: dateTime ?? this.dateTime,
-      worksSubmissionFrom: worksSubmissionFrom ?? this.worksSubmissionFrom,
-      worksSubmissionTo: worksSubmissionTo ?? this.worksSubmissionTo,
+      worksSubmissionStart: worksSubmissionStart ?? this.worksSubmissionStart,
+      worksSubmissionEnd: worksSubmissionEnd ?? this.worksSubmissionEnd,
       placeId: placeId ?? this.placeId,
       contestStatus: contestStatus ?? this.contestStatus,
       imagesUrls: imagesUrls ?? this.imagesUrls,
@@ -133,8 +133,8 @@ class Contest extends Equatable {
         name,
         description,
         dateTime,
-        worksSubmissionFrom,
-        worksSubmissionTo,
+        worksSubmissionStart,
+        worksSubmissionEnd,
         placeId,
         contestStatus,
         imagesUrls,

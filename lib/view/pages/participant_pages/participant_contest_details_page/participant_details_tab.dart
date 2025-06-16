@@ -33,7 +33,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<ParticipantContestDetailsPageBloc>().state;
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
     if (state.status.isInitial) {
       context
           .read<ParticipantContestDetailsPageBloc>()
@@ -274,7 +274,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           children: [
                             Text('From:'),
                             Text(
-                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionFrom),
+                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionStart),
                             ),
                           ],
                         ),
@@ -286,7 +286,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           children: [
                             Text('To:'),
                             Text(
-                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionTo),
+                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionEnd),
                             ),
                           ],
                         ),

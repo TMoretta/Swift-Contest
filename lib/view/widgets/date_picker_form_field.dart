@@ -13,8 +13,10 @@ class DatePickerFormField extends StatelessWidget {
   final Color? externalIconColor;
   final Icon? prefixIcon;
   final Color? prefixIconColor;
+  final DateTime? initialDate;
+  final FocusNode focusNode = FocusNode();
 
-  const DatePickerFormField({
+  DatePickerFormField({
     required this.controller,
     this.label,
     this.onSelected,
@@ -26,6 +28,7 @@ class DatePickerFormField extends StatelessWidget {
     this.externalIconColor,
     this.prefixIcon,
     this.prefixIconColor,
+    this.initialDate,
     super.key,
   });
 
@@ -33,8 +36,6 @@ class DatePickerFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       readOnly: true,
-      style: TextStyle(
-          fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
       controller: controller,
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
@@ -49,7 +50,8 @@ class DatePickerFormField extends StatelessWidget {
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
           onPressed: () async {
-            final date = await _showDatePicker(context: context);
+            FocusScope.of(context).requestFocus(focusNode);
+            final date = await _showDatePicker(context: context, initialDate: initialDate);
             if (date != null) {
               controller.text = DateFormat('dd/MM/yyyy').format(date);
               if (onSelected != null) {
@@ -62,9 +64,23 @@ class DatePickerFormField extends StatelessWidget {
         helperText: '',
         helperStyle: TextStyle(height: 1),
         errorStyle: TextStyle(height: 1),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         enabledBorder: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceDim,
+          ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         errorBorder: OutlineInputBorder(
@@ -76,31 +92,28 @@ class DatePickerFormField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        border: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
-          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );
   }
 }
 
-Future<DateTime?> _showDatePicker({required BuildContext context}) async {
+Future<DateTime?> _showDatePicker(
+    {required BuildContext context, required DateTime? initialDate}) async {
   final DateTime? date = await showDatePicker(
     context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime.now(),
+    initialDate: initialDate ?? DateTime.now(),
+    firstDate: initialDate ?? DateTime.now(),
     lastDate: DateTime(2100),
   );
 

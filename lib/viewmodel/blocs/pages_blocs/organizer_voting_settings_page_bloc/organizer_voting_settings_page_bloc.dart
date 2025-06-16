@@ -72,11 +72,11 @@ class OrganizerVotingSettingsPageBloc
         _votingSessionExclusionRepository = votingSessionExclusionRepository,
         _organizerRepository = organizerRepository,
         super(OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
-    on<OrganizerVotingSettingsPageBeginVotingProcedure>(_createVotingSessionAndBeginProcedure);
+    on<OrganizerVotingSettingsPageInitVotingProcedure>(_createVotingSessionAndBeginProcedure);
   }
 
   FutureOr<void> _createVotingSessionAndBeginProcedure(
-    OrganizerVotingSettingsPageBeginVotingProcedure event,
+    OrganizerVotingSettingsPageInitVotingProcedure event,
     Emitter<OrganizerVotingSettingsPageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));

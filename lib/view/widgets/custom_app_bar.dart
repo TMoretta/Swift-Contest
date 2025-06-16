@@ -11,13 +11,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: FittedBox(
+        fit: BoxFit.scaleDown,
         child: Text(
           title,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          style: Theme.of(context)
+              .textTheme
+              .headlineSmall!
+              .copyWith(color: Theme.of(context).colorScheme.primary),
         ),
       ),
       actions: actions,

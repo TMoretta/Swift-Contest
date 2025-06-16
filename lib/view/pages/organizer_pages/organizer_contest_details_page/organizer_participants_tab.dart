@@ -46,27 +46,27 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-      listener: (context, state) {
-        if (state.status.isFailure) {
-          showSnackBar(context: context, text: state.message!);
-        }
-      },
+    return BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
       builder: (context, state) {
         switch (state.status) {
           case BlocStatus.initial:
-            return Container();
+            return SizedBox.shrink();
           case BlocStatus.loading:
             return Loader();
           case BlocStatus.failure:
-            return RefreshIndicator.adaptive(
-              onRefresh: () async {
-                context
+            if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+              return RefreshIndicator.adaptive(
+                onRefresh: () async => context
                     .read<OrganizerContestDetailsPageBloc>()
-                    .add(OrganizerContestDetailsPageInit(contestId: contestId));
-              },
-              child: ListView(),
-            );
+                    .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                child: ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                ),
+              );
+            } else {
+              continue successCase;
+            }
+          successCase:
           case BlocStatus.success:
             contest = state.contestDetailsBundle!.contest;
             final List<ParticipationBundle> joinedParticipationsBundles =
@@ -124,7 +124,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                               ? RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: ListView(
                                     physics: AlwaysScrollableScrollPhysics(),
                                     children: [
@@ -135,7 +135,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                               : RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: ListView.builder(
                                     physics: AlwaysScrollableScrollPhysics(),
                                     itemCount: joinedParticipationsBundles.length,
@@ -162,7 +162,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                               ? RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: ListView(
                                     physics: AlwaysScrollableScrollPhysics(),
                                     children: [
@@ -173,7 +173,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                               : RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: ListView.builder(
                                     physics: AlwaysScrollableScrollPhysics(),
                                     itemCount: participantsInvitations.length,
@@ -197,12 +197,12 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                               ? RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: ListView(children: [Text('No participant left')]))
                               : RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: ListView.builder(
                                     itemCount: leftParticipationsBundles.length,
                                     itemBuilder: (context, index) {
@@ -230,8 +230,15 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                 ),
               ),
               floatingActionButton: FilledButton(
-                onPressed: () {
-                  _showInviteDialog(context: context, contestId: contestId);
+                onPressed: () async {
+                  final bool? res = await _showInviteDialog(context: context, contestId: contestId);
+                  if (res == true) {
+                    if (context.mounted) {
+                      context
+                          .read<OrganizerContestDetailsPageBloc>()
+                          .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+                    }
+                  }
                 },
                 child: Text('Invite'),
               ),
@@ -242,9 +249,9 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
   }
 }
 
-void _showInviteDialog({required BuildContext context, required String contestId}) {
+Future<bool?> _showInviteDialog({required BuildContext context, required String contestId})async {
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
-  showDialog(
+  return await showDialog(
     context: context,
     builder: (context) {
       final invitationFormKey = GlobalKey<FormState>();
@@ -253,13 +260,10 @@ void _showInviteDialog({required BuildContext context, required String contestId
         value: organizerContestDetailsPageBloc,
         child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
           listener: (context, state) {
-            if (state.message != null) {
-              showSnackBar(context: context, text: state.message!);
-            }
             if (state.status.isSuccess &&
                 state.sourceEvent is OrganizerContestDetailsPageSendParticipantInvite) {
               showSnackBar(context: context, text: 'Email sent successfully');
-              context.pop();
+              context.pop(true);
             }
           },
           builder: (context, state) {

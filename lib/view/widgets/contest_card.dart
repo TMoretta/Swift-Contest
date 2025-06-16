@@ -29,80 +29,182 @@ class _ContestCardState extends State<ContestCard> {
     final joinedParticipations = contestCardBundle.joinedParticipations;
     final joinedJurations = contestCardBundle.joinedJurations;
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          widget.onTap();
-        },
-        child: Padding(
-          padding: EdgeInsets.all(8),
-          //* Card internal
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 12,
-            children: [
-              //* First card column
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //* Card image box
-                  SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      clipBehavior: Clip.antiAlias,
-                      child: FittedBox(
-                        fit: BoxFit.cover,
-                        clipBehavior: Clip.antiAlias,
-                        alignment: Alignment.center,
-                        child: (contest.imagesUrls.isNotEmpty)
-                            ? Image.network(
-                          contest.imagesUrls[0],
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/images/image_not_found.jpg',
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        )
-                            : Image.asset('assets/images/image_not_found.jpg', fit: BoxFit.cover),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              //* Second card column
-              Expanded(
-                flex: 1,
-                child: Column(
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 500),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        // color: Theme.of(context).colorScheme.surface,
+        child: InkWell(
+          onTap: () {
+            widget.onTap();
+          },
+          child: Padding(
+            padding: EdgeInsets.all(8),
+            //* Card internal
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                //* First card column
+                Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
                   children: [
-                    //* Title and status circle row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        //* Title
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            contest.name,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                          ),
+                    //* Card image box
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        clipBehavior: Clip.antiAlias,
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          clipBehavior: Clip.hardEdge,
+                          alignment: Alignment.center,
+                          child: (contest.imagesUrls.isNotEmpty)
+                              ? Image.network(
+                                  contest.imagesUrls[0],
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/image_not_found.jpg',
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                )
+                              : Image.asset('assets/images/image_not_found.jpg', fit: BoxFit.cover),
                         ),
-                        //* Status circle
-                        Icon(
-                          Icons.circle,
-                          size: 20,
-                          color: switch (contest.contestStatus) {
+                      ),
+                    ),
+                  ],
+                ),
+                //* Second card column
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 4,
+                    children: [
+                      //* Title and status circle row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          //* Title
+                          Expanded(
+                            child: Text(
+                              contest.name,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                            ),
+                          ),
+                          //* Status circle
+                          Icon(
+                            Icons.circle,
+                            size: 20,
+                            color: switch (contest.contestStatus) {
+                              ContestStatus.preparationPhase =>
+                                Theme.of(context).colorScheme.statusPreparation,
+                              ContestStatus.participationPhase =>
+                                Theme.of(context).colorScheme.statusParticipation,
+                              ContestStatus.votingPhase =>
+                                Theme.of(context).colorScheme.statusVoting,
+                              ContestStatus.terminated =>
+                                Theme.of(context).colorScheme.statusTerminated,
+                              ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
+                            },
+                          ),
+                        ],
+                      ),
+                      //* Organizer name
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Icon(
+                            Icons.person_rounded,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              organizer.fullName,
+                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                      //* Place
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Icon(
+                            Icons.location_on_rounded,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              place.address,
+                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                      //* DateTime
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Icon(
+                            Icons.calendar_month_rounded,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.dateTime),
+                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                      //* Members
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          Icon(
+                            Icons.people_alt_rounded,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              'Participants: ${joinedParticipations.length} | Jurors: ${joinedJurations.length}',
+                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                      //* Status
+                      Text(
+                        switch (contest.contestStatus) {
+                          ContestStatus.preparationPhase => 'Preparation phase',
+                          ContestStatus.participationPhase => 'Participation phase',
+                          ContestStatus.votingPhase => 'Voting phase',
+                          ContestStatus.terminated => 'Terminated',
+                          ContestStatus.deleted => 'Deleted',
+                        },
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: switch(contest.contestStatus) {
                             ContestStatus.preparationPhase =>
                             Theme.of(context).colorScheme.statusPreparation,
                             ContestStatus.participationPhase =>
@@ -111,116 +213,14 @@ class _ContestCardState extends State<ContestCard> {
                             ContestStatus.terminated =>
                             Theme.of(context).colorScheme.statusTerminated,
                             ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
-                          },
+                          }
                         ),
-                      ],
-                    ),
-                    //* Organizer name
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
-                      children: [
-                        Icon(
-                          Icons.person_rounded,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            organizer.fullName,
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    //* Place
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
-                      children: [
-                        Icon(
-                          Icons.location_on_rounded,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            place.address,
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    //* DateTime
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
-                      children: [
-                        Icon(
-                          Icons.calendar_month_rounded,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            // '12Jan, 2025 | 15:00',
-                            DateFormat('dd MMM, yyyy | HH:mm')
-                                .format(contest.dateTime),
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    //* Members
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
-                      children: [
-                        Icon(
-                          Icons.people_alt_rounded,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            'Participants: ${joinedParticipations.length} | Jurors: ${joinedJurations.length}',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    //* Status
-                    Text(
-                      switch (contest.contestStatus) {
-                        ContestStatus.preparationPhase => 'Preparation phase',
-                        ContestStatus.participationPhase => 'Participation phase',
-                        ContestStatus.votingPhase => 'Voting phase',
-                        ContestStatus.terminated => 'Terminated',
-                        ContestStatus.deleted => 'Deleted',
-                      },
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: switch (contest.contestStatus) {
-                          ContestStatus.preparationPhase =>
-                          Theme.of(context).colorScheme.statusPreparation,
-                          ContestStatus.participationPhase =>
-                          Theme.of(context).colorScheme.statusParticipation,
-                          ContestStatus.votingPhase => Theme.of(context).colorScheme.statusVoting,
-                          ContestStatus.terminated =>
-                          Theme.of(context).colorScheme.statusTerminated,
-                          ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
-                        },
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

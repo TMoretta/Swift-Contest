@@ -1,48 +1,36 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/contest_repository.dart';
 import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/place_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
 import 'package:swift_contest/model/repositories/utils_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/voting_form_repository.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_contest_creation_page_event.dart';
-
 part 'organizer_contest_creation_page_state.dart';
 
 class OrganizerContestCreationPageBloc
     extends Bloc<OrganizerContestCreationPageEvent, OrganizerContestCreationPageState> {
-  final ContestRepository _contestRepository;
   final StorageRepository _storageRepository;
-  final PlaceRepository _placeRepository;
   final UtilsRepository _utilsRepository;
-  final VotingFormRepository _votingFormRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerContestCreationPageBloc({
-    required ContestRepository contestRepository,
     required StorageRepository storageRepository,
-    required PlaceRepository placeRepository,
     required UtilsRepository utilsRepository,
-    required VotingFormRepository votingFormRepository,
     required OrganizerRepository organizerRepository,
-  })  : _contestRepository = contestRepository,
+  })  :
         _storageRepository = storageRepository,
-        _placeRepository = placeRepository,
         _utilsRepository = utilsRepository,
-        _votingFormRepository = votingFormRepository,
         _organizerRepository = organizerRepository,
         super(OrganizerContestCreationPageState(status: BlocStatus.initial)) {
     on<OrganizerContestCreationPageCreateContest>(_createContest);
@@ -87,9 +75,9 @@ class OrganizerContestCreationPageBloc
 
     late final ContestStatus contestStatus;
     final nowt = DateTime.now();
-    if (nowt.isBefore(event.worksSubmissionFrom)) {
+    if (nowt.isBefore(event.worksSubmissionStart)) {
       contestStatus = ContestStatus.preparationPhase;
-    } else if (nowt.isBefore(event.worksSubmissionTo)) {
+    } else if (nowt.isBefore(event.worksSubmissionEnd)) {
       contestStatus = ContestStatus.preparationPhase;
     } else {
       contestStatus = ContestStatus.votingPhase;
@@ -102,8 +90,8 @@ class OrganizerContestCreationPageBloc
       name: event.name,
       description: event.description,
       dateTime: event.dateTime,
-      worksSubmissionFrom: event.worksSubmissionFrom,
-      worksSubmissionTo: event.worksSubmissionTo,
+      worksSubmissionStart: event.worksSubmissionStart,
+      worksSubmissionEnd: event.worksSubmissionEnd,
       imagesUrls: imagesUrls,
       placeId: place.id,
       contestStatus: contestStatus,

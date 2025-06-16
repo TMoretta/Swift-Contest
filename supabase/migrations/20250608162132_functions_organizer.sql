@@ -28,7 +28,8 @@ BEGIN
     FROM contests c
     JOIN profiles o ON c.organizer_id = o.id
     JOIN places p ON c.place_id = p.id
-    WHERE c.organizer_id = p_organizer_id;
+    WHERE c.organizer_id = p_organizer_id
+    ORDER BY c.created_at DESC;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -423,7 +424,7 @@ BEGIN
     PERFORM cron.unschedule(v_job_name);
   END IF;
 
-  UPDATE voting_session_procedures
+  UPDATE voting_sessions
   SET
     session_status = 'cancelled'::voting_session_status,
     current_participant_index = NULL,

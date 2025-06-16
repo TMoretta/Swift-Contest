@@ -18,12 +18,13 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
   })  :
         _participantRepository = participantRepository,
         super(ParticipantHomePageState(status: BlocStatus.initial)) {
-    on<ParticipantHomePageGetJoinedContests>(_getJoinedContests);
+    on<ParticipantHomePageInit>(_init);
+    on<ParticipantHomePageRefresh>(_refresh);
     on<ParticipantHomePageJoinContest>(_joinContest);
   }
 
-  FutureOr<void> _getJoinedContests(
-    ParticipantHomePageGetJoinedContests event,
+  FutureOr<void> _init(
+    ParticipantHomePageInit event,
     Emitter<ParticipantHomePageState> emit,
   ) async {
     emit(ParticipantHomePageState(status: BlocStatus.loading, sourceEvent: event));
@@ -155,6 +156,16 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
     //   status: BlocStatus.success,
     //   joinedContestsBundles: joinedContestsBundles,
     // ));
+  }
+
+  FutureOr<void> _refresh(ParticipantHomePageRefresh event, Emitter<ParticipantHomePageState> emit,) async{
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherContests = await _participantRepository.getJoinedContests(participantId: event.participantId);
+    eitherContests.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success,joinedContestsBundles: success)),
+    );
   }
 
   //* Join contest

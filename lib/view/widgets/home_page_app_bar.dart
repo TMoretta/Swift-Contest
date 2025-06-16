@@ -22,10 +22,9 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
     final contestRole = widget.contestRole;
     return AppBar(
       title: FittedBox(
+        fit: BoxFit.scaleDown,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 4,
           children: [
             Text(
               switch (contestRole) {
@@ -33,31 +32,22 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                 ContestRole.participant => 'Participant',
                 ContestRole.juror => 'Juror',
               },
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Theme.of(context).colorScheme.primary),
             ),
+            SizedBox(width: 4),
             TextButton(
               onPressed: () => _showSwitchRoleDialog(context: context, currentRole: contestRole),
-              style: ButtonStyle(
-                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)),
-              ),
               child: Row(
-                spacing: 2,
                 children: [
                   Icon(
                     Icons.swap_horiz_rounded,
                     size: 24,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
+                  SizedBox(width: 2),
                   Text(
                     'Switch role',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.secondary),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).colorScheme.secondary),
                   ),
                 ],
               ),
@@ -66,18 +56,12 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
         ),
       ),
       actions: [
-        FittedBox(
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  context.pushNamed(AppRouter.settings);
-                },
-                icon: Icon(Icons.more_vert),
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ],
-          ),
+        IconButton(
+          onPressed: () {
+            context.pushNamed(AppRouter.settings);
+          },
+          icon: Icon(Icons.more_vert),
+          color: Theme.of(context).colorScheme.secondary,
         ),
       ],
       shadowColor: Theme.of(context).colorScheme.black,
@@ -106,11 +90,6 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   title: const Text('Organizer'),
                   value: ContestRole.organizer,
                   groupValue: selectedRole,
-                  contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
                   onChanged: (value) {
                     setState(
                       () => selectedRole = value!,
@@ -121,11 +100,6 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   title: const Text('Participant'),
                   value: ContestRole.participant,
                   groupValue: selectedRole,
-                  contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
                   onChanged: (value) {
                     setState(
                       () => selectedRole = value!,
@@ -136,11 +110,6 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   title: const Text('Juror'),
                   value: ContestRole.juror,
                   groupValue: selectedRole,
-                  contentPadding: EdgeInsets.all(1),
-                  shape: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
                   onChanged: (value) {
                     setState(
                       () => selectedRole = value!,
@@ -150,33 +119,28 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
               ],
             ),
             actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      switch (selectedRole) {
-                        case ContestRole.organizer:
-                          context.replaceNamed(AppRouter.organizerHome);
-                          break;
-                        case ContestRole.participant:
-                          context.replaceNamed(AppRouter.participantHome);
-                          break;
-                        case ContestRole.juror:
-                          context.replaceNamed(AppRouter.jurorHome);
-                          break;
-                      }
-                      context.pop();
-                    },
-                    child: const Text('Confirm'),
-                  ),
-                ],
+              TextButton(
+                onPressed: () {
+                  context.pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  switch (selectedRole) {
+                    case ContestRole.organizer:
+                      context.replaceNamed(AppRouter.organizerHome);
+                      break;
+                    case ContestRole.participant:
+                      context.replaceNamed(AppRouter.participantHome);
+                      break;
+                    case ContestRole.juror:
+                      context.replaceNamed(AppRouter.jurorHome);
+                      break;
+                  }
+                  context.pop();
+                },
+                child: const Text('Confirm'),
               ),
             ],
           );

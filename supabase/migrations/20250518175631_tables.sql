@@ -27,12 +27,12 @@ CREATE TABLE contests (
   name varchar(30) NOT NULL,
   description varchar(200) NOT NULL,
   date_time timestamptz NOT NULL,
-  works_submission_from timestamptz NOT NULL,
-  works_submission_to timestamptz NOT NULL,
+  works_submission_start timestamptz NOT NULL,
+  works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL REFERENCES places (id),
   contest_status contest_status NOT NULL,
   images_urls TEXT[] NOT NULL,
-  token char(14) NOT NULL UNIQUE,
+  token varchar(14) NOT NULL UNIQUE,
   voting_form_id uuid NOT NULL REFERENCES voting_forms (id),
   is_deleted bool NOT NULL
 );
@@ -41,7 +41,7 @@ CREATE TABLE invitations (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
   contest_id uuid NOT NULL REFERENCES contests (id),
-  token char(14) NOT NULL UNIQUE,
+  token varchar(14) NOT NULL UNIQUE,
   email varchar NOT NULL,
   member_role member_role NOT NULL
 );
@@ -94,7 +94,7 @@ CREATE TABLE voting_sessions (
   work_timer int NOT NULL,
   intermission_timer int NOT NULL,
   review_timer int NOT NULL,
-  token char(14) NOT NULL UNIQUE,
+  token varchar(14) NOT NULL UNIQUE,
   is_geo_restricted bool NOT NULL,
   geo_restriction_place_id uuid REFERENCES places (id),
   geo_restriction_radius int,

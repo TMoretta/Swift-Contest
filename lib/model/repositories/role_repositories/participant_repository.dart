@@ -23,6 +23,8 @@ abstract interface class ParticipantRepository {
     required String contestId,
     required String participantId,
   });
+
+  Future<Either<Failure,Unit>> submitWork({required String contestId, required String participantId, required String name, required String description, required List<String> imagesUrls});
 }
 
 class ParticipantRepositoryImpl implements ParticipantRepository {
@@ -87,14 +89,35 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
     required String participantId,
   }) async {
     try {
-      final Map<String, dynamic>? res =
+      final List<Map<String, dynamic>> res =
           await _supabase.rpc('participant_get_submitted_work', params: {
         'p_contest_id': contestId,
         'p_participant_id': participantId,
       });
-      return right((res != null) ? Work.fromJson(res) : null);
+      if(res.isEmpty) {
+        return right(null);
+      }
+      return right(Work.fromJson(res.first));
     } on PostgrestException catch (e) {
       return Left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure,Unit>> submitWork({required String contestId, required String participantId, required String name, required String description, required List<String> imagesUrls}) async {
+    try {
+      await _supabase.rpc('participant_submit_work', params: {
+        'p_contest_id': contestId,
+        'p_participant_id': participantId,
+        'p_name': name,
+        'p_description' : description,
+        'p_images_urls' : imagesUrls,
+      });
+      return right(unit);
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }

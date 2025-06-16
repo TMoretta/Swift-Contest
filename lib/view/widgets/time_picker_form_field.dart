@@ -12,8 +12,9 @@ class TimePickerFormField extends StatelessWidget {
   final Color? externalIconColor;
   final Icon? prefixIcon;
   final Color? prefixIconColor;
+  final FocusNode focusNode = FocusNode();
 
-  const TimePickerFormField({
+   TimePickerFormField({
     required this.controller,
     this.label,
     this.onSelected,
@@ -32,7 +33,6 @@ class TimePickerFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       readOnly: true,
-      style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
       controller: controller,
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
@@ -47,6 +47,7 @@ class TimePickerFormField extends StatelessWidget {
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
             onPressed: () async {
+              FocusScope.of(context).requestFocus(focusNode);
               final time = await _showTimePicker(context: context);
               if (time != null) {
                 controller.text =
@@ -61,9 +62,23 @@ class TimePickerFormField extends StatelessWidget {
         helperText: '',
         helperStyle: TextStyle(height: 1),
         errorStyle: TextStyle(height: 1),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         enabledBorder: OutlineInputBorder(
-          borderSide:
-          BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceDim,
+          ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         errorBorder: OutlineInputBorder(
@@ -75,20 +90,16 @@ class TimePickerFormField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        border: OutlineInputBorder(
-          borderSide:
-          BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
-          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );

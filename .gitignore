@@ -3,7 +3,6 @@
 *.log
 *.pyc
 *.swp
-*.exe
 .DS_Store
 .atom/
 .build/
@@ -45,3 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Mine
+*.exe

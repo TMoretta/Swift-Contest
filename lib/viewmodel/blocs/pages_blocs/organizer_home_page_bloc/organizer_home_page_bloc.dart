@@ -3,52 +3,26 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/data_models/contest.dart';
-import 'package:swift_contest/model/data_models/juration.dart';
-import 'package:swift_contest/model/data_models/participation.dart';
-import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/contest_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/juration_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/participation_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/place_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/profile_repository.dart';
 import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_home_page_event.dart';
-
 part 'organizer_home_page_state.dart';
 
 class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePageState> {
-  final ContestRepository _contestRepository;
-  final ProfileRepository _profileRepository;
-  final PlaceRepository _placeRepository;
-  final ParticipationRepository _participationRepository;
-  final JurationRepository _jurationRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerHomePageBloc({
-    required ContestRepository contestRepository,
-    required ProfileRepository profileRepository,
-    required PlaceRepository placeRepository,
-    required ParticipationRepository participationRepository,
-    required JurationRepository jurationRepository,
     required OrganizerRepository organizerRepository,
-  })  : _contestRepository = contestRepository,
-        _profileRepository = profileRepository,
-        _placeRepository = placeRepository,
-        _participationRepository = participationRepository,
-        _jurationRepository = jurationRepository,
-        _organizerRepository = organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerHomePageState(status: BlocStatus.initial)) {
-    on<OrganizerHomePageGetCreatedContests>(_getCreatedContests);
+    on<OrganizerHomePageInit>(_init);
+    on<OrganizerHomePageRefresh>(_refresh);
   }
 
-  FutureOr<void> _getCreatedContests(
-    OrganizerHomePageGetCreatedContests event,
+  FutureOr<void> _init(
+    OrganizerHomePageInit event,
     Emitter<OrganizerHomePageState> emit,
   ) async {
     emit(OrganizerHomePageState(status: BlocStatus.loading, sourceEvent: event));
@@ -162,5 +136,17 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
     //   status: BlocStatus.success,
     //   createdContestsBundles: createdContestsBundles,
     // ));
+  }
+
+  FutureOr<void> _refresh(OrganizerHomePageRefresh event, Emitter<OrganizerHomePageState> emit,)async {
+    emit(OrganizerHomePageState(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherContests =
+    await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
+    eitherContests.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) =>
+          emit(state.copyWith(status: BlocStatus.success, createdContestsBundles: success)),
+    );
   }
 }

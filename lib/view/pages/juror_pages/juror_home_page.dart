@@ -27,73 +27,99 @@ class _JurorHomePageState extends State<JurorHomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
     if (!context.read<JurorHomePageBloc>().state.status.isSuccess) {
-      context.read<JurorHomePageBloc>().add(JurorHomePageGetJoinedContests(jurorId: user.id));
+      context.read<JurorHomePageBloc>().add(JurorHomePageInit(jurorId: user.id));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<JurorHomePageBloc, JurorHomePageState>(
+  listener: (context, state) {
+    if (state.message != null) {
+      showSnackBar(context: context, text: state.message!);
+    }
+  },
+  child: Scaffold(
       appBar: HomePageAppBar(contestRole: ContestRole.juror),
       body: SafeArea(
-        child: BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
-          listener: (context, state) {
-            if (state.message != null) {
-              showSnackBar(context: context, text: state.message!);
-            }
-          },
-          builder: (context, state) {
-            switch (state.status) {
-              case BlocStatus.initial:
-                return SizedBox.shrink();
-              case BlocStatus.loading:
-                return Loader();
-              case BlocStatus.failure:
-                if (state.sourceEvent is JurorHomePageGetJoinedContests) {
-                  return RefreshIndicator.adaptive(
-                    onRefresh: () async => context
-                        .read<JurorHomePageBloc>()
-                        .add(JurorHomePageGetJoinedContests(jurorId: user.id)),
-                    child: ListView(
-                      physics: AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: BlocBuilder<JurorHomePageBloc, JurorHomePageState>(
+            builder: (context, state) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return SizedBox.shrink();
+                case BlocStatus.loading:
+                  return Loader();
+                case BlocStatus.failure:
+                  if (state.sourceEvent is JurorHomePageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<JurorHomePageBloc>()
+                          .add(JurorHomePageInit(jurorId: user.id)),
+                      child: ListView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                      ),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  if (state.joinedContestsBundles!.isEmpty) {
+                    return LayoutBuilder(builder: (context, constraints) {
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async => context
+                            .read<JurorHomePageBloc>()
+                            .add(JurorHomePageRefresh(jurorId: user.id)),
+                        child: ListView(
+                          children: [
+                            SizedBox(
+                              height: constraints.maxHeight,
+                              child: Center(
+                                child: Text(
+                                  'No contest joined yet',
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },);
+                  }
+                  final contestsBundles = state.joinedContestsBundles!;
+                  return Padding(
+                    padding: EdgeInsets.only(left: 16, right: 16),
+                    child: RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<JurorHomePageBloc>()
+                          .add(JurorHomePageInit(jurorId: user.id)),
+                      child: ListView.builder(
+                        itemCount: contestsBundles.length,
+                        itemBuilder: (context, index) {
+                          final contestBundle = contestsBundles[index];
+                          return Column(
+                            children: [
+                              ContestCard(
+                                contestCardBundle: contestBundle,
+                                onTap: () {
+                                  context.pushNamed(AppRouter.jurorContestDetails,
+                                      extra: contestBundle.contest.id);
+                                },
+                              ),
+                              SizedBox(height: 8),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   );
-                } else {
-                  continue successCase;
-                }
-              successCase:
-              case BlocStatus.success:
-                final contestsBundles = state.joinedContestsBundles!;
-                return Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                  child: RefreshIndicator.adaptive(
-                    onRefresh: () async => context
-                        .read<JurorHomePageBloc>()
-                        .add(JurorHomePageGetJoinedContests(jurorId: user.id)),
-                    child: ListView.builder(
-                      itemCount: contestsBundles.length,
-                      itemBuilder: (context, index) {
-                        final contestBundle = contestsBundles[index];
-                        return Column(
-                          children: [
-                            ContestCard(
-                              contestCardBundle: contestBundle,
-                              onTap: () {
-                                context.pushNamed(AppRouter.jurorContestDetails,
-                                    extra: contestBundle.contest.id);
-                              },
-                            ),
-                            SizedBox(height: 8),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                );
-            }
-          },
+              }
+            },
+          ),
         ),
       ),
       floatingActionButton: Column(
@@ -206,7 +232,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                 if (context.mounted) {
                   context
                       .read<JurorHomePageBloc>()
-                      .add(JurorHomePageGetJoinedContests(jurorId: user.id));
+                      .add(JurorHomePageInit(jurorId: user.id));
                 }
               }
             },
@@ -214,7 +240,8 @@ class _JurorHomePageState extends State<JurorHomePage> {
           ),
         ],
       ),
-    );
+    ),
+);
   }
 }
 
@@ -223,7 +250,7 @@ Future<bool?> _showJoinContestDialog({
   required String userId,
 }) async {
   final jurorHomePageBloc = context.read<JurorHomePageBloc>();
-  return showDialog(
+  return await showDialog(
     context: context,
     builder: (context) {
       final joinContestFormKey = GlobalKey<FormState>();

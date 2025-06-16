@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 class MaterialTheme {
-  static const TextTheme textTheme = TextTheme();
+  final TextTheme textTheme;
 
-  const MaterialTheme._();
+  MaterialTheme({required this.textTheme});
 
-  static ColorScheme _lightScheme() {
+  static ColorScheme lightScheme() {
     return const ColorScheme(
       brightness: Brightness.light,
       primary: Color(0xff415f91),
@@ -26,15 +25,14 @@ class MaterialTheme {
       onError: Color(0xffffffff),
       errorContainer: Color(0xffffdad6),
       onErrorContainer: Color(0xff93000a),
-      surface: Color(0xfff5fafb),
-      // surface: Color(0xffffffff),
-      onSurface: Color(0xff171d1e),
-      onSurfaceVariant: Color(0xff44464f),
-      outline: Color(0xff757780),
-      outlineVariant: Color(0xffc5c6d0),
+      surface: Color(0xfff9f9ff),
+      onSurface: Color(0xff191c20),
+      onSurfaceVariant: Color(0xff44474e),
+      outline: Color(0xff74777f),
+      outlineVariant: Color(0xffc4c6d0),
       shadow: Color(0xff000000),
       scrim: Color(0xff000000),
-      inverseSurface: Color(0xff2b3133),
+      inverseSurface: Color(0xff2e3036),
       inversePrimary: Color(0xffaac7ff),
       primaryFixed: Color(0xffd6e3ff),
       onPrimaryFixed: Color(0xff001b3e),
@@ -48,68 +46,21 @@ class MaterialTheme {
       onTertiaryFixed: Color(0xff28132e),
       tertiaryFixedDim: Color(0xffddbce0),
       onTertiaryFixedVariant: Color(0xff573e5c),
-      surfaceDim: Color(0xffd5dbdc),
-      surfaceBright: Color(0xfff5fafb),
+      surfaceDim: Color(0xffd9d9e0),
+      surfaceBright: Color(0xfff9f9ff),
       surfaceContainerLowest: Color(0xffffffff),
-      surfaceContainerLow: Color(0xffeff5f6),
-      surfaceContainer: Color(0xffe9eff0),
-      surfaceContainerHigh: Color(0xffe3e9ea),
-      surfaceContainerHighest: Color(0xffdee3e5),
+      surfaceContainerLow: Color(0xfff3f3fa),
+      surfaceContainer: Color(0xffededf4),
+      surfaceContainerHigh: Color(0xffe7e8ee),
+      surfaceContainerHighest: Color(0xffe2e2e9),
     );
   }
 
-  static ColorScheme _lightMediumContrastScheme() {
-    return const ColorScheme(
-      brightness: Brightness.light,
-      primary: Color(0xff133665),
-      surfaceTint: Color(0xff415f91),
-      onPrimary: Color(0xffffffff),
-      primaryContainer: Color(0xff506da0),
-      onPrimaryContainer: Color(0xffffffff),
-      secondary: Color(0xff2e3647),
-      onSecondary: Color(0xffffffff),
-      secondaryContainer: Color(0xff646d80),
-      onSecondaryContainer: Color(0xffffffff),
-      tertiary: Color(0xff452e4a),
-      onTertiary: Color(0xffffffff),
-      tertiaryContainer: Color(0xff7f6484),
-      onTertiaryContainer: Color(0xffffffff),
-      error: Color(0xff740006),
-      onError: Color(0xffffffff),
-      errorContainer: Color(0xffcf2c27),
-      onErrorContainer: Color(0xffffffff),
-      surface: Color(0xfff5fafb),
-      onSurface: Color(0xff0c1213),
-      onSurfaceVariant: Color(0xff34363e),
-      outline: Color(0xff50525a),
-      outlineVariant: Color(0xff6b6d75),
-      shadow: Color(0xff000000),
-      scrim: Color(0xff000000),
-      inverseSurface: Color(0xff2b3133),
-      inversePrimary: Color(0xffaac7ff),
-      primaryFixed: Color(0xff506da0),
-      onPrimaryFixed: Color(0xffffffff),
-      primaryFixedDim: Color(0xff375586),
-      onPrimaryFixedVariant: Color(0xffffffff),
-      secondaryFixed: Color(0xff646d80),
-      onSecondaryFixed: Color(0xffffffff),
-      secondaryFixedDim: Color(0xff4c5567),
-      onSecondaryFixedVariant: Color(0xffffffff),
-      tertiaryFixed: Color(0xff7f6484),
-      onTertiaryFixed: Color(0xffffffff),
-      tertiaryFixedDim: Color(0xff654c6b),
-      onTertiaryFixedVariant: Color(0xffffffff),
-      surfaceDim: Color(0xffc2c7c9),
-      surfaceBright: Color(0xfff5fafb),
-      surfaceContainerLowest: Color(0xffffffff),
-      surfaceContainerLow: Color(0xffeff5f6),
-      surfaceContainer: Color(0xffe3e9ea),
-      surfaceContainerHigh: Color(0xffd8dedf),
-      surfaceContainerHighest: Color(0xffcdd3d4),
-    );
+  ThemeData light() {
+    return theme(lightScheme());
   }
 
-  static ColorScheme _lightHighContrastScheme() {
+  static ColorScheme lightHighContrastScheme() {
     return const ColorScheme(
       brightness: Brightness.light,
       primary: Color(0xff032b5b),
@@ -129,14 +80,14 @@ class MaterialTheme {
       onError: Color(0xffffffff),
       errorContainer: Color(0xff98000a),
       onErrorContainer: Color(0xffffffff),
-      surface: Color(0xfff5fafb),
+      surface: Color(0xfff9f9ff),
       onSurface: Color(0xff000000),
       onSurfaceVariant: Color(0xff000000),
-      outline: Color(0xff2a2c33),
-      outlineVariant: Color(0xff474951),
+      outline: Color(0xff292c33),
+      outlineVariant: Color(0xff464951),
       shadow: Color(0xff000000),
       scrim: Color(0xff000000),
-      inverseSurface: Color(0xff2b3133),
+      inverseSurface: Color(0xff2e3036),
       inversePrimary: Color(0xffaac7ff),
       primaryFixed: Color(0xff2a497a),
       onPrimaryFixed: Color(0xffffffff),
@@ -150,17 +101,21 @@ class MaterialTheme {
       onTertiaryFixed: Color(0xffffffff),
       tertiaryFixedDim: Color(0xff412a47),
       onTertiaryFixedVariant: Color(0xffffffff),
-      surfaceDim: Color(0xffb4babb),
-      surfaceBright: Color(0xfff5fafb),
+      surfaceDim: Color(0xffb8b8bf),
+      surfaceBright: Color(0xfff9f9ff),
       surfaceContainerLowest: Color(0xffffffff),
-      surfaceContainerLow: Color(0xffecf2f3),
-      surfaceContainer: Color(0xffdee3e5),
-      surfaceContainerHigh: Color(0xffcfd5d6),
-      surfaceContainerHighest: Color(0xffc2c7c9),
+      surfaceContainerLow: Color(0xfff0f0f7),
+      surfaceContainer: Color(0xffe2e2e9),
+      surfaceContainerHigh: Color(0xffd3d4db),
+      surfaceContainerHighest: Color(0xffc5c6cd),
     );
   }
 
-  static ColorScheme _darkScheme() {
+  ThemeData lightHighContrast() {
+    return theme(lightHighContrastScheme());
+  }
+
+  static ColorScheme darkScheme() {
     return const ColorScheme(
       brightness: Brightness.dark,
       primary: Color(0xffaac7ff),
@@ -180,14 +135,14 @@ class MaterialTheme {
       onError: Color(0xff690005),
       errorContainer: Color(0xff93000a),
       onErrorContainer: Color(0xffffdad6),
-      surface: Color(0xff0e1415),
-      onSurface: Color(0xffdee3e5),
-      onSurfaceVariant: Color(0xffc5c6d0),
-      outline: Color(0xff8f9099),
-      outlineVariant: Color(0xff44464f),
+      surface: Color(0xff111318),
+      onSurface: Color(0xffe2e2e9),
+      onSurfaceVariant: Color(0xffc4c6d0),
+      outline: Color(0xff8e9099),
+      outlineVariant: Color(0xff44474e),
       shadow: Color(0xff000000),
       scrim: Color(0xff000000),
-      inverseSurface: Color(0xffdee3e5),
+      inverseSurface: Color(0xffe2e2e9),
       inversePrimary: Color(0xff415f91),
       primaryFixed: Color(0xffd6e3ff),
       onPrimaryFixed: Color(0xff001b3e),
@@ -201,68 +156,21 @@ class MaterialTheme {
       onTertiaryFixed: Color(0xff28132e),
       tertiaryFixedDim: Color(0xffddbce0),
       onTertiaryFixedVariant: Color(0xff573e5c),
-      surfaceDim: Color(0xff0e1415),
-      surfaceBright: Color(0xff343a3b),
-      surfaceContainerLowest: Color(0xff090f10),
-      surfaceContainerLow: Color(0xff171d1e),
-      surfaceContainer: Color(0xff1b2122),
-      surfaceContainerHigh: Color(0xff252b2c),
-      surfaceContainerHighest: Color(0xff303637),
+      surfaceDim: Color(0xff111318),
+      surfaceBright: Color(0xff37393e),
+      surfaceContainerLowest: Color(0xff0c0e13),
+      surfaceContainerLow: Color(0xff191c20),
+      surfaceContainer: Color(0xff1d2024),
+      surfaceContainerHigh: Color(0xff282a2f),
+      surfaceContainerHighest: Color(0xff33353a),
     );
   }
 
-  static ColorScheme _darkMediumContrastScheme() {
-    return const ColorScheme(
-      brightness: Brightness.dark,
-      primary: Color(0xffcdddff),
-      surfaceTint: Color(0xffaac7ff),
-      onPrimary: Color(0xff002551),
-      primaryContainer: Color(0xff7491c7),
-      onPrimaryContainer: Color(0xff000000),
-      secondary: Color(0xffd4dcf2),
-      onSecondary: Color(0xff1d2636),
-      secondaryContainer: Color(0xff8891a5),
-      onSecondaryContainer: Color(0xff000000),
-      tertiary: Color(0xfff3d2f7),
-      onTertiary: Color(0xff331d39),
-      tertiaryContainer: Color(0xffa487a9),
-      onTertiaryContainer: Color(0xff000000),
-      error: Color(0xffffd2cc),
-      onError: Color(0xff540003),
-      errorContainer: Color(0xffff5449),
-      onErrorContainer: Color(0xff000000),
-      surface: Color(0xff0e1415),
-      onSurface: Color(0xffffffff),
-      onSurfaceVariant: Color(0xffdbdce6),
-      outline: Color(0xffb0b1bb),
-      outlineVariant: Color(0xff8e9099),
-      shadow: Color(0xff000000),
-      scrim: Color(0xff000000),
-      inverseSurface: Color(0xffdee3e5),
-      inversePrimary: Color(0xff294878),
-      primaryFixed: Color(0xffd6e3ff),
-      onPrimaryFixed: Color(0xff00112b),
-      primaryFixedDim: Color(0xffaac7ff),
-      onPrimaryFixedVariant: Color(0xff133665),
-      secondaryFixed: Color(0xffdae2f9),
-      onSecondaryFixed: Color(0xff081121),
-      secondaryFixedDim: Color(0xffbec6dc),
-      onSecondaryFixedVariant: Color(0xff2e3647),
-      tertiaryFixed: Color(0xfffad8fd),
-      onTertiaryFixed: Color(0xff1d0823),
-      tertiaryFixedDim: Color(0xffddbce0),
-      onTertiaryFixedVariant: Color(0xff452e4a),
-      surfaceDim: Color(0xff0e1415),
-      surfaceBright: Color(0xff3f4647),
-      surfaceContainerLowest: Color(0xff040809),
-      surfaceContainerLow: Color(0xff191f20),
-      surfaceContainer: Color(0xff23292a),
-      surfaceContainerHigh: Color(0xff2d3435),
-      surfaceContainerHighest: Color(0xff393f40),
-    );
+  ThemeData dark() {
+    return theme(darkScheme());
   }
 
-  static ColorScheme _darkHighContrastScheme() {
+  static ColorScheme darkHighContrastScheme() {
     return const ColorScheme(
       brightness: Brightness.dark,
       primary: Color(0xffebf0ff),
@@ -282,14 +190,14 @@ class MaterialTheme {
       onError: Color(0xff000000),
       errorContainer: Color(0xffffaea4),
       onErrorContainer: Color(0xff220001),
-      surface: Color(0xff0e1415),
+      surface: Color(0xff111318),
       onSurface: Color(0xffffffff),
       onSurfaceVariant: Color(0xffffffff),
-      outline: Color(0xffefeff9),
-      outlineVariant: Color(0xffc1c2cc),
+      outline: Color(0xffeeeff9),
+      outlineVariant: Color(0xffc0c2cc),
       shadow: Color(0xff000000),
       scrim: Color(0xff000000),
-      inverseSurface: Color(0xffdee3e5),
+      inverseSurface: Color(0xffe2e2e9),
       inversePrimary: Color(0xff294878),
       primaryFixed: Color(0xffd6e3ff),
       onPrimaryFixed: Color(0xff000000),
@@ -303,41 +211,21 @@ class MaterialTheme {
       onTertiaryFixed: Color(0xff000000),
       tertiaryFixedDim: Color(0xffddbce0),
       onTertiaryFixedVariant: Color(0xff1d0823),
-      surfaceDim: Color(0xff0e1415),
-      surfaceBright: Color(0xff4b5152),
+      surfaceDim: Color(0xff111318),
+      surfaceBright: Color(0xff4e5056),
       surfaceContainerLowest: Color(0xff000000),
-      surfaceContainerLow: Color(0xff1b2122),
-      surfaceContainer: Color(0xff2b3133),
-      surfaceContainerHigh: Color(0xff363c3e),
-      surfaceContainerHighest: Color(0xff424849),
+      surfaceContainerLow: Color(0xff1d2024),
+      surfaceContainer: Color(0xff2e3036),
+      surfaceContainerHigh: Color(0xff393b41),
+      surfaceContainerHighest: Color(0xff45474c),
     );
   }
 
-  static ThemeData light() {
-    return _theme(colorScheme: _lightScheme());
+  ThemeData darkHighContrast() {
+    return theme(darkHighContrastScheme());
   }
 
-  static ThemeData lightMediumContrast() {
-    return _theme(colorScheme: _lightMediumContrastScheme());
-  }
-
-  static ThemeData lightHighContrast() {
-    return _theme(colorScheme: _lightHighContrastScheme());
-  }
-
-  static ThemeData dark() {
-    return _theme(colorScheme: _darkScheme());
-  }
-
-  static ThemeData darkMediumContrast() {
-    return _theme(colorScheme: _darkMediumContrastScheme());
-  }
-
-  static ThemeData darkHighContrast() {
-    return _theme(colorScheme: _darkHighContrastScheme());
-  }
-
-  static ThemeData _theme({required ColorScheme colorScheme}) {
+  ThemeData theme(ColorScheme colorScheme) {
     return ThemeData(
       useMaterial3: true,
       brightness: colorScheme.brightness,
@@ -348,88 +236,648 @@ class MaterialTheme {
       ),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
-      //* AppBarTheme
-      appBarTheme: AppBarTheme(
-        titleTextStyle: TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 28,
-          color: colorScheme.primary,
-        ),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-      //* CardTheme
-      // cardTheme: CardTheme(
-      //   shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.all(Radius.circular(16)),
-      //   ),
-      //   elevation: 1,
-      // ),
-      //* NavigationBarTheme
-      navigationBarTheme: NavigationBarThemeData(
-        height: 70,
-        backgroundColor: colorScheme.surface,
-        shadowColor: colorScheme.black,
-        indicatorColor: colorScheme.primaryContainer,
-        iconTheme: WidgetStateProperty.resolveWith<IconThemeData?>((Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return IconThemeData(
-              size: 28,
-              color: colorScheme.primary,
-            );
-          } else {
-            return IconThemeData(size: 24, color: colorScheme.secondary);
-          }
-        }),
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        labelTextStyle: WidgetStateProperty.resolveWith<TextStyle?>((states) {
-          if (states.contains(WidgetState.selected)) {
-            return TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.primary,
-            );
-          } else {
-            return TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: colorScheme.secondary,
-            );
-          }
-        }),
-      ),
-      //* FloatingActionButtonTheme
-      // floatingActionButtonTheme: FloatingActionButtonThemeData(
-      //   elevation: 1,
-      //   extendedIconLabelSpacing: 4,
-      //   extendedPadding: EdgeInsets.all(8),
-      //   extendedSizeConstraints: BoxConstraints(minHeight: 40, maxHeight: 45),
-      // ),
     );
   }
 
-  // List<ExtendedColor> get extendedColors => [];
+// /// White
+// static const white = ExtendedColor(
+//   seed: Color(0xffffffff),
+//   value: Color(0xffffffff),
+//   light: ColorFamily(
+//     color: Color(0xff006874),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9eeffd),
+//     onColorContainer: Color(0xff004f58),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff006874),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9eeffd),
+//     onColorContainer: Color(0xff004f58),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xff82d3e0),
+//     onColor: Color(0xff00363d),
+//     colorContainer: Color(0xff004f58),
+//     onColorContainer: Color(0xff9eeffd),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xff82d3e0),
+//     onColor: Color(0xff00363d),
+//     colorContainer: Color(0xff004f58),
+//     onColorContainer: Color(0xff9eeffd),
+//   ),
+// );
+//
+// /// Silver
+// static const silver = ExtendedColor(
+//   seed: Color(0xffc0c0c0),
+//   value: Color(0xffc0c0c0),
+//   light: ColorFamily(
+//     color: Color(0xff006874),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9eeffd),
+//     onColorContainer: Color(0xff004f58),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff006874),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9eeffd),
+//     onColorContainer: Color(0xff004f58),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xff82d3e0),
+//     onColor: Color(0xff00363d),
+//     colorContainer: Color(0xff004f58),
+//     onColorContainer: Color(0xff9eeffd),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xff82d3e0),
+//     onColor: Color(0xff00363d),
+//     colorContainer: Color(0xff004f58),
+//     onColorContainer: Color(0xff9eeffd),
+//   ),
+// );
+//
+// /// Grey
+// static const grey = ExtendedColor(
+//   seed: Color(0xff808080),
+//   value: Color(0xff808080),
+//   light: ColorFamily(
+//     color: Color(0xff006874),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9eeffd),
+//     onColorContainer: Color(0xff004f58),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff006874),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9eeffd),
+//     onColorContainer: Color(0xff004f58),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xff82d3e0),
+//     onColor: Color(0xff00363d),
+//     colorContainer: Color(0xff004f58),
+//     onColorContainer: Color(0xff9eeffd),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xff82d3e0),
+//     onColor: Color(0xff00363d),
+//     colorContainer: Color(0xff004f58),
+//     onColorContainer: Color(0xff9eeffd),
+//   ),
+// );
+//
+// /// Black
+// static const black = ExtendedColor(
+//   seed: Color(0xff000000),
+//   value: Color(0xff000000),
+//   light: ColorFamily(
+//     color: Color(0xff8c4a60),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd9e2),
+//     onColorContainer: Color(0xff703348),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff8c4a60),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd9e2),
+//     onColorContainer: Color(0xff703348),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffffb1c8),
+//     onColor: Color(0xff541d32),
+//     colorContainer: Color(0xff703348),
+//     onColorContainer: Color(0xffffd9e2),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffffb1c8),
+//     onColor: Color(0xff541d32),
+//     colorContainer: Color(0xff703348),
+//     onColorContainer: Color(0xffffd9e2),
+//   ),
+// );
+//
+// /// Red
+// static const red = ExtendedColor(
+//   seed: Color(0xffff0000),
+//   value: Color(0xffff0000),
+//   light: ColorFamily(
+//     color: Color(0xff904b40),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffdad4),
+//     onColorContainer: Color(0xff73342a),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff904b40),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffdad4),
+//     onColorContainer: Color(0xff73342a),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffffb4a8),
+//     onColor: Color(0xff561e16),
+//     colorContainer: Color(0xff73342a),
+//     onColorContainer: Color(0xffffdad4),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffffb4a8),
+//     onColor: Color(0xff561e16),
+//     colorContainer: Color(0xff73342a),
+//     onColorContainer: Color(0xffffdad4),
+//   ),
+// );
+//
+// /// Maroon
+// static const maroon = ExtendedColor(
+//   seed: Color(0xff800000),
+//   value: Color(0xff800000),
+//   light: ColorFamily(
+//     color: Color(0xff904b40),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffdad4),
+//     onColorContainer: Color(0xff73342b),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff904b40),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffdad4),
+//     onColorContainer: Color(0xff73342b),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffffb4a8),
+//     onColor: Color(0xff561e16),
+//     colorContainer: Color(0xff73342b),
+//     onColorContainer: Color(0xffffdad4),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffffb4a8),
+//     onColor: Color(0xff561e16),
+//     colorContainer: Color(0xff73342b),
+//     onColorContainer: Color(0xffffdad4),
+//   ),
+// );
+//
+// /// Yellow
+// static const yellow = ExtendedColor(
+//   seed: Color(0xffffff00),
+//   value: Color(0xffffff00),
+//   light: ColorFamily(
+//     color: Color(0xff616118),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe8e78f),
+//     onColorContainer: Color(0xff494900),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff616118),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe8e78f),
+//     onColorContainer: Color(0xff494900),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffcbcb76),
+//     onColor: Color(0xff323200),
+//     colorContainer: Color(0xff494900),
+//     onColorContainer: Color(0xffe8e78f),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffcbcb76),
+//     onColor: Color(0xff323200),
+//     colorContainer: Color(0xff494900),
+//     onColorContainer: Color(0xffe8e78f),
+//   ),
+// );
+//
+// /// Olive
+// static const olive = ExtendedColor(
+//   seed: Color(0xff808000),
+//   value: Color(0xff808000),
+//   light: ColorFamily(
+//     color: Color(0xff616118),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe8e78f),
+//     onColorContainer: Color(0xff494900),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff616118),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe8e78f),
+//     onColorContainer: Color(0xff494900),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffcbcb76),
+//     onColor: Color(0xff323200),
+//     colorContainer: Color(0xff494900),
+//     onColorContainer: Color(0xffe8e78f),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffcbcb76),
+//     onColor: Color(0xff323200),
+//     colorContainer: Color(0xff494900),
+//     onColorContainer: Color(0xffe8e78f),
+//   ),
+// );
+//
+// /// Lime
+// static const lime = ExtendedColor(
+//   seed: Color(0xff00ff00),
+//   value: Color(0xff00ff00),
+//   light: ColorFamily(
+//     color: Color(0xff406836),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffc0efb0),
+//     onColorContainer: Color(0xff285020),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff406836),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffc0efb0),
+//     onColorContainer: Color(0xff285020),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffa5d395),
+//     onColor: Color(0xff11380b),
+//     colorContainer: Color(0xff285020),
+//     onColorContainer: Color(0xffc0efb0),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffa5d395),
+//     onColor: Color(0xff11380b),
+//     colorContainer: Color(0xff285020),
+//     onColorContainer: Color(0xffc0efb0),
+//   ),
+// );
+//
+// /// Green
+// static const green = ExtendedColor(
+//   seed: Color(0xff008000),
+//   value: Color(0xff008000),
+//   light: ColorFamily(
+//     color: Color(0xff406836),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffc0efb0),
+//     onColorContainer: Color(0xff285020),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff406836),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffc0efb0),
+//     onColorContainer: Color(0xff285020),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffa5d396),
+//     onColor: Color(0xff11380b),
+//     colorContainer: Color(0xff285020),
+//     onColorContainer: Color(0xffc0efb0),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffa5d396),
+//     onColor: Color(0xff11380b),
+//     colorContainer: Color(0xff285020),
+//     onColorContainer: Color(0xffc0efb0),
+//   ),
+// );
+//
+// /// Cyan
+// static const cyan = ExtendedColor(
+//   seed: Color(0xff00ffff),
+//   value: Color(0xff00ffff),
+//   light: ColorFamily(
+//     color: Color(0xff006a6a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9cf1f0),
+//     onColorContainer: Color(0xff004f4f),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff006a6a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9cf1f0),
+//     onColorContainer: Color(0xff004f4f),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xff80d5d4),
+//     onColor: Color(0xff003737),
+//     colorContainer: Color(0xff004f4f),
+//     onColorContainer: Color(0xff9cf1f0),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xff80d5d4),
+//     onColor: Color(0xff003737),
+//     colorContainer: Color(0xff004f4f),
+//     onColorContainer: Color(0xff9cf1f0),
+//   ),
+// );
+//
+// /// Teal
+// static const teal = ExtendedColor(
+//   seed: Color(0xff008080),
+//   value: Color(0xff008080),
+//   light: ColorFamily(
+//     color: Color(0xff006a6a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9cf1f0),
+//     onColorContainer: Color(0xff004f4f),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff006a6a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xff9cf1f0),
+//     onColorContainer: Color(0xff004f4f),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xff80d5d4),
+//     onColor: Color(0xff003737),
+//     colorContainer: Color(0xff004f4f),
+//     onColorContainer: Color(0xff9cf1f0),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xff80d5d4),
+//     onColor: Color(0xff003737),
+//     colorContainer: Color(0xff004f4f),
+//     onColorContainer: Color(0xff9cf1f0),
+//   ),
+// );
+//
+// /// Blue
+// static const blue = ExtendedColor(
+//   seed: Color(0xff0000ff),
+//   value: Color(0xff0000ff),
+//   light: ColorFamily(
+//     color: Color(0xff555992),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe0e0ff),
+//     onColorContainer: Color(0xff3e4278),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff555992),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe0e0ff),
+//     onColorContainer: Color(0xff3e4278),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffbec2ff),
+//     onColor: Color(0xff272b60),
+//     colorContainer: Color(0xff3e4278),
+//     onColorContainer: Color(0xffe0e0ff),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffbec2ff),
+//     onColor: Color(0xff272b60),
+//     colorContainer: Color(0xff3e4278),
+//     onColorContainer: Color(0xffe0e0ff),
+//   ),
+// );
+//
+// /// Navy
+// static const navy = ExtendedColor(
+//   seed: Color(0xff000080),
+//   value: Color(0xff000080),
+//   light: ColorFamily(
+//     color: Color(0xff565992),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe0e0ff),
+//     onColorContainer: Color(0xff3e4278),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff565992),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffe0e0ff),
+//     onColorContainer: Color(0xff3e4278),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffbfc2ff),
+//     onColor: Color(0xff272b60),
+//     colorContainer: Color(0xff3e4278),
+//     onColorContainer: Color(0xffe0e0ff),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffbfc2ff),
+//     onColor: Color(0xff272b60),
+//     colorContainer: Color(0xff3e4278),
+//     onColorContainer: Color(0xffe0e0ff),
+//   ),
+// );
+//
+// /// Magenta
+// static const magenta = ExtendedColor(
+//   seed: Color(0xffff00ff),
+//   value: Color(0xffff00ff),
+//   light: ColorFamily(
+//     color: Color(0xff804d7a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd7f5),
+//     onColorContainer: Color(0xff653661),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff804d7a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd7f5),
+//     onColorContainer: Color(0xff653661),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xfff1b3e6),
+//     onColor: Color(0xff4c1f49),
+//     colorContainer: Color(0xff653661),
+//     onColorContainer: Color(0xffffd7f5),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xfff1b3e6),
+//     onColor: Color(0xff4c1f49),
+//     colorContainer: Color(0xff653661),
+//     onColorContainer: Color(0xffffd7f5),
+//   ),
+// );
+//
+// /// Purple
+// static const purple = ExtendedColor(
+//   seed: Color(0xff800080),
+//   value: Color(0xff800080),
+//   light: ColorFamily(
+//     color: Color(0xff804d7a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd7f5),
+//     onColorContainer: Color(0xff653661),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff804d7a),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd7f5),
+//     onColorContainer: Color(0xff653661),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xfff1b3e6),
+//     onColor: Color(0xff4c1f49),
+//     colorContainer: Color(0xff653661),
+//     onColorContainer: Color(0xffffd7f5),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xfff1b3e6),
+//     onColor: Color(0xff4c1f49),
+//     colorContainer: Color(0xff653661),
+//     onColorContainer: Color(0xffffd7f5),
+//   ),
+// );
+//
+// /// LightBlue
+// static const lightBlue = ExtendedColor(
+//   seed: Color(0xffadd8e6),
+//   value: Color(0xffadd8e6),
+//   light: ColorFamily(
+//     color: Color(0xff00687b),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffafecff),
+//     onColorContainer: Color(0xff004e5d),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff00687b),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffafecff),
+//     onColorContainer: Color(0xff004e5d),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xff85d2e8),
+//     onColor: Color(0xff003641),
+//     colorContainer: Color(0xff004e5d),
+//     onColorContainer: Color(0xffafecff),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xff85d2e8),
+//     onColor: Color(0xff003641),
+//     colorContainer: Color(0xff004e5d),
+//     onColorContainer: Color(0xffafecff),
+//   ),
+// );
+//
+// /// Pink
+// static const pink = ExtendedColor(
+//   seed: Color(0xffffc0cb),
+//   value: Color(0xffffc0cb),
+//   light: ColorFamily(
+//     color: Color(0xff8d4959),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd9df),
+//     onColorContainer: Color(0xff713342),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff8d4959),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffd9df),
+//     onColorContainer: Color(0xff713342),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xffffb1c0),
+//     onColor: Color(0xff551d2c),
+//     colorContainer: Color(0xff713342),
+//     onColorContainer: Color(0xffffd9df),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xffffb1c0),
+//     onColor: Color(0xff551d2c),
+//     colorContainer: Color(0xff713342),
+//     onColorContainer: Color(0xffffd9df),
+//   ),
+// );
+//
+// /// Orange
+// static const orange = ExtendedColor(
+//   seed: Color(0xffffa500),
+//   value: Color(0xffffa500),
+//   light: ColorFamily(
+//     color: Color(0xff815512),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffddb7),
+//     onColorContainer: Color(0xff653e00),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff815512),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffffddb7),
+//     onColorContainer: Color(0xff653e00),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xfff7bb70),
+//     onColor: Color(0xff462a00),
+//     colorContainer: Color(0xff653e00),
+//     onColorContainer: Color(0xffffddb7),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xfff7bb70),
+//     onColor: Color(0xff462a00),
+//     colorContainer: Color(0xff653e00),
+//     onColorContainer: Color(0xffffddb7),
+//   ),
+// );
+//
+// /// Aquamarine
+// static const aquamarine = ExtendedColor(
+//   seed: Color(0xff7fffd4),
+//   value: Color(0xff7fffd4),
+//   light: ColorFamily(
+//     color: Color(0xff176b53),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffa5f2d4),
+//     onColorContainer: Color(0xff00513d),
+//   ),
+//   lightHighContrast: ColorFamily(
+//     color: Color(0xff176b53),
+//     onColor: Color(0xffffffff),
+//     colorContainer: Color(0xffa5f2d4),
+//     onColorContainer: Color(0xff00513d),
+//   ),
+//   dark: ColorFamily(
+//     color: Color(0xff89d6b9),
+//     onColor: Color(0xff003829),
+//     colorContainer: Color(0xff00513d),
+//     onColorContainer: Color(0xffa5f2d4),
+//   ),
+//   darkHighContrast: ColorFamily(
+//     color: Color(0xff89d6b9),
+//     onColor: Color(0xff003829),
+//     colorContainer: Color(0xff00513d),
+//     onColorContainer: Color(0xffa5f2d4),
+//   ),
+// );
+//
+//
+// List<ExtendedColor> get extendedColors => [
+//   white,
+//   silver,
+//   grey,
+//   black,
+//   red,
+//   maroon,
+//   yellow,
+//   olive,
+//   lime,
+//   green,
+//   cyan,
+//   teal,
+//   blue,
+//   navy,
+//   magenta,
+//   purple,
+//   lightBlue,
+//   pink,
+//   orange,
+//   aquamarine,
+// ];
 }
 
 // class ExtendedColor {
 //   final Color seed, value;
 //   final ColorFamily light;
 //   final ColorFamily lightHighContrast;
-//   final ColorFamily lightMediumContrast;
 //   final ColorFamily dark;
 //   final ColorFamily darkHighContrast;
-//   final ColorFamily darkMediumContrast;
 //
 //   const ExtendedColor({
 //     required this.seed,
 //     required this.value,
 //     required this.light,
 //     required this.lightHighContrast,
-//     required this.lightMediumContrast,
 //     required this.dark,
 //     required this.darkHighContrast,
-//     required this.darkMediumContrast,
 //   });
 // }
 //
@@ -446,5 +894,3 @@ class MaterialTheme {
 //   final Color colorContainer;
 //   final Color onColorContainer;
 // }
-
-

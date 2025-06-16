@@ -28,6 +28,7 @@ class OrganizerContestDetailsPageBloc
         _organizerRepository = organizerRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerContestDetailsPageInit>(_init);
+    on<OrganizerContestDetailsPageRefresh>(_refresh);
     on<OrganizerContestDetailsPageSendParticipantInvite>(_sendParticipantInvite);
     on<OrganizerContestDetailsPageSendJurorInvite>(_sendJurorInvite);
   }
@@ -42,11 +43,7 @@ class OrganizerContestDetailsPageBloc
     eitherDetails.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
         (success) {
-          if(success != null) {
             emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
-          } else {
-            emit(state.copyWith(status: BlocStatus.failure,message: 'Contest not found'));
-          }
         },
     );
 
@@ -272,6 +269,18 @@ class OrganizerContestDetailsPageBloc
     // ));
   }
 
+  FutureOr<void> _refresh(OrganizerContestDetailsPageRefresh event, Emitter<OrganizerContestDetailsPageState> emit,)async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherDetails = await _organizerRepository.getContestDetails(contestId: event.contestId);
+    eitherDetails.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
+          (success) {
+        emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
+      },
+    );
+  }
+
   FutureOr<void> _sendParticipantInvite(
     OrganizerContestDetailsPageSendParticipantInvite event,
     Emitter<OrganizerContestDetailsPageState> emit,
@@ -490,4 +499,6 @@ class OrganizerContestDetailsPageBloc
   //     contestDetailsBundle: contestDetailsBundle,
   //   ));
   // }
+
+
 }

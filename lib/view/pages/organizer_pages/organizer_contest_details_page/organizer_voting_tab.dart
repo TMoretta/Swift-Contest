@@ -40,12 +40,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-        listener: (context, state) {
-          if (state.status.isFailure) {
-            showSnackBar(context: context, text: state.message!);
-          }
-        },
+      body: BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
         builder: (context, state) {
           switch (state.status) {
             case BlocStatus.initial:
@@ -53,22 +48,21 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
             case BlocStatus.loading:
               return Loader();
             case BlocStatus.failure:
-              return RefreshIndicator.adaptive(
-                onRefresh: () async {
-                  context
+              if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                return RefreshIndicator.adaptive(
+                  onRefresh: () async => context
                       .read<OrganizerContestDetailsPageBloc>()
-                      .add(OrganizerContestDetailsPageInit(contestId: contestId));
-                },
-                child: ListView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  children: [
-                    Text('An error occurred, please refresh'),
-                  ],
-                ),
-              );
+                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                  child: ListView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                  ),
+                );
+              } else {
+                continue successCase;
+              }
+            successCase:
             case BlocStatus.success:
               final votingFormBundle = state.contestDetailsBundle!.votingFormBundle;
-              final votingForm = votingFormBundle.votingForm;
               final votingFormFields = votingFormBundle.votingFormFields;
               final endedVotingSessions = state.contestDetailsBundle!.endedVotingSessions;
               return Column(

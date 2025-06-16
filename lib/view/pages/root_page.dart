@@ -4,22 +4,23 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
+import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
-class SplashPage extends StatefulWidget {
-  const SplashPage({super.key});
+class RootPage extends StatefulWidget {
+  const RootPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  State<RootPage> createState() => _RootPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthInit(delay: 1));
+    context.read<AuthBloc>().add(AuthInit(delay: 0));
   }
 
   @override
@@ -57,21 +58,11 @@ class _SplashPageState extends State<SplashPage> {
               builder: (context, state) {
                 switch (state.blocStatus) {
                   case BlocStatus.initial:
+                    return SizedBox.shrink();
                   case BlocStatus.failure:
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Swift Contest',
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayLarge!
-                                .copyWith(color: Theme.of(context).colorScheme.primary),
-                          ),
-                        ),
-                        SizedBox(height: 4),
                         FilledButton(
                           onPressed: () {
                             context.read<AuthBloc>().add(AuthInit(delay: 0));
@@ -81,17 +72,9 @@ class _SplashPageState extends State<SplashPage> {
                       ],
                     );
                   case BlocStatus.loading:
+                    return Loader();
                   case BlocStatus.success:
-                    return FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'Swift Contest',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge!
-                            .copyWith(color: Theme.of(context).colorScheme.primary),
-                      ),
-                    );
+                    return SizedBox.shrink();
                 }
               },
             ),

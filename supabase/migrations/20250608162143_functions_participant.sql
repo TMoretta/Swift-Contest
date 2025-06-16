@@ -30,7 +30,8 @@ BEGIN
     JOIN places pla ON cont.place_id = pla.id
     JOIN profiles org ON cont.organizer_id = org.id
     JOIN participations par ON par.contest_id = cont.id AND par.participant_status = 'joined'
-    WHERE par.participant_id = p_participant_id;
+    WHERE par.participant_id = p_participant_id
+    ORDER BY cont.created_at DESC;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -43,7 +44,7 @@ $$ LANGUAGE plpgsql SECURITY definer;
 -- PARTICIPANT JOIN CONTEST
 CREATE OR REPLACE FUNCTION participant_join_contest(
   p_participant_id uuid,
-  p_token char
+  p_token varchar
 )
 RETURNS void AS $$
 DECLARE
@@ -202,10 +203,9 @@ CREATE OR REPLACE FUNCTION participant_get_submitted_work(
   p_contest_id uuid,
   p_participant_id uuid
 )
-RETURNS works AS $$
+RETURNS SETOF works AS $$
 DECLARE
   v_participation participations;
-  v_work works;
 BEGIN
 
   SELECT * INTO v_participation
@@ -217,21 +217,57 @@ BEGIN
     RAISE EXCEPTION 'No participation found';
   END IF;
 
-  IF (v_participation.has_submitted = false) THEN
-    RETURN null;
+  RETURN QUERY
+    SELECT *
+    FROM works
+    WHERE participation_id = v_participation.id
+    LIMIT 1;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while getting the work';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+-- PARTICIPANT SUBMIT WORK
+CREATE OR REPLACE FUNCTION participant_submit_work(
+  p_participant_id uuid,
+  p_contest_id uuid,
+  p_name varchar,
+  p_description varchar,
+  p_images_urls text[]
+)
+RETURNS void AS $$
+DECLARE
+  v_participation participations;
+BEGIN
+
+  SELECT * INTO v_participation
+  FROM participations
+  WHERE contest_id = p_contest_id AND participant_id = p_participant_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No participation found';
   END IF;
 
-  SELECT * INTO v_work
-  FROM works
-  WHERE participation_id = v_participation.id
-  LIMIT 1;
+  IF (v_participation.has_submitted = true) THEN
+    RAISE EXCEPTION 'You have already submitted a work';
+  END IF;
 
-  RETURN v_work;
+  INSERT INTO works (id, created_at, participation_id, name, description, images_urls)
+  VALUES (gen_random_uuid(), now(), v_participation.id, p_name, p_description, p_images_urls);
+
+  UPDATE participations
+  SET has_submitted = true
+  WHERE id = v_participation.id;
 
 --EXCEPTION
 --  WHEN SQLSTATE 'P0001' THEN
 --    RAISE;
 --  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An error occurred while getting the work';
+--    RAISE EXCEPTION 'An error occurred while submitting the work';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
+

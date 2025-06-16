@@ -49,8 +49,6 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       enabled: enabled,
-      cursorColor: Theme.of(context).colorScheme.onSurface,
-      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       controller: controller,
       validator: validator,
       obscureText: obscureText ?? false,
@@ -73,9 +71,22 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
         helperText: '',
         helperStyle: TextStyle(height: 1),
         errorStyle: TextStyle(height: 1),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         enabledBorder: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceDim,
+          ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         errorBorder: OutlineInputBorder(
@@ -87,12 +98,14 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
+            width: 2.0,
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -149,8 +162,6 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      cursorColor: Theme.of(context).colorScheme.onSurface,
-      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       controller: controller,
       validator: validator,
       enabled: enabled,
@@ -170,9 +181,20 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
         helperText: '',
         helperStyle: TextStyle(height: 1),
         errorStyle: TextStyle(height: 1),
+        border: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
         enabledBorder: UnderlineInputBorder(
-          borderSide:
-          BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+        ),
+        disabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceDim,
+          ),
         ),
         errorBorder: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -182,11 +204,13 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.primary,
+            width: 2.0,
           ),
         ),
         focusedErrorBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
+            width: 2.0,
           ),
         ),
       ),

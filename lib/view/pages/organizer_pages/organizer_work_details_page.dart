@@ -83,7 +83,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
               ],
             ),
             SizedBox(height: 8),
-            //* Organizer name
+            //* Participant name
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,

@@ -6,16 +6,14 @@ final class AuthState extends Equatable {
   final AuthStatus authStatus;
   final AuthEvent? sourceEvent;
   final String? message;
-  final User? user;
-  final Profile? profile;
+  final AuthBundle? authBundle;
 
   const AuthState({
     required this.blocStatus,
     required this.authStatus,
     this.sourceEvent,
     this.message,
-    this.user,
-    this.profile,
+    this.authBundle,
   });
 
   AuthState copyWith({
@@ -23,19 +21,17 @@ final class AuthState extends Equatable {
     AuthStatus? authStatus,
     AuthEvent? sourceEvent,
     String? message,
-    User? user,
-    Profile? profile,
+    AuthBundle? authBundle,
   }) {
     return AuthState(
       blocStatus: blocStatus,
       authStatus: authStatus ?? this.authStatus,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      user: user ?? this.user,
-      profile: profile ?? this.profile,
+      authBundle: authBundle ?? this.authBundle,
     );
   }
 
   @override
-  List<Object?> get props => [authStatus, blocStatus, sourceEvent, message, user, profile];
+  List<Object?> get props => [authStatus, blocStatus, sourceEvent, message, authBundle];
 }

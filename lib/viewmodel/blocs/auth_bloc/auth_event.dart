@@ -5,18 +5,22 @@ sealed class AuthEvent extends Equatable {
 }
 
 final class AuthInit extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
-
-final class AuthInitWithDelay extends AuthEvent {
   final int delay;
 
-  const AuthInitWithDelay({required this.delay});
+  const AuthInit({required this.delay});
 
   @override
   List<Object?> get props => [];
 }
+
+// final class AuthInitWithDelay extends AuthEvent {
+//   final int delay;
+//
+//   const AuthInitWithDelay({required this.delay});
+//
+//   @override
+//   List<Object?> get props => [];
+// }
 
 final class AuthFetchUser extends AuthEvent {
   @override
@@ -39,23 +43,21 @@ final class AuthSignOut extends AuthEvent {
 }
 
 final class AuthEditPrefTheme extends AuthEvent {
-  final Profile profile;
   final AppTheme prefTheme;
 
-  const AuthEditPrefTheme({required this.profile, required this.prefTheme});
+  const AuthEditPrefTheme({required this.prefTheme});
 
   @override
-  List<Object?> get props => [profile, prefTheme];
+  List<Object?> get props => [prefTheme];
 }
 
 final class AuthEditPrefRole extends AuthEvent {
-  final Profile profile;
   final ContestRole prefRole;
 
-  const AuthEditPrefRole({required this.profile, required this.prefRole});
+  const AuthEditPrefRole({required this.prefRole});
 
   @override
-  List<Object?> get props => [profile, prefRole];
+  List<Object?> get props => [prefRole];
 }
 
 final class AuthEditFullName extends AuthEvent {

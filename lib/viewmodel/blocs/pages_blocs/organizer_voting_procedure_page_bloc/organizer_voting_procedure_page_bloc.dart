@@ -107,7 +107,7 @@ class OrganizerVotingProcedurePageBloc
         );
       },
       onError: (error, stackTrace) {
-        return state.copyWith(status: BlocStatus.failure, message: error.toString());
+        return state.copyWith(status: BlocStatus.failure, message: 'An error occurred');
       },
     );
   }

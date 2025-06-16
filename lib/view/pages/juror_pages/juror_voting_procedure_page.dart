@@ -35,7 +35,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   @override
   void initState() {
     super.initState();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
     contestDetailsBundle = widget.contestDetailsBundle;
     context.read<JurorVotingProcedurePageBloc>().add(
         JurorVotingProcedurePageSubscribeToVotingSessionProcedure(

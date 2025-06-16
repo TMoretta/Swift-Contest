@@ -24,6 +24,7 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart';
+import 'package:swift_contest/view/pages/root_page.dart';
 import 'package:swift_contest/view/pages/settings_page.dart';
 import 'package:swift_contest/view/pages/sign_in_page.dart';
 import 'package:swift_contest/view/pages/sign_in_verify_page.dart';
@@ -60,9 +61,9 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
       final matchedLocation = state.matchedLocation; // Pagina corrente
       final authState = context.read<AuthBloc>().state; // Stato dell'autenticazione
 
-      // Se la pagina corrente è splash non fa nulla, dato che la splash integra una reindirizzazione
+      // Se la pagina corrente è splash o root non fa nulla, dato che la splash integra una reindirizzazione
       // in base allo stato dell'autenticazione
-      if (matchedLocation == '/') {
+      if (matchedLocation == '/' || matchedLocation == '/splash') {
         return null;
       }
       // Se l'utente non è autenticato e prova ad andare in pagine diverse da quelle per l'autenticazione
@@ -84,16 +85,21 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
       }
       return null; // nessun redirect
     },
-    initialLocation: '/',
+    initialLocation: '/splash',
     routes: [
       //* Splash route
       GoRoute(
         name: AppRouter.splash,
+        path: '/splash',
+        pageBuilder: (context, state) {
+          return MaterialPage(child: SplashPage());
+        },
+      ),
+      GoRoute(
+        name: AppRouter.root,
         path: '/',
         pageBuilder: (context, state) {
-          //* If the delay is not passed it takes the default for the splash page (1 seconds)
-          final int delay = state.extra as int? ?? 1;
-          return MaterialPage(child: SplashPage(delay: delay));
+          return MaterialPage(child: RootPage());
         },
       ),
       //* SignIn: allow the user to sign in
@@ -103,7 +109,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         pageBuilder: (context, state) {
           return MaterialPage(
             child: BlocProvider(
-              create: (context) => SignInPageBloc(userRepository: context.read()),
+              create: (context) => SignInPageBloc(authRepository: context.read()),
               child: SignInPage(),
             ),
           );
@@ -117,7 +123,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           final String email = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
-              create: (context) => SignInVerifyPageBloc(userRepository: context.read()),
+              create: (context) => SignInVerifyPageBloc(authRepository: context.read()),
               child: SignInVerifyPage(email: email),
             ),
           );
@@ -130,7 +136,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         pageBuilder: (context, state) {
           return MaterialPage(
             child: BlocProvider(
-              create: (context) => SignUpPageBloc(userRepository: context.read()),
+              create: (context) => SignUpPageBloc(authRepository: context.read()),
               child: SignUpPage(),
             ),
           );
@@ -144,7 +150,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           final String email = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
-              create: (context) => SignUpVerifyPageBloc(userRepository: context.read()),
+              create: (context) => SignUpVerifyPageBloc(authRepository: context.read()),
               child: SignUpVerifyPage(email: email),
             ),
           );
@@ -178,11 +184,6 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerHomePageBloc(
-                contestRepository: context.read(),
-                profileRepository: context.read(),
-                placeRepository: context.read(),
-                participationRepository: context.read(),
-                jurationRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerHomePage(),
@@ -198,11 +199,8 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerContestCreationPageBloc(
-                contestRepository: context.read(),
                 storageRepository: context.read(),
-                placeRepository: context.read(),
                 utilsRepository: context.read(),
-                votingFormRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerContestCreationPage(),
@@ -391,9 +389,8 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(
             child: BlocProvider(
               create: (context) => ParticipantWorkSubmitPageBloc(
-                workRepository: context.read(),
                 storageRepository: context.read(),
-                participationRepository: context.read(),
+                participantRepository: context.read(),
               ),
               child: ParticipantWorkSubmitPage(contestId: contestId),
             ),
@@ -466,6 +463,7 @@ final class AppRouter {
   const AppRouter._(); // Costruttore privato per non instanziare la classe
 
   // Routes generiche
+  static const String root = 'root';
   static const String splash = 'splash';
   static const String signIn = 'signIn';
   static const String signUp = 'signUp';

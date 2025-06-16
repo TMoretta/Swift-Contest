@@ -28,7 +28,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    user = context.read<AuthBloc>().state.authBundle!.user;
   }
 
   @override
