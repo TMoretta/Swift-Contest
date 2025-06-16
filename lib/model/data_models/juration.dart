@@ -7,6 +7,7 @@ class Juration extends Equatable {
   final String contestId;
   final String jurorId;
   final JurorStatus jurorStatus;
+  final String invitationEmail;
 
   const Juration({
     required this.id,
@@ -14,6 +15,7 @@ class Juration extends Equatable {
     required this.contestId,
     required this.jurorId,
     required this.jurorStatus,
+    required this.invitationEmail,
   });
 
   factory Juration.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Juration extends Equatable {
       contestId: json['contest_id'] as String,
       jurorId: json['juror_id'] as String,
       jurorStatus: JurorStatus.values.byName(json['juror_status'] as String),
+      invitationEmail: json['invitation_email'] as String,
     );
   }
 
@@ -33,6 +36,7 @@ class Juration extends Equatable {
       'contest_id': contestId,
       'juror_id': jurorId,
       'juror_status': jurorStatus.name,
+      'invitation_email': invitationEmail,
     };
   }
 
@@ -43,6 +47,7 @@ class Juration extends Equatable {
       'p_contest_id': contestId,
       'p_juror_id': jurorId,
       'p_juror_status': jurorStatus.name,
+      'p_invitation_email': invitationEmail,
     };
   }
 
@@ -52,6 +57,7 @@ class Juration extends Equatable {
     String? contestId,
     String? jurorId,
     JurorStatus? jurorStatus,
+    String? invitationEmail,
   }) {
     return Juration(
       id: id ?? this.id,
@@ -59,9 +65,17 @@ class Juration extends Equatable {
       contestId: contestId ?? this.contestId,
       jurorId: jurorId ?? this.jurorId,
       jurorStatus: jurorStatus ?? this.jurorStatus,
+      invitationEmail: invitationEmail ?? this.invitationEmail,
     );
   }
 
   @override
-  List<Object?> get props => [id, createdAt, contestId, jurorId, jurorStatus];
+  List<Object?> get props => [
+        id,
+        createdAt,
+        contestId,
+        jurorId,
+        jurorStatus,
+        invitationEmail,
+      ];
 }

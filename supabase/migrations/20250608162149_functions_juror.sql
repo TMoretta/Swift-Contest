@@ -78,7 +78,9 @@ BEGIN
       RAISE EXCEPTION 'You are already a juror in this contest';
     ELSE
       UPDATE jurations
-      SET juror_status = 'joined'
+      SET
+        juror_status = 'joined',
+        invitation_email = v_invitation.email
       WHERE id = v_juration.id;
     END IF;
   ELSE
@@ -87,13 +89,15 @@ BEGIN
       created_at,
       contest_id,
       juror_id,
-      juror_status
+      juror_status,
+      invitation_email
     ) VALUES (
       gen_random_uuid(),
       now(),
       v_contest_id,
       p_juror_id,
-      'joined'
+      'joined',
+      v_invitation.email
     );
   END IF;
 

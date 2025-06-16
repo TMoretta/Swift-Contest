@@ -78,7 +78,9 @@ BEGIN
       RAISE EXCEPTION 'You are already a participant in this contest';
     ELSE
       UPDATE participations
-      SET participant_status = 'joined'
+      SET
+        participant_status = 'joined',
+        invitation_email = v_invitation.email
       WHERE id = v_participation.id;
     END IF;
   ELSE
@@ -88,6 +90,7 @@ BEGIN
       contest_id,
       participant_id,
       participant_status,
+      invitation_email,
       has_submitted
     ) VALUES (
       gen_random_uuid(),
@@ -95,6 +98,7 @@ BEGIN
       v_contest_id,
       p_participant_id,
       'joined',
+      v_invitation.email,
       false
     );
   END IF;
@@ -263,11 +267,11 @@ BEGIN
   SET has_submitted = true
   WHERE id = v_participation.id;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An error occurred while submitting the work';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while submitting the work';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 

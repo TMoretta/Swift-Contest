@@ -8,6 +8,7 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_detai
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_voting_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_works_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
+import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -40,34 +41,24 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
       child: Scaffold(
         appBar: CustomAppBar(title: 'Your contest'),
         body: SafeArea(
-          child: DefaultTabController(
-            length: 5,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-                  builder: (context, state) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
-                      case BlocStatus.loading:
-                        return SizedBox.shrink();
-                      case BlocStatus.failure:
-                        if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-                          return SizedBox.shrink();
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        return Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Card(
-                              elevation: 0.5,
-                              child: TabBar(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DefaultTabController(
+              length: 5,
+              child: Column(
+                // mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: 16),
+                  Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0.6,
+                    child: BlocBuilder<OrganizerContestDetailsPageBloc,
+                        OrganizerContestDetailsPageState>(
+                      builder: (context, state) {
+                        return (state.status.isInitial || state.status.isLoading)
+                            ? SizedBox.shrink()
+                            : TabBar(
                                 labelColor: Theme.of(context).colorScheme.white,
-                                unselectedLabelColor: Theme.of(context).colorScheme.grey7,
                                 isScrollable: true,
                                 dividerColor: Colors.transparent,
                                 tabAlignment: TabAlignment.center,
@@ -84,16 +75,13 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                                   Tab(text: 'Works'),
                                   Tab(text: 'Voting'),
                                 ],
-                              ),
-                            ),
-                          ),
-                        );
-                    }
-                  },
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                              );
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Flexible(
+                    fit: FlexFit.tight,
                     child: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       children: [
@@ -115,8 +103,8 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

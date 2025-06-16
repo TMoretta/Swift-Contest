@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
-import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
@@ -25,7 +24,6 @@ class OrganizerParticipantsTab extends StatefulWidget {
 
 class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
   late final String contestId;
-  Contest? contest;
 
   @override
   void initState() {
@@ -46,57 +44,47 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-      builder: (context, state) {
-        switch (state.status) {
-          case BlocStatus.initial:
-            return SizedBox.shrink();
-          case BlocStatus.loading:
-            return Loader();
-          case BlocStatus.failure:
-            if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-              return RefreshIndicator.adaptive(
-                onRefresh: () async => context
-                    .read<OrganizerContestDetailsPageBloc>()
-                    .add(OrganizerContestDetailsPageInit(contestId: contestId)),
-                child: ListView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                ),
-              );
-            } else {
-              continue successCase;
-            }
-          successCase:
-          case BlocStatus.success:
-            contest = state.contestDetailsBundle!.contest;
-            final List<ParticipationBundle> joinedParticipationsBundles =
-                state.contestDetailsBundle!.joinedParticipationsBundles;
-            final List<Invitation> participantsInvitations =
-                state.contestDetailsBundle!.participantsInvitations;
-            final List<ParticipationBundle> leftParticipationsBundles =
-                state.contestDetailsBundle!.leftParticipationsBundles;
-            return Scaffold(
-              body: DefaultTabController(
-                length: 3,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Participants',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Card(
-                        elevation: 0,
+    return Scaffold(
+      body: SafeArea(
+        child: DefaultTabController(
+          length: 3,
+          child: BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+            builder: (context, state) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return SizedBox.shrink();
+                case BlocStatus.loading:
+                  return Loader();
+                case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<OrganizerContestDetailsPageBloc>()
+                          .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                      child: ListView(),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  final List<ParticipationBundle> joinedParticipationsBundles =
+                      state.contestDetailsBundle!.joinedParticipationsBundles;
+                  final List<Invitation> participantsInvitations =
+                      state.contestDetailsBundle!.participantsInvitations;
+                  final List<ParticipationBundle> leftParticipationsBundles =
+                      state.contestDetailsBundle!.leftParticipationsBundles;
+                  return Column(
+                    // mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Card(
+                        elevation: 0.4,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         child: SizedBox(
                           height: 30,
                           child: TabBar(
                             labelColor: Theme.of(context).colorScheme.white,
-                            unselectedLabelColor: Theme.of(context).colorScheme.grey7,
-                            isScrollable: true,
+                            isScrollable: false,
                             dividerColor: Colors.transparent,
                             tabAlignment: TabAlignment.center,
                             splashBorderRadius: BorderRadius.circular(16),
@@ -113,143 +101,171 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 16),
-                    Expanded(
-                      child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
-                          //* Joined
-                          (joinedParticipationsBundles.isEmpty)
-                              ? RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    children: [
-                                      Text('No participant joined yet.'),
-                                    ],
-                                  ),
-                                )
-                              : RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView.builder(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    itemCount: joinedParticipationsBundles.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            // top: BorderSide(color: Colors.grey),
-                                            bottom: BorderSide(color: Colors.grey),
+                      SizedBox(height: 8),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            //* Joined
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                              child: (joinedParticipationsBundles.isEmpty)
+                                  ? LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return ListView(
+                                          children: [
+                                            SizedBox(
+                                              height: constraints.maxHeight,
+                                              child: Center(
+                                                child: Text(
+                                                  'No participant joined yet',
+                                                  style: Theme.of(context).textTheme.bodyLarge,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    )
+                                  : ListView.builder(
+                                      itemCount: joinedParticipationsBundles.length,
+                                      itemBuilder: (context, index) {
+                                        final participationBundle =
+                                            joinedParticipationsBundles[index];
+                                        return Card(
+                                          elevation: 0.2,
+                                          child: ListTile(
+                                            title: Text(participationBundle.participant.fullName),
+                                            subtitle: Text(
+                                                participationBundle.participation.invitationEmail),
+                                            trailing: IconButton(
+                                              onPressed: () {
+                                                //todo
+                                              },
+                                              icon: Icon(
+                                                Icons.remove_circle_outline,
+                                                color: Theme.of(context).colorScheme.error,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        child: ListTile(
-                                          title: Text(joinedParticipationsBundles[index]
-                                              .participant
-                                              .fullName),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                          //* Attended
-                          (participantsInvitations.isEmpty)
-                              ? RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    children: [
-                                      Text('No participant attended. Invite one'),
-                                    ],
-                                  ),
-                                )
-                              : RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView.builder(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    itemCount: participantsInvitations.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            // top: BorderSide(color: Colors.grey),
-                                            bottom: BorderSide(color: Colors.grey),
+                                        );
+                                      },
+                                    ),
+                            ),
+                            //* Attended
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                              child: (participantsInvitations.isEmpty)
+                                  ? LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return ListView(
+                                          children: [
+                                            SizedBox(
+                                              height: constraints.maxHeight,
+                                              child: Center(
+                                                child: Text(
+                                                  'No participant attended',
+                                                  style: Theme.of(context).textTheme.bodyLarge,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    )
+                                  : ListView.builder(
+                                      itemCount: participantsInvitations.length,
+                                      itemBuilder: (context, index) {
+                                        final invitation = participantsInvitations[index];
+                                        return Card(
+                                          elevation: 0.2,
+                                          child: ListTile(
+                                            title: Text(invitation.email),
+                                            trailing: IconButton(
+                                              onPressed: () {
+                                                //todo
+                                              },
+                                              icon: Icon(
+                                                Icons.remove,
+                                                color: Theme.of(context).colorScheme.error,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        child: ListTile(
-                                          title: Text(participantsInvitations[index].email),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                          //* Left
-                          (leftParticipationsBundles.isEmpty)
-                              ? RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView(children: [Text('No participant left')]))
-                              : RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView.builder(
-                                    itemCount: leftParticipationsBundles.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            // top: BorderSide(color: Colors.grey),
-                                            bottom: BorderSide(color: Colors.grey),
+                                        );
+                                      },
+                                    ),
+                            ),
+                            //* Left
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                              child: (leftParticipationsBundles.isEmpty)
+                                  ? LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return ListView(
+                                          children: [
+                                            SizedBox(
+                                              height: constraints.maxHeight,
+                                              child: Center(
+                                                child: Text(
+                                                  'No participant left',
+                                                  style: Theme.of(context).textTheme.bodyLarge,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    )
+                                  : ListView.builder(
+                                      itemCount: leftParticipationsBundles.length,
+                                      itemBuilder: (context, index) {
+                                        final participationBundle =
+                                            leftParticipationsBundles[index];
+                                        return Card(
+                                          elevation: 0.2,
+                                          child: ListTile(
+                                            title: Text(participationBundle.participant.fullName),
+                                            subtitle: Text(
+                                                participationBundle.participation.invitationEmail),
                                           ),
-                                        ),
-                                        child: ListTile(
-                                          title: Text(leftParticipationsBundles[index]
-                                              .participant
-                                              .fullName),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                        ],
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 52),
-                  ],
-                ),
-              ),
-              floatingActionButton: FilledButton(
-                onPressed: () async {
-                  final bool? res = await _showInviteDialog(context: context, contestId: contestId);
-                  if (res == true) {
-                    if (context.mounted) {
-                      context
-                          .read<OrganizerContestDetailsPageBloc>()
-                          .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
-                    }
-                  }
-                },
-                child: Text('Invite'),
-              ),
-            );
-        }
-      },
+                      SizedBox(height: 52),
+                    ],
+                  );
+              }
+            },
+          ),
+        ),
+      ),
+      floatingActionButton: FilledButton(
+        onPressed: () async {
+          final bool? res = await _showInviteDialog(context: context, contestId: contestId);
+          if (res == true) {
+            if (context.mounted) {
+              context
+                  .read<OrganizerContestDetailsPageBloc>()
+                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+            }
+          }
+        },
+        child: Text('Invite'),
+      ),
     );
   }
 }
 
-Future<bool?> _showInviteDialog({required BuildContext context, required String contestId})async {
+Future<bool?> _showInviteDialog({required BuildContext context, required String contestId}) async {
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
   return await showDialog(
     context: context,

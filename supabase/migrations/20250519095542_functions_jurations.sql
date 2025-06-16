@@ -11,14 +11,16 @@ BEGIN
     created_at,
     contest_id,
     juror_id,
-    juror_status
+    juror_status,
+    invitation_email
   )
   VALUES (
     p_juration.id,
     p_juration.created_at,
     p_juration.contest_id,
     p_juration.juror_id,
-    p_juration.juror_status
+    p_juration.juror_status,
+    p_juration.invitation_email
   )
   RETURNING * INTO STRICT v_juration;
 
@@ -47,7 +49,8 @@ BEGIN
   SET
     contest_id = p_juration.contest_id,
     juror_id = p_juration.juror_id,
-    juror_status = p_juration.juror_status
+    juror_status = p_juration.juror_status,
+    invitation_email = p_juration.invitation_email
   WHERE id = p_juration.id
   RETURNING * INTO STRICT v_juration;
 

@@ -52,9 +52,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                   onRefresh: () async => context
                       .read<OrganizerContestDetailsPageBloc>()
                       .add(OrganizerContestDetailsPageInit(contestId: contestId)),
-                  child: ListView(
-                      // physics: AlwaysScrollableScrollPhysics(),
-                      ),
+                  child: ListView(),
                 );
               } else {
                 continue successCase;

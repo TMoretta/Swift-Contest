@@ -6,8 +6,8 @@ class VotingFormField extends Equatable {
   final String votingFormId;
   final String name;
   final int orderIndex;
-  final int? minValue;
-  final int? maxValue;
+  final int minValue;
+  final int maxValue;
 
   const VotingFormField({
     required this.id,
@@ -15,8 +15,8 @@ class VotingFormField extends Equatable {
     required this.votingFormId,
     required this.name,
     required this.orderIndex,
-    this.minValue,
-    this.maxValue,
+    required this.minValue,
+    required this.maxValue,
   });
 
   factory VotingFormField.fromJson(Map<String, dynamic> json) {
@@ -26,8 +26,8 @@ class VotingFormField extends Equatable {
       votingFormId: json['voting_form_id'] as String,
       name: json['name'] as String,
       orderIndex: json['order_index'] as int,
-      minValue: json['min_value'] != null ? json['min_value'] as int : null,
-      maxValue: json['max_value'] != null ? json['max_value'] as int : null,
+      minValue: json['min_value'] as int,
+      maxValue: json['max_value'] as int,
     );
   }
 

@@ -159,9 +159,11 @@ BEGIN
   DELETE FROM voting_form_fields
   WHERE voting_form_id = p_voting_form_id;
 
-  FOR i IN 1..array_length(p_voting_form_fields, 1) LOOP
-    PERFORM create_voting_form_field(p_voting_form_fields[i]);
-  END LOOP;
+  IF array_length(p_voting_form_fields, 1) IS NOT NULL THEN
+    FOR i IN 1..array_length(p_voting_form_fields, 1) LOOP
+      PERFORM create_voting_form_field(p_voting_form_fields[i]);
+    END LOOP;
+  END IF;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN

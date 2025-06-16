@@ -174,6 +174,7 @@ INSERT INTO public.participations (
   contest_id,
   participant_id,
   participant_status,
+  invitation_email,
   has_submitted
 )
 VALUES (
@@ -182,6 +183,7 @@ VALUES (
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
   (SELECT id FROM auth.users WHERE email = 'participant1@example.com'),
   'joined',
+  'participant1@example.com',
   true
 );
 
@@ -191,6 +193,7 @@ INSERT INTO public.participations (
   contest_id,
   participant_id,
   participant_status,
+  invitation_email,
   has_submitted
 )
 VALUES (
@@ -199,6 +202,7 @@ VALUES (
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
   (SELECT id FROM auth.users WHERE email = 'participant2@example.com'),
   'joined',
+  'participant2@example.com',
   true
 );
 
@@ -208,6 +212,7 @@ INSERT INTO public.participations (
   contest_id,
   participant_id,
   participant_status,
+  invitation_email,
   has_submitted
 )
 VALUES (
@@ -216,6 +221,7 @@ VALUES (
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
   (SELECT id FROM auth.users WHERE email = 'participant3@example.com'),
   'left',
+  'participant3@example.com',
   true
 );
 
@@ -225,14 +231,16 @@ INSERT INTO public.jurations (
   created_at,
   contest_id,
   juror_id,
-  juror_status
+  juror_status,
+  invitation_email
 )
 VALUES (
   '1c3e0f2e-0691-479e-8fb1-aee4c5449f86',
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
   (SELECT id FROM auth.users WHERE email = 'juror1@example.com'),
-  'joined'
+  'joined',
+  'juror1@example.com'
 );
 
 INSERT INTO public.jurations (
@@ -240,14 +248,16 @@ INSERT INTO public.jurations (
   created_at,
   contest_id,
   juror_id,
-  juror_status
+  juror_status,
+  invitation_email
 )
 VALUES (
   '6c78e4df-e1e1-4bd0-9d74-ec701b962d9c',
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
   (SELECT id FROM auth.users WHERE email = 'juror2@example.com'),
-  'joined'
+  'joined',
+  'juror2@example.com'
 );
 
 -- WORKS

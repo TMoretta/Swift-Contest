@@ -21,6 +21,7 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
   final TextStyle? suffixStyle;
   final bool? enabled;
   final bool? obscureText;
+  final TextInputType? keyboardType;
 
   const CustomTextFormFieldOutlined({
     required this.controller,
@@ -42,6 +43,7 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
     this.suffixStyle,
     this.enabled,
     this.obscureText,
+    this.keyboardType,
     super.key,
   });
 
@@ -53,6 +55,7 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
       validator: validator,
       obscureText: obscureText ?? false,
       autovalidateMode: autovalidateMode,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         label: Text(label ?? ''),
@@ -135,6 +138,7 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
   final TextStyle? suffixStyle;
   final bool? enabled;
   final bool? obscureText;
+  final TextInputType? keyboardType;
 
   const CustomTextFormFieldUnderlined({
     required this.controller,
@@ -156,6 +160,7 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
     this.suffixStyle,
     this.enabled,
     this.obscureText,
+    this.keyboardType,
     super.key,
   });
 
@@ -167,6 +172,7 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
       enabled: enabled,
       obscureText: obscureText ?? false,
       autovalidateMode: autovalidateMode,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         label: Text(label ?? ''),

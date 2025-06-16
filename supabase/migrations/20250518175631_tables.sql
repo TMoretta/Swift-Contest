@@ -52,6 +52,7 @@ CREATE TABLE participations (
   contest_id uuid NOT NULL REFERENCES contests (id),
   participant_id uuid NOT NULL REFERENCES profiles (id),
   participant_status participant_status NOT NULL,
+  invitation_email varchar NOT NULL,
   has_submitted bool NOT NULL,
   UNIQUE (contest_id, participant_id)
 );
@@ -71,6 +72,7 @@ CREATE TABLE jurations (
   contest_id uuid NOT NULL REFERENCES contests (id),
   juror_id uuid NOT NULL REFERENCES profiles (id),
   juror_status juror_status NOT NULL,
+  invitation_email varchar NOT NULL,
   UNIQUE (contest_id, juror_id)
 );
 
@@ -80,8 +82,8 @@ CREATE TABLE voting_form_fields (
   voting_form_id uuid NOT NULL REFERENCES voting_forms (id),
   name varchar(20) NOT NULL,
   order_index int NOT NULL,
-  min_value int4,
-  max_value int4
+  min_value int4 NOT NULL,
+  max_value int4 NOT NULL
 );
 
 CREATE TABLE voting_sessions (

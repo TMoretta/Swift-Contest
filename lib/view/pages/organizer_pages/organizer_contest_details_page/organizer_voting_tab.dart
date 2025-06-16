@@ -40,133 +40,167 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case BlocStatus.initial:
-              return SizedBox.shrink();
-            case BlocStatus.loading:
-              return Loader();
-            case BlocStatus.failure:
-              if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-                return RefreshIndicator.adaptive(
-                  onRefresh: () async => context
-                      .read<OrganizerContestDetailsPageBloc>()
-                      .add(OrganizerContestDetailsPageInit(contestId: contestId)),
-                  child: ListView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                  ),
-                );
-              } else {
-                continue successCase;
-              }
-            successCase:
-            case BlocStatus.success:
-              final votingFormBundle = state.contestDetailsBundle!.votingFormBundle;
-              final votingFormFields = votingFormBundle.votingFormFields;
-              final endedVotingSessions = state.contestDetailsBundle!.endedVotingSessions;
-              return Column(
-                children: [
-                  //* Jurors' form
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Jurors\' form'),
-                          IconButton(
-                            onPressed: () async {
-                              final bool? res = await context.pushNamed(
-                                AppRouter.organizerVotingFormEdit,
-                                extra: votingFormBundle.toJson(),
-                              );
-                              if (context.mounted && res != null && res) {
-                                context.read<OrganizerContestDetailsPageBloc>().add(
-                                    OrganizerContestDetailsPageInit(
-                                        contestId: contestId));
-                              }
-                            },
-                            icon: Icon(Icons.edit),
-                          ),
-                        ],
+      body: SafeArea(
+        child: BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+          builder: (context, state) {
+            switch (state.status) {
+              case BlocStatus.initial:
+                return SizedBox.shrink();
+              case BlocStatus.loading:
+                return Loader();
+              case BlocStatus.failure:
+                if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                  return RefreshIndicator.adaptive(
+                    onRefresh: () async => context
+                        .read<OrganizerContestDetailsPageBloc>()
+                        .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                    child: ListView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                    ),
+                  );
+                } else {
+                  continue successCase;
+                }
+              successCase:
+              case BlocStatus.success:
+                final votingFormBundle = state.contestDetailsBundle!.votingFormBundle;
+                final endedVotingSessions = state.contestDetailsBundle!.endedVotingSessions;
+                return Column(
+                  children: [
+                    //* Jurors' form
+                    Card(
+                      elevation: 0.2,
+                      color: Theme.of(context).colorScheme.tertiaryFixedDim,
+                      child: ListTile(
+                        onTap: () async {
+                          final bool? res = await context.pushNamed(
+                            AppRouter.organizerVotingFormEdit,
+                            extra: votingFormBundle.toJson(),
+                          );
+                          if (context.mounted && res != null && res) {
+                            context
+                                .read<OrganizerContestDetailsPageBloc>()
+                                .add(OrganizerContestDetailsPageInit(contestId: contestId));
+                          }
+                        },
+                        title: Text(
+                          'Edit juror\'s form',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        leading: Icon(Icons.edit),
                       ),
-                      SizedBox(
-                        height: 200,
-                        child: RefreshIndicator.adaptive(
-                          onRefresh: () async {
-                            context.read<OrganizerContestDetailsPageBloc>().add(
-                                OrganizerContestDetailsPageInit(contestId: contestId));
-                          },
-                          child: (votingFormFields.isNotEmpty)
-                              ? ListView.builder(
-                                  physics: AlwaysScrollableScrollPhysics(),
-                                  itemCount: votingFormFields.length,
-                                  itemBuilder: (context, index) {
-                                    final field = votingFormFields[index];
-                                    return ListTile(
-                                      title: Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(field.name),
-                                            ],
-                                          )
-                                        ],
+                    ),
+                    SizedBox(height: 16),
+                    // Column(
+                    //   children: [
+                    //     Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         Text('Jurors\' form'),
+                    //         IconButton(
+                    //           onPressed: () async {
+                    //             final bool? res = await context.pushNamed(
+                    //               AppRouter.organizerVotingFormEdit,
+                    //               extra: votingFormBundle.toJson(),
+                    //             );
+                    //             if (context.mounted && res != null && res) {
+                    //               context.read<OrganizerContestDetailsPageBloc>().add(
+                    //                   OrganizerContestDetailsPageInit(
+                    //                       contestId: contestId));
+                    //             }
+                    //           },
+                    //           icon: Icon(Icons.edit),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //     SizedBox(
+                    //       height: 200,
+                    //       child: RefreshIndicator.adaptive(
+                    //         onRefresh: () async {
+                    //           context.read<OrganizerContestDetailsPageBloc>().add(
+                    //               OrganizerContestDetailsPageInit(contestId: contestId));
+                    //         },
+                    //         child: (votingFormFields.isNotEmpty)
+                    //             ? ListView.builder(
+                    //                 physics: AlwaysScrollableScrollPhysics(),
+                    //                 itemCount: votingFormFields.length,
+                    //                 itemBuilder: (context, index) {
+                    //                   final field = votingFormFields[index];
+                    //                   return ListTile(
+                    //                     title: Column(
+                    //                       children: [
+                    //                         Row(
+                    //                           children: [
+                    //                             Text(field.name),
+                    //                           ],
+                    //                         )
+                    //                       ],
+                    //                     ),
+                    //                   );
+                    //                 },
+                    //               )
+                    //             : ListView(
+                    //                 physics: AlwaysScrollableScrollPhysics(),
+                    //                 children: [
+                    //                   Text('No field added yet'),
+                    //                 ],
+                    //               ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    //* Results
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Results',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Expanded(
+                      child: RefreshIndicator.adaptive(
+                        onRefresh: () async => context
+                            .read<OrganizerContestDetailsPageBloc>()
+                            .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                        child: (endedVotingSessions.isNotEmpty)
+                            ? ListView.builder(
+                                itemCount: endedVotingSessions.length,
+                                itemBuilder: (context, index) {
+                                  final endedVotingSession = endedVotingSessions[index];
+                                  return ListTile(
+                                    onTap: () {
+                                      final dataJson = {
+                                        'voting_session': endedVotingSession.toJson(),
+                                        'contest_details_bundle':
+                                            state.contestDetailsBundle!.toJson(),
+                                      };
+                                      context.pushNamed(AppRouter.organizerVotingResultDetails,
+                                          extra: dataJson);
+                                    },
+                                    title: Text(endedVotingSession.name),
+                                  );
+                                },
+                              )
+                            : LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return ListView(
+                                    children: [
+                                      Text(
+                                        'No result yet',
+                                        style: Theme.of(context).textTheme.bodyLarge,
                                       ),
-                                    );
-                                  },
-                                )
-                              : ListView(
-                                  physics: AlwaysScrollableScrollPhysics(),
-                                  children: [
-                                    Text('No field added yet'),
-                                  ],
-                                ),
-                        ),
+                                    ],
+                                  );
+                                },
+                              ),
                       ),
-                    ],
-                  ),
-                  //* Results
-                  Column(
-                    children: [
-                      Text('Results'),
-                      SizedBox(
-                        height: 200,
-                        child: RefreshIndicator.adaptive(
-                          onRefresh: () async {
-                            context.read<OrganizerContestDetailsPageBloc>().add(
-                                OrganizerContestDetailsPageInit(contestId: contestId));
-                          },
-                          child: (endedVotingSessions.isNotEmpty)
-                              ? ListView.builder(
-                                  itemCount: endedVotingSessions.length,
-                                  itemBuilder: (context, index) {
-                                    final endedVotingSession = endedVotingSessions[index];
-                                    return ListTile(
-                                      onTap: () {
-                                        final dataJson = {
-                                          'voting_session' : endedVotingSession.toJson(),
-                                          'contest_details_bundle' : state.contestDetailsBundle!.toJson(),
-                                        };
-                                        context.pushNamed(AppRouter.organizerVotingResultDetails,
-                                            extra: dataJson);
-                                      },
-                                      title: Text(endedVotingSession.name),
-                                    );
-                                  },
-                                )
-                              : ListView(
-                                  physics: AlwaysScrollableScrollPhysics(),
-                                  children: [Text('No results yet')],
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-          }
-        },
+                    ),
+                  ],
+                );
+            }
+          },
+        ),
       ),
       floatingActionButton:
           BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(

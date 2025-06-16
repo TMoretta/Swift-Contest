@@ -12,6 +12,7 @@ BEGIN
     contest_id,
     participant_id,
     participant_status,
+    invitation_email,
     has_submitted
   )
   VALUES (
@@ -20,6 +21,7 @@ BEGIN
     p_participation.contest_id,
     p_participation.participant_id,
     p_participation.participant_status,
+    p_participation.invitation_email,
     p_participation.has_submitted
   )
   RETURNING * INTO STRICT v_participation;
@@ -52,6 +54,7 @@ BEGIN
     contest_id = p_participation.contest_id,
     participant_id = p_participation.participant_id,
     participant_status = p_participation.participant_status,
+    invitation_email = p_participation.invitation_email,
     has_submitted = p_participation.has_submitted
   WHERE id = p_participation.id
   RETURNING * INTO STRICT v_participation;

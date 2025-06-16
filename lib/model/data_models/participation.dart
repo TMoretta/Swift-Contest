@@ -7,6 +7,7 @@ class Participation extends Equatable {
   final String contestId;
   final String participantId;
   final ParticipantStatus participantStatus;
+  final String invitationEmail;
   final bool hasSubmitted;
 
   const Participation({
@@ -15,6 +16,7 @@ class Participation extends Equatable {
     required this.contestId,
     required this.participantId,
     required this.participantStatus,
+    required this.invitationEmail,
     required this.hasSubmitted,
   });
 
@@ -25,6 +27,7 @@ class Participation extends Equatable {
       contestId: json['contest_id'] as String,
       participantId: json['participant_id'] as String,
       participantStatus: ParticipantStatus.values.byName(json['participant_status'] as String),
+      invitationEmail: json['invitation_email'] as String,
       hasSubmitted: json['has_submitted'] as bool,
     );
   }
@@ -36,6 +39,7 @@ class Participation extends Equatable {
       'contest_id': contestId,
       'participant_id': participantId,
       'participant_status': participantStatus.name,
+      'invitation_email': invitationEmail,
       'has_submitted': hasSubmitted,
     };
   }
@@ -47,6 +51,7 @@ class Participation extends Equatable {
       'p_contest_id': contestId,
       'p_participant_id': participantId,
       'p_participant_status': participantStatus.name,
+      'p_invitation_email': invitationEmail,
       'p_has_submitted': hasSubmitted,
     };
   }
@@ -57,6 +62,7 @@ class Participation extends Equatable {
     String? contestId,
     String? participantId,
     ParticipantStatus? participantStatus,
+    String? invitationEmail,
     bool? hasSubmitted,
   }) {
     return Participation(
@@ -65,6 +71,7 @@ class Participation extends Equatable {
       contestId: contestId ?? this.contestId,
       participantId: participantId ?? this.participantId,
       participantStatus: participantStatus ?? this.participantStatus,
+      invitationEmail: invitationEmail ?? this.invitationEmail,
       hasSubmitted: hasSubmitted ?? this.hasSubmitted,
     );
   }
@@ -76,6 +83,7 @@ class Participation extends Equatable {
         contestId,
         participantId,
         participantStatus,
+        invitationEmail,
         hasSubmitted,
       ];
 }

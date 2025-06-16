@@ -99,3 +99,18 @@ String? otpValidator(String? value, int length) {
 
   return null;
 }
+
+//* Numbers validator
+String? integerValidator(String? value) {
+  final val = value?.trim();
+
+  if(val == null || val.isEmpty) {
+    return '';
+  }
+
+  if(!RegExp(r'^\d+$').hasMatch(val)) {
+    return 'Invalid number, only integers allowed';
+  }
+
+  return null;
+}

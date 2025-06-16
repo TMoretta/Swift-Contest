@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
-import 'package:swift_contest/model/enums/juror_status.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -42,57 +41,47 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-      builder: (context, state) {
-        switch (state.status) {
-          case BlocStatus.initial:
-            return SizedBox.shrink();
-          case BlocStatus.loading:
-            return Loader();
-          case BlocStatus.failure:
-            if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-              return RefreshIndicator.adaptive(
-                onRefresh: () async => context
-                    .read<OrganizerContestDetailsPageBloc>()
-                    .add(OrganizerContestDetailsPageInit(contestId: contestId)),
-                child: ListView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                ),
-              );
-            } else {
-              continue successCase;
-            }
-          successCase:
-          case BlocStatus.success:
-            final List<JurationBundle> joinedJurationsBundles =
-                state.contestDetailsBundle!.joinedJurationsBundles;
-            final List<Invitation> jurorsInvitations =
-                state.contestDetailsBundle!.jurorsInvitations;
-            final List<JurationBundle> leftJurationsBundles =
-                state.contestDetailsBundle!.leftJurationsBundles;
-
-            return Scaffold(
-              body: DefaultTabController(
-                length: 3,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Jurors',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Card(
-                        elevation: 0,
+    return Scaffold(
+      body: SafeArea(
+        child: DefaultTabController(
+          length: 3,
+          child: BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+            builder: (context, state) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return SizedBox.shrink();
+                case BlocStatus.loading:
+                  return Loader();
+                case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<OrganizerContestDetailsPageBloc>()
+                          .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                      child: ListView(),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  final List<JurationBundle> joinedJurationsBundles =
+                      state.contestDetailsBundle!.joinedJurationsBundles;
+                  final List<Invitation> jurorsInvitations =
+                      state.contestDetailsBundle!.jurorsInvitations;
+                  final List<JurationBundle> leftJurationsBundles =
+                      state.contestDetailsBundle!.leftJurationsBundles;
+                  return Column(
+                    // mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Card(
+                        elevation: 0.4,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         child: SizedBox(
                           height: 30,
                           child: TabBar(
                             labelColor: Theme.of(context).colorScheme.white,
-                            unselectedLabelColor: Theme.of(context).colorScheme.grey7,
-                            isScrollable: true,
+                            isScrollable: false,
                             dividerColor: Colors.transparent,
                             tabAlignment: TabAlignment.center,
                             splashBorderRadius: BorderRadius.circular(16),
@@ -109,149 +98,168 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 16),
-                    Expanded(
-                      child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
-                          //* Joined
-                          (joinedJurationsBundles.isEmpty)
-                              ? RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    children: [
-                                      Text('No juror joined yet'),
-                                    ],
-                                  ),
-                                )
-                              : RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView.builder(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    itemCount: joinedJurationsBundles.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            // top: BorderSide(color: Colors.grey),
-                                            bottom: BorderSide(color: Colors.grey),
-                                          ),
-                                        ),
-                                        child: ListTile(
-                                          title: Text(joinedJurationsBundles[index].juror.fullName),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                          //* Attended
-                          (jurorsInvitations.isEmpty)
-                              ? RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    children: [
-                                      Text('No juror attended. Invite one'),
-                                    ],
-                                  ),
-                                )
-                              : RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView.builder(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    itemCount: jurorsInvitations.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            // top: BorderSide(color: Colors.grey),
-                                            bottom: BorderSide(color: Colors.grey),
-                                          ),
-                                        ),
-                                        child: ListTile(
-                                          title: Text(jurorsInvitations[index].email),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                          //* Left
-                          (leftJurationsBundles.isEmpty)
-                              ? RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView(
-                                    physics: AlwaysScrollableScrollPhysics(),
-                                    children: [
-                                      Text('No juror left'),
-                                    ],
-                                  ),
-                                )
-                              : RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                  child: ListView.builder(
-                                    itemCount: leftJurationsBundles.length,
-                                    itemBuilder: (context, index) {
-                                      if (leftJurationsBundles[index].juration.jurorStatus ==
-                                          JurorStatus.left) {
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              // top: BorderSide(color: Colors.grey),
-                                              bottom: BorderSide(color: Colors.grey),
+                      SizedBox(height: 8),
+                      Flexible(
+                        fit: FlexFit.tight,
+                        child: TabBarView(
+                          children: [
+                            //* Joined
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                              child: (joinedJurationsBundles.isEmpty)
+                                  ? LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return ListView(
+                                          children: [
+                                            SizedBox(
+                                              height: constraints.maxHeight,
+                                              child: Center(
+                                                child: Text(
+                                                  'No juror joined yet',
+                                                  style: Theme.of(context).textTheme.bodyLarge,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    )
+                                  : ListView.builder(
+                                      itemCount: joinedJurationsBundles.length,
+                                      itemBuilder: (context, index) {
+                                        final jurationBundle = joinedJurationsBundles[index];
+                                        return Card(
+                                          elevation: 0.2,
+                                          child: ListTile(
+                                            title: Text(jurationBundle.juror.fullName),
+                                            subtitle: Text(jurationBundle.juration.invitationEmail),
+                                            trailing: IconButton(
+                                              onPressed: () {
+                                                //todo
+                                              },
+                                              icon: Icon(
+                                                Icons.remove_circle_outline,
+                                                color: Theme.of(context).colorScheme.error,
+                                              ),
                                             ),
                                           ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                            //* Attended
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                              child: (jurorsInvitations.isEmpty)
+                                  ? LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return ListView(
+                                          children: [
+                                            SizedBox(
+                                              height: constraints.maxHeight,
+                                              child: Center(
+                                                child: Text(
+                                                  'No juror attended',
+                                                  style: Theme.of(context).textTheme.bodyLarge,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    )
+                                  : ListView.builder(
+                                      itemCount: jurorsInvitations.length,
+                                      itemBuilder: (context, index) {
+                                        final invitation = jurorsInvitations[index];
+                                        return Card(
+                                          elevation: 0.2,
                                           child: ListTile(
-                                            title: Text(leftJurationsBundles[index].juror.fullName),
+                                            title: Text(invitation.email),
+                                            trailing: IconButton(
+                                              onPressed: () {
+                                                //todo
+                                              },
+                                              icon: Icon(
+                                                Icons.remove,
+                                                color: Theme.of(context).colorScheme.error,
+                                              ),
+                                            ),
                                           ),
                                         );
-                                      }
-                                      return SizedBox.shrink();
-                                    },
-                                  ),
-                                ),
-                        ],
+                                      },
+                                    ),
+                            ),
+                            //* Left
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                              child: (leftJurationsBundles.isEmpty)
+                                  ? LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        return ListView(
+                                          children: [
+                                            SizedBox(
+                                              height: constraints.maxHeight,
+                                              child: Center(
+                                                child: Text(
+                                                  'No juror left',
+                                                  style: Theme.of(context).textTheme.bodyLarge,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    )
+                                  : ListView.builder(
+                                      itemCount: leftJurationsBundles.length,
+                                      itemBuilder: (context, index) {
+                                        final jurationBundle = leftJurationsBundles[index];
+                                        return Card(
+                                          elevation: 0.2,
+                                          child: ListTile(
+                                            title: Text(jurationBundle.juror.fullName),
+                                            subtitle: Text(jurationBundle.juration.invitationEmail),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 52),
-                  ],
-                ),
-              ),
-              floatingActionButton: FilledButton(
-                onPressed: () async {
-                  final bool? res = await _showInviteDialog(context: context, contestId: contestId);
-                  if (res == true) {
-                    if (context.mounted) {
-                      context
-                          .read<OrganizerContestDetailsPageBloc>()
-                          .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
-                    }
-                  }
-                },
-                child: Text('Invite'),
-              ),
-            );
-
-        }
-      },
+                      SizedBox(height: 52),
+                    ],
+                  );
+              }
+            },
+          ),
+        ),
+      ),
+      floatingActionButton: FilledButton(
+        onPressed: () async {
+          final bool? res = await _showInviteDialog(context: context, contestId: contestId);
+          if (res == true) {
+            if (context.mounted) {
+              context
+                  .read<OrganizerContestDetailsPageBloc>()
+                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+            }
+          }
+        },
+        child: Text('Invite'),
+      ),
     );
   }
 }
 
-Future<bool?> _showInviteDialog({required BuildContext context, required String contestId}) async{
+Future<bool?> _showInviteDialog({required BuildContext context, required String contestId}) async {
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
   return await showDialog(
     context: context,

@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/app.dart';
 import 'package:swift_contest/model/repositories/auth_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/contest_repository.dart';
-import 'package:swift_contest/model/repositories/edge_repository.dart';
-import 'package:swift_contest/model/repositories/google_place_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/invitation_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/juration_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/juror_vote_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/juror_voting_repository.dart';
-import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
-import 'package:swift_contest/model/repositories/role_repositories/participant_repository.dart';
-import 'package:swift_contest/model/repositories/role_repositories/juror_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/participation_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/place_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/profile_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/simple_juror_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/simple_juror_vote_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/simple_juror_voting_repository.dart';
-import 'package:swift_contest/model/repositories/storage_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/user_repository.dart';
-import 'package:swift_contest/model/repositories/utils_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/voting_form_field_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/voting_form_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/voting_session_exclusion_repository.dart';
@@ -30,15 +24,23 @@ import 'package:swift_contest/model/repositories/crud_repositories/voting_sessio
 import 'package:swift_contest/model/repositories/crud_repositories/voting_session_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/voting_session_simple_juror_repository.dart';
 import 'package:swift_contest/model/repositories/crud_repositories/work_repository.dart';
-import 'package:swift_contest/utils/constants/constants.dart';
+import 'package:swift_contest/model/repositories/edge_repository.dart';
+import 'package:swift_contest/model/repositories/google_place_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/juror_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/model/repositories/role_repositories/participant_repository.dart';
+import 'package:swift_contest/model/repositories/storage_repository.dart';
+import 'package:swift_contest/model/repositories/utils_repository.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await dotenv.load(fileName: '.env');
+
   await Supabase.initialize(
-    url: Constants.supabaseUrl,
-    anonKey: Constants.supabaseAnonKey,
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
     authOptions: FlutterAuthClientOptions(autoRefreshToken: true, detectSessionInUri: true),
     realtimeClientOptions: const RealtimeClientOptions(
       eventsPerSecond: 2,
@@ -58,7 +60,7 @@ void main() async {
           create: (context) => EdgeRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<GooglePlaceRepository>(
-          create: (context) => GooglePlaceRepositoryImpl(apiKey: Constants.googlePlacesApiKey),
+          create: (context) => GooglePlaceRepositoryImpl(apiKey: dotenv.env['GOOGLE_PLACES_API_KEY']!),
         ),
         RepositoryProvider<InvitationRepository>(
           create: (context) => InvitationRepositoryImpl(supabaseClient: supabaseClient),
