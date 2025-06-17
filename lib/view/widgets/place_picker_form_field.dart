@@ -20,9 +20,8 @@ class PlacePickerFormField extends StatelessWidget {
   final Icon? prefixIcon;
   final Color? prefixIconColor;
   final bool? enabled;
-  final FocusNode focusNode = FocusNode();
 
-  PlacePickerFormField({
+  const PlacePickerFormField({
     required this.controller,
     this.label,
     this.onSelected,
@@ -56,8 +55,8 @@ class PlacePickerFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
-          onPressed: () async {
-            FocusScope.of(context).requestFocus(focusNode);
+          onPressed: (enabled ?? true) ? () async {
+            FocusManager.instance.primaryFocus?.unfocus();
             final place = await _showLocationSearchDialog(context: context);
             if (place != null) {
               controller.text = place.address;
@@ -65,7 +64,7 @@ class PlacePickerFormField extends StatelessWidget {
                 onSelected!(place);
               }
             }
-          },
+          } : null,
           child: Text('Select'),
         ),
         helperText: '',

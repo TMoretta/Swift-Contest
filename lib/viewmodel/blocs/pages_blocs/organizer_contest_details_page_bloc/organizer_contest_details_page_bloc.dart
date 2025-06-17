@@ -13,6 +13,7 @@ import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_contest_details_page_event.dart';
+
 part 'organizer_contest_details_page_state.dart';
 
 class OrganizerContestDetailsPageBloc
@@ -23,14 +24,14 @@ class OrganizerContestDetailsPageBloc
   OrganizerContestDetailsPageBloc({
     required UtilsRepository utilsRepository,
     required OrganizerRepository organizerRepository,
-  })  :
-        _utilsRepository = utilsRepository,
+  })  : _utilsRepository = utilsRepository,
         _organizerRepository = organizerRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerContestDetailsPageInit>(_init);
     on<OrganizerContestDetailsPageRefresh>(_refresh);
     on<OrganizerContestDetailsPageSendParticipantInvite>(_sendParticipantInvite);
     on<OrganizerContestDetailsPageSendJurorInvite>(_sendJurorInvite);
+    on<OrganizerContestDetailsPageDeleteInvitation>(_deleteInvitation);
   }
 
   FutureOr<void> _init(
@@ -41,10 +42,10 @@ class OrganizerContestDetailsPageBloc
 
     final eitherDetails = await _organizerRepository.getContestDetails(contestId: event.contestId);
     eitherDetails.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-        (success) {
-            emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
-        },
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) {
+        emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
+      },
     );
 
     // //* Ottengo il contest
@@ -269,13 +270,16 @@ class OrganizerContestDetailsPageBloc
     // ));
   }
 
-  FutureOr<void> _refresh(OrganizerContestDetailsPageRefresh event, Emitter<OrganizerContestDetailsPageState> emit,)async {
+  FutureOr<void> _refresh(
+    OrganizerContestDetailsPageRefresh event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherDetails = await _organizerRepository.getContestDetails(contestId: event.contestId);
     eitherDetails.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-          (success) {
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) {
         emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
       },
     );
@@ -298,13 +302,19 @@ class OrganizerContestDetailsPageBloc
       return;
     }
 
-    final Invitation invitation = Invitation(id: genUuid(), createdAt: now(), contestId: event.contestId, token: token, email: event.email, memberRole: MemberRole.participant,);
+    final Invitation invitation = Invitation(
+      id: genUuid(),
+      createdAt: now(),
+      contestId: event.contestId,
+      token: token,
+      email: event.email,
+      memberRole: MemberRole.participant,
+    );
 
     final eitherInvite = await _organizerRepository.sendInvite(invitation: invitation);
     eitherInvite.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-        (success) => emit(state.copyWith(status: BlocStatus.success))
-    );
+        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+        (success) => emit(state.copyWith(status: BlocStatus.success)));
   }
 
   FutureOr<void> _sendJurorInvite(
@@ -317,21 +327,28 @@ class OrganizerContestDetailsPageBloc
     final eitherToken = await _utilsRepository.genUniqueToken(
         tableName: 'invitations', columnName: 'token', length: 14);
     eitherToken.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => token = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => token = success,
     );
     if (eitherToken.isLeft()) {
       return;
     }
 
-    final Invitation invitation = Invitation(id: genUuid(), createdAt: now(), contestId: event.contestId, token: token, email: event.email, memberRole: MemberRole.juror,);
+    final Invitation invitation = Invitation(
+      id: genUuid(),
+      createdAt: now(),
+      contestId: event.contestId,
+      token: token,
+      email: event.email,
+      memberRole: MemberRole.juror,
+    );
 
     final eitherInvite = await _organizerRepository.sendInvite(invitation: invitation);
     eitherInvite.fold(
-            (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-            (success) => emit(state.copyWith(status: BlocStatus.success))
-    );
+        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+        (success) => emit(state.copyWith(status: BlocStatus.success)));
   }
+
   //
   // FutureOr<void> _getRemainingInfo(
   //   OrganizerContestDetailsPageGetRemainingInfo event,
@@ -500,5 +517,17 @@ class OrganizerContestDetailsPageBloc
   //   ));
   // }
 
+  FutureOr<void> _deleteInvitation(
+    OrganizerContestDetailsPageDeleteInvitation event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
+    final eitherDeleteInvitation =
+        await _organizerRepository.deleteInvitationById(id: event.invitationId);
+    eitherDeleteInvitation.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
 }

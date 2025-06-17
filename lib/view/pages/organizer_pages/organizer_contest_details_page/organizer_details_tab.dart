@@ -243,11 +243,10 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Start:',
-                          style: Theme.of(context).textTheme.labelLarge,
+                          style: Theme.of(context).textTheme.labelMedium,
                         ),
                         SizedBox(width: 4),
                         Text(
@@ -260,11 +259,10 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'End:',
-                          style: Theme.of(context).textTheme.labelLarge,
+                          style: Theme.of(context).textTheme.labelMedium,
                         ),
                         SizedBox(width: 4),
                         Text(

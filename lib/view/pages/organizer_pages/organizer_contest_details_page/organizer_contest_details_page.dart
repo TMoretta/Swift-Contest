@@ -58,7 +58,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                         return (state.status.isInitial || state.status.isLoading)
                             ? SizedBox.shrink()
                             : TabBar(
-                                labelColor: Theme.of(context).colorScheme.white,
+                                labelColor: Theme.of(context).colorScheme.onPrimary,
                                 isScrollable: true,
                                 dividerColor: Colors.transparent,
                                 tabAlignment: TabAlignment.center,

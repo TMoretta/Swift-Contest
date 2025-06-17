@@ -22,16 +22,8 @@ final class OrganizerContestDetailsPageRefresh extends OrganizerContestDetailsPa
   List<Object?> get props => [contestId];
 }
 
-// final class OrganizerContestDetailsPageGetRemainingInfo extends OrganizerContestDetailsPageEvent {
-//   final HomeContestBundle homeContestBundle;
-//
-//   const OrganizerContestDetailsPageGetRemainingInfo({required this.homeContestBundle});
-//
-//   @override
-//   List<Object?> get props => [homeContestBundle];
-// }
-
-final class OrganizerContestDetailsPageSendParticipantInvite extends OrganizerContestDetailsPageEvent {
+final class OrganizerContestDetailsPageSendParticipantInvite
+    extends OrganizerContestDetailsPageEvent {
   final String contestId;
   final String email;
 
@@ -52,4 +44,13 @@ final class OrganizerContestDetailsPageSendJurorInvite extends OrganizerContestD
 
   @override
   List<Object?> get props => [contestId, email];
+}
+
+final class OrganizerContestDetailsPageDeleteInvitation extends OrganizerContestDetailsPageEvent {
+  final String invitationId;
+
+  const OrganizerContestDetailsPageDeleteInvitation({required this.invitationId});
+
+  @override
+  List<Object?> get props => [invitationId];
 }

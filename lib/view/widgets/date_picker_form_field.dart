@@ -14,9 +14,8 @@ class DatePickerFormField extends StatelessWidget {
   final Icon? prefixIcon;
   final Color? prefixIconColor;
   final DateTime? initialDate;
-  final FocusNode focusNode = FocusNode();
 
-  DatePickerFormField({
+  const DatePickerFormField({
     required this.controller,
     this.label,
     this.onSelected,
@@ -50,7 +49,7 @@ class DatePickerFormField extends StatelessWidget {
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
           onPressed: () async {
-            FocusScope.of(context).requestFocus(focusNode);
+            FocusManager.instance.primaryFocus?.unfocus();
             final date = await _showDatePicker(context: context, initialDate: initialDate);
             if (date != null) {
               controller.text = DateFormat('dd/MM/yyyy').format(date);

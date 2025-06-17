@@ -77,7 +77,6 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                                 child: Center(
                                   child: Text(
                                     'No contest created yet',
-                                    style: Theme.of(context).textTheme.bodyLarge,
                                   ),
                                 ),
                               ),

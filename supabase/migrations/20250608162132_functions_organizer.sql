@@ -441,7 +441,21 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+CREATE OR REPLACE FUNCTION organizer_delete_invitation_by_id (
+  p_id uuid
+)
+RETURNS void AS $$
+BEGIN
+  DELETE FROM invitations
+  WHERE id = p_id;
 
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An error occurred while deleting the invitation';
+END;
+$$ LANGUAGE plpgsql
 
 
 

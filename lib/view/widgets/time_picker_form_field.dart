@@ -12,9 +12,8 @@ class TimePickerFormField extends StatelessWidget {
   final Color? externalIconColor;
   final Icon? prefixIcon;
   final Color? prefixIconColor;
-  final FocusNode focusNode = FocusNode();
 
-   TimePickerFormField({
+   const TimePickerFormField({
     required this.controller,
     this.label,
     this.onSelected,
@@ -47,7 +46,7 @@ class TimePickerFormField extends StatelessWidget {
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
             onPressed: () async {
-              FocusScope.of(context).requestFocus(focusNode);
+              FocusManager.instance.primaryFocus?.unfocus();
               final time = await _showTimePicker(context: context);
               if (time != null) {
                 controller.text =

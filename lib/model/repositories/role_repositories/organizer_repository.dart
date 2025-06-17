@@ -31,6 +31,8 @@ abstract interface class OrganizerRepository {
     required List<VotingFormField> votingFormFields,
   });
 
+  Future<Either<Failure,Unit>> deleteInvitationById({required String id});
+
   Future<Either<Failure, Unit>> initVotingSession({
     required VotingForm votingForm,
     required List<VotingFormField> votingFormFields,
@@ -125,6 +127,20 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
       return right(unit);
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure,Unit>> deleteInvitationById({required String id}) async {
+    try {
+      await _supabase.rpc('organizer_delete_invitation_by_id', params: {
+        'p_id': id,
+      });
+      return right(unit);
+    } on PostgrestException catch (e) {
+      return Left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }

@@ -85,9 +85,11 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                         },
                         title: Text(
                           'Edit juror\'s form',
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onTertiaryFixedVariant),
                         ),
-                        leading: Icon(Icons.edit),
+                        leading: Icon(Icons.edit,
+                            color: Theme.of(context).colorScheme.onTertiaryFixedVariant),
                       ),
                     ),
                     SizedBox(height: 16),
@@ -153,8 +155,11 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Results',
-                        style: Theme.of(context).textTheme.titleLarge,
+                        'Voting results',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                       ),
                     ),
                     SizedBox(height: 4),
@@ -188,7 +193,6 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                     children: [
                                       Text(
                                         'No result yet',
-                                        style: Theme.of(context).textTheme.bodyLarge,
                                       ),
                                     ],
                                   );
@@ -210,61 +214,57 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
           }
         },
         builder: (context, state) {
-          switch (state.status) {
-            case BlocStatus.initial:
-              return SizedBox.shrink();
-            case BlocStatus.loading:
-              return SizedBox.shrink();
-            case BlocStatus.failure:
-              return SizedBox.shrink();
-            case BlocStatus.success:
-              if (state.contestDetailsBundle!.liveVotingSession == null) {
-                return FilledButton(
-                  onPressed: () async {
-                    if (state.contestDetailsBundle!.joinedJurationsBundles.isEmpty) {
-                      showSnackBar(
-                        context: context,
-                        text: 'At least one juror is necessary',
-                      );
-                      return;
-                    }
-                    if (state.contestDetailsBundle!.joinedParticipationsBundles
-                        .where((e) => e.participation.hasSubmitted)
-                        .toList(growable: false)
-                        .isEmpty) {
-                      showSnackBar(
-                        context: context,
-                        text: 'At least one participant with submitted work is necessary',
-                      );
-                      return;
-                    }
+          if (state.status.isInitial) {
+            return SizedBox.shrink();
+          }
+          if (state.contestDetailsBundle!.liveVotingSession == null) {
+            return FloatingActionButton.extended(
+              onPressed: (!state.status.isLoading)
+                  ? () async {
+                      if (state.contestDetailsBundle!.joinedJurationsBundles.isEmpty) {
+                        showSnackBar(
+                          context: context,
+                          text: 'At least one juror is necessary',
+                        );
+                        return;
+                      }
+                      if (state.contestDetailsBundle!.joinedParticipationsBundles
+                          .where((e) => e.participation.hasSubmitted)
+                          .toList(growable: false)
+                          .isEmpty) {
+                        showSnackBar(
+                          context: context,
+                          text: 'At least one participant with submitted work is necessary',
+                        );
+                        return;
+                      }
 
-                    final contestDetailsBundleJson = state.contestDetailsBundle!.toJson();
+                      final contestDetailsBundleJson = state.contestDetailsBundle!.toJson();
 
-                    final VotingSession? votingSession = await context.pushNamed(
-                        AppRouter.organizerVotingSettings,
-                        extra: contestDetailsBundleJson);
-                    if (votingSession == null) {
-                      return;
+                      final VotingSession? votingSession = await context.pushNamed(
+                          AppRouter.organizerVotingSettings,
+                          extra: contestDetailsBundleJson);
+                      if (votingSession == null) {
+                        return;
+                      }
+                      if (context.mounted) {
+                        context.pushNamed(AppRouter.organizerVotingProcedure);
+                      }
                     }
-                    if (context.mounted) {
+                  : null,
+              elevation: 1,
+              label: Text('Start voting'),
+            );
+          } else {
+            return FloatingActionButton.extended(
+              onPressed: (!state.status.isLoading)
+                  ? () {
                       context.pushNamed(AppRouter.organizerVotingProcedure);
                     }
-                  },
-                  child: Text('Start voting'),
-                );
-              } else {
-                return Positioned(
-                  bottom: 32,
-                  right: 16,
-                  child: FilledButton(
-                    onPressed: () {
-                      //todo: voting procedure already started
-                    },
-                    child: Text('Continue voting'),
-                  ),
-                );
-              }
+                  : null,
+              elevation: 1,
+              label: Text('Continue voting'),
+            );
           }
         },
       ),

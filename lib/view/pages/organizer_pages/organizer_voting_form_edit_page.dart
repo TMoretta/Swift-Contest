@@ -88,7 +88,6 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                       ? Center(
                           child: Text(
                             'No field added yet',
-                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         )
                       : Padding(

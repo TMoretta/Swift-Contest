@@ -75,7 +75,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                       child: SizedBox(
                         height: 30,
                         child: TabBar(
-                          labelColor: Theme.of(context).colorScheme.white,
+                          labelColor: Theme.of(context).colorScheme.onTertiary,
                           isScrollable: false,
                           dividerColor: Colors.transparent,
                           tabAlignment: TabAlignment.center,
@@ -111,7 +111,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                             child: Center(
                                               child: Text(
                                                 'No work submitted yet',
-                                                style: Theme.of(context).textTheme.bodyLarge,
+                                                style: Theme.of(context).textTheme.bodyMedium,
                                               ),
                                             ),
                                           )
@@ -202,7 +202,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                             child: Center(
                                               child: Text(
                                                 'No work attended from joined participants',
-                                                style: Theme.of(context).textTheme.bodyLarge,
+                                                style: Theme.of(context).textTheme.bodyMedium,
                                               ),
                                             ),
                                           )
@@ -319,7 +319,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                   child: Center(
                                     child: Text(
                                       'No work submitted yet',
-                                      style: Theme.of(context).textTheme.bodyLarge,
+                                      style: Theme.of(context).textTheme.bodyMedium,
                                     ),
                                   ),
                                 )
