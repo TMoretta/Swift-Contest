@@ -1,9 +1,9 @@
 enum JurorStatus {
   joined,
-  left,
+  out,
 }
 
 extension JurorStatusX on JurorStatus {
   bool get isJoined => this == JurorStatus.joined;
-  bool get isLeft => this == JurorStatus.left;
+  bool get isOut => this == JurorStatus.out;
 }

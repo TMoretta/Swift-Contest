@@ -7,6 +7,7 @@ class Work extends Equatable {
   final String name;
   final String description;
   final List<String> imagesUrls;
+  final String fileUrl;
 
   const Work({
     required this.id,
@@ -15,6 +16,7 @@ class Work extends Equatable {
     required this.name,
     required this.description,
     required this.imagesUrls,
+    required this.fileUrl,
   });
 
   factory Work.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class Work extends Equatable {
       name: json['name'] as String,
       description: json['description'] as String,
       imagesUrls: List<String>.from(json['images_urls']),
+      fileUrl: json['file_url'] as String,
     );
   }
 
@@ -36,6 +39,7 @@ class Work extends Equatable {
       'name': name,
       'description': description,
       'images_urls': imagesUrls,
+      'file_url': fileUrl,
     };
   }
 
@@ -47,6 +51,7 @@ class Work extends Equatable {
       'p_name': name,
       'p_description': description,
       'p_images_urls': imagesUrls,
+      'p_file_url': fileUrl,
     };
   }
 
@@ -57,6 +62,7 @@ class Work extends Equatable {
     String? name,
     String? description,
     List<String>? imagesUrls,
+    String? fileUrl,
   }) {
     return Work(
       id: id ?? this.id,
@@ -65,10 +71,18 @@ class Work extends Equatable {
       name: name ?? this.name,
       description: description ?? this.description,
       imagesUrls: imagesUrls ?? this.imagesUrls,
+      fileUrl: fileUrl ?? this.fileUrl,
     );
   }
 
-
   @override
-  List<Object?> get props => [id, createdAt, participationId, name, description, imagesUrls,];
+  List<Object?> get props => [
+        id,
+        createdAt,
+        participationId,
+        name,
+        description,
+        imagesUrls,
+        fileUrl,
+      ];
 }

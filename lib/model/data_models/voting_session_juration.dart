@@ -6,6 +6,7 @@ class VotingSessionJuration extends Equatable {
   final String votingSessionId;
   final String jurationId;
   final bool hasSubmitted;
+  final bool isExcluded;
 
   const VotingSessionJuration({
     required this.id,
@@ -13,6 +14,7 @@ class VotingSessionJuration extends Equatable {
     required this.votingSessionId,
     required this.jurationId,
     required this.hasSubmitted,
+    required this.isExcluded,
   });
 
   factory VotingSessionJuration.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class VotingSessionJuration extends Equatable {
       votingSessionId: json['voting_session_id'] as String,
       jurationId: json['juration_id'] as String,
       hasSubmitted: json['has_submitted'] as bool,
+      isExcluded: json['is_excluded'] as bool,
     );
   }
 
@@ -32,6 +35,7 @@ class VotingSessionJuration extends Equatable {
       'voting_session_id': votingSessionId,
       'juration_id': jurationId,
       'has_submitted': hasSubmitted,
+      'is_excluded': isExcluded,
     };
   }
 
@@ -42,6 +46,7 @@ class VotingSessionJuration extends Equatable {
       'p_voting_session_id': votingSessionId,
       'p_juration_id': jurationId,
       'p_has_submitted': hasSubmitted,
+      'p_is_excluded': isExcluded,
     };
   }
 
@@ -51,6 +56,7 @@ class VotingSessionJuration extends Equatable {
     String? votingSessionId,
     String? jurationId,
     bool? hasSubmitted,
+    bool? isExcluded,
   }) {
     return VotingSessionJuration(
       id: id ?? this.id,
@@ -58,10 +64,17 @@ class VotingSessionJuration extends Equatable {
       votingSessionId: votingSessionId ?? this.votingSessionId,
       jurationId: jurationId ?? this.jurationId,
       hasSubmitted: hasSubmitted ?? this.hasSubmitted,
+      isExcluded: isExcluded ?? this.isExcluded,
     );
   }
 
-
   @override
-  List<Object?> get props => [id, createdAt, votingSessionId, jurationId, hasSubmitted,];
+  List<Object?> get props => [
+        id,
+        createdAt,
+        votingSessionId,
+        jurationId,
+        hasSubmitted,
+        isExcluded,
+      ];
 }

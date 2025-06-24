@@ -24,7 +24,14 @@ abstract interface class ParticipantRepository {
     required String participantId,
   });
 
-  Future<Either<Failure,Unit>> submitWork({required String contestId, required String participantId, required String name, required String description, required List<String> imagesUrls});
+  Future<Either<Failure, Unit>> submitWork({
+    required String contestId,
+    required String participantId,
+    required String name,
+    required String description,
+    required List<String> imagesUrls,
+    required String fileUrl,
+  });
 }
 
 class ParticipantRepositoryImpl implements ParticipantRepository {
@@ -94,7 +101,7 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
         'p_contest_id': contestId,
         'p_participant_id': participantId,
       });
-      if(res.isEmpty) {
+      if (res.isEmpty) {
         return right(null);
       }
       return right(Work.fromJson(res.first));
@@ -106,14 +113,22 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
   }
 
   @override
-  Future<Either<Failure,Unit>> submitWork({required String contestId, required String participantId, required String name, required String description, required List<String> imagesUrls}) async {
+  Future<Either<Failure, Unit>> submitWork({
+    required String contestId,
+    required String participantId,
+    required String name,
+    required String description,
+    required List<String> imagesUrls,
+    required String fileUrl,
+  }) async {
     try {
       await _supabase.rpc('participant_submit_work', params: {
         'p_contest_id': contestId,
         'p_participant_id': participantId,
         'p_name': name,
-        'p_description' : description,
-        'p_images_urls' : imagesUrls,
+        'p_description': description,
+        'p_images_urls': imagesUrls,
+        'p_file_url': fileUrl,
       });
       return right(unit);
     } on PostgrestException catch (e) {

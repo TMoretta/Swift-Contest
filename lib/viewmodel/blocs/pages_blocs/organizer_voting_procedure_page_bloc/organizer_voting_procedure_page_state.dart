@@ -5,7 +5,7 @@ final class OrganizerVotingProcedurePageState extends Equatable {
   final BlocStatus status;
   final OrganizerVotingProcedurePageEvent? sourceEvent;
   final String? message;
-  final OrganizerVotingSessionBundle? votingSessionBundle;
+  final VotingSessionBundle? votingSessionBundle;
 
   const OrganizerVotingProcedurePageState({
     required this.status,
@@ -18,7 +18,7 @@ final class OrganizerVotingProcedurePageState extends Equatable {
     required BlocStatus status,
     OrganizerVotingProcedurePageEvent? sourceEvent,
     String? message,
-    OrganizerVotingSessionBundle? votingSessionBundle,
+    VotingSessionBundle? votingSessionBundle,
   }) {
     return OrganizerVotingProcedurePageState(
       status: status,

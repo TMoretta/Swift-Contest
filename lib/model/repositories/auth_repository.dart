@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/bundles/auth_bundle.dart';
+import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart' as my;
 import 'package:swift_contest/model/enums/app_theme.dart';
@@ -9,11 +10,21 @@ import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, AuthBundle?>> getCurrentUserAndProfile();
+  Future<Either<Failure, AuthBundle?>> getUserInfo();
 
   Future<Either<Failure, my.User?>> getCurrentUser();
 
   Future<Either<Failure, Profile?>> getCurrentProfile();
+
+  Future<Either<Failure, List<Message>>> getCurrentProfileMessages();
+
+  Future<Either<Failure, Unit>> markMessageAsRead({required String messageId});
+
+  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
+
+  Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme});
+
+  Future<Either<Failure, Profile>> updateProfilePrefRole({required ContestRole prefRole});
 
   Future<Either<Failure, Unit>> signInWithEmail({required String email});
 
@@ -45,13 +56,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Session? get currentSession => _supabase.auth.currentSession;
 
   @override
-  Future<Either<Failure, AuthBundle?>> getCurrentUserAndProfile() async {
+  Future<Either<Failure, AuthBundle?>> getUserInfo() async {
     try {
       if (currentSession == null) {
         return right(null);
       }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_current_user_and_profile', params: {'p_user_id': currentSession!.user.id});
+          .rpc('get_user_info', params: {'p_user_id': currentSession!.user.id});
       if (res.isEmpty) {
         return right(null);
       }
@@ -64,13 +75,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, my.User?>> getCurrentUser() async{
+  Future<Either<Failure, my.User?>> getCurrentUser() async {
     try {
       if (currentSession == null) {
         return right(null);
       }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_current_user', params: {'p_user_id': currentSession!.user.id});
+          .rpc('get_user', params: {'p_user_id': currentSession!.user.id});
       if (res.isEmpty) {
         return right(null);
       }
@@ -83,17 +94,92 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Profile?>> getCurrentProfile() async{
+  Future<Either<Failure, Profile?>> getCurrentProfile() async {
     try {
       if (currentSession == null) {
         return right(null);
       }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_current_profile', params: {'p_user_id': currentSession!.user.id});
+          .rpc('get_profile', params: {'p_profile_id': currentSession!.user.id});
       if (res.isEmpty) {
         return right(null);
       }
       return right(Profile.fromJson(res.first));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Message>>> getCurrentProfileMessages() async {
+    try {
+      if (currentSession == null) {
+        return left(Failure(message: 'No valid session found'));
+      }
+      final List<Map<String, dynamic>> res = await _supabase
+          .rpc('get_profile_messages', params: {'p_profile_id': currentSession!.user.id});
+      return right(res.map((e) => Message.fromJson(e)).toList(growable: false));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> markMessageAsRead({required String messageId}) async {
+    try {
+      await _supabase.rpc('mark_message_as_read',params: {'p_message_id' : messageId});
+      return right(unit);
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName}) async {
+    try {
+      final Map<String, dynamic> res = await _supabase.rpc('update_profile_full_name', params: {
+        'p_profile_id': currentSession!.user.id,
+        'p_full_name': fullName,
+      });
+      return right(Profile.fromJson(res));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Profile>> updateProfilePrefRole({
+    required ContestRole prefRole,
+  }) async {
+    try {
+      final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_role', params: {
+        'p_profile_id': currentSession!.user.id,
+        'p_pref_role': prefRole.name,
+      });
+      return right(Profile.fromJson(res));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme}) async {
+    try {
+      final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_theme', params: {
+        'p_profile_id': currentSession!.user.id,
+        'p_pref_theme': prefTheme.name,
+      });
+      return right(Profile.fromJson(res));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -120,7 +206,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final List<Map<String, dynamic>> res =
-      await _supabase.rpc('get_user_by_email', params: {'p_email': email});
+          await _supabase.rpc('get_user_by_email', params: {'p_email': email});
       if (res.isNotEmpty) {
         return left(Failure(message: 'User already exists. Sign in instead'));
       }
@@ -131,7 +217,7 @@ class AuthRepositoryImpl implements AuthRepository {
           'created_at': now().toUtc().toIso8601String(),
           'full_name': fullName,
           'pref_theme': AppTheme.system.name,
-          'pref_contest_role': ContestRole.organizer.name,
+          'pref_role': ContestRole.organizer.name,
           'is_deleted': false,
         },
       );
@@ -222,7 +308,7 @@ class AuthRepositoryImpl implements AuthRepository {
           'created_at': now().toUtc().toIso8601String(),
           'full_name': fullName,
           'pref_theme': AppTheme.system.name,
-          'pref_contest_role': ContestRole.organizer.name,
+          'pref_role': ContestRole.organizer.name,
           'is_deleted': false,
         },
       );
@@ -255,7 +341,7 @@ class AuthRepositoryImpl implements AuthRepository {
 Failure _authExceptionToRepositoryFailure(AuthException exception) {
   if (exception.code != null) {
     switch (exception.code) {
-    //* Supabase exceptions
+      //* Supabase exceptions
       case 'email_address_invalid':
         return Failure(message: exception.message);
       case 'email_exists':

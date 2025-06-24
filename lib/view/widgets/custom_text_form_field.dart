@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 //* CustomTextFormFieldOutlined
 class CustomTextFormFieldOutlined extends StatelessWidget {
@@ -88,7 +89,7 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
         ),
         disabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.surfaceDim,
+            color: Theme.of(context).colorScheme.onInverseSurface,
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -199,7 +200,7 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
         ),
         disabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.surfaceDim,
+            color: Theme.of(context).colorScheme.onInverseSurface,
           ),
         ),
         errorBorder: UnderlineInputBorder(

@@ -1,9 +1,9 @@
 enum ParticipantStatus {
   joined,
-  left,
+  out,
 }
 
 extension ParticipantStatusX on ParticipantStatus {
   bool get isJoined => this == ParticipantStatus.joined;
-  bool get isLeft => this == ParticipantStatus.left;
+  bool get isOut => this == ParticipantStatus.out;
 }

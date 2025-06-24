@@ -7,16 +7,16 @@ class Profile extends Equatable {
   final DateTime createdAt;
   final String fullName;
   final AppTheme prefTheme;
-  final ContestRole prefContestRole;
-  final bool isDeleted;
+  final ContestRole prefRole;
+  final DateTime? deletedAt;
 
   const Profile({
     required this.id,
     required this.createdAt,
     required this.fullName,
     required this.prefTheme,
-    required this.prefContestRole,
-    required this.isDeleted,
+    required this.prefRole,
+     this.deletedAt,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) {
@@ -25,8 +25,8 @@ class Profile extends Equatable {
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       fullName: json['full_name'] as String,
       prefTheme: AppTheme.values.byName(json['pref_theme']),
-      prefContestRole: ContestRole.values.byName(json['pref_contest_role']),
-      isDeleted: json['is_deleted'] as bool,
+      prefRole: ContestRole.values.byName(json['pref_role']),
+      deletedAt: (json['deleted_at'] != null) ? DateTime.parse(json['deleted_at']).toLocal() : null,
     );
   }
 
@@ -36,8 +36,8 @@ class Profile extends Equatable {
       'created_at': createdAt.toUtc().toIso8601String(),
       'full_name': fullName,
       'pref_theme': prefTheme.name,
-      'pref_contest_role': prefContestRole.name,
-      'is_deleted': isDeleted,
+      'pref_role': prefRole.name,
+      'deleted_at': deletedAt?.toUtc().toIso8601String(),
     };
   }
 
@@ -47,8 +47,8 @@ class Profile extends Equatable {
       'p_created_at': createdAt.toUtc().toIso8601String(),
       'p_full_name': fullName,
       'p_pref_theme': prefTheme.name,
-      'p_pref_contest_role': prefContestRole.name,
-      'p_is_deleted': isDeleted,
+      'p_pref_role': prefRole.name,
+      'p_deleted_at': deletedAt?.toUtc().toIso8601String(),
     };
   }
 
@@ -57,23 +57,28 @@ class Profile extends Equatable {
     DateTime? createdAt,
     String? fullName,
     AppTheme? prefTheme,
-    ContestRole? prefContestRole,
-    bool? isDeleted,
+    ContestRole? prefRole,
+    DateTime? deletedAt,
   }) {
     return Profile(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       fullName: fullName ?? this.fullName,
       prefTheme: prefTheme ?? this.prefTheme,
-      prefContestRole: prefContestRole ?? this.prefContestRole,
-      isDeleted: isDeleted ?? this.isDeleted,
+      prefRole: prefRole ?? this.prefRole,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
-
   @override
-  List<Object?> get props =>
-      [id, createdAt, fullName, prefTheme, prefContestRole, isDeleted];
+  List<Object?> get props => [
+        id,
+        createdAt,
+        fullName,
+        prefTheme,
+        prefRole,
+        deletedAt,
+      ];
 }
 
 typedef Organizer = Profile;

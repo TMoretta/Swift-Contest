@@ -62,7 +62,9 @@ class OrganizerContestCreationPageBloc
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => imagesUrls = success,
     );
-    if (eitherImagesUrls.isLeft()) return;
+    if (eitherImagesUrls.isLeft()) {
+      return;
+    }
 
     late final String token;
     final eitherToken = await _utilsRepository.genUniqueToken(
@@ -71,7 +73,9 @@ class OrganizerContestCreationPageBloc
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => token = success,
     );
-    if (eitherToken.isLeft()) return;
+    if (eitherToken.isLeft()) {
+      return;
+    }
 
     late final ContestStatus contestStatus;
     final nowt = DateTime.now();
@@ -97,7 +101,6 @@ class OrganizerContestCreationPageBloc
       contestStatus: contestStatus,
       token: token,
       votingFormId: votingForm.id,
-      isDeleted: false,
     );
 
     final eitherCreateContest = await _organizerRepository.createContest(

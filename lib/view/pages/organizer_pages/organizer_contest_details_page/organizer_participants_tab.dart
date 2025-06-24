@@ -52,6 +52,13 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
               .read<OrganizerContestDetailsPageBloc>()
               .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
         }
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerContestDetailsPageRemoveParticipant) {
+          showSnackBar(context: context, text: 'Participant removed successfully');
+          context
+              .read<OrganizerContestDetailsPageBloc>()
+              .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+        }
       },
       child: Scaffold(
         body: SafeArea(
@@ -81,8 +88,8 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                         state.contestDetailsBundle!.joinedParticipationsBundles;
                     final List<Invitation> participantsInvitations =
                         state.contestDetailsBundle!.participantsInvitations;
-                    final List<ParticipationBundle> leftParticipationsBundles =
-                        state.contestDetailsBundle!.leftParticipationsBundles;
+                    final List<ParticipationBundle> outParticipationsBundles =
+                        state.contestDetailsBundle!.outParticipationsBundles;
                     return Column(
                       // mainAxisSize: MainAxisSize.min,
                       children: [
@@ -105,7 +112,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                               tabs: [
                                 Tab(text: 'Joined'),
                                 Tab(text: 'Attended'),
-                                Tab(text: 'Left'),
+                                Tab(text: 'Out'),
                               ],
                             ),
                           ),
@@ -149,7 +156,17 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                   .participation.invitationEmail),
                                               trailing: IconButton(
                                                 onPressed: () {
-                                                  //todo
+                                                  final contestDetailsBundle = state.contestDetailsBundle!;
+                                                  final messageTitle = 'Out from contest';
+                                                  final messageBody = 'You have been expelled from'
+                                                      ' "${contestDetailsBundle.contest.name}"'
+                                                      ' by "${contestDetailsBundle.organizer.fullName}".';
+                                                  context.read<OrganizerContestDetailsPageBloc>().add(
+                                                      OrganizerContestDetailsPageRemoveParticipant(
+                                                          participationId: participationBundle.participation.id,
+                                                        messageTitle: messageTitle,
+                                                        messageBody: messageBody,
+                                                      ));
                                                 },
                                                 icon: Icon(
                                                   Icons.remove_circle_outline,
@@ -207,12 +224,12 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                         },
                                       ),
                               ),
-                              //* Left
+                              //* Out
                               RefreshIndicator.adaptive(
                                 onRefresh: () async => context
                                     .read<OrganizerContestDetailsPageBloc>()
                                     .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                child: (leftParticipationsBundles.isEmpty)
+                                child: (outParticipationsBundles.isEmpty)
                                     ? LayoutBuilder(
                                         builder: (context, constraints) {
                                           return ListView(
@@ -221,7 +238,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                 height: constraints.maxHeight,
                                                 child: Center(
                                                   child: Text(
-                                                    'No participant left',
+                                                    'No participant out',
                                                   ),
                                                 ),
                                               )
@@ -230,10 +247,10 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                         },
                                       )
                                     : ListView.builder(
-                                        itemCount: leftParticipationsBundles.length,
+                                        itemCount: outParticipationsBundles.length,
                                         itemBuilder: (context, index) {
                                           final participationBundle =
-                                              leftParticipationsBundles[index];
+                                              outParticipationsBundles[index];
                                           return Card(
                                             elevation: 0.2,
                                             child: ListTile(

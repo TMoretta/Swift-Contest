@@ -14,14 +14,14 @@ final class OrganizerVotingProcedurePageStartVotingSessionProcedure extends Orga
 }
 
 final class OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure extends OrganizerVotingProcedurePageEvent {
-  final OrganizerVotingSessionBundle votingSessionBundle;
+  final String votingSessionId;
 
   const OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure({
-    required this.votingSessionBundle,
+    required this.votingSessionId,
   });
 
   @override
-  List<Object?> get props => [votingSessionBundle];
+  List<Object?> get props => [votingSessionId];
 }
 
 final class OrganizerVotingProcedurePageCancelVotingSessionProcedure

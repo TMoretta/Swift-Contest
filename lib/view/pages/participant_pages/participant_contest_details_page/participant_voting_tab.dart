@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ParticipantVotingTab extends StatelessWidget {
-  const ParticipantVotingTab({super.key});
+  final String contestId;
+  const ParticipantVotingTab({required this.contestId, super.key});
 
   @override
   Widget build(BuildContext context) {

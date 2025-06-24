@@ -6,8 +6,8 @@ class VotingFormField extends Equatable {
   final String votingFormId;
   final String name;
   final int orderIndex;
-  final int minValue;
-  final int maxValue;
+  final double minValue;
+  final double maxValue;
 
   const VotingFormField({
     required this.id,
@@ -26,8 +26,8 @@ class VotingFormField extends Equatable {
       votingFormId: json['voting_form_id'] as String,
       name: json['name'] as String,
       orderIndex: json['order_index'] as int,
-      minValue: json['min_value'] as int,
-      maxValue: json['max_value'] as int,
+      minValue: json['min_value'] as double,
+      maxValue: json['max_value'] as double,
     );
   }
 
@@ -61,8 +61,8 @@ class VotingFormField extends Equatable {
     String? votingFormId,
     String? name,
     int? orderIndex,
-    int? minValue,
-    int? maxValue,
+    double? minValue,
+    double? maxValue,
   }) {
     return VotingFormField(
       id: id ?? this.id,

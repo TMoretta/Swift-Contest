@@ -30,7 +30,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<JurorContestDetailsPageBloc>().state;
-    if(state.status.isInitial) {
+    if (state.status.isInitial) {
       context
           .read<JurorContestDetailsPageBloc>()
           .add(JurorContestDetailsPageInit(contestId: contestId));
@@ -39,173 +39,177 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
-      listener: (context, state) {
-        if (state.status.isFailure) {
-          showSnackBar(context: context, text: state.message!);
-        }
-      },
-      builder: (context, state) {
-        switch( state.status) {
-          case BlocStatus.initial:
-            return SizedBox.shrink();
-          case BlocStatus.loading:
-            return Loader();
-          case (BlocStatus.failure || BlocStatus.success):
-            if(state.contestDetailsBundle == null) {
-              return RefreshIndicator.adaptive(
-                onRefresh: () async{
-                  context
+    return Scaffold(
+      body: BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+        builder: (context, state) {
+          switch (state.status) {
+            case BlocStatus.initial:
+              return SizedBox.shrink();
+            case BlocStatus.loading:
+              return Loader();
+            case BlocStatus.failure:
+              if (state.sourceEvent is JurorContestDetailsPageInit) {
+                return RefreshIndicator.adaptive(
+                  onRefresh: () async => context
                       .read<JurorContestDetailsPageBloc>()
-                      .add(JurorContestDetailsPageInit(contestId: contestId));
-                },
-                child: ListView(physics: AlwaysScrollableScrollPhysics()),
-              );
-            } else {
-              final contestDetailsBundle = state.contestDetailsBundle!;
-              final contest = contestDetailsBundle.contest;
-              final organizer = contestDetailsBundle.organizer;
-              final place = contestDetailsBundle.place;
+                      .add(JurorContestDetailsPageRefresh(contestId: contestId)),
+                  child: ListView(),
+                );
+              } else {
+                continue successCase;
+              }
+            successCase:
+            case BlocStatus.success:
               return RefreshIndicator.adaptive(
-                onRefresh: () async {
-                  context.read<JurorContestDetailsPageBloc>().add(
-                      JurorContestDetailsPageInit(contestId: contest.id));
-                },
+                onRefresh: () async => context
+                    .read<JurorContestDetailsPageBloc>()
+                    .add(JurorContestDetailsPageRefresh(contestId: contestId)),
                 child: ListView(
                   children: [
-                    //* Title and status
-                    Column(
+                    //* Title
+                    Text(
+                      state.contestDetailsBundle!.contest.name,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                    ),
+                    SizedBox(height: 6),
+                    //* Status
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 2,
                       children: [
-                        Text(
-                          contest.name,
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                        Icon(
+                          Icons.circle,
+                          size: 18,
+                          color: switch (state.contestDetailsBundle!.contest.contestStatus) {
+                            ContestStatus.preparationPhase =>
+                              Theme.of(context).colorScheme.statusPreparation,
+                            ContestStatus.participationPhase =>
+                              Theme.of(context).colorScheme.statusParticipation,
+                            ContestStatus.votingPhase => Theme.of(context).colorScheme.statusVoting,
+                            ContestStatus.terminated =>
+                              Theme.of(context).colorScheme.statusTerminated,
+                            ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
+                          },
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 4,
-                          children: [
-                            Icon(
-                              Icons.circle,
-                              size: 20,
-                              color: switch (contest.contestStatus) {
-                                ContestStatus.preparationPhase =>
-                                Theme.of(context).colorScheme.statusPreparation,
-                                ContestStatus.participationPhase =>
-                                Theme.of(context).colorScheme.statusParticipation,
-                                ContestStatus.votingPhase => Theme.of(context).colorScheme.statusVoting,
-                                ContestStatus.terminated =>
-                                Theme.of(context).colorScheme.statusTerminated,
-                                ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
-                              },
-                            ),
-                            Text(
-                              switch (contest.contestStatus) {
-                                ContestStatus.preparationPhase => 'Preparation phase',
-                                ContestStatus.participationPhase => 'Participation phase',
-                                ContestStatus.votingPhase => 'Voting phase',
-                                ContestStatus.terminated => 'Terminated',
-                                ContestStatus.deleted => 'Deleted',
-                              },
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: switch (contest.contestStatus) {
+                        SizedBox(width: 2),
+                        Text(
+                          switch (state.contestDetailsBundle!.contest.contestStatus) {
+                            ContestStatus.preparationPhase => 'Preparation phase',
+                            ContestStatus.participationPhase => 'Participation phase',
+                            ContestStatus.votingPhase => 'Voting phase',
+                            ContestStatus.terminated => 'Terminated',
+                            ContestStatus.deleted => 'Deleted',
+                          },
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: switch (state.contestDetailsBundle!.contest.contestStatus) {
                                   ContestStatus.preparationPhase =>
-                                  Theme.of(context).colorScheme.statusPreparation,
+                                    Theme.of(context).colorScheme.statusPreparation,
                                   ContestStatus.participationPhase =>
-                                  Theme.of(context).colorScheme.statusParticipation,
+                                    Theme.of(context).colorScheme.statusParticipation,
                                   ContestStatus.votingPhase =>
-                                  Theme.of(context).colorScheme.statusVoting,
+                                    Theme.of(context).colorScheme.statusVoting,
                                   ContestStatus.terminated =>
-                                  Theme.of(context).colorScheme.statusTerminated,
-                                  ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
+                                    Theme.of(context).colorScheme.statusTerminated,
+                                  ContestStatus.deleted =>
+                                    Theme.of(context).colorScheme.statusDeleted,
                                 },
                               ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
+                    SizedBox(height: 12),
                     //* Images carousel
                     SizedBox(
                       height: 180,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: contest.imagesUrls.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Image.network(
-                              contest.imagesUrls[index],
-                              fit: BoxFit.contain,
-                              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                                if (wasSynchronouslyLoaded || frame != null) return child;
-                                return const Loader();
+                      child: (state.contestDetailsBundle!.contest.imagesUrls.isEmpty)
+                          ? ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                Image.asset('assets/images/image_not_found.jpg',
+                                    fit: BoxFit.contain),
+                              ],
+                            )
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: state.contestDetailsBundle!.contest.imagesUrls.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Image.network(
+                                    state.contestDetailsBundle!.contest.imagesUrls[index],
+                                    fit: BoxFit.contain,
+                                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                      if (wasSynchronouslyLoaded || frame != null) return child;
+                                      return const Loader();
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/image_not_found.jpg',
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ),
+                                );
                               },
                             ),
-                          );
-                        },
-                      ),
                     ),
-                    // CarouselSlider(
-                    //   options: CarouselOptions(
-                    //     height: 200,
-                    //     enableInfiniteScroll: false,
-                    //     clipBehavior: Clip.none,
-                    //   ),
-                    //   items: contestAndOrganizer.imagesUrls.map((imageUrl) {
-                    //     return Builder(
-                    //       builder: (BuildContext context) {
-                    //         return Image.network(
-                    //           imageUrl,
-                    //           fit: BoxFit.contain,
-                    //           // width: 10,
-                    //           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                    //             if (wasSynchronouslyLoaded || frame != null) return child;
-                    //             return const Loader();
-                    //           },
-                    //         );
-                    //       },
-                    //     );
-                    //   }).toList(),
-                    // ),
+                    SizedBox(height: 8),
                     //* Description
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Description',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                        ),
-                        Text(contest.description, style: TextStyle(fontSize: 18)),
-                      ],
+                    Text(
+                      'Description',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                     ),
-                    //* Organizer name
+                    Text(
+                      state.contestDetailsBundle!.contest.description,
+                    ),
+                    SizedBox(height: 20),
+                    //* Info
+                    Text(
+                      'Info',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                    ),
+                    //* Organizer
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
                       children: [
                         Icon(
                           Icons.person_rounded,
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        Expanded(
-                          child: Text(
-                            organizer.fullName,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                          ),
+                        SizedBox(width: 4),
+                        Text(
+                          state.contestDetailsBundle!.organizer.fullName,
                         ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    //* Members
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.people,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                            'Participants: ${state.contestDetailsBundle!.joinedParticipationsBundles.length} | '
+                            'Jurors: ${state.contestDetailsBundle!.joinedJurationsBundles.length}'),
                       ],
                     ),
                     //* Place
@@ -213,84 +217,83 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
                       children: [
                         Icon(
                           Icons.location_on_rounded,
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        Expanded(
-                          child: Text(
-                            place.address,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                          ),
+                        SizedBox(width: 4),
+                        Text(
+                          state.contestDetailsBundle!.place.address,
                         ),
                       ],
                     ),
+                    SizedBox(height: 8),
                     //* DateTime
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
                       children: [
                         Icon(
                           Icons.calendar_month_rounded,
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        Expanded(
-                          child: Text(
-                            // '12Jan, 2025 | 15:00',
-                            DateFormat('dd MMM, yyyy | HH:mm').format(contest.dateTime),
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                          ),
+                        SizedBox(width: 4),
+                        Text(
+                          DateFormat('dd MMM, yyyy | HH:mm')
+                              .format(state.contestDetailsBundle!.contest.dateTime),
                         ),
                       ],
                     ),
-                    //* Work upload deadline
-                    Column(
+                    SizedBox(height: 20),
+                    //* Participations
+                    Text(
+                      'Participation',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                    ),
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Work upload deadline for participants',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                          'Start:',
+                          style: Theme.of(context).textTheme.labelMedium,
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 8,
-                          children: [
-                            Text('From:'),
-                            Text(
-                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionStart),
-                            ),
-                          ],
+                        SizedBox(width: 4),
+                        Text(
+                          DateFormat('dd MMM, yyyy | HH:mm')
+                              .format(state.contestDetailsBundle!.contest.worksSubmissionStart),
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 8,
-                          children: [
-                            Text('To:'),
-                            Text(
-                              DateFormat('dd MMM, yyyy | HH:mm').format(contest.worksSubmissionEnd),
-                            ),
-                          ],
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'End:',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          DateFormat('dd MMM, yyyy | HH:mm')
+                              .format(state.contestDetailsBundle!.contest.worksSubmissionEnd),
                         ),
                       ],
                     ),
                   ],
                 ),
               );
-            }
-        }
-      },
+          }
+        },
+      ),
     );
   }
 }

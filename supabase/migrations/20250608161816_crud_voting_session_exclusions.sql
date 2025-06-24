@@ -9,12 +9,14 @@ BEGIN
   INSERT INTO voting_session_exclusions (
     id,
     created_at,
+    voting_session_id,
     voting_session_juration_id,
     voting_session_participation_id
   )
   VALUES (
     p_voting_session_exclusion.id,
     p_voting_session_exclusion.created_at,
+    p_voting_session_exclusion.voting_session_id,
     p_voting_session_exclusion.voting_session_juration_id,
     p_voting_session_exclusion.voting_session_participation_id
   )
@@ -45,6 +47,7 @@ BEGIN
 
   UPDATE voting_session_exclusions
   SET
+    voting_session_id = p_voting_session_exclusion.voting_session_id,
     voting_session_juration_id = p_voting_session_exclusion.voting_session_juration_id,
     excluded_participant_id = p_voting_session_exclusion.excluded_participant_id
   WHERE id = p_voting_session_exclusion.id

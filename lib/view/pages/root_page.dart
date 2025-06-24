@@ -34,7 +34,7 @@ class _RootPageState extends State<RootPage> {
         if (state.blocStatus.isSuccess) {
           if (state.authStatus.isAuthenticated) {
             //* If success and authenticated go to home page of the pref contest role
-            switch (state.authBundle!.profile.prefContestRole) {
+            switch (state.profile!.prefRole) {
               case ContestRole.organizer:
                 context.replaceNamed(AppRouter.organizerHome);
                 break;

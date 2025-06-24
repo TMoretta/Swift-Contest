@@ -47,7 +47,6 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   Duration workTimer = Duration(minutes: 0, seconds: 10);
   Duration intermissionTimer = Duration(minutes: 0, seconds: 10);
   Duration reviewTimer = Duration(minutes: 0, seconds: 20);
-
   bool isGeoRestricted = false;
   final geoRestrictionPlaceController = TextEditingController();
   GooglePlace? geoRestrictionPlace;
@@ -68,7 +67,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.authBundle!.user;
+    user = context.read<AuthBloc>().state.user!;
   }
 
   @override
@@ -78,10 +77,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         if (state.status.isFailure) {
           showSnackBar(context: context, text: state.message!);
         }
-        if (state.status.isSuccess &&
-            state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
-          context.replaceNamed(AppRouter.organizerVotingProcedure,
-              extra: state.votingSessionBundle!.toJson());
+        if (state.status.isSuccess && state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
+          context.pop(state.votingSessionId);
+          // context.replaceNamed(AppRouter.organizerVotingProcedure, extra: state.votingSessionId);
         }
       },
       child: Scaffold(
@@ -103,23 +101,26 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                       context
                           .read<OrganizerVotingSettingsPageBloc>()
                           .add(OrganizerVotingSettingsPageInitVotingProcedure(
-                            contestId: contestDetailsBundle.contest.id,
-                            votingFormId: contestDetailsBundle.votingFormBundle.votingForm.id,
-                            areSimpleJurorsAllowed: areSimpleJurorsAllowed,
-                            votingExclusionsBundles: votingExclusions,
-                            votingParticipationsBundles: participationsBundles,
-                            votingJurationsBundles: jurationsBundles,
-                            workTimer: workTimer,
-                            intermissionTimer: intermissionTimer,
-                            reviewTimer: reviewTimer,
-                            isGeoRestricted: isGeoRestricted,
-                            geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
-                            geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
-                            geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
-                            geoRestrictionRadius: (geoRestrictionRadiusController.text.isNotEmpty)
-                                ? int.tryParse(geoRestrictionRadiusController.text)
-                                : null,
-                          ));
+                        contestId: contestDetailsBundle.contest.id,
+                        votingFormId: contestDetailsBundle.votingFormBundle.votingForm.id,
+                        areSimpleJurorsAllowed: areSimpleJurorsAllowed,
+                        votingExclusionsBundles: votingExclusions,
+                        participationsBundles: participationsBundles,
+                        excludedParticipationsBundles: excludedParticipationsBundles,
+                        jurationsBundles: jurationsBundles,
+                        excludedJurationsBundles: excludedJurationsBundles,
+                        workTimer: workTimer,
+                        intermissionTimer: intermissionTimer,
+                        reviewTimer: reviewTimer,
+                        votingFormFields: contestDetailsBundle.votingFormBundle.votingFormFields,
+                        isGeoRestricted: isGeoRestricted,
+                        geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
+                        geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
+                        geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
+                        geoRestrictionRadius: (geoRestrictionRadiusController.text.isNotEmpty)
+                            ? int.tryParse(geoRestrictionRadiusController.text)
+                            : null,
+                      ));
                     } else {
                       setState(() => ++currentStep);
                     }
@@ -170,110 +171,130 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           title: Text(''),
           content: Form(
             key: firstFormKey,
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height - kToolbarHeight - 200,
-              child: Column(
-                children: [
-                  //* Included participants
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Participants',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                    ),
-                  ),
-                  (participationsBundles.isNotEmpty)
-                      ? Expanded(
-                          child: ReorderableListView(
-                            onReorder: (oldIndex, newIndex) {
-                              setState(() {
-                                if (oldIndex < newIndex) {
-                                  newIndex -= 1;
-                                }
-                                final ParticipationBundle ppw =
-                                    participationsBundles.removeAt(oldIndex);
-                                participationsBundles.insert(newIndex, ppw);
-                              });
-                            },
-                            children: [
-                              for (var i = 0; i < participationsBundles.length; i++)
-                                Card(
-                                  key: ValueKey(participationsBundles[i].participation.id),
-                                  elevation: 0.05,
-                                  child: ListTile(
-                                    // key: ValueKey(participationsBundles[i].participation.id),
-                                    onTap: () {},
-                                    title: Text(participationsBundles[i].participant.fullName),
-                                    subtitle: Text(participationsBundles[i].work!.name),
-                                    leading: Icon(Icons.swap_vert),
-                                    trailing: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          excludedParticipationsBundles.add(participationsBundles[i]);
-                                          participationsBundles.removeAt(i);
-                                        });
-                                      },
-                                      icon: Icon(Icons.remove),
+            child: FormField(
+              validator: (value) => (participationsBundles.isEmpty) ? '' : null,
+              builder: (field) {
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height - kToolbarHeight - 200,
+                  child: Column(
+                    children: [
+                      //* Included participants
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Participants',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                        ),
+                      ),
+                      (participationsBundles.isNotEmpty)
+                          ? Expanded(
+                              child: ReorderableListView(
+                                onReorder: (oldIndex, newIndex) {
+                                  setState(() {
+                                    if (oldIndex < newIndex) {
+                                      newIndex -= 1;
+                                    }
+                                    final ParticipationBundle ppw =
+                                        participationsBundles.removeAt(oldIndex);
+                                    participationsBundles.insert(newIndex, ppw);
+                                  });
+                                },
+                                children: [
+                                  for (var i = 0; i < participationsBundles.length; i++)
+                                    Card(
+                                      key: ValueKey(participationsBundles[i].participation.id),
+                                      elevation: 0.05,
+                                      child: ListTile(
+                                        // key: ValueKey(participationsBundles[i].participation.id),
+                                        onTap: () {},
+                                        title: Text(participationsBundles[i].participant.fullName),
+                                        subtitle: Text(participationsBundles[i].work!.name),
+                                        leading: Icon(Icons.swap_vert),
+                                        trailing: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              excludedParticipationsBundles
+                                                  .add(participationsBundles[i]);
+                                              participationsBundles.removeAt(i);
+                                            });
+                                          },
+                                          icon: Icon(Icons.remove),
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                ],
+                              ),
+                            )
+                          : Expanded(
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('No participant included'),
+                                    if (field.hasError)
+                                      Text(
+                                        'Select at least one participant',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.copyWith(color: Theme.of(context).colorScheme.error),
+                                      ),
+                                  ],
                                 ),
-                            ],
-                          ),
-                        )
-                      : Expanded(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('No participant included'),
-                          ),
+                              ),
+                            ),
+                      //* Excluded participants
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Excluded participants',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                         ),
-                  //* Excluded participants
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Excluded participants',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                    ),
+                      ),
+                      (excludedParticipationsBundles.isNotEmpty)
+                          ? Expanded(
+                              child: ListView.builder(
+                                itemCount: excludedParticipationsBundles.length,
+                                itemBuilder: (context, index) {
+                                  final excludedParticipationBundle =
+                                      excludedParticipationsBundles[index];
+                                  return Card(
+                                    elevation: 0.05,
+                                    child: ListTile(
+                                      title: Text(excludedParticipationBundle.participant.fullName),
+                                      subtitle: Text(excludedParticipationBundle.work!.name),
+                                      trailing: IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            participationsBundles.add(excludedParticipationBundle);
+                                            excludedParticipationsBundles.removeAt(index);
+                                          });
+                                        },
+                                        icon: Icon(Icons.add),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : Expanded(
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text('No participant excluded'),
+                              ),
+                            ),
+                    ],
                   ),
-                  (excludedParticipationsBundles.isNotEmpty)
-                      ? Expanded(
-                          child: ListView.builder(
-                            itemCount: excludedParticipationsBundles.length,
-                            itemBuilder: (context, index) {
-                              final excludedParticipationBundle =
-                                  excludedParticipationsBundles[index];
-                              return Card(
-                                elevation: 0.05,
-                                child: ListTile(
-                                  title: Text(excludedParticipationBundle.participant.fullName),
-                                  subtitle: Text(excludedParticipationBundle.work!.name),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        participationsBundles.add(excludedParticipationBundle);
-                                        excludedParticipationsBundles.removeAt(index);
-                                      });
-                                    },
-                                    icon: Icon(Icons.add),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      : Expanded(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('No participant excluded'),
-                          ),
-                        ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),
@@ -284,94 +305,113 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           title: Text(''),
           content: Form(
             key: secondFormKey,
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height - kToolbarHeight - 200,
-              child: Column(
-                children: [
-                  //* Included jurors
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Jurors',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                    ),
-                  ),
-                  (jurationsBundles.isNotEmpty)
-                      ? Expanded(
-                          child: ListView.builder(
-                              itemCount: jurationsBundles.length,
-                              itemBuilder: (context, index) {
-                                final votingJurationBundle = jurationsBundles[index];
-                                return Card(
-                                  elevation: 0.05,
-                                  child: ListTile(
-                                    key: ValueKey(votingJurationBundle.juration.id),
-                                    title: Text(votingJurationBundle.juror.fullName),
-                                    trailing: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          excludedJurationsBundles.add(votingJurationBundle);
-                                          jurationsBundles.removeAt(index);
-                                        });
-                                      },
-                                      icon: Icon(Icons.remove),
-                                    ),
-                                  ),
-                                );
-                              }),
-                        )
-                      : Expanded(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('No juror included'),
-                          ),
+            child: FormField(
+              validator: (value) => (jurationsBundles.isEmpty) ? '' : null,
+              builder: (field) {
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height - kToolbarHeight - 200,
+                  child: Column(
+                    children: [
+                      //* Included jurors
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Jurors',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                         ),
-                  //* Excluded jurors
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Excluded jurors',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                    ),
-                  ),
-                  (excludedJurationsBundles.isNotEmpty)
-                      ? Expanded(
-                          child: ListView.builder(
-                            itemCount: excludedJurationsBundles.length,
-                            itemBuilder: (context, index) {
-                              final excludedJurationBundle = excludedJurationsBundles[index];
-                              return Card(
-                                elevation: 0.05,
-                                child: ListTile(
-                                  title: Text(excludedJurationBundle.juror.fullName),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        jurationsBundles.add(excludedJurationBundle);
-                                        excludedJurationsBundles.removeAt(index);
-                                      });
-                                    },
-                                    icon: Icon(Icons.add),
-                                  ),
+                      ),
+                      (jurationsBundles.isNotEmpty)
+                          ? Expanded(
+                              child: ListView.builder(
+                                  itemCount: jurationsBundles.length,
+                                  itemBuilder: (context, index) {
+                                    final votingJurationBundle = jurationsBundles[index];
+                                    return Card(
+                                      elevation: 0.05,
+                                      child: ListTile(
+                                        key: ValueKey(votingJurationBundle.juration.id),
+                                        title: Text(votingJurationBundle.juror.fullName),
+                                        trailing: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              excludedJurationsBundles.add(votingJurationBundle);
+                                              jurationsBundles.removeAt(index);
+                                            });
+                                          },
+                                          icon: Icon(Icons.remove),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                            )
+                          : Expanded(
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('No juror included'),
+                                    if (field.hasError)
+                                      Text(
+                                        'Select at least one juror',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.copyWith(color: Theme.of(context).colorScheme.error),
+                                      ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
-                        )
-                      : Expanded(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text('No juror excluded'),
-                          ),
+                              ),
+                            ),
+                      //* Excluded jurors
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Excluded jurors',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                         ),
-                ],
-              ),
+                      ),
+                      (excludedJurationsBundles.isNotEmpty)
+                          ? Expanded(
+                              child: ListView.builder(
+                                itemCount: excludedJurationsBundles.length,
+                                itemBuilder: (context, index) {
+                                  final excludedJurationBundle = excludedJurationsBundles[index];
+                                  return Card(
+                                    elevation: 0.05,
+                                    child: ListTile(
+                                      title: Text(excludedJurationBundle.juror.fullName),
+                                      trailing: IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            jurationsBundles.add(excludedJurationBundle);
+                                            excludedJurationsBundles.removeAt(index);
+                                          });
+                                        },
+                                        icon: Icon(Icons.add),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : Expanded(
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text('No juror excluded'),
+                              ),
+                            ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -418,7 +458,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   ),
                   SizedBox(height: 8),
                   BlocProvider<PlacePickerFormFieldBloc>(
-                    create: (context) => PlacePickerFormFieldBloc(googlePlaceRepository: context.read()),
+                    create: (context) =>
+                        PlacePickerFormFieldBloc(googlePlaceRepository: context.read()),
                     child: PlacePickerFormField(
                       enabled: isGeoRestricted,
                       controller: geoRestrictionPlaceController,
@@ -433,6 +474,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     enabled: isGeoRestricted,
                     controller: geoRestrictionRadiusController,
                     label: 'Restriction radius',
+                    validator: (isGeoRestricted) ? integerValidator : null,
                   ),
                 ],
               ),
@@ -503,6 +545,16 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                             }
                             return;
                           }
+                          if (!areSimpleJurorsAllowed &&
+                              participationsBundles.length * jurationsBundles.length ==
+                                  votingExclusions.length + 1) {
+                            if (mounted) {
+                              showSnackBar(
+                                  context: context,
+                                  text: 'If you add this exclusion no one can vote');
+                            }
+                            return;
+                          }
                           setState(() {
                             votingExclusions.add(votingExclusionBundle);
                           });
@@ -531,23 +583,32 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                 child: ListTile(
                                   title: Row(
                                     children: [
-                                      Text('Juror: ',style: Theme.of(context).textTheme.labelLarge,),
+                                      Text(
+                                        'Juror: ',
+                                        style: Theme.of(context).textTheme.labelLarge,
+                                      ),
                                       Text(votingExclusion.jurationBundle.juror.fullName),
                                     ],
                                   ),
                                   subtitle: Row(
                                     children: [
-                                      Text('Participant: ',style: Theme.of(context).textTheme.labelLarge,),
-                                      Text(votingExclusion.participationBundle.participant.fullName),
+                                      Text(
+                                        'Participant: ',
+                                        style: Theme.of(context).textTheme.labelLarge,
+                                      ),
+                                      Text(
+                                          votingExclusion.participationBundle.participant.fullName),
                                     ],
                                   ),
                                   titleTextStyle: Theme.of(context).textTheme.bodyMedium,
                                   subtitleTextStyle: Theme.of(context).textTheme.bodyMedium,
-                                  trailing: IconButton(onPressed: (){
-                                    setState(() {
-                                      votingExclusions.removeAt(index);
-                                    });
-                                  }, icon: Icon(Icons.remove)),
+                                  trailing: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          votingExclusions.removeAt(index);
+                                        });
+                                      },
+                                      icon: Icon(Icons.remove)),
                                 ),
                               );
                             },
@@ -584,7 +645,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     child: CupertinoTimerPicker(
                       mode: CupertinoTimerPickerMode.ms,
                       initialTimerDuration:
-                      Duration(minutes: workTimer.inMinutes, seconds: workTimer.inSeconds),
+                          Duration(minutes: workTimer.inMinutes, seconds: workTimer.inSeconds),
                       onTimerDurationChanged: (Duration newDuration) {
                         workTimer = newDuration;
                       },
@@ -620,8 +681,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     height: 100,
                     child: CupertinoTimerPicker(
                       mode: CupertinoTimerPickerMode.ms,
-                      initialTimerDuration: Duration(
-                          minutes: reviewTimer.inMinutes, seconds: reviewTimer.inSeconds),
+                      initialTimerDuration:
+                          Duration(minutes: reviewTimer.inMinutes, seconds: reviewTimer.inSeconds),
                       onTimerDurationChanged: (Duration newDuration) {
                         reviewTimer = newDuration;
                       },
@@ -653,7 +714,10 @@ Future<VotingExclusionBundle?> _showAddVotingExclusionDialog({
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Participant',style: Theme.of(context).textTheme.titleMedium,),
+                Text(
+                  'Participant',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 DropdownMenu(
                   enableSearch: false,
                   onSelected: (value) {
@@ -669,7 +733,10 @@ Future<VotingExclusionBundle?> _showAddVotingExclusionDialog({
                   ],
                 ),
                 SizedBox(height: 8),
-                Text('Juror',style: Theme.of(context).textTheme.titleMedium,),
+                Text(
+                  'Juror',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 DropdownMenu(
                   enableSearch: false,
                   onSelected: (value) {
@@ -706,14 +773,6 @@ Future<VotingExclusionBundle?> _showAddVotingExclusionDialog({
                     participationBundle: chosenParticipationBundle!,
                     jurationBundle: chosenJurationBundle!,
                   );
-                  // if (votingExclusions.contains(votingExclusionBundle)) {
-                  //   showSnackBar(
-                  //       context: context, text: 'Exclusion already added');
-                  //   return;
-                  // }
-                  // setState(() {
-                  //   votingExclusions.add(votingExclusionBundle);
-                  // });
                   context.pop(votingExclusionBundle);
                 },
                 child: Text(

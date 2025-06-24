@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ContestRole contestRole;
@@ -32,7 +35,10 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                 ContestRole.participant => 'Participant',
                 ContestRole.juror => 'Juror',
               },
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Theme.of(context).colorScheme.primary),
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall!
+                  .copyWith(color: Theme.of(context).colorScheme.primary),
             ),
             SizedBox(width: 4),
             TextButton(
@@ -47,7 +53,10 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                   SizedBox(width: 2),
                   Text(
                     'Switch role',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).colorScheme.secondary),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(color: Theme.of(context).colorScheme.secondary),
                   ),
                 ],
               ),
@@ -56,6 +65,39 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
         ),
       ),
       actions: [
+        BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+          switch (state.blocStatus) {
+            case BlocStatus.initial:
+            case BlocStatus.loading:
+              return IconButton(
+                onPressed: null,
+                icon: Icon(Icons.notifications),
+              );
+            case BlocStatus.failure:
+              if (state.sourceEvent is AuthInit) {
+                return IconButton(
+                  onPressed: null,
+                  icon: Icon(Icons.notifications),
+                );
+              } else {
+                continue successCase;
+              }
+            successCase:
+            case BlocStatus.success:
+              final messagesCount = state.messages!.where((e) => !e.isRead).length;
+              return IconButton(
+                onPressed: () {
+                  context.pushNamed(AppRouter.inbox);
+                },
+                icon: Badge.count(
+                  count: messagesCount,
+                  isLabelVisible: (messagesCount != 0),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  child: Icon(Icons.notifications),
+                ),
+              );
+          }
+        }),
         IconButton(
           onPressed: () {
             context.pushNamed(AppRouter.settings);

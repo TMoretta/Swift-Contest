@@ -1,10 +1,19 @@
 CREATE TABLE profiles (
-  id uuid PRIMARY KEY REFERENCES auth.users (id),
+  id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
   full_name varchar(30) NOT NULL,
   pref_theme app_theme NOT NULL,
-  pref_contest_role contest_role NOT NULL,
-  is_deleted bool NOT NULL
+  pref_role contest_role NOT NULL,
+  deleted_at timestamptz
+);
+
+CREATE TABLE messages (
+  id uuid PRIMARY KEY,
+  created_at timestamptz NOT NULL,
+  profile_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
+  title text NOT NULL,
+  body text NOT NULL,
+  is_read bool NOT NULL DEFAULT false
 );
 
 CREATE TABLE places (
@@ -31,16 +40,16 @@ CREATE TABLE contests (
   works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL REFERENCES places (id),
   contest_status contest_status NOT NULL,
-  images_urls TEXT[] NOT NULL,
+  images_urls text[] NOT NULL,
   token varchar(14) NOT NULL UNIQUE,
   voting_form_id uuid NOT NULL REFERENCES voting_forms (id),
-  is_deleted bool NOT NULL
+  deleted_at timestamptz
 );
 
 CREATE TABLE invitations (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  contest_id uuid NOT NULL REFERENCES contests (id),
+  contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   token varchar(14) NOT NULL UNIQUE,
   email varchar NOT NULL,
   member_role member_role NOT NULL
@@ -49,7 +58,7 @@ CREATE TABLE invitations (
 CREATE TABLE participations (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  contest_id uuid NOT NULL REFERENCES contests (id),
+  contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   participant_id uuid NOT NULL REFERENCES profiles (id),
   participant_status participant_status NOT NULL,
   invitation_email varchar NOT NULL,
@@ -60,16 +69,17 @@ CREATE TABLE participations (
 CREATE TABLE works (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  participation_id uuid NOT NULL REFERENCES participations (id),
+  participation_id uuid NOT NULL REFERENCES participations (id) ON DELETE cascade,
   name varchar(20) NOT NULL,
   description varchar(200) NOT NULL,
-  images_urls text[] NOT NULL
+  images_urls text[] NOT NULL,
+  file_url text NOT NULL
 );
 
 CREATE TABLE jurations (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  contest_id uuid NOT NULL REFERENCES contests (id),
+  contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   juror_id uuid NOT NULL REFERENCES profiles (id),
   juror_status juror_status NOT NULL,
   invitation_email varchar NOT NULL,
@@ -79,18 +89,18 @@ CREATE TABLE jurations (
 CREATE TABLE voting_form_fields (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  voting_form_id uuid NOT NULL REFERENCES voting_forms (id),
+  voting_form_id uuid NOT NULL REFERENCES voting_forms (id) ON DELETE cascade,
   name varchar(20) NOT NULL,
   order_index int NOT NULL,
-  min_value int4 NOT NULL,
-  max_value int4 NOT NULL
+  min_value numeric(7,2) NOT NULL,
+  max_value numeric(7,2) NOT NULL
 );
 
 CREATE TABLE voting_sessions (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
   name varchar NOT NULL,
-  contest_id uuid NOT NULL REFERENCES contests (id),
+  contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   are_simple_jurors_allowed bool NOT NULL,
   voting_form_id uuid NOT NULL REFERENCES voting_forms (id),
   work_timer int NOT NULL,
@@ -105,36 +115,30 @@ CREATE TABLE voting_sessions (
   current_step_deadline timestamptz
 );
 
---CREATE TABLE voting_session_procedures (
---  id uuid PRIMARY KEY,
---  created_at timestamptz NOT NULL,
---  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id),
---  current_step voting_session_procedure_step,
---  current_participant_index int,
---  current_step_deadline timestamptz
---);
-
 CREATE TABLE voting_session_participations (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id),
+  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   participation_id uuid NOT NULL REFERENCES participations (id),
   order_index int NOT NULL,
+  is_excluded bool NOT NULL,
   UNIQUE (voting_session_id, participation_id)
 );
 
 CREATE TABLE voting_session_jurations (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id),
+  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   juration_id uuid NOT NULL REFERENCES jurations (id),
   has_submitted bool NOT NULL,
+  is_excluded bool NOT NULL,
   UNIQUE (voting_session_id, juration_id)
 );
 
 CREATE TABLE voting_session_exclusions (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
+  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   voting_session_juration_id uuid NOT NULL REFERENCES voting_session_jurations (id),
   voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id)
 );
@@ -153,9 +157,9 @@ CREATE TABLE juror_votings (
 CREATE TABLE juror_votes (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  juror_voting_id uuid NOT NULL REFERENCES juror_votings (id),
+  juror_voting_id uuid NOT NULL REFERENCES juror_votings (id) ON DELETE cascade,
   voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
-  value int NOT NULL,
+  value numeric(7,2) NOT NULL,
   UNIQUE (juror_voting_id, voting_form_field_id)
 );
 
@@ -168,7 +172,7 @@ CREATE TABLE simple_jurors (
 CREATE TABLE voting_session_simple_jurors (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id),
+  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   simple_juror_id uuid NOT NULL REFERENCES simple_jurors (id),
   has_submitted bool NOT NULL
 );
@@ -187,7 +191,7 @@ CREATE TABLE simple_juror_votings (
 CREATE TABLE simple_juror_votes (
   id uuid PRIMARY KEY,
   created_at timestamptz NOT NULL,
-  simple_juror_voting_id uuid NOT NULL REFERENCES simple_juror_votings (id),
+  simple_juror_voting_id uuid NOT NULL REFERENCES simple_juror_votings (id) ON DELETE cascade,
   voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
   value int NOT NULL,
   UNIQUE (simple_juror_voting_id, voting_form_field_id)

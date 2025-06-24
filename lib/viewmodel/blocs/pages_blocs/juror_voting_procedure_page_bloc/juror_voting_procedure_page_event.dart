@@ -6,38 +6,33 @@ sealed class JurorVotingProcedurePageEvent extends Equatable {
 
 final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
     extends JurorVotingProcedurePageEvent {
-  final ContestDetailsBundle contestDetailsBundle;
+  final String votingSessionId;
   final String jurorId;
 
   const JurorVotingProcedurePageSubscribeToVotingSessionProcedure({
-    required this.contestDetailsBundle,
+    required this.votingSessionId,
     required this.jurorId,
   });
 
   @override
-  List<Object?> get props => [contestDetailsBundle, jurorId,];
+  List<Object?> get props => [votingSessionId, jurorId];
 }
 
-final class JurorVotingProcedurePageSubmitVotes
-    extends JurorVotingProcedurePageEvent {
+final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {
   final String jurorId;
   final VotingSession votingSession;
-  final String contestId;
-  final Map<VotingSessionParticipation, Map<VotingFormField, int>>
-  votesPerParticipantMap;
+  final Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap;
 
   const JurorVotingProcedurePageSubmitVotes({
     required this.jurorId,
     required this.votingSession,
-    required this.contestId,
     required this.votesPerParticipantMap,
   });
 
   @override
   List<Object?> get props => [
-    jurorId,
-    votingSession,
-    contestId,
-    votesPerParticipantMap,
-  ];
+        jurorId,
+        votingSession,
+        votesPerParticipantMap,
+      ];
 }

@@ -1,33 +1,4 @@
--- AUTO CREATE PROFILE
-CREATE OR REPLACE FUNCTION auto_create_profile()
-RETURNS trigger AS $$
-BEGIN
-  INSERT INTO public.profiles (
-    id,
-    created_at,
-    full_name,
-    pref_theme,
-    pref_contest_role,
-    is_deleted
-  )
-  VALUES (
-    new.id,
-    (new.raw_user_meta_data->>'created_at')::timestamptz,
-    (new.raw_user_meta_data->>'full_name')::varchar,
-    (new.raw_user_meta_data->>'pref_theme')::public.app_theme,
-    (new.raw_user_meta_data->>'pref_contest_role')::public.contest_role,
-    (new.raw_user_meta_data->>'is_deleted')::boolean
-  );
-  RETURN new;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE LOG 'Profile creation error: %', SQLERRM;
-    RAISE EXCEPTION 'An error occurred while creating the profile';
-END;
-$$ LANGUAGE plpgsql SECURITY definer;
 
 -- UPDATE PROFILE BY ID
 CREATE OR REPLACE FUNCTION update_profile (
@@ -46,8 +17,8 @@ BEGIN
   SET
     full_name = p_profile.full_name,
     pref_theme = p_profile.pref_theme,
-    pref_contest_role = p_profile.pref_contest_role,
-    is_deleted = p_profile.is_deleted
+    pref_role = p_profile.pref_role,
+    deleted_at = p_profile.deleted_at
   WHERE id = p_profile.id
   RETURNING * INTO STRICT v_profile;
 

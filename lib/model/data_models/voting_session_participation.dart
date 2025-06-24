@@ -6,6 +6,7 @@ class VotingSessionParticipation extends Equatable {
   final String votingSessionId;
   final String participationId;
   final int orderIndex;
+  final bool isExcluded;
 
   const VotingSessionParticipation({
     required this.id,
@@ -13,6 +14,7 @@ class VotingSessionParticipation extends Equatable {
     required this.votingSessionId,
     required this.participationId,
     required this.orderIndex,
+    required this.isExcluded,
   });
 
   factory VotingSessionParticipation.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class VotingSessionParticipation extends Equatable {
       votingSessionId: json['voting_session_id'] as String,
       participationId: json['participation_id'] as String,
       orderIndex: json['order_index'] as int,
+      isExcluded: json['is_excluded'] as bool,
     );
   }
 
@@ -32,6 +35,7 @@ class VotingSessionParticipation extends Equatable {
       'voting_session_id': votingSessionId,
       'participation_id': participationId,
       'order_index': orderIndex,
+      'is_excluded': isExcluded,
     };
   }
 
@@ -42,6 +46,7 @@ class VotingSessionParticipation extends Equatable {
       'p_voting_session_id': votingSessionId,
       'p_participation_id': participationId,
       'p_order_index': orderIndex,
+      'p_is_excluded': isExcluded,
     };
   }
 
@@ -51,6 +56,7 @@ class VotingSessionParticipation extends Equatable {
     String? votingSessionId,
     String? participationId,
     int? orderIndex,
+    bool? isExcluded,
   }) {
     return VotingSessionParticipation(
       id: id ?? this.id,
@@ -58,10 +64,11 @@ class VotingSessionParticipation extends Equatable {
       votingSessionId: votingSessionId ?? this.votingSessionId,
       participationId: participationId ?? this.participationId,
       orderIndex: orderIndex ?? this.orderIndex,
+      isExcluded: isExcluded ?? this.isExcluded,
     );
   }
 
 
   @override
-  List<Object?> get props => [id, createdAt, votingSessionId, participationId,orderIndex,];
+  List<Object?> get props => [id, createdAt, votingSessionId, participationId,orderIndex, isExcluded];
 }

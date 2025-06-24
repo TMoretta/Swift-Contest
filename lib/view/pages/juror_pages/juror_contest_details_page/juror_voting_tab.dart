@@ -19,7 +19,6 @@ class JurorVotingTab extends StatefulWidget {
 }
 
 class _JurorVotingTabState extends State<JurorVotingTab> {
-  late User user;
   late String contestId;
 
   @override
@@ -28,25 +27,82 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
     contestId = widget.contestId;
   }
 
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.authBundle!.user;
     final state = context.read<JurorContestDetailsPageBloc>().state;
-    if(state.status.isInitial) {
+    if (state.status.isInitial) {
       context
           .read<JurorContestDetailsPageBloc>()
-          .add(
-          JurorContestDetailsPageInit(contestId: contestId));
+          .add(JurorContestDetailsPageInit(contestId: contestId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+        builder: (context, state) {
+          switch (state.status) {
+            case BlocStatus.initial:
+              return SizedBox.shrink();
+            case BlocStatus.loading:
+              return Loader();
+            case BlocStatus.failure:
+              if (state.sourceEvent is JurorContestDetailsPageInit) {
+                return RefreshIndicator.adaptive(
+                  onRefresh: () async => context
+                      .read<JurorContestDetailsPageBloc>()
+                      .add(JurorContestDetailsPageRefresh(contestId: contestId)),
+                  child: ListView(),
+                );
+              } else {
+                continue successCase;
+              }
+            successCase:
+            case BlocStatus.success:
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return RefreshIndicator.adaptive(
+                    onRefresh: () async => context
+                        .read<JurorContestDetailsPageBloc>()
+                        .add(JurorContestDetailsPageRefresh(contestId: contestId)),
+                    child: (state.contestDetailsBundle!.liveVotingSession == null)
+                        ? ListView(
+                            children: [
+                              SizedBox(
+                                height: constraints.maxHeight,
+                                child: Center(
+                                  child: Text('No voting session live'),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView(),
+                  );
+                },
+              );
+          }
+        },
+      ),
+      floatingActionButton: BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+        builder: (context, state) {
+          return FilledButton(
+            onPressed: (state.contestDetailsBundle!.liveVotingSession != null)
+                ? () {
+                    context.pushNamed(AppRouter.jurorVotingProcedure,
+                        extra: state.contestDetailsBundle!.liveVotingSession!.id);
+                  }
+                : null,
+            child: Text('Vote'),
+          );
+        },
+      ),
+    );
+
     return BlocConsumer<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
       listener: (context, state) {
-        if(state.message!= null) {
+        if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
       },
@@ -57,47 +113,46 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
           case BlocStatus.loading:
             return Loader();
           case (BlocStatus.failure || BlocStatus.success):
-            if(state.contestDetailsBundle == null) {
-              return RefreshIndicator.adaptive(
-                onRefresh: () async{
-                  context
-                      .read<JurorContestDetailsPageBloc>()
-                      .add(JurorContestDetailsPageInit(contestId: contestId));
-                },
-                child: ListView(physics: AlwaysScrollableScrollPhysics()),
-              );
-            } else {
+            if (state.contestDetailsBundle == null) {
               return RefreshIndicator.adaptive(
                 onRefresh: () async {
                   context
                       .read<JurorContestDetailsPageBloc>()
-                      .add(JurorContestDetailsPageInit(
-                    contestId: state.contestDetailsBundle!.contest.id,
-                  ));
+                      .add(JurorContestDetailsPageInit(contestId: contestId));
+                },
+                child: ListView(),
+              );
+            } else {
+              return RefreshIndicator.adaptive(
+                onRefresh: () async {
+                  context.read<JurorContestDetailsPageBloc>().add(JurorContestDetailsPageInit(
+                        contestId: state.contestDetailsBundle!.contest.id,
+                      ));
                 },
                 child: ListView(
                   children: [
                     switch (state.contestDetailsBundle!.liveVotingSession != null) {
                       true => Column(
-                        children: [
-                          Text('Voting session is live'),
-                          FilledButton(
-                            onPressed: () {
-                              context.pushNamed(AppRouter.jurorVotingProcedure, extra: state.contestDetailsBundle!.toJson());
-                            },
-                            child: Text('Vote'),
-                          ),
-                        ],
-                      ),
+                          children: [
+                            Text('Voting session is live'),
+                            FilledButton(
+                              onPressed: () {
+                                context.pushNamed(AppRouter.jurorVotingProcedure,
+                                    extra: state.contestDetailsBundle!.toJson());
+                              },
+                              child: Text('Vote'),
+                            ),
+                          ],
+                        ),
                       false => Column(
-                        children: [
-                          Text('No voting session is live'),
-                          FilledButton(
-                            onPressed: null,
-                            child: Text('Vote'),
-                          ),
-                        ],
-                      ),
+                          children: [
+                            Text('No voting session is live'),
+                            FilledButton(
+                              onPressed: null,
+                              child: Text('Vote'),
+                            ),
+                          ],
+                        ),
                     }
                   ],
                 ),

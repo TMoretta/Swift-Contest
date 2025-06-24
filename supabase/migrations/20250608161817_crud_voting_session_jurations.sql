@@ -11,14 +11,16 @@ BEGIN
     created_at,
     voting_session_id,
     juration_id,
-    has_submitted
+    has_submitted,
+    is_excluded
   )
   VALUES (
     p_voting_session_juration.id,
     p_voting_session_juration.created_at,
     p_voting_session_juration.voting_session_id,
     p_voting_session_juration.juration_id,
-    p_voting_session_juration.has_submitted
+    p_voting_session_juration.has_submitted,
+    p_voting_session_juration.is_excluded
   )
   RETURNING * INTO STRICT v_voting_session_juration;
 
@@ -49,7 +51,8 @@ BEGIN
   SET
     voting_session_id = p_voting_session_juration.voting_session_id,
     juration_id = p_voting_session_juration.juration_id,
-    has_submitted = p_voting_session_juration.has_submitted
+    has_submitted = p_voting_session_juration.has_submitted,
+    is_excluded = p_voting_session_juration.is_excluded
   WHERE id = p_voting_session_juration.id
   RETURNING * INTO STRICT v_voting_session_juration;
 

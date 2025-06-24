@@ -32,6 +32,10 @@ anon USING (TRUE);
 CREATE POLICY "Profiles All" ON public.profiles FOR ALL TO authenticated,
 anon USING (TRUE);
 
+-- MESSAGES
+CREATE POLICY "Messages All" ON public.messages FOR ALL TO authenticated,
+anon USING (TRUE);
+
 -- VOTES
 CREATE POLICY "JurorVotes All" ON public.juror_votes FOR ALL TO authenticated,
 anon USING (TRUE);

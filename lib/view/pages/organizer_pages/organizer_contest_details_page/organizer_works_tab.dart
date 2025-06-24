@@ -55,7 +55,6 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                         .read<OrganizerContestDetailsPageBloc>()
                         .add(OrganizerContestDetailsPageInit(contestId: contestId)),
                     child: ListView(
-                      physics: AlwaysScrollableScrollPhysics(),
                     ),
                   );
                 } else {

@@ -41,7 +41,7 @@ class _AuthState extends State<SettingsPage> {
                 return Loader();
               case BlocStatus.failure:
               case BlocStatus.success:
-                final profile = state.authBundle!.profile;
+                final profile = state.profile!;
                 return ListView(
                   children: [
                     //* Account option
@@ -100,7 +100,7 @@ class _AuthState extends State<SettingsPage> {
                     InkWell(
                       onTap: () async {
                         final bool? res = await _showEditPrefRoleDialog(
-                            context: context, currentPrefRole: profile.prefContestRole);
+                            context: context, currentPrefRole: profile.prefRole);
                         if (res == true) {
                           if (context.mounted) {
                             context.read<AuthBloc>().add(AuthFetchProfile());
@@ -117,8 +117,8 @@ class _AuthState extends State<SettingsPage> {
                         ),
                         titleTextStyle: Theme.of(context).textTheme.titleMedium,
                         subtitle: Text(
-                          '${profile.prefContestRole.name[0].toUpperCase()}'
-                          '${profile.prefContestRole.name.substring(1).toLowerCase()}',
+                          '${profile.prefRole.name[0].toUpperCase()}'
+                          '${profile.prefRole.name.substring(1).toLowerCase()}',
                         ),
                         subtitleTextStyle: Theme.of(context)
                             .textTheme

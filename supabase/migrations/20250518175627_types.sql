@@ -4,9 +4,9 @@ CREATE TYPE public.contest_role AS enum('organizer', 'participant', 'juror');
 
 CREATE TYPE public.member_role AS enum('participant', 'juror');
 
-CREATE TYPE public.participant_status AS enum('joined', 'left');
+CREATE TYPE public.participant_status AS enum('joined', 'out');
 
-CREATE TYPE public.juror_status AS enum('joined', 'left');
+CREATE TYPE public.juror_status AS enum('joined', 'out');
 
 CREATE TYPE public.contest_status AS enum(
   'preparationPhase',

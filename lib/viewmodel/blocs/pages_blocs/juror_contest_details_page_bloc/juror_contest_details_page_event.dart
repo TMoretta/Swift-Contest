@@ -13,11 +13,11 @@ final class JurorContestDetailsPageInit extends JurorContestDetailsPageEvent {
   List<Object?> get props => [contestId];
 }
 
-// final class JurorContestDetailsPageGetRemainingInfo extends JurorContestDetailsPageEvent {
-//   final HomeContestBundle homeContestBundle;
-//
-//   const JurorContestDetailsPageGetRemainingInfo({required this.homeContestBundle});
-//
-//   @override
-//   List<Object?> get props => [homeContestBundle];
-// }
+final class JurorContestDetailsPageRefresh extends JurorContestDetailsPageEvent {
+  final String contestId;
+
+  const JurorContestDetailsPageRefresh({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+}

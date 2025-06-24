@@ -11,14 +11,16 @@ BEGIN
     created_at,
     voting_session_id,
     participation_id,
-    order_index
+    order_index,
+    is_excluded
   )
   VALUES (
     p_voting_session_participation.id,
     p_voting_session_participation.created_at,
     p_voting_session_participation.voting_session_id,
     p_voting_session_participation.participation_id,
-    p_voting_session_participation.order_index
+    p_voting_session_participation.order_index,
+    p_voting_session_participation.is_excluded
   )
   RETURNING * INTO STRICT v_voting_session_participation;
 
@@ -49,7 +51,8 @@ BEGIN
   SET
     voting_session_id = p_voting_session_participation.voting_session_id,
     participation_id = p_voting_session_participation.participation_id,
-    order_index = p_voting_session_participation.order_index
+    order_index = p_voting_session_participation.order_index,
+    is_excluded = p_voting_session_participation.is_excluded
   WHERE id = p_voting_session_participation.id
   RETURNING * INTO STRICT v_voting_session_participation;
 

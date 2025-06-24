@@ -19,6 +19,7 @@ final class OrganizerHomePageState extends Equatable {
     OrganizerHomePageEvent? sourceEvent,
     String? message,
     List<HomeContestBundle>? createdContestsBundles,
+    List<Message>? messages,
   }) {
     return OrganizerHomePageState(
       status: status,
@@ -29,5 +30,10 @@ final class OrganizerHomePageState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, message, createdContestsBundles];
+  List<Object?> get props => [
+        status,
+        sourceEvent,
+        message,
+        createdContestsBundles,
+      ];
 }

@@ -9,6 +9,7 @@ final class ParticipantWorkSubmitPageSubmitWork extends ParticipantWorkSubmitPag
   final String name;
   final String description;
   final List<XFile> images;
+  final File file;
 
   ParticipantWorkSubmitPageSubmitWork({
     required this.contestId,
@@ -16,8 +17,16 @@ final class ParticipantWorkSubmitPageSubmitWork extends ParticipantWorkSubmitPag
     required this.name,
     required this.description,
     required this.images,
+    required this.file,
   });
 
   @override
-  List<Object?> get props => [contestId, participantId, name, description, images];
+  List<Object?> get props => [
+        contestId,
+        participantId,
+        name,
+        description,
+        images,
+        file,
+      ];
 }

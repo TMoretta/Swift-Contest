@@ -12,7 +12,8 @@ BEGIN
     participation_id,
     name,
     description,
-    images_urls
+    images_urls,
+    file_url
   )
   VALUES (
     p_work.id,
@@ -20,7 +21,8 @@ BEGIN
     p_work.participation_id,
     p_work.name,
     p_work.description,
-    p_work.images_urls
+    p_work.images_urls,
+    p_work.file_url
   )
   RETURNING * INTO STRICT v_work;
 
@@ -52,7 +54,8 @@ BEGIN
     participation_id = p_work.participation_id,
     name = p_work.name,
     description = p_work.description,
-    images_urls = p_work.images_urls
+    images_urls = p_work.images_urls,
+    file_url = p_work.file_url
   WHERE id = p_work.id
   RETURNING * INTO STRICT v_work;
   

@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/bundles/organizer_voting_session_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
-import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
-import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/view/pages/account_page.dart';
+import 'package:swift_contest/view/pages/inbox_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_contest_details_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_home_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_voting_procedure_page.dart';
@@ -176,6 +174,16 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           );
         },
       ),
+      //* Inbox
+      GoRoute(
+        name: AppRouter.inbox,
+        path: '/inbox',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+            child: InboxPage(),
+          );
+        },
+      ),
       //* OrganizerHome
       GoRoute(
         name: AppRouter.organizerHome,
@@ -244,17 +252,14 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.organizerVotingFormEdit,
         path: '/organizer_voting_form',
         pageBuilder: (context, state) {
-          final VotingFormBundle votingFormBundle =
-              VotingFormBundle.fromJson(state.extra as Map<String, dynamic>);
+          final String votingFormId = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingFormEditPageBloc(
-                votingFormRepository: context.read(),
-                votingFormFieldRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerVotingFormEditPage(
-                votingFormBundle: votingFormBundle,
+                votingFormId: votingFormId,
               ),
             ),
           );
@@ -265,22 +270,14 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.organizerVotingResultDetails,
         path: '/organizer_voting_results',
         pageBuilder: (context, state) {
-          final votingSession = VotingSession.fromJson(
-              (state.extra as Map<String, dynamic>)['voting_session'] as Map<String, dynamic>);
-          final contestDetailsBundle = ContestDetailsBundle.fromJson((state.extra
-              as Map<String, dynamic>)['contest_details_bundle'] as Map<String, dynamic>);
+          final votingSessionId = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingResultDetailsPageBloc(
-                jurorVotingRepository: context.read(),
-                jurorVoteRepository: context.read(),
-                votingSessionParticipationRepository: context.read(),
-                votingSessionJurationRepository: context.read(),
-                votingSessionExclusionRepository: context.read(),
+                organizerRepository: context.read(),
               ),
               child: OrganizerVotingResultDetailsPage(
-                contestDetailsBundle: contestDetailsBundle,
-                votingSession: votingSession,
+                votingSessionId: votingSessionId,
               ),
             ),
           );
@@ -291,13 +288,13 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.organizerVotingResultExport,
         path: '/organizer_export',
         pageBuilder: (context, state) {
-          final OrganizerVotingSessionBundle votingSessionBundle =
-              OrganizerVotingSessionBundle.fromJson(state.extra as Map<String, dynamic>);
+          final String votingSessionId = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingResultExportPageBloc(
-                  jurorVotingRepository: context.read(), jurorVoteRepository: context.read()),
-              child: OrganizerVotingResultExportPage(votingSessionBundle: votingSessionBundle),
+                organizerRepository: context.read(),
+              ),
+              child: OrganizerVotingResultExportPage(votingSessionId: votingSessionId),
             ),
           );
         },
@@ -312,14 +309,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingSettingsPageBloc(
-                votingFormRepository: context.read(),
-                votingSessionRepository: context.read(),
-                votingFormFieldRepository: context.read(),
-                votingSessionParticipationRepository: context.read(),
-                votingSessionJurationRepository: context.read(),
                 utilsRepository: context.read(),
-                placeRepository: context.read(),
-                votingSessionExclusionRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerVotingSettingsPage(contestDetailsBundle: contestDetailsBundle),
@@ -332,19 +322,13 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.organizerVotingProcedure,
         path: '/organizer_voting_procedure',
         pageBuilder: (context, state) {
-          final OrganizerVotingSessionBundle votingSessionBundle =
-              OrganizerVotingSessionBundle.fromJson(state.extra as Map<String, dynamic>);
+          final String votingSessionId = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingProcedurePageBloc(
-                votingSessionRepository: context.read(),
-                votingSessionParticipationRepository: context.read(),
-                workRepository: context.read(),
-                participationRepository: context.read(),
-                profileRepository: context.read(),
                 organizerRepository: context.read(),
               ),
-              child: OrganizerVotingProcedurePage(votingSessionBundle: votingSessionBundle),
+              child: OrganizerVotingProcedurePage(votingSessionId: votingSessionId),
             ),
           );
         },
@@ -435,21 +419,13 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.jurorVotingProcedure,
         path: '/juror_voting_procedure',
         pageBuilder: (context, state) {
-          final ContestDetailsBundle contestDetailsBundle =
-              ContestDetailsBundle.fromJson(state.extra as Map<String, dynamic>);
+          final String votingSessionId = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
               create: (context) => JurorVotingProcedurePageBloc(
-                placeRepository: context.read(),
-                votingSessionJurationRepository: context.read(),
-                jurationRepository: context.read(),
-                votingSessionParticipationRepository: context.read(),
-                jurorVotingRepository: context.read(),
-                jurorVoteRepository: context.read(),
-                votingSessionExclusionsBundles: context.read(),
                 jurorRepository: context.read(),
               ),
-              child: JurorVotingProcedurePage(contestDetailsBundle: contestDetailsBundle),
+              child: JurorVotingProcedurePage(votingSessionId: votingSessionId),
             ),
           );
         },
@@ -471,6 +447,7 @@ final class AppRouter {
   static const String signUpVerify = 'signUpVerify';
   static const String settings = 'settings';
   static const String account = 'account';
+  static const String inbox = 'inbox';
 
   // Routes organizzatore
   static const String organizerHome = 'organizerHome';

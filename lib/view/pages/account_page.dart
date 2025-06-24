@@ -36,7 +36,7 @@ class _AccountPageState extends State<AccountPage> {
                 return Loader();
               case BlocStatus.failure:
               case BlocStatus.success:
-                final profile = state.authBundle!.profile;
+                final profile = state.profile!;
                 return ListView(
                   children: [
                     ListTile(
@@ -71,7 +71,7 @@ class _AccountPageState extends State<AccountPage> {
 void _showEditFullNameDialog({required BuildContext context}) {
   final authBloc = context.read<AuthBloc>();
   final fullNameController =
-      TextEditingController(text: authBloc.state.authBundle!.profile.fullName);
+      TextEditingController(text: authBloc.state.profile!.fullName);
 
   showDialog(
     context: context,

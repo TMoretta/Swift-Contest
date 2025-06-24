@@ -69,10 +69,10 @@ class _AppState extends State<App> {
     final materialTheme = MaterialTheme(textTheme: textTheme);
     return BlocBuilder<AuthBloc, AuthState>(
       //* Rebuild only when the pref theme changes
-      buildWhen: (previous, current) => current.authBundle?.profile.prefTheme != previous.authBundle?.profile.prefTheme,
+      buildWhen: (previous, current) => current.profile?.prefTheme != previous.profile?.prefTheme,
       builder: (context, state) {
         //* Change dynamically the theme mode based on user pref theme
-        final appTheme = context.read<AuthBloc>().state.authBundle?.profile.prefTheme ?? AppTheme.system;
+        final appTheme = context.read<AuthBloc>().state.profile?.prefTheme ?? AppTheme.system;
         themeMode = ThemeMode.values.byName(appTheme.name);
         return MaterialApp.router(
           themeMode: themeMode,

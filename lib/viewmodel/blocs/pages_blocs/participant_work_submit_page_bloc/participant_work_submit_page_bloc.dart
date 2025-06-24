@@ -1,20 +1,15 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/data_models/participation.dart';
 import 'package:swift_contest/model/data_models/work.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/participation_repository.dart';
 import 'package:swift_contest/model/repositories/role_repositories/participant_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/work_repository.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:uuid/uuid.dart';
 
 part 'participant_work_submit_page_event.dart';
-
 part 'participant_work_submit_page_state.dart';
 
 class ParticipantWorkSubmitPageBloc
@@ -39,16 +34,24 @@ class ParticipantWorkSubmitPageBloc
     emit(ParticipantWorkSubmitPageState(status: BlocStatus.loading, sourceEvent: event));
 
     late final List<String> imagesUrls;
-    final imagesUrlsRes = await _storageRepository.uploadImages(
+    final eitherImagesUrls = await _storageRepository.uploadImages(
         bucket: StorageBucket.worksImages, images: event.images);
-    imagesUrlsRes.fold(
+    eitherImagesUrls.fold(
       (failure) => emit(
           ParticipantWorkSubmitPageState(status: BlocStatus.failure, message: failure.message)),
       (success) => imagesUrls = success,
     );
-    if (imagesUrlsRes.isLeft()) {
+    if (eitherImagesUrls.isLeft()) {
       return;
     }
+
+    late final String fileUrl;
+    final eitherFileUrl = await _storageRepository.uploadFile(bucket: StorageBucket.worksFiles, file: event.file);
+    eitherFileUrl.fold(
+        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+        (success) => fileUrl = success,
+    );
+
 
     final eitherWork = await _participantRepository.submitWork(
       contestId: event.contestId,
@@ -56,6 +59,7 @@ class ParticipantWorkSubmitPageBloc
       name: event.name,
       description: event.description,
       imagesUrls: imagesUrls,
+      fileUrl: fileUrl,
     );
     eitherWork.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),

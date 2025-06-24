@@ -15,7 +15,7 @@ class Contest extends Equatable {
   final ContestStatus contestStatus;
   final String token;
   final String votingFormId;
-  final bool isDeleted;
+  final DateTime? deletedAt;
 
   const Contest({
     required this.id,
@@ -31,7 +31,7 @@ class Contest extends Equatable {
     required this.contestStatus,
     required this.token,
     required this.votingFormId,
-    required this.isDeleted,
+     this.deletedAt,
   });
 
   factory Contest.fromJson(Map<String, dynamic> json) {
@@ -49,7 +49,7 @@ class Contest extends Equatable {
       imagesUrls: List<String>.from(json['images_urls']),
       token: json['token'] as String,
       votingFormId: json['voting_form_id'] as String,
-      isDeleted: json['is_deleted'] as bool,
+      deletedAt: (json['deleted_at'] != null) ? DateTime.parse(json['deleted_at']).toLocal() : null,
     );
   }
 
@@ -68,7 +68,7 @@ class Contest extends Equatable {
       'images_urls': imagesUrls,
       'token': token,
       'voting_form_id': votingFormId,
-      'is_deleted': isDeleted,
+      'deleted_at': deletedAt,
     };
   }
 
@@ -87,7 +87,7 @@ class Contest extends Equatable {
       'p_images_urls': imagesUrls,
       'p_token': token,
       'p_voting_form_id': votingFormId,
-      'p_is_deleted': isDeleted,
+      'p_deleted_at': deletedAt,
     };
   }
 
@@ -105,7 +105,7 @@ class Contest extends Equatable {
     List<String>? imagesUrls,
     String? token,
     String? votingFormId,
-    bool? isDeleted,
+    DateTime? deletedAt,
   }) {
     return Contest(
       id: id ?? this.id,
@@ -121,7 +121,7 @@ class Contest extends Equatable {
       imagesUrls: imagesUrls ?? this.imagesUrls,
       token: token ?? this.token,
       votingFormId: votingFormId ?? this.votingFormId,
-      isDeleted: isDeleted ?? this.isDeleted,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -140,6 +140,6 @@ class Contest extends Equatable {
         imagesUrls,
         token,
         votingFormId,
-        isDeleted,
+        deletedAt,
       ];
 }

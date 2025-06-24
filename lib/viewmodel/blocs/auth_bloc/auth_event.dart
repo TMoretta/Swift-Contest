@@ -13,14 +13,10 @@ final class AuthInit extends AuthEvent {
   List<Object?> get props => [];
 }
 
-// final class AuthInitWithDelay extends AuthEvent {
-//   final int delay;
-//
-//   const AuthInitWithDelay({required this.delay});
-//
-//   @override
-//   List<Object?> get props => [];
-// }
+final class AuthFetchUserInfo extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
 
 final class AuthFetchUser extends AuthEvent {
   @override
@@ -32,7 +28,7 @@ final class AuthFetchProfile extends AuthEvent {
   List<Object?> get props => [];
 }
 
-final class AuthFetchUserAndProfile extends AuthEvent {
+final class AuthFetchProfileMessages extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
@@ -67,4 +63,13 @@ final class AuthEditFullName extends AuthEvent {
 
   @override
   List<Object?> get props => [fullName];
+}
+
+final class AuthMarkMessageAsRead extends AuthEvent {
+  final String messageId;
+
+  const AuthMarkMessageAsRead({required this.messageId});
+
+  @override
+  List<Object?> get props => [messageId];
 }

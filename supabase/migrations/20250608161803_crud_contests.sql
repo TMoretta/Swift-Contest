@@ -20,7 +20,7 @@ BEGIN
     images_urls,
     token,
     voting_form_id,
-    is_deleted
+    deleted_at
   )
   VALUES (
     p_contest.id,
@@ -36,7 +36,7 @@ BEGIN
     p_contest.images_urls,
     p_contest.token,
     p_contest.voting_form_id,
-    p_contest.is_deleted
+    p_contest.deleted_at
   )
   RETURNING * INTO STRICT v_contest;
 
@@ -76,7 +76,7 @@ BEGIN
     images_urls = p_contest.images_urls,
     token = p_contest.token,
     voting_form_id = p_contest.voting_form_id,
-    is_deleted = p_contest.is_deleted
+    deleted_at = p_contest.deleted_at
   WHERE contests.id = p_contest.id
   RETURNING * INTO STRICT v_contest;
 
@@ -91,7 +91,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- DELETE CONTEST BY ID
-CREATE OR REPLACE FUNCTION delete_contest_by_id(
+CREATE OR REPLACE FUNCTION delete_contest_by_id (
   p_id uuid
 )
 RETURNS contests AS $$

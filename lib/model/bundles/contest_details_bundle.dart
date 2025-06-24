@@ -31,10 +31,10 @@ class ContestDetailsBundle extends Equatable {
   final List<ParticipationBundle> joinedParticipationsBundles;
   final List<ParticipationBundle> joinedParticipationsWithWorksBundles;
   final List<ParticipationBundle> joinedParticipationsWithoutWorksBundles;
-  final List<ParticipationBundle> leftParticipationsBundles;
+  final List<ParticipationBundle> outParticipationsBundles;
   final List<Invitation> participantsInvitations;
   final List<JurationBundle> joinedJurationsBundles;
-  final List<JurationBundle> leftJurationsBundles;
+  final List<JurationBundle> outJurationsBundles;
   final List<Invitation> jurorsInvitations;
   final List<VotingSession> endedVotingSessions;
   final VotingSession? liveVotingSession;
@@ -59,13 +59,13 @@ class ContestDetailsBundle extends Equatable {
             .where(
                 (e) => e.participation.participantStatus.isJoined && !e.participation.hasSubmitted)
             .toList(growable: false),
-        leftParticipationsBundles = participationsBundles
-            .where((e) => e.participation.participantStatus.isLeft)
+        outParticipationsBundles = participationsBundles
+            .where((e) => e.participation.participantStatus.isOut)
             .toList(growable: false),
         joinedJurationsBundles =
             jurationsBundles.where((e) => e.juration.jurorStatus.isJoined).toList(growable: false),
-        leftJurationsBundles =
-            jurationsBundles.where((e) => e.juration.jurorStatus.isLeft).toList(growable: false),
+        outJurationsBundles =
+            jurationsBundles.where((e) => e.juration.jurorStatus.isOut).toList(growable: false),
         participantsInvitations =
             invitations.where((e) => e.memberRole.isParticipant).toList(growable: false),
         jurorsInvitations = invitations.where((e) => e.memberRole.isJuror).toList(growable: false),
@@ -96,6 +96,7 @@ class ContestDetailsBundle extends Equatable {
     final votingFormFields = (json['voting_form_fields'] as List<dynamic>)
         .map((e) => VotingFormField.fromJson(e))
         .toList(growable: false);
+    votingFormFields.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
 
     final participationsBundles = participations.map((participation) {
       final participant =
@@ -203,139 +204,3 @@ class ContestDetailsBundle extends Equatable {
         votingFormBundle
       ];
 }
-
-// class OrganizerContestDetailsBundle extends Equatable {
-//   final Contest contest;
-//   final Organizer organizer;
-//   final Place place;
-//   final List<ParticipationBundle> participationsBundles;
-//   final List<JurationBundle> jurationsBundles;
-//   final List<Invitation> invitations;
-//   final VotingFormBundle votingFormBundle;
-//   final List<VotingSession> votingSessions;
-//
-//   // Attributi autogenerati per semplicita`
-//   final List<ParticipationBundle> joinedParticipationsBundles;
-//   final List<ParticipationBundle> joinedParticipationsWithWorksBundles;
-//   final List<ParticipationBundle> joinedParticipationsWithoutWorksBundles;
-//   final List<ParticipationBundle> leftParticipationsBundles;
-//   final List<Invitation> participantsInvitations;
-//   final List<JurationBundle> joinedJurationsBundles;
-//   final List<JurationBundle> leftJurationsBundles;
-//   final List<Invitation> jurorsInvitations;
-//   final List<VotingSession> endedVotingSessions;
-//   final VotingSession? liveVotingSession;
-//
-//   OrganizerContestDetailsBundle({
-//     required this.contest,
-//     required this.organizer,
-//     required this.place,
-//     required this.participationsBundles,
-//     required this.jurationsBundles,
-//     required this.invitations,
-//     required this.votingFormBundle,
-//     required this.votingSessions,
-//   })  : joinedParticipationsBundles = participationsBundles
-//             .where((e) => e.participation.participantStatus.isJoined)
-//             .toList(growable: false),
-//         joinedParticipationsWithWorksBundles = participationsBundles
-//             .where((e) =>
-//                 e.participation.participantStatus.isJoined &&
-//                 e.participation.hasSubmitted)
-//             .toList(growable: false),
-//         joinedParticipationsWithoutWorksBundles = participationsBundles
-//             .where((e) =>
-//         e.participation.participantStatus.isJoined &&
-//             !e.participation.hasSubmitted)
-//             .toList(growable: false),
-//         leftParticipationsBundles = participationsBundles
-//             .where((e) => e.participation.participantStatus.isLeft)
-//             .toList(growable: false),
-//         joinedJurationsBundles =
-//             jurationsBundles.where((e) => e.juration.jurorStatus.isJoined).toList(growable: false),
-//         leftJurationsBundles =
-//             jurationsBundles.where((e) => e.juration.jurorStatus.isLeft).toList(growable: false),
-//         participantsInvitations =
-//             invitations.where((e) => e.memberRole.isParticipant).toList(growable: false),
-//         jurorsInvitations = invitations.where((e) => e.memberRole.isJuror).toList(growable: false),
-//         endedVotingSessions =
-//             votingSessions.where((e) => e.sessionStatus.isEnded).toList(growable: false),
-//         liveVotingSession = votingSessions
-//             .where((e) => e.sessionStatus != VotingSessionStatus.ended && e.sessionStatus != VotingSessionStatus.cancelled)
-//             .toList(growable: false)
-//             .firstOrNull;
-//
-//   factory OrganizerContestDetailsBundle.fromJson(Map<String, dynamic> json) {
-//     return OrganizerContestDetailsBundle(
-//       contest: Contest.fromJson(json['contest']),
-//       organizer: Organizer.fromJson(json['organizer']),
-//       place: Place.fromJson(json['place']),
-//       participationsBundles: (json['participations_bundles'] as List<dynamic>)
-//           .map((
-//             e,
-//           ) =>
-//               ParticipationBundle.fromJson(e))
-//           .toList(growable: false),
-//       jurationsBundles: (json['jurations_bundles'] as List<dynamic>)
-//           .map((
-//             e,
-//           ) =>
-//               JurationBundle.fromJson(e))
-//           .toList(growable: false),
-//       invitations: (json['invitations'] as List<dynamic>)
-//           .map((e) => Invitation.fromJson(e))
-//           .toList(growable: false),
-//       votingFormBundle: VotingFormBundle.fromJson(json['voting_form_bundle']),
-//       votingSessions: (json['voting_sessions'] as List<dynamic>)
-//           .map((e) => VotingSession.fromJson(e))
-//           .toList(growable: false),
-//     );
-//   }
-//
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'contest': contest.toJson(),
-//       'organizer': organizer.toJson(),
-//       'place': place.toJson(),
-//       'participations_bundles':
-//           participationsBundles.map((e) => e.toJson()).toList(growable: false),
-//       'jurations_bundles': jurationsBundles.map((e) => e.toJson()).toList(growable: false),
-//       'invitations': invitations.map((e) => e.toJson()).toList(growable: false),
-//       'voting_form_bundle': votingFormBundle.toJson(),
-//       'voting_sessions': votingSessions.map((e) => e.toJson()).toList(growable: false),
-//     };
-//   }
-//
-//   OrganizerContestDetailsBundle copyWith({
-//     Contest? contest,
-//     Organizer? organizer,
-//     Place? place,
-//     List<ParticipationBundle>? participationsBundles,
-//     List<JurationBundle>? jurationsBundles,
-//     List<Invitation>? invitations,
-//     VotingFormBundle? votingFormBundle,
-//     List<VotingSession>? votingSessions,
-//   }) {
-//     return OrganizerContestDetailsBundle(
-//       contest: contest ?? this.contest,
-//       organizer: organizer ?? this.organizer,
-//       place: place ?? this.place,
-//       participationsBundles: participationsBundles ?? this.participationsBundles,
-//       jurationsBundles: jurationsBundles ?? this.jurationsBundles,
-//       invitations: invitations ?? this.invitations,
-//       votingFormBundle: votingFormBundle ?? this.votingFormBundle,
-//       votingSessions: votingSessions ?? this.votingSessions,
-//     );
-//   }
-//
-//   @override
-//   List<Object?> get props => [
-//         contest,
-//         organizer,
-//         place,
-//         participationsBundles,
-//         jurationsBundles,
-//         invitations,
-//         votingFormBundle
-//       ];
-// }

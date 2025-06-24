@@ -78,8 +78,7 @@ INSERT INTO public.contests (
   contest_status,
   images_urls,
   token,
-  voting_form_id,
-  is_deleted
+  voting_form_id
 )
 VALUES (
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
@@ -94,8 +93,7 @@ VALUES (
   'preparationPhase',
   ARRAY['https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/contests-images//image1.jpeg','https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/contests-images//image2.jpeg'],
   'c1c1c1c1c1c1c1',
-  'ac2979f1-aa67-496d-941c-16f97850ae10',
-  'false'
+  'ac2979f1-aa67-496d-941c-16f97850ae10'
 );
 
 -- INVITATIONS
@@ -220,7 +218,7 @@ VALUES (
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
   (SELECT id FROM auth.users WHERE email = 'participant3@example.com'),
-  'left',
+  'out',
   'participant3@example.com',
   true
 );
@@ -267,7 +265,8 @@ INSERT INTO public.works (
   participation_id,
   name,
   description,
-  images_urls
+  images_urls,
+  file_url
 )
 VALUES (
   '3fa25e47-7c98-43c8-b055-496247ff837b',
@@ -275,7 +274,8 @@ VALUES (
   '4970aafd-11b8-4098-a508-8fe0c99c62d8',
   'Work 1',
   'sd dsf sadfweu dujfhe eurh dfet dfgg sdafe.',
-  ARRAY['https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-images//image3.jpeg']
+  ARRAY['https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-images//image3.jpeg'],
+  'https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-files//file1.pdf'
 );
 
 INSERT INTO public.works (
@@ -284,7 +284,8 @@ INSERT INTO public.works (
   participation_id,
   name,
   description,
-  images_urls
+  images_urls,
+  file_url
 )
 VALUES (
   'bd980b01-f2d1-42ff-9cb1-ad3745bc0488',
@@ -292,7 +293,8 @@ VALUES (
   '8f284b92-619a-410a-a6c1-e9d389c1e032',
   'Work 2',
   'sd dsf sadfweu dujfhe eurh dfet dfgg sdafe.',
-  ARRAY['https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-images//image4.jpeg']
+  ARRAY['https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-images//image4.jpeg'],
+  'https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-files//file1.pdf'
 );
 
 INSERT INTO public.works (
@@ -301,7 +303,8 @@ INSERT INTO public.works (
   participation_id,
   name,
   description,
-  images_urls
+  images_urls,
+  file_url
 )
 VALUES (
   '351c5636-808c-49fe-bbe3-4e8daf0e29e5',
@@ -309,5 +312,6 @@ VALUES (
   '89c64c56-7d17-420b-9444-1b9ae3716f0a',
   'Work 2',
   'sd dsf sadfweu dujfhe eurh dfet dfgg sdafe.',
-  ARRAY['https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-images//image1.jpeg']
+  ARRAY['https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-images//image1.jpeg'],
+  'https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-files//file1.pdf'
 );

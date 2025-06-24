@@ -29,7 +29,9 @@ extension ColorSchemeX on ColorScheme {
       brightness == Brightness.light ? const Color(0xff00ff00) : const Color(0xff00ff00);
 
   Color get green =>
-      brightness == Brightness.light ? const Color(0xff008000) : const Color(0xff008000);
+      brightness == Brightness.light ? const Color(0xff008000) : const Color(0xff006400);
+
+  Color get onGreen => const Color(0xffffffff);
 
   Color get cyan =>
       brightness == Brightness.light ? const Color(0xff00ffff) : const Color(0xff00ffff);

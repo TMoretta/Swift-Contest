@@ -241,7 +241,8 @@ CREATE OR REPLACE FUNCTION participant_submit_work(
   p_contest_id uuid,
   p_name varchar,
   p_description varchar,
-  p_images_urls text[]
+  p_images_urls text[],
+  p_file_url text
 )
 RETURNS void AS $$
 DECLARE
@@ -260,8 +261,8 @@ BEGIN
     RAISE EXCEPTION 'You have already submitted a work';
   END IF;
 
-  INSERT INTO works (id, created_at, participation_id, name, description, images_urls)
-  VALUES (gen_random_uuid(), now(), v_participation.id, p_name, p_description, p_images_urls);
+  INSERT INTO works (id, created_at, participation_id, name, description, images_urls, file_url)
+  VALUES (gen_random_uuid(), now(), v_participation.id, p_name, p_description, p_images_urls, p_file_url);
 
   UPDATE participations
   SET has_submitted = true

@@ -1,5 +1,14 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path/path.dart' as p;
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
+import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
+import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/utils/media_types.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 
@@ -31,7 +40,6 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ListView(
-            physics: AlwaysScrollableScrollPhysics(),
             children: [
               SizedBox(height: 16),
               //* Title
@@ -106,6 +114,82 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                     ),
                   ),
                 ],
+              ),
+              SizedBox(height: 12),
+              //* File
+              Text(
+                'File',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+              ),
+              Card(
+                elevation: 0.1,
+                color: Theme.of(context).colorScheme.tertiaryContainer,
+                child: ListTile(
+                  title: Text(
+                    work.fileUrl.split('/').last,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onTertiaryContainer),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: IconButton(
+                    onPressed: () async {
+                      try {
+                        if (!await requestStoragePermission()) {
+                          if (context.mounted) {
+                            showSnackBar(context: context, text: 'Permission denied');
+                          }
+                          return;
+                        }
+
+                        final directory =
+                        await ExternalPath.getExternalStoragePublicDirectory(
+                            ExternalPath.DIRECTORY_DOWNLOAD);
+
+                        final originalFilename =
+                            work.fileUrl.split('/').last;
+                        final baseName =
+                        p.basenameWithoutExtension(originalFilename);
+                        final extension = p.extension(originalFilename);
+
+                        String safeFilename;
+                        int count = 0;
+                        do {
+                          safeFilename = (count == 0)
+                              ? '$baseName$extension'
+                              : '$baseName ($count)$extension';
+                          count++;
+                        } while (await File('$directory/$safeFilename').exists());
+
+                        final path = '$directory/$safeFilename';
+
+                        await Dio().download(
+                          work.fileUrl,
+                          path,
+                          onReceiveProgress: (received, total) {
+                            if (total != -1) {
+                              // opzionale: mostra progress %
+                              final pct =
+                              (received / total * 100).toStringAsFixed(0);
+                              debugPrint('Download: $pct%');
+                            }
+                          },
+                        );
+                        await OpenFile.open(path,
+                            type: MediaTypes.mapExtension(extension));
+                      } catch (e) {
+                        debugPrint('Download error: $e');
+                      }
+                    },
+                    icon: Icon(
+                      Icons.download_rounded,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

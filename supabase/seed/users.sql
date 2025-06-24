@@ -1,5 +1,6 @@
 INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at, confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at, email_change_token_new, email_change, email_change_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone, phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at, email_change_token_current, email_change_confirm_status, banned_until, reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous)
 VALUES
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'deleted@deleted.com', crypt ('123', gen_salt ('bf')), '2025-05-22 20:21:13.457444+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:21:13.427473+00', '2025-05-22 20:21:13.459874+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
 	('00000000-0000-0000-0000-000000000000', uuid_generate_v4(), 'authenticated', 'authenticated', 'organizer1@example.com', crypt ('123', gen_salt ('bf')), '2025-05-22 20:21:13.457444+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:21:13.427473+00', '2025-05-22 20:21:13.459874+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
 	('00000000-0000-0000-0000-000000000000', uuid_generate_v4(), 'authenticated', 'authenticated', 'organizer2@example.com', crypt ('123', gen_salt ('bf')), '2025-05-22 20:21:28.365625+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:21:28.362734+00', '2025-05-22 20:21:28.366317+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
 	('00000000-0000-0000-0000-000000000000', uuid_generate_v4(), 'authenticated', 'authenticated', 'organizer3@example.com', crypt ('123', gen_salt ('bf')), '2025-05-22 20:21:42.573831+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-05-22 20:21:42.571097+00', '2025-05-22 20:21:42.5745+00', NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL, false, NULL, false),
@@ -19,6 +20,7 @@ VALUES
 
 INSERT INTO auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at, id)
 VALUES
+  (uuid_generate_v4(), (SELECT id FROM auth.users WHERE email = 'deleted@deleted.com'), '{"sub": "7775a401-dead-4d1d-93fb-f1e9e6f58f30", "email": "deleted@deleted.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:21:13.447878+00', '2025-05-22 20:21:13.447943+00', '2025-05-22 20:21:13.447943+00', uuid_generate_v4()),
 	(uuid_generate_v4(), (SELECT id FROM auth.users WHERE email = 'organizer1@example.com'), '{"sub": "7775a401-dead-4d1d-93fb-f1e9e6f58f30", "email": "organizer1@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:21:13.447878+00', '2025-05-22 20:21:13.447943+00', '2025-05-22 20:21:13.447943+00', uuid_generate_v4()),
 	(uuid_generate_v4(), (SELECT id FROM auth.users WHERE email = 'organizer2@example.com'), '{"sub": "dc766310-ad6c-400f-9543-c0cb1e3c73fb", "email": "organizer2@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:21:28.363757+00', '2025-05-22 20:21:28.363809+00', '2025-05-22 20:21:28.363809+00', uuid_generate_v4()),
 	(uuid_generate_v4(), (SELECT id FROM auth.users WHERE email = 'organizer3@example.com'), '{"sub": "2f91cb73-246d-4e66-a034-3c2824dd5d90", "email": "organizer3@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:21:42.572133+00', '2025-05-22 20:21:42.572186+00', '2025-05-22 20:21:42.572186+00', uuid_generate_v4()),
@@ -37,24 +39,24 @@ VALUES
 	(uuid_generate_v4(), (SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'), '{"sub": "9639036b-eee8-4996-a547-3eef0708cadc", "email": "simplejuror3@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:24:50.568268+00', '2025-05-22 20:24:50.568317+00', '2025-05-22 20:24:50.568317+00', uuid_generate_v4());
 
 -- PROFILES
-INSERT INTO profiles (id,created_at,full_name,pref_theme,pref_contest_role,is_deleted)
+INSERT INTO profiles (id,created_at,full_name,pref_theme,pref_role)
 VALUES
-  ((SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),now(),'Organizer1','system','organizer','false'),
-  ((SELECT id FROM auth.users WHERE email = 'organizer2@example.com'),now(),'Organizer2','system','organizer','false'),
-  ((SELECT id FROM auth.users WHERE email = 'organizer3@example.com'),now(),'Organizer3','system','organizer','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant1@example.com'),now(),'Participant1','system','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant2@example.com'),now(),'Participant2','system','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant3@example.com'),now(),'Participant3','system','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant4@example.com'),now(),'Participant4','system','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'participant5@example.com'),now(),'Participant5','system','participant','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror1@example.com'),now(),'Juror1','system','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror2@example.com'),now(),'Juror2','system','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror3@example.com'),now(),'Juror3','system','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror4@example.com'),now(),'Juror4','system','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'juror5@example.com'),now(),'Juror5','system','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'simplejuror1@example.com'),now(),'SimpleJuror1','system','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'simplejuror2@example.com'),now(),'SimpleJuror2','system','juror','false'),
-  ((SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'),now(),'SimpleJuror3','system','juror','false');
+  ((SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),now(),'Organizer1','system','organizer'),
+  ((SELECT id FROM auth.users WHERE email = 'organizer2@example.com'),now(),'Organizer2','system','organizer'),
+  ((SELECT id FROM auth.users WHERE email = 'organizer3@example.com'),now(),'Organizer3','system','organizer'),
+  ((SELECT id FROM auth.users WHERE email = 'participant1@example.com'),now(),'Participant1','system','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'participant2@example.com'),now(),'Participant2','system','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'participant3@example.com'),now(),'Participant3','system','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'participant4@example.com'),now(),'Participant4','system','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'participant5@example.com'),now(),'Participant5','system','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'juror1@example.com'),now(),'Juror1','system','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'juror2@example.com'),now(),'Juror2','system','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'juror3@example.com'),now(),'Juror3','system','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'juror4@example.com'),now(),'Juror4','system','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'juror5@example.com'),now(),'Juror5','system','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'simplejuror1@example.com'),now(),'SimpleJuror1','system','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'simplejuror2@example.com'),now(),'SimpleJuror2','system','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'),now(),'SimpleJuror3','system','juror');
 
 -- todo: Remove
 ALTER TABLE auth.users

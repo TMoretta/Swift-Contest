@@ -64,7 +64,6 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                     .read<OrganizerContestDetailsPageBloc>()
                     .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                 child: ListView(
-                  physics: AlwaysScrollableScrollPhysics(),
                   children: [
                     //* Title
                     Text(
@@ -177,24 +176,6 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           .titleMedium
                           ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                     ),
-                    //* Organizer
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.person_rounded,
-                          size: 24,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          state.contestDetailsBundle!.organizer.fullName,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
                     //* Place
                     Row(
                       mainAxisSize: MainAxisSize.min,

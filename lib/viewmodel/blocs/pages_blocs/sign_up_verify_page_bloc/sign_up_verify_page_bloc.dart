@@ -4,7 +4,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/repositories/auth_repository.dart';
-import 'package:swift_contest/model/repositories/crud_repositories/user_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'sign_up_verify_page_event.dart';

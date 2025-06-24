@@ -4,16 +4,38 @@ sealed class OrganizerVotingResultDetailsPageEvent extends Equatable {
   const OrganizerVotingResultDetailsPageEvent();
 }
 
-final class OrganizerVotingResultDetailsPageGetResultInfo
-    extends OrganizerVotingResultDetailsPageEvent {
-  final ContestDetailsBundle contestDetailsBundle;
-  final VotingSession votingSession;
+final class OrganizerVotingResultDetailsPageInit extends OrganizerVotingResultDetailsPageEvent {
+  final String votingSessionId;
 
-  const OrganizerVotingResultDetailsPageGetResultInfo({
-    required this.contestDetailsBundle,
-    required this.votingSession,
+  const OrganizerVotingResultDetailsPageInit({
+    required this.votingSessionId,
   });
 
   @override
-  List<Object?> get props => [contestDetailsBundle, votingSession];
+  List<Object?> get props => [votingSessionId];
+}
+
+final class OrganizerVotingResultDetailsPageRefresh extends OrganizerVotingResultDetailsPageEvent {
+  final String votingSessionId;
+
+  const OrganizerVotingResultDetailsPageRefresh({
+    required this.votingSessionId,
+  });
+
+  @override
+  List<Object?> get props => [votingSessionId];
+}
+
+final class OrganizerVotingResultDetailsPageEditVotingSessionName
+    extends OrganizerVotingResultDetailsPageEvent {
+  final String votingSessionId;
+  final String name;
+
+  const OrganizerVotingResultDetailsPageEditVotingSessionName({
+    required this.votingSessionId,
+    required this.name,
+  });
+
+  @override
+  List<Object?> get props => [votingSessionId, name];
 }

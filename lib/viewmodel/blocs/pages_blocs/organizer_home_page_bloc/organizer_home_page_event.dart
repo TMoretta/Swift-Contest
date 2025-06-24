@@ -5,19 +5,19 @@ sealed class OrganizerHomePageEvent extends Equatable {
 }
 
 final class OrganizerHomePageInit extends OrganizerHomePageEvent {
-  final String organizerId;
+  final String userId;
 
-  const OrganizerHomePageInit({required this.organizerId});
+  const OrganizerHomePageInit({required this.userId});
 
   @override
-  List<Object?> get props => [organizerId];
+  List<Object?> get props => [userId];
 }
 
 final class OrganizerHomePageRefresh extends OrganizerHomePageEvent {
-  final String organizerId;
+  final String userId;
 
-  const OrganizerHomePageRefresh({required this.organizerId});
+  const OrganizerHomePageRefresh({required this.userId});
 
   @override
-  List<Object?> get props => [organizerId];
+  List<Object?> get props => [userId];
 }

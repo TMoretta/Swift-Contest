@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
@@ -14,24 +13,27 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_form_
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class OrganizerVotingFormEditPage extends StatefulWidget {
-  final VotingFormBundle votingFormBundle;
+  final String votingFormId;
 
-  const OrganizerVotingFormEditPage({required this.votingFormBundle, super.key});
+  const OrganizerVotingFormEditPage({required this.votingFormId, super.key});
 
   @override
   State<OrganizerVotingFormEditPage> createState() => _OrganizerVotingFormEditPageState();
 }
 
 class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPage> {
+  late String votingFormId;
+  bool isFieldsListInitialized = false;
   bool isEdited = false;
   final List<VotingFormField> updatedFields = [];
-  late VotingFormBundle votingFormBundle;
 
   @override
   void initState() {
     super.initState();
-    votingFormBundle = widget.votingFormBundle;
-    updatedFields.addAll(votingFormBundle.votingFormFields);
+    votingFormId = widget.votingFormId;
+    context
+        .read<OrganizerVotingFormEditPageBloc>()
+        .add(OrganizerVotingFormEditPageGetVotingForm(votingFormId: votingFormId));
   }
 
   @override
@@ -60,7 +62,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                               ? () {
                                   context.read<OrganizerVotingFormEditPageBloc>().add(
                                       OrganizerVotingFormEditPageUpdateVotingForm(
-                                          votingFormId: votingFormBundle.votingForm.id,
+                                          votingFormId: votingFormId,
                                           votingFormFields: updatedFields));
                                 }
                               : null,
@@ -79,42 +81,57 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
           child: BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
             builder: (context, state) {
               switch (state.status) {
+                case BlocStatus.initial:
+                  return SizedBox.shrink();
                 case BlocStatus.loading:
                   return Loader();
-                case BlocStatus.initial:
                 case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerVotingFormEditPageGetVotingForm) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context.read<OrganizerVotingFormEditPageBloc>().add(
+                          OrganizerVotingFormEditPageGetVotingForm(votingFormId: votingFormId)),
+                      child: ListView(),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
                 case BlocStatus.success:
+                  if(!isFieldsListInitialized) {
+                    isFieldsListInitialized = true;
+                    updatedFields.addAll(state.votingFormBundle!.votingFormFields);
+                  }
                   return (updatedFields.isEmpty)
                       ? Center(
-                          child: Text(
-                            'No field added yet',
-                          ),
-                        )
+                    child: Text(
+                      'No field added yet',
+                    ),
+                  )
                       : Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: ListView.builder(
-                            itemCount: updatedFields.length,
-                            itemBuilder: (context, index) {
-                              final field = updatedFields[index];
-                              return Card(
-                                elevation: 0,
-                                child: ListTile(
-                                  title: Text(field.name),
-                                  subtitle: Text('${field.minValue} - ${field.maxValue}'),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isEdited = true;
-                                        updatedFields.remove(field);
-                                      });
-                                    },
-                                    icon: Icon(Icons.remove),
-                                  ),
-                                ),
-                              );
-                            },
+                    padding: const EdgeInsets.only(top: 8),
+                    child: ListView.builder(
+                      itemCount: updatedFields.length,
+                      itemBuilder: (context, index) {
+                        final field = updatedFields[index];
+                        return Card(
+                          elevation: 0,
+                          child: ListTile(
+                            title: Text(field.name),
+                            subtitle: Text('${field.minValue} - ${field.maxValue}'),
+                            trailing: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isEdited = true;
+                                  updatedFields.remove(field);
+                                });
+                              },
+                              icon: Icon(Icons.remove),
+                            ),
                           ),
                         );
+                      },
+                    ),
+                  );
               }
             },
           ),
@@ -127,7 +144,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                   ? () async {
                       final VotingFormField? newField = await showAddFieldDialog(
                           context: context,
-                          votingFormId: votingFormBundle.votingForm.id,
+                          votingFormId: votingFormId,
                           orderIndex: updatedFields.length);
                       if (newField != null) {
                         setState(() {
@@ -161,70 +178,62 @@ Future<VotingFormField?> showAddFieldDialog({
     context: context,
     useRootNavigator: false,
     builder: (context) {
-          return Form(
-            key: formKey,
-            child: AlertDialog(
-              title: Text('Add field'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomTextFormFieldUnderlined(
-                      controller: nameController,
-                      validator: noEmptyValidator,
-                      label: 'Name',
-                    ),
-                    CustomTextFormFieldUnderlined(
-                      controller: minValueController,
-                      label: 'Min value',
-                      keyboardType: TextInputType.number,
-                      validator: (value) => _minValueValidator(value, maxValueController.text),
-                    ),
-                    CustomTextFormFieldUnderlined(
-                      controller: maxValueController,
-                      label: 'Max value',
-                      keyboardType: TextInputType.number,
-                      validator: (value) => _maxValueValidator(value, minValueController.text),
-                    ),
-                  ],
+      return Form(
+        key: formKey,
+        child: AlertDialog(
+          title: Text('Add field'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomTextFormFieldUnderlined(
+                  controller: nameController,
+                  validator: noEmptyValidator,
+                  label: 'Name',
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: Text('Cancel'),
+                CustomTextFormFieldUnderlined(
+                  controller: minValueController,
+                  label: 'Min value',
+                  keyboardType: TextInputType.number,
+                  validator: (value) => _minValueValidator(value, maxValueController.text),
                 ),
-                TextButton(
-                    onPressed: () {
-                      if (formKey.currentState?.validate() ?? false) {
-                        final minValueInt = int.parse(minValueController.text.trim());
-                        final maxValueInt = int.parse(maxValueController.text.trim());
-                        // if(minValueInt==null || maxValueInt == null) {
-                        //   showSnackBar(context: context, text: 'Invalid format on values range');
-                        //   return;
-                        // }
-                        // if(maxValueInt<minValueInt) {
-                        //   showSnackBar(context: context, text: 'Min value must be less than max value');
-                        //   return;
-                        // }
-                        final newField = VotingFormField(
-                          id: genUuid(),
-                          createdAt: now(),
-                          votingFormId: votingFormId,
-                          orderIndex: orderIndex,
-                          name: nameController.text.trim(),
-                          minValue: minValueInt,
-                          maxValue: maxValueInt,
-                        );
-                        context.pop(newField);
-                      }
-                    },
-                    child: Text('Add')),
+                CustomTextFormFieldUnderlined(
+                  controller: maxValueController,
+                  label: 'Max value',
+                  keyboardType: TextInputType.number,
+                  validator: (value) => _maxValueValidator(value, minValueController.text),
+                ),
               ],
             ),
-          );
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+                onPressed: () {
+                  if (formKey.currentState?.validate() ?? false) {
+                    final minValueDouble = double.parse(minValueController.text.trim());
+                    final maxValueDouble = double.parse(maxValueController.text.trim());
+                    final newField = VotingFormField(
+                      id: genUuid(),
+                      createdAt: now(),
+                      votingFormId: votingFormId,
+                      orderIndex: orderIndex,
+                      name: nameController.text.trim(),
+                      minValue: minValueDouble,
+                      maxValue: maxValueDouble,
+                    );
+                    context.pop(newField);
+                  }
+                },
+                child: Text('Add')),
+          ],
+        ),
+      );
     },
   );
 }
@@ -233,26 +242,29 @@ String? _minValueValidator(String? value, String? maxValue) {
   final val = value?.trim();
   final maxVal = maxValue?.trim();
 
-  if(val == null || val.isEmpty) {
+  if (val == null || val.isEmpty) {
     return '';
   }
 
-  if(!RegExp(r'^\d+$').hasMatch(val)) {
-    return 'Invalid number, only integers';
+  // Accetta solo numeri positivi con fino a 2 decimali
+  final decimalRegex = RegExp(r'^\d+(\.\d{1,2})?$');
+  if (!decimalRegex.hasMatch(val)) {
+    return 'Invalid format, only numbers with up to 2 decimal places';
   }
 
-  if(maxVal == null || maxVal.isEmpty) {
+  if (maxVal == null || maxVal.isEmpty) {
     return null;
   }
 
-  if(!RegExp(r'^\d+$').hasMatch(maxVal)) {
+  if (!decimalRegex.hasMatch(maxVal)) {
+    // se il max non è valido, saltiamo il confronto
     return null;
   }
 
-  final valInt = int.parse(val);
-  final maxValInt = int.parse(maxVal);
+  final valDouble = double.parse(val);
+  final maxValDouble = double.parse(maxVal);
 
-  if(valInt>=maxValInt) {
+  if (valDouble >= maxValDouble) {
     return 'Must be less than max value';
   }
 
@@ -263,30 +275,30 @@ String? _maxValueValidator(String? value, String? minValue) {
   final val = value?.trim();
   final minVal = minValue?.trim();
 
-  if(val == null || val.isEmpty) {
+  if (val == null || val.isEmpty) {
     return '';
   }
 
-  if(!RegExp(r'^\d+$').hasMatch(val)) {
-    return 'Invalid number, only integers';
+  final decimalRegex = RegExp(r'^\d+(\.\d{1,2})?$');
+  if (!decimalRegex.hasMatch(val)) {
+    return 'Invalid format, only numbers with up to 2 decimal places';
   }
 
-  if(minVal == null || minVal.isEmpty) {
+  if (minVal == null || minVal.isEmpty) {
     return null;
   }
 
-  if(!RegExp(r'^\d+$').hasMatch(minVal)) {
+  if (!decimalRegex.hasMatch(minVal)) {
     return null;
   }
 
-  final valInt = int.parse(val);
-  final minValInt = int.parse(minVal);
+  final valDouble = double.parse(val);
+  final minValDouble = double.parse(minVal);
 
-  if(valInt<=minValInt) {
+  if (valDouble <= minValDouble) {
     return 'Must be greater than min value';
   }
 
   return null;
 }
-
 

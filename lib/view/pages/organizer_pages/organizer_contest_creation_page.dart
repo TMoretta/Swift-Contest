@@ -52,7 +52,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   @override
   void initState() {
     super.initState();
-    user = context.read<AuthBloc>().state.authBundle!.user;
+    user = context.read<AuthBloc>().state.user!;
   }
 
   @override

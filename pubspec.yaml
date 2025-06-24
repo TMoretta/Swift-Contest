@@ -44,6 +44,11 @@ dependencies:
   pinput: ^5.0.1
   flutter_dotenv: ^5.2.1
   scaled_app: ^2.3.0
+  file_picker: ^10.2.0
+  path: ^1.9.1
+  dio: ^5.8.0+1
+#  flutter_local_notifications: ^19.2.1
+  open_file: ^3.5.10
 
 dev_dependencies:
   flutter_test:

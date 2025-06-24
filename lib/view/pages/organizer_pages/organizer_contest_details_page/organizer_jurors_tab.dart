@@ -49,6 +49,12 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
               .read<OrganizerContestDetailsPageBloc>()
               .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
         }
+        if (state.status.isSuccess && state.sourceEvent is OrganizerContestDetailsPageRemoveJuror) {
+          showSnackBar(context: context, text: 'Juror removed successfully');
+          context
+              .read<OrganizerContestDetailsPageBloc>()
+              .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+        }
       },
       child: Scaffold(
         body: SafeArea(
@@ -78,8 +84,8 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                         state.contestDetailsBundle!.joinedJurationsBundles;
                     final List<Invitation> jurorsInvitations =
                         state.contestDetailsBundle!.jurorsInvitations;
-                    final List<JurationBundle> leftJurationsBundles =
-                        state.contestDetailsBundle!.leftJurationsBundles;
+                    final List<JurationBundle> outJurationsBundles =
+                        state.contestDetailsBundle!.outJurationsBundles;
                     return Column(
                       // mainAxisSize: MainAxisSize.min,
                       children: [
@@ -102,7 +108,7 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                               tabs: [
                                 Tab(text: 'Joined'),
                                 Tab(text: 'Attended'),
-                                Tab(text: 'Left'),
+                                Tab(text: 'Out'),
                               ],
                             ),
                           ),
@@ -146,7 +152,16 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                                   Text(jurationBundle.juration.invitationEmail),
                                               trailing: IconButton(
                                                 onPressed: () {
-                                                  //todo
+                                                  final contestDetailsBundle = state.contestDetailsBundle!;
+                                                  final messageTitle = 'Out from contest';
+                                                  final messageBody = 'You have been expelled from'
+                                                      ' "${contestDetailsBundle.contest.name}"'
+                                                      ' by "${contestDetailsBundle.organizer.fullName}".';
+                                                  context
+                                                      .read<OrganizerContestDetailsPageBloc>()
+                                                      .add(OrganizerContestDetailsPageRemoveJuror(
+                                                          jurationId: jurationBundle.juration.id,
+                                                  messageTitle: messageTitle, messageBody: messageBody));
                                                 },
                                                 icon: Icon(
                                                   Icons.remove_circle_outline,
@@ -204,12 +219,12 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                         },
                                       ),
                               ),
-                              //* Left
+                              //* Out
                               RefreshIndicator.adaptive(
                                 onRefresh: () async => context
                                     .read<OrganizerContestDetailsPageBloc>()
                                     .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
-                                child: (leftJurationsBundles.isEmpty)
+                                child: (outJurationsBundles.isEmpty)
                                     ? LayoutBuilder(
                                         builder: (context, constraints) {
                                           return ListView(
@@ -218,7 +233,7 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                                 height: constraints.maxHeight,
                                                 child: Center(
                                                   child: Text(
-                                                    'No juror left',
+                                                    'No juror out',
                                                   ),
                                                 ),
                                               )
@@ -227,9 +242,9 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                         },
                                       )
                                     : ListView.builder(
-                                        itemCount: leftJurationsBundles.length,
+                                        itemCount: outJurationsBundles.length,
                                         itemBuilder: (context, index) {
-                                          final jurationBundle = leftJurationsBundles[index];
+                                          final jurationBundle = outJurationsBundles[index];
                                           return Card(
                                             elevation: 0.2,
                                             child: ListTile(
