@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
@@ -22,13 +22,13 @@ class ParticipantHomePage extends StatefulWidget {
 }
 
 class _ParticipantHomePageState extends State<ParticipantHomePage> {
-  late User user;
+  late Profile profile;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
-    context.read<ParticipantHomePageBloc>().add(ParticipantHomePageInit(participantId: user.id));
+    profile = context.read<AuthBloc>().state.profile!;
+    context.read<ParticipantHomePageBloc>().add(ParticipantHomePageInit(participantId: profile.id));
   }
 
   @override
@@ -56,7 +56,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<ParticipantHomePageBloc>()
-                            .add(ParticipantHomePageInit(participantId: user.id)),
+                            .add(ParticipantHomePageInit(participantId: profile.id)),
                         child: ListView(),
                       );
                     } else {
@@ -68,7 +68,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<ParticipantHomePageBloc>()
-                            .add(ParticipantHomePageRefresh(participantId: user.id)),
+                            .add(ParticipantHomePageRefresh(participantId: profile.id)),
                         child: (state.joinedContestsBundles!.isNotEmpty)
                             ? ListView.builder(
                                 itemCount: state.joinedContestsBundles!.length,
@@ -123,12 +123,12 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                 return FilledButton(
                   onPressed: () async {
                     final bool? res =
-                        await _showJoinContestDialog(context: context, userId: user.id);
+                        await _showJoinContestDialog(context: context, userId: profile.id);
                     if (res == true) {
                       if (context.mounted) {
                         context
                             .read<ParticipantHomePageBloc>()
-                            .add(ParticipantHomePageInit(participantId: user.id));
+                            .add(ParticipantHomePageInit(participantId: profile.id));
                       }
                     }
                   },

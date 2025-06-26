@@ -5,16 +5,17 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:swift_contest/model/bundles/voting_session_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
-import 'package:swift_contest/model/repositories/role_repositories/juror_repository.dart';
+import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'juror_voting_procedure_page_event.dart';
+
 part 'juror_voting_procedure_page_state.dart';
 
 class JurorVotingProcedurePageBloc
@@ -23,8 +24,7 @@ class JurorVotingProcedurePageBloc
 
   JurorVotingProcedurePageBloc({
     required JurorRepository jurorRepository,
-  })  :
-        _jurorRepository = jurorRepository,
+  })  : _jurorRepository = jurorRepository,
         super(JurorVotingProcedurePageState(status: BlocStatus.initial)) {
     on<JurorVotingProcedurePageSubscribeToVotingSessionProcedure>(
         _subscribeToVotingSessionProcedure);
@@ -38,28 +38,29 @@ class JurorVotingProcedurePageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     //* Getting the voting session bundle
-    late final VotingSessionBundle votingSessionBundle;
-    final eitherVotingSessionBundle =
-    await _jurorRepository.getVotingSessionDetails(votingSessionId: event.votingSessionId);
+    late final VotingSessionProcedureBundle votingSessionBundle;
+    final eitherVotingSessionBundle = await _jurorRepository.getVotingSessionProcedureBundle(
+        votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionBundle = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionBundle = success,
     );
 
     //* Getting the stream
     late final Stream<Either<Failure, VotingSession?>> votingSessionStream;
     final eitherVotingSessionStream =
-    await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
+        await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
     eitherVotingSessionStream.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionStream = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionStream = success,
     );
     if (eitherVotingSessionStream.isLeft()) {
       return;
     }
 
     //* Emit the initial voting session bundle
-    emit(state.copyWith(status: BlocStatus.success, votingSessionBundle: votingSessionBundle));
+    emit(state.copyWith(
+        status: BlocStatus.success, votingSessionProcedureBundle: votingSessionBundle));
 
     //* Listen to procedure stream
     await emit.forEach(
@@ -68,8 +69,8 @@ class JurorVotingProcedurePageBloc
         late VotingSession? newVotingSession;
 
         eitherNewVotingSession.fold(
-              (failure) => null,
-              (success) => newVotingSession = success,
+          (failure) => null,
+          (success) => newVotingSession = success,
         );
         if (eitherNewVotingSession.isLeft()) {
           return state.copyWith(status: BlocStatus.failure, message: 'No data received');
@@ -78,14 +79,16 @@ class JurorVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionBundle!.votingSession;
+        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
         if (newVotingSession == oldVotingSessionProcedure) {
           return state;
         }
 
         return state.copyWith(
           status: BlocStatus.success,
-          votingSessionBundle: state.votingSessionBundle!.copyWith(votingSession: newVotingSession),
+          votingSessionProcedureBundle: state.votingSessionProcedureBundle!.copyWith(
+              votingSessionBundle: state.votingSessionProcedureBundle!.votingSessionBundle
+                  .copyWith(votingSession: newVotingSession)),
         );
       },
       onError: (error, stackTrace) {
@@ -110,8 +113,8 @@ class JurorVotingProcedurePageBloc
       final currentPosition = await Geolocator.getCurrentPosition();
 
       late final Place? geoRestrictionPlace;
-      final eitherGeoRestrictionPlace =
-          await _jurorRepository.getVotingSessionGeoRestrictionPlace(placeId: votingSession.geoRestrictionPlaceId!);
+      final eitherGeoRestrictionPlace = await _jurorRepository.getVotingSessionGeoRestrictionPlace(
+          placeId: votingSession.geoResPlaceId!);
       eitherGeoRestrictionPlace.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
         (success) => geoRestrictionPlace = success,
@@ -119,8 +122,8 @@ class JurorVotingProcedurePageBloc
       if (eitherGeoRestrictionPlace.isLeft()) {
         return;
       }
-      if(geoRestrictionPlace == null) {
-        emit(state.copyWith(status: BlocStatus.failure,message: 'No place found'));
+      if (geoRestrictionPlace == null) {
+        emit(state.copyWith(status: BlocStatus.failure, message: 'No place found'));
         return;
       }
 
@@ -131,7 +134,7 @@ class JurorVotingProcedurePageBloc
         currentPosition.longitude,
       );
 
-      if (distance > votingSession.geoRestrictionRadius!) {
+      if (distance > votingSession.geoResRadius!) {
         emit(state.copyWith(
             status: BlocStatus.failure,
             message:
@@ -140,7 +143,7 @@ class JurorVotingProcedurePageBloc
       }
     }
 
-    final eitherSubmitVotes = await _jurorRepository.submitVotes(
+    final eitherSubmitVotes = await _jurorRepository.jurorSubmitVotes(
         jurorId: event.jurorId,
         votingSessionId: event.votingSession.id,
         contestId: event.votingSession.contestId,

@@ -143,3 +143,74 @@ class Contest extends Equatable {
         deletedAt,
       ];
 }
+
+class ContestNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? organizerId;
+  final String? name;
+  final String? description;
+  final DateTime? dateTime;
+  final DateTime? worksSubmissionStart;
+  final DateTime? worksSubmissionEnd;
+  final List<String>? imagesUrls;
+  final String? placeId;
+  final ContestStatus? contestStatus;
+  final String? token;
+  final String? votingFormId;
+  final DateTime? deletedAt;
+
+  const ContestNullable({
+    this.id,
+    this.createdAt,
+    this.organizerId,
+    this.name,
+    this.description,
+    this.dateTime,
+    this.worksSubmissionStart,
+    this.worksSubmissionEnd,
+    this.imagesUrls,
+    this.placeId,
+    this.contestStatus,
+    this.token,
+    this.votingFormId,
+    this.deletedAt,
+  });
+
+  Map<String,dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'organizer_id': organizerId,
+      'name': name,
+      'description': description,
+      'date_time': dateTime?.toUtc().toIso8601String(),
+      'works_submission_start': worksSubmissionStart?.toUtc().toIso8601String(),
+      'works_submission_end': worksSubmissionEnd?.toUtc().toIso8601String(),
+      'place_id': placeId,
+      'contest_status': contestStatus?.name,
+      'images_urls': imagesUrls,
+      'token': token,
+      'voting_form_id': votingFormId,
+      'deleted_at': deletedAt,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+    id,
+    createdAt,
+    organizerId,
+    name,
+    description,
+    dateTime,
+    worksSubmissionStart,
+    worksSubmissionEnd,
+    placeId,
+    contestStatus,
+    imagesUrls,
+    token,
+    votingFormId,
+    deletedAt,
+  ];
+}

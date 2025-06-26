@@ -3,18 +3,12 @@ CREATE OR REPLACE FUNCTION auto_create_profile()
 RETURNS trigger AS $$
 BEGIN
   INSERT INTO public.profiles (
-    id,
-    created_at,
-    full_name,
-    pref_theme,
-    pref_role
+    user_id,
+    full_name
   )
   VALUES (
     new.id,
-    (new.raw_user_meta_data->>'created_at')::timestamptz,
-    (new.raw_user_meta_data->>'full_name')::varchar,
-    (new.raw_user_meta_data->>'pref_theme')::public.app_theme,
-    (new.raw_user_meta_data->>'pref_role')::public.contest_role
+    (new.raw_user_meta_data->>'full_name')::varchar
   );
   RETURN new;
 
@@ -37,7 +31,7 @@ ALTER TABLE auth.users
 DISABLE TRIGGER user_created_trigger;
 
 -- GET USER BY EMAIL
-CREATE OR REPLACE FUNCTION get_user_by_email (
+CREATE OR REPLACE FUNCTION public.get_user_by_email (
   p_email varchar
 )
 RETURNS SETOF auth.users AS $$
@@ -56,7 +50,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- GET USER INFO
-CREATE OR REPLACE FUNCTION get_user_info (
+CREATE OR REPLACE FUNCTION get_user_auth_bundle (
   p_user_id uuid
 )
 RETURNS TABLE (
@@ -70,12 +64,12 @@ BEGIN
       to_jsonb(u),
       to_jsonb(p),
       COALESCE(
-        (SELECT jsonb_agg(to_jsonb(m))
+        (SELECT jsonb_agg(to_jsonb(m) ORDER BY m.created_at DESC)
         FROM messages m
         WHERE m.profile_id = p.id
       ), '[]'::jsonb)
     FROM auth.users u
-    JOIN profiles p ON p.id = u.id
+    JOIN profiles p ON p.user_id = u.id
     WHERE u.id = p_user_id
     LIMIT 1;
 
@@ -107,13 +101,13 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 CREATE OR REPLACE FUNCTION get_profile (
-  p_profile_id uuid
+  p_user_id uuid
 )
 RETURNS SETOF profiles AS $$
 BEGIN
   RETURN QUERY
     SELECT * FROM profiles
-    WHERE id = p_profile_id
+    WHERE user_id = p_user_id
     LIMIT 1;
 
 EXCEPTION
@@ -126,13 +120,17 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 -- GET PROFILE MESSAGES
 CREATE OR REPLACE FUNCTION get_profile_messages (
-  p_profile_id uuid
+  p_user_id uuid
 )
 RETURNS SETOF messages AS $$
 BEGIN
   RETURN QUERY
-    SELECT * FROM messages
-    WHERE profile_id = p_profile_id;
+    SELECT mes.*
+    FROM messages mes
+    JOIN profiles pro ON pro.id = mes.profile_id
+    JOIN auth.users use ON use.id = pro.user_id
+    WHERE use.id = p_user_id
+    ORDER BY created_at DESC;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -144,7 +142,7 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 -- UPDATE PROFILE FULL NAME
 CREATE OR REPLACE FUNCTION update_profile_full_name (
-  p_profile_id uuid,
+  p_user_id uuid,
   p_full_name varchar
 )
 RETURNS profiles AS $$
@@ -154,7 +152,7 @@ BEGIN
   UPDATE profiles
   SET
     full_name = p_full_name
-  WHERE id = p_profile_id
+  WHERE user_id = p_user_id
   RETURNING * INTO STRICT v_profile;
 
   RETURN v_profile;
@@ -169,7 +167,7 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 -- UPDATE PROFILE PREF THEME
 CREATE OR REPLACE FUNCTION update_profile_pref_theme (
-  p_profile_id uuid,
+  p_user_id uuid,
   p_pref_theme app_theme
 )
 RETURNS profiles AS $$
@@ -179,7 +177,7 @@ BEGIN
   UPDATE profiles
   SET
     pref_theme = p_pref_theme
-  WHERE id = p_profile_id
+  WHERE user_id = p_user_id
   RETURNING * INTO STRICT v_profile;
 
   RETURN v_profile;
@@ -194,7 +192,7 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 -- UPDATE PROFILE PREF ROLE
 CREATE OR REPLACE FUNCTION update_profile_pref_role (
-  p_profile_id uuid,
+  p_user_id uuid,
   p_pref_role contest_role
 )
 RETURNS profiles AS $$
@@ -204,7 +202,7 @@ BEGIN
   UPDATE profiles
   SET
     pref_role = p_pref_role
-  WHERE id = p_profile_id
+  WHERE user_id = p_user_id
   RETURNING * INTO STRICT v_profile;
 
   RETURN v_profile;
@@ -243,8 +241,10 @@ RETURNS void AS $$
 BEGIN
 
   UPDATE profiles
-  SET id = '00000000-0000-0000-0000-000000000000'
-  WHERE id = p_user_id;
+  SET
+    user_id = '00000000-0000-0000-0000-000000000000',
+    deleted_at = now()
+  WHERE user_id = p_user_id;
 
   DELETE FROM auth.users
   WHERE id = p_user_id;

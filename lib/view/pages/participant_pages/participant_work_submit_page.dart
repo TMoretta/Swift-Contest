@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -29,7 +27,7 @@ class ParticipantWorkSubmitPage extends StatefulWidget {
 }
 
 class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
-  late User user;
+  late Profile profile;
   late String contestId;
   final detailsFormKey = GlobalKey<FormState>();
   final imagesFormKey = GlobalKey<FormState>();
@@ -51,7 +49,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
   }
 
   @override
@@ -84,7 +82,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                         .read<ParticipantWorkSubmitPageBloc>()
                         .add(ParticipantWorkSubmitPageSubmitWork(
                           contestId: contestId,
-                          participantId: user.id,
+                          participantId: profile.id,
                           name: name,
                           description: description,
                           images: images,

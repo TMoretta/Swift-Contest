@@ -8,21 +8,21 @@ import 'package:swift_contest/app.dart';
 import 'package:swift_contest/model/repositories/auth_repository.dart';
 import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/google_place_repository.dart';
-import 'package:swift_contest/model/repositories/role_repositories/juror_repository.dart';
-import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
-import 'package:swift_contest/model/repositories/role_repositories/participant_repository.dart';
+import 'package:swift_contest/model/repositories/juror_repository.dart';
+import 'package:swift_contest/model/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/repositories/participant_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
 import 'package:swift_contest/model/repositories/utils_repository.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 
 void main() async {
-  ScaledWidgetsFlutterBinding.ensureInitialized(
-    scaleFactor: (deviceSize) {
-      const double widthOfDesign = 375;
-      return deviceSize.width / widthOfDesign;
-    },
-  );
-  // WidgetsFlutterBinding.ensureInitialized();
+  // ScaledWidgetsFlutterBinding.ensureInitialized(
+  //   scaleFactor: (deviceSize) {
+  //     const double widthOfDesign = 350;
+  //     return deviceSize.width / widthOfDesign;
+  //   },
+  // );
+  WidgetsFlutterBinding.ensureInitialized();
 
   //* Force vertical orientation
   await SystemChrome.setPreferredOrientations([

@@ -21,8 +21,8 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 -- GEN UNIQUE TOKEN
 CREATE OR REPLACE FUNCTION gen_unique_token (
-  p_table_name text,
-  p_column_name text,
+  p_table text,
+  p_column text,
   p_length int
 )
 RETURNS text AS $$
@@ -33,7 +33,7 @@ DECLARE
 BEGIN
   LOOP
     token := gen_token(p_length);
-    qry := format('SELECT EXISTS (SELECT 1 FROM %I WHERE %I = $1)', p_table_name, p_column_name);
+    qry := format('SELECT EXISTS (SELECT 1 FROM %I WHERE %I = $1)', p_table, p_column);
     EXECUTE qry INTO token_exists USING token;
     IF NOT token_exists THEN
       RETURN token;

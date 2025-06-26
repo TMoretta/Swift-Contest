@@ -6,10 +6,10 @@ import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_exclusion_bundle.dart';
-import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -29,7 +29,7 @@ class OrganizerVotingSettingsPage extends StatefulWidget {
 }
 
 class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
-  late User user;
+  late Profile profile;
   late ContestDetailsBundle contestDetailsBundle;
 
   final firstFormKey = GlobalKey<FormState>();
@@ -67,7 +67,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
   }
 
   @override
@@ -77,7 +77,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         if (state.status.isFailure) {
           showSnackBar(context: context, text: state.message!);
         }
-        if (state.status.isSuccess && state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
           context.pop(state.votingSessionId);
           // context.replaceNamed(AppRouter.organizerVotingProcedure, extra: state.votingSessionId);
         }
@@ -101,26 +102,32 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                       context
                           .read<OrganizerVotingSettingsPageBloc>()
                           .add(OrganizerVotingSettingsPageInitVotingProcedure(
-                        contestId: contestDetailsBundle.contest.id,
-                        votingFormId: contestDetailsBundle.votingFormBundle.votingForm.id,
-                        areSimpleJurorsAllowed: areSimpleJurorsAllowed,
-                        votingExclusionsBundles: votingExclusions,
-                        participationsBundles: participationsBundles,
-                        excludedParticipationsBundles: excludedParticipationsBundles,
-                        jurationsBundles: jurationsBundles,
-                        excludedJurationsBundles: excludedJurationsBundles,
-                        workTimer: workTimer,
-                        intermissionTimer: intermissionTimer,
-                        reviewTimer: reviewTimer,
-                        votingFormFields: contestDetailsBundle.votingFormBundle.votingFormFields,
-                        isGeoRestricted: isGeoRestricted,
-                        geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
-                        geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
-                        geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
-                        geoRestrictionRadius: (geoRestrictionRadiusController.text.isNotEmpty)
-                            ? int.tryParse(geoRestrictionRadiusController.text)
-                            : null,
-                      ));
+                            contestId: contestDetailsBundle.contest.id,
+                            votingFormId: contestDetailsBundle.votingFormBundle.votingForm.id,
+                            areSimpleJurorsAllowed: areSimpleJurorsAllowed,
+                            votingExclusionsBundles: votingExclusions,
+                            participationsBundles: participationsBundles,
+                            excludedParticipationsBundles: excludedParticipationsBundles,
+                            jurationsBundles: jurationsBundles,
+                            excludedJurationsBundles: excludedJurationsBundles,
+                            workTimer: workTimer,
+                            intermissionTimer: intermissionTimer,
+                            reviewTimer: reviewTimer,
+                            votingFormFields: contestDetailsBundle.votingFormBundle.votingFormFields
+                                .map((e) => VotingFormFieldNullable(
+                                    name: e.name,
+                                    minValue: e.minValue,
+                                    maxValue: e.maxValue,
+                                    orderIndex: e.orderIndex))
+                                .toList(growable: false),
+                            isGeoRestricted: isGeoRestricted,
+                            geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
+                            geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
+                            geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
+                            geoRestrictionRadius: (geoRestrictionRadiusController.text.isNotEmpty)
+                                ? int.tryParse(geoRestrictionRadiusController.text)
+                                : null,
+                          ));
                     } else {
                       setState(() => ++currentStep);
                     }

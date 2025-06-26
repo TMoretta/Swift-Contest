@@ -6,12 +6,14 @@ final class JurorHomePageState extends Equatable {
   final JurorHomePageEvent? sourceEvent;
   final String? message;
   final List<HomeContestBundle>? joinedContestsBundles;
+  final SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle;
 
   const JurorHomePageState({
     required this.status,
     this.sourceEvent,
     this.message,
     this.joinedContestsBundles,
+    this.simpleJurorAndVotingSessionBundle,
   });
 
   JurorHomePageState copyWith({
@@ -19,14 +21,23 @@ final class JurorHomePageState extends Equatable {
     JurorHomePageEvent? sourceEvent,
     String? message,
     List<HomeContestBundle>? joinedContestsBundles,
+    SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle,
   }) {
     return JurorHomePageState(
-        status: status,
-        sourceEvent: sourceEvent ?? this.sourceEvent,
-        message: message,
-        joinedContestsBundles: joinedContestsBundles ?? this.joinedContestsBundles);
+      status: status,
+      sourceEvent: sourceEvent ?? this.sourceEvent,
+      message: message,
+      joinedContestsBundles: joinedContestsBundles ?? this.joinedContestsBundles,
+      simpleJurorAndVotingSessionBundle: simpleJurorAndVotingSessionBundle ?? this.simpleJurorAndVotingSessionBundle,
+    );
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, message, joinedContestsBundles];
+  List<Object?> get props => [
+        status,
+        sourceEvent,
+        message,
+        joinedContestsBundles,
+        simpleJurorAndVotingSessionBundle,
+      ];
 }

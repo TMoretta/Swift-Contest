@@ -4,13 +4,14 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/bundles/voting_session_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
-import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_voting_procedure_page_event.dart';
+
 part 'organizer_voting_procedure_page_state.dart';
 
 class OrganizerVotingProcedurePageBloc
@@ -49,9 +50,9 @@ class OrganizerVotingProcedurePageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     //* Getting the voting session bundle
-    late final VotingSessionBundle votingSessionBundle;
-    final eitherVotingSessionBundle =
-        await _organizerRepository.getVotingSessionDetails(votingSessionId: event.votingSessionId);
+    late final VotingSessionProcedureBundle votingSessionBundle;
+    final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionProcedureBundle(
+        votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => votingSessionBundle = success,
@@ -69,7 +70,8 @@ class OrganizerVotingProcedurePageBloc
       return;
     }
 
-    emit(state.copyWith(status: BlocStatus.success, votingSessionBundle: votingSessionBundle));
+    emit(state.copyWith(
+        status: BlocStatus.success, votingSessionProcedureBundle: votingSessionBundle));
 
     await emit.forEach(
       votingSessionStream,
@@ -87,14 +89,16 @@ class OrganizerVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionBundle!.votingSession;
+        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
         if (newVotingSession == oldVotingSessionProcedure) {
           return state;
         }
 
         return state.copyWith(
           status: BlocStatus.success,
-          votingSessionBundle: state.votingSessionBundle!.copyWith(votingSession: newVotingSession),
+          votingSessionProcedureBundle: state.votingSessionProcedureBundle!.copyWith(
+              votingSessionBundle: state.votingSessionProcedureBundle!.votingSessionBundle
+                  .copyWith(votingSession: newVotingSession)),
         );
       },
       onError: (error, stackTrace) {

@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
 import 'package:swift_contest/model/bundles/juror_vote_bundle.dart';
-import 'package:swift_contest/model/bundles/juror_votes_raw_bundle.dart';
+import 'package:swift_contest/model/trash/juror_votes_raw_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
-import 'package:swift_contest/model/bundles/voting_session_bundle.dart';
-import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
+import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_voting_result_export_page_event.dart';
@@ -32,9 +32,9 @@ class OrganizerVotingResultExportPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    late final VotingSessionBundle votingSessionBundle;
+    late final VotingSessionProcedureBundle votingSessionBundle;
     final eitherVotingSessionBundle =
-        await _organizerRepository.getVotingSessionDetails(votingSessionId: event.votingSessionId);
+        await _organizerRepository.getVotingSessionProcedureBundle(votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => votingSessionBundle = success,
@@ -156,7 +156,7 @@ class OrganizerVotingResultExportPageBloc
 
     emit(state.copyWith(
       status: BlocStatus.success,
-      votingSessionBundle: votingSessionBundle,
+      votingSessionProcedureBundle: votingSessionBundle,
       participantsVotingsPerJurorMap: participantsVotingsPerJurorMap,
       jurorsVotingsPerParticipantMap: jurorsVotingsPerParticipantMap,
       jurorsWithoutSubmissionBundles: jurorsWithoutSubmissionBundles,
@@ -169,9 +169,9 @@ class OrganizerVotingResultExportPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    late final VotingSessionBundle votingSessionBundle;
+    late final VotingSessionProcedureBundle votingSessionBundle;
     final eitherVotingSessionBundle =
-        await _organizerRepository.getVotingSessionDetails(votingSessionId: event.votingSessionId);
+        await _organizerRepository.getVotingSessionProcedureBundle(votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => votingSessionBundle = success,
@@ -293,7 +293,7 @@ class OrganizerVotingResultExportPageBloc
 
     emit(state.copyWith(
       status: BlocStatus.success,
-      votingSessionBundle: votingSessionBundle,
+      votingSessionProcedureBundle: votingSessionBundle,
       participantsVotingsPerJurorMap: participantsVotingsPerJurorMap,
       jurorsVotingsPerParticipantMap: jurorsVotingsPerParticipantMap,
       jurorsWithoutSubmissionBundles: jurorsWithoutSubmissionBundles,

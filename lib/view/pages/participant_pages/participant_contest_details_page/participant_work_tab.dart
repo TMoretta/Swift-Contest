@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
@@ -27,7 +28,7 @@ class ParticipantWorkTab extends StatefulWidget {
 }
 
 class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
-  late User user;
+  late Profile profile;
   late String contestId;
 
   @override
@@ -40,11 +41,11 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<ParticipantContestDetailsPageBloc>().state;
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
     if (state.status.isInitial) {
       context
           .read<ParticipantContestDetailsPageBloc>()
-          .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: user.id));
+          .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: profile.id));
     }
   }
 
@@ -65,7 +66,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context.read<ParticipantContestDetailsPageBloc>().add(
                         ParticipantContestDetailsPageInit(
-                            contestId: contestId, participantId: user.id)),
+                            contestId: contestId, participantId: profile.id)),
                     child: ListView(),
                   );
                 } else {
@@ -78,7 +79,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async => context.read<ParticipantContestDetailsPageBloc>().add(
                           ParticipantContestDetailsPageRefresh(
-                              contestId: contestId, participantId: user.id)),
+                              contestId: contestId, participantId: profile.id)),
                       child: (state.submittedWork != null)
                           ? ListView(
                               children: [
@@ -240,7 +241,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                     if (context.mounted) {
                       context.read<ParticipantContestDetailsPageBloc>().add(
                           ParticipantContestDetailsPageRefresh(
-                              contestId: contestId, participantId: user.id));
+                              contestId: contestId, participantId: profile.id));
                     }
                   }
                 },

@@ -73,3 +73,8 @@ final class AuthMarkMessageAsRead extends AuthEvent {
   @override
   List<Object?> get props => [messageId];
 }
+
+final class AuthDeleteUser extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}

@@ -13,15 +13,15 @@ class JurorVoteBundle extends Equatable {
 
   factory JurorVoteBundle.fromJson(Map<String, dynamic> json) {
     return JurorVoteBundle(
-      jurorVote: JurorVote.fromJson(json['jurorVote']),
-      votingFormField: VotingFormField.fromJson(json['votingFormField']),
+      jurorVote: JurorVote.fromJson(json['juror_vote']),
+      votingFormField: VotingFormField.fromJson(json['voting_form_field']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'jurorVote': jurorVote.toJson(),
-      'votingFormField': votingFormField.toJson(),
+      'juror_vote': jurorVote.toJson(),
+      'voting_form_field': votingFormField.toJson(),
     };
   }
 

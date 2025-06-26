@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
@@ -11,8 +11,8 @@ import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/home_page_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/juror_home_page_bloc.dart';
+import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class JurorHomePage extends StatefulWidget {
   const JurorHomePage({super.key});
@@ -22,14 +22,14 @@ class JurorHomePage extends StatefulWidget {
 }
 
 class _JurorHomePageState extends State<JurorHomePage> {
-  late User user;
+  late Profile profile;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
     if (!context.read<JurorHomePageBloc>().state.status.isSuccess) {
-      context.read<JurorHomePageBloc>().add(JurorHomePageInit(jurorId: user.id));
+      context.read<JurorHomePageBloc>().add(JurorHomePageInit(jurorId: profile.id));
     }
   }
 
@@ -58,7 +58,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<JurorHomePageBloc>()
-                            .add(JurorHomePageInit(jurorId: user.id)),
+                            .add(JurorHomePageInit(jurorId: profile.id)),
                         child: ListView(),
                       );
                     } else {
@@ -71,7 +71,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<JurorHomePageBloc>()
-                              .add(JurorHomePageRefresh(jurorId: user.id)),
+                              .add(JurorHomePageRefresh(jurorId: profile.id)),
                           child: (state.joinedContestsBundles!.isNotEmpty)
                               ? ListView.builder(
                                   itemCount: state.joinedContestsBundles!.length,
@@ -127,18 +127,27 @@ class _JurorHomePageState extends State<JurorHomePage> {
               case BlocStatus.success:
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
+                  spacing: 4,
                   children: [
                     FilledButton(
                       onPressed: () async {
+                        await _showVoteAsSimpleJurorDialog(buildContext: context, profileId: profile.id);
+                      },
+                      style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer),
+                      child: Text('Vote as simple juror'),
+                    ),
+                    FilledButton(
+                      onPressed: () async {
                         final bool? res =
-                            await _showJoinContestDialog(context: context, userId: user.id);
+                            await _showJoinContestDialog(context: context, profileId: profile.id);
                         if (res == true) {
                           if (context.mounted) {
                             context
                                 .read<JurorHomePageBloc>()
-                                .add(JurorHomePageInit(jurorId: user.id));
+                                .add(JurorHomePageInit(jurorId: profile.id));
                           }
                         }
                       },
@@ -156,7 +165,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
 
 Future<bool?> _showJoinContestDialog({
   required BuildContext context,
-  required String userId,
+  required String profileId,
 }) async {
   final jurorHomePageBloc = context.read<JurorHomePageBloc>();
   return await showDialog(
@@ -213,8 +222,93 @@ Future<bool?> _showJoinContestDialog({
                         if (joinContestFormKey.currentState?.validate() ?? false) {
                           context.read<JurorHomePageBloc>().add(
                                 JurorHomePageJoinContest(
-                                  jurorId: userId,
+                                  jurorId: profileId,
                                   token: tokenController.text.trim(),
+                                ),
+                              );
+                        }
+                      },
+                      child: Text('Ok'),
+                    ),
+                  ],
+                );
+              },
+            )
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Future<bool?> _showVoteAsSimpleJurorDialog({
+  required BuildContext buildContext,
+  required String profileId,
+}) async {
+  final jurorHomePageBloc = buildContext.read<JurorHomePageBloc>();
+  return await showDialog(
+    context: buildContext,
+    builder: (context) {
+      final joinContestFormKey = GlobalKey<FormState>();
+      final fullNameController = TextEditingController();
+      final tokenController = TextEditingController();
+      return BlocProvider.value(
+        value: jurorHomePageBloc,
+        child: AlertDialog(
+          title: Text('Vote as simple juror'),
+          content: Form(
+            key: joinContestFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CustomTextFormFieldUnderlined(
+                  controller: fullNameController,
+                  label: 'Full name',
+                  validator: (value) => noEmptyValidator(value?.trim()),
+                ),
+                CustomTextFormFieldUnderlined(
+                  controller: tokenController,
+                  label: 'Token',
+                  validator: (value) => noEmptyValidator(value?.trim()),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
+              listener: (context, state) {
+                if (state.status.isFailure) {
+                  showSnackBar(context: context, text: state.message!);
+                }
+                if (state.status.isSuccess && state.sourceEvent is JurorHomePageVoteAsAuthenticatedSimpleJuror) {
+                  context.pop();
+                  buildContext.pushNamed(AppRouter.simpleJurorVotingProcedure, extra: state.simpleJurorAndVotingSessionBundle!.toJson());
+                }
+              },
+              builder: (context, state) {
+                if (state.status.isLoading) {
+                  return Loader();
+                }
+                return Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (joinContestFormKey.currentState?.validate() ?? false) {
+                          context.read<JurorHomePageBloc>().add(
+                            JurorHomePageVoteAsAuthenticatedSimpleJuror(
+                              fullName: fullNameController.text.trim(),
+                                  token: tokenController.text.trim(),
+                                  jurorId: profileId,
                                 ),
                               );
                         }

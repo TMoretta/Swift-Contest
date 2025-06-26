@@ -5,7 +5,7 @@ final class OrganizerVotingResultExportPageState extends Equatable {
   final BlocStatus status;
   final OrganizerVotingResultExportPageEvent? sourceEvent;
   final String? message;
-  final VotingSessionBundle? votingSessionBundle;
+  final VotingSessionProcedureBundle? votingSessionProcedureBundle;
   final Map<JurationBundle, Map<ParticipationBundle, List<JurorVoteBundle>?>>?
       participantsVotingsPerJurorMap;
   final Map<ParticipationBundle, Map<JurationBundle, List<JurorVoteBundle>?>>?
@@ -18,7 +18,7 @@ final class OrganizerVotingResultExportPageState extends Equatable {
     required this.status,
      this.sourceEvent,
      this.message,
-     this.votingSessionBundle,
+     this.votingSessionProcedureBundle,
      this.participantsVotingsPerJurorMap,
      this.jurorsVotingsPerParticipantMap,
      this.jurorsWithoutSubmissionBundles,
@@ -30,7 +30,7 @@ final class OrganizerVotingResultExportPageState extends Equatable {
     required BlocStatus status,
     OrganizerVotingResultExportPageEvent? sourceEvent,
     String? message,
-    VotingSessionBundle? votingSessionBundle,
+    VotingSessionProcedureBundle? votingSessionProcedureBundle,
     Map<JurationBundle, Map<ParticipationBundle, List<JurorVoteBundle>?>>?
     participantsVotingsPerJurorMap,
     Map<ParticipationBundle, Map<JurationBundle, List<JurorVoteBundle>?>>?
@@ -41,7 +41,7 @@ final class OrganizerVotingResultExportPageState extends Equatable {
     status: status,
     sourceEvent: sourceEvent ?? this.sourceEvent,
 message: message,
-votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
+votingSessionProcedureBundle: votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
 participantsVotingsPerJurorMap:
 participantsVotingsPerJurorMap ?? this.participantsVotingsPerJurorMap,
 jurorsVotingsPerParticipantMap:
@@ -56,7 +56,7 @@ jurorsWithoutSubmissionBundles ?? this.jurorsWithoutSubmissionBundles,
     status,
     sourceEvent,
     message,
-    votingSessionBundle,
+    votingSessionProcedureBundle,
     participantsVotingsPerJurorMap,
     jurorsVotingsPerParticipantMap,
     jurorsWithoutSubmissionBundles,

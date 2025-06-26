@@ -72,14 +72,14 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                 continue successCase;
               successCase:
               case BlocStatus.success:
-                final participationsBundles = state.votingSessionBundle!.votingSessionParticipationsBundles
+                final participationsBundles = state.votingSessionProcedureBundle!.votingSessionParticipationsBundles
                     .map((e) => e.participationBundle)
                     .toList(growable: false);
                 final jurationsBundles = state.participantsVotingsPerJurorMap!.entries
                     .map((e) => e.key)
                     .toList(growable: false);
                 final votingFormFields =
-                    state.votingSessionBundle!.votingFormBundle.votingFormFields;
+                    state.votingSessionProcedureBundle!.votingFormBundle.votingFormFields;
                 return ListView(
                   children: [
                     // Selezione partecipanti
@@ -205,7 +205,7 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
 
                     // 4) Scrivi il corpo dati
                     final participationsBundles = state
-                        .votingSessionBundle!.votingSessionParticipationsBundles
+                        .votingSessionProcedureBundle!.votingSessionParticipationsBundles
                         .map((e) => e.participationBundle)
                         .toList(growable: false);
                     for (int i = 0; i < participationsBundles.length; i++) {
@@ -234,7 +234,7 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
 
                     final directory = await ExternalPath.getExternalStoragePublicDirectory(
                         ExternalPath.DIRECTORY_DOWNLOAD);
-                    final baseName = state.votingSessionBundle!.votingSession.name;
+                    final baseName = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.name;
                     final extension = '.xlsx';
 
                     String safeFilename;

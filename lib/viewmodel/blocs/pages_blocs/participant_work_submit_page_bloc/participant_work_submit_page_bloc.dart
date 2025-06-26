@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/data_models/work.dart';
-import 'package:swift_contest/model/repositories/role_repositories/participant_repository.dart';
+import 'package:swift_contest/model/repositories/participant_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 

@@ -27,14 +27,6 @@ class SimpleJuror extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_full_name': fullName,
-    };
-  }
-
   SimpleJuror copyWith({
     String? id,
     DateTime? createdAt,
@@ -45,6 +37,33 @@ class SimpleJuror extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       fullName: fullName ?? this.fullName,
     );
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        createdAt,
+        fullName,
+      ];
+}
+
+class SimpleJurorNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? fullName;
+
+  const SimpleJurorNullable({
+    this.id,
+    this.createdAt,
+    this.fullName,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'full_name': fullName,
+    };
   }
 
   @override

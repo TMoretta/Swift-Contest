@@ -18,7 +18,7 @@ final class OrganizerVotingSettingsPageInitVotingProcedure
   final Duration intermissionTimer;
   final Duration reviewTimer;
   final bool isGeoRestricted;
-  final List<VotingFormField> votingFormFields;
+  final List<VotingFormFieldNullable> votingFormFields;
   final String? geoRestrictionPlaceAddress;
   final double? geoRestrictionPlaceLon;
   final double? geoRestrictionPlaceLat;

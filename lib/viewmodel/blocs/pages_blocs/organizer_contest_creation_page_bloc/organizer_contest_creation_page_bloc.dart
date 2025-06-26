@@ -6,13 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/data_models/voting_form.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
-import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
-import 'package:swift_contest/model/repositories/utils_repository.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_contest_creation_page_event.dart';
@@ -21,16 +17,13 @@ part 'organizer_contest_creation_page_state.dart';
 class OrganizerContestCreationPageBloc
     extends Bloc<OrganizerContestCreationPageEvent, OrganizerContestCreationPageState> {
   final StorageRepository _storageRepository;
-  final UtilsRepository _utilsRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerContestCreationPageBloc({
     required StorageRepository storageRepository,
-    required UtilsRepository utilsRepository,
     required OrganizerRepository organizerRepository,
   })  :
         _storageRepository = storageRepository,
-        _utilsRepository = utilsRepository,
         _organizerRepository = organizerRepository,
         super(OrganizerContestCreationPageState(status: BlocStatus.initial)) {
     on<OrganizerContestCreationPageCreateContest>(_createContest);
@@ -42,40 +35,47 @@ class OrganizerContestCreationPageBloc
   ) async {
     emit(OrganizerContestCreationPageState(status: BlocStatus.loading, sourceEvent: event));
 
-    final Place place = Place(
-      id: genUuid(),
-      createdAt: now(),
+    final PlaceNullable place = PlaceNullable(
       address: event.placeAddress,
       lat: event.placeLat,
       lon: event.placeLon,
-    );
-
-    final VotingForm votingForm = VotingForm(
-      id: genUuid(),
-      createdAt: now(),
     );
 
     late final List<String> imagesUrls;
     final eitherImagesUrls = await _storageRepository.uploadImages(
         bucket: StorageBucket.contestsImages, images: event.images);
     eitherImagesUrls.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => imagesUrls = success,
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => imagesUrls = success,
     );
     if (eitherImagesUrls.isLeft()) {
       return;
     }
 
-    late final String token;
-    final eitherToken = await _utilsRepository.genUniqueToken(
-        tableName: 'contests', columnName: 'token', length: 14);
-    eitherToken.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => token = success,
-    );
-    if (eitherToken.isLeft()) {
-      return;
-    }
+    // final Place place = Place(
+    //   id: genUuid(),
+    //   createdAt: now(),
+    //   address: event.placeAddress,
+    //   lat: event.placeLat,
+    //   lon: event.placeLon,
+    // );
+
+    // final VotingForm votingForm = VotingForm(
+    //   id: genUuid(),
+    //   createdAt: now(),
+    // );
+
+
+    // late final String token;
+    // final eitherToken = await _utilsRepository.genUniqueToken(
+    //     tableName: 'contests', columnName: 'token', length: 14);
+    // eitherToken.fold(
+    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+    //   (success) => token = success,
+    // );
+    // if (eitherToken.isLeft()) {
+    //   return;
+    // }
 
     late final ContestStatus contestStatus;
     final nowt = DateTime.now();
@@ -87,9 +87,7 @@ class OrganizerContestCreationPageBloc
       contestStatus = ContestStatus.votingPhase;
     }
 
-    final Contest contest = Contest(
-      id: genUuid(),
-      createdAt: now(),
+    final ContestNullable contest = ContestNullable(
       organizerId: event.organizerId,
       name: event.name,
       description: event.description,
@@ -97,14 +95,27 @@ class OrganizerContestCreationPageBloc
       worksSubmissionStart: event.worksSubmissionStart,
       worksSubmissionEnd: event.worksSubmissionEnd,
       imagesUrls: imagesUrls,
-      placeId: place.id,
       contestStatus: contestStatus,
-      token: token,
-      votingFormId: votingForm.id,
     );
 
+    // final Contest contest = Contest(
+    //   id: genUuid(),
+    //   createdAt: now(),
+    //   organizerId: event.organizerId,
+    //   name: event.name,
+    //   description: event.description,
+    //   dateTime: event.dateTime,
+    //   worksSubmissionStart: event.worksSubmissionStart,
+    //   worksSubmissionEnd: event.worksSubmissionEnd,
+    //   imagesUrls: imagesUrls,
+    //   placeId: place.id,
+    //   contestStatus: contestStatus,
+    //   token: token,
+    //   votingFormId: votingForm.id,
+    // );
+
     final eitherCreateContest = await _organizerRepository.createContest(
-        contest: contest, place: place, votingForm: votingForm);
+        contest: contest, place: place);
     eitherCreateContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

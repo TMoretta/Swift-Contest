@@ -83,7 +83,7 @@ INSERT INTO public.contests (
 VALUES (
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
   now(),
-  (SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),
+  (SELECT prof.id FROM profiles prof JOIN auth.users use ON prof.user_id = use.id WHERE use.email = 'organizer1@example.com'),
   'Contest 1',
   'A simple contest for testing the app.',
   '2025-05-30 15:00:00+00',
@@ -179,7 +179,7 @@ VALUES (
   '4970aafd-11b8-4098-a508-8fe0c99c62d8',
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
-  (SELECT id FROM auth.users WHERE email = 'participant1@example.com'),
+  (SELECT prof.id FROM profiles prof JOIN auth.users use ON prof.user_id = use.id WHERE use.email = 'participant1@example.com'),
   'joined',
   'participant1@example.com',
   true
@@ -198,7 +198,7 @@ VALUES (
   '8f284b92-619a-410a-a6c1-e9d389c1e032',
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
-  (SELECT id FROM auth.users WHERE email = 'participant2@example.com'),
+  (SELECT prof.id FROM profiles prof JOIN auth.users use ON prof.user_id = use.id WHERE use.email = 'participant2@example.com'),
   'joined',
   'participant2@example.com',
   true
@@ -217,7 +217,7 @@ VALUES (
   '89c64c56-7d17-420b-9444-1b9ae3716f0a',
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
-  (SELECT id FROM auth.users WHERE email = 'participant3@example.com'),
+  (SELECT prof.id FROM profiles prof JOIN auth.users use ON prof.user_id = use.id WHERE use.email = 'participant3@example.com'),
   'out',
   'participant3@example.com',
   true
@@ -236,7 +236,7 @@ VALUES (
   '1c3e0f2e-0691-479e-8fb1-aee4c5449f86',
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
-  (SELECT id FROM auth.users WHERE email = 'juror1@example.com'),
+  (SELECT prof.id FROM profiles prof JOIN auth.users use ON prof.user_id = use.id WHERE use.email = 'juror1@example.com'),
   'joined',
   'juror1@example.com'
 );
@@ -253,7 +253,7 @@ VALUES (
   '6c78e4df-e1e1-4bd0-9d74-ec701b962d9c',
   now(),
   'e9ecc1b3-beee-47ca-a55d-c691a1503f35',
-  (SELECT id FROM auth.users WHERE email = 'juror2@example.com'),
+  (SELECT prof.id FROM profiles prof JOIN auth.users use ON prof.user_id = use.id WHERE use.email = 'juror2@example.com'),
   'joined',
   'juror2@example.com'
 );

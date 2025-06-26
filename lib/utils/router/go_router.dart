@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
+import 'package:swift_contest/model/bundles/simple_juror_and_voting_session_bundle.dart';
 import 'package:swift_contest/view/pages/account_page.dart';
 import 'package:swift_contest/view/pages/inbox_page.dart';
+import 'package:swift_contest/view/pages/juror_pages/simple_juror_voting_procedure_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_contest_details_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_home_page.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_voting_procedure_page.dart';
@@ -15,7 +17,7 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_detai
 import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_procedure_page.dart';
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_details_page.dart';
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_details_page/organizer_voting_result_details_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_export_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_settings_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_page.dart';
@@ -48,6 +50,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_verify_page_bloc/sign_in_verify_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_page_bloc/sign_up_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_verify_page_bloc/sign_up_verify_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/simple_juror_voting_procedure_page_bloc/simple_juror_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 
 //* GoRouter: routing service, the auth bloc is for redirect in base of the state of the authentication
@@ -208,7 +211,6 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
             child: BlocProvider(
               create: (context) => OrganizerContestCreationPageBloc(
                 storageRepository: context.read(),
-                utilsRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerContestCreationPage(),
@@ -225,7 +227,6 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerContestDetailsPageBloc(
-                utilsRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerContestDetailsPage(
@@ -309,7 +310,6 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingSettingsPageBloc(
-                utilsRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerVotingSettingsPage(contestDetailsBundle: contestDetailsBundle),
@@ -426,6 +426,26 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
                 jurorRepository: context.read(),
               ),
               child: JurorVotingProcedurePage(votingSessionId: votingSessionId),
+            ),
+          );
+        },
+      ),
+      //* SimpleJurorVotingProcedure
+      GoRoute(
+        name: AppRouter.simpleJurorVotingProcedure,
+        path: '/simple_juror_voting_procedure',
+        pageBuilder: (context, state) {
+          final SimpleJurorAndVotingSessionBundle simpleJurorAndVotingSessionBundle =
+              SimpleJurorAndVotingSessionBundle.fromJson(state.extra as Map<String, dynamic>);
+          return MaterialPage(
+            child: BlocProvider(
+              create: (context) => SimpleJurorVotingProcedurePageBloc(
+                jurorRepository: context.read(),
+              ),
+              child: SimpleJurorVotingProcedurePage(
+                simpleJurorId: simpleJurorAndVotingSessionBundle.simpleJuror.id,
+                votingSessionId: simpleJurorAndVotingSessionBundle.votingSession.id,
+              ),
             ),
           );
         },

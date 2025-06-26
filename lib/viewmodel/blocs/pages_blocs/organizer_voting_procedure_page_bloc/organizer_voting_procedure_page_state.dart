@@ -5,29 +5,29 @@ final class OrganizerVotingProcedurePageState extends Equatable {
   final BlocStatus status;
   final OrganizerVotingProcedurePageEvent? sourceEvent;
   final String? message;
-  final VotingSessionBundle? votingSessionBundle;
+  final VotingSessionProcedureBundle? votingSessionProcedureBundle;
 
   const OrganizerVotingProcedurePageState({
     required this.status,
     this.sourceEvent,
     this.message,
-    this.votingSessionBundle,
+    this.votingSessionProcedureBundle,
   });
 
   OrganizerVotingProcedurePageState copyWith({
     required BlocStatus status,
     OrganizerVotingProcedurePageEvent? sourceEvent,
     String? message,
-    VotingSessionBundle? votingSessionBundle,
+    VotingSessionProcedureBundle? votingSessionProcedureBundle,
   }) {
     return OrganizerVotingProcedurePageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
+      votingSessionProcedureBundle: votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
     );
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, message, votingSessionBundle];
+  List<Object?> get props => [status, sourceEvent, message, votingSessionProcedureBundle];
 }

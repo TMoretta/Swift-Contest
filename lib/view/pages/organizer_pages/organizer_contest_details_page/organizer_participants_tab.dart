@@ -151,19 +151,20 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                           return Card(
                                             elevation: 0.2,
                                             child: ListTile(
-                                              title: Text(participationBundle.participant.fullName),
-                                              subtitle: Text(participationBundle
-                                                  .participation.invitationEmail),
                                               trailing: IconButton(
                                                 onPressed: () {
-                                                  final contestDetailsBundle = state.contestDetailsBundle!;
+                                                  final contestDetailsBundle =
+                                                      state.contestDetailsBundle!;
                                                   final messageTitle = 'Out from contest';
                                                   final messageBody = 'You have been expelled from'
                                                       ' "${contestDetailsBundle.contest.name}"'
                                                       ' by "${contestDetailsBundle.organizer.fullName}".';
-                                                  context.read<OrganizerContestDetailsPageBloc>().add(
-                                                      OrganizerContestDetailsPageRemoveParticipant(
-                                                          participationId: participationBundle.participation.id,
+                                                  context
+                                                      .read<OrganizerContestDetailsPageBloc>()
+                                                      .add(
+                                                          OrganizerContestDetailsPageRemoveParticipant(
+                                                        participationId:
+                                                            participationBundle.participation.id,
                                                         messageTitle: messageTitle,
                                                         messageBody: messageBody,
                                                       ));
@@ -172,6 +173,35 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                   Icons.remove_circle_outline,
                                                   color: Theme.of(context).colorScheme.error,
                                                 ),
+                                              ),
+                                              title: Text(
+                                                participationBundle.participant.fullName,
+                                                style: Theme.of(context).textTheme.titleMedium,
+                                              ),
+                                              subtitle: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                spacing: 4,
+                                                children: [
+                                                  Text(
+                                                    participationBundle
+                                                        .participation.invitationEmail,
+                                                    style: Theme.of(context).textTheme.bodyMedium,
+                                                  ),
+                                                  if (participationBundle.participant.deletedAt !=
+                                                      null)
+                                                    Text(
+                                                      'Deleted account',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .labelLarge
+                                                          ?.copyWith(
+                                                              color: Theme.of(context)
+                                                                  .colorScheme
+                                                                  .error),
+                                                    ),
+                                                ],
                                               ),
                                             ),
                                           );
@@ -207,7 +237,10 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                           return Card(
                                             elevation: 0.2,
                                             child: ListTile(
-                                              title: Text(invitation.email),
+                                              title: Text(
+                                                invitation.email,
+                                                style: Theme.of(context).textTheme.titleMedium,
+                                              ),
                                               trailing: IconButton(
                                                 onPressed: () {
                                                   context.read<OrganizerContestDetailsPageBloc>().add(
@@ -254,9 +287,35 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                           return Card(
                                             elevation: 0.2,
                                             child: ListTile(
-                                              title: Text(participationBundle.participant.fullName),
-                                              subtitle: Text(participationBundle
-                                                  .participation.invitationEmail),
+                                              title: Text(
+                                                participationBundle.participant.fullName,
+                                                style: Theme.of(context).textTheme.titleMedium,
+                                              ),
+                                              subtitle: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                spacing: 4,
+                                                children: [
+                                                  Text(
+                                                    participationBundle
+                                                        .participation.invitationEmail,
+                                                    style: Theme.of(context).textTheme.bodyMedium,
+                                                  ),
+                                                  if (participationBundle.participant.deletedAt !=
+                                                      null)
+                                                    Text(
+                                                      'Deleted account',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .labelLarge
+                                                          ?.copyWith(
+                                                              color: Theme.of(context)
+                                                                  .colorScheme
+                                                                  .error),
+                                                    ),
+                                                ],
+                                              ),
                                             ),
                                           );
                                         },
@@ -309,58 +368,51 @@ Future<bool?> _showInviteDialog({required BuildContext context, required String 
             }
           },
           builder: (context, state) {
-            switch (state.status) {
-              case BlocStatus.initial:
-                return SizedBox.shrink();
-              case BlocStatus.loading:
-                return Loader();
-              case BlocStatus.failure:
-              case BlocStatus.success:
-                return AlertDialog(
-                  title: Text(
-                    'Invite a juror',
-                  ),
-                  content: Form(
-                    key: invitationFormKey,
-                    child: CustomTextFormFieldUnderlined(
-                      controller: emailController,
-                      label: 'Email',
-                      validator: _emailValidator,
-                    ),
-                  ),
-                  actions: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: (!state.status.isLoading)
-                              ? () {
-                                  context.pop();
-                                }
-                              : null,
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: (!state.status.isLoading)
-                              ? () {
-                                  if (invitationFormKey.currentState?.validate() ?? false) {
-                                    context
-                                        .read<OrganizerContestDetailsPageBloc>()
-                                        .add(OrganizerContestDetailsPageSendParticipantInvite(
-                                          contestId: contestId,
-                                          email: emailController.text.trim(),
-                                        ));
-                                    // context.pop();
-                                  }
-                                }
-                              : null,
-                          child: const Text('Ok'),
-                        ),
-                      ],
-                    )
+            return AlertDialog(
+              title: Text(
+                'Invite a participant',
+              ),
+              content: Form(
+                key: invitationFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    (!state.status.isLoading)
+                        ? CustomTextFormFieldUnderlined(
+                            controller: emailController,
+                            label: 'Email',
+                            validator: _emailValidator,
+                          )
+                        : Loader(),
                   ],
-                );
-            }
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: (!state.status.isLoading)
+                      ? () {
+                          context.pop();
+                        }
+                      : null,
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: (!state.status.isLoading)
+                      ? () {
+                          if (invitationFormKey.currentState?.validate() ?? false) {
+                            context
+                                .read<OrganizerContestDetailsPageBloc>()
+                                .add(OrganizerContestDetailsPageSendParticipantInvite(
+                                  contestId: contestId,
+                                  email: emailController.text.trim(),
+                                ));
+                          }
+                        }
+                      : null,
+                  child: const Text('Ok'),
+                ),
+              ],
+            );
           },
         ),
       );

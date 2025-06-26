@@ -5,26 +5,26 @@ final class JurorVotingProcedurePageState extends Equatable {
   final BlocStatus status;
   final JurorVotingProcedurePageEvent? sourceEvent;
   final String? message;
-  final VotingSessionBundle? votingSessionBundle;
+  final VotingSessionProcedureBundle? votingSessionProcedureBundle;
 
   const JurorVotingProcedurePageState({
     required this.status,
     this.sourceEvent,
     this.message,
-    this.votingSessionBundle,
+    this.votingSessionProcedureBundle,
   });
 
   JurorVotingProcedurePageState copyWith({
     required BlocStatus status,
     JurorVotingProcedurePageEvent? sourceEvent,
     String? message,
-    VotingSessionBundle? votingSessionBundle,
+    VotingSessionProcedureBundle? votingSessionProcedureBundle,
   }) {
     return JurorVotingProcedurePageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
+      votingSessionProcedureBundle: votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
     );
   }
 
@@ -33,6 +33,6 @@ final class JurorVotingProcedurePageState extends Equatable {
     status,
     sourceEvent,
     message,
-    votingSessionBundle,
+    votingSessionProcedureBundle,
   ];
 }

@@ -7,10 +7,9 @@ import 'package:swift_contest/model/data_models/user.dart' as my;
 import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
-import 'package:swift_contest/utils/functions/now.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, AuthBundle?>> getUserInfo();
+  Future<Either<Failure, AuthBundle?>> getCurrentUserAuthBundle();
 
   Future<Either<Failure, my.User?>> getCurrentUser();
 
@@ -46,6 +45,8 @@ abstract interface class AuthRepository {
   });
 
   Future<Either<Failure, Unit>> signOut();
+
+  Future<Either<Failure,Unit>> deleteCurrentUser();
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -56,13 +57,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Session? get currentSession => _supabase.auth.currentSession;
 
   @override
-  Future<Either<Failure, AuthBundle?>> getUserInfo() async {
+  Future<Either<Failure, AuthBundle?>> getCurrentUserAuthBundle() async {
     try {
       if (currentSession == null) {
         return right(null);
       }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_user_info', params: {'p_user_id': currentSession!.user.id});
+          .rpc('get_user_auth_bundle', params: {'p_user_id': currentSession!.user.id});
       if (res.isEmpty) {
         return right(null);
       }
@@ -81,7 +82,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return right(null);
       }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_user', params: {'p_user_id': currentSession!.user.id});
+          .rpc('get_user_auth_bundle', params: {'p_user_id': currentSession!.user.id});
       if (res.isEmpty) {
         return right(null);
       }
@@ -100,7 +101,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return right(null);
       }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_profile', params: {'p_profile_id': currentSession!.user.id});
+          .rpc('get_profile', params: {'p_user_id': currentSession!.user.id});
       if (res.isEmpty) {
         return right(null);
       }
@@ -119,7 +120,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return left(Failure(message: 'No valid session found'));
       }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_profile_messages', params: {'p_profile_id': currentSession!.user.id});
+          .rpc('get_profile_messages', params: {'p_user_id': currentSession!.user.id});
       return right(res.map((e) => Message.fromJson(e)).toList(growable: false));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
@@ -144,7 +145,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Profile>> updateProfileFullName({required String fullName}) async {
     try {
       final Map<String, dynamic> res = await _supabase.rpc('update_profile_full_name', params: {
-        'p_profile_id': currentSession!.user.id,
+        'p_user_id': currentSession!.user.id,
         'p_full_name': fullName,
       });
       return right(Profile.fromJson(res));
@@ -161,7 +162,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_role', params: {
-        'p_profile_id': currentSession!.user.id,
+        'p_user_id': currentSession!.user.id,
         'p_pref_role': prefRole.name,
       });
       return right(Profile.fromJson(res));
@@ -176,7 +177,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme}) async {
     try {
       final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_theme', params: {
-        'p_profile_id': currentSession!.user.id,
+        'p_user_id': currentSession!.user.id,
         'p_pref_theme': prefTheme.name,
       });
       return right(Profile.fromJson(res));
@@ -214,11 +215,7 @@ class AuthRepositoryImpl implements AuthRepository {
         shouldCreateUser: true,
         email: email,
         data: {
-          'created_at': now().toUtc().toIso8601String(),
           'full_name': fullName,
-          'pref_theme': AppTheme.system.name,
-          'pref_role': ContestRole.organizer.name,
-          'is_deleted': false,
         },
       );
       return right(unit);
@@ -305,11 +302,7 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         password: password,
         data: {
-          'created_at': now().toUtc().toIso8601String(),
           'full_name': fullName,
-          'pref_theme': AppTheme.system.name,
-          'pref_role': ContestRole.organizer.name,
-          'is_deleted': false,
         },
       );
       final user = response.user;
@@ -330,7 +323,23 @@ class AuthRepositoryImpl implements AuthRepository {
       await _supabase.auth.signOut();
       return right(unit);
     } on AuthException catch (e) {
-      throw (_authExceptionToRepositoryFailure(e));
+      return left(_authExceptionToRepositoryFailure(e));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteCurrentUser() async {
+    try {
+      if (currentSession == null) {
+        return left(Failure(message: 'No valid session found'));
+      }
+      await _supabase.rpc('delete_user',params: {'p_user_id' : currentSession!.user.id});
+      _supabase.auth.signOut(scope: SignOutScope.global);
+      return right(unit);
+    } on AuthException catch (e) {
+      return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
       return left(Failure());
     }

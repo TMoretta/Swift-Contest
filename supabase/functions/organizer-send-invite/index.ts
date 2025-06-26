@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.140.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 const RESEND_API_URL = "https://api.resend.com/email";
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -22,31 +22,65 @@ serve(async (req: Request) => {
 
   try {
     const { p_invitation } = await req.json();
-    const { email, member_role, token } = p_invitation;
+    const { email, member_role, contest_id } = p_invitation;
 
-    if (!email || !member_role || !token) {
+    if (!email || !member_role || !contest_id) {
       return new Response("Missing required invitation fields", {
         status: 400,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: { "Access-Control-Allow-Origin": "*" },
       });
     }
 
-    // Chiamata alla RPC create_invitation
-    const { data, error } = await supabase.rpc("create_invitation", { p_invitation });
+    // 1) Genera un token di 14 caratteri via RPC
+    const {
+      data: token,
+      error: tokenError
+    } = await supabase
+      .rpc("gen_unique_token", {
+        p_table: "invitations",
+        p_column: "token",
+        p_length: 14,
+      });
 
-    if (error) {
-      console.error("DB Error:", error);
-      return new Response(`Database error: ${error.message}`, {
+    if (tokenError) {
+      console.error("Token RPC Error:", tokenError);
+      return new Response(`Error generating token: ${tokenError.message}`, {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: { "Access-Control-Allow-Origin": "*" },
+      });
+    }
+    if (typeof token !== "string") {
+      console.error("Invalid token returned:", token);
+      return new Response("Error: invalid token format", {
+        status: 500,
+        headers: { "Access-Control-Allow-Origin": "*" },
       });
     }
 
-    // Invio email
+    // 2) Inserisci l’invitation con quel token
+    const { error: insertError } = await supabase
+      .from("invitations")
+      .insert(
+        [
+          {
+            contest_id,
+            email,
+            member_role,
+            token,
+          },
+        ],
+        { returning: "minimal" }
+      );
+
+    if (insertError) {
+      console.error("DB Insert Error:", insertError);
+      return new Response(`Database insert error: ${insertError.message}`, {
+        status: 500,
+        headers: { "Access-Control-Allow-Origin": "*" },
+      });
+    }
+
+    // 3) Componi e invia l’email con Resend
     const subject =
       member_role === "juror"
         ? "You have been invited to vote in a contest"
@@ -74,27 +108,22 @@ serve(async (req: Request) => {
 
     if (!emailRes.ok) {
       const errorText = await emailRes.text();
+      console.error("Resend Error:", errorText);
       return new Response(`Error sending email: ${errorText}`, {
         status: emailRes.status,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: { "Access-Control-Allow-Origin": "*" },
       });
     }
 
     return new Response("Invitation created and email sent!", {
       status: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: { "Access-Control-Allow-Origin": "*" },
     });
-  } catch (error) {
-    console.error("Server Error:", error);
-    return new Response("Internal Server Error: " + error, {
+  } catch (err) {
+    console.error("Server Error:", err);
+    return new Response("Internal Server Error", {
       status: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: { "Access-Control-Allow-Origin": "*" },
     });
   }
 });

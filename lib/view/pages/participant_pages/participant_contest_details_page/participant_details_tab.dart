@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
@@ -19,7 +20,7 @@ class ParticipantDetailsTab extends StatefulWidget {
 }
 
 class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
-  late User user;
+  late Profile profile;
   late String contestId;
 
   @override
@@ -32,11 +33,11 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<ParticipantContestDetailsPageBloc>().state;
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
     if (state.status.isInitial) {
       context
           .read<ParticipantContestDetailsPageBloc>()
-          .add(ParticipantContestDetailsPageInit(contestId: contestId,participantId: user.id));
+          .add(ParticipantContestDetailsPageInit(contestId: contestId,participantId: profile.id));
     }
   }
 
@@ -55,7 +56,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                 return RefreshIndicator.adaptive(
                   onRefresh: () async => context
                       .read<ParticipantContestDetailsPageBloc>()
-                      .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: user.id)),
+                      .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: profile.id)),
                   child: ListView(),
                 );
               } else {
@@ -66,7 +67,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
               return RefreshIndicator.adaptive(
                 onRefresh: ()async => context.read<ParticipantContestDetailsPageBloc>().add(
                     ParticipantContestDetailsPageInit(
-                        contestId: contestId, participantId: user.id)),
+                        contestId: contestId, participantId: profile.id)),
                 child: ListView(
                   children: [
                     //* Title

@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/repositories/role_repositories/juror_repository.dart';
+import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'juror_contest_details_page_event.dart';

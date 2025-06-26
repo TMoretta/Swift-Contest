@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
+import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_voting_form_edit_page_event.dart';

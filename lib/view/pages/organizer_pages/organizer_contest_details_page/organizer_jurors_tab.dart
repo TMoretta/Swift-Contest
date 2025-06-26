@@ -147,9 +147,6 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                           return Card(
                                             elevation: 0.2,
                                             child: ListTile(
-                                              title: Text(jurationBundle.juror.fullName),
-                                              subtitle:
-                                                  Text(jurationBundle.juration.invitationEmail),
                                               trailing: IconButton(
                                                 onPressed: () {
                                                   final contestDetailsBundle = state.contestDetailsBundle!;
@@ -167,6 +164,35 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                                   Icons.remove_circle_outline,
                                                   color: Theme.of(context).colorScheme.error,
                                                 ),
+                                              ),
+                                              title: Text(
+                                                jurationBundle.juror.fullName,
+                                                style: Theme.of(context).textTheme.titleMedium,
+                                              ),
+                                              subtitle: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                spacing: 4,
+                                                children: [
+                                                  Text(
+                                                    jurationBundle
+                                                        .juration.invitationEmail,
+                                                    style: Theme.of(context).textTheme.bodyMedium,
+                                                  ),
+                                                  if (jurationBundle.juror.deletedAt !=
+                                                      null)
+                                                    Text(
+                                                      'Deleted account',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .labelLarge
+                                                          ?.copyWith(
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .error),
+                                                    ),
+                                                ],
                                               ),
                                             ),
                                           );
@@ -303,58 +329,50 @@ Future<bool?> _showInviteDialog({required BuildContext context, required String 
             }
           },
           builder: (context, state) {
-            switch (state.status) {
-              case BlocStatus.initial:
-                return SizedBox.shrink();
-              case BlocStatus.loading:
-                return Loader();
-              case BlocStatus.failure:
-              case BlocStatus.success:
-                return AlertDialog(
-                  title: Text(
-                    'Invite a juror',
-                  ),
-                  content: Form(
-                    key: invitationFormKey,
-                    child: CustomTextFormFieldUnderlined(
+            return AlertDialog(
+              title: Text(
+                'Invite a juror',
+              ),
+              content: Form(
+                key: invitationFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    (!state.status.isLoading) ?
+                    CustomTextFormFieldUnderlined(
                       controller: emailController,
                       label: 'Email',
                       validator: _emailValidator,
-                    ),
-                  ),
-                  actions: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: (!state.status.isLoading)
-                              ? () {
-                                  context.pop();
-                                }
-                              : null,
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: (!state.status.isLoading)
-                              ? () {
-                                  if (invitationFormKey.currentState?.validate() ?? false) {
-                                    context
-                                        .read<OrganizerContestDetailsPageBloc>()
-                                        .add(OrganizerContestDetailsPageSendJurorInvite(
-                                          contestId: contestId,
-                                          email: emailController.text.trim(),
-                                        ));
-                                    // context.pop();
-                                  }
-                                }
-                              : null,
-                          child: const Text('Ok'),
-                        ),
-                      ],
-                    )
+                    ) : Loader(),
                   ],
-                );
-            }
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: (!state.status.isLoading)
+                      ? () {
+                    context.pop();
+                  }
+                      : null,
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: (!state.status.isLoading)
+                      ? () {
+                    if (invitationFormKey.currentState?.validate() ?? false) {
+                      context
+                          .read<OrganizerContestDetailsPageBloc>()
+                          .add(OrganizerContestDetailsPageSendJurorInvite(
+                        contestId: contestId,
+                        email: emailController.text.trim(),
+                      ));
+                    }
+                  }
+                      : null,
+                  child: const Text('Ok'),
+                ),
+              ],
+            );
           },
         ),
       );

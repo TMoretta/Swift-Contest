@@ -87,3 +87,60 @@ class Participation extends Equatable {
         hasSubmitted,
       ];
 }
+
+class ParticipationNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? contestId;
+  final String? participantId;
+  final ParticipantStatus? participantStatus;
+  final String? invitationEmail;
+  final bool? hasSubmitted;
+
+  const ParticipationNullable({
+    this.id,
+    this.createdAt,
+    this.contestId,
+    this.participantId,
+    this.participantStatus,
+    this.invitationEmail,
+    this.hasSubmitted,
+  });
+
+  factory ParticipationNullable.fromJson(Map<String, dynamic> json) {
+    return ParticipationNullable(
+      id: json['id'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
+      contestId: json['contest_id'] as String?,
+      participantId: json['participant_id'] as String?,
+      participantStatus: json['participant_status'] != null
+          ? ParticipantStatus.values.byName(json['participant_status'] as String)
+          : null,
+      invitationEmail: json['invitation_email'] as String?,
+      hasSubmitted: json['has_submitted'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'contest_id': contestId,
+      'participant_id': participantId,
+      'participant_status': participantStatus?.name,
+      'invitation_email': invitationEmail,
+      'has_submitted': hasSubmitted,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        createdAt,
+        contestId,
+        participantId,
+        participantStatus,
+        invitationEmail,
+        hasSubmitted,
+      ];
+}

@@ -1,14 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/bundles/juror_votes_raw_bundle.dart';
+import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_result_bundle.dart';
+import 'package:swift_contest/model/trash/juror_votes_raw_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
-import 'package:swift_contest/model/bundles/voting_session_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/data_models/voting_form.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_exclusion.dart';
@@ -23,21 +23,24 @@ abstract interface class OrganizerRepository {
 
   Future<Either<Failure, ContestDetailsBundle>> getContestDetails({required String contestId});
 
-  Future<Either<Failure, VotingSessionBundle>> getVotingSessionDetails({
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
     required String votingSessionId,
   });
 
   Future<Either<Failure, Unit>> createContest({
-    required Contest contest,
-    required Place place,
-    required VotingForm votingForm,
+    required ContestNullable contest,
+    required PlaceNullable place,
   });
 
-  Future<Either<Failure, Unit>> sendInvite({required Invitation invitation});
+  Future<Either<Failure, Unit>> sendInvite({required InvitationNullable invitation});
 
   Future<Either<Failure, Unit>> updateVotingFormFields({
     required String votingFormId,
-    required List<VotingFormField> votingFormFields,
+    required List<VotingFormFieldNullable> votingFormFields,
   });
 
   Future<Either<Failure, Unit>> deleteInvitation({required String invitationId});
@@ -54,14 +57,13 @@ abstract interface class OrganizerRepository {
     required String messageBody,
   });
 
-  Future<Either<Failure, Unit>> initVotingSession({
-    required VotingForm votingForm,
-    required List<VotingFormField> votingFormFields,
-    required Place? geoRestrictionPlace,
-    required VotingSession votingSession,
-    required List<VotingSessionParticipation> votingSessionParticipations,
-    required List<VotingSessionJuration> votingSessionJurations,
-    required List<VotingSessionExclusion> votingSessionExclusions,
+  Future<Either<Failure, VotingSession>> initVotingSession({
+    required List<VotingFormFieldNullable> votingFormFields,
+    required PlaceNullable? geoRestrictionPlace,
+    required VotingSessionNullable votingSession,
+    required List<VotingSessionParticipationNullable> votingSessionParticipations,
+    required List<VotingSessionJurationNullable> votingSessionJurations,
+    required List<VotingSessionExclusionNullable> votingSessionExclusions,
   });
 
   Future<Either<Failure, Unit>> startVotingSession({
@@ -133,17 +135,36 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure, VotingSessionBundle>> getVotingSessionDetails({
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   }) async {
     try {
       final List<Map<String, dynamic>> res = await _supabase.rpc(
-          'organizer_get_voting_session_details',
+          'organizer_get_voting_session_procedure_bundle',
           params: {'p_voting_session_id': votingSessionId});
       if (res.isEmpty) {
         return left(Failure(message: 'Voting session not found'));
       }
-      return right(VotingSessionBundle.fromRpcJson(res.first));
+      return right(VotingSessionProcedureBundle.fromRpcJson(res.first));
+    } on PostgrestException catch (e) {
+      return Left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
+    required String votingSessionId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'organizer_get_voting_session_result_bundle',
+          params: {'p_voting_session_id': votingSessionId});
+      if (res.isEmpty) {
+        return left(Failure(message: 'Voting session not found'));
+      }
+      return right(VotingSessionResultBundle.fromRpcJson(res.first));
     } on PostgrestException catch (e) {
       return Left(Failure(message: e.message));
     } catch (e) {
@@ -153,15 +174,13 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> createContest({
-    required Contest contest,
-    required Place place,
-    required VotingForm votingForm,
+    required ContestNullable contest,
+    required PlaceNullable place,
   }) async {
     try {
       await _supabase.rpc('organizer_create_contest', params: {
         'p_contest': contest.toJson(),
         'p_place': place.toJson(),
-        'p_voting_form': votingForm.toJson(),
       });
       return right(unit);
     } on PostgrestException catch (e) {
@@ -173,13 +192,17 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> sendInvite({
-    required Invitation invitation,
+    required InvitationNullable invitation,
   }) async {
     try {
       final FunctionResponse res = await _supabase.functions
           .invoke('organizer-send-invite', body: {'p_invitation': invitation.toJson()});
       if (res.status != 200) {
-        return left(Failure(message: 'Failed to send invite'));
+        final serverMessage = res.data is String
+            ? res.data as String
+            : 'Failed to send invite';
+
+        return left(Failure(message: serverMessage));
       }
       return right(unit);
     } on PostgrestException catch (e) {
@@ -192,7 +215,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> deleteInvitation({required String invitationId}) async {
     try {
-      await _supabase.rpc('organizer_delete_invitation_by_id', params: {
+      await _supabase.rpc('organizer_delete_invitation', params: {
         'p_invitation_id': invitationId,
       });
       return right(unit);
@@ -246,7 +269,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> updateVotingFormFields({
     required String votingFormId,
-    required List<VotingFormField> votingFormFields,
+    required List<VotingFormFieldNullable> votingFormFields,
   }) async {
     try {
       await _supabase.rpc('organizer_update_voting_form_fields', params: {
@@ -262,20 +285,18 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> initVotingSession({
-    required VotingForm votingForm,
-    required List<VotingFormField> votingFormFields,
-    required Place? geoRestrictionPlace,
-    required VotingSession votingSession,
-    required List<VotingSessionParticipation> votingSessionParticipations,
-    required List<VotingSessionJuration> votingSessionJurations,
-    required List<VotingSessionExclusion> votingSessionExclusions,
+  Future<Either<Failure, VotingSession>> initVotingSession({
+    required List<VotingFormFieldNullable> votingFormFields,
+    required PlaceNullable? geoRestrictionPlace,
+    required VotingSessionNullable votingSession,
+    required List<VotingSessionParticipationNullable> votingSessionParticipations,
+    required List<VotingSessionJurationNullable> votingSessionJurations,
+    required List<VotingSessionExclusionNullable> votingSessionExclusions,
   }) async {
     try {
-      await _supabase.rpc('organizer_init_voting_session', params: {
-        'p_voting_form': votingForm.toJson(),
+      final Map<String,dynamic> res = await _supabase.rpc('organizer_init_voting_session', params: {
         'p_voting_form_fields': votingFormFields.map((e) => e.toJson()).toList(growable: false),
-        'p_place': geoRestrictionPlace?.toJson(),
+        'p_geores_place': geoRestrictionPlace?.toJson(),
         'p_voting_session': votingSession.toJson(),
         'p_voting_session_participations':
             votingSessionParticipations.map((e) => e.toJson()).toList(growable: false),
@@ -284,7 +305,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
         'p_voting_session_exclusions':
             votingSessionExclusions.map((e) => e.toJson()).toList(growable: false),
       });
-      return right(unit);
+      return right(VotingSession.fromJson(res));
     } on PostgrestException catch (e) {
       return Left(Failure(message: e.message));
     } catch (e) {

@@ -74,3 +74,34 @@ class Invitation extends Equatable {
   List<Object?> get props => [id, createdAt, contestId, token, email, memberRole, token];
 }
 
+class InvitationNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? contestId;
+  final String? token;
+  final String? email;
+  final MemberRole? memberRole;
+
+  const InvitationNullable({
+    this.id,
+    this.createdAt,
+    this.contestId,
+    this.token,
+    this.email,
+    this.memberRole,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'contest_id': contestId,
+      'token': token,
+      'email': email,
+      'member_role': memberRole?.name,
+    };
+  }
+
+  @override
+  List<Object?> get props => [id, createdAt, contestId, token, email, memberRole];
+}

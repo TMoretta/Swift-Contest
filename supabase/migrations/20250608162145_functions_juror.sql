@@ -130,7 +130,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- JUROR JOIN CONTEST
-CREATE OR REPLACE FUNCTION juror_join_contest(
+CREATE OR REPLACE FUNCTION juror_join_contest (
   p_juror_id uuid,
   p_token varchar
 )
@@ -157,6 +157,10 @@ BEGIN
     RAISE EXCEPTION 'No contest found with the provided invitation';
   END IF;
 
+  IF (v_contest.deleted_at IS NOT null) THEN
+    RAISE EXCEPTION 'The contest has been deleted';
+  END IF;
+
   SELECT * INTO v_juration FROM jurations
   WHERE contest_id = v_contest_id AND juror_id = p_juror_id
   LIMIT 1;
@@ -173,15 +177,11 @@ BEGIN
     END IF;
   ELSE
     INSERT INTO jurations (
-      id,
-      created_at,
       contest_id,
       juror_id,
       juror_status,
       invitation_email
     ) VALUES (
-      gen_random_uuid(),
-      now(),
       v_contest_id,
       p_juror_id,
       'joined',
@@ -201,7 +201,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- JUROR GET VOTING SESSION DETAILS
-CREATE OR REPLACE FUNCTION juror_get_voting_session_details (
+CREATE OR REPLACE FUNCTION juror_get_voting_session_procedure_bundle (
   p_voting_session_id uuid
 )
 RETURNS TABLE (
@@ -213,6 +213,7 @@ RETURNS TABLE (
   voting_form jsonb,
   voting_form_fields jsonb,
   voting_session jsonb,
+  geo_res_place jsonb,
   voting_session_participations jsonb,
   voting_session_jurations jsonb,
   voting_session_exclusions jsonb
@@ -283,6 +284,8 @@ BEGIN
       ) AS voting_form_fields,
       -- single voting session requested
       to_jsonb(ses) AS voting_session,
+      -- optional geographic restriction place (can be null)
+      to_jsonb(geopla) AS geo_res_place,
       -- participations in this voting session
       COALESCE(
         (SELECT jsonb_agg(to_jsonb(vsp))
@@ -309,8 +312,8 @@ BEGIN
       ) AS voting_session_exclusions
 
     FROM voting_sessions ses
-    JOIN contests c
-      ON ses.contest_id = c.id
+    JOIN contests c ON ses.contest_id = c.id
+    LEFT JOIN places geopla ON ses.geo_res_place_id = geopla.id
     WHERE ses.id = p_voting_session_id
     LIMIT 1;
 
@@ -331,15 +334,24 @@ CREATE OR REPLACE FUNCTION juror_submit_votes(
 )
 RETURNS void AS $$
 DECLARE
-    v_juration jurations;
-    v_voting_session_juration voting_session_jurations;
-    v_juror_voting juror_votings;
-    v_vot_session_participation_id uuid;
-    v_voting_form_field_id uuid;
-    v_value int;
-    v_votes jsonb;
-    v_vote record;
+  v_contest contests;
+  v_juration jurations;
+  v_voting_session_juration voting_session_jurations;
+  v_juror_voting juror_votings;
+  v_vot_session_participation_id uuid;
+  v_voting_form_field_id uuid;
+  v_value int;
+  v_votes jsonb;
+  v_vote record;
 BEGIN
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id;
+
+  IF (v_contest.deleted_at IS NOT null) THEN
+    RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
+  END IF;
 
   SELECT *
   INTO v_juration
@@ -367,8 +379,8 @@ BEGIN
     FROM jsonb_each(p_votes_per_participant_map) AS js(key, value)
   LOOP
     -- Create JurorVoting
-    INSERT INTO juror_votings (id, created_at, voting_session_juration_id, voting_session_participation_id)
-    VALUES (gen_random_uuid(), now(), v_voting_session_juration.id, v_vot_session_participation_id::uuid)
+    INSERT INTO juror_votings (voting_session_juration_id, voting_session_participation_id)
+    VALUES (v_voting_session_juration.id, v_vot_session_participation_id)
     RETURNING id INTO v_juror_voting.id;
 
     -- Step 4: Iterate over votes for each participation
@@ -378,11 +390,8 @@ BEGIN
       FROM jsonb_each(v_votes) AS js2(key, value)
     LOOP
       -- ora v_voting_form_field_id e v_value sono già valorizzati
-      INSERT INTO juror_votes (
-        id, created_at, juror_voting_id, voting_form_field_id, value
-      ) VALUES (
-        gen_random_uuid(),
-        now(),
+      INSERT INTO juror_votes (juror_voting_id, voting_form_field_id, value)
+      VALUES (
         v_juror_voting.id,
         v_voting_form_field_id,
         v_value
@@ -419,3 +428,129 @@ BEGIN
     LIMIT 1;
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
+
+CREATE OR REPLACE FUNCTION juror_access_voting_as_simple_juror (
+  p_full_name varchar,
+  p_token varchar,
+  p_juror_id uuid DEFAULT null
+)
+RETURNS TABLE (
+  simple_juror simple_jurors,
+  voting_session voting_sessions
+) AS $$
+DECLARE
+  v_voting_session voting_sessions;
+  v_simple_juror simple_jurors;
+  v_voting_session_simple_juror voting_session_simple_jurors;
+BEGIN
+
+  --todo controllo se simple jurors sono allowed
+
+  SELECT * INTO STRICT v_voting_session
+  FROM voting_sessions
+  WHERE token = p_token;
+
+  INSERT INTO simple_jurors (full_name)
+  VALUES (p_full_name)
+  RETURNING * INTO STRICT v_simple_juror;
+
+  INSERT INTO voting_session_simple_jurors (voting_session_id, simple_juror_id)
+  VALUES (v_voting_session.id,v_simple_juror.id);
+
+  RETURN QUERY
+    SELECT v_simple_juror, v_voting_session;
+
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+-- SIMPLE JUROR SUBMIT VOTES
+CREATE OR REPLACE FUNCTION simple_juror_submit_votes(
+    p_simple_juror_id uuid,
+    p_voting_session_id uuid,
+    p_contest_id uuid,
+    p_votes_per_participant_map jsonb
+)
+RETURNS void AS $$
+DECLARE
+  v_contest contests;
+  v_simple_juror simple_jurors;
+  v_voting_session_simple_juror voting_session_simple_jurors;
+  v_simple_juror_voting simple_juror_votings;
+  v_vot_session_participation_id uuid;
+  v_voting_form_field_id uuid;
+  v_value int;
+  v_votes jsonb;
+  v_vote record;
+BEGIN
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id;
+
+  IF (v_contest.deleted_at IS NOT null) THEN
+    RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
+  END IF;
+
+  SELECT *
+  INTO v_simple_juror
+  FROM simple_jurors
+  WHERE id = p_simple_juror_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Juror member not found';
+  END IF;
+
+  -- Step 2: Retrieve the VotingSessionJuration
+  SELECT *
+  INTO v_voting_session_simple_juror
+  FROM voting_session_simple_jurors
+  WHERE voting_session_id = p_voting_session_id AND simple_juror_id = p_simple_juror_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Simple juror member not found';
+  END IF;
+
+  -- Step 3: Iterate over votesPerParticipantMap
+  FOR v_vot_session_participation_id, v_votes
+      IN
+    SELECT js.key::uuid, js.value
+    FROM jsonb_each(p_votes_per_participant_map) AS js(key, value)
+  LOOP
+    -- Create JurorVoting
+    INSERT INTO simple_juror_votings (voting_session_simple_juror_id, voting_session_participation_id)
+    VALUES (v_voting_session_simple_juror.id, v_vot_session_participation_id)
+    RETURNING id INTO v_simple_juror_voting.id;
+
+    -- Step 4: Iterate over votes for each participation
+    FOR v_voting_form_field_id, v_value
+        IN
+      SELECT js2.key::uuid, (js2.value)::int
+      FROM jsonb_each(v_votes) AS js2(key, value)
+    LOOP
+      -- ora v_voting_form_field_id e v_value sono già valorizzati
+      INSERT INTO simple_juror_votes (simple_juror_voting_id, voting_form_field_id, value)
+      VALUES (
+        v_simple_juror_voting.id,
+        v_voting_form_field_id,
+        v_value
+      );
+    END LOOP;
+  END LOOP;
+
+  -- Step 5: Update VotingSessionJuration
+  UPDATE voting_session_simple_jurors
+  SET has_submitted = true
+  WHERE id = v_voting_session_simple_juror.id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while submitting';
+  END IF;
+
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An error occurred while submitting';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+

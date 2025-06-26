@@ -30,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthFetchProfileMessages>(_fetchProfileMessages);
     on<AuthFetchUserInfo>(_fetchUserInfo);
     on<AuthSignOut>(_signOut);
+    on<AuthDeleteUser>(_deleteUser);
     on<AuthEditPrefTheme>(_editPrefTheme);
     on<AuthEditPrefRole>(_editPrefRole);
     on<AuthEditFullName>(_editFullName);
@@ -49,7 +50,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
 
     late final AuthBundle? authBundle;
-    final eitherAuthBundle = await _authRepository.getUserInfo();
+    final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
     eitherAuthBundle.fold(
       (failure) => emit(state.copyWith(
           blocStatus: BlocStatus.failure,
@@ -57,6 +58,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message: failure.message)),
       (success) => authBundle = success,
     );
+    if(eitherAuthBundle.isLeft()) {
+      return;
+    }
 
     if (authBundle != null) {
       emit(state.copyWith(
@@ -77,7 +81,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
-    final eitherAuthBundle = await _authRepository.getUserInfo();
+    final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
     eitherAuthBundle.fold(
         (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
         (success) {
@@ -227,6 +231,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final eitherMarkMessageAsRead =
         await _authRepository.markMessageAsRead(messageId: event.messageId);
     eitherMarkMessageAsRead.fold(
+      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _deleteUser(
+    AuthDeleteUser event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
+
+    final eitherDeleteUser = await _authRepository.deleteCurrentUser();
+    eitherDeleteUser.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
     );

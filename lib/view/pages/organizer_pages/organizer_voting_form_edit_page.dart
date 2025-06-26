@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -25,7 +23,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   late String votingFormId;
   bool isFieldsListInitialized = false;
   bool isEdited = false;
-  final List<VotingFormField> updatedFields = [];
+  final List<VotingFormFieldNullable> updatedFields = [];
 
   @override
   void initState() {
@@ -97,41 +95,47 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                   }
                 successCase:
                 case BlocStatus.success:
-                  if(!isFieldsListInitialized) {
+                  if (!isFieldsListInitialized) {
                     isFieldsListInitialized = true;
-                    updatedFields.addAll(state.votingFormBundle!.votingFormFields);
+                    updatedFields.addAll(
+                        state.votingFormBundle!.votingFormFields.map((e) => VotingFormFieldNullable(
+                              name: e.name,
+                              minValue: e.minValue,
+                              maxValue: e.maxValue,
+                              orderIndex: e.orderIndex,
+                            )));
                   }
                   return (updatedFields.isEmpty)
                       ? Center(
-                    child: Text(
-                      'No field added yet',
-                    ),
-                  )
+                          child: Text(
+                            'No field added yet',
+                          ),
+                        )
                       : Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: ListView.builder(
-                      itemCount: updatedFields.length,
-                      itemBuilder: (context, index) {
-                        final field = updatedFields[index];
-                        return Card(
-                          elevation: 0,
-                          child: ListTile(
-                            title: Text(field.name),
-                            subtitle: Text('${field.minValue} - ${field.maxValue}'),
-                            trailing: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isEdited = true;
-                                  updatedFields.remove(field);
-                                });
-                              },
-                              icon: Icon(Icons.remove),
-                            ),
+                          padding: const EdgeInsets.only(top: 8),
+                          child: ListView.builder(
+                            itemCount: updatedFields.length,
+                            itemBuilder: (context, index) {
+                              final field = updatedFields[index];
+                              return Card(
+                                elevation: 0,
+                                child: ListTile(
+                                  title: Text(field.name!),
+                                  subtitle: Text('${field.minValue} - ${field.maxValue}'),
+                                  trailing: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isEdited = true;
+                                        updatedFields.remove(field);
+                                      });
+                                    },
+                                    icon: Icon(Icons.remove),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         );
-                      },
-                    ),
-                  );
               }
             },
           ),
@@ -142,7 +146,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
             return FloatingActionButton(
               onPressed: (!state.status.isLoading)
                   ? () async {
-                      final VotingFormField? newField = await showAddFieldDialog(
+                      final VotingFormFieldNullable? newField = await showAddFieldDialog(
                           context: context,
                           votingFormId: votingFormId,
                           orderIndex: updatedFields.length);
@@ -164,7 +168,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   }
 }
 
-Future<VotingFormField?> showAddFieldDialog({
+Future<VotingFormFieldNullable?> showAddFieldDialog({
   required BuildContext context,
   required String votingFormId,
   required int orderIndex,
@@ -174,7 +178,7 @@ Future<VotingFormField?> showAddFieldDialog({
   final minValueController = TextEditingController();
   final maxValueController = TextEditingController();
 
-  return await showDialog<VotingFormField?>(
+  return await showDialog<VotingFormFieldNullable?>(
     context: context,
     useRootNavigator: false,
     builder: (context) {
@@ -218,10 +222,7 @@ Future<VotingFormField?> showAddFieldDialog({
                   if (formKey.currentState?.validate() ?? false) {
                     final minValueDouble = double.parse(minValueController.text.trim());
                     final maxValueDouble = double.parse(maxValueController.text.trim());
-                    final newField = VotingFormField(
-                      id: genUuid(),
-                      createdAt: now(),
-                      votingFormId: votingFormId,
+                    final newField = VotingFormFieldNullable(
                       orderIndex: orderIndex,
                       name: nameController.text.trim(),
                       minValue: minValueDouble,
@@ -301,4 +302,3 @@ String? _maxValueValidator(String? value, String? minValue) {
 
   return null;
 }
-

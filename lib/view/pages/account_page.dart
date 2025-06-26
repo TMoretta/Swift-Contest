@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -24,6 +25,9 @@ class _AccountPageState extends State<AccountPage> {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
+        if(state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteUser) {
+          context.goNamed(AppRouter.root);
+        }
       },
       child: Scaffold(
         appBar: CustomAppBar(title: 'Account'),
@@ -40,16 +44,12 @@ class _AccountPageState extends State<AccountPage> {
                 return ListView(
                   children: [
                     ListTile(
-                      title: Text(
-                        'Full name',
-                      ),
+                      title: Text('Full name'),
                       titleTextStyle: Theme.of(context)
                           .textTheme
                           .labelLarge
                           ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                      subtitle: Text(
-                        profile.fullName,
-                      ),
+                      subtitle: Text(profile.fullName),
                       subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
                       trailing: IconButton(
                         onPressed: () {
@@ -58,6 +58,12 @@ class _AccountPageState extends State<AccountPage> {
                         icon: Icon(Icons.edit),
                       ),
                     ),
+                    ListTile(
+                      onTap: () {
+                        context.read<AuthBloc>().add(AuthDeleteUser());
+                      },
+                      title: Text('Delete account'),
+                    )
                   ],
                 );
             }
@@ -70,8 +76,7 @@ class _AccountPageState extends State<AccountPage> {
 
 void _showEditFullNameDialog({required BuildContext context}) {
   final authBloc = context.read<AuthBloc>();
-  final fullNameController =
-      TextEditingController(text: authBloc.state.profile!.fullName);
+  final fullNameController = TextEditingController(text: authBloc.state.profile!.fullName);
 
   showDialog(
     context: context,

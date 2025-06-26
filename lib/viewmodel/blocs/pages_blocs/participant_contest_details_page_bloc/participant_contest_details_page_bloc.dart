@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/data_models/participation.dart';
 import 'package:swift_contest/model/data_models/work.dart';
-import 'package:swift_contest/model/repositories/role_repositories/participant_repository.dart';
+import 'package:swift_contest/model/repositories/participant_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'participant_contest_details_page_event.dart';

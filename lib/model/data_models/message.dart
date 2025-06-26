@@ -67,3 +67,55 @@ class Message extends Equatable {
         isRead,
       ];
 }
+
+class MessageNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? profileId;
+  final String? title;
+  final String? body;
+  final bool? isRead;
+
+  const MessageNullable({
+    this.id,
+    this.createdAt,
+    this.profileId,
+    this.title,
+    this.body,
+    this.isRead,
+  });
+
+  factory MessageNullable.fromJson(Map<String, dynamic> json) {
+    return MessageNullable(
+      id: json['id'] as String?,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at']).toLocal()
+          : null,
+      profileId: json['profile_id'] as String?,
+      title: json['title'] as String?,
+      body: json['body'] as String?,
+      isRead: json['is_read'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'profile_id': profileId,
+      'title': title,
+      'body': body,
+      'is_read': isRead,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        createdAt,
+        profileId,
+        title,
+        body,
+        isRead,
+      ];
+}

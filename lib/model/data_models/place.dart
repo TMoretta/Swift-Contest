@@ -64,3 +64,44 @@ class Place extends Equatable {
   @override
   List<Object?> get props => [id, createdAt, address, lat, lon];
 }
+
+class PlaceNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? address;
+  final double? lat;
+  final double? lon;
+
+  const PlaceNullable({
+    this.id,
+    this.createdAt,
+    this.address,
+    this.lat,
+    this.lon,
+  });
+
+  factory PlaceNullable.fromJson(Map<String, dynamic> json) {
+    return PlaceNullable(
+      id: json['id'] as String?,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at']).toLocal()
+          : null,
+      address: json['address'] as String?,
+      lat: json['lat'] as double?,
+      lon: json['lon'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'address': address,
+      'lat': lat,
+      'lon': lon,
+    };
+  }
+
+  @override
+  List<Object?> get props => [id, createdAt, address, lat, lon];
+}

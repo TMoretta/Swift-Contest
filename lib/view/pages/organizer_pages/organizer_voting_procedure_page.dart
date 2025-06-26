@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/voting_session_status.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
@@ -22,13 +22,13 @@ class OrganizerVotingProcedurePage extends StatefulWidget {
 }
 
 class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedurePage> {
-  late User user;
+  late Profile profile;
   late String votingSessionId;
 
   @override
   void initState() {
     super.initState();
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
     votingSessionId = widget.votingSessionId;
     context.read<OrganizerVotingProcedurePageBloc>().add(
         OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure(
@@ -43,12 +43,12 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
           showSnackBar(context: context, text: state.message!);
         }
         if (state.status.isSuccess &&
-            state.votingSessionBundle!.votingSession.sessionStatus == VotingSessionStatus.ended) {
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus == VotingSessionStatus.ended) {
           showSnackBar(context: context, text: 'Voting session ended successfully');
           context.pop(true);
         }
         if (state.status.isSuccess &&
-            state.votingSessionBundle!.votingSession.sessionStatus ==
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
                 VotingSessionStatus.cancelled) {
           showSnackBar(context: context, text: 'Voting session cancelled successfully');
           context.pop(true);
@@ -80,9 +80,9 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                     }
                   successCase:
                   case BlocStatus.success:
-                    final votingSessionBundle = state.votingSessionBundle!;
-                    final votingSession = votingSessionBundle.votingSession;
-                    final sessionStatus = votingSession.sessionStatus;
+                    final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
+                    final votingSessionBundle = votingSessionProcedureBundle.votingSessionBundle;
+                    final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
 
                     switch (sessionStatus) {
                       case VotingSessionStatus.initialized:
@@ -91,7 +91,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Simple juror access token:\n${votingSessionBundle.votingSession.token}',
+                                'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
@@ -100,7 +100,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                 onPressed: () {
                                   context.read<OrganizerVotingProcedurePageBloc>().add(
                                       OrganizerVotingProcedurePageStartVotingSessionProcedure(
-                                          votingSessionId: votingSessionBundle.votingSession.id));
+                                          votingSessionId: votingSessionProcedureBundle.votingSessionBundle.votingSession.id));
                                 },
                                 child: Text('Start'),
                               ),
@@ -108,13 +108,13 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                           ),
                         );
                       case VotingSessionStatus.work:
-                        final currentStepDeadline = votingSession.currentStepDeadline!;
-                        final currentParticipantIndex = votingSession.currentParticipantIndex!;
-                        final currentParticipant = votingSessionBundle
+                        final currentStepDeadline = votingSessionBundle.votingSession.currentStepDeadline!;
+                        final currentParticipantIndex = votingSessionBundle.votingSession.currentParticipantIndex!;
+                        final currentParticipant = votingSessionProcedureBundle
                             .includedVotingSessionParticipationsBundles[currentParticipantIndex]
                             .participationBundle
                             .participant;
-                        final currentWork = votingSessionBundle
+                        final currentWork = votingSessionProcedureBundle
                             .includedVotingSessionParticipationsBundles[currentParticipantIndex]
                             .participationBundle
                             .work!;
@@ -125,7 +125,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                             Align(
                               alignment: Alignment.center,
                               child: Text(
-                                'Simple juror access token:\n${votingSessionBundle.votingSession.token}',
+                                'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
@@ -239,14 +239,14 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                           ],
                         );
                       case VotingSessionStatus.intermission:
-                        final currentStepDeadline = votingSession.currentStepDeadline!;
+                        final currentStepDeadline = votingSessionBundle.votingSession.currentStepDeadline!;
                         return Center(
                           child: Column(
                             key: UniqueKey(),
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Simple juror access token:\n${votingSessionBundle.votingSession.token}',
+                                'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
                                 style: Theme.of(context).textTheme.titleMedium,
                                 textAlign: TextAlign.center,
                               ),
@@ -282,14 +282,14 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                           ),
                         );
                       case VotingSessionStatus.review:
-                        final currentStepDeadline = votingSession.currentStepDeadline!;
+                        final currentStepDeadline = votingSessionBundle.votingSession.currentStepDeadline!;
                         return Center(
                           child: Column(
                             key: UniqueKey(),
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Simple juror access token:\n${votingSessionBundle.votingSession.token}',
+                                'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
                                 style: Theme.of(context).textTheme.titleMedium,
                                 textAlign: TextAlign.center,
                               ),
@@ -349,7 +349,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                 }
               successCase:
               case BlocStatus.success:
-                final votingSession = state.votingSessionBundle!.votingSession;
+                final votingSessionBundle = state.votingSessionProcedureBundle!.votingSessionBundle;
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -358,7 +358,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                       onPressed: () {
                         context.read<OrganizerVotingProcedurePageBloc>().add(
                               OrganizerVotingProcedurePageCancelVotingSessionProcedure(
-                                votingSessionId: votingSession.id,
+                                votingSessionId: votingSessionBundle.votingSession.id,
                               ),
                             );
                       },
@@ -375,13 +375,13 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                             ?.copyWith(color: Theme.of(context).colorScheme.onError),
                       ),
                     ),
-                    if (votingSession.sessionStatus.isReview) const SizedBox(width: 8),
-                    if (votingSession.sessionStatus.isReview)
+                    if (votingSessionBundle.votingSession.sessionStatus.isReview) const SizedBox(width: 8),
+                    if (votingSessionBundle.votingSession.sessionStatus.isReview)
                       FilledButton(
                         onPressed: () {
                           context.read<OrganizerVotingProcedurePageBloc>().add(
                                 OrganizerVotingProcedurePageEndVotingSessionProcedure(
-                                  votingSessionId: votingSession.id,
+                                  votingSessionId: votingSessionBundle.votingSession.id,
                                 ),
                               );
                         },

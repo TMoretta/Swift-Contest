@@ -69,6 +69,10 @@ BEGIN
     RAISE EXCEPTION 'No contest found with the provided invitation';
   END IF;
 
+  IF (v_contest.deleted_at IS NOT null) THEN
+    RAISE EXCEPTION 'The contest has been deleted';
+  END IF;
+
   SELECT * INTO v_participation FROM participations
   WHERE contest_id = v_contest_id AND participant_id = p_participant_id
   LIMIT 1;
@@ -85,21 +89,15 @@ BEGIN
     END IF;
   ELSE
     INSERT INTO participations (
-      id,
-      created_at,
       contest_id,
       participant_id,
       participant_status,
-      invitation_email,
-      has_submitted
+      invitation_email
     ) VALUES (
-      gen_random_uuid(),
-      now(),
       v_contest_id,
       p_participant_id,
       'joined',
-      v_invitation.email,
-      false
+      v_invitation.email
     );
   END IF;
 
@@ -246,8 +244,21 @@ CREATE OR REPLACE FUNCTION participant_submit_work(
 )
 RETURNS void AS $$
 DECLARE
+  v_contest contests;
   v_participation participations;
 BEGIN
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No contest found';
+  END IF;
+
+  IF (v_contest.deleted_at IS NOT null) THEN
+    RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
+  END IF;
 
   SELECT * INTO v_participation
   FROM participations
@@ -261,8 +272,8 @@ BEGIN
     RAISE EXCEPTION 'You have already submitted a work';
   END IF;
 
-  INSERT INTO works (id, created_at, participation_id, name, description, images_urls, file_url)
-  VALUES (gen_random_uuid(), now(), v_participation.id, p_name, p_description, p_images_urls, p_file_url);
+  INSERT INTO works (participation_id, name, description, images_urls, file_url)
+  VALUES (v_participation.id, p_name, p_description, p_images_urls, p_file_url);
 
   UPDATE participations
   SET has_submitted = true

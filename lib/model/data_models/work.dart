@@ -86,3 +86,46 @@ class Work extends Equatable {
         fileUrl,
       ];
 }
+
+class WorkNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? participationId;
+  final String? name;
+  final String? description;
+  final List<String>? imagesUrls;
+  final String? fileUrl;
+
+  const WorkNullable({
+    this.id,
+    this.createdAt,
+    this.participationId,
+    this.name,
+    this.description,
+    this.imagesUrls,
+    this.fileUrl,
+  });
+
+  @override
+  List<Object?> get props => [
+        id,
+        createdAt,
+        participationId,
+        name,
+        description,
+        imagesUrls,
+        fileUrl,
+      ];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'participation_id': participationId,
+      'name': name,
+      'description': description,
+      'images_urls': imagesUrls,
+      'file_url': fileUrl,
+    };
+  }
+}

@@ -1,3 +1,43 @@
+-- GET CONTESTS BUNDLES BY ORGANIZER ID
+
+-- GET CONTESTS BUNDLES BY PARTICIPANT ID
+
+-- GET CONTESTS BUNDLES BY JUROR ID
+
+-- GET CONTEST BUNDLE BY CONTEST ID
+
+-- GET VOTING FORM BUNDLE BY CONTEST ID
+
+-- GET PARTICIPATIONS BUNDLES BY CONTEST ID
+
+-- GET JURATIONS BUNDLES BY CONTEST ID
+
+-- GET INVITATIONS BY CONTEST ID
+
+-- GET VOTING SESSIONS BY CONTEST ID
+
+-- GET VOTING SESSION BUNDLE BY VOTING SESSION ID
+
+-- GET VOTING SESSION EXCLUSIONS BY VOTING SESSION ID
+
+-- GET VOTING SESSION SIMPLE JURORS BUNDLES BY VOTING SESSION ID
+
+-- GET VOTING RESULT RAW BUNDLE
+
+-- GET VOTING RESULT JUROR RAW BUNDLE
+
+-- GET VOTING RESULT SIMPLE JURORS RAW BUNDLE
+
+
+
+
+
+
+
+
+
+
+
 -- ORGANIZER GET CREATED CONTESTS
 CREATE OR REPLACE FUNCTION organizer_get_created_contests (
   p_organizer_id uuid
@@ -131,15 +171,60 @@ $$ LANGUAGE plpgsql SECURITY definer;
 -- ORGANIZER CREATE CONTEST
 CREATE OR REPLACE FUNCTION organizer_create_contest (
   p_contest contests,
-  p_place places,
-  p_voting_form voting_forms
+  p_place places
 )
 RETURNS void AS $$
+DECLARE
+  v_place places;
+  v_voting_form voting_forms;
 BEGIN
 
-  PERFORM create_place(p_place);
-  PERFORM create_voting_form(p_voting_form);
-  PERFORM create_contest(p_contest);
+  INSERT INTO places (
+    address,
+    lat,
+    lon
+  )
+  VALUES (
+    p_place.address,
+    p_place.lat,
+    p_place.lon
+  )
+  RETURNING * INTO STRICT v_place;
+
+  INSERT INTO voting_forms (
+    id,
+    created_at
+  )
+  VALUES (
+    default,
+    default
+  )
+  RETURNING * INTO STRICT v_voting_form;
+
+  INSERT INTO contests (
+    organizer_id,
+    name,
+    description,
+    date_time,
+    works_submission_start,
+    works_submission_end,
+    place_id,
+    contest_status,
+    images_urls,
+    voting_form_id
+  )
+  VALUES (
+    p_contest.organizer_id,
+    p_contest.name,
+    p_contest.description,
+    p_contest.date_time,
+    p_contest.works_submission_start,
+    p_contest.works_submission_end,
+    v_place.id,
+    p_contest.contest_status,
+    p_contest.images_urls,
+    v_voting_form.id
+  );
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -155,13 +240,30 @@ CREATE OR REPLACE FUNCTION organizer_update_voting_form_fields (
   p_voting_form_fields voting_form_fields[]
 )
 RETURNS void AS $$
+DECLARE
+  v_voting_form_field voting_form_fields;
 BEGIN
   DELETE FROM voting_form_fields
   WHERE voting_form_id = p_voting_form_id;
 
   IF array_length(p_voting_form_fields, 1) IS NOT NULL THEN
     FOR i IN 1..array_length(p_voting_form_fields, 1) LOOP
-      PERFORM create_voting_form_field(p_voting_form_fields[i]);
+      v_voting_form_field := p_voting_form_fields[i];
+
+      INSERT INTO voting_form_fields (
+        voting_form_id,
+        name,
+        order_index,
+        min_value,
+        max_value
+      )
+      VALUES (
+        p_voting_form_id,
+        v_voting_form_field.name,
+        v_voting_form_field.order_index,
+        v_voting_form_field.min_value,
+        v_voting_form_field.max_value
+      );
     END LOOP;
   END IF;
 
@@ -175,9 +277,8 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 -- ORGANIZER INIT VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_init_voting_session (
-  p_voting_form voting_forms,
   p_voting_form_fields voting_form_fields[],
-  p_place places,
+  p_geores_place places,
   p_voting_session voting_sessions,
   p_voting_session_participations voting_session_participations[],
   p_voting_session_jurations voting_session_jurations[],
@@ -185,7 +286,13 @@ CREATE OR REPLACE FUNCTION organizer_init_voting_session (
 )
 RETURNS voting_sessions AS $$
 DECLARE
+  v_voting_form voting_forms;
+  v_geores_place places;
   v_voting_session voting_sessions;
+  v_voting_form_field voting_form_fields;
+  v_voting_session_participation voting_session_participations;
+  v_voting_session_juration voting_session_jurations;
+  v_voting_session_exclusion voting_session_exclusions;
 BEGIN
   IF EXISTS (
     SELECT 1
@@ -195,30 +302,123 @@ BEGIN
     RAISE EXCEPTION 'A voting session is already in progress for this contest';
   END IF;
 
-  PERFORM create_voting_form(p_voting_form);
+  INSERT INTO voting_forms (
+    id,
+    created_at
+  )
+  VALUES (
+    default,
+    default
+  )
+  RETURNING * INTO STRICT v_voting_form;
 
   FOR i IN 1..array_length(p_voting_form_fields, 1) LOOP
-    PERFORM create_voting_form_field(p_voting_form_fields[i]);
+    v_voting_form_field := p_voting_form_fields[i];
+    INSERT INTO voting_form_fields (
+      voting_form_id,
+      name,
+      order_index,
+      min_value,
+      max_value
+    )
+    VALUES (
+      v_voting_form.id,
+      v_voting_form_field.name,
+      v_voting_form_field.order_index,
+      v_voting_form_field.min_value,
+      v_voting_form_field.max_value
+    );
   END LOOP;
 
-  IF p_place IS NOT NULL THEN
-    PERFORM create_place(p_place);
+  IF p_geores_place IS NOT NULL THEN
+    INSERT INTO places (
+      address,
+      lat,
+      lon
+    )
+    VALUES (
+      p_geores_place.address,
+      p_geores_place.lat,
+      p_geores_place.lon
+    )
+    RETURNING * INTO STRICT v_geores_place;
   END IF;
 
-  SELECT * INTO STRICT v_voting_session
-  FROM create_voting_session(p_voting_session);
+  INSERT INTO voting_sessions (
+    name,
+    contest_id,
+    are_simple_jurors_allowed,
+    voting_form_id,
+    work_timer,
+    intermission_timer,
+    review_timer,
+    session_status,
+    is_geo_restricted,
+    geo_res_place_id,
+    geo_res_radius
+  )
+  VALUES (
+    p_voting_session.name,
+    p_voting_session.contest_id,
+    p_voting_session.are_simple_jurors_allowed,
+    v_voting_form.id,
+    p_voting_session.work_timer,
+    p_voting_session.intermission_timer,
+    p_voting_session.review_timer,
+    p_voting_session.session_status,
+    p_voting_session.is_geo_restricted,
+    v_geores_place.id,
+    p_voting_session.geo_res_radius
+  )
+  RETURNING * INTO v_voting_session;
 
   FOR i IN 1..array_length(p_voting_session_participations, 1) LOOP
-    PERFORM create_voting_session_participation(p_voting_session_participations[i]);
+    v_voting_session_participation := p_voting_session_participations[i];
+    INSERT INTO voting_session_participations (
+      id,
+      voting_session_id,
+      participation_id,
+      order_index,
+      is_excluded
+    )
+    VALUES (
+      v_voting_session_participation.id,
+      v_voting_session.id,
+      v_voting_session_participation.participation_id,
+      v_voting_session_participation.order_index,
+      v_voting_session_participation.is_excluded
+    );
   END LOOP;
 
   FOR i IN 1..array_length(p_voting_session_jurations, 1) LOOP
-    PERFORM create_voting_session_juration(p_voting_session_jurations[i]);
+    v_voting_session_juration := p_voting_session_jurations[i];
+    INSERT INTO voting_session_jurations (
+      id,
+      voting_session_id,
+      juration_id,
+      is_excluded
+    )
+    VALUES (
+      v_voting_session_juration.id,
+      v_voting_session.id,
+      v_voting_session_juration.juration_id,
+      v_voting_session_juration.is_excluded
+    );
   END LOOP;
 
   IF array_length(p_voting_session_exclusions, 1) IS NOT NULL THEN
     FOR i IN 1..array_length(p_voting_session_exclusions, 1) LOOP
-      PERFORM create_voting_session_exclusion(p_voting_session_exclusions[i]);
+      v_voting_session_exclusion := p_voting_session_exclusions[i];
+      INSERT INTO voting_session_exclusions (
+        voting_session_id,
+        voting_session_juration_id,
+        voting_session_participation_id
+      )
+      VALUES (
+        v_voting_session.id,
+        v_voting_session_exclusion.voting_session_juration_id,
+        v_voting_session_exclusion.voting_session_participation_id
+      );
     END LOOP;
   END IF;
 
@@ -458,8 +658,8 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER GET VOTING SESSION DETAILS
-CREATE OR REPLACE FUNCTION organizer_get_voting_session_details (
+-- ORGANIZER GET VOTING SESSION PROCEDURE BUNDLE
+CREATE OR REPLACE FUNCTION organizer_get_voting_session_procedure_bundle (
   p_voting_session_id uuid
 )
 RETURNS TABLE (
@@ -471,6 +671,7 @@ RETURNS TABLE (
   voting_form jsonb,
   voting_form_fields jsonb,
   voting_session jsonb,
+  geo_res_place jsonb,
   voting_session_participations jsonb,
   voting_session_jurations jsonb,
   voting_session_exclusions jsonb
@@ -541,6 +742,8 @@ BEGIN
       ) AS voting_form_fields,
       -- single voting session requested
       to_jsonb(ses) AS voting_session,
+      -- optional geographic restriction place (can be null)
+      to_jsonb(geopla) AS geo_res_place,
       -- participations in this voting session
       COALESCE(
         (SELECT jsonb_agg(to_jsonb(vsp))
@@ -567,8 +770,8 @@ BEGIN
       ) AS voting_session_exclusions
 
     FROM voting_sessions ses
-    JOIN contests c
-      ON ses.contest_id = c.id
+    JOIN contests c ON ses.contest_id = c.id
+    LEFT JOIN places geopla ON ses.geo_res_place_id = geopla.id
     WHERE ses.id = p_voting_session_id
     LIMIT 1;
 
@@ -631,8 +834,8 @@ BEGIN
   SELECT participant_id FROM participations INTO v_participant_id
   WHERE id = p_participation_id;
 
-  INSERT INTO messages (id, created_at, profile_id, title, body, is_read)
-  VALUES (uuid_generate_v4(), now(), v_participant_id, p_message_title, p_message_body, false);
+  INSERT INTO messages (profile_id, title, body)
+  VALUES (v_participant_id, p_message_title, p_message_body);
 
   UPDATE participations
   SET participant_status = 'out'
@@ -671,8 +874,8 @@ BEGIN
   SELECT juror_id FROM jurations INTO v_juror_id
   WHERE id = p_juration_id;
 
-  INSERT INTO messages (id, created_at, profile_id, title, body, is_read)
-  VALUES (uuid_generate_v4(), now(), v_juror_id, p_message_title, p_message_body, false);
+  INSERT INTO messages (profile_id, title, body)
+  VALUES (v_juror_id, p_message_title, p_message_body);
 
   UPDATE jurations
   SET juror_status = 'out'
@@ -723,13 +926,10 @@ BEGIN
   FOR v_participation IN
     SELECT *
     FROM participations
-    WHERE contest_id = p_contest_id
+    WHERE contest_id = p_contest_id AND participant_status = 'joined'
   LOOP
-    INSERT INTO messages (
-      id, created_at, profile_id, title, body
-    ) VALUES (
-      uuid_generate_v4(),
-      now(),
+    INSERT INTO messages (profile_id, title, body)
+    VALUES (
       v_participation.participant_id,
       v_message_title,
       v_message_body
@@ -740,13 +940,10 @@ BEGIN
   FOR v_juration IN
     SELECT *
     FROM jurations
-    WHERE contest_id = p_contest_id
+    WHERE contest_id = p_contest_id AND juror_status = 'joined'
   LOOP
-    INSERT INTO messages (
-      id, created_at, profile_id, title, body
-    ) VALUES (
-      uuid_generate_v4(),
-      now(),
+    INSERT INTO messages (profile_id, title, body)
+    VALUES (
       v_juration.juror_id,
       v_message_title,
       v_message_body
@@ -754,8 +951,13 @@ BEGIN
   END LOOP;
 
   UPDATE contests
-  SET deleted_at = now()
+  SET
+    contest_status = 'deleted',
+    deleted_at = now()
   WHERE id = p_contest_id;
+
+  DELETE FROM invitations
+  WHERE contest_id = p_contest_id;
 
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -824,10 +1026,191 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+CREATE OR REPLACE FUNCTION organizer_get_voting_session_result_bundle (
+  p_voting_session_id uuid
+)
+RETURNS TABLE (
+  participations                     jsonb,
+  participants                       jsonb,
+  works                              jsonb,
+  jurations                          jsonb,
+  jurors                             jsonb,
+  voting_form                        jsonb,
+  voting_form_fields                 jsonb,
+  voting_session                     jsonb,
+  geo_res_place                      jsonb,
+  voting_session_participations      jsonb,
+  voting_session_jurations           jsonb,
+  voting_session_exclusions          jsonb,
+  simple_jurors                      jsonb,
+  voting_session_simple_jurors       jsonb,
+  raw_jurors_votings                  jsonb,
+  raw_jurors_votes                    jsonb,
+  raw_simple_jurors_votings          jsonb,
+  raw_simple_jurors_votes            jsonb
+) AS $$
+BEGIN
+  RETURN QUERY
+    SELECT
+      -- 1) all participations for the contest
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(p))
+         FROM participations p
+         WHERE p.contest_id = c.id),
+        '[]'::jsonb
+      ) AS participations,
 
+      -- 2) all participant profiles
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(pr))
+         FROM profiles pr
+         JOIN participations p ON pr.id = p.participant_id
+         WHERE p.contest_id = c.id),
+        '[]'::jsonb
+      ) AS participants,
 
+      -- 3) submitted works of joined participants
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(w))
+         FROM works w
+         JOIN participations p ON w.participation_id = p.id
+         WHERE p.contest_id = c.id
+           AND p.has_submitted = TRUE
+           AND p.participant_status = 'joined'),
+        '[]'::jsonb
+      ) AS works,
 
+      -- 4) all juration records
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(j))
+         FROM jurations j
+         WHERE j.contest_id = c.id),
+        '[]'::jsonb
+      ) AS jurations,
 
+      -- 5) juror profiles
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jp))
+         FROM profiles jp
+         JOIN jurations j ON jp.id = j.juror_id
+         WHERE j.contest_id = c.id),
+        '[]'::jsonb
+      ) AS jurors,
+
+      -- 6) associated voting form
+      COALESCE(
+        (SELECT to_jsonb(vf)
+         FROM voting_forms vf
+         WHERE vf.id = c.voting_form_id),
+        'null'::jsonb
+      ) AS voting_form,
+
+      -- 7) fields of that voting form
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(ff))
+         FROM voting_form_fields ff
+         WHERE ff.voting_form_id = c.voting_form_id),
+        '[]'::jsonb
+      ) AS voting_form_fields,
+
+      -- 8) single voting session requested
+      to_jsonb(ses) AS voting_session,
+
+      -- 9) optional geographic restriction place (can be null)
+      to_jsonb(geopla) AS geo_res_place,
+
+      -- 10) participations in this voting session
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vsp))
+         FROM voting_session_participations vsp
+         WHERE vsp.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_participations,
+
+      -- 11) jurations in this voting session
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vsj))
+         FROM voting_session_jurations vsj
+         WHERE vsj.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_jurations,
+
+      -- 12) exclusions in this voting session
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vse))
+         FROM voting_session_exclusions vse
+         WHERE vse.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_exclusions,
+
+      -- 13) all simple jurors (the “who can vote by token”)
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(simjur))
+         FROM simple_jurors simjur
+         JOIN voting_session_simple_jurors vsjs ON simjur.id = vsjs.simple_juror_id
+         WHERE vsjs.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS simple_jurors,
+
+      -- 14) linking table entries for those simple jurors
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vssj))
+         FROM voting_session_simple_jurors vssj
+         WHERE vssj.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_simple_jurors,
+
+      -- 15) raw juror votings
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jv))
+         FROM juror_votings jv
+         JOIN voting_session_jurations vsj ON jv.voting_session_juration_id = vsj.id
+         WHERE vsj.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_juror_votings,
+
+      -- 16) raw juror votes
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jv2))
+         FROM juror_votes jv2
+         JOIN juror_votings jv ON jv2.juror_voting_id = jv.id
+         JOIN voting_session_jurations vsj2 ON jv.voting_session_juration_id = vsj2.id
+         WHERE vsj2.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_juror_votes,
+
+      -- 17) raw simple juror votings
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(sjv))
+         FROM simple_juror_votings sjv
+         JOIN voting_session_simple_jurors vssj ON sjv.voting_session_simple_juror_id = vssj.id
+         WHERE vssj.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_simple_jurors_votings,
+
+      -- 18) raw simple juror votes
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(sjv2))
+         FROM simple_juror_votes sjv2
+         JOIN simple_juror_votings sjv ON sjv2.simple_juror_voting_id = sjv.id
+         JOIN voting_session_simple_jurors vssj2 ON sjv.voting_session_simple_juror_id = vssj2.id
+         WHERE vssj2.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_simple_jurors_votes
+
+    FROM voting_sessions ses
+    JOIN contests c         ON ses.contest_id = c.id
+    LEFT JOIN places geopla ON ses.geo_res_place_id = geopla.id
+    WHERE ses.id = p_voting_session_id
+    LIMIT 1;
+
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An error occurred while getting voting session results bundle';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 

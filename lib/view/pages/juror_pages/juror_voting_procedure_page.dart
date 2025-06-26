@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/voting_session_participation_bundle.dart';
-import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
 import 'package:swift_contest/model/enums/voting_session_status.dart';
@@ -24,18 +24,18 @@ class JurorVotingProcedurePage extends StatefulWidget {
 }
 
 class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
-  late User user;
+  late Profile profile;
   late String votingSessionId;
   Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap = {};
 
   @override
   void initState() {
     super.initState();
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
     votingSessionId = widget.votingSessionId;
     context.read<JurorVotingProcedurePageBloc>().add(
         JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
-            jurorId: user.id, votingSessionId: votingSessionId));
+            jurorId: profile.id, votingSessionId: votingSessionId));
   }
 
   @override
@@ -46,12 +46,12 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           showSnackBar(context: context, text: state.message!);
         }
         if (state.status.isSuccess &&
-            state.votingSessionBundle!.votingSession.sessionStatus == VotingSessionStatus.ended) {
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus == VotingSessionStatus.ended) {
           showSnackBar(context: context, text: 'Voting session procedure is ended');
           context.pop();
         }
         if (state.status.isSuccess &&
-            state.votingSessionBundle!.votingSession.sessionStatus ==
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
                 VotingSessionStatus.cancelled) {
           showSnackBar(
               context: context,
@@ -63,9 +63,9 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           context.pop();
         }
         if(state.status.isSuccess) {
-          final isExcludedFromTheSession = (state.votingSessionBundle!
+          final isExcludedFromTheSession = (state.votingSessionProcedureBundle!
               .excludedVotingSessionJurationsBundles
-              .where((e) => e.jurationBundle.juror.id == user.id)
+              .where((e) => e.jurationBundle.juror.id == profile.id)
               .firstOrNull !=
               null)
               ? true
@@ -94,7 +94,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context.read<JurorVotingProcedurePageBloc>().add(
                             JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
-                                votingSessionId: votingSessionId, jurorId: user.id)),
+                                votingSessionId: votingSessionId, jurorId: profile.id)),
                         child: ListView(),
                       );
                     } else {
@@ -102,13 +102,14 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                     }
                   successCase:
                   case BlocStatus.success:
-                    final votingSessionBundle = state.votingSessionBundle!;
+                    final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
+                    final votingSessionBundle = votingSessionProcedureBundle.votingSessionBundle;
                     final votingSession = votingSessionBundle.votingSession;
-                    final sessionStatus = votingSession.sessionStatus;
-                    final votingFormFields = votingSessionBundle.votingFormBundle.votingFormFields;
-                    final isExcludedFromTheSession = (votingSessionBundle
+                    final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
+                    final votingFormFields = votingSessionProcedureBundle.votingFormBundle.votingFormFields;
+                    final isExcludedFromTheSession = (votingSessionProcedureBundle
                                 .excludedVotingSessionJurationsBundles
-                                .where((e) => e.jurationBundle.juror.id == user.id)
+                                .where((e) => e.jurationBundle.juror.id == profile.id)
                                 .firstOrNull !=
                             null)
                         ? true
@@ -118,9 +119,9 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       return SizedBox.shrink();
                     }
 
-                    final thisVotingSessionJuration = votingSessionBundle
+                    final thisVotingSessionJuration = votingSessionProcedureBundle
                         .includedVotingSessionJurationsBundles
-                        .where((e) => e.jurationBundle.juror.id == user.id)
+                        .where((e) => e.jurationBundle.juror.id == profile.id)
                         .first
                         .votingSessionJuration;
 
@@ -135,19 +136,19 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       case VotingSessionStatus.work:
                         final currentStepDeadline = votingSession.currentStepDeadline!;
                         final currentParticipantIndex = votingSession.currentParticipantIndex!;
-                        final participant = votingSessionBundle
+                        final participant = votingSessionProcedureBundle
                             .votingSessionParticipationsBundles[currentParticipantIndex]
                             .participationBundle
                             .participant;
-                        final work = votingSessionBundle
+                        final work = votingSessionProcedureBundle
                             .votingSessionParticipationsBundles[currentParticipantIndex]
                             .participationBundle
                             .work;
-                        final votingSessionParticipation = votingSessionBundle
+                        final votingSessionParticipation = votingSessionProcedureBundle
                             .votingSessionParticipationsBundles[currentParticipantIndex]
                             .votingSessionParticipation;
 
-                        final isExcludedFromParticipant = (votingSessionBundle
+                        final isExcludedFromParticipant = (votingSessionProcedureBundle
                                     .votingSessionExclusions
                                     .where((e) =>
                                         e.votingSessionJurationId == thisVotingSessionJuration.id &&
@@ -242,12 +243,12 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         floatingActionButton:
             BlocBuilder<JurorVotingProcedurePageBloc, JurorVotingProcedurePageState>(
           builder: (context, state) {
-            if (state.votingSessionBundle == null) {
+            if (state.votingSessionProcedureBundle == null) {
               return SizedBox.shrink();
             }
-            final isExcludedFromTheSession = (state.votingSessionBundle!
+            final isExcludedFromTheSession = (state.votingSessionProcedureBundle!
                 .excludedVotingSessionJurationsBundles
-                .where((e) => e.jurationBundle.juror.id == user.id)
+                .where((e) => e.jurationBundle.juror.id == profile.id)
                 .firstOrNull !=
                 null)
                 ? true
@@ -255,7 +256,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
             if (isExcludedFromTheSession) {
               return SizedBox.shrink();
             }
-            final votingSession = state.votingSessionBundle!.votingSession;
+            final votingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
             if (!votingSession.sessionStatus.isReview) {
               return SizedBox.shrink();
             }
@@ -265,7 +266,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       context
                           .read<JurorVotingProcedurePageBloc>()
                           .add(JurorVotingProcedurePageSubmitVotes(
-                            jurorId: user.id,
+                            jurorId: profile.id,
                             votingSession: votingSession,
                             votesPerParticipantMap: votesPerParticipantMap,
                           ));

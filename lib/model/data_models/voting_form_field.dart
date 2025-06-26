@@ -87,30 +87,46 @@ class VotingFormField extends Equatable {
       ];
 }
 
-// class VotingFormFieldRaw {
-//   final String name;
-//   final int? minValue;
-//   final int? maxValue;
-//
-//   VotingFormFieldRaw({
-//     required this.name,
-//     this.minValue,
-//     this.maxValue,
-//   });
-//
-//   factory VotingFormFieldRaw.fromJson(Map<String, dynamic> json) {
-//     return VotingFormFieldRaw(
-//       name: json['name'] as String,
-//       minValue: json['min_value'] != null ? json['min_value'] as int : null,
-//       maxValue: json['max_value'] != null ? json['max_value'] as int : null,
-//     );
-//   }
-//
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'name': name,
-//       'min_value': minValue,
-//       'max_value': maxValue,
-//     };
-//   }
-// }
+class VotingFormFieldNullable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? votingFormId;
+  final String? name;
+  final int? orderIndex;
+  final double? minValue;
+  final double? maxValue;
+
+  VotingFormFieldNullable({
+    this.id,
+    this.createdAt,
+    this.votingFormId,
+    this.name,
+    this.orderIndex,
+    this.minValue,
+    this.maxValue,
+  });
+
+  factory VotingFormFieldNullable.fromJson(Map<String, dynamic> json) {
+    return VotingFormFieldNullable(
+      id: json['id'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
+      votingFormId: json['voting_form_id'] as String?,
+      name: json['name'] as String?,
+      orderIndex: json['order_index'] as int?,
+      minValue: json['min_value'] as double?,
+      maxValue: json['max_value'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toIso8601String(),
+      'voting_form_id': votingFormId,
+      'name': name,
+      'order_index': orderIndex,
+      'min_value': minValue,
+      'max_value': maxValue,
+    };
+  }
+}

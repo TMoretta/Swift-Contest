@@ -6,10 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/model/enums/member_role.dart';
-import 'package:swift_contest/model/repositories/role_repositories/organizer_repository.dart';
-import 'package:swift_contest/model/repositories/utils_repository.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/utils/functions/now.dart';
+import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_contest_details_page_event.dart';
@@ -18,14 +15,11 @@ part 'organizer_contest_details_page_state.dart';
 
 class OrganizerContestDetailsPageBloc
     extends Bloc<OrganizerContestDetailsPageEvent, OrganizerContestDetailsPageState> {
-  final UtilsRepository _utilsRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerContestDetailsPageBloc({
-    required UtilsRepository utilsRepository,
     required OrganizerRepository organizerRepository,
-  })  : _utilsRepository = utilsRepository,
-        _organizerRepository = organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerContestDetailsPageInit>(_init);
     on<OrganizerContestDetailsPageRefresh>(_refresh);
@@ -74,22 +68,8 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    late final String token;
-    final eitherToken = await _utilsRepository.genUniqueToken(
-        tableName: 'invitations', columnName: 'token', length: 14);
-    eitherToken.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => token = success,
-    );
-    if (eitherToken.isLeft()) {
-      return;
-    }
-
-    final Invitation invitation = Invitation(
-      id: genUuid(),
-      createdAt: now(),
+    final InvitationNullable invitation = InvitationNullable(
       contestId: event.contestId,
-      token: token,
       email: event.email,
       memberRole: MemberRole.participant,
     );
@@ -106,22 +86,8 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    late final String token;
-    final eitherToken = await _utilsRepository.genUniqueToken(
-        tableName: 'invitations', columnName: 'token', length: 14);
-    eitherToken.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => token = success,
-    );
-    if (eitherToken.isLeft()) {
-      return;
-    }
-
-    final Invitation invitation = Invitation(
-      id: genUuid(),
-      createdAt: now(),
+    final InvitationNullable invitation = InvitationNullable(
       contestId: event.contestId,
-      token: token,
       email: event.email,
       memberRole: MemberRole.juror,
     );
@@ -198,7 +164,8 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDeleteContest = await _organizerRepository.deleteContest(contestId: event.contestId);
+    final eitherDeleteContest =
+        await _organizerRepository.deleteContest(contestId: event.contestId);
     eitherDeleteContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

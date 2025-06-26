@@ -79,3 +79,42 @@ class Juration extends Equatable {
         invitationEmail,
       ];
 }
+
+class JurationNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? contestId;
+  final String? jurorId;
+  final JurorStatus? jurorStatus;
+  final String? invitationEmail;
+
+  const JurationNullable({
+    this.id,
+    this.createdAt,
+    this.contestId,
+    this.jurorId,
+    this.jurorStatus,
+    this.invitationEmail,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'contest_id': contestId,
+      'juror_id': jurorId,
+      'juror_status': jurorStatus?.name,
+      'invitation_email': invitationEmail,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        createdAt,
+        contestId,
+        jurorId,
+        jurorStatus,
+        invitationEmail,
+      ];
+}

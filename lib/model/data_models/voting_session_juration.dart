@@ -78,3 +78,42 @@ class VotingSessionJuration extends Equatable {
         isExcluded,
       ];
 }
+
+class VotingSessionJurationNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+  final String? votingSessionId;
+  final String? jurationId;
+  final bool? hasSubmitted;
+  final bool? isExcluded;
+
+  const VotingSessionJurationNullable({
+    this.id,
+    this.createdAt,
+    this.votingSessionId,
+    this.jurationId,
+    this.hasSubmitted,
+    this.isExcluded,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'voting_session_id': votingSessionId,
+      'juration_id': jurationId,
+      'has_submitted': hasSubmitted,
+      'is_excluded': isExcluded,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        createdAt,
+        votingSessionId,
+        jurationId,
+        hasSubmitted,
+        isExcluded,
+      ];
+}

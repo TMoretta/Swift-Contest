@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/user.dart';
+import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -28,7 +28,7 @@ class OrganizerContestCreationPage extends StatefulWidget {
 }
 
 class _OrganizerContestCreationPageState extends State<OrganizerContestCreationPage> {
-  late User user;
+  late Profile profile;
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
@@ -52,7 +52,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   @override
   void initState() {
     super.initState();
-    user = context.read<AuthBloc>().state.user!;
+    profile = context.read<AuthBloc>().state.profile!;
   }
 
   @override
@@ -92,7 +92,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                           OrganizerContestCreationPageCreateContest(
                             name: name,
                             description: description,
-                            organizerId: user.id,
+                            organizerId: profile.id,
                             placeAddress: place!.address,
                             placeLat: place!.lat,
                             placeLon: place!.lon,
@@ -349,15 +349,15 @@ Future<bool?> showImagesDialog({required BuildContext context}) async {
   );
 }
 
-String? _worksSubmissionStartValidator(String? value, DateTime date, DateTime? worksSubmissionEnd) {
+String? _worksSubmissionStartValidator(String? value, DateTime contestDate, DateTime? worksSubmissionEnd) {
   if (value == null || value.isEmpty) {
     return '';
   }
 
   try {
     final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy').parse(value);
-    if (worksSubmissionStart.isAfter(date)) {
-      return 'Can\'t be before contest date';
+    if (worksSubmissionStart.isAfter(contestDate)) {
+      return 'Can\'t be after contest date';
     }
     if (worksSubmissionEnd == null) {
       return null;
@@ -371,15 +371,15 @@ String? _worksSubmissionStartValidator(String? value, DateTime date, DateTime? w
   return null;
 }
 
-String? _worksSubmissionEndValidator(String? value, DateTime date, DateTime? worksSubmissionStart) {
+String? _worksSubmissionEndValidator(String? value, DateTime contestDate, DateTime? worksSubmissionStart) {
   if (value == null || value.isEmpty) {
     return '';
   }
 
   try {
     final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy').parse(value);
-    if (worksSubmissionEnd.isAfter(date)) {
-      return 'Can\'t be before contest date';
+    if (worksSubmissionEnd.isAfter(contestDate)) {
+      return 'Can\'t be after contest date';
     }
     if (worksSubmissionStart == null) {
       return null;

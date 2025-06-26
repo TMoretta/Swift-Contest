@@ -44,3 +44,32 @@ class VotingForm extends Equatable {
   @override
   List<Object?> get props => [id, createdAt];
 }
+
+class VotingFormNullable extends Equatable {
+  final String? id;
+  final DateTime? createdAt;
+
+  const VotingFormNullable({
+    this.id,
+    this.createdAt,
+  });
+
+  factory VotingFormNullable.fromJson(Map<String, dynamic> json) {
+    return VotingFormNullable(
+      id: json['id'] as String?,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at']).toLocal()
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toUtc().toIso8601String(),
+    };
+  }
+
+  @override
+  List<Object?> get props => [id, createdAt];
+}
