@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/bundles/auth_bundle.dart';
+import 'package:swift_contest/model/bundles/user_auth_bundle.dart';
 import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart' as my;
@@ -9,7 +11,7 @@ import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, AuthBundle?>> getCurrentUserAuthBundle();
+  Future<Either<Failure, UserAuthBundle?>> getCurrentUserAuthBundle();
 
   Future<Either<Failure, my.User?>> getCurrentUser();
 
@@ -17,13 +19,15 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, List<Message>>> getCurrentProfileMessages();
 
-  Future<Either<Failure, Unit>> markMessageAsRead({required String messageId});
+  Future<Either<Failure, Message>> markMessageAsRead({required String messageId});
 
   Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
 
   Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme});
 
   Future<Either<Failure, Profile>> updateProfilePrefRole({required ContestRole prefRole});
+
+  Future<Either<Failure, Unit>> deleteCurrentAccount();
 
   Future<Either<Failure, Unit>> signInWithEmail({required String email});
 
@@ -45,8 +49,6 @@ abstract interface class AuthRepository {
   });
 
   Future<Either<Failure, Unit>> signOut();
-
-  Future<Either<Failure,Unit>> deleteCurrentUser();
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -57,17 +59,16 @@ class AuthRepositoryImpl implements AuthRepository {
   Session? get currentSession => _supabase.auth.currentSession;
 
   @override
-  Future<Either<Failure, AuthBundle?>> getCurrentUserAuthBundle() async {
+  Future<Either<Failure, UserAuthBundle?>> getCurrentUserAuthBundle() async {
     try {
-      if (currentSession == null) {
-        return right(null);
-      }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_user_auth_bundle', params: {'p_user_id': currentSession!.user.id});
+          .rpc('get_user_auth_bundle', params: {'p_user_id': currentSession?.user.id});
       if (res.isEmpty) {
         return right(null);
       }
-      return right(AuthBundle.fromRpcJson(res.first));
+      return right(UserAuthBundle.fromRpcJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -78,15 +79,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, my.User?>> getCurrentUser() async {
     try {
-      if (currentSession == null) {
-        return right(null);
-      }
-      final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_user_auth_bundle', params: {'p_user_id': currentSession!.user.id});
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('get_user', params: {'p_user_id': currentSession?.user.id});
       if (res.isEmpty) {
         return right(null);
       }
       return right(my.User.fromJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -97,15 +97,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Profile?>> getCurrentProfile() async {
     try {
-      if (currentSession == null) {
-        return right(null);
-      }
-      final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_profile', params: {'p_user_id': currentSession!.user.id});
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('get_profile', params: {'p_user_id': currentSession?.user.id});
       if (res.isEmpty) {
         return right(null);
       }
       return right(Profile.fromJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -116,12 +115,11 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, List<Message>>> getCurrentProfileMessages() async {
     try {
-      if (currentSession == null) {
-        return left(Failure(message: 'No valid session found'));
-      }
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_profile_messages', params: {'p_user_id': currentSession!.user.id});
+          .rpc('get_profile_messages', params: {'p_user_id': currentSession?.user.id});
       return right(res.map((e) => Message.fromJson(e)).toList(growable: false));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -130,10 +128,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> markMessageAsRead({required String messageId}) async {
+  Future<Either<Failure, Message>> markMessageAsRead({required String messageId}) async {
     try {
-      await _supabase.rpc('mark_message_as_read',params: {'p_message_id' : messageId});
-      return right(unit);
+      final Map<String,dynamic> res = await _supabase.rpc('mark_message_as_read', params: {'p_message_id': messageId});
+      return right(Message.fromJson(res));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -145,10 +145,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Profile>> updateProfileFullName({required String fullName}) async {
     try {
       final Map<String, dynamic> res = await _supabase.rpc('update_profile_full_name', params: {
-        'p_user_id': currentSession!.user.id,
+        'p_user_id': currentSession?.user.id,
         'p_full_name': fullName,
       });
       return right(Profile.fromJson(res));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -162,10 +164,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_role', params: {
-        'p_user_id': currentSession!.user.id,
+        'p_user_id': currentSession?.user.id,
         'p_pref_role': prefRole.name,
       });
       return right(Profile.fromJson(res));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -177,12 +181,29 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme}) async {
     try {
       final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_theme', params: {
-        'p_user_id': currentSession!.user.id,
+        'p_user_id': currentSession?.user.id,
         'p_pref_theme': prefTheme.name,
       });
       return right(Profile.fromJson(res));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteCurrentAccount() async {
+    try {
+      await _supabase.rpc('delete_account', params: {'p_user_id': currentSession?.user.id});
+      _supabase.auth.signOut(scope: SignOutScope.global);
+      return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on AuthException catch (e) {
+      return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
       return left(Failure());
     }
@@ -193,6 +214,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
       return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {
       return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
@@ -209,7 +232,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final List<Map<String, dynamic>> res =
           await _supabase.rpc('get_user_by_email', params: {'p_email': email});
       if (res.isNotEmpty) {
-        return left(Failure(message: 'User already exists. Sign in instead'));
+        return left(Failure(message: 'An account with this email already exists. Sign in instead'));
       }
       await _supabase.auth.signInWithOtp(
         shouldCreateUser: true,
@@ -219,6 +242,8 @@ class AuthRepositoryImpl implements AuthRepository {
         },
       );
       return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {
       return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
@@ -242,6 +267,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return left(Failure(message: 'No valid session found'));
       }
       return right(my.User.fromJson(session.user.toJson()));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {
       return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
@@ -265,6 +292,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return left(Failure(message: 'No valid session found'));
       }
       return right(my.User.fromJson(session.user.toJson()));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {
       return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
@@ -284,6 +313,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return left(Failure(message: 'No valid session found'));
       }
       return right(my.User.fromJson(session.user.toJson()));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {
       return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
@@ -310,6 +341,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return left(Failure(message: 'No valid session found'));
       }
       return right(my.User.fromJson(user.toJson()));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {
       return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {
@@ -322,22 +355,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _supabase.auth.signOut();
       return right(unit);
-    } on AuthException catch (e) {
-      return left(_authExceptionToRepositoryFailure(e));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> deleteCurrentUser() async {
-    try {
-      if (currentSession == null) {
-        return left(Failure(message: 'No valid session found'));
-      }
-      await _supabase.rpc('delete_user',params: {'p_user_id' : currentSession!.user.id});
-      _supabase.auth.signOut(scope: SignOutScope.global);
-      return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {
       return left(_authExceptionToRepositoryFailure(e));
     } catch (e) {

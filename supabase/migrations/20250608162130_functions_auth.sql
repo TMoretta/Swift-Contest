@@ -10,6 +10,11 @@ BEGIN
     new.id,
     (new.raw_user_meta_data->>'full_name')::varchar
   );
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile creation error';
+  END IF;
+
   RETURN new;
 
 EXCEPTION
@@ -17,7 +22,7 @@ EXCEPTION
     RAISE;
   WHEN OTHERS THEN
     RAISE LOG 'Profile creation error: %', SQLERRM;
-    RAISE EXCEPTION 'An error occurred while creating the profile';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -31,7 +36,7 @@ ALTER TABLE auth.users
 DISABLE TRIGGER user_created_trigger;
 
 -- GET USER BY EMAIL
-CREATE OR REPLACE FUNCTION public.get_user_by_email (
+CREATE OR REPLACE FUNCTION get_user_by_email (
   p_email varchar
 )
 RETURNS SETOF auth.users AS $$
@@ -45,7 +50,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting the user';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -59,6 +64,7 @@ RETURNS TABLE (
   messages jsonb
 ) AS $$
 BEGIN
+
   RETURN QUERY
     SELECT
       to_jsonb(u),
@@ -66,8 +72,9 @@ BEGIN
       COALESCE(
         (SELECT jsonb_agg(to_jsonb(m) ORDER BY m.created_at DESC)
         FROM messages m
-        WHERE m.profile_id = p.id
-      ), '[]'::jsonb)
+        WHERE m.profile_id = p.id),
+        '[]'::jsonb
+      )
     FROM auth.users u
     JOIN profiles p ON p.user_id = u.id
     WHERE u.id = p_user_id
@@ -77,7 +84,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting current user info';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -87,6 +94,7 @@ CREATE OR REPLACE FUNCTION get_user (
 )
 RETURNS SETOF auth.users AS $$
 BEGIN
+
   RETURN QUERY
     SELECT * FROM auth.users
     WHERE id = p_user_id
@@ -96,7 +104,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting current user';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -105,6 +113,7 @@ CREATE OR REPLACE FUNCTION get_profile (
 )
 RETURNS SETOF profiles AS $$
 BEGIN
+
   RETURN QUERY
     SELECT * FROM profiles
     WHERE user_id = p_user_id
@@ -114,7 +123,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting current profile';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -136,7 +145,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting current profile messages';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -149,11 +158,22 @@ RETURNS profiles AS $$
 DECLARE
   v_profile profiles;
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM profiles
+    WHERE user_id = p_user_id
+  ) THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
   UPDATE profiles
   SET
     full_name = p_full_name
   WHERE user_id = p_user_id
-  RETURNING * INTO STRICT v_profile;
+  RETURNING * INTO v_profile;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating profile';
+  END IF;
 
   RETURN v_profile;
 
@@ -161,7 +181,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while updating full name';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -174,11 +194,22 @@ RETURNS profiles AS $$
 DECLARE
   v_profile profiles;
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM profiles
+    WHERE user_id = p_user_id
+  ) THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
   UPDATE profiles
   SET
     pref_theme = p_pref_theme
   WHERE user_id = p_user_id
-  RETURNING * INTO STRICT v_profile;
+  RETURNING * INTO v_profile;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating profile';
+  END IF;
 
   RETURN v_profile;
 
@@ -186,7 +217,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while updating preferred theme';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -199,11 +230,22 @@ RETURNS profiles AS $$
 DECLARE
   v_profile profiles;
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM profiles
+    WHERE user_id = p_user_id
+  ) THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
   UPDATE profiles
   SET
     pref_role = p_pref_role
   WHERE user_id = p_user_id
-  RETURNING * INTO STRICT v_profile;
+  RETURNING * INTO v_profile;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating profile';
+  END IF;
 
   RETURN v_profile;
 
@@ -211,7 +253,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while updating preferred role';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -219,26 +261,48 @@ $$ LANGUAGE plpgsql SECURITY definer;
 CREATE OR REPLACE FUNCTION mark_message_as_read (
   p_message_id uuid
 )
-RETURNS void AS $$
+RETURNS messages AS $$
+DECLARE
+  v_message messages;
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM messages
+    WHERE id = p_message_id
+  ) THEN
+    RAISE EXCEPTION 'Message not found';
+  END IF;
+
   UPDATE messages
   SET is_read = 'true'
-  WHERE id = p_message_id;
+  WHERE id = p_message_id
+  RETURNING * INTO v_message;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating message';
+  END IF;
+
+  RETURN v_message;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while marking message as read';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- DELETE USER
-CREATE OR REPLACE FUNCTION delete_user (
+CREATE OR REPLACE FUNCTION delete_account (
   p_user_id uuid
 )
 RETURNS void AS $$
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = p_user_id
+  ) THEN
+    RAISE EXCEPTION 'Account not found';
+  END IF;
 
   UPDATE profiles
   SET
@@ -246,8 +310,21 @@ BEGIN
     deleted_at = now()
   WHERE user_id = p_user_id;
 
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while deleting account';
+  END IF;
+
   DELETE FROM auth.users
   WHERE id = p_user_id;
 
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while deleting account';
+  END IF;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;

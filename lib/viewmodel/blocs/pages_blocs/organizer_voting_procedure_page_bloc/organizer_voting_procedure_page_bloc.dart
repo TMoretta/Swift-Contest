@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
+import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -16,11 +17,16 @@ part 'organizer_voting_procedure_page_state.dart';
 
 class OrganizerVotingProcedurePageBloc
     extends Bloc<OrganizerVotingProcedurePageEvent, OrganizerVotingProcedurePageState> {
+  final GenericRepository _genericRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingProcedurePageBloc({
+    required GenericRepository genericRepository,
     required OrganizerRepository organizerRepository,
-  })  : _organizerRepository = organizerRepository,
+  })  :
+
+        _genericRepository = genericRepository,
+        _organizerRepository = organizerRepository,
         super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
     on<OrganizerVotingProcedurePageStartVotingSessionProcedure>(_startVotingProcedure);
     on<OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure>(
@@ -51,7 +57,7 @@ class OrganizerVotingProcedurePageBloc
 
     //* Getting the voting session bundle
     late final VotingSessionProcedureBundle votingSessionBundle;
-    final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionProcedureBundle(
+    final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),

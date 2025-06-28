@@ -5,22 +5,25 @@ import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/functions/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/pull_to_refresh_hint.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class RootPage extends StatefulWidget {
-  const RootPage({super.key});
+  final int delay;
+  const RootPage({this.delay = 0, super.key});
 
   @override
   State<RootPage> createState() => _RootPageState();
 }
 
 class _RootPageState extends State<RootPage> {
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthInit(delay: 0));
+    context.read<AuthBloc>().add(AuthInit(delay: widget.delay));
   }
 
   @override
@@ -53,31 +56,82 @@ class _RootPageState extends State<RootPage> {
       },
       child: Scaffold(
         body: SafeArea(
-          child: Center(
-            child: BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                switch (state.blocStatus) {
-                  case BlocStatus.initial:
-                    return SizedBox.shrink();
-                  case BlocStatus.failure:
-                    return Column(
+          child: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              switch (state.blocStatus) {
+                case BlocStatus.failure:
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Stack(
+                        alignment: Alignment.center,
+                        fit: StackFit.expand,
+                        children: [
+                          if (state.blocStatus.isFailure)
+                            Positioned(
+                              top: 4,
+                              child: PullToRefreshHint(),
+                            ),
+                          RefreshIndicator.adaptive(
+                            onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                            child: SingleChildScrollView(
+                              physics: AlwaysScrollableScrollPhysics(),
+                              child: SizedBox(
+                                height: constraints.maxHeight,
+                                child: Center(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'Swift Contest',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displayMedium!
+                                          .copyWith(color: Theme.of(context).colorScheme.primary),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                case BlocStatus.loading:
+                  return Center(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FilledButton(
-                          onPressed: () {
-                            context.read<AuthBloc>().add(AuthInit(delay: 0));
-                          },
-                          child: Text('Retry'),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Swift Contest',
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium!
+                                .copyWith(color: Theme.of(context).colorScheme.primary),
+                          ),
                         ),
+                        SizedBox(height: 32),
+                        Loader(),
                       ],
-                    );
-                  case BlocStatus.loading:
-                    return Loader();
-                  case BlocStatus.success:
-                    return SizedBox.shrink();
-                }
-              },
-            ),
+                    ),
+                  );
+                case BlocStatus.initial:
+                case BlocStatus.success:
+                  return Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Swift Contest',
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                  );
+              }
+            },
           ),
         ),
       ),

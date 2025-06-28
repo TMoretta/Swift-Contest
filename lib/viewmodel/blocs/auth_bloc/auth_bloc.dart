@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/bundles/auth_bundle.dart';
+import 'package:swift_contest/model/bundles/user_auth_bundle.dart';
 import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart';
@@ -42,14 +42,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthInit event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(
-        blocStatus: BlocStatus.loading, sourceEvent: event, authStatus: AuthStatus.initial));
+    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event, authStatus: AuthStatus.initial));
 
     if (event.delay != 0) {
       await Future.delayed(Duration(seconds: event.delay));
     }
 
-    late final AuthBundle? authBundle;
+    late final UserAuthBundle? authBundle;
     final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
     eitherAuthBundle.fold(
       (failure) => emit(state.copyWith(
@@ -242,7 +241,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDeleteUser = await _authRepository.deleteCurrentUser();
+    final eitherDeleteUser = await _authRepository.deleteCurrentAccount();
     eitherDeleteUser.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),

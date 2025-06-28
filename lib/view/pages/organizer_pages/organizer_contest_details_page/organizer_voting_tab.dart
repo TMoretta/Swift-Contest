@@ -280,7 +280,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
             return FloatingActionButton.extended(
               onPressed: (!state.status.isLoading)
                   ? () {
-                      context.pushNamed(AppRouter.organizerVotingProcedure);
+                      context.pushNamed(AppRouter.organizerVotingProcedure, extra: state.contestDetailsBundle!.liveVotingSession!.id);
                     }
                   : null,
               elevation: 1,

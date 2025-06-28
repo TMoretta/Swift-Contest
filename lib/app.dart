@@ -28,10 +28,10 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     late ThemeMode themeMode;
 
-    final TextTheme baseTextTheme = Theme.of(context).textTheme;
-    final TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Roboto', baseTextTheme);
-    final TextTheme displayTextTheme = GoogleFonts.getTextTheme('Roboto', baseTextTheme);
-    final TextTheme textTheme = baseTextTheme.copyWith(
+    TextTheme textTheme = Theme.of(context).textTheme;
+    final TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Roboto', textTheme);
+    final TextTheme displayTextTheme = GoogleFonts.getTextTheme('Roboto', textTheme);
+    textTheme = textTheme.copyWith(
       displayLarge: displayTextTheme.displayLarge,
       displayMedium: displayTextTheme.displayMedium,
       displaySmall: displayTextTheme.displaySmall,
@@ -48,23 +48,8 @@ class _AppState extends State<App> {
       labelMedium: bodyTextTheme.labelMedium,
       labelSmall: bodyTextTheme.labelSmall,
     );
-    // final TextTheme textTheme = baseTextTheme.copyWith(
-    //   displayLarge: displayTextTheme.displayLarge?.copyWith(fontSize: 57),
-    //   displayMedium: displayTextTheme.displayMedium?.copyWith(fontSize: 45),
-    //   displaySmall: displayTextTheme.displaySmall?.copyWith(fontSize: 36),
-    //   headlineLarge: displayTextTheme.headlineLarge?.copyWith(fontSize: 32),
-    //   headlineMedium: displayTextTheme.headlineMedium?.copyWith(fontSize: 28),
-    //   headlineSmall: displayTextTheme.headlineSmall?.copyWith(fontSize: 24),
-    //   titleLarge: displayTextTheme.titleLarge?.copyWith(fontSize: 22),
-    //   titleMedium: displayTextTheme.titleMedium?.copyWith(fontSize: 18),
-    //   titleSmall: displayTextTheme.titleSmall?.copyWith(fontSize: 16),
-    //   bodyLarge: bodyTextTheme.bodyLarge?.copyWith(fontSize: 18),
-    //   bodyMedium: bodyTextTheme.bodyMedium?.copyWith(fontSize: 16),
-    //   bodySmall: bodyTextTheme.bodySmall?.copyWith(fontSize: 14),
-    //   labelLarge: bodyTextTheme.labelLarge?.copyWith(fontSize: 14),
-    //   labelMedium: bodyTextTheme.labelMedium?.copyWith(fontSize: 12),
-    //   labelSmall: bodyTextTheme.labelSmall?.copyWith(fontSize: 11),
-    // );
+
+    textTheme.apply(fontSizeDelta: 1.2, fontFamilyFallback: ['sans-serif']);
 
     final materialTheme = MaterialTheme(textTheme: textTheme);
     return BlocBuilder<AuthBloc, AuthState>(

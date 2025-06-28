@@ -22,3 +22,17 @@ final class SignInWithEmail extends SignInPageEvent {
   @override
   List<Object> get props => [email];
 }
+
+final class SignInPageVoteAsSimpleJuror extends SignInPageEvent {
+  final String fullName;
+  final String token;
+
+  const SignInPageVoteAsSimpleJuror({
+    required this.fullName,
+    required this.token,
+  });
+
+  @override
+  List<Object?> get props => [fullName, token];
+}
+

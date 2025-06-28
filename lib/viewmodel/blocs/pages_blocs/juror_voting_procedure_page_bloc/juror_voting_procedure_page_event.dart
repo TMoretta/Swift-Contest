@@ -21,11 +21,13 @@ final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
 final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {
   final String jurorId;
   final VotingSession votingSession;
+  final Place? geoResPlace;
   final Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap;
 
   const JurorVotingProcedurePageSubmitVotes({
     required this.jurorId,
     required this.votingSession,
+     this.geoResPlace,
     required this.votesPerParticipantMap,
   });
 
@@ -33,6 +35,7 @@ final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePage
   List<Object?> get props => [
         jurorId,
         votingSession,
+        geoResPlace,
         votesPerParticipantMap,
       ];
 }

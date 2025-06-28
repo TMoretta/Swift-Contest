@@ -249,7 +249,7 @@ Future<bool?> _showVoteAsSimpleJurorDialog({
   return await showDialog(
     context: buildContext,
     builder: (context) {
-      final joinContestFormKey = GlobalKey<FormState>();
+      final votingAccessFormKey = GlobalKey<FormState>();
       final fullNameController = TextEditingController();
       final tokenController = TextEditingController();
       return BlocProvider.value(
@@ -257,7 +257,7 @@ Future<bool?> _showVoteAsSimpleJurorDialog({
         child: AlertDialog(
           title: Text('Vote as simple juror'),
           content: Form(
-            key: joinContestFormKey,
+            key: votingAccessFormKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -282,7 +282,7 @@ Future<bool?> _showVoteAsSimpleJurorDialog({
                 if (state.status.isFailure) {
                   showSnackBar(context: context, text: state.message!);
                 }
-                if (state.status.isSuccess && state.sourceEvent is JurorHomePageVoteAsAuthenticatedSimpleJuror) {
+                if (state.status.isSuccess && state.sourceEvent is JurorHomePageVoteAsSimpleJuror) {
                   context.pop();
                   buildContext.pushNamed(AppRouter.simpleJurorVotingProcedure, extra: state.simpleJurorAndVotingSessionBundle!.toJson());
                 }
@@ -303,9 +303,9 @@ Future<bool?> _showVoteAsSimpleJurorDialog({
                     ),
                     TextButton(
                       onPressed: () {
-                        if (joinContestFormKey.currentState?.validate() ?? false) {
+                        if (votingAccessFormKey.currentState?.validate() ?? false) {
                           context.read<JurorHomePageBloc>().add(
-                            JurorHomePageVoteAsAuthenticatedSimpleJuror(
+                            JurorHomePageVoteAsSimpleJuror(
                               fullName: fullNameController.text.trim(),
                                   token: tokenController.text.trim(),
                                   jurorId: profileId,

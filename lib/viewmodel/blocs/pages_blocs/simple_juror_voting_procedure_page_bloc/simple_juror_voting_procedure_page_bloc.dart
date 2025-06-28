@@ -10,6 +10,7 @@ import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
+import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -20,11 +21,16 @@ part 'simple_juror_voting_procedure_page_state.dart';
 
 class SimpleJurorVotingProcedurePageBloc
     extends Bloc<SimpleJurorVotingProcedurePageEvent, SimpleJurorVotingProcedurePageState> {
+  final GenericRepository _genericRepository;
   final JurorRepository _jurorRepository;
 
   SimpleJurorVotingProcedurePageBloc({
+    required GenericRepository genericRepository,
     required JurorRepository jurorRepository,
-  })  : _jurorRepository = jurorRepository,
+  })  :
+
+        _genericRepository = genericRepository,
+        _jurorRepository = jurorRepository,
         super(SimpleJurorVotingProcedurePageState(status: BlocStatus.loading)) {
     on<SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure>(
         _subscribeToVotingSessionProcedure);
@@ -39,7 +45,7 @@ class SimpleJurorVotingProcedurePageBloc
 
     //* Getting the voting session bundle
     late final VotingSessionProcedureBundle votingSessionBundle;
-    final eitherVotingSessionBundle = await _jurorRepository.getVotingSessionProcedureBundle(
+    final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
@@ -104,32 +110,33 @@ class SimpleJurorVotingProcedurePageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final votingSession = event.votingSession;
+    final Place? geoResPlace = event.geoResPlace;
 
-    if (votingSession.isGeoRestricted) {
+    if (votingSession.isGeoRestricted && geoResPlace!=null) {
       final status = await Geolocator.checkPermission();
       if (status == LocationPermission.denied) {
         await Geolocator.requestPermission();
       }
       final currentPosition = await Geolocator.getCurrentPosition();
 
-      late final Place? geoRestrictionPlace;
-      final eitherGeoRestrictionPlace = await _jurorRepository.getVotingSessionGeoRestrictionPlace(
-          placeId: votingSession.geoResPlaceId!);
-      eitherGeoRestrictionPlace.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => geoRestrictionPlace = success,
-      );
-      if (eitherGeoRestrictionPlace.isLeft()) {
-        return;
-      }
-      if (geoRestrictionPlace == null) {
-        emit(state.copyWith(status: BlocStatus.failure, message: 'No place found'));
-        return;
-      }
+      // late final Place? geoRestrictionPlace;
+      // final eitherGeoRestrictionPlace = await _genericRepository.getVotingSessionGeoRestrictionPlace(
+      //     placeId: votingSession.geoResPlaceId!);
+      // eitherGeoRestrictionPlace.fold(
+      //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      //   (success) => geoRestrictionPlace = success,
+      // );
+      // if (eitherGeoRestrictionPlace.isLeft()) {
+      //   return;
+      // }
+      // if (geoRestrictionPlace == null) {
+      //   emit(state.copyWith(status: BlocStatus.failure, message: 'No place found'));
+      //   return;
+      // }
 
       final distance = Geolocator.distanceBetween(
-        geoRestrictionPlace!.lat,
-        geoRestrictionPlace!.lon,
+        geoResPlace!.lat,
+        geoResPlace!.lon,
         currentPosition.latitude,
         currentPosition.longitude,
       );
@@ -138,7 +145,7 @@ class SimpleJurorVotingProcedurePageBloc
         emit(state.copyWith(
             status: BlocStatus.failure,
             message:
-                'The voting is georestricted and you are not inside the area of voting:\n${geoRestrictionPlace!.address}'));
+                'The voting is georestricted and you are not inside the area of voting:\n${geoResPlace!.address}'));
         return;
       }
     }

@@ -8,9 +8,7 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_detai
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_voting_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_works_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_home_page_bloc/organizer_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class OrganizerContestDetailsPage extends StatefulWidget {
@@ -154,21 +152,11 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                     child: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       children: [
-                        OrganizerDetailsTab(
-                          contestId: contestId,
-                        ),
-                        OrganizerParticipantsTab(
-                          contestId: contestId,
-                        ),
-                        OrganizerJurorsTab(
-                          contestId: contestId,
-                        ),
-                        OrganizerWorksTab(
-                          contestId: contestId,
-                        ),
-                        OrganizerVotingTab(
-                          contestId: contestId,
-                        ),
+                        OrganizerDetailsTab(contestId: contestId),
+                        OrganizerParticipantsTab(contestId: contestId),
+                        OrganizerJurorsTab(contestId: contestId),
+                        OrganizerWorksTab(contestId: contestId),
+                        OrganizerVotingTab(contestId: contestId),
                       ],
                     ),
                   ),

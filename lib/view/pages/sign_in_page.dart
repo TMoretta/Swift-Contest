@@ -29,7 +29,7 @@ class _SignInPageState extends State<SignInPage> {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
-        //* Go to splash page
+        //* Go to root page
         if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
           context.goNamed(AppRouter.root, extra: 0);
         }
@@ -37,7 +37,7 @@ class _SignInPageState extends State<SignInPage> {
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Center(
               child: ListView(
                 shrinkWrap: true,
@@ -60,9 +60,7 @@ class _SignInPageState extends State<SignInPage> {
                     child: Text(
                       'Welcome to your contest manager',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   SizedBox(
@@ -103,7 +101,6 @@ class _SignInPageState extends State<SignInPage> {
                                       validator: noEmptyValidator,
                                     ),
                                   ),
-                                  // SizedBox(height: 10),
                                   //* Sign in button
                                   ConstrainedBox(
                                     constraints: BoxConstraints(
@@ -121,41 +118,50 @@ class _SignInPageState extends State<SignInPage> {
                                       child: Text('Sign in'),
                                     ),
                                   ),
+                                  // TextButton(
+                                  //   onPressed: () {
+                                  //
+                                  //   },
+                                  //   child: DecoratedBox(
+                                  //     decoration: BoxDecoration(
+                                  //       border: Border(
+                                  //         bottom: BorderSide(
+                                  //           color: Theme.of(context).colorScheme.primary,
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //     child: Text('Forgot password?',style: Theme.of(context).textTheme.bodyMedium,),
+                                  //   ),
+                                  // ),
                                   //* Sign up instead button
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Don\'t have an account?',
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            context.replaceNamed(AppRouter.signUp);
-                                          },
-                                          style: ButtonStyle(),
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              border: Border(
-                                                bottom: BorderSide(
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Don\'t have an account?',
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          context.replaceNamed(AppRouter.signUp);
+                                        },
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: Theme.of(context).colorScheme.primary,
                                               ),
                                             ),
-                                            child: Text(
-                                              'Sign up'
-                                            ),
                                           ),
+                                          child: Text('Sign up'),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                   SizedBox(height: 24),
                                   //* Vote as a simple juror
                                   TextButton(
                                     onPressed: () {
-                                      // showSimpleJurorVotingAccessAlert(context: context);
+                                      _showVoteAsSimpleJurorDialog(buildContext: context);
                                     },
                                     child: DecoratedBox(
                                       decoration: BoxDecoration(
@@ -164,9 +170,7 @@ class _SignInPageState extends State<SignInPage> {
                                               color: Theme.of(context).colorScheme.primary),
                                         ),
                                       ),
-                                      child: Text(
-                                        'Vote in a contest as a simple juror'
-                                      ),
+                                      child: Text('Vote in a contest as a simple juror'),
                                     ),
                                   ),
                                 ],
@@ -184,6 +188,88 @@ class _SignInPageState extends State<SignInPage> {
       ),
     );
   }
+}
+
+Future<bool?> _showVoteAsSimpleJurorDialog({required BuildContext buildContext}) async {
+  final signInPageBloc = buildContext.read<SignInPageBloc>();
+  return await showDialog(
+    context: buildContext,
+    builder: (context) {
+      final accessVotingFormKey = GlobalKey<FormState>();
+      final fullNameController = TextEditingController();
+      final tokenController = TextEditingController();
+      return BlocProvider.value(
+        value: signInPageBloc,
+        child: AlertDialog(
+          title: Text('Vote as simple juror'),
+          content: Form(
+            key: accessVotingFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CustomTextFormFieldUnderlined(
+                  controller: fullNameController,
+                  label: 'Full name',
+                  validator: (value) => noEmptyValidator(value?.trim()),
+                ),
+                CustomTextFormFieldUnderlined(
+                  controller: tokenController,
+                  label: 'Token',
+                  validator: (value) => noEmptyValidator(value?.trim()),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            BlocConsumer<SignInPageBloc, SignInPageState>(
+              listener: (context, state) {
+                if (state.status.isFailure) {
+                  showSnackBar(context: context, text: state.message!);
+                }
+                if (state.status.isSuccess && state.sourceEvent is SignInPageVoteAsSimpleJuror) {
+                  context.pop();
+                  buildContext.pushNamed(AppRouter.simpleJurorVotingProcedure,
+                      extra: state.simpleJurorAndVotingSessionBundle!.toJson());
+                }
+              },
+              builder: (context, state) {
+                if (state.status.isLoading) {
+                  return Loader();
+                }
+                return Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (accessVotingFormKey.currentState?.validate() ?? false) {
+                          context.read<SignInPageBloc>().add(
+                                SignInPageVoteAsSimpleJuror(
+                                  fullName: fullNameController.text.trim(),
+                                  token: tokenController.text.trim(),
+                                ),
+                              );
+                        }
+                      },
+                      child: Text('Ok'),
+                    ),
+                  ],
+                );
+              },
+            )
+          ],
+        ),
+      );
+    },
+  );
 }
 
 // void showSimpleJurorVotingAccessAlert({required BuildContext context}) {

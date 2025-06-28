@@ -1,11 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/bundles/voting_session_result_bundle.dart';
-import 'package:swift_contest/model/trash/juror_votes_raw_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
-import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/model/data_models/place.dart';
@@ -19,16 +15,6 @@ import 'package:swift_contest/utils/failures/failures.dart';
 abstract interface class OrganizerRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests({
     required String organizerId,
-  });
-
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({required String contestId});
-
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
-    required String votingSessionId,
-  });
-
-  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
-    required String votingSessionId,
   });
 
   Future<Either<Failure, Unit>> createContest({
@@ -78,7 +64,7 @@ abstract interface class OrganizerRepository {
     required String votingSessionId,
   });
 
-  Future<Either<Failure, Unit>> editVotingSessionName({
+  Future<Either<Failure, Unit>> updateVotingSessionName({
     required String votingSessionId,
     required String name,
   });
@@ -91,9 +77,9 @@ abstract interface class OrganizerRepository {
 
   Future<Either<Failure, VotingFormBundle>> getVotingFormBundle({required String votingFormId});
 
-  Future<Either<Failure, JurorVotesRawBundle>> getVotingSessionJurorVotes({
-    required String votingSessionId,
-  });
+  // Future<Either<Failure, JurorVotesRawBundle>> getVotingSessionJurorVotes({
+  //   required String votingSessionId,
+  // });
 }
 
 class OrganizerRepositoryImpl implements OrganizerRepository {
@@ -109,62 +95,6 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
       final List<Map<String, dynamic>> res = await _supabase
           .rpc('organizer_get_created_contests', params: {'p_organizer_id': organizerId});
       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
-    required String contestId,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> res =
-          await _supabase.rpc('organizer_get_contest_details', params: {'p_contest_id': contestId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'Contest not found'));
-      }
-      return right(ContestDetailsBundle.fromRpcJson(res.first));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
-    required String votingSessionId,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> res = await _supabase.rpc(
-          'organizer_get_voting_session_procedure_bundle',
-          params: {'p_voting_session_id': votingSessionId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'Voting session not found'));
-      }
-      return right(VotingSessionProcedureBundle.fromRpcJson(res.first));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
-    required String votingSessionId,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> res = await _supabase.rpc(
-          'organizer_get_voting_session_result_bundle',
-          params: {'p_voting_session_id': votingSessionId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'Voting session not found'));
-      }
-      return right(VotingSessionResultBundle.fromRpcJson(res.first));
     } on PostgrestException catch (e) {
       return Left(Failure(message: e.message));
     } catch (e) {
@@ -362,12 +292,12 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> editVotingSessionName({
+  Future<Either<Failure, Unit>> updateVotingSessionName({
     required String votingSessionId,
     required String name,
   }) async {
     try {
-      await _supabase.rpc('organizer_edit_voting_session_name', params: {
+      await _supabase.rpc('organizer_update_voting_session_name', params: {
         'p_voting_session_id': votingSessionId,
         'p_name': name,
       });
@@ -432,21 +362,21 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, JurorVotesRawBundle>> getVotingSessionJurorVotes({
-    required String votingSessionId,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> res = await _supabase
-          .rpc('organizer_get_voting_session_raw_juror_votes', params: {'p_voting_session_id': votingSessionId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'No votes found'));
-      }
-      return right(JurorVotesRawBundle.fromRpcJson(res.first));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
+  // @override
+  // Future<Either<Failure, JurorVotesRawBundle>> getVotingSessionJurorVotes({
+  //   required String votingSessionId,
+  // }) async {
+  //   try {
+  //     final List<Map<String, dynamic>> res = await _supabase
+  //         .rpc('organizer_get_voting_session_raw_juror_votes', params: {'p_voting_session_id': votingSessionId});
+  //     if (res.isEmpty) {
+  //       return left(Failure(message: 'No votes found'));
+  //     }
+  //     return right(JurorVotesRawBundle.fromRpcJson(res.first));
+  //   } on PostgrestException catch (e) {
+  //     return Left(Failure(message: e.message));
+  //   } catch (e) {
+  //     return left(Failure());
+  //   }
+  // }
 }

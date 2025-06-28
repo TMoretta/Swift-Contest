@@ -9,78 +9,78 @@ end $$;
 
 -- POLICIES
 -- CONTESTS
-CREATE POLICY "Contests All" ON public.contests FOR ALL TO authenticated,
+CREATE POLICY "Contests All" ON contests FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- JURATIONS
-CREATE POLICY "Jurations All" ON public.jurations FOR ALL TO authenticated,
+CREATE POLICY "Jurations All" ON jurations FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- PARTICIPATIONS
-CREATE POLICY "Participations All" ON public.participations FOR ALL TO authenticated,
+CREATE POLICY "Participations All" ON participations FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- INVITATIONS
-CREATE POLICY "Invitations All" ON public.invitations FOR ALL TO authenticated,
+CREATE POLICY "Invitations All" ON invitations FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- PLACES
-CREATE POLICY "Places All" ON public.places FOR ALL TO authenticated,
+CREATE POLICY "Places All" ON places FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- PROFILES
-CREATE POLICY "Profiles All" ON public.profiles FOR ALL TO authenticated,
+CREATE POLICY "Profiles All" ON profiles FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- MESSAGES
-CREATE POLICY "Messages All" ON public.messages FOR ALL TO authenticated,
+CREATE POLICY "Messages All" ON messages FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTES
-CREATE POLICY "JurorVotes All" ON public.juror_votes FOR ALL TO authenticated,
+CREATE POLICY "JurorVotes All" ON juror_votes FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTING FORM FIELDS
-CREATE POLICY "VotingFormFields All" ON public.voting_form_fields FOR ALL TO authenticated,
+CREATE POLICY "VotingFormFields All" ON voting_form_fields FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTING FORMS
-CREATE POLICY "VotingForms All" ON public.voting_forms FOR ALL TO authenticated,
+CREATE POLICY "VotingForms All" ON voting_forms FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTINGS
-CREATE POLICY "JurorVotings All" ON public.juror_votings FOR ALL TO authenticated,
+CREATE POLICY "JurorVotings All" ON juror_votings FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTING SESSION JURATIONS
-CREATE POLICY "VotingSessionJurations All" ON public.voting_session_jurations FOR ALL TO authenticated,
+CREATE POLICY "VotingSessionJurations All" ON voting_session_jurations FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTING SESSION PARTICIPATIONS
-CREATE POLICY "VotingSessionParticipations All" ON public.voting_session_participations FOR ALL TO authenticated,
+CREATE POLICY "VotingSessionParticipations All" ON voting_session_participations FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- VOTING SESSIONS
-CREATE POLICY "VotingSessions All" ON public.voting_sessions FOR ALL TO authenticated,
+CREATE POLICY "VotingSessions All" ON voting_sessions FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- WORKS
-CREATE POLICY "Works All" ON public.works FOR ALL TO authenticated,
+CREATE POLICY "Works All" ON works FOR ALL TO authenticated,
 anon USING (TRUE);
 
-CREATE POLICY "VotingSessionSimpleJurors All" ON public.voting_session_simple_jurors FOR ALL TO authenticated,
+CREATE POLICY "VotingSessionSimpleJurors All" ON voting_session_simple_jurors FOR ALL TO authenticated,
 anon USING (TRUE);
 
-CREATE POLICY "SimpleJurorVotings All" ON public.simple_juror_votings FOR ALL TO authenticated,
+CREATE POLICY "SimpleJurorVotings All" ON simple_juror_votings FOR ALL TO authenticated,
 anon USING (TRUE);
 
-CREATE POLICY "SimpleJurorVotes All" ON public.simple_juror_votes FOR ALL TO authenticated,
+CREATE POLICY "SimpleJurorVotes All" ON simple_juror_votes FOR ALL TO authenticated,
 anon USING (TRUE);
 
-CREATE POLICY "SimpleJurors All" ON public.simple_jurors FOR ALL TO authenticated,
+CREATE POLICY "SimpleJurors All" ON simple_jurors FOR ALL TO authenticated,
 anon USING (TRUE);
 
-CREATE POLICY "VotingSessionExclusions All" ON public.voting_session_exclusions FOR ALL TO authenticated,
+CREATE POLICY "VotingSessionExclusions All" ON voting_session_exclusions FOR ALL TO authenticated,
 anon USING (TRUE);
 
 -- 1. Abilita RLS sulle tabelle di storage

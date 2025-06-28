@@ -96,7 +96,7 @@ class ContestDetailsBundle extends Equatable {
     final votingFormFields = (json['voting_form_fields'] as List<dynamic>)
         .map((e) => VotingFormField.fromJson(e))
         .toList(growable: false);
-    votingFormFields.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+    // votingFormFields.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
 
     final participationsBundles = participations.map((participation) {
       final participant =

@@ -1,14 +1,14 @@
-CREATE TYPE public.app_theme AS enum('system', 'light', 'dark');
+CREATE TYPE app_theme AS enum('system', 'light', 'dark');
 
-CREATE TYPE public.contest_role AS enum('organizer', 'participant', 'juror');
+CREATE TYPE contest_role AS enum('organizer', 'participant', 'juror');
 
-CREATE TYPE public.member_role AS enum('participant', 'juror');
+CREATE TYPE member_role AS enum('participant', 'juror');
 
-CREATE TYPE public.participant_status AS enum('joined', 'out');
+CREATE TYPE participant_status AS enum('joined', 'out');
 
-CREATE TYPE public.juror_status AS enum('joined', 'out');
+CREATE TYPE juror_status AS enum('joined', 'out');
 
-CREATE TYPE public.contest_status AS enum(
+CREATE TYPE contest_status AS enum(
   'preparationPhase',
   'participationPhase',
   'votingPhase',
@@ -16,7 +16,7 @@ CREATE TYPE public.contest_status AS enum(
   'deleted'
 );
 
-CREATE TYPE public.voting_session_status AS enum(
+CREATE TYPE voting_session_status AS enum(
   'initialized',
   'work',
   'intermission',

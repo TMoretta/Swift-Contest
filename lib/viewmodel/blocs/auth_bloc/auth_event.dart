@@ -78,3 +78,29 @@ final class AuthDeleteUser extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
+
+final class AuthOnSignIn extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+final class AuthOnSignUp extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+final class AuthOnSignOut extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+final class AuthOnAdminSignIn extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+final class AuthOnAdminSignOut extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+

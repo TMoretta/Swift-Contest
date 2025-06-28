@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/data_models/participation.dart';
 import 'package:swift_contest/model/data_models/work.dart';
+import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/participant_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -15,11 +16,16 @@ part 'participant_contest_details_page_state.dart';
 
 class ParticipantContestDetailsPageBloc
     extends Bloc<ParticipantContestDetailsPageEvent, ParticipantContestDetailsPageState> {
+  final GenericRepository _genericRepository;
   final ParticipantRepository _participantRepository;
 
   ParticipantContestDetailsPageBloc({
+    required GenericRepository genericRepository,
     required ParticipantRepository participantRepository,
-  })  : _participantRepository = participantRepository,
+  })  :
+
+        _genericRepository = genericRepository,
+        _participantRepository = participantRepository,
         super(ParticipantContestDetailsPageState(status: BlocStatus.initial)) {
     on<ParticipantContestDetailsPageInit>(_init);
     on<ParticipantContestDetailsPageRefresh>(_refresh);
@@ -33,7 +39,7 @@ class ParticipantContestDetailsPageBloc
 
     late final ContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
-        await _participantRepository.getContestDetails(contestId: event.contestId);
+        await _genericRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => contestDetailsBundle = success,
@@ -61,7 +67,7 @@ class ParticipantContestDetailsPageBloc
 
     late final ContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
-        await _participantRepository.getContestDetails(contestId: event.contestId);
+        await _genericRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => contestDetailsBundle = success,

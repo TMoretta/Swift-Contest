@@ -49,6 +49,7 @@ dependencies:
   dio: ^5.8.0+1
 #  flutter_local_notifications: ^19.2.1
   open_file: ^3.5.10
+  internet_connection_checker_plus: ^2.7.2
 
 dev_dependencies:
   flutter_test:

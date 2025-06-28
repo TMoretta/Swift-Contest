@@ -215,6 +215,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                           .add(SimpleJurorVotingProcedurePageSubmitVotes(
                         simpleJurorId: simpleJurorId,
                         votingSession: votingSessionBundle.votingSession,
+                        geoResPlace: state.votingSessionProcedureBundle!.votingSessionBundle.geoResPlace,
                         votesPerParticipantMap: votesPerParticipantMap,
                       ));
                     }

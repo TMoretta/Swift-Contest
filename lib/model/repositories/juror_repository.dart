@@ -1,10 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/bundles/simple_juror_and_voting_session_bundle.dart';
-import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
-import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
@@ -15,17 +12,9 @@ abstract interface class JurorRepository {
     required String jurorId,
   });
 
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
-    required String votingSessionId,
-  });
-
   Future<Either<Failure, Unit>> joinContest({
     required String jurorId,
     required String token,
-  });
-
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
-    required String contestId,
   });
 
   Future<Either<Failure, Unit>> jurorSubmitVotes({
@@ -39,14 +28,19 @@ abstract interface class JurorRepository {
     required String votingSessionId,
   });
 
-  Future<Either<Failure, Place?>> getVotingSessionGeoRestrictionPlace({required String placeId});
+  // Future<Either<Failure, Place?>> getVotingSessionGeoRestrictionPlace({required String placeId});
 
-  Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsSimpleJuror({
+  Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsAuthSimpleJuror({
     required String fullName,
     required String token,
-    String? jurorId,
+    required String jurorId,
   });
 
+  Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsGuestSimpleJuror({
+    required String fullName,
+    required String token,
+  });
+  
   Future<Either<Failure, Unit>> simpleJurorSubmitVotes({
     required String simpleJurorId,
     required String votingSessionId,
@@ -76,24 +70,6 @@ class JurorRepositoryImpl implements JurorRepository {
   }
 
   @override
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
-    required String votingSessionId,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> res = await _supabase.rpc('juror_get_voting_session_procedure_bundle',
-          params: {'p_voting_session_id': votingSessionId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'Voting session not found'));
-      }
-      return right(VotingSessionProcedureBundle.fromRpcJson(res.first));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
   Future<Either<Failure, Unit>> joinContest({
     required String jurorId,
     required String token,
@@ -105,25 +81,7 @@ class JurorRepositoryImpl implements JurorRepository {
       });
       return right(unit);
     } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
-    required String contestId,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> res =
-          await _supabase.rpc('juror_get_contest_details', params: {'p_contest_id': contestId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'Contest not found'));
-      }
-      return right(ContestDetailsBundle.fromRpcJson(res.first));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
+      return left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }
@@ -148,7 +106,7 @@ class JurorRepositoryImpl implements JurorRepository {
       });
       return right(unit);
     } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
+      return left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }
@@ -175,36 +133,53 @@ class JurorRepositoryImpl implements JurorRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, Place?>> getVotingSessionGeoRestrictionPlace(
-      {required String placeId}) async {
-    try {
-      final List<Map<String, dynamic>> res = await _supabase
-          .rpc('juror_get_voting_session_geores_place', params: {'p_place_id': placeId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'Place not found'));
-      }
-      return right(Place.fromJson(res.first));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
+  // @override
+  // Future<Either<Failure, Place?>> getVotingSessionGeoRestrictionPlace(
+  //     {required String placeId}) async {
+  //   try {
+  //     final List<Map<String, dynamic>> res = await _supabase
+  //         .rpc('juror_get_voting_session_geores_place', params: {'p_place_id': placeId});
+  //     if (res.isEmpty) {
+  //       return left(Failure(message: 'Place not found'));
+  //     }
+  //     return right(Place.fromJson(res.first));
+  //   } on PostgrestException catch (e) {
+  //     return left(Failure(message: e.message));
+  //   } catch (e) {
+  //     return left(Failure());
+  //   }
+  // }
 
   @override
-  Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsSimpleJuror({
+  Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsAuthSimpleJuror({
     required String fullName,
     required String token,
     String? jurorId,
   }) async {
     try {
       final List<Map<String, dynamic>> res = await _supabase.rpc(
-          'juror_access_voting_as_simple_juror',
+          'juror_access_voting_as_auth_simple_juror',
           params: {'p_full_name': fullName, 'p_token': token, 'p_juror_id': jurorId});
       return right(SimpleJurorAndVotingSessionBundle.fromJson(res.first));
     } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsGuestSimpleJuror({
+    required String fullName,
+    required String token,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'juror_access_voting_as_guest_simple_juror',
+          params: {'p_full_name': fullName, 'p_token': token});
+      return right(SimpleJurorAndVotingSessionBundle.fromJson(res.first));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }
@@ -229,7 +204,7 @@ class JurorRepositoryImpl implements JurorRepository {
       });
       return right(unit);
     } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
+      return left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }

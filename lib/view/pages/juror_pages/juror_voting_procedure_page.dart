@@ -268,6 +268,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                           .add(JurorVotingProcedurePageSubmitVotes(
                             jurorId: profile.id,
                             votingSession: votingSession,
+                            geoResPlace: state.votingSessionProcedureBundle!.votingSessionBundle.geoResPlace,
                             votesPerParticipantMap: votesPerParticipantMap,
                           ));
                     }

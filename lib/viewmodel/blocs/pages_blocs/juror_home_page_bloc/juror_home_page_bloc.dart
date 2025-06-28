@@ -22,7 +22,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     on<JurorHomePageInit>(_init);
     on<JurorHomePageRefresh>(_refresh);
     on<JurorHomePageJoinContest>(_joinContest);
-    on<JurorHomePageVoteAsAuthenticatedSimpleJuror>(_voteAsAuthenticatedSimpleJuror);
+    on<JurorHomePageVoteAsSimpleJuror>(_voteAsAuthenticatedSimpleJuror);
   }
 
   FutureOr<void> _init(
@@ -68,13 +68,13 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
 
   //* Vote as simple juror
   FutureOr<void> _voteAsAuthenticatedSimpleJuror(
-      JurorHomePageVoteAsAuthenticatedSimpleJuror event,
+      JurorHomePageVoteAsSimpleJuror event,
     Emitter<JurorHomePageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherJoinContest =
-    await _jurorRepository.accessVotingAsSimpleJuror(fullName: event.fullName,token: event.token,jurorId: event.jurorId);
+    await _jurorRepository.accessVotingAsAuthSimpleJuror(fullName: event.fullName,token: event.token,jurorId: event.jurorId);
     eitherJoinContest.fold(
           (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
           (success) => emit(state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),

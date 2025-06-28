@@ -3,27 +3,27 @@ import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 
-class AuthBundle extends Equatable {
+class UserAuthBundle extends Equatable {
   final User user;
   final Profile profile;
   final List<Message> messages;
 
-  const AuthBundle({
+  const UserAuthBundle({
     required this.user,
     required this.profile,
     required this.messages,
   });
 
-  factory AuthBundle.fromRpcJson(Map<String, dynamic> json) {
-    return AuthBundle(
+  factory UserAuthBundle.fromRpcJson(Map<String, dynamic> json) {
+    return UserAuthBundle(
       user: User.fromJson(json['m_user']),
       profile: Profile.fromJson(json['profile']),
       messages: (json['messages'] as List<dynamic>).map((e) => Message.fromJson(e)).toList(growable: false),
     );
   }
 
-  factory AuthBundle.fromJson(Map<String, dynamic> json) {
-    return AuthBundle(
+  factory UserAuthBundle.fromJson(Map<String, dynamic> json) {
+    return UserAuthBundle(
       user: User.fromJson(json['user']),
       profile: Profile.fromJson(json['profile']),
       messages: (json['messages'] as List<dynamic>).map((e) => Message.fromJson(e)).toList(growable: false),
@@ -38,12 +38,12 @@ class AuthBundle extends Equatable {
     };
   }
 
-  AuthBundle copyWith({
+  UserAuthBundle copyWith({
     User? user,
     Profile? profile,
     List<Message>? messages,
   }) {
-    return AuthBundle(
+    return UserAuthBundle(
       user: user ?? this.user,
       profile: profile ?? this.profile,
       messages: messages ?? this.messages,

@@ -15,10 +15,6 @@ abstract interface class ParticipantRepository {
     required String token,
   });
 
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
-    required String contestId,
-  });
-
   Future<Either<Failure, Work?>> getSubmittedWork({
     required String contestId,
     required String participantId,
@@ -67,24 +63,6 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
       return right(unit);
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
-    required String contestId,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> res = await _supabase
-          .rpc('participant_get_contest_details', params: {'p_contest_id': contestId});
-      if (res.isEmpty) {
-        return left(Failure(message: 'Contest not found'));
-      }
-      return right(ContestDetailsBundle.fromRpcJson(res.first));
-    } on PostgrestException catch (e) {
-      return Left(Failure(message: e.message));
     } catch (e) {
       return left(Failure());
     }
