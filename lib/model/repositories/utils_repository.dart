@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
@@ -30,6 +32,8 @@ class UtilsRepositoryImpl implements UtilsRepository {
         'p_length': length,
       });
       return right(res);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {

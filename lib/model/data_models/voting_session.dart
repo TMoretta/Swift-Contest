@@ -84,27 +84,6 @@ class VotingSession extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_name': name,
-      'p_contest_id': contestId,
-      'p_are_simple_jurors_allowed': areSimpleJurorsAllowed,
-      'p_voting_form_id': votingFormId,
-      'p_work_timer': workTimer.inSeconds,
-      'p_intermission_timer': intermissionTimer.inSeconds,
-      'p_review_timer': reviewTimer.inSeconds,
-      'p_token': token,
-      'p_is_geo_restricted': isGeoRestricted,
-      'p_geo_res_place_id': geoResPlaceId,
-      'p_geo_res_radius': geoResRadius,
-      'p_session_status': sessionStatus.name,
-      'p_current_participant_index': currentParticipantIndex,
-      'p_current_step_deadline': currentStepDeadline?.toUtc().toIso8601String(),
-    };
-  }
-
   VotingSession copyWith({
     String? id,
     DateTime? createdAt,

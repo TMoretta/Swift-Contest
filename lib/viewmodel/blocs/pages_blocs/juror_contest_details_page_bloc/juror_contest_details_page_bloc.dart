@@ -25,6 +25,7 @@ class JurorContestDetailsPageBloc
         super(JurorContestDetailsPageState(status: BlocStatus.initial)) {
     on<JurorContestDetailsPageInit>(_init);
     on<JurorContestDetailsPageRefresh>(_refresh);
+    on<JurorContestDetailsPageLeaveContest>(_leaveContest);
   }
 
   FutureOr<void> _init(
@@ -52,6 +53,20 @@ class JurorContestDetailsPageBloc
     eitherContestDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+    );
+  }
+
+  FutureOr<void> _leaveContest(
+      JurorContestDetailsPageLeaveContest event,
+      Emitter<JurorContestDetailsPageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherLeaveContest = await _jurorRepository.leaveContest(
+        contestId: event.contestId, jurorId: event.jurorId);
+    eitherLeaveContest.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 }

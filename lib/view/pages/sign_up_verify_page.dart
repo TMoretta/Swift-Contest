@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';

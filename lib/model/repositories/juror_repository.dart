@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
@@ -16,6 +18,8 @@ abstract interface class JurorRepository {
     required String jurorId,
     required String token,
   });
+
+  Future<Either<Failure,Unit>> leaveContest({required String contestId, required String jurorId,});
 
   Future<Either<Failure, Unit>> jurorSubmitVotes({
     required String jurorId,
@@ -62,6 +66,8 @@ class JurorRepositoryImpl implements JurorRepository {
       final List<Map<String, dynamic>> res =
           await _supabase.rpc('juror_get_joined_contests', params: {'p_juror_id': jurorId});
       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -80,6 +86,25 @@ class JurorRepositoryImpl implements JurorRepository {
         'p_token': token,
       });
       return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure,Unit>> leaveContest({required String contestId, required String jurorId,}) async {
+    try {
+      await _supabase.rpc('juror_leave_contest', params: {
+        'p_contest_id' : contestId,
+        'p_juror_id': jurorId,
+      });
+      return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -105,6 +130,8 @@ class JurorRepositoryImpl implements JurorRepository {
         'p_votes_per_participant_map': votesPerParticipantMapWithIds,
       });
       return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -128,6 +155,8 @@ class JurorRepositoryImpl implements JurorRepository {
             }
             return right(VotingSession.fromJson(rows.first));
           }));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } catch (e) {
       return left(Failure());
     }
@@ -161,6 +190,8 @@ class JurorRepositoryImpl implements JurorRepository {
           'juror_access_voting_as_auth_simple_juror',
           params: {'p_full_name': fullName, 'p_token': token, 'p_juror_id': jurorId});
       return right(SimpleJurorAndVotingSessionBundle.fromJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -178,6 +209,8 @@ class JurorRepositoryImpl implements JurorRepository {
           'juror_access_voting_as_guest_simple_juror',
           params: {'p_full_name': fullName, 'p_token': token});
       return right(SimpleJurorAndVotingSessionBundle.fromJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {
@@ -203,6 +236,8 @@ class JurorRepositoryImpl implements JurorRepository {
         'p_votes_per_participant_map': votesPerParticipantMapWithIds,
       });
       return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
       return left(Failure(message: e.message));
     } catch (e) {

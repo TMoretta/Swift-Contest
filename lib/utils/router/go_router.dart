@@ -14,6 +14,7 @@ import 'package:swift_contest/view/pages/juror_pages/juror_voting_procedure_page
 import 'package:swift_contest/view/pages/juror_pages/simple_juror_voting_procedure_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_creation_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_contest_details_page.dart';
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_edit_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_procedure_page.dart';
@@ -36,6 +37,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/j
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_voting_procedure_page_bloc/juror_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_creation_page_bloc/organizer_contest_creation_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_edit_page_bloc/organizer_contest_edit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_home_page_bloc/organizer_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_form_edit_page_bloc/organizer_voting_form_edit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_procedure_page_bloc/organizer_voting_procedure_page_bloc.dart';
@@ -105,6 +107,9 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.root,
         path: '/',
         pageBuilder: (context, state) {
+          if(state.extra == null) {
+            return MaterialPage(child: RootPage());
+          }
           final delay = state.extra as int;
           return MaterialPage(child: RootPage(delay: delay));
         },
@@ -246,6 +251,26 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           );
         },
       ),
+      //* Organizer contest edit
+      GoRoute(
+        name: AppRouter.organizerContestEdit,
+        path: '/organizer_contest_edit',
+        pageBuilder: (context, state) {
+          final String contestId = state.extra as String;
+          return MaterialPage(
+            child: BlocProvider(
+              create: (context) => OrganizerContestEditPageBloc(
+                genericRepository: context.read(),
+                organizerRepository: context.read(),
+                storageRepository: context.read(),
+              ),
+              child: OrganizerContestEditPage(
+                contestId: contestId,
+              ),
+            ),
+          );
+        },
+      ),
       //* Work details
       GoRoute(
         name: AppRouter.organizerWorkDetails,
@@ -267,6 +292,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingFormEditPageBloc(
+                genericRepository: context.read(),
                 organizerRepository: context.read(),
               ),
               child: OrganizerVotingFormEditPage(
@@ -490,6 +516,7 @@ final class AppRouter {
   static const String organizerHome = 'organizerHome';
   static const String organizerContestCreation = 'organizerContestCreation';
   static const String organizerContestDetails = 'organizerContestDetails';
+  static const String organizerContestEdit = 'organizerContestEdit';
   static const String organizerWorkDetails = 'organizerWorkDetails';
   static const String organizerVotingFormEdit = 'organizerVotingFormEdit';
   static const String organizerVotingSettings = 'organizerVotingSettings';

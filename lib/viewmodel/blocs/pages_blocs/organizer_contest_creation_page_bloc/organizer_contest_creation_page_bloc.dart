@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -52,41 +51,6 @@ class OrganizerContestCreationPageBloc
       return;
     }
 
-    // final Place place = Place(
-    //   id: genUuid(),
-    //   createdAt: now(),
-    //   address: event.placeAddress,
-    //   lat: event.placeLat,
-    //   lon: event.placeLon,
-    // );
-
-    // final VotingForm votingForm = VotingForm(
-    //   id: genUuid(),
-    //   createdAt: now(),
-    // );
-
-
-    // late final String token;
-    // final eitherToken = await _utilsRepository.genUniqueToken(
-    //     tableName: 'contests', columnName: 'token', length: 14);
-    // eitherToken.fold(
-    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-    //   (success) => token = success,
-    // );
-    // if (eitherToken.isLeft()) {
-    //   return;
-    // }
-
-    late final ContestStatus contestStatus;
-    final nowt = DateTime.now();
-    if (nowt.isBefore(event.worksSubmissionStart)) {
-      contestStatus = ContestStatus.preparationPhase;
-    } else if (nowt.isBefore(event.worksSubmissionEnd)) {
-      contestStatus = ContestStatus.preparationPhase;
-    } else {
-      contestStatus = ContestStatus.votingPhase;
-    }
-
     final ContestNullable contest = ContestNullable(
       organizerId: event.organizerId,
       name: event.name,
@@ -95,24 +59,7 @@ class OrganizerContestCreationPageBloc
       worksSubmissionStart: event.worksSubmissionStart,
       worksSubmissionEnd: event.worksSubmissionEnd,
       imagesUrls: imagesUrls,
-      contestStatus: contestStatus,
     );
-
-    // final Contest contest = Contest(
-    //   id: genUuid(),
-    //   createdAt: now(),
-    //   organizerId: event.organizerId,
-    //   name: event.name,
-    //   description: event.description,
-    //   dateTime: event.dateTime,
-    //   worksSubmissionStart: event.worksSubmissionStart,
-    //   worksSubmissionEnd: event.worksSubmissionEnd,
-    //   imagesUrls: imagesUrls,
-    //   placeId: place.id,
-    //   contestStatus: contestStatus,
-    //   token: token,
-    //   votingFormId: votingForm.id,
-    // );
 
     final eitherCreateContest = await _organizerRepository.createContest(
         contest: contest, place: place);

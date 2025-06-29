@@ -22,13 +22,12 @@ class ParticipantContestDetailsPageBloc
   ParticipantContestDetailsPageBloc({
     required GenericRepository genericRepository,
     required ParticipantRepository participantRepository,
-  })  :
-
-        _genericRepository = genericRepository,
+  })  : _genericRepository = genericRepository,
         _participantRepository = participantRepository,
         super(ParticipantContestDetailsPageState(status: BlocStatus.initial)) {
     on<ParticipantContestDetailsPageInit>(_init);
     on<ParticipantContestDetailsPageRefresh>(_refresh);
+    on<ParticipantContestDetailsPageLeaveContest>(_leaveContest);
   }
 
   FutureOr<void> _init(
@@ -85,5 +84,19 @@ class ParticipantContestDetailsPageBloc
         status: BlocStatus.success,
         contestDetailsBundle: contestDetailsBundle,
         submittedWork: submittedWork));
+  }
+
+  FutureOr<void> _leaveContest(
+    ParticipantContestDetailsPageLeaveContest event,
+    Emitter<ParticipantContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherLeaveContest = await _participantRepository.leaveContest(
+        contestId: event.contestId, participantId: event.participantId);
+    eitherLeaveContest.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
   }
 }

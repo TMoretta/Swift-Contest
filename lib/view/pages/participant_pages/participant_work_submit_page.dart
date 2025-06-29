@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';

@@ -10,7 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/media_types.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';

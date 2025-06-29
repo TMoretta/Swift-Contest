@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/model/enums/contest_status.dart';
+import 'package:swift_contest/utils/router/go_router.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_details_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_jurors_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_participants_tab.dart';
@@ -40,6 +42,9 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
             state.sourceEvent is OrganizerContestDetailsPageDeleteContest) {
           context.pop(true);
         }
+        if(state.status.isSuccess && (state.sourceEvent is OrganizerContestDetailsPageSetStatusAsActive || state.sourceEvent is OrganizerContestDetailsPageSetStatusAsTerminated)) {
+          context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+        }
       },
       child: Scaffold(
         appBar: CustomAppBar(
@@ -47,64 +52,128 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
           actions: [
             BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
               builder: (context, state) {
-                return PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (option) async {
-                    switch (option) {
-                      case 'Edit':
-                        break;
-                      case 'Delete':
-                        final bool? res = await showDialog(
-                          useRootNavigator: false,
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('Delete contest'),
-                              content: Text('Are you sure you want to delete this contest? '
-                                  'All related info will be lost and members will be notified'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    context.pop();
-                                  },
-                                  child: Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    context.pop(true);
-                                  },
-                                  child: Text('Proceed'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                        if (res == true) {
-                          if (context.mounted) {
-                            context.read<OrganizerContestDetailsPageBloc>().add(
-                                OrganizerContestDetailsPageDeleteContest(contestId: contestId));
-                          }
-                        }
-                        break;
+                switch(state.status) {
+                  case BlocStatus.initial:
+                    return SizedBox.shrink();
+                  case BlocStatus.loading:
+                    return IconButton(onPressed: null, icon: Icon(Icons.more_vert));
+                  case BlocStatus.failure:
+                    if(state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      return SizedBox.shrink();
                     }
-                  },
-                  itemBuilder: (context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem(
-                      value: 'Edit',
-                      child: ListTile(
-                        leading: Icon(Icons.edit),
-                        title: Text('Edit'),
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'Delete',
-                      child: ListTile(
-                        leading: Icon(Icons.delete),
-                        title: Text('Delete'),
-                      ),
-                    ),
-                  ],
-                );
+                    else {
+                      continue successCase;
+                    }
+                  successCase:
+                    case BlocStatus.success:
+                    return PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert),
+                      onSelected: (option) async {
+                        switch (option) {
+                          case 'Set state':
+                            final bool? res = await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated) ? 'Set as active' : 'Set as terminated'),
+                                  content: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated) ? 'Are you sure you want to set this contest as active?' : 'Are you sure you want to set this contest as terminated?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        context.pop();
+                                      },
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        context.pop(true);
+                                      },
+                                      child: Text('Proceed'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            if (res == true) {
+                              if (context.mounted) {
+                                if(state.contestDetailsBundle!.contest.contestStatus.isTerminated) {
+                                  context.read<OrganizerContestDetailsPageBloc>().add(
+                                      OrganizerContestDetailsPageSetStatusAsActive(contestId: contestId));
+                                } else {
+                                  context.read<OrganizerContestDetailsPageBloc>().add(
+                                      OrganizerContestDetailsPageSetStatusAsTerminated(contestId: contestId));
+                                }
+                              }
+                            }
+                            break;
+                          case 'Edit':
+                            final bool? res = await context.pushNamed(AppRouter.organizerContestEdit,extra: contestId);
+                            if (res == true) {
+                              if (context.mounted) {
+                                context.read<OrganizerContestDetailsPageBloc>().add(
+                                    OrganizerContestDetailsPageRefresh(contestId: contestId));
+                              }
+                            }
+                            break;
+                          case 'Delete':
+                            final bool? res = await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Delete contest'),
+                                  content: Text('Are you sure you want to delete this contest? '
+                                      'All related info will be lost and members will be notified'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        context.pop();
+                                      },
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        context.pop(true);
+                                      },
+                                      child: Text('Proceed'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            if (res == true) {
+                              if (context.mounted) {
+                                context.read<OrganizerContestDetailsPageBloc>().add(
+                                    OrganizerContestDetailsPageDeleteContest(contestId: contestId));
+                              }
+                            }
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => <PopupMenuEntry<String>>[
+                         PopupMenuItem(
+                          value: 'Set state',
+                          child: ListTile(
+                            leading: Icon(Icons.circle),
+                            title: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated) ? 'Set as active' : 'Set as terminated'),
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'Edit',
+                          child: ListTile(
+                            leading: Icon(Icons.edit),
+                            title: Text('Edit'),
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'Delete',
+                          child: ListTile(
+                            leading: Icon(Icons.delete),
+                            title: Text('Delete'),
+                          ),
+                        ),
+                      ],
+                    );
+                }
               },
             ),
           ],

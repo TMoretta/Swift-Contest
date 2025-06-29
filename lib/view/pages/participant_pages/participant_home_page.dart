@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
@@ -79,9 +79,14 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                                       SizedBox(height: (index == 0) ? 16 : 0),
                                       ContestCard(
                                         contestCardBundle: contestCardBundle,
-                                        onTap: () {
-                                          context.pushNamed(AppRouter.participantContestDetails,
+                                        onTap: () async {
+                                          final bool? res = await context.pushNamed(AppRouter.participantContestDetails,
                                               extra: contestCardBundle.contest.id);
+                                          if(res == true) {
+                                            if(context.mounted) {
+                                              context.read<ParticipantHomePageBloc>().add(ParticipantHomePageRefresh(participantId: profile.id));
+                                            }
+                                          }
                                         },
                                       ),
                                       SizedBox(

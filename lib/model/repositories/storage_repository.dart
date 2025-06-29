@@ -60,6 +60,8 @@ class StorageRepositoryImpl implements StorageRepository {
           imagesUrls.add(publicUrl);
         }
       }
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } catch (e) {
       return left(Failure());
     }
@@ -83,6 +85,8 @@ class StorageRepositoryImpl implements StorageRepository {
         final publicUrl = _supabase.storage.from(bucket).getPublicUrl(fileName);
         return right(publicUrl);
       }
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } catch (e) {
       return left(Failure());
     }

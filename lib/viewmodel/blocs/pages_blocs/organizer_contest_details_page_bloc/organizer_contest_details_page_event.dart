@@ -107,3 +107,21 @@ final class OrganizerContestDetailsPageDeleteContest extends OrganizerContestDet
   @override
   List<Object?> get props => [contestId];
 }
+
+final class OrganizerContestDetailsPageSetStatusAsActive extends OrganizerContestDetailsPageEvent {
+  final String contestId;
+
+  const OrganizerContestDetailsPageSetStatusAsActive({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+}
+
+final class OrganizerContestDetailsPageSetStatusAsTerminated extends OrganizerContestDetailsPageEvent {
+  final String contestId;
+
+  const OrganizerContestDetailsPageSetStatusAsTerminated({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+}

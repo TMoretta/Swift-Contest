@@ -21,3 +21,16 @@ final class JurorContestDetailsPageRefresh extends JurorContestDetailsPageEvent 
   @override
   List<Object?> get props => [contestId];
 }
+
+final class JurorContestDetailsPageLeaveContest extends JurorContestDetailsPageEvent {
+  final String contestId;
+  final String jurorId;
+
+  const JurorContestDetailsPageLeaveContest({
+    required this.contestId,
+    required this.jurorId,
+  });
+
+  @override
+  List<Object?> get props => [contestId, jurorId];
+}

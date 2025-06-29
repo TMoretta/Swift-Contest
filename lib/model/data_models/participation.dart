@@ -44,18 +44,6 @@ class Participation extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_contest_id': contestId,
-      'p_participant_id': participantId,
-      'p_participant_status': participantStatus.name,
-      'p_invitation_email': invitationEmail,
-      'p_has_submitted': hasSubmitted,
-    };
-  }
-
   Participation copyWith({
     String? id,
     DateTime? createdAt,

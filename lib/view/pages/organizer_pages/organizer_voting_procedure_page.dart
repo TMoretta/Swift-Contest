@@ -4,7 +4,7 @@ import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/voting_session_status.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';

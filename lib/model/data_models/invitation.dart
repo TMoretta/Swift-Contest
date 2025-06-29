@@ -41,17 +41,6 @@ class Invitation extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_contest_id': contestId,
-      'p_token': token,
-      'p_email': email,
-      'p_member_role': memberRole.name,
-    };
-  }
-
   Invitation copyWith({
     String? id,
     DateTime? createdAt,

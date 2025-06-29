@@ -39,17 +39,6 @@ class VotingSessionParticipation extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_voting_session_id': votingSessionId,
-      'p_participation_id': participationId,
-      'p_order_index': orderIndex,
-      'p_is_excluded': isExcluded,
-    };
-  }
-
   VotingSessionParticipation copyWith({
     String? id,
     DateTime? createdAt,

@@ -37,7 +37,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting joined contests';
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -49,11 +49,12 @@ CREATE OR REPLACE FUNCTION juror_join_contest (
 RETURNS void AS $$
 DECLARE
   v_invitation invitations;
-  v_contest_id uuid;
+  v_contest contests;
   v_juration jurations;
+  v_juror profiles;
 BEGIN
 
-  SELECT * INTO STRICT v_invitation
+  SELECT * INTO v_invitation
   FROM invitations
   WHERE token = p_token AND member_role = 'juror';
 
@@ -61,7 +62,7 @@ BEGIN
     RAISE EXCEPTION 'No invitation found with the provided token';
   END IF;
 
-  SELECT id INTO STRICT v_contest_id
+  SELECT * INTO v_contest
   FROM contests
   WHERE id = v_invitation.contest_id;
 
@@ -73,9 +74,9 @@ BEGIN
     RAISE EXCEPTION 'The contest has been deleted';
   END IF;
 
-  SELECT * INTO v_juration FROM jurations
-  WHERE contest_id = v_contest_id AND juror_id = p_juror_id
-  LIMIT 1;
+  SELECT * INTO v_juration
+  FROM jurations
+  WHERE contest_id = v_contest.id AND juror_id = p_juror_id;
 
   IF FOUND THEN
     IF (v_juration.juror_status = 'joined') THEN
@@ -94,7 +95,7 @@ BEGIN
       juror_status,
       invitation_email
     ) VALUES (
-      v_contest_id,
+      v_contest.id,
       p_juror_id,
       'joined',
       v_invitation.email
@@ -104,16 +105,71 @@ BEGIN
   DELETE FROM invitations
   WHERE id = v_invitation.id;
 
+  SELECT * INTO v_juror
+  FROM profiles
+  WHERE id = p_juror_id;
+
+  INSERT INTO messages (profile_id, title, body)
+  VALUES (v_contest.organizer_id, 'Juror join', format('"%s" joined the contest "%s"',v_juror.full_name, v_contest.name));
+
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while trying to join a contest';
+    RAISE EXCEPTION 'An unexpected error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+-- JUROR LEAVE CONTEST
+CREATE OR REPLACE FUNCTION juror_leave_contest (
+  p_contest_id uuid,
+  p_juror_id uuid
+)
+RETURNS void AS $$
+DECLARE
+  v_contest contests;
+  v_juror profiles;
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM jurations
+    WHERE contest_id = p_contest_id AND juror_id = p_juror_id
+  ) THEN
+    RAISE EXCEPTION 'Juror not found';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM jurations
+    WHERE contest_id = p_contest_id AND juror_id = p_juror_id AND juror_status = 'out'
+  ) THEN
+    RAISE EXCEPTION 'Juror is already out from the contest';
+  END IF;
+
+  UPDATE jurations
+  SET juror_status = 'out'
+  WHERE contest_id = p_contest_id AND juror_id = p_juror_id;
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id;
+
+  SELECT * INTO v_juror
+  FROM profiles
+  WHERE id = p_juror_id;
+
+  INSERT INTO messages (profile_id, title, body)
+  VALUES (v_contest.organizer_id, 'Juror leave', format('"%s" leave the contest "%s"',v_juror.full_name, v_contest.name));
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- JUROR SUBMIT VOTES
-CREATE OR REPLACE FUNCTION juror_submit_votes(
+CREATE OR REPLACE FUNCTION juror_submit_votes (
     p_juror_id uuid,
     p_voting_session_id uuid,
     p_contest_id uuid,
@@ -199,7 +255,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while submitting';
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -218,15 +274,17 @@ DECLARE
   v_voting_session_simple_juror voting_session_simple_jurors;
 BEGIN
 
-  --todo controllo se simple jurors sono allowed
-
-  SELECT * INTO STRICT v_voting_session
+  SELECT * INTO v_voting_session
   FROM voting_sessions
   WHERE token = p_token;
 
+  IF (v_voting_session.are_simple_jurors_allowed = false) THEN
+    RAISE EXCEPTION 'Simple jurors not allowed for this voting session';
+  END IF;
+
   INSERT INTO simple_jurors (full_name)
   VALUES (p_full_name)
-  RETURNING * INTO STRICT v_simple_juror;
+  RETURNING * INTO v_simple_juror;
 
   INSERT INTO voting_session_simple_jurors (voting_session_id, simple_juror_id)
   VALUES (v_voting_session.id,v_simple_juror.id);
@@ -234,6 +292,11 @@ BEGIN
   RETURN QUERY
     SELECT v_simple_juror, v_voting_session;
 
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -251,15 +314,17 @@ DECLARE
   v_voting_session_simple_juror voting_session_simple_jurors;
 BEGIN
 
-  --todo controllo se simple jurors sono allowed
-
-  SELECT * INTO STRICT v_voting_session
+  SELECT * INTO v_voting_session
   FROM voting_sessions
   WHERE token = p_token;
 
+  IF (v_voting_session.are_simple_jurors_allowed = false) THEN
+    RAISE EXCEPTION 'Simple jurors not allowed for this voting session';
+  END IF;
+
   INSERT INTO simple_jurors (full_name)
   VALUES (p_full_name)
-  RETURNING * INTO STRICT v_simple_juror;
+  RETURNING * INTO v_simple_juror;
 
   INSERT INTO voting_session_simple_jurors (voting_session_id, simple_juror_id)
   VALUES (v_voting_session.id,v_simple_juror.id);
@@ -267,6 +332,11 @@ BEGIN
   RETURN QUERY
     SELECT v_simple_juror, v_voting_session;
 
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -298,30 +368,27 @@ BEGIN
     RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
   END IF;
 
-  SELECT *
-  INTO v_simple_juror
+  SELECT * INTO v_simple_juror
   FROM simple_jurors
   WHERE id = p_simple_juror_id;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Juror member not found';
+    RAISE EXCEPTION 'Simple juror not found';
   END IF;
 
   -- Step 2: Retrieve the VotingSessionJuration
-  SELECT *
-  INTO v_voting_session_simple_juror
+  SELECT * INTO v_voting_session_simple_juror
   FROM voting_session_simple_jurors
   WHERE voting_session_id = p_voting_session_id AND simple_juror_id = p_simple_juror_id;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Simple juror member not found';
+    RAISE EXCEPTION 'Simple juror not found';
   END IF;
 
   -- Step 3: Iterate over votesPerParticipantMap
-  FOR v_vot_session_participation_id, v_votes
-      IN
-    SELECT js.key::uuid, js.value
-    FROM jsonb_each(p_votes_per_participant_map) AS js(key, value)
+  FOR v_vot_session_participation_id, v_votes IN
+    (SELECT js.key::uuid, js.value
+    FROM jsonb_each(p_votes_per_participant_map) AS js(key, value))
   LOOP
     -- Create JurorVoting
     INSERT INTO simple_juror_votings (voting_session_simple_juror_id, voting_session_participation_id)
@@ -353,11 +420,11 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while submitting';
   END IF;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An error occurred while submitting';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 

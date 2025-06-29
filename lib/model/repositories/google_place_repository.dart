@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
@@ -39,6 +40,8 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
       final place = GooglePlace.fromJson(jsonData);
 
       return right(place);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } catch (e) {
       return left(Failure());
     }
@@ -80,6 +83,8 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
       }).toList(growable: false);
 
       return right(suggestionsList);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
     } catch (e) {
       return left(Failure());
     }

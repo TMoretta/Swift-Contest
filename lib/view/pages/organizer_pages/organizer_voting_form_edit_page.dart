@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -180,7 +180,6 @@ Future<VotingFormFieldNullable?> showAddFieldDialog({
 
   return await showDialog<VotingFormFieldNullable?>(
     context: context,
-    useRootNavigator: false,
     builder: (context) {
       return Form(
         key: formKey,

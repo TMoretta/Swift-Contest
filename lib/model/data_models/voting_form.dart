@@ -23,13 +23,6 @@ class VotingForm extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-    };
-  }
-
   VotingForm copyWith({
     String? id,
     DateTime? createdAt,

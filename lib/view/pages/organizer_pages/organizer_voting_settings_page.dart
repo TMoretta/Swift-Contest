@@ -9,7 +9,7 @@ import 'package:swift_contest/model/bundles/voting_exclusion_bundle.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';

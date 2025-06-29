@@ -30,6 +30,19 @@ final class ParticipantContestDetailsPageRefresh extends ParticipantContestDetai
   List<Object?> get props => [contestId, participantId];
 }
 
+final class ParticipantContestDetailsPageLeaveContest extends ParticipantContestDetailsPageEvent {
+  final String contestId;
+  final String participantId;
+
+  const ParticipantContestDetailsPageLeaveContest({
+    required this.contestId,
+    required this.participantId,
+  });
+
+  @override
+  List<Object?> get props => [contestId, participantId];
+}
+
 // final class ParticipantContestDetailsPageGetRemainingInfo extends ParticipantContestDetailsPageEvent {
 //   final HomeContestBundle homeContestBundle;
 //   final String participantId;

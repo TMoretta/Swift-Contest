@@ -35,16 +35,6 @@ class Place extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_address': address,
-      'p_lat': lat,
-      'p_lon': lon,
-    };
-  }
-
   Place copyWith({
     String? id,
     DateTime? createdAt,

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_form_field_bloc/place_picker_form_field_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 

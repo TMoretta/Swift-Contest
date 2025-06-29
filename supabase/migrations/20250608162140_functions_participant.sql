@@ -37,7 +37,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting joined contests';
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -49,11 +49,12 @@ CREATE OR REPLACE FUNCTION participant_join_contest(
 RETURNS void AS $$
 DECLARE
   v_invitation invitations;
-  v_contest_id uuid;
+  v_contest contests;
   v_participation participations;
+  v_participant profiles;
 BEGIN
 
-  SELECT * INTO STRICT v_invitation
+  SELECT * INTO v_invitation
   FROM invitations
   WHERE token = p_token AND member_role = 'participant';
 
@@ -61,7 +62,7 @@ BEGIN
     RAISE EXCEPTION 'No invitation found with the provided token';
   END IF;
 
-  SELECT id INTO STRICT v_contest_id
+  SELECT * INTO v_contest
   FROM contests
   WHERE id = v_invitation.contest_id;
 
@@ -73,9 +74,9 @@ BEGIN
     RAISE EXCEPTION 'The contest has been deleted';
   END IF;
 
-  SELECT * INTO v_participation FROM participations
-  WHERE contest_id = v_contest_id AND participant_id = p_participant_id
-  LIMIT 1;
+  SELECT * INTO v_participation
+  FROM participations
+  WHERE contest_id = v_contest.id AND participant_id = p_participant_id;
 
   IF FOUND THEN
     IF (v_participation.participant_status = 'joined') THEN
@@ -94,7 +95,7 @@ BEGIN
       participant_status,
       invitation_email
     ) VALUES (
-      v_contest_id,
+      v_contest.id,
       p_participant_id,
       'joined',
       v_invitation.email
@@ -104,6 +105,13 @@ BEGIN
   DELETE FROM invitations
   WHERE id = v_invitation.id;
 
+  SELECT * INTO v_participant
+  FROM profiles
+  WHERE id = p_participant_id;
+
+  INSERT INTO messages (profile_id, title, body)
+  VALUES (v_contest.organizer_id, 'Participant join', format('"%s" joined the contest "%s"',v_participant.full_name, v_contest.name));
+
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
@@ -112,8 +120,56 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+-- PARTICIPANT LEAVE CONTEST
+CREATE OR REPLACE FUNCTION participant_leave_contest (
+  p_contest_id uuid,
+  p_participant_id uuid
+)
+RETURNS void AS $$
+DECLARE
+  v_contest contests;
+  v_participant profiles;
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM participations
+    WHERE contest_id = p_contest_id AND participant_id = p_participant_id
+  ) THEN
+    RAISE EXCEPTION 'Participant not found';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM participations
+    WHERE contest_id = p_contest_id AND participant_id = p_participant_id AND participant_status = 'out'
+  ) THEN
+    RAISE EXCEPTION 'Participant is already out from the contest';
+  END IF;
+
+  UPDATE participations
+  SET participant_status = 'out'
+  WHERE contest_id = p_contest_id AND participant_id = p_participant_id;
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id;
+
+  SELECT * INTO v_participant
+  FROM profiles
+  WHERE id = p_participant_id;
+
+  INSERT INTO messages (profile_id, title, body)
+  VALUES (v_contest.organizer_id, 'Participant leave', format('"%s" leave the contest "%s"',v_participant.full_name, v_contest.name));
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexpected error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
 -- PARTICIPANT GET OWN WORK
-CREATE OR REPLACE FUNCTION participant_get_submitted_work(
+CREATE OR REPLACE FUNCTION participant_get_submitted_work (
   p_contest_id uuid,
   p_participant_id uuid
 )
@@ -128,7 +184,7 @@ BEGIN
   LIMIT 1;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'No participation found';
+    RAISE EXCEPTION 'No participant found';
   END IF;
 
   RETURN QUERY
@@ -141,7 +197,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while getting the work';
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -158,6 +214,7 @@ RETURNS void AS $$
 DECLARE
   v_contest contests;
   v_participation participations;
+  v_participant profiles;
 BEGIN
 
   SELECT * INTO v_contest
@@ -170,6 +227,10 @@ BEGIN
 
   IF (v_contest.deleted_at IS NOT null) THEN
     RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
+  END IF;
+
+  IF (v_contest.contest_status <> 'participationPhase') THEN
+    RAISE EXCEPTION 'Operation not allowed. The contest is not in participation phase';
   END IF;
 
   SELECT * INTO v_participation
@@ -191,11 +252,22 @@ BEGIN
   SET has_submitted = true
   WHERE id = v_participation.id;
 
+  SELECT * INTO v_participant
+  FROM profiles
+  WHERE id = p_participant_id;
+
+  INSERT INTO messages (profile_id, title, body)
+  VALUES (
+    v_contest.organizer_id,
+    'Work submission',
+    format('"%s" submitted a work for the contest "%s"', v_participant.full_name, v_contest.name)
+  );
+
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE EXCEPTION 'An error occurred while submitting the work';
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 

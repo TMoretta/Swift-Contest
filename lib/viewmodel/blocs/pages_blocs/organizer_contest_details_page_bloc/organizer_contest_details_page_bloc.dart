@@ -22,8 +22,7 @@ class OrganizerContestDetailsPageBloc
   OrganizerContestDetailsPageBloc({
     required GenericRepository genericRepository,
     required OrganizerRepository organizerRepository,
-  })  :
-        _genericRepository = genericRepository,
+  })  : _genericRepository = genericRepository,
         _organizerRepository = organizerRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerContestDetailsPageInit>(_init);
@@ -35,6 +34,8 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageRemoveParticipant>(_removeParticipant);
     on<OrganizerContestDetailsPageRemoveJuror>(_removeJuror);
     on<OrganizerContestDetailsPageDeleteContest>(_deleteContest);
+    on<OrganizerContestDetailsPageSetStatusAsActive>(_setStatusAsActive);
+    on<OrganizerContestDetailsPageSetStatusAsTerminated>(_setStatusAsTerminated);
   }
 
   FutureOr<void> _init(
@@ -172,6 +173,34 @@ class OrganizerContestDetailsPageBloc
     final eitherDeleteContest =
         await _organizerRepository.deleteContest(contestId: event.contestId);
     eitherDeleteContest.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _setStatusAsActive(
+    OrganizerContestDetailsPageSetStatusAsActive event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherSetStatus =
+        await _organizerRepository.setContestStatusAsActive(contestId: event.contestId);
+    eitherSetStatus.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _setStatusAsTerminated(
+    OrganizerContestDetailsPageSetStatusAsTerminated event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherSetStatus =
+        await _organizerRepository.setContestStatusAsTerminated(contestId: event.contestId);
+    eitherSetStatus.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
     );

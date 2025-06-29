@@ -7,7 +7,7 @@ import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
-import 'package:swift_contest/utils/functions/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/media_types.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';

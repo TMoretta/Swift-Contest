@@ -31,15 +31,6 @@ class JurorVoting extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_voting_session_juration_id': votingSessionJurationId,
-      'p_voting_session_participation_id': votingSessionParticipationId,
-    };
-  }
-
   JurorVoting copyWith({
     String? id,
     DateTime? createdAt,

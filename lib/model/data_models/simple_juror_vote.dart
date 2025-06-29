@@ -35,16 +35,6 @@ class SimpleJurorVote extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_simple_juror_voting_id': simpleJurorVotingId,
-      'p_voting_form_field_id': votingFormFieldId,
-      'p_value': value,
-    };
-  }
-
   SimpleJurorVote copyWith({
     String? id,
     DateTime? createdAt,

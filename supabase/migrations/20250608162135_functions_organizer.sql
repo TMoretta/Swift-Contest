@@ -48,6 +48,7 @@ RETURNS contests AS $$
 DECLARE
   v_place places;
   v_voting_form voting_forms;
+  v_contest_status contest_status;
   v_contest contests;
 BEGIN
 
@@ -81,6 +82,15 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while creating the contest';
   END IF;
 
+  v_contest_status := CASE
+    WHEN now() < p_contest.works_submission_start THEN
+      'preparationPhase'
+    WHEN now() BETWEEN p_contest.works_submission_start AND p_contest.works_submission_end THEN
+      'participationPhase'
+    ELSE
+      'votingPhase'
+  END;
+
   INSERT INTO contests (
     organizer_id,
     name,
@@ -101,7 +111,7 @@ BEGIN
     p_contest.works_submission_start,
     p_contest.works_submission_end,
     v_place.id,
-    p_contest.contest_status,
+    v_contest_status,
     p_contest.images_urls,
     v_voting_form.id
   )
@@ -109,6 +119,65 @@ BEGIN
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'An error occurred while creating the contest';
+  END IF;
+
+  RETURN v_contest;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+-- ORGANIZER EDIT CONTEST
+CREATE OR REPLACE FUNCTION organizer_edit_contest (
+  p_contest_id uuid,
+  p_name varchar,
+  p_description varchar,
+  p_place places,
+  p_date_time timestamptz,
+  p_works_submission_start timestamptz,
+  p_works_submission_end timestamptz,
+  p_images_urls text[]
+)
+RETURNS contests AS $$
+DECLARE
+  v_contest_status contest_status;
+  v_contest contests;
+BEGIN
+
+  IF EXISTS (
+    SELECT 1 FROM contests
+    WHERE id = p_contest_id AND deleted_at is not null
+  ) THEN
+    RAISE EXCEPTION 'Can not execute, the contest has been deleted';
+  END IF;
+
+  v_contest_status := CASE
+    WHEN now() < p_contest.works_submission_start THEN
+      'preparationPhase'
+    WHEN now() BETWEEN p_contest.works_submission_start AND p_contest.works_submission_end THEN
+      'participationPhase'
+    ELSE
+      'votingPhase'
+  END;
+
+  UPDATE contests
+  SET
+    name = p_name,
+    description = p_description,
+    date_time = p_date_time,
+    contest_status = v_contest_status,
+    works_submission_start = p_works_submission_start,
+    works_submission_end = p_works_submission_end,
+    images_urls = p_images_urls
+  WHERE id = p_contest_id
+  RETURNING * INTO v_contest;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating contest';
   END IF;
 
   RETURN v_contest;
@@ -175,6 +244,101 @@ EXCEPTION
     RAISE;
   WHEN OTHERS THEN
     RAISE EXCEPTION 'An unexpected error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+-- ORGANIZER SET CONTEST STATUS AS ACTIVE
+CREATE OR REPLACE FUNCTION organizer_set_contest_status_as_active (
+  p_contest_id uuid
+)
+RETURNS contests AS $$
+DECLARE
+  v_contest_status contest_status;
+  v_contest contests;
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM contests
+    WHERE id = p_contest_id
+  ) THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id;
+
+  IF (v_contest.deleted_at is not null) THEN
+    RAISE EXCEPTION 'Can not execute, the contest has been deleted';
+  END IF;
+
+  v_contest_status := CASE
+    WHEN now() < v_contest.works_submission_start THEN
+      'preparationPhase'
+    WHEN now() BETWEEN v_contest.works_submission_start AND v_contest.works_submission_end THEN
+      'participationPhase'
+    ELSE
+      'votingPhase'
+  END;
+
+  UPDATE contests
+  SET contest_status = v_contest_status
+  WHERE id = p_contest_id
+  RETURNING * INTO v_contest;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating the contest status';
+  END IF;
+
+  RETURN v_contest;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+-- ORGANIZER SET CONTEST STATUS AS TERMINATED
+CREATE OR REPLACE FUNCTION organizer_set_contest_status_as_terminated (
+  p_contest_id uuid
+)
+RETURNS contests AS $$
+DECLARE
+  v_contest contests;
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM contests
+    WHERE id = p_contest_id
+  ) THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM contests
+    WHERE id = p_contest_id AND deleted_at is not null
+  ) THEN
+    RAISE EXCEPTION 'Can not execute, the contest has been deleted';
+  END IF;
+
+  UPDATE contests
+  SET contest_status = 'terminated'
+  WHERE id = p_contest_id
+  RETURNING * INTO v_contest;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating the contest status';
+  END IF;
+
+  RETURN v_contest;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -405,6 +569,25 @@ BEGIN
 
       IF NOT FOUND THEN
         RAISE EXCEPTION 'An error occurred while initializing the voting session';
+      END IF;
+    END LOOP;
+  END IF;
+
+
+  IF array_length(p_voting_session_jurations, 1) IS NOT NULL THEN
+    FOR i IN 1..array_length(p_voting_session_jurations, 1) LOOP
+      v_voting_session_juration := p_voting_session_jurations[i];
+      IF (v_voting_session_juration.is_excluded = false) THEN
+        INSERT INTO messages (
+          profile_id,
+          title,
+          body
+        )
+        VALUES (
+          (SELECT juror_id FROM jurations WHERE id = v_voting_session_juration.juration_id),
+          'Voting session started',
+          'A new voting session has started for a contest you are judging'
+        );
       END IF;
     END LOOP;
   END IF;
@@ -913,13 +1096,6 @@ EXCEPTION
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
-
-
-
-
-
-
-
 
 
 

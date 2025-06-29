@@ -43,18 +43,6 @@ class VotingFormField extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_voting_form_id': votingFormId,
-      'p_name': name,
-      'p_order_index': orderIndex,
-      'p_min_value': minValue,
-      'p_max_value': maxValue,
-    };
-  }
-
   VotingFormField copyWith({
     String? id,
     DateTime? createdAt,

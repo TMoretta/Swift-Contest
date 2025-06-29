@@ -43,18 +43,6 @@ class Work extends Equatable {
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_created_at': createdAt.toUtc().toIso8601String(),
-      'p_participation_id': participationId,
-      'p_name': name,
-      'p_description': description,
-      'p_images_urls': imagesUrls,
-      'p_file_url': fileUrl,
-    };
-  }
-
   Work copyWith({
     String? id,
     DateTime? createdAt,

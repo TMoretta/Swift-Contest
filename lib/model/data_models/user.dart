@@ -23,13 +23,6 @@ class User extends Equatable{
     };
   }
 
-  Map<String, dynamic> toRpcJson() {
-    return {
-      'p_id': id,
-      'p_email': email,
-    };
-  }
-
   User copyWith({
     String? id,
     String? email,
