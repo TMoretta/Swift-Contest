@@ -21,6 +21,8 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, Message>> markMessageAsRead({required String messageId});
 
+  Future<Either<Failure, Unit>> deleteMessage({required String messageId});
+
   Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
 
   Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme});
@@ -132,6 +134,20 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final Map<String,dynamic> res = await _supabase.rpc('mark_message_as_read', params: {'p_message_id': messageId});
       return right(Message.fromJson(res));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteMessage({required String messageId}) async {
+    try {
+      await _supabase.rpc('delete_message', params: {'p_message_id': messageId});
+      return right(unit);
     } on SocketException {
       return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {

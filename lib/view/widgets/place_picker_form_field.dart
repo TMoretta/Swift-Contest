@@ -83,12 +83,6 @@ class PlacePickerFormField extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        disabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.surfaceDim,
-          ),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
         errorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.errorContainer,

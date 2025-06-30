@@ -31,8 +31,8 @@ class JurorVotingProcedurePageBloc
         _genericRepository = genericRepository,
         _jurorRepository = jurorRepository,
         super(JurorVotingProcedurePageState(status: BlocStatus.initial)) {
-    on<JurorVotingProcedurePageSubscribeToVotingSessionProcedure>(
-        _subscribeToVotingSessionProcedure);
+    on<JurorVotingProcedurePageSubscribeToVotingSessionProcedure>(_subscribeToVotingSessionProcedure);
+    on<JurorVotingProcedurePageResubscribeToVotingSessionProcedure>(_resubscribeToVotingSessionProcedure);
     on<JurorVotingProcedurePageSubmitVotes>(_submitVotes);
   }
 
@@ -76,6 +76,72 @@ class JurorVotingProcedurePageBloc
         eitherNewVotingSession.fold(
           (failure) => null,
           (success) => newVotingSession = success,
+        );
+        if (eitherNewVotingSession.isLeft()) {
+          return state.copyWith(status: BlocStatus.failure, message: 'No data received');
+        }
+
+        if (newVotingSession == null) {
+          return state;
+        }
+        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
+        if (newVotingSession == oldVotingSessionProcedure) {
+          return state;
+        }
+
+        return state.copyWith(
+          status: BlocStatus.success,
+          votingSessionProcedureBundle: state.votingSessionProcedureBundle!.copyWith(
+              votingSessionBundle: state.votingSessionProcedureBundle!.votingSessionBundle
+                  .copyWith(votingSession: newVotingSession)),
+        );
+      },
+      onError: (error, stackTrace) {
+        return state.copyWith(status: BlocStatus.failure, message: 'An error occurred');
+      },
+    );
+  }
+
+  FutureOr<void> _resubscribeToVotingSessionProcedure(
+      JurorVotingProcedurePageResubscribeToVotingSessionProcedure event,
+      Emitter<JurorVotingProcedurePageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    //* Getting the voting session bundle
+    late final VotingSessionProcedureBundle votingSessionBundle;
+    final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
+        votingSessionId: event.votingSessionId);
+    eitherVotingSessionBundle.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => votingSessionBundle = success,
+    );
+
+    //* Getting the stream
+    late final Stream<Either<Failure, VotingSession?>> votingSessionStream;
+    final eitherVotingSessionStream =
+    await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
+    eitherVotingSessionStream.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => votingSessionStream = success,
+    );
+    if (eitherVotingSessionStream.isLeft()) {
+      return;
+    }
+
+    //* Emit the initial voting session bundle
+    emit(state.copyWith(
+        status: BlocStatus.success, votingSessionProcedureBundle: votingSessionBundle));
+
+    //* Listen to procedure stream
+    await emit.forEach(
+      votingSessionStream,
+      onData: (eitherNewVotingSession) {
+        late VotingSession? newVotingSession;
+
+        eitherNewVotingSession.fold(
+              (failure) => null,
+              (success) => newVotingSession = success,
         );
         if (eitherNewVotingSession.isLeft()) {
           return state.copyWith(status: BlocStatus.failure, message: 'No data received');

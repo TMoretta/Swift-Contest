@@ -35,6 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthEditPrefRole>(_editPrefRole);
     on<AuthEditFullName>(_editFullName);
     on<AuthMarkMessageAsRead>(_markMessageAsRead);
+    on<AuthDeleteMessage>(_deleteMessage);
   }
 
   //* Init the state
@@ -42,7 +43,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthInit event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event, authStatus: AuthStatus.initial));
+    emit(state.copyWith(
+        blocStatus: BlocStatus.loading, sourceEvent: event, authStatus: AuthStatus.initial));
 
     if (event.delay != 0) {
       await Future.delayed(Duration(seconds: event.delay));
@@ -57,7 +59,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message: failure.message)),
       (success) => authBundle = success,
     );
-    if(eitherAuthBundle.isLeft()) {
+    if (eitherAuthBundle.isLeft()) {
       return;
     }
 
@@ -167,12 +169,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
-    final profile = state.profile;
-    if (profile == null) {
-      emit(state.copyWith(blocStatus: BlocStatus.failure, message: 'No user is authenticated'));
-      return;
-    }
-
     final eitherEditPrefTheme =
         await _authRepository.updateProfilePrefTheme(prefTheme: event.prefTheme);
     eitherEditPrefTheme.fold(
@@ -187,12 +183,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
-    final profile = state.profile;
-    if (profile == null) {
-      emit(state.copyWith(blocStatus: BlocStatus.failure, message: 'No user is authenticated'));
-      return;
-    }
-
     final eitherEditPrefRole =
         await _authRepository.updateProfilePrefRole(prefRole: event.prefRole);
     eitherEditPrefRole.fold(
@@ -206,12 +196,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final profile = state.profile;
-    if (profile == null) {
-      emit(state.copyWith(blocStatus: BlocStatus.failure, message: 'No user is authenticated'));
-      return;
-    }
 
     final eitherEditFullName =
         await _authRepository.updateProfileFullName(fullName: event.fullName);
@@ -231,7 +215,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _authRepository.markMessageAsRead(messageId: event.messageId);
     eitherMarkMessageAsRead.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
+      (success) {
+        final updatedMessages = state.messages!.map((e) {
+          if (e.id == success.id) {
+            e = e.copyWith(isRead: true);
+          }
+          return e;
+        }).toList(growable: false);
+        emit(state.copyWith(blocStatus: BlocStatus.success, messages: updatedMessages));
+      },
     );
   }
 
@@ -245,6 +237,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     eitherDeleteUser.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _deleteMessage(
+    AuthDeleteMessage event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
+
+    final eitherDeleteMessage = await _authRepository.deleteMessage(messageId: event.messageId);
+    eitherDeleteMessage.fold(
+      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+      (success) {
+        final List<Message> updatedMessages = [];
+        updatedMessages.addAll(state.messages!);
+        updatedMessages.remove(updatedMessages.firstWhere((e) => e.id == event.messageId));
+        emit(state.copyWith(blocStatus: BlocStatus.success, messages: updatedMessages));
+      },
     );
   }
 }

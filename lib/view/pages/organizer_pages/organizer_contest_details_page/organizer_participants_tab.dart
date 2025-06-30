@@ -148,62 +148,69 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                         itemBuilder: (context, index) {
                                           final participationBundle =
                                               joinedParticipationsBundles[index];
-                                          return Card(
-                                            elevation: 0.2,
-                                            child: ListTile(
-                                              trailing: IconButton(
-                                                onPressed: () {
-                                                  final contestDetailsBundle =
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Card(
+                                                elevation: 0.2,
+                                                child: ListTile(
+                                                  trailing: IconButton(
+                                                    onPressed: () {
+                                                      final contestDetailsBundle =
                                                       state.contestDetailsBundle!;
-                                                  final messageTitle = 'Out from contest';
-                                                  final messageBody = 'You have been expelled from'
-                                                      ' "${contestDetailsBundle.contest.name}"'
-                                                      ' by "${contestDetailsBundle.organizer.fullName}".';
-                                                  context
-                                                      .read<OrganizerContestDetailsPageBloc>()
-                                                      .add(
+                                                      final messageTitle = 'Out from contest';
+                                                      final messageBody = 'You have been expelled from'
+                                                          ' "${contestDetailsBundle.contest.name}"'
+                                                          ' by "${contestDetailsBundle.organizer.fullName}".';
+                                                      context
+                                                          .read<OrganizerContestDetailsPageBloc>()
+                                                          .add(
                                                           OrganizerContestDetailsPageRemoveParticipant(
-                                                        participationId:
+                                                            participationId:
                                                             participationBundle.participation.id,
-                                                        messageTitle: messageTitle,
-                                                        messageBody: messageBody,
-                                                      ));
-                                                },
-                                                icon: Icon(
-                                                  Icons.remove_circle_outline,
-                                                  color: Theme.of(context).colorScheme.error,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                participationBundle.participant.fullName,
-                                                style: Theme.of(context).textTheme.titleMedium,
-                                              ),
-                                              subtitle: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                spacing: 4,
-                                                children: [
-                                                  Text(
-                                                    participationBundle
-                                                        .participation.invitationEmail,
-                                                    style: Theme.of(context).textTheme.bodyMedium,
+                                                            messageTitle: messageTitle,
+                                                            messageBody: messageBody,
+                                                          ));
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.remove_circle_outline,
+                                                      color: Theme.of(context).colorScheme.error,
+                                                    ),
                                                   ),
-                                                  if (participationBundle.participant.deletedAt !=
-                                                      null)
-                                                    Text(
-                                                      'Deleted account',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .labelLarge
-                                                          ?.copyWith(
+                                                  title: Text(
+                                                    participationBundle.participant.fullName,
+                                                    style: Theme.of(context).textTheme.titleMedium,
+                                                  ),
+                                                  subtitle: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    spacing: 4,
+                                                    children: [
+                                                      Text(
+                                                        participationBundle
+                                                            .participation.invitationEmail,
+                                                        style: Theme.of(context).textTheme.bodyMedium,
+                                                      ),
+                                                      if (participationBundle.participant.deletedAt !=
+                                                          null)
+                                                        Text(
+                                                          'Deleted account',
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .labelLarge
+                                                              ?.copyWith(
                                                               color: Theme.of(context)
                                                                   .colorScheme
                                                                   .error),
-                                                    ),
-                                                ],
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                              if (index == joinedParticipationsBundles.length - 1)
+                                                SizedBox(height: 64),
+                                            ],
                                           );
                                         },
                                       ),
@@ -234,25 +241,32 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                         itemCount: participantsInvitations.length,
                                         itemBuilder: (context, index) {
                                           final invitation = participantsInvitations[index];
-                                          return Card(
-                                            elevation: 0.2,
-                                            child: ListTile(
-                                              title: Text(
-                                                invitation.email,
-                                                style: Theme.of(context).textTheme.titleMedium,
-                                              ),
-                                              trailing: IconButton(
-                                                onPressed: () {
-                                                  context.read<OrganizerContestDetailsPageBloc>().add(
-                                                      OrganizerContestDetailsPageDeleteInvitation(
-                                                          invitationId: invitation.id));
-                                                },
-                                                icon: Icon(
-                                                  Icons.remove,
-                                                  color: Theme.of(context).colorScheme.error,
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Card(
+                                                elevation: 0.2,
+                                                child: ListTile(
+                                                  title: Text(
+                                                    invitation.email,
+                                                    style: Theme.of(context).textTheme.titleMedium,
+                                                  ),
+                                                  trailing: IconButton(
+                                                    onPressed: () {
+                                                      context.read<OrganizerContestDetailsPageBloc>().add(
+                                                          OrganizerContestDetailsPageDeleteInvitation(
+                                                              invitationId: invitation.id));
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.remove,
+                                                      color: Theme.of(context).colorScheme.error,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                              if (index == participantsInvitations.length - 1)
+                                                SizedBox(height: 64),
+                                            ],
                                           );
                                         },
                                       ),
@@ -284,39 +298,46 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                         itemBuilder: (context, index) {
                                           final participationBundle =
                                               outParticipationsBundles[index];
-                                          return Card(
-                                            elevation: 0.2,
-                                            child: ListTile(
-                                              title: Text(
-                                                participationBundle.participant.fullName,
-                                                style: Theme.of(context).textTheme.titleMedium,
-                                              ),
-                                              subtitle: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                spacing: 4,
-                                                children: [
-                                                  Text(
-                                                    participationBundle
-                                                        .participation.invitationEmail,
-                                                    style: Theme.of(context).textTheme.bodyMedium,
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Card(
+                                                elevation: 0.2,
+                                                child: ListTile(
+                                                  title: Text(
+                                                    participationBundle.participant.fullName,
+                                                    style: Theme.of(context).textTheme.titleMedium,
                                                   ),
-                                                  if (participationBundle.participant.deletedAt !=
-                                                      null)
-                                                    Text(
-                                                      'Deleted account',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .labelLarge
-                                                          ?.copyWith(
+                                                  subtitle: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    spacing: 4,
+                                                    children: [
+                                                      Text(
+                                                        participationBundle
+                                                            .participation.invitationEmail,
+                                                        style: Theme.of(context).textTheme.bodyMedium,
+                                                      ),
+                                                      if (participationBundle.participant.deletedAt !=
+                                                          null)
+                                                        Text(
+                                                          'Deleted account',
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .labelLarge
+                                                              ?.copyWith(
                                                               color: Theme.of(context)
                                                                   .colorScheme
                                                                   .error),
-                                                    ),
-                                                ],
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                              if (index == outParticipationsBundles.length - 1)
+                                                SizedBox(height: 64),
+                                            ],
                                           );
                                         },
                                       ),
@@ -324,7 +345,6 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 52),
                       ],
                     );
                 }

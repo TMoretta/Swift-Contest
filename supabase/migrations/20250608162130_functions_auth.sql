@@ -72,7 +72,8 @@ BEGIN
       COALESCE(
         (SELECT jsonb_agg(to_jsonb(m) ORDER BY m.created_at DESC)
         FROM messages m
-        WHERE m.profile_id = p.id),
+        WHERE m.profile_id = p.id AND m.deleted_at is null
+        ),
         '[]'::jsonb
       )
     FROM auth.users u
@@ -138,7 +139,7 @@ BEGIN
     FROM messages mes
     JOIN profiles pro ON pro.id = mes.profile_id
     JOIN auth.users use ON use.id = pro.user_id
-    WHERE use.id = p_user_id
+    WHERE use.id = p_user_id AND mes.deleted_at is null
     ORDER BY created_at DESC;
 
 EXCEPTION
@@ -272,8 +273,63 @@ BEGIN
     RAISE EXCEPTION 'Message not found';
   END IF;
 
+  IF EXISTS (
+    SELECT 1 FROM messages
+    WHERE id = p_message_id AND deleted_at is not null
+  ) THEN
+    RAISE EXCEPTION 'Message has been deleted';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM messages
+    WHERE id = p_message_id AND is_read = true
+  ) THEN
+    RAISE EXCEPTION 'Message has been already marked as read';
+  END IF;
+
   UPDATE messages
   SET is_read = 'true'
+  WHERE id = p_message_id
+  RETURNING * INTO v_message;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating message';
+  END IF;
+
+  RETURN v_message;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+-- DELETE MESSAGE
+CREATE OR REPLACE FUNCTION delete_message (
+  p_message_id uuid
+)
+RETURNS messages AS $$
+DECLARE
+  v_message messages;
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM messages
+    WHERE id = p_message_id
+  ) THEN
+    RAISE EXCEPTION 'Message not found';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM messages
+    WHERE id = p_message_id AND deleted_at is not null
+  ) THEN
+    RAISE EXCEPTION 'Message has been deleted';
+  END IF;
+
+  UPDATE messages
+  SET deleted_at = now()
   WHERE id = p_message_id
   RETURNING * INTO v_message;
 

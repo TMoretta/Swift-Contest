@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -30,9 +31,6 @@ class _InboxPageState extends State<InboxPage> {
       listener: (context, state) {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
-        }
-        if(state.blocStatus.isSuccess && state.sourceEvent is AuthMarkMessageAsRead) {
-          context.read<AuthBloc>().add(AuthFetchProfileMessages());
         }
       },
       child: Scaffold(
@@ -78,8 +76,10 @@ class _InboxPageState extends State<InboxPage> {
                                         );
                                       },
                                     );
-                                    if(context.mounted && !message.isRead) {
-                                      context.read<AuthBloc>().add(AuthMarkMessageAsRead(messageId: message.id));
+                                    if (context.mounted && !message.isRead) {
+                                      context
+                                          .read<AuthBloc>()
+                                          .add(AuthMarkMessageAsRead(messageId: message.id));
                                     }
                                   },
                                   title: Text(message.title),
@@ -88,6 +88,39 @@ class _InboxPageState extends State<InboxPage> {
                                   tileColor: (!message.isRead)
                                       ? Theme.of(context).colorScheme.primaryContainer
                                       : Theme.of(context).colorScheme.surfaceContainer,
+                                  trailing: IconButton(
+                                      onPressed: () async {
+                                        final bool? res = await showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text('Delete message'),
+                                              content: Text(
+                                                  'Are you sure you want to delete this message?'),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      context.pop();
+                                                    },
+                                                    child: Text('Cancel')),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      context.pop(true);
+                                                    },
+                                                    child: Text('Proceed')),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                        if (res == true) {
+                                          if (context.mounted) {
+                                            context
+                                                .read<AuthBloc>()
+                                                .add(AuthDeleteMessage(messageId: message.id));
+                                          }
+                                        }
+                                      },
+                                      icon: Icon(Icons.delete)),
                                 );
                               },
                             ),

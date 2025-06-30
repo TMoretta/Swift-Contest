@@ -24,6 +24,17 @@ final class OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure extend
   List<Object?> get props => [votingSessionId];
 }
 
+final class OrganizerVotingProcedurePageResubscribeToVotingSessionProcedure extends OrganizerVotingProcedurePageEvent {
+  final String votingSessionId;
+
+  const OrganizerVotingProcedurePageResubscribeToVotingSessionProcedure({
+    required this.votingSessionId,
+  });
+
+  @override
+  List<Object?> get props => [votingSessionId];
+}
+
 final class OrganizerVotingProcedurePageCancelVotingSessionProcedure
     extends OrganizerVotingProcedurePageEvent {
   final String votingSessionId;

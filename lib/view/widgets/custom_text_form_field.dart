@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 //* CustomTextFormFieldOutlined
 class CustomTextFormFieldOutlined extends StatelessWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String? label;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
+  final String? initialValue;
   final AutovalidateMode? autovalidateMode;
   final bool? isFilled;
   final Color? fillColor;
@@ -25,10 +25,11 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
   final TextInputType? keyboardType;
 
   const CustomTextFormFieldOutlined({
-    required this.controller,
+    this.controller,
     this.label,
     this.onChanged,
     this.validator,
+    this.initialValue,
     this.autovalidateMode,
     this.isFilled,
     this.fillColor,
@@ -53,10 +54,12 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
     return TextFormField(
       enabled: enabled,
       controller: controller,
+      initialValue: initialValue,
       validator: validator,
       obscureText: obscureText ?? false,
       autovalidateMode: autovalidateMode,
       keyboardType: keyboardType,
+      onChanged: onChanged,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         label: Text(label ?? ''),
@@ -87,12 +90,6 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        disabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.onInverseSurface,
-          ),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
         errorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.errorContainer,
@@ -120,10 +117,11 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
 
 //* CustomTextFormFieldUnderlined
 class CustomTextFormFieldUnderlined extends StatelessWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String? label;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
+  final String? initialValue;
   final AutovalidateMode? autovalidateMode;
   final bool? isFilled;
   final Color? fillColor;
@@ -142,10 +140,11 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
   final TextInputType? keyboardType;
 
   const CustomTextFormFieldUnderlined({
-    required this.controller,
+    this.controller,
     this.label,
     this.onChanged,
     this.validator,
+    this.initialValue,
     this.autovalidateMode,
     this.isFilled,
     this.fillColor,
@@ -170,7 +169,9 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
     return TextFormField(
       controller: controller,
       validator: validator,
+      initialValue: initialValue,
       enabled: enabled,
+      onChanged: onChanged,
       obscureText: obscureText ?? false,
       autovalidateMode: autovalidateMode,
       keyboardType: keyboardType,
@@ -196,11 +197,6 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.inversePrimary,
-          ),
-        ),
-        disabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.onInverseSurface,
           ),
         ),
         errorBorder: UnderlineInputBorder(

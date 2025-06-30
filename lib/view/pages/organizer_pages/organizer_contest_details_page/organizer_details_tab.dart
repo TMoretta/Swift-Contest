@@ -252,6 +252,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         ),
                       ],
                     ),
+                    SizedBox(height: 64),
                   ],
                 ),
               );

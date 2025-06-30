@@ -144,57 +144,68 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                         itemCount: joinedJurationsBundles.length,
                                         itemBuilder: (context, index) {
                                           final jurationBundle = joinedJurationsBundles[index];
-                                          return Card(
-                                            elevation: 0.2,
-                                            child: ListTile(
-                                              trailing: IconButton(
-                                                onPressed: () {
-                                                  final contestDetailsBundle = state.contestDetailsBundle!;
-                                                  final messageTitle = 'Out from contest';
-                                                  final messageBody = 'You have been expelled from'
-                                                      ' "${contestDetailsBundle.contest.name}"'
-                                                      ' by "${contestDetailsBundle.organizer.fullName}".';
-                                                  context
-                                                      .read<OrganizerContestDetailsPageBloc>()
-                                                      .add(OrganizerContestDetailsPageRemoveJuror(
-                                                          jurationId: jurationBundle.juration.id,
-                                                  messageTitle: messageTitle, messageBody: messageBody));
-                                                },
-                                                icon: Icon(
-                                                  Icons.remove_circle_outline,
-                                                  color: Theme.of(context).colorScheme.error,
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Card(
+                                                elevation: 0.2,
+                                                child: ListTile(
+                                                  trailing: IconButton(
+                                                    onPressed: () {
+                                                      final contestDetailsBundle =
+                                                          state.contestDetailsBundle!;
+                                                      final messageTitle = 'Out from contest';
+                                                      final messageBody =
+                                                          'You have been expelled from'
+                                                          ' "${contestDetailsBundle.contest.name}"'
+                                                          ' by "${contestDetailsBundle.organizer.fullName}".';
+                                                      context
+                                                          .read<OrganizerContestDetailsPageBloc>()
+                                                          .add(
+                                                              OrganizerContestDetailsPageRemoveJuror(
+                                                                  jurationId:
+                                                                      jurationBundle.juration.id,
+                                                                  messageTitle: messageTitle,
+                                                                  messageBody: messageBody));
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.remove_circle_outline,
+                                                      color: Theme.of(context).colorScheme.error,
+                                                    ),
+                                                  ),
+                                                  title: Text(
+                                                    jurationBundle.juror.fullName,
+                                                    style: Theme.of(context).textTheme.titleMedium,
+                                                  ),
+                                                  subtitle: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    spacing: 4,
+                                                    children: [
+                                                      Text(
+                                                        jurationBundle.juration.invitationEmail,
+                                                        style:
+                                                            Theme.of(context).textTheme.bodyMedium,
+                                                      ),
+                                                      if (jurationBundle.juror.deletedAt != null)
+                                                        Text(
+                                                          'Deleted account',
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .labelLarge
+                                                              ?.copyWith(
+                                                                  color: Theme.of(context)
+                                                                      .colorScheme
+                                                                      .error),
+                                                        ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                              title: Text(
-                                                jurationBundle.juror.fullName,
-                                                style: Theme.of(context).textTheme.titleMedium,
-                                              ),
-                                              subtitle: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                spacing: 4,
-                                                children: [
-                                                  Text(
-                                                    jurationBundle
-                                                        .juration.invitationEmail,
-                                                    style: Theme.of(context).textTheme.bodyMedium,
-                                                  ),
-                                                  if (jurationBundle.juror.deletedAt !=
-                                                      null)
-                                                    Text(
-                                                      'Deleted account',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .labelLarge
-                                                          ?.copyWith(
-                                                          color: Theme.of(context)
-                                                              .colorScheme
-                                                              .error),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
+                                              if (index == joinedJurationsBundles.length - 1)
+                                                SizedBox(height: 64),
+                                            ],
                                           );
                                         },
                                       ),
@@ -225,22 +236,29 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                         itemCount: jurorsInvitations.length,
                                         itemBuilder: (context, index) {
                                           final invitation = jurorsInvitations[index];
-                                          return Card(
-                                            elevation: 0.2,
-                                            child: ListTile(
-                                              title: Text(invitation.email),
-                                              trailing: IconButton(
-                                                onPressed: () {
-                                                  context.read<OrganizerContestDetailsPageBloc>().add(
-                                                      OrganizerContestDetailsPageDeleteInvitation(
-                                                          invitationId: invitation.id));
-                                                },
-                                                icon: Icon(
-                                                  Icons.remove,
-                                                  color: Theme.of(context).colorScheme.error,
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Card(
+                                                elevation: 0.2,
+                                                child: ListTile(
+                                                  title: Text(invitation.email),
+                                                  trailing: IconButton(
+                                                    onPressed: () {
+                                                      context.read<OrganizerContestDetailsPageBloc>().add(
+                                                          OrganizerContestDetailsPageDeleteInvitation(
+                                                              invitationId: invitation.id));
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.remove,
+                                                      color: Theme.of(context).colorScheme.error,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                              if(index == jurorsInvitations.length -1 )
+                                                SizedBox(height: 64),
+                                            ],
                                           );
                                         },
                                       ),
@@ -271,13 +289,20 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                                         itemCount: outJurationsBundles.length,
                                         itemBuilder: (context, index) {
                                           final jurationBundle = outJurationsBundles[index];
-                                          return Card(
-                                            elevation: 0.2,
-                                            child: ListTile(
-                                              title: Text(jurationBundle.juror.fullName),
-                                              subtitle:
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Card(
+                                                elevation: 0.2,
+                                                child: ListTile(
+                                                  title: Text(jurationBundle.juror.fullName),
+                                                  subtitle:
                                                   Text(jurationBundle.juration.invitationEmail),
-                                            ),
+                                                ),
+                                              ),
+                                              if(index == outJurationsBundles.length-1)
+                                                SizedBox(height: 64),
+                                            ],
                                           );
                                         },
                                       ),
@@ -285,7 +310,6 @@ class _OrganizerJurorsTabState extends State<OrganizerJurorsTab> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 52),
                       ],
                     );
                 }
@@ -338,12 +362,13 @@ Future<bool?> _showInviteDialog({required BuildContext context, required String 
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    (!state.status.isLoading) ?
-                    CustomTextFormFieldUnderlined(
-                      controller: emailController,
-                      label: 'Email',
-                      validator: _emailValidator,
-                    ) : Loader(),
+                    (!state.status.isLoading)
+                        ? CustomTextFormFieldUnderlined(
+                            controller: emailController,
+                            label: 'Email',
+                            validator: _emailValidator,
+                          )
+                        : Loader(),
                   ],
                 ),
               ),
@@ -351,23 +376,23 @@ Future<bool?> _showInviteDialog({required BuildContext context, required String 
                 TextButton(
                   onPressed: (!state.status.isLoading)
                       ? () {
-                    context.pop();
-                  }
+                          context.pop();
+                        }
                       : null,
                   child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: (!state.status.isLoading)
                       ? () {
-                    if (invitationFormKey.currentState?.validate() ?? false) {
-                      context
-                          .read<OrganizerContestDetailsPageBloc>()
-                          .add(OrganizerContestDetailsPageSendJurorInvite(
-                        contestId: contestId,
-                        email: emailController.text.trim(),
-                      ));
-                    }
-                  }
+                          if (invitationFormKey.currentState?.validate() ?? false) {
+                            context
+                                .read<OrganizerContestDetailsPageBloc>()
+                                .add(OrganizerContestDetailsPageSendJurorInvite(
+                                  contestId: contestId,
+                                  email: emailController.text.trim(),
+                                ));
+                          }
+                        }
                       : null,
                   child: const Text('Ok'),
                 ),

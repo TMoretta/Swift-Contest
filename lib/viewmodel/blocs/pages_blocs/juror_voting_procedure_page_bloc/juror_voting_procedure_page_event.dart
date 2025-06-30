@@ -18,6 +18,20 @@ final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
   List<Object?> get props => [votingSessionId, jurorId];
 }
 
+final class JurorVotingProcedurePageResubscribeToVotingSessionProcedure
+    extends JurorVotingProcedurePageEvent {
+  final String votingSessionId;
+  final String jurorId;
+
+  const JurorVotingProcedurePageResubscribeToVotingSessionProcedure({
+    required this.votingSessionId,
+    required this.jurorId,
+  });
+
+  @override
+  List<Object?> get props => [votingSessionId, jurorId];
+}
+
 final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {
   final String jurorId;
   final VotingSession votingSession;

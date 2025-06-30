@@ -215,6 +215,10 @@ BEGIN
     RAISE EXCEPTION 'Juror member not found';
   END IF;
 
+  IF (v_voting_session_juration.has_submitted = true) THEN
+    RAISE EXCEPTION 'Votes already submitted';
+  END IF;
+
   -- Step 3: Iterate over votesPerParticipantMap
   FOR v_vot_session_participation_id, v_votes
       IN

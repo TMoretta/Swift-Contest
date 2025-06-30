@@ -14,7 +14,8 @@ CREATE TABLE messages (
   profile_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
   title text NOT NULL,
   body text NOT NULL,
-  is_read bool NOT NULL DEFAULT false
+  is_read bool NOT NULL DEFAULT false,
+  deleted_at timestamptz
 );
 
 CREATE TABLE places (

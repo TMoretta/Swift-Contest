@@ -93,62 +93,6 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                       ),
                     ),
                     SizedBox(height: 16),
-                    // Column(
-                    //   children: [
-                    //     Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //       children: [
-                    //         Text('Jurors\' form'),
-                    //         IconButton(
-                    //           onPressed: () async {
-                    //             final bool? res = await context.pushNamed(
-                    //               AppRouter.organizerVotingFormEdit,
-                    //               extra: votingFormBundle.toJson(),
-                    //             );
-                    //             if (context.mounted && res != null && res) {
-                    //               context.read<OrganizerContestDetailsPageBloc>().add(
-                    //                   OrganizerContestDetailsPageInit(
-                    //                       contestId: contestId));
-                    //             }
-                    //           },
-                    //           icon: Icon(Icons.edit),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //     SizedBox(
-                    //       height: 200,
-                    //       child: RefreshIndicator.adaptive(
-                    //         onRefresh: () async {
-                    //           context.read<OrganizerContestDetailsPageBloc>().add(
-                    //               OrganizerContestDetailsPageInit(contestId: contestId));
-                    //         },
-                    //         child: (votingFormFields.isNotEmpty)
-                    //             ? ListView.builder(
-                    //                 itemCount: votingFormFields.length,
-                    //                 itemBuilder: (context, index) {
-                    //                   final field = votingFormFields[index];
-                    //                   return ListTile(
-                    //                     title: Column(
-                    //                       children: [
-                    //                         Row(
-                    //                           children: [
-                    //                             Text(field.name),
-                    //                           ],
-                    //                         )
-                    //                       ],
-                    //                     ),
-                    //                   );
-                    //                 },
-                    //               )
-                    //             : ListView(
-                    //                 children: [
-                    //                   Text('No field added yet'),
-                    //                 ],
-                    //               ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                     //* Results
                     Align(
                       alignment: Alignment.centerLeft,
@@ -171,32 +115,39 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                 itemCount: endedVotingSessions.length,
                                 itemBuilder: (context, index) {
                                   final votingSession = endedVotingSessions[index];
-                                  return Card(
-                                    elevation: 0.05,
-                                    child: ListTile(
-                                      onTap: () {
-                                        context.pushNamed(AppRouter.organizerVotingResultDetails,
-                                            extra: votingSession.id);
-                                      },
-                                      title: Text(
-                                        votingSession.name,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      subtitle: Text(
-                                        DateFormat('dd MMM, yyyy | HH:mm')
-                                            .format(votingSession.createdAt),
-                                      ),
-                                      trailing: IconButton(
-                                        onPressed: () async {
-                                          await _showEditVotingSessionNameDialog(
-                                              context: context, votingSessionId: votingSession.id, contestId: contestId);
-                                        },
-                                        icon: Icon(
-                                          Icons.edit,
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Card(
+                                        elevation: 0.05,
+                                        child: ListTile(
+                                          onTap: () {
+                                            context.pushNamed(AppRouter.organizerVotingResultDetails,
+                                                extra: votingSession.id);
+                                          },
+                                          title: Text(
+                                            votingSession.name,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          subtitle: Text(
+                                            DateFormat('dd MMM, yyyy | HH:mm')
+                                                .format(votingSession.createdAt),
+                                          ),
+                                          trailing: IconButton(
+                                            onPressed: () async {
+                                              await _showEditVotingSessionNameDialog(
+                                                  context: context, votingSessionId: votingSession.id, contestId: contestId);
+                                            },
+                                            icon: Icon(
+                                              Icons.edit,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      if (index == endedVotingSessions.length - 1)
+                                        SizedBox(height: 72),
+                                    ],
                                   );
                                 },
                               )

@@ -79,28 +79,11 @@ final class AuthDeleteUser extends AuthEvent {
   List<Object?> get props => [];
 }
 
-final class AuthOnSignIn extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
+final class AuthDeleteMessage extends AuthEvent {
+  final String messageId;
 
-final class AuthOnSignUp extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
+  const AuthDeleteMessage({required this.messageId});
 
-final class AuthOnSignOut extends AuthEvent {
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [messageId];
 }
-
-final class AuthOnAdminSignIn extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
-
-final class AuthOnAdminSignOut extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
-
