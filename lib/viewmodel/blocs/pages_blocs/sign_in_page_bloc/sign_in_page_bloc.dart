@@ -61,7 +61,7 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherJoinContest = await _jurorRepository.accessVotingAsGuestSimpleJuror(
+    final eitherJoinContest = await _jurorRepository.accessVotingAsSimpleJuror(
         fullName: event.fullName, token: event.token);
     eitherJoinContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),

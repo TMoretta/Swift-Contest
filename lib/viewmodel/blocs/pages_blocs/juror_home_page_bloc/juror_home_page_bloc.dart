@@ -74,7 +74,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherJoinContest =
-    await _jurorRepository.accessVotingAsAuthSimpleJuror(fullName: event.fullName,token: event.token,jurorId: event.jurorId);
+    await _jurorRepository.accessVotingAsSimpleJuror(fullName: event.fullName,token: event.token,jurorId: event.jurorId);
     eitherJoinContest.fold(
           (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
           (success) => emit(state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),

@@ -7,29 +7,25 @@ sealed class JurorVotingProcedurePageEvent extends Equatable {
 final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
     extends JurorVotingProcedurePageEvent {
   final String votingSessionId;
-  final String jurorId;
 
   const JurorVotingProcedurePageSubscribeToVotingSessionProcedure({
     required this.votingSessionId,
-    required this.jurorId,
   });
 
   @override
-  List<Object?> get props => [votingSessionId, jurorId];
+  List<Object?> get props => [votingSessionId];
 }
 
 final class JurorVotingProcedurePageResubscribeToVotingSessionProcedure
     extends JurorVotingProcedurePageEvent {
   final String votingSessionId;
-  final String jurorId;
 
   const JurorVotingProcedurePageResubscribeToVotingSessionProcedure({
     required this.votingSessionId,
-    required this.jurorId,
   });
 
   @override
-  List<Object?> get props => [votingSessionId, jurorId];
+  List<Object?> get props => [votingSessionId];
 }
 
 final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {

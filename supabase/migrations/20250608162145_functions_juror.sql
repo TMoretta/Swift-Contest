@@ -263,10 +263,10 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
-CREATE OR REPLACE FUNCTION juror_access_voting_as_auth_simple_juror (
+CREATE OR REPLACE FUNCTION juror_access_voting_as_simple_juror (
   p_full_name varchar,
   p_token varchar,
-  p_juror_id uuid
+  p_juror_id uuid DEFAULT null
 )
 RETURNS TABLE (
   simple_juror simple_jurors,
@@ -286,44 +286,17 @@ BEGIN
     RAISE EXCEPTION 'Simple jurors not allowed for this voting session';
   END IF;
 
-  INSERT INTO simple_jurors (full_name)
-  VALUES (p_full_name)
-  RETURNING * INTO v_simple_juror;
-
-  INSERT INTO voting_session_simple_jurors (voting_session_id, simple_juror_id)
-  VALUES (v_voting_session.id,v_simple_juror.id);
-
-  RETURN QUERY
-    SELECT v_simple_juror, v_voting_session;
-
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexpected error occurred';
-END;
-$$ LANGUAGE plpgsql SECURITY definer;
-
-CREATE OR REPLACE FUNCTION juror_access_voting_as_guest_simple_juror (
-  p_full_name varchar,
-  p_token varchar
-)
-RETURNS TABLE (
-  simple_juror simple_jurors,
-  voting_session voting_sessions
-) AS $$
-DECLARE
-  v_voting_session voting_sessions;
-  v_simple_juror simple_jurors;
-  v_voting_session_simple_juror voting_session_simple_jurors;
-BEGIN
-
-  SELECT * INTO v_voting_session
-  FROM voting_sessions
-  WHERE token = p_token;
-
-  IF (v_voting_session.are_simple_jurors_allowed = false) THEN
-    RAISE EXCEPTION 'Simple jurors not allowed for this voting session';
+  IF (p_juror_id IS NOT null) THEN
+    IF EXISTS (
+      SELECT 1
+      FROM voting_session_jurations vsj
+      JOIN jurations j ON vsj.juration_id = j.id
+      WHERE vsj.voting_session_id = v_voting_session.id
+        AND j.juror_id = p_juror_id
+        AND vsj.has_submitted = true
+    ) THEN
+      RAISE EXCEPTION 'You have already submitted votes for this voting session as an official juror';
+    END IF;
   END IF;
 
   INSERT INTO simple_jurors (full_name)
@@ -345,11 +318,12 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- SIMPLE JUROR SUBMIT VOTES
-CREATE OR REPLACE FUNCTION simple_juror_submit_votes(
+CREATE OR REPLACE FUNCTION simple_juror_submit_votes (
     p_simple_juror_id uuid,
     p_voting_session_id uuid,
     p_contest_id uuid,
-    p_votes_per_participant_map jsonb
+    p_votes_per_participant_map jsonb,
+    p_juror_id uuid DEFAULT null
 )
 RETURNS void AS $$
 DECLARE
@@ -363,6 +337,19 @@ DECLARE
   v_votes jsonb;
   v_vote record;
 BEGIN
+
+  IF (p_juror_id IS NOT null) THEN
+    IF EXISTS (
+      SELECT 1
+      FROM voting_session_jurations vsj
+      JOIN jurations j ON vsj.juration_id = j.id
+      WHERE vsj.voting_session_id = p_voting_session_id
+        AND j.juror_id = p_juror_id
+        AND vsj.has_submitted = true
+    ) THEN
+      RAISE EXCEPTION 'You have already submitted votes for this voting session as an official juror';
+    END IF;
+  END IF;
 
   SELECT * INTO v_contest
   FROM contests

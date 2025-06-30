@@ -16,17 +16,31 @@ final class SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure
   List<Object?> get props => [votingSessionId];
 }
 
+final class SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure
+    extends SimpleJurorVotingProcedurePageEvent {
+  final String votingSessionId;
+
+  const SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure({
+    required this.votingSessionId,
+  });
+
+  @override
+  List<Object?> get props => [votingSessionId];
+}
+
 final class SimpleJurorVotingProcedurePageSubmitVotes extends SimpleJurorVotingProcedurePageEvent {
   final VotingSession votingSession;
   final Place? geoResPlace;
   final String simpleJurorId;
   final Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap;
+  final String? jurorId;
 
   const SimpleJurorVotingProcedurePageSubmitVotes({
     required this.votingSession,
     this.geoResPlace,
     required this.simpleJurorId,
     required this.votesPerParticipantMap,
+    this.jurorId,
   });
 
   @override
@@ -35,5 +49,6 @@ final class SimpleJurorVotingProcedurePageSubmitVotes extends SimpleJurorVotingP
         geoResPlace,
         simpleJurorId,
         votesPerParticipantMap,
+        jurorId,
       ];
 }
