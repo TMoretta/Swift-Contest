@@ -94,7 +94,7 @@ String? otpValidator(String? value, int length) {
   final val = value?.trim();
 
   if (val == null || val.isEmpty || val.length != length) {
-    return '';
+    return 'Enter a valid OTP';
   }
 
   return null;

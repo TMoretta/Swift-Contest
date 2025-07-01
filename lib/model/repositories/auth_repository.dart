@@ -420,6 +420,8 @@ Failure _authExceptionToRepositoryFailure(AuthException exception) {
         return Failure(message: exception.message);
       case 'over_email_send_rate_limit':
         return Failure(message: exception.message);
+      case 'otp_expired':
+        return Failure(message: exception.message);
       default:
         return Failure();
     }

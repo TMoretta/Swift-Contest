@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
+import 'package:swift_contest/view/widgets/my_logo.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
@@ -12,6 +13,7 @@ import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class RootPage extends StatefulWidget {
   final int delay;
+
   const RootPage({this.delay = 0, super.key});
 
   @override
@@ -60,57 +62,40 @@ class _RootPageState extends State<RootPage> {
             builder: (context, state) {
               switch (state.blocStatus) {
                 case BlocStatus.failure:
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
-                      return Stack(
-                        alignment: Alignment.center,
-                        fit: StackFit.expand,
+                  return RefreshIndicator(
+                    onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                    child: LayoutBuilder(builder: (context, constraints) {
+                      return ListView(
                         children: [
-                          if (state.blocStatus.isFailure)
-                            Positioned(
-                              top: 4,
-                              child: PullToRefreshHint(),
-                            ),
-                          RefreshIndicator.adaptive(
-                            onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
-                            child: SingleChildScrollView(
-                              physics: AlwaysScrollableScrollPhysics(),
-                              child: SizedBox(
-                                height: constraints.maxHeight,
-                                child: Center(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      'Swift Contest',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .displayMedium!
-                                          .copyWith(color: Theme.of(context).colorScheme.primary),
-                                    ),
-                                  ),
-                                ),
+                          SizedBox(
+                            height: constraints.maxHeight,
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  MyLogo(),
+                                  SizedBox(height: 32),
+                                  Text(
+                                    'An error occurred',
+                                    style: Theme
+                                        .of(context)
+                                        .textTheme
+                                        .bodyLarge,
+                                  )
+                                ],
                               ),
                             ),
-                          ),
+                          )
                         ],
                       );
-                    },
+                    },),
                   );
                 case BlocStatus.loading:
                   return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Swift Contest',
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayMedium!
-                                .copyWith(color: Theme.of(context).colorScheme.primary),
-                          ),
-                        ),
+                        MyLogo(),
                         SizedBox(height: 32),
                         Loader(),
                       ],
@@ -119,16 +104,7 @@ class _RootPageState extends State<RootPage> {
                 case BlocStatus.initial:
                 case BlocStatus.success:
                   return Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'Swift Contest',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayMedium!
-                            .copyWith(color: Theme.of(context).colorScheme.primary),
-                      ),
-                    ),
+                    child: MyLogo(),
                   );
               }
             },

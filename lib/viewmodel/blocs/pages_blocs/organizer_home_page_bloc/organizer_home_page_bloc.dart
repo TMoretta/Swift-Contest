@@ -40,7 +40,7 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
     OrganizerHomePageRefresh event,
     Emitter<OrganizerHomePageState> emit,
   ) async {
-    emit(OrganizerHomePageState(status: BlocStatus.loading, sourceEvent: event));
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherContests = await _organizerRepository.getCreatedContests(organizerId: event.userId);
     eitherContests.fold(

@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
-class OtpField extends StatefulWidget {
+class OtpField extends StatelessWidget {
   final int length;
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final String? Function(String?)? validator;
 
-  const OtpField(
-      {required this.length, this.controller, this.focusNode, this.validator, super.key});
+  const OtpField({
+    required this.length,
+    this.controller,
+    this.focusNode,
+    this.validator,
+    super.key,
+  });
 
-  @override
-  State<OtpField> createState() => _OtpFieldState();
-}
-
-class _OtpFieldState extends State<OtpField> {
   @override
   Widget build(BuildContext context) {
     return Pinput(
-      length: widget.length,
-      controller: widget.controller,
-      focusNode: widget.focusNode,
-      validator: widget.validator,
+      length: length,
+      controller: controller,
+      focusNode: focusNode,
+      validator: validator,
+      pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
       cursor: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

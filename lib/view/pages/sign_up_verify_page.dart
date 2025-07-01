@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -57,100 +58,84 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
           context.goNamed(AppRouter.root, extra: 0);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Verify account'),
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: BlocBuilder<SignUpVerifyPageBloc, SignUpVerifyPageState>(
-                builder: (context, state) {
-                  switch (state.status) {
-                    case BlocStatus.loading:
-                      return Loader();
-                    case BlocStatus.initial:
-                    case BlocStatus.failure:
-                    case BlocStatus.success:
-                      return Form(
-                        key: _formKey,
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: [
-                            Column(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Scaffold(
+            appBar: CustomAppBar(title: 'Verify account'),
+            body: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: BlocBuilder<SignUpVerifyPageBloc, SignUpVerifyPageState>(
+                  builder: (context, state) {
+                    return Center(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          Text(
+                            'A code has been sent to your email. Please check your inbox and verify your account.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          SizedBox(height: 32),
+                          Form(
+                            key: _formKey,
+                            child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                OtpField(
-                                  length: 6,
-                                  controller: _otpController,
-                                  validator: (value) => otpValidator(value, 6),
-                                  focusNode: focusNode,
-                                ),
-                                SizedBox(height: 20),
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: 100),
-                                  child: FilledButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState?.validate() ?? false) {
-                                        context.read<SignUpVerifyPageBloc>().add(SignUpVerifyOtp(
-                                            email: widget.email, otp: _otpController.text.trim()));
-                                      }
-                                    },
-                                    child: const Text('Verify'),
-                                  ),
+                                FormField(
+                                  validator: (value) => otpValidator(_otpController.text, 6),
+                                  builder: (field) {
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        OtpField(
+                                          length: 6,
+                                          controller: _otpController,
+                                        ),
+                                        if (field.hasError)
+                                          SizedBox(height: 8),
+                                        if (field.hasError)
+                                          Text(
+                                            'Enter a valid OTP',
+                                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                                color: Theme.of(context).colorScheme.error),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ],
-                            )
-                          ],
-                        ),
-                      );
-
-                    // return Form(
-                    //   key: _formKey,
-                    //   child: Padding(
-                    //     padding: EdgeInsets.all(16),
-                    //     child: Column(
-                    //       children: [
-                    //         //* Otp field
-                    //         CustomTextFormFieldOutlined(
-                    //           controller: _otpController,
-                    //           label: 'OTP',
-                    //           prefixIcon: Icon(Icons.lock),
-                    //         ),
-                    //         SizedBox(height: 10),
-                    //         //* Verify button
-                    //         SizedBox(
-                    //           width: double.infinity,
-                    //           child: ElevatedButton(
-                    //             onPressed: () {
-                    //               if (_formKey.currentState?.validate() ?? false) {
-                    //                 context.read<SignUpVerifyPageBloc>().add(SignUpVerifyOtp(
-                    //                     email: widget.email,
-                    //                     otp: _otpController.text.trim()));
-                    //               }
-                    //             },
-                    //             style: ElevatedButton.styleFrom(
-                    //               backgroundColor: Theme.of(context).colorScheme.primary,
-                    //               foregroundColor: Colors.white,
-                    //             ),
-                    //             child: const Text(
-                    //               'Verify',
-                    //               style: TextStyle(
-                    //                 fontSize: 16.0,
-                    //                 fontWeight: FontWeight.w500,
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // );
-                  }
-                },
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
+            floatingActionButton: FloatingActionButton.extended(
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  final otp = _otpController.text;
+                  context
+                      .read<SignUpVerifyPageBloc>()
+                      .add(SignUpVerifyOtp(email: widget.email, otp: otp));
+                }
+              },
+              label: const Text('Verify'),
+            ),
           ),
-        ),
+          BlocBuilder<SignUpVerifyPageBloc, SignUpVerifyPageState>(
+            builder: (context, state) {
+              if (state.status.isLoading) {
+                return ObscuredLoader();
+              }
+              return SizedBox.shrink();
+            },
+          ),
+        ],
       ),
     );
   }
