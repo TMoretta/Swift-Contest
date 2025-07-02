@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/bundles/simple_juror_and_voting_session_bundle.dart';
 import 'package:swift_contest/view/pages/account_page.dart';
 import 'package:swift_contest/view/pages/inbox_page.dart';
@@ -44,6 +43,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_proce
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_export_page_bloc/organizer_voting_result_export_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_work_details_page_bloc/organizer_work_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_home_page_bloc/participant_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submit_page_bloc/participant_work_submit_page_bloc.dart';
@@ -70,7 +70,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
       }
       // Se la pagina e' quella di votazione per giurati semplici non fa nulla perche' egli puo'
       // votare anche senza autenticazione
-      if(matchedLocation == '/simple_juror_voting_procedure') {
+      if (matchedLocation == '/simple_juror_voting_procedure') {
         return null;
       }
       // Se l'utente non è autenticato e prova ad andare in pagine diverse da quelle per l'autenticazione
@@ -107,7 +107,7 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.root,
         path: '/',
         pageBuilder: (context, state) {
-          if(state.extra == null) {
+          if (state.extra == null) {
             return MaterialPage(child: RootPage());
           }
           final delay = state.extra as int;
@@ -276,10 +276,14 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.organizerWorkDetails,
         path: '/organizer_work_details',
         pageBuilder: (context, state) {
-          final ParticipationBundle participationBundle =
-              ParticipationBundle.fromJson(state.extra as Map<String, dynamic>);
+          final String participationId = state.extra as String;
           return MaterialPage(
-            child: OrganizerWorkDetailsPage(participationBundle: participationBundle),
+            child: BlocProvider(
+              create: (context) => OrganizerWorkDetailsPageBloc(
+                organizerRepository: context.read(),
+              ),
+              child: OrganizerWorkDetailsPage(participationId: participationId),
+            ),
           );
         },
       ),
@@ -343,14 +347,14 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         name: AppRouter.organizerVotingSettings,
         path: '/organizer_voting_settings',
         pageBuilder: (context, state) {
-          final contestDetailsBundle =
-              ContestDetailsBundle.fromJson(state.extra as Map<String, dynamic>);
+          final String contestId = state.extra as String;
           return MaterialPage(
             child: BlocProvider(
               create: (context) => OrganizerVotingSettingsPageBloc(
+                genericRepository: context.read(),
                 organizerRepository: context.read(),
               ),
-              child: OrganizerVotingSettingsPage(contestDetailsBundle: contestDetailsBundle),
+              child: OrganizerVotingSettingsPage(contestId: contestId),
             ),
           );
         },

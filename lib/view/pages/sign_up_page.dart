@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_page_bloc/sign_up_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -55,7 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'Swift Contest',
+                              Labels.appTitle,
                               textAlign: TextAlign.center,
                               style: Theme.of(context)
                                   .textTheme
@@ -67,7 +68,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'Welcome to your contest manager',
+                              Labels.appSubtitle,
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
@@ -204,7 +205,7 @@ class _SignUpPageState extends State<SignUpPage> {
               if (state.status.isLoading) {
                 return ObscuredLoader();
               }
-              return SizedBox.shrink();
+              return VoidWidget();
             },
           ),
         ],

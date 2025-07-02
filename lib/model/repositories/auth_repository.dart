@@ -23,6 +23,8 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, Unit>> deleteMessage({required String messageId});
 
+  Future<Either<Failure, Unit>> deleteAllProfileMessages({required String profileId});
+
   Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
 
   Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme});
@@ -147,6 +149,20 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> deleteMessage({required String messageId}) async {
     try {
       await _supabase.rpc('delete_message', params: {'p_message_id': messageId});
+      return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteAllProfileMessages({required String profileId}) async {
+    try {
+      await _supabase.rpc('delete_all_profile_messages', params: {'p_profile_id': profileId});
       return right(unit);
     } on SocketException {
       return left(Failure(message: 'Network error'));

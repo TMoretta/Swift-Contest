@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -34,11 +35,29 @@ class JurorContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
+    late final ContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
         await _genericRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+      (success) => contestDetailsBundle = success,
+    );
+    if (eitherContestDetails.isLeft()) {
+      return;
+    }
+
+    if (contestDetailsBundle.liveVotingSession == null) {
+      emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: contestDetailsBundle));
+    }
+
+    final eitherProcedureBundle = await _genericRepository.getVotingSessionProcedureBundle(
+        votingSessionId: contestDetailsBundle.liveVotingSession!.id);
+    eitherProcedureBundle.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(
+          status: BlocStatus.success,
+          contestDetailsBundle: contestDetailsBundle,
+          votingSessionProcedureBundle: success)),
     );
   }
 
@@ -48,25 +67,51 @@ class JurorContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
+    late final ContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
-        await _genericRepository.getContestDetails(contestId: event.contestId);
+    await _genericRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => contestDetailsBundle = success,
     );
+    if (eitherContestDetails.isLeft()) {
+      return;
+    }
+
+    if (contestDetailsBundle.liveVotingSession == null) {
+      emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: contestDetailsBundle));
+    }
+
+    final eitherProcedureBundle = await _genericRepository.getVotingSessionProcedureBundle(
+        votingSessionId: contestDetailsBundle.liveVotingSession!.id);
+    eitherProcedureBundle.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(
+          status: BlocStatus.success,
+          contestDetailsBundle: contestDetailsBundle,
+          votingSessionProcedureBundle: success)),
+    );
+    // emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+    //
+    // final eitherContestDetails =
+    //     await _genericRepository.getContestDetails(contestId: event.contestId);
+    // eitherContestDetails.fold(
+    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+    //   (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+    // );
   }
 
   FutureOr<void> _leaveContest(
-      JurorContestDetailsPageLeaveContest event,
-      Emitter<JurorContestDetailsPageState> emit,
-      ) async {
+    JurorContestDetailsPageLeaveContest event,
+    Emitter<JurorContestDetailsPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherLeaveContest = await _jurorRepository.leaveContest(
-        contestId: event.contestId, jurorId: event.jurorId);
+    final eitherLeaveContest =
+        await _jurorRepository.leaveContest(contestId: event.contestId, jurorId: event.jurorId);
     eitherLeaveContest.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 }

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -52,7 +53,7 @@ class _SignInPageState extends State<SignInPage> {
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'Swift Contest',
+                              Labels.appTitle,
                               textAlign: TextAlign.center,
                               style: Theme.of(context)
                                   .textTheme
@@ -64,7 +65,7 @@ class _SignInPageState extends State<SignInPage> {
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'Welcome to your contest manager',
+                              Labels.appSubtitle,
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
@@ -158,7 +159,7 @@ class _SignInPageState extends State<SignInPage> {
                                 //* Vote as a simple juror
                                 TextButton(
                                   onPressed: () {
-                                    _showVoteAsSimpleJurorDialog(buildContext: context);
+                                    _showVoteAsSimpleJurorDialog(context: context);
                                   },
                                   child: DecoratedBox(
                                     decoration: BoxDecoration(
@@ -186,7 +187,7 @@ class _SignInPageState extends State<SignInPage> {
               if (state.status.isLoading) {
                 return ObscuredLoader();
               }
-              return SizedBox.shrink();
+              return VoidWidget();
             },
           ),
         ],
@@ -195,82 +196,79 @@ class _SignInPageState extends State<SignInPage> {
   }
 }
 
-Future<bool?> _showVoteAsSimpleJurorDialog({required BuildContext buildContext}) async {
-  final signInPageBloc = buildContext.read<SignInPageBloc>();
-  return await showDialog(
-    context: buildContext,
+void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
+  final signInPageBloc = context.read<SignInPageBloc>();
+  showDialog(
+    context: context,
     builder: (context) {
       final accessVotingFormKey = GlobalKey<FormState>();
       final fullNameController = TextEditingController();
       final tokenController = TextEditingController();
       return BlocProvider.value(
         value: signInPageBloc,
-        child: AlertDialog(
-          title: Text('Vote as simple juror'),
-          content: Form(
-            key: accessVotingFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CustomTextFormFieldUnderlined(
-                  controller: fullNameController,
-                  label: 'Full name',
-                  validator: (value) => noEmptyValidator(value?.trim()),
+        child: BlocListener<SignInPageBloc, SignInPageState>(
+          listener: (context, state) {
+            if (state.status.isSuccess && state.sourceEvent is SignInPageVoteAsSimpleJuror) {
+              context.pop();
+              context.replaceNamed(AppRouter.simpleJurorVotingProcedure,
+                  extra: state.simpleJurorAndVotingSessionBundle!.toJson());
+            }
+          },
+          child: Stack(
+            children: [
+              AlertDialog(
+                title: Text('Vote as simple juror'),
+                content: Form(
+                  key: accessVotingFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomTextFormFieldUnderlined(
+                        controller: fullNameController,
+                        label: 'Full name',
+                        validator: (value) => noEmptyValidator(value?.trim()),
+                      ),
+                      CustomTextFormFieldUnderlined(
+                        controller: tokenController,
+                        label: 'Token',
+                        validator: (value) => noEmptyValidator(value?.trim()),
+                      ),
+                    ],
+                  ),
                 ),
-                CustomTextFormFieldUnderlined(
-                  controller: tokenController,
-                  label: 'Token',
-                  validator: (value) => noEmptyValidator(value?.trim()),
-                ),
-              ],
-            ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    child: Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      if (accessVotingFormKey.currentState?.validate() ?? false) {
+                        signInPageBloc.add(
+                          SignInPageVoteAsSimpleJuror(
+                            fullName: fullNameController.text.trim(),
+                            token: tokenController.text.trim(),
+                          ),
+                        );
+                      }
+                    },
+                    child: Text('Ok'),
+                  ),
+                ],
+              ),
+              BlocBuilder<SignInPageBloc, SignInPageState>(
+                builder: (context, state) {
+                  if (state.status.isLoading) {
+                    return ObscuredLoader();
+                  }
+                  return VoidWidget();
+                },
+              ),
+            ],
           ),
-          actions: [
-            BlocConsumer<SignInPageBloc, SignInPageState>(
-              listener: (context, state) {
-                if (state.status.isFailure) {
-                  showSnackBar(context: context, text: state.message!);
-                }
-                if (state.status.isSuccess && state.sourceEvent is SignInPageVoteAsSimpleJuror) {
-                  context.pop();
-                  buildContext.pushNamed(AppRouter.simpleJurorVotingProcedure,
-                      extra: state.simpleJurorAndVotingSessionBundle!.toJson());
-                }
-              },
-              builder: (context, state) {
-                if (state.status.isLoading) {
-                  return Loader();
-                }
-                return Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (accessVotingFormKey.currentState?.validate() ?? false) {
-                          context.read<SignInPageBloc>().add(
-                                SignInPageVoteAsSimpleJuror(
-                                  fullName: fullNameController.text.trim(),
-                                  token: tokenController.text.trim(),
-                                ),
-                              );
-                        }
-                      },
-                      child: Text('Ok'),
-                    ),
-                  ],
-                );
-              },
-            )
-          ],
         ),
       );
     },

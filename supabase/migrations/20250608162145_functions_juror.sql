@@ -282,6 +282,10 @@ BEGIN
   FROM voting_sessions
   WHERE token = p_token;
 
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
   IF (v_voting_session.are_simple_jurors_allowed = false) THEN
     RAISE EXCEPTION 'Simple jurors not allowed for this voting session';
   END IF;
@@ -291,11 +295,20 @@ BEGIN
       SELECT 1
       FROM voting_session_jurations vsj
       JOIN jurations j ON vsj.juration_id = j.id
-      WHERE vsj.voting_session_id = v_voting_session.id
-        AND j.juror_id = p_juror_id
-        AND vsj.has_submitted = true
+      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = p_juror_id AND vsj.has_submitted = false
     ) THEN
-      RAISE EXCEPTION 'You have already submitted votes for this voting session as an official juror';
+      RAISE EXCEPTION 'You are a member in this contest, vote as an official juror instead';
+    END IF;
+  END IF;
+
+  IF (p_juror_id IS NOT null) THEN
+    IF EXISTS (
+      SELECT 1
+      FROM voting_session_jurations vsj
+      JOIN jurations j ON vsj.juration_id = j.id
+      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = p_juror_id AND vsj.has_submitted = true
+    ) THEN
+      RAISE EXCEPTION 'You have already voted in this voting session as an official juror';
     END IF;
   END IF;
 

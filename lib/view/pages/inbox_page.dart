@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
@@ -17,12 +19,12 @@ class InboxPage extends StatefulWidget {
 }
 
 class _InboxPageState extends State<InboxPage> {
-  late Profile profile;
+  late String profileId;
 
   @override
-  void initState() {
-    super.initState();
-    profile = context.read<AuthBloc>().state.profile!;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    profileId = context.read<AuthBloc>().state.profile!.id;
   }
 
   @override
@@ -33,32 +35,95 @@ class _InboxPageState extends State<InboxPage> {
           showSnackBar(context: context, text: state.message!);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Inbox'),
-        body: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            switch (state.blocStatus) {
-              case BlocStatus.initial:
-                return SizedBox.shrink();
-              case BlocStatus.loading:
-                return Loader();
-              case BlocStatus.failure:
-              case BlocStatus.success:
-                return LayoutBuilder(
-                  builder: (context, constraints) {
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: CustomAppBar(
+              title: 'Inbox',
+              actions: [
+                BlocConsumer<AuthBloc, AuthState>(
+                  listener: (context, state) {
+                    if (state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteAllMessages) {
+                      context.pop();
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state.messages != null && state.messages!.isNotEmpty) {
+                      return TextButton(
+                        onPressed: () {
+                          final authBloc = context.read<AuthBloc>();
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Delete all messages'),
+                                content: Text('Are you sure you want to delete all messages?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      context.pop();
+                                    },
+                                    child: Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      authBloc.add(AuthDeleteAllMessages(profileId: profileId));
+                                    },
+                                    child: Text('Proceed'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Text('Delete all'),
+                      );
+                    } else {
+                      return VoidWidget();
+                    }
+                  },
+                ),
+              ],
+            ),
+            body: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                switch (state.blocStatus) {
+                  case BlocStatus.initial:
+                    return VoidWidget();
+                  case BlocStatus.loading:
+                    if (state.sourceEvent is AuthInit) {
+                      return VoidWidget();
+                    } else {
+                      continue successCase;
+                    }
+                  case BlocStatus.failure:
+                    if (state.sourceEvent is AuthInit) {
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                      );
+                    } else {
+                      continue successCase;
+                    }
+                  successCase:
+                  case BlocStatus.success:
                     return RefreshIndicator.adaptive(
                       onRefresh: () async =>
                           context.read<AuthBloc>().add(AuthFetchProfileMessages()),
                       child: (state.messages!.isEmpty)
-                          ? ListView(
-                              children: [
-                                SizedBox(
-                                  height: constraints.maxHeight,
-                                  child: Center(
-                                    child: Text('No message yet'),
-                                  ),
-                                ),
-                              ],
+                          ? LayoutBuilder(
+                              builder: (context, constraints) {
+                                return ListView(
+                                  children: [
+                                    SizedBox(
+                                      height: constraints.maxHeight,
+                                      child: Center(
+                                        child: Text('No message yet'),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
                             )
                           : ListView.builder(
                               itemCount: state.messages!.length,
@@ -125,11 +190,19 @@ class _InboxPageState extends State<InboxPage> {
                               },
                             ),
                     );
-                  },
-                );
-            }
-          },
-        ),
+                }
+              },
+            ),
+          ),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state.blocStatus.isLoading) {
+                return ObscuredLoader();
+              }
+              return VoidWidget();
+            },
+          ),
+        ],
       ),
     );
   }

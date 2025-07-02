@@ -9,10 +9,13 @@ import 'package:intl/intl.dart';
 import 'package:pinput/pinput.dart';
 import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
@@ -20,6 +23,7 @@ import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_edit_page_bloc/organizer_contest_edit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_form_field_bloc/place_picker_form_field_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class OrganizerContestEditPage extends StatefulWidget {
   final String contestId;
@@ -37,7 +41,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
 
-  bool isInitialized = false;
+  bool isPageInitialized = false;
 
   List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
@@ -78,128 +82,129 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
           context.pop(true);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Edit contest'),
-        body: BlocBuilder<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
-          builder: (context, state) {
-            switch (state.status) {
-              case BlocStatus.initial:
-                return SizedBox.shrink();
-              case BlocStatus.loading:
-                return Loader();
-              case BlocStatus.failure:
-                if (state.sourceEvent is OrganizerContestEditPageInit) {
-                  return RefreshIndicator.adaptive(
-                    onRefresh: () async => context
-                        .read<OrganizerContestEditPageBloc>()
-                        .add(OrganizerContestEditPageInit(contestId: contestId)),
-                    child: ListView(),
-                  );
-                } else {
-                  continue successCase;
-                }
-              successCase:
-              case BlocStatus.success:
-                if(!isInitialized) {
-                  final contestDetailsBundle = state.contestDetailsBundle!;
-                  nameController.setText(contestDetailsBundle.contest.name);
-                  descriptionController.setText(contestDetailsBundle.contest.description);
-                  date = contestDetailsBundle.contest.dateTime;
-                  dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
-                  time = TimeOfDay.fromDateTime(contestDetailsBundle.contest.dateTime);
-                  timeController.setText('${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
-                  place= contestDetailsBundle.place;
-                  placeController.setText(place!.address);
-                  worksSubmissionStart = contestDetailsBundle.contest.worksSubmissionStart;
-                  worksSubmissionEnd = contestDetailsBundle.contest.worksSubmissionEnd;
-                  worksSubmissionStartController.setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
-                  worksSubmissionEndController.setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
-                  oldImagesUrls.addAll(contestDetailsBundle.contest.imagesUrls);
-                  isInitialized = true;
-
-
-                  // final nameController = TextEditingController();
-                  // final descriptionController = TextEditingController();
-                  // final dateController = TextEditingController();
-                  // DateTime? date;
-                  // final timeController = TextEditingController();
-                  // TimeOfDay? time;
-                  // final placeController = TextEditingController();
-                  // GooglePlace? place;
-                  // final worksSubmissionStartController = TextEditingController();
-                  // DateTime? worksSubmissionStart;
-                  // final worksSubmissionEndController = TextEditingController();
-                  // DateTime? worksSubmissionEnd;
-                  // final List<XFile> images = [];
-                }
-                return Stepper(
-                  type: StepperType.horizontal,
-                  elevation: 0,
-                  steps: getSteps(),
-                  currentStep: currentStep,
-                  onStepContinue: () {
-                    final isLastStep = (currentStep == getSteps().length - 1);
-                    if (formKeys[currentStep].currentState?.validate() ?? false) {
-                      if (isLastStep) {
-                        final name = nameController.text;
-                        final description = descriptionController.text;
-                        final dateTime =
-                        DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
-                        context.read<OrganizerContestEditPageBloc>().add(
-                          OrganizerContestEditPageEditContest(
-                            contestId: contestId,
-                            name: name,
-                            description: description,
-                            place: place!,
-                            dateTime: dateTime,
-                            worksSubmissionStart: worksSubmissionStart!,
-                            worksSubmissionEnd: worksSubmissionEnd!,
-                            images: (images.isNotEmpty) ? images : null,
-                            oldImagesUrls: oldImagesUrls,
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: CustomAppBar(title: 'Edit contest'),
+            body: BlocBuilder<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
+              builder: (context, state) {
+                switch (state.status) {
+                  case BlocStatus.initial:
+                    return VoidWidget();
+                  case BlocStatus.loading:
+                    if (state.sourceEvent is OrganizerContestEditPageInit) {
+                      return VoidWidget();
+                    } else {
+                      continue successCase;
+                    }
+                  case BlocStatus.failure:
+                    if (state.sourceEvent is OrganizerContestEditPageInit) {
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async => context
+                            .read<OrganizerContestEditPageBloc>()
+                            .add(OrganizerContestEditPageInit(contestId: contestId)),
+                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                      );
+                    } else {
+                      continue successCase;
+                    }
+                  successCase:
+                  case BlocStatus.success:
+                    if (!isPageInitialized) {
+                      final contestDetailsBundle = state.contestDetailsBundle!;
+                      nameController.setText(contestDetailsBundle.contest.name);
+                      descriptionController.setText(contestDetailsBundle.contest.description);
+                      date = contestDetailsBundle.contest.dateTime;
+                      dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
+                      time = TimeOfDay.fromDateTime(contestDetailsBundle.contest.dateTime);
+                      timeController.setText(
+                          '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
+                      place = contestDetailsBundle.place;
+                      placeController.setText(place!.address);
+                      worksSubmissionStart = contestDetailsBundle.contest.worksSubmissionStart;
+                      worksSubmissionEnd = contestDetailsBundle.contest.worksSubmissionEnd;
+                      worksSubmissionStartController
+                          .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
+                      worksSubmissionEndController
+                          .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
+                      oldImagesUrls.addAll(contestDetailsBundle.contest.imagesUrls);
+                      isPageInitialized = true;
+                    }
+                    return Stepper(
+                      type: StepperType.horizontal,
+                      elevation: 0,
+                      steps: getSteps(),
+                      currentStep: currentStep,
+                      onStepContinue: () {
+                        final isLastStep = (currentStep == getSteps().length - 1);
+                        if (formKeys[currentStep].currentState?.validate() ?? false) {
+                          if (isLastStep) {
+                            final name = nameController.text;
+                            final description = descriptionController.text;
+                            final dateTime = DateTime(
+                                date!.year, date!.month, date!.day, time!.hour, time!.minute);
+                            context.read<OrganizerContestEditPageBloc>().add(
+                                  OrganizerContestEditPageEditContest(
+                                    contestId: contestId,
+                                    name: name,
+                                    description: description,
+                                    place: place!,
+                                    dateTime: dateTime,
+                                    worksSubmissionStart: worksSubmissionStart!,
+                                    worksSubmissionEnd: worksSubmissionEnd!,
+                                    images: (images.isNotEmpty) ? images : null,
+                                    oldImagesUrls: oldImagesUrls,
+                                  ),
+                                );
+                          } else {
+                            setState(() => ++currentStep);
+                          }
+                        }
+                      },
+                      onStepCancel: () {
+                        (currentStep == 0) ? null : setState(() => --currentStep);
+                      },
+                      controlsBuilder: (context, details) {
+                        final isLastStep = details.currentStep == getSteps().length - 1;
+                        return Container(
+                          margin: EdgeInsets.only(top: 20),
+                          child: Row(
+                            mainAxisAlignment: (currentStep == 0)
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.spaceBetween,
+                            spacing: 12,
+                            children: [
+                              if (details.currentStep != 0)
+                                ElevatedButton(
+                                  onPressed: () {
+                                    details.onStepCancel!();
+                                  },
+                                  child: Text('Back'),
+                                ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  details.onStepContinue!();
+                                },
+                                child: isLastStep ? Text('Edit') : Text('Next'),
+                              ),
+                            ],
                           ),
                         );
-                      } else {
-                        setState(() => ++currentStep);
-                      }
-                    }
-                  },
-                  onStepCancel: () {
-                    (currentStep == 0) ? null : setState(() => --currentStep);
-                  },
-                  controlsBuilder: (context, details) {
-                    final isLastStep = details.currentStep == getSteps().length - 1;
-                    return Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Row(
-                        mainAxisAlignment:
-                        (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
-                        spacing: 12,
-                        children: [
-                          if (details.currentStep != 0)
-                            ElevatedButton(
-                              onPressed: (!state.status.isLoading)
-                                  ? () {
-                                details.onStepCancel!();
-                              }
-                                  : null,
-                              child: Text('Back'),
-                            ),
-                          ElevatedButton(
-                            onPressed: (!state.status.isLoading)
-                                ? () {
-                              details.onStepContinue!();
-                            }
-                                : null,
-                            child: isLastStep ? Text('Edit') : Text('Next'),
-                          ),
-                        ],
-                      ),
+                      },
                     );
-                  },
-                );
-            }
-          },
-        ),
+                }
+              },
+            ),
+          ),
+          BlocBuilder<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
+            builder: (context, state) {
+              if (state.status.isLoading) {
+                return ObscuredLoader();
+              }
+              return VoidWidget();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -222,11 +227,15 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   controller: nameController,
                   label: 'Name',
                   validator: (value) => nameValidator(value?.trim()),
+                  minLines: 1,
+                  maxLines: 2,
                 ),
                 CustomTextFormFieldOutlined(
                   controller: descriptionController,
                   label: 'Description',
                   validator: (value) => descriptionValidator(value?.trim()),
+                  minLines: 2,
+                  maxLines: 4,
                 ),
                 DatePickerFormField(
                   controller: dateController,
@@ -249,7 +258,8 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                     controller: placeController,
                     label: 'Location',
                     validator: (value) => locationValidator(value),
-                    onSelected: (googlePlace) => place?.copyWith(address: googlePlace.address,lat: googlePlace.lat,lon: googlePlace.lon),
+                    onSelected: (googlePlace) => place?.copyWith(
+                        address: googlePlace.address, lat: googlePlace.lat, lon: googlePlace.lon),
                     prefixIcon: Icon(Icons.place_outlined),
                   ),
                 )
@@ -265,14 +275,14 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
           content: Form(
             key: secondFormKey,
             child: FormField(
-              validator: (value) => _imagesValidator(images,oldImagesUrls),
+              validator: (value) => _imagesValidator(images, oldImagesUrls),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               builder: (field) {
                 return Column(
                   children: [
-                    if(images.isEmpty && oldImagesUrls.isEmpty)
+                    if (images.isEmpty && oldImagesUrls.isEmpty)
                       Center(child: Text('No image selected yet.'))
-                    else if(images.isEmpty && oldImagesUrls.isNotEmpty)
+                    else if (images.isEmpty && oldImagesUrls.isNotEmpty)
                       GridView.builder(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
@@ -290,8 +300,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                               fit: BoxFit.cover,
                               width: 5,
                               filterQuality: FilterQuality.medium,
-                              frameBuilder:
-                                  (context, child, frame, wasSynchronouslyLoaded) {
+                              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                                 if (wasSynchronouslyLoaded || frame != null) {
                                   return child;
                                 }
@@ -322,63 +331,24 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                             borderRadius: BorderRadius.circular(8),
                             child: (kIsWeb)
                                 ? Image.network(
-                              images[index].path,
-                              filterQuality: FilterQuality.medium,
-                            )
+                                    images[index].path,
+                                    filterQuality: FilterQuality.medium,
+                                  )
                                 : Image.file(
-                              File(images[index].path),
-                              fit: BoxFit.cover,
-                              width: 5,
-                              filterQuality: FilterQuality.medium,
-                              frameBuilder:
-                                  (context, child, frame, wasSynchronouslyLoaded) {
-                                if (wasSynchronouslyLoaded || frame != null) {
-                                  return child;
-                                }
-                                return const Loader();
-                              },
-                            ),
+                                    File(images[index].path),
+                                    fit: BoxFit.cover,
+                                    width: 5,
+                                    filterQuality: FilterQuality.medium,
+                                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                      if (wasSynchronouslyLoaded || frame != null) {
+                                        return child;
+                                      }
+                                      return const Loader();
+                                    },
+                                  ),
                           );
                         },
                       ),
-
-
-                    // (images.isEmpty)
-                    //     ? Center(child: Text('No image selected yet.'))
-                    //     : GridView.builder(
-                    //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    //           crossAxisCount: 3,
-                    //           mainAxisSpacing: 4,
-                    //           crossAxisSpacing: 4,
-                    //         ),
-                    //         shrinkWrap: true,
-                    //         physics: NeverScrollableScrollPhysics(),
-                    //         itemCount: images.length,
-                    //         itemBuilder: (context, index) {
-                    //           return ClipRRect(
-                    //             borderRadius: BorderRadius.circular(8),
-                    //             child: (kIsWeb)
-                    //                 // ? buildImageForWeb(images[index])
-                    //                 ? Image.network(
-                    //                     images[index].path,
-                    //                     filterQuality: FilterQuality.medium,
-                    //                   )
-                    //                 : Image.file(
-                    //                     File(images[index].path),
-                    //                     fit: BoxFit.cover,
-                    //                     width: 5,
-                    //                     filterQuality: FilterQuality.medium,
-                    //                     frameBuilder:
-                    //                         (context, child, frame, wasSynchronouslyLoaded) {
-                    //                       if (wasSynchronouslyLoaded || frame != null) {
-                    //                         return child;
-                    //                       }
-                    //                       return const Loader();
-                    //                     },
-                    //                   ),
-                    //           );
-                    //         },
-                    //       ),
                     SizedBox(height: 10),
                     FilledButton(
                       onPressed: () async {
@@ -475,7 +445,7 @@ Future<bool?> showImagesDialog({required BuildContext context}) async {
           onPressed: () {
             context.pop(true);
           },
-          child: const Text('Ok'),
+          child: const Text('Proceed'),
         ),
       ],
     ),
@@ -581,22 +551,4 @@ Future<List<XFile>> pickMultipleImages() async {
   final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 80);
 
   return pickedImages;
-}
-
-Widget buildImageForWeb(XFile file) {
-  return FutureBuilder<Uint8List>(
-    future: file.readAsBytes(),
-    builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        return Image.memory(
-          snapshot.data!,
-          fit: BoxFit.cover,
-        );
-      } else if (snapshot.hasError) {
-        return const Icon(Icons.error);
-      } else {
-        return const Loader();
-      }
-    },
-  );
 }

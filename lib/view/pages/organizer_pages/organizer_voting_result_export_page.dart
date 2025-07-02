@@ -14,6 +14,7 @@ import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/media_types.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_export_page_bloc/organizer_voting_result_export_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
@@ -58,7 +59,7 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
           builder: (context, state) {
             switch (state.status) {
               case BlocStatus.initial:
-                return SizedBox.shrink();
+                return VoidWidget();
               case BlocStatus.loading:
                 return Loader();
               case BlocStatus.failure:
@@ -159,9 +160,9 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
           builder: (context, state) {
             switch (state.status) {
               case BlocStatus.initial:
-                return SizedBox.shrink();
+                return VoidWidget();
               case BlocStatus.loading:
-                return SizedBox.shrink();
+                return VoidWidget();
               case BlocStatus.failure:
                 if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
                   return RefreshIndicator.adaptive(

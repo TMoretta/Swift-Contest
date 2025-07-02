@@ -11,6 +11,7 @@ import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/otp_field.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_verify_page_bloc/sign_up_verify_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -26,7 +27,6 @@ class SignUpVerifyPage extends StatefulWidget {
 class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
-  late final FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
@@ -42,7 +42,6 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
       BrowserContextMenu.enableContextMenu();
     }
     _otpController.dispose();
-    focusNode.dispose();
     super.dispose();
   }
 
@@ -132,7 +131,7 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
               if (state.status.isLoading) {
                 return ObscuredLoader();
               }
-              return SizedBox.shrink();
+              return VoidWidget();
             },
           ),
         ],

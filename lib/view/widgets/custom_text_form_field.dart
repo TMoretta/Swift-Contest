@@ -23,6 +23,8 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
   final bool? enabled;
   final bool? obscureText;
   final TextInputType? keyboardType;
+  final int? minLines;
+  final int? maxLines;
 
   const CustomTextFormFieldOutlined({
     this.controller,
@@ -46,6 +48,8 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
     this.enabled,
     this.obscureText,
     this.keyboardType,
+    this.minLines,
+    this.maxLines,
     super.key,
   });
 
@@ -58,10 +62,12 @@ class CustomTextFormFieldOutlined extends StatelessWidget {
       validator: validator,
       obscureText: obscureText ?? false,
       autovalidateMode: autovalidateMode,
+      minLines: minLines ?? 1,
+      maxLines: maxLines ?? 1,
       keyboardType: keyboardType,
       onChanged: onChanged,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        // contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         label: Text(label ?? ''),
         filled: isFilled,
         fillColor: fillColor,
@@ -138,6 +144,8 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
   final bool? enabled;
   final bool? obscureText;
   final TextInputType? keyboardType;
+  final int? minLines;
+  final int? maxLines;
 
   const CustomTextFormFieldUnderlined({
     this.controller,
@@ -161,6 +169,8 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
     this.enabled,
     this.obscureText,
     this.keyboardType,
+    this.minLines,
+    this.maxLines,
     super.key,
   });
 
@@ -171,6 +181,8 @@ class CustomTextFormFieldUnderlined extends StatelessWidget {
       validator: validator,
       initialValue: initialValue,
       enabled: enabled,
+      minLines: minLines,
+      maxLines: maxLines,
       onChanged: onChanged,
       obscureText: obscureText ?? false,
       autovalidateMode: autovalidateMode,

@@ -13,6 +13,11 @@ final class AuthInit extends AuthEvent {
   List<Object?> get props => [];
 }
 
+final class AuthRefresh extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+
 final class AuthFetchUserInfo extends AuthEvent {
   @override
   List<Object?> get props => [];
@@ -74,7 +79,7 @@ final class AuthMarkMessageAsRead extends AuthEvent {
   List<Object?> get props => [messageId];
 }
 
-final class AuthDeleteUser extends AuthEvent {
+final class AuthDeleteAccount extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
@@ -86,4 +91,13 @@ final class AuthDeleteMessage extends AuthEvent {
 
   @override
   List<Object?> get props => [messageId];
+}
+
+final class AuthDeleteAllMessages extends AuthEvent {
+  final String profileId;
+
+  const AuthDeleteAllMessages({required this.profileId});
+
+  @override
+  List<Object?> get props => [profileId];
 }

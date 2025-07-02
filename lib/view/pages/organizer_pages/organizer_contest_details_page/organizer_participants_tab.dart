@@ -3,9 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
+import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -68,16 +72,20 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
               builder: (context, state) {
                 switch (state.status) {
                   case BlocStatus.initial:
-                    return SizedBox.shrink();
+                    return VoidWidget();
                   case BlocStatus.loading:
-                    return Loader();
+                    if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      return VoidWidget();
+                    } else {
+                      continue successCase;
+                    }
                   case BlocStatus.failure:
                     if (state.sourceEvent is OrganizerContestDetailsPageInit) {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<OrganizerContestDetailsPageBloc>()
                             .add(OrganizerContestDetailsPageInit(contestId: contestId)),
-                        child: ListView(),
+                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                       );
                     } else {
                       continue successCase;
@@ -91,7 +99,6 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                     final List<ParticipationBundle> outParticipationsBundles =
                         state.contestDetailsBundle!.outParticipationsBundles;
                     return Column(
-                      // mainAxisSize: MainAxisSize.min,
                       children: [
                         Card(
                           elevation: 0.4,
@@ -127,22 +134,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                     .read<OrganizerContestDetailsPageBloc>()
                                     .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                 child: (joinedParticipationsBundles.isEmpty)
-                                    ? LayoutBuilder(
-                                        builder: (context, constraints) {
-                                          return ListView(
-                                            children: [
-                                              SizedBox(
-                                                height: constraints.maxHeight,
-                                                child: Center(
-                                                  child: Text(
-                                                    'No participant joined yet',
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          );
-                                        },
-                                      )
+                                    ? ListViewWithCentralLabel(label: 'No participant joined yet')
                                     : ListView.builder(
                                         itemCount: joinedParticipationsBundles.length,
                                         itemBuilder: (context, index) {
@@ -156,21 +148,39 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                 child: ListTile(
                                                   trailing: IconButton(
                                                     onPressed: () {
-                                                      final contestDetailsBundle =
-                                                      state.contestDetailsBundle!;
-                                                      final messageTitle = 'Out from contest';
-                                                      final messageBody = 'You have been expelled from'
-                                                          ' "${contestDetailsBundle.contest.name}"'
-                                                          ' by "${contestDetailsBundle.organizer.fullName}".';
-                                                      context
-                                                          .read<OrganizerContestDetailsPageBloc>()
-                                                          .add(
-                                                          OrganizerContestDetailsPageRemoveParticipant(
-                                                            participationId:
-                                                            participationBundle.participation.id,
-                                                            messageTitle: messageTitle,
-                                                            messageBody: messageBody,
-                                                          ));
+                                                      final organizerContestDetailsPageBloc =
+                                                          context.read<
+                                                              OrganizerContestDetailsPageBloc>();
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return AlertDialog(
+                                                            title: Text('Remove participant'),
+                                                            content: Text(
+                                                                'Are you sure you want to remove this participant?'),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  context.pop();
+                                                                },
+                                                                child: Text('Cancel'),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  organizerContestDetailsPageBloc.add(
+                                                                      OrganizerContestDetailsPageRemoveParticipant(
+                                                                          participationId:
+                                                                              participationBundle
+                                                                                  .participation
+                                                                                  .id));
+                                                                  context.pop();
+                                                                },
+                                                                child: Text('Proceed'),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                     icon: Icon(
                                                       Icons.remove_circle_outline,
@@ -190,9 +200,11 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                       Text(
                                                         participationBundle
                                                             .participation.invitationEmail,
-                                                        style: Theme.of(context).textTheme.bodyMedium,
+                                                        style:
+                                                            Theme.of(context).textTheme.bodyMedium,
                                                       ),
-                                                      if (participationBundle.participant.deletedAt !=
+                                                      if (participationBundle
+                                                              .participant.deletedAt !=
                                                           null)
                                                         Text(
                                                           'Deleted account',
@@ -200,16 +212,16 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                               .textTheme
                                                               .labelLarge
                                                               ?.copyWith(
-                                                              color: Theme.of(context)
-                                                                  .colorScheme
-                                                                  .error),
+                                                                  color: Theme.of(context)
+                                                                      .colorScheme
+                                                                      .error),
                                                         ),
                                                     ],
                                                   ),
                                                 ),
                                               ),
                                               if (index == joinedParticipationsBundles.length - 1)
-                                                SizedBox(height: 64),
+                                                SizedBox(height: 72),
                                             ],
                                           );
                                         },
@@ -221,22 +233,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                     .read<OrganizerContestDetailsPageBloc>()
                                     .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                 child: (participantsInvitations.isEmpty)
-                                    ? LayoutBuilder(
-                                        builder: (context, constraints) {
-                                          return ListView(
-                                            children: [
-                                              SizedBox(
-                                                height: constraints.maxHeight,
-                                                child: Center(
-                                                  child: Text(
-                                                    'No participant attended',
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          );
-                                        },
-                                      )
+                                    ? ListViewWithCentralLabel(label: 'No participant attended')
                                     : ListView.builder(
                                         itemCount: participantsInvitations.length,
                                         itemBuilder: (context, index) {
@@ -253,9 +250,37 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                   ),
                                                   trailing: IconButton(
                                                     onPressed: () {
-                                                      context.read<OrganizerContestDetailsPageBloc>().add(
-                                                          OrganizerContestDetailsPageDeleteInvitation(
-                                                              invitationId: invitation.id));
+                                                      final organizerContestDetailsPageBloc =
+                                                          context.read<
+                                                              OrganizerContestDetailsPageBloc>();
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return AlertDialog(
+                                                            title: Text('Delete invitation'),
+                                                            content: Text(
+                                                                'Are you sure you want to delete this invitation?'),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  context.pop();
+                                                                },
+                                                                child: Text('Cancel'),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  organizerContestDetailsPageBloc.add(
+                                                                      OrganizerContestDetailsPageDeleteInvitation(
+                                                                          invitationId:
+                                                                              invitation.id));
+                                                                  context.pop();
+                                                                },
+                                                                child: Text('Proceed'),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                     icon: Icon(
                                                       Icons.remove,
@@ -265,7 +290,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                 ),
                                               ),
                                               if (index == participantsInvitations.length - 1)
-                                                SizedBox(height: 64),
+                                                SizedBox(height: 72),
                                             ],
                                           );
                                         },
@@ -317,9 +342,11 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                       Text(
                                                         participationBundle
                                                             .participation.invitationEmail,
-                                                        style: Theme.of(context).textTheme.bodyMedium,
+                                                        style:
+                                                            Theme.of(context).textTheme.bodyMedium,
                                                       ),
-                                                      if (participationBundle.participant.deletedAt !=
+                                                      if (participationBundle
+                                                              .participant.deletedAt !=
                                                           null)
                                                         Text(
                                                           'Deleted account',
@@ -327,16 +354,16 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                               .textTheme
                                                               .labelLarge
                                                               ?.copyWith(
-                                                              color: Theme.of(context)
-                                                                  .colorScheme
-                                                                  .error),
+                                                                  color: Theme.of(context)
+                                                                      .colorScheme
+                                                                      .error),
                                                         ),
                                                     ],
                                                   ),
                                                 ),
                                               ),
                                               if (index == outParticipationsBundles.length - 1)
-                                                SizedBox(height: 64),
+                                                SizedBox(height: 72),
                                             ],
                                           );
                                         },
@@ -354,14 +381,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
         ),
         floatingActionButton: FilledButton(
           onPressed: () async {
-            final bool? res = await _showInviteDialog(context: context, contestId: contestId);
-            if (res == true) {
-              if (context.mounted) {
-                context
-                    .read<OrganizerContestDetailsPageBloc>()
-                    .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
-              }
-            }
+            _showInviteDialog(context: context, contestId: contestId);
           },
           child: Text('Invite'),
         ),
@@ -370,9 +390,9 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
   }
 }
 
-Future<bool?> _showInviteDialog({required BuildContext context, required String contestId}) async {
+void _showInviteDialog({required BuildContext context, required String contestId}) {
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
-  return await showDialog(
+  showDialog(
     context: context,
     builder: (context) {
       final invitationFormKey = GlobalKey<FormState>();
@@ -384,53 +404,55 @@ Future<bool?> _showInviteDialog({required BuildContext context, required String 
             if (state.status.isSuccess &&
                 state.sourceEvent is OrganizerContestDetailsPageSendParticipantInvite) {
               showSnackBar(context: context, text: 'Email sent successfully');
-              context.pop(true);
+              context
+                  .read<OrganizerContestDetailsPageBloc>()
+                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+              context.pop();
             }
           },
           builder: (context, state) {
-            return AlertDialog(
-              title: Text(
-                'Invite a participant',
-              ),
-              content: Form(
-                key: invitationFormKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    (!state.status.isLoading)
-                        ? CustomTextFormFieldUnderlined(
-                            controller: emailController,
-                            label: 'Email',
-                            validator: _emailValidator,
-                          )
-                        : Loader(),
+            return Stack(
+              children: [
+                AlertDialog(
+                  title: Text(
+                    'Invite a participant',
+                  ),
+                  content: Form(
+                    key: invitationFormKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomTextFormFieldUnderlined(
+                          controller: emailController,
+                          label: 'Email',
+                          validator: emailValidator,
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (invitationFormKey.currentState?.validate() ?? false) {
+                          context
+                              .read<OrganizerContestDetailsPageBloc>()
+                              .add(OrganizerContestDetailsPageSendParticipantInvite(
+                                contestId: contestId,
+                                email: emailController.text.trim(),
+                              ));
+                        }
+                      },
+                      child: const Text('Proceed'),
+                    ),
                   ],
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: (!state.status.isLoading)
-                      ? () {
-                          context.pop();
-                        }
-                      : null,
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: (!state.status.isLoading)
-                      ? () {
-                          if (invitationFormKey.currentState?.validate() ?? false) {
-                            context
-                                .read<OrganizerContestDetailsPageBloc>()
-                                .add(OrganizerContestDetailsPageSendParticipantInvite(
-                                  contestId: contestId,
-                                  email: emailController.text.trim(),
-                                ));
-                          }
-                        }
-                      : null,
-                  child: const Text('Ok'),
-                ),
+                if (state.status.isLoading) ObscuredLoader(),
               ],
             );
           },
@@ -438,19 +460,4 @@ Future<bool?> _showInviteDialog({required BuildContext context, required String 
       );
     },
   );
-}
-
-//* Email validator
-String? _emailValidator(String? value) {
-  String? valueTrm = value?.trim();
-  if (valueTrm == null || valueTrm.isEmpty) {
-    return 'Please enter your email';
-  }
-  final emailRegex = RegExp(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-  );
-  if (!emailRegex.hasMatch(valueTrm)) {
-    return 'Please enter a valid email';
-  }
-  return null;
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -45,17 +46,20 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
           builder: (context, state) {
             switch (state.status) {
               case BlocStatus.initial:
-                return SizedBox.shrink();
+                return VoidWidget();
               case BlocStatus.loading:
-                return Loader();
+                if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                  return VoidWidget();
+                } else {
+                  continue successCase;
+                }
               case BlocStatus.failure:
                 if (state.sourceEvent is OrganizerContestDetailsPageInit) {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<OrganizerContestDetailsPageBloc>()
                         .add(OrganizerContestDetailsPageInit(contestId: contestId)),
-                    child: ListView(
-                    ),
+                    child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                   );
                 } else {
                   continue successCase;
@@ -101,23 +105,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                 .read<OrganizerContestDetailsPageBloc>()
                                 .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                             child: (participationsWithWorksBundles.isEmpty)
-                                ? LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      return ListView(
-                                        children: [
-                                          SizedBox(
-                                            height: constraints.maxHeight,
-                                            child: Center(
-                                              child: Text(
-                                                'No work submitted yet',
-                                                style: Theme.of(context).textTheme.bodyMedium,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      );
-                                    },
-                                  )
+                                ? ListViewWithCentralLabel(label: 'No work submitted yet')
                                 : ListView.builder(
                                     itemCount: participationsWithWorksBundles.length,
                                     itemBuilder: (context, index) {
@@ -131,7 +119,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                         child: InkWell(
                                           onTap: () {
                                             context.pushNamed(AppRouter.organizerWorkDetails,
-                                                extra: participationBundle.toJson());
+                                                extra: participationBundle.participation.id);
                                           },
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -192,23 +180,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                 .read<OrganizerContestDetailsPageBloc>()
                                 .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
                             child: (participationsWithoutWorksBundles.isEmpty)
-                                ? LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      return ListView(
-                                        children: [
-                                          SizedBox(
-                                            height: constraints.maxHeight,
-                                            child: Center(
-                                              child: Text(
-                                                'No work attended from joined participants',
-                                                style: Theme.of(context).textTheme.bodyMedium,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      );
-                                    },
-                                  )
+                                ? ListViewWithCentralLabel(label: 'No work attended from joined participants')
                                 : ListView.builder(
                                     itemCount: participationsWithWorksBundles.length,
                                     itemBuilder: (context, index) {
@@ -218,6 +190,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                         elevation: 0.2,
                                         child: ListTile(
                                           title: Text(participationBundle.participant.fullName),
+                                          subtitle: Text(participationBundle.participation.invitationEmail),
                                         ),
                                       );
                                     },

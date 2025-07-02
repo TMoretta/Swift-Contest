@@ -49,7 +49,7 @@ BEGIN
     FROM participations
     WHERE participant_id = v_profile.id AND participant_status = 'joined'
   ) LOOP
-    PERFORM participant_leave_contest(v_joined_participation);
+    PERFORM participant_leave_contest(v_joined_participation.contest_id, v_joined_participation.participant_id);
   END LOOP;
 
   -- leave all the contests joined as juror
@@ -58,7 +58,7 @@ BEGIN
     FROM jurations
     WHERE juror_id = v_profile.id AND juror_status = 'joined'
   ) LOOP
-    PERFORM juror_leave_contest(v_joined_juration);
+    PERFORM juror_leave_contest(v_joined_juration.contest_id, v_joined_juration.juror_id);
   END LOOP;
 
 --EXCEPTION

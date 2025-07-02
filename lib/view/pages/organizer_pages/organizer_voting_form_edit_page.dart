@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_form_edit_page_bloc/organizer_voting_form_edit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -20,8 +23,8 @@ class OrganizerVotingFormEditPage extends StatefulWidget {
 }
 
 class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPage> {
-  late String votingFormId;
-  bool isFieldsListInitialized = false;
+  late final String votingFormId;
+  bool isPageInitialized = false;
   bool isEdited = false;
   final List<VotingFormFieldNullable> updatedFields = [];
 
@@ -29,9 +32,14 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   void initState() {
     super.initState();
     votingFormId = widget.votingFormId;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     context
         .read<OrganizerVotingFormEditPageBloc>()
-        .add(OrganizerVotingFormEditPageGetVotingForm(votingFormId: votingFormId));
+        .add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId));
   }
 
   @override
@@ -46,123 +54,140 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
           context.pop(true);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(
-          title: 'Voting Form',
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: CustomAppBar(
+              title: 'Voting Form',
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: BlocBuilder<OrganizerVotingFormEditPageBloc,
+                      OrganizerVotingFormEditPageState>(
+                    builder: (context, state) {
+                      return (isEdited)
+                          ? FilledButton(
+                              onPressed: () {
+                                context.read<OrganizerVotingFormEditPageBloc>().add(
+                                    OrganizerVotingFormEditPageUpdateVotingForm(
+                                        votingFormId: votingFormId,
+                                        votingFormFields: updatedFields));
+                              },
+                              style: FilledButton.styleFrom(
+                                shape:
+                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              ),
+                              child: Text('Save'),
+                            )
+                          : VoidWidget();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            body: SafeArea(
               child: BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
                 builder: (context, state) {
-                  return (isEdited)
-                      ? FilledButton(
-                          onPressed: (!state.status.isLoading)
-                              ? () {
-                                  context.read<OrganizerVotingFormEditPageBloc>().add(
-                                      OrganizerVotingFormEditPageUpdateVotingForm(
-                                          votingFormId: votingFormId,
-                                          votingFormFields: updatedFields));
-                                }
-                              : null,
-                          style: FilledButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          ),
-                          child: Text('Save'),
-                        )
-                      : SizedBox.shrink();
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return VoidWidget();
+                    case BlocStatus.loading:
+                      if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
+                        return VoidWidget();
+                      } else {
+                        continue successCase;
+                      }
+                    case BlocStatus.failure:
+                      if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
+                        return RefreshIndicator.adaptive(
+                          onRefresh: () async => context
+                              .read<OrganizerVotingFormEditPageBloc>()
+                              .add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId)),
+                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                        );
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
+                      if (!isPageInitialized) {
+                        updatedFields.addAll(state.votingFormBundle!.votingFormFields
+                            .map((e) => VotingFormFieldNullable(
+                                  name: e.name,
+                                  minValue: e.minValue,
+                                  maxValue: e.maxValue,
+                                  orderIndex: e.orderIndex,
+                                )));
+                        isPageInitialized = true;
+                      }
+                      return (updatedFields.isEmpty)
+                          ? ListViewWithCentralLabel(label: 'No field added yet')
+                          : Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: ListView.builder(
+                                itemCount: updatedFields.length,
+                                itemBuilder: (context, index) {
+                                  final field = updatedFields[index];
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Card(
+                                        elevation: 0,
+                                        child: ListTile(
+                                          title: Text(field.name!),
+                                          subtitle: Text('${field.minValue} - ${field.maxValue}'),
+                                          trailing: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isEdited = true;
+                                                updatedFields.remove(field);
+                                              });
+                                            },
+                                            icon: Icon(Icons.remove),
+                                          ),
+                                        ),
+                                      ),
+                                      if (index == updatedFields.length - 1) SizedBox(height: 72),
+                                    ],
+                                  );
+                                },
+                              ),
+                            );
+                  }
                 },
               ),
             ),
-          ],
-        ),
-        body: SafeArea(
-          child: BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
+            floatingActionButton:
+                BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
+              builder: (context, state) {
+                return FloatingActionButton(
+                  onPressed: () async {
+                    final VotingFormFieldNullable? newField = await showAddFieldDialog(
+                        context: context,
+                        votingFormId: votingFormId,
+                        orderIndex: updatedFields.length);
+                    if (newField != null) {
+                      setState(() {
+                        isEdited = true;
+                        updatedFields.add(newField);
+                      });
+                    }
+                  },
+                  elevation: 1,
+                  child: Icon(Icons.add),
+                );
+              },
+            ),
+          ),
+          BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
             builder: (context, state) {
-              switch (state.status) {
-                case BlocStatus.initial:
-                  return SizedBox.shrink();
-                case BlocStatus.loading:
-                  return Loader();
-                case BlocStatus.failure:
-                  if (state.sourceEvent is OrganizerVotingFormEditPageGetVotingForm) {
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async => context.read<OrganizerVotingFormEditPageBloc>().add(
-                          OrganizerVotingFormEditPageGetVotingForm(votingFormId: votingFormId)),
-                      child: ListView(),
-                    );
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  if (!isFieldsListInitialized) {
-                    isFieldsListInitialized = true;
-                    updatedFields.addAll(
-                        state.votingFormBundle!.votingFormFields.map((e) => VotingFormFieldNullable(
-                              name: e.name,
-                              minValue: e.minValue,
-                              maxValue: e.maxValue,
-                              orderIndex: e.orderIndex,
-                            )));
-                  }
-                  return (updatedFields.isEmpty)
-                      ? Center(
-                          child: Text(
-                            'No field added yet',
-                          ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: ListView.builder(
-                            itemCount: updatedFields.length,
-                            itemBuilder: (context, index) {
-                              final field = updatedFields[index];
-                              return Card(
-                                elevation: 0,
-                                child: ListTile(
-                                  title: Text(field.name!),
-                                  subtitle: Text('${field.minValue} - ${field.maxValue}'),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isEdited = true;
-                                        updatedFields.remove(field);
-                                      });
-                                    },
-                                    icon: Icon(Icons.remove),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
+              if (state.status.isLoading) {
+                return ObscuredLoader();
               }
+              return VoidWidget();
             },
           ),
-        ),
-        floatingActionButton:
-            BlocBuilder<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
-          builder: (context, state) {
-            return FloatingActionButton(
-              onPressed: (!state.status.isLoading)
-                  ? () async {
-                      final VotingFormFieldNullable? newField = await showAddFieldDialog(
-                          context: context,
-                          votingFormId: votingFormId,
-                          orderIndex: updatedFields.length);
-                      if (newField != null) {
-                        setState(() {
-                          isEdited = true;
-                          updatedFields.add(newField);
-                        });
-                      }
-                    }
-                  : null,
-              elevation: 1,
-              child: Icon(Icons.add),
-            );
-          },
-        ),
+        ],
       ),
     );
   }
@@ -185,29 +210,27 @@ Future<VotingFormFieldNullable?> showAddFieldDialog({
         key: formKey,
         child: AlertDialog(
           title: Text('Add field'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomTextFormFieldUnderlined(
-                  controller: nameController,
-                  validator: noEmptyValidator,
-                  label: 'Name',
-                ),
-                CustomTextFormFieldUnderlined(
-                  controller: minValueController,
-                  label: 'Min value',
-                  keyboardType: TextInputType.number,
-                  validator: (value) => _minValueValidator(value, maxValueController.text),
-                ),
-                CustomTextFormFieldUnderlined(
-                  controller: maxValueController,
-                  label: 'Max value',
-                  keyboardType: TextInputType.number,
-                  validator: (value) => _maxValueValidator(value, minValueController.text),
-                ),
-              ],
-            ),
+          content: ListView(
+            shrinkWrap: true,
+            children: [
+              CustomTextFormFieldUnderlined(
+                controller: nameController,
+                validator: noEmptyValidator,
+                label: 'Name',
+              ),
+              CustomTextFormFieldUnderlined(
+                controller: minValueController,
+                label: 'Min value',
+                keyboardType: TextInputType.number,
+                validator: (value) => _minValueValidator(value, maxValueController.text),
+              ),
+              CustomTextFormFieldUnderlined(
+                controller: maxValueController,
+                label: 'Max value',
+                keyboardType: TextInputType.number,
+                validator: (value) => _maxValueValidator(value, minValueController.text),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -217,20 +240,21 @@ Future<VotingFormFieldNullable?> showAddFieldDialog({
               child: Text('Cancel'),
             ),
             TextButton(
-                onPressed: () {
-                  if (formKey.currentState?.validate() ?? false) {
-                    final minValueDouble = double.parse(minValueController.text.trim());
-                    final maxValueDouble = double.parse(maxValueController.text.trim());
-                    final newField = VotingFormFieldNullable(
-                      orderIndex: orderIndex,
-                      name: nameController.text.trim(),
-                      minValue: minValueDouble,
-                      maxValue: maxValueDouble,
-                    );
-                    context.pop(newField);
-                  }
-                },
-                child: Text('Add')),
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  final minValueDouble = double.parse(minValueController.text.trim());
+                  final maxValueDouble = double.parse(maxValueController.text.trim());
+                  final newField = VotingFormFieldNullable(
+                    orderIndex: orderIndex,
+                    name: nameController.text.trim(),
+                    minValue: minValueDouble,
+                    maxValue: maxValueDouble,
+                  );
+                  context.pop(newField);
+                }
+              },
+              child: Text('Add'),
+            ),
           ],
         ),
       );

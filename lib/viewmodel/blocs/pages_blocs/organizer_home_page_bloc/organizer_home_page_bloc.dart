@@ -28,7 +28,7 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
   ) async {
     emit(OrganizerHomePageState(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContests = await _organizerRepository.getCreatedContests(organizerId: event.userId);
+    final eitherContests = await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) =>
@@ -42,7 +42,7 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContests = await _organizerRepository.getCreatedContests(organizerId: event.userId);
+    final eitherContests = await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) =>

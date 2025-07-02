@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
-import 'package:swift_contest/model/data_models/user.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -20,7 +21,7 @@ class ParticipantDetailsTab extends StatefulWidget {
 }
 
 class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
-  late Profile profile;
+  late String profileId;
   late String contestId;
 
   @override
@@ -33,11 +34,11 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<ParticipantContestDetailsPageBloc>().state;
-    profile = context.read<AuthBloc>().state.profile!;
+    profileId = context.read<AuthBloc>().state.profile!.id;
     if (state.status.isInitial) {
       context
           .read<ParticipantContestDetailsPageBloc>()
-          .add(ParticipantContestDetailsPageInit(contestId: contestId,participantId: profile.id));
+          .add(ParticipantContestDetailsPageInit(contestId: contestId,participantId: profileId));
     }
   }
 
@@ -48,16 +49,20 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
         builder: (context, state) {
           switch(state.status) {
             case BlocStatus.initial:
-              return SizedBox.shrink();
+              return VoidWidget();
             case BlocStatus.loading:
-              return Loader();
+              if(state.sourceEvent is ParticipantContestDetailsPageInit) {
+                return VoidWidget();
+              } else {
+                continue successCase;
+              }
             case BlocStatus.failure:
               if (state.sourceEvent is ParticipantContestDetailsPageInit) {
                 return RefreshIndicator.adaptive(
                   onRefresh: () async => context
                       .read<ParticipantContestDetailsPageBloc>()
-                      .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: profile.id)),
-                  child: ListView(),
+                      .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: profileId)),
+                  child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                 );
               } else {
                 continue successCase;
@@ -66,8 +71,8 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
             case BlocStatus.success:
               return RefreshIndicator.adaptive(
                 onRefresh: ()async => context.read<ParticipantContestDetailsPageBloc>().add(
-                    ParticipantContestDetailsPageInit(
-                        contestId: contestId, participantId: profile.id)),
+                    ParticipantContestDetailsPageRefresh(
+                        contestId: contestId, participantId: profileId)),
                 child: ListView(
                   children: [
                     //* Title
@@ -211,7 +216,8 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         SizedBox(width: 4),
-                        Text('Participants: ${state.contestDetailsBundle!.joinedParticipationsBundles.length} | Jurors: ${state.contestDetailsBundle!.joinedJurationsBundles.length}'
+                        Text('Participants: ${state.contestDetailsBundle!.joinedParticipationsBundles.length} | '
+                            'Jurors: ${state.contestDetailsBundle!.joinedJurationsBundles.length}'
                         ),
                       ],
                     ),
@@ -292,6 +298,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         ),
                       ],
                     ),
+                    SizedBox(height: 72),
                   ],
                 ),
               );

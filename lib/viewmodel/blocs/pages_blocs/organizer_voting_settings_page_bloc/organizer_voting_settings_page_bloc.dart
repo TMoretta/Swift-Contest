@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_exclusion_bundle.dart';
@@ -13,6 +14,7 @@ import 'package:swift_contest/model/data_models/voting_session_exclusion.dart';
 import 'package:swift_contest/model/data_models/voting_session_juration.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
 import 'package:swift_contest/model/enums/voting_session_status.dart';
+import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
@@ -24,13 +26,46 @@ part 'organizer_voting_settings_page_state.dart';
 
 class OrganizerVotingSettingsPageBloc
     extends Bloc<OrganizerVotingSettingsPageEvent, OrganizerVotingSettingsPageState> {
+  final GenericRepository _genericRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingSettingsPageBloc({
+    required GenericRepository genericRepository,
     required OrganizerRepository organizerRepository,
-  })  : _organizerRepository = organizerRepository,
+  })  : _genericRepository = genericRepository,
+        _organizerRepository = organizerRepository,
         super(OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
+    on<OrganizerVotingSettingsPageInit>(_init);
+    on<OrganizerVotingSettingsPageRefresh>(_refresh);
     on<OrganizerVotingSettingsPageInitVotingProcedure>(_initVotingProcedure);
+  }
+
+  FutureOr<void> _init(
+    OrganizerVotingSettingsPageInit event,
+    Emitter<OrganizerVotingSettingsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherContestDetailsBundle =
+        await _genericRepository.getContestDetails(contestId: event.contestId);
+    eitherContestDetailsBundle.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+    );
+  }
+
+  FutureOr<void> _refresh(
+    OrganizerVotingSettingsPageRefresh event,
+    Emitter<OrganizerVotingSettingsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherContestDetailsBundle =
+        await _genericRepository.getContestDetails(contestId: event.contestId);
+    eitherContestDetailsBundle.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+    );
   }
 
   FutureOr<void> _initVotingProcedure(
@@ -72,14 +107,13 @@ class OrganizerVotingSettingsPageBloc
     for (int i = 0; i < event.participationsBundles.length; i++) {
       final participation = event.participationsBundles[i].participation;
       final votingSessionParticipation = VotingSessionParticipationNullable(
-        id: genUuid(),
-          participationId: participation.id, orderIndex: i, isExcluded: false);
+          id: genUuid(), participationId: participation.id, orderIndex: i, isExcluded: false);
       votingSessionParticipations.add(votingSessionParticipation);
     }
     for (int i = 0; i < event.excludedParticipationsBundles.length; i++) {
       final participation = event.excludedParticipationsBundles[i].participation;
-      final votingSessionParticipation = VotingSessionParticipationNullable( id: genUuid(),
-          participationId: participation.id, orderIndex: i, isExcluded: true);
+      final votingSessionParticipation = VotingSessionParticipationNullable(
+          id: genUuid(), participationId: participation.id, orderIndex: i, isExcluded: true);
       votingSessionParticipations.add(votingSessionParticipation);
     }
 

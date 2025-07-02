@@ -24,12 +24,12 @@ class OrganizerVotingFormEditPageBloc
   })  : _genericRepository = genericRepository,
         _organizerRepository = organizerRepository,
         super(OrganizerVotingFormEditPageState(status: BlocStatus.initial)) {
-    on<OrganizerVotingFormEditPageGetVotingForm>(_getVotingForm);
+    on<OrganizerVotingFormEditPageInit>(_getVotingForm);
     on<OrganizerVotingFormEditPageUpdateVotingForm>(_updateVotingForm);
   }
 
   FutureOr<void> _getVotingForm(
-    OrganizerVotingFormEditPageGetVotingForm event,
+    OrganizerVotingFormEditPageInit event,
     Emitter<OrganizerVotingFormEditPageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));

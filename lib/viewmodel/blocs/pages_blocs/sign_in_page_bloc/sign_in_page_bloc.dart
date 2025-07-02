@@ -31,7 +31,7 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
     SignInWithEmailAndPassword event,
     Emitter<SignInPageState> emit,
   ) async {
-    emit(SignInPageState(status: BlocStatus.loading, sourceEvent: event));
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final res = await _authRepository.signInWithEmailAndPassword(
         email: event.email, password: event.password);
@@ -45,7 +45,7 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
     SignInWithEmail event,
     Emitter<SignInPageState> emit,
   ) async {
-    emit(SignInPageState(status: BlocStatus.loading, sourceEvent: event));
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final res = await _authRepository.signInWithEmail(email: event.email);
     res.fold(

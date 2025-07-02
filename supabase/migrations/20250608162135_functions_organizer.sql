@@ -912,13 +912,13 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ORGANIZER REMOVE PARTICIPANT
 CREATE OR REPLACE FUNCTION organizer_remove_participant (
-  p_participation_id uuid,
-  p_message_title text,
-  p_message_body text
+  p_participation_id uuid
 )
 RETURNS void as $$
 DECLARE
-  v_participant_id uuid;
+  v_participation participations;
+  v_contest contests;
+  v_organizer profiles;
 BEGIN
 
   IF NOT EXISTS (
@@ -932,15 +932,31 @@ BEGIN
     SELECT 1 FROM participations
     WHERE id = p_participation_id AND participant_status = 'joined'
   ) THEN
-    RAISE EXCEPTION 'Participant is not a member already';
+    RAISE EXCEPTION 'Participant is not a member of the contest';
   END IF;
 
-  SELECT participant_id INTO v_participant_id
+  SELECT * INTO v_participation
   FROM participations
   WHERE id = p_participation_id;
 
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = v_participation.contest_id;
+
+  SELECT * INTO v_organizer
+  FROM profiles
+  WHERE id = v_contest.organizer_id;
+
   INSERT INTO messages (profile_id, title, body)
-  VALUES (v_participant_id, p_message_title, p_message_body);
+  VALUES (
+    v_participation.participant_id,
+    'Out from contest',
+    format(
+      'You have been expelled from "%s" by "%s"',
+      v_contest.name,
+      v_organizer.full_name
+    )
+  );
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'An error occurred while removing the participant';
@@ -964,18 +980,18 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 -- ORGANIZER REMOVE JUROR
 CREATE OR REPLACE FUNCTION organizer_remove_juror (
-  p_juration_id uuid,
-  p_message_title text,
-  p_message_body text
+  p_juration_id uuid
 )
 RETURNS void as $$
 DECLARE
-  v_juror_id uuid;
+  v_juration jurations;
+  v_contest contests;
+  v_organizer profiles;
 BEGIN
 
   IF NOT EXISTS (
     SELECT 1 FROM jurations
-    WHERE id = p_juration_id AND juror_status = 'joined'
+    WHERE id = p_juration_id
   ) THEN
     RAISE EXCEPTION 'Juror not found';
   END IF;
@@ -984,15 +1000,31 @@ BEGIN
     SELECT 1 FROM jurations
     WHERE id = p_juration_id AND juror_status = 'joined'
   ) THEN
-    RAISE EXCEPTION 'Juror is not a member already';
+    RAISE EXCEPTION 'Juror is not a member of the contest';
   END IF;
 
-  SELECT juror_id INTO v_juror_id
+  SELECT * INTO v_juration
   FROM jurations
   WHERE id = p_juration_id;
 
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = v_juration.contest_id;
+
+  SELECT * INTO v_organizer
+  FROM profiles
+  WHERE id = v_contest.organizer_id;
+
   INSERT INTO messages (profile_id, title, body)
-  VALUES (v_juror_id, p_message_title, p_message_body);
+  VALUES (
+    v_juration.juror_id,
+    'Out from contest',
+    format(
+      'You have been expelled from "%s" by "%s"',
+      v_contest.name,
+      v_organizer.full_name
+    )
+  );
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'An error occurred while removing the juror';
@@ -1096,6 +1128,43 @@ EXCEPTION
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
+
+-- ORGANIZER GET PARTICIPATION BUNDLE
+CREATE OR REPLACE FUNCTION organizer_get_participation_bundle (
+  p_participation_id uuid
+)
+RETURNS TABLE (
+  participation jsonb,
+  participant jsonb,
+  work jsonb
+) AS $$
+BEGIN
+
+  RETURN QUERY
+    SELECT
+      to_jsonb(p) AS participation,
+      to_jsonb(pr) AS participant,
+      to_jsonb(w) AS work
+    FROM participations p
+    JOIN profiles pr ON pr.id = p.participant_id
+    LEFT JOIN works w ON w.participation_id = p.id
+    WHERE p.id = p_participation_id;
+
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

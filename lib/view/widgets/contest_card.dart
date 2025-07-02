@@ -6,11 +6,11 @@ import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 class ContestCard extends StatefulWidget {
-  final HomeContestBundle contestCardBundle;
+  final HomeContestBundle homeContestBundle;
   final void Function() onTap;
 
   const ContestCard({
-    required this.contestCardBundle,
+    required this.homeContestBundle,
     required this.onTap,
     super.key,
   });
@@ -22,7 +22,7 @@ class ContestCard extends StatefulWidget {
 class _ContestCardState extends State<ContestCard> {
   @override
   Widget build(BuildContext context) {
-    final contestCardBundle = widget.contestCardBundle;
+    final contestCardBundle = widget.homeContestBundle;
     final contest = contestCardBundle.contest;
     final organizer = contestCardBundle.organizer;
     final place = contestCardBundle.place;
@@ -33,7 +33,6 @@ class _ContestCardState extends State<ContestCard> {
       constraints: BoxConstraints(maxWidth: 500),
       child: Card(
         clipBehavior: Clip.antiAlias,
-        // color: Theme.of(context).colorScheme.surface,
         child: InkWell(
           onTap: () {
             widget.onTap();

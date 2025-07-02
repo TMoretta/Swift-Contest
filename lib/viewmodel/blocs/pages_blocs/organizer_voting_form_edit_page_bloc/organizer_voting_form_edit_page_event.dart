@@ -4,10 +4,10 @@ sealed class OrganizerVotingFormEditPageEvent extends Equatable {
   const OrganizerVotingFormEditPageEvent();
 }
 
-final class OrganizerVotingFormEditPageGetVotingForm extends OrganizerVotingFormEditPageEvent {
+final class OrganizerVotingFormEditPageInit extends OrganizerVotingFormEditPageEvent {
   final String votingFormId;
 
-  const OrganizerVotingFormEditPageGetVotingForm({required this.votingFormId});
+  const OrganizerVotingFormEditPageInit({required this.votingFormId});
 
   @override
   List<Object?> get props => [votingFormId];

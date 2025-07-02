@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_form_field_bloc/place_picker_form_field_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -159,7 +160,7 @@ Future<GooglePlace?> _showLocationSearchDialog({
                     builder: (context, state) {
                       if (state.googlePlaceSuggestions == null ||
                           state.googlePlaceSuggestions!.isEmpty) {
-                        return SizedBox.shrink();
+                        return VoidWidget();
                       } else {
                         final suggestions = state.googlePlaceSuggestions!;
                         return SizedBox(

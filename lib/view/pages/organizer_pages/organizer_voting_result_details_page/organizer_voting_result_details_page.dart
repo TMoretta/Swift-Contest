@@ -7,6 +7,7 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class OrganizerVotingResultDetailsPage extends StatefulWidget {
   final String votingSessionId;
@@ -58,7 +59,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
                         OrganizerVotingResultDetailsPageState>(
                       builder: (context, state) {
                         return (state.status.isInitial || state.status.isLoading)
-                            ? SizedBox.shrink()
+                            ? VoidWidget()
                             : TabBar(
                                 labelColor: Theme.of(context).colorScheme.onPrimary,
                                 isScrollable: false,
@@ -86,7 +87,8 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
                       children: [
                         OrganizerVotingResultPageInfoTab(votingSessionId: votingSessionId),
                         OrganizerVotingResultPageJurorsVotesTab(votingSessionId: votingSessionId),
-                        OrganizerVotingResultPageSimpleJurorsVotesTab(votingSessionId: votingSessionId),
+                        OrganizerVotingResultPageSimpleJurorsVotesTab(
+                            votingSessionId: votingSessionId),
                       ],
                     ),
                   ),
@@ -99,5 +101,3 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
     );
   }
 }
-
-

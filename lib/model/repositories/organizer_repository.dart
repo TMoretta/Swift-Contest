@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/model/data_models/place.dart';
@@ -34,6 +35,10 @@ abstract interface class OrganizerRepository {
     required List<String> imagesUrls,
   });
 
+  Future<Either<Failure, ParticipationBundle?>> getParticipationBundle({
+    required String participationId,
+  });
+
   Future<Either<Failure, Unit>> setContestStatusAsActive({required String contestId});
 
   Future<Either<Failure, Unit>> setContestStatusAsTerminated({required String contestId});
@@ -49,14 +54,10 @@ abstract interface class OrganizerRepository {
 
   Future<Either<Failure, Unit>> removeParticipant({
     required String participationId,
-    required String messageTitle,
-    required String messageBody,
   });
 
   Future<Either<Failure, Unit>> removeJuror({
     required String jurationId,
-    required String messageTitle,
-    required String messageBody,
   });
 
   Future<Either<Failure, VotingSession>> initVotingSession({
@@ -171,6 +172,27 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
+  Future<Either<Failure, ParticipationBundle?>> getParticipationBundle({
+    required String participationId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.rpc('organizer_get_participation_bundle', params: {
+        'p_participation_id': participationId,
+      });
+      if(res.isEmpty) {
+        return right(null);
+      }
+      return right(ParticipationBundle.fromJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> setContestStatusAsActive({required String contestId}) async {
     try {
       await _supabase.rpc('organizer_set_contest_status_as_active', params: {
@@ -243,14 +265,10 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> removeParticipant({
     required String participationId,
-    required String messageTitle,
-    required String messageBody,
   }) async {
     try {
       await _supabase.rpc('organizer_remove_participant', params: {
         'p_participation_id': participationId,
-        'p_message_title': messageTitle,
-        'p_message_body': messageBody,
       });
       return right(unit);
     } on SocketException {
@@ -265,14 +283,10 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> removeJuror({
     required String jurationId,
-    required String messageTitle,
-    required String messageBody,
   }) async {
     try {
       await _supabase.rpc('organizer_remove_juror', params: {
         'p_juration_id': jurationId,
-        'p_message_title': messageTitle,
-        'p_message_body': messageBody,
       });
       return right(unit);
     } on SocketException {

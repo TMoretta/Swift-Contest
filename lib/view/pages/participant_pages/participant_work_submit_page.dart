@@ -7,15 +7,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
-import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submit_page_bloc/participant_work_submit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class ParticipantWorkSubmitPage extends StatefulWidget {
   final String contestId;
@@ -27,8 +28,8 @@ class ParticipantWorkSubmitPage extends StatefulWidget {
 }
 
 class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
-  late Profile profile;
-  late String contestId;
+  late String profileId;
+  late final String contestId;
   final detailsFormKey = GlobalKey<FormState>();
   final imagesFormKey = GlobalKey<FormState>();
   final fileFormKey = GlobalKey<FormState>();
@@ -49,25 +50,25 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profile = context.read<AuthBloc>().state.profile!;
+    profileId = context.read<AuthBloc>().state.profile!.id;
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
       listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
         if (state.status.isSuccess && state.sourceEvent is ParticipantWorkSubmitPageSubmitWork) {
           context.pop(true);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Submit work'),
-        body: BlocBuilder<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
-          builder: (context, state) {
-            if (state.status.isLoading) {
-              return Loader();
-            }
-            return Stepper(
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: CustomAppBar(title: 'Submit work'),
+            body: Stepper(
               type: StepperType.horizontal,
               elevation: 0,
               steps: getSteps(),
@@ -82,7 +83,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                         .read<ParticipantWorkSubmitPageBloc>()
                         .add(ParticipantWorkSubmitPageSubmitWork(
                           contestId: contestId,
-                          participantId: profile.id,
+                          participantId: profileId,
                           name: name,
                           description: description,
                           images: images,
@@ -118,9 +119,17 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                   ),
                 );
               },
-            );
-          },
-        ),
+            ),
+          ),
+          BlocBuilder<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
+            builder: (context, state) {
+              if (state.status.isLoading) {
+                return ObscuredLoader();
+              }
+              return VoidWidget();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -151,12 +160,16 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                   controller: nameController,
                   label: 'Name',
                   validator: (value) => nameValidator(value?.trim()),
+                  minLines: 1,
+                  maxLines: 2,
                 ),
                 SizedBox(height: 8),
                 CustomTextFormFieldOutlined(
                   controller: descriptionController,
                   label: 'Description',
                   validator: (value) => descriptionValidator(value?.trim()),
+                  minLines: 2,
+                  maxLines: 4,
                 ),
               ],
             ),
@@ -170,7 +183,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
           content: Form(
             key: imagesFormKey,
             child: FormField(
-              validator: (value) => imagesValidator(images),
+              validator: (value) => _imagesValidator(images),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               builder: (field) {
                 return Column(
@@ -221,8 +234,8 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                           ),
                     FilledButton(
                       onPressed: () async {
-                        final choice = await _showImagesDialog(context: context);
-                        if (choice) {
+                        final bool? choice = await _showImagesDialog(context: context);
+                        if (choice == true) {
                           var res = await pickMultipleImages();
                           if (res.isEmpty) return;
                           if (res.length > 6) {
@@ -244,14 +257,17 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                       child: Text('Pick images'),
                     ),
                     if (field.hasError)
-                      Text('Select at least one image', style: TextStyle(color: Colors.red)),
+                      Text(
+                        'Select at least one image',
+                        style: TextStyle(color: Colors.red),
+                      ),
                   ],
                 );
               },
             ),
           ),
         ),
-        //* Images
+        //* File
         Step(
           state: currentStep >= 3 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
@@ -319,32 +335,31 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
       ];
 }
 
-Future<bool> _showImagesDialog({required BuildContext context}) async {
-  bool choice = false;
-  await showDialog(
+Future<bool?> _showImagesDialog({required BuildContext context}) async {
+  return await showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Pick images'),
-      content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
-          'The first image will represent the cover of the contest'),
-      actions: [
-        TextButton(
-          onPressed: () {
-            context.pop();
-          },
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            choice = true;
-            context.pop();
-          },
-          child: const Text('Ok'),
-        ),
-      ],
-    ),
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Pick images'),
+        content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
+            'The first image will represent the cover of the contest'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.pop(true);
+            },
+            child: const Text('Ok'),
+          ),
+        ],
+      );
+    },
   );
-  return choice;
 }
 
 Future<File?> _pickFile() async {
@@ -380,7 +395,7 @@ String? descriptionValidator(String? value) {
   return null;
 }
 
-String? imagesValidator(List<XFile> images) {
+String? _imagesValidator(List<XFile> images) {
   if (images.isEmpty) {
     return '';
   }
@@ -393,369 +408,3 @@ Future<List<XFile>> pickMultipleImages() async {
 
   return pickedImages;
 }
-
-Widget buildImageForWeb(XFile file) {
-  return FutureBuilder<Uint8List>(
-    future: file.readAsBytes(),
-    builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        return Image.memory(
-          snapshot.data!,
-          fit: BoxFit.cover,
-        );
-      } else if (snapshot.hasError) {
-        return const Icon(Icons.error);
-      } else {
-        return const Loader();
-      }
-    },
-  );
-}
-
-// import 'dart:io';
-//
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:swift_contest/model/models/extended_contest.dart';
-// import 'package:swift_contest/model/models/user.dart';
-// import 'package:swift_contest/utils/di/di.dart';
-// import 'package:swift_contest/utils/themes/color_scheme_x.dart';
-// import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-// import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-// import 'package:swift_contest/view/widgets/loader.dart';
-// import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-// import 'package:swift_contest/viewmodel/blocs/app_auth_bloc/app_auth_bloc.dart';
-// import 'package:swift_contest/viewmodel/blocs/work_submit_bloc/work_submit_bloc.dart';
-//
-// class WorkSubmitPage extends StatefulWidget {
-//   final ExtendedContest extendedContest;
-//   const WorkSubmitPage({required this.extendedContest, super.key});
-//
-//   @override
-//   State<WorkSubmitPage> createState() => _WorkSubmitPageState();
-// }
-//
-// class _WorkSubmitPageState extends State<WorkSubmitPage> {
-//   late User user;
-//   final detailsFormKey = GlobalKey<FormState>();
-//   final imagesFormKey = GlobalKey<FormState>();
-//
-//   List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey];
-//   int currentStep = 0;
-//   final nameController = TextEditingController();
-//   final descriptionController = TextEditingController();
-//   final List<XFile> images = [];
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     context.read<AppAuthBloc>().add(AppAuthCurrentUserAndProfile());
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocListener<AppAuthBloc, AppAuthState>(
-//       listener: (context, state) {
-//         if (state is AppAuthFailure || state is AppAuthInitial) {
-//           context.go('/signin');
-//         }
-//         if (state is AppAuthSuccess) {
-//           user = state.user;
-//         }
-//       },
-//       child: BlocProvider(
-//         create: (context) => getIt<WorkSubmitBloc>(),
-//         child: BlocBuilder<WorkSubmitBloc, WorkSubmitState>(
-//           builder: (context, state) {
-//             return Scaffold(
-//               appBar: CustomAppBar(title: 'Submit work'),
-//               body: Stepper(
-//                 type: StepperType.horizontal,
-//                 physics: ScrollPhysics(),
-//                 elevation: 0,
-//                 steps: getSteps(),
-//                 currentStep: currentStep,
-//                 onStepContinue: () {
-//                   final isLastStep = (currentStep == getSteps().length - 1);
-//                   if (formKeys[currentStep].currentState?.validate() ?? false) {
-//                     if (isLastStep) {
-//                       final name = nameController.text;
-//                       final description = descriptionController.text;
-//                       context.read<WorkSubmitBloc>().add(SubmitWork(
-//                         contestId: widget.extendedContest.contest.id,
-//                             participantId: user.id,
-//                             name: name,
-//                             description: description,
-//                             images: images,
-//                           ));
-//                     } else {
-//                       setState(() => ++currentStep);
-//                     }
-//                   }
-//                 },
-//                 onStepCancel: () {
-//                   (currentStep == 0) ? null : setState(() => --currentStep);
-//                 },
-//                 controlsBuilder: (context, details) {
-//                   final isLastStep = details.currentStep == getSteps().length - 1;
-//                   return Container(
-//                     margin: EdgeInsets.only(top: 20),
-//                     child: Row(
-//                       mainAxisAlignment: (currentStep == 0)
-//                           ? MainAxisAlignment.end
-//                           : MainAxisAlignment.spaceBetween,
-//                       spacing: 12,
-//                       children: [
-//                         if (details.currentStep != 0)
-//                           ElevatedButton(
-//                             onPressed: details.onStepCancel,
-//                             child: Text('Back'),
-//                           ),
-//                         ElevatedButton(
-//                           onPressed: details.onStepContinue,
-//                           child: isLastStep
-//                               ? BlocConsumer<WorkSubmitBloc, WorkSubmitState>(
-//                                   listener: (context, state) {
-//                                     if (state is WorkSubmitSuccess) {
-//                                       showSnackBar(
-//                                           context: context, text: 'Work submitted successfully');
-//                                       context.pop();
-//                                     }
-//                                   },
-//                                   builder: (context, state) {
-//                                     if (state is WorkSubmitLoading) {
-//                                       return Loader();
-//                                     }
-//                                     return Text('Submit');
-//                                   },
-//                                 )
-//                               : Text('Next'),
-//                         ),
-//                       ],
-//                     ),
-//                   );
-//                 },
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-//
-//   //* Steps
-//   List<Step> getSteps() => [
-//         //* Details
-//         Step(
-//           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
-//           isActive: currentStep >= 0,
-//           title: Text(
-//             'Details',
-//             style: TextStyle(
-//               fontSize: 20,
-//               fontWeight: FontWeight.w600,
-//               color: (currentStep == 0)
-//                   ? Theme.of(context).colorScheme.primary
-//                   : Theme.of(context).colorScheme.grey9,
-//             ),
-//           ),
-//           content: Form(
-//             key: detailsFormKey,
-//             child: Column(
-//               mainAxisSize: MainAxisSize.max,
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               spacing: 8,
-//               children: [
-//                 CustomTextFormFieldOutlined(
-//                   controller: nameController,
-//                   label: 'Name',
-//                   validator: (value) => nameValidator(value?.trim()),
-//                 ),
-//                 CustomTextFormFieldOutlined(
-//                   controller: descriptionController,
-//                   label: 'Description',
-//                   validator: (value) => descriptionValidator(value?.trim()),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//         //* Images
-//         Step(
-//           state: currentStep >= 2 ? StepState.complete : StepState.indexed,
-//           isActive: currentStep >= 1,
-//           title: Text(
-//             'Images',
-//             style: TextStyle(
-//               fontSize: 20,
-//               fontWeight: FontWeight.w600,
-//               color: (currentStep == 1)
-//                   ? Theme.of(context).colorScheme.primary
-//                   : Theme.of(context).colorScheme.grey9,
-//             ),
-//           ),
-//           content: Form(
-//             key: imagesFormKey,
-//             child: FormField(
-//               validator: (value) => imagesValidator(images),
-//               autovalidateMode: AutovalidateMode.onUserInteraction,
-//               builder: (field) {
-//                 return Column(
-//                   children: [
-//                     (images.isEmpty)
-//                         ? Center(child: Text('No images selected yet.'))
-//                         : GridView.builder(
-//                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//                               crossAxisCount: 3,
-//                               mainAxisSpacing: 4,
-//                               crossAxisSpacing: 4,
-//                             ),
-//                             shrinkWrap: true,
-//                             physics: NeverScrollableScrollPhysics(),
-//                             itemCount: images.length,
-//                             itemBuilder: (context, index) {
-//                               return ClipRRect(
-//                                 borderRadius: BorderRadius.circular(8),
-//                                 child: (kIsWeb)
-//                                     ? Image.network(
-//                                         images[index].path,
-//                                         filterQuality: FilterQuality.medium,
-//                                       )
-//                                     : Image.file(
-//                                         File(images[index].path),
-//                                         fit: BoxFit.cover,
-//                                         width: 5,
-//                                         filterQuality: FilterQuality.medium,
-//                                         frameBuilder:
-//                                             (context, child, frame, wasSynchronouslyLoaded) {
-//                                           if (wasSynchronouslyLoaded || frame != null) return child;
-//                                           return const Loader();
-//                                         },
-//                                       ),
-//                               );
-//                             },
-//                           ),
-//                     FilledButton(
-//                       onPressed: () async {
-//                         final choice = await showImagesDialog(context: context);
-//                         if (choice) {
-//                           var res = await pickMultipleImages();
-//                           if (res.isEmpty) return;
-//                           if (res.length > 6) {
-//                             res = res.getRange(0, 6).toList(growable: false);
-//                             if (mounted) {
-//                               showSnackBar(
-//                                 context: context,
-//                                 text: 'Exceeded images have been discarded',
-//                               );
-//                             }
-//                           }
-//                           setState(() {
-//                             images.clear();
-//                             images.addAll(res);
-//                             field.didChange(images);
-//                           });
-//                         }
-//                       },
-//                       child: Text('Pick images'),
-//                     ),
-//                     if (field.hasError)
-//                       Text('Select at least one image', style: TextStyle(color: Colors.red)),
-//                   ],
-//                 );
-//               },
-//             ),
-//           ),
-//         ),
-//       ];
-//
-//   Future<bool> showImagesDialog({required BuildContext context}) async {
-//     bool choice = false;
-//     await showDialog(
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         title: const Text('Pick images'),
-//         content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
-//             'The first image will represent the cover of the contest'),
-//         actions: [
-//           TextButton(
-//             onPressed: () {
-//               context.pop();
-//             },
-//             child: const Text('Cancel'),
-//           ),
-//           TextButton(
-//             onPressed: () {
-//               choice = true;
-//               context.pop();
-//             },
-//             child: const Text('Ok'),
-//           ),
-//         ],
-//       ),
-//     );
-//     return choice;
-//   }
-// }
-//
-// String? nameValidator(String? value) {
-//   if (value == null || value.isEmpty) {
-//     return '';
-//   }
-//   if (value.length < 3) {
-//     return 'At least 3 characters long';
-//   }
-//   return null;
-// }
-//
-// String? descriptionValidator(String? value) {
-//   if (value == null || value.isEmpty) {
-//     return '';
-//   }
-//   if (value.length < 3) {
-//     return 'At least 3 characters long';
-//   }
-//   return null;
-// }
-//
-// String? imagesValidator(List<XFile> images) {
-//   if (images.isEmpty) {
-//     return '';
-//   }
-//   return null;
-// }
-//
-// String? noEmptyValidator(String? value) {
-//   if (value == null || value.isEmpty) {
-//     return '';
-//   }
-//   return null;
-// }
-//
-// Future<List<XFile>> pickMultipleImages() async {
-//   final ImagePicker picker = ImagePicker();
-//   final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 90);
-//
-//   return pickedImages;
-// }
-//
-// Widget buildImageForWeb(XFile file) {
-//   return FutureBuilder<Uint8List>(
-//     future: file.readAsBytes(),
-//     builder: (context, snapshot) {
-//       if (snapshot.hasData) {
-//         return Image.memory(
-//           snapshot.data!,
-//           fit: BoxFit.cover,
-//         );
-//       } else if (snapshot.hasError) {
-//         return const Icon(Icons.error);
-//       } else {
-//         return const Loader();
-//       }
-//     },
-//   );
-// }

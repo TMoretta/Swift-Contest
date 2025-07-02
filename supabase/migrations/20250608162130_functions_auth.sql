@@ -347,3 +347,39 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+-- DELETE ALL MESSAGES
+CREATE OR REPLACE FUNCTION delete_all_profile_messages (
+  p_profile_id uuid
+)
+RETURNS void AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = p_profile_id
+  ) THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM messages
+    WHERE profile_id = p_profile_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'No message to delete';
+  END IF;
+
+  UPDATE messages
+  SET deleted_at = now()
+  WHERE profile_id = p_profile_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while deleting messages';
+  END IF;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+

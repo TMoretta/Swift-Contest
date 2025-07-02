@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -47,16 +50,20 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
           builder: (context, state) {
             switch (state.status) {
               case BlocStatus.initial:
-                return SizedBox.shrink();
+                return VoidWidget();
               case BlocStatus.loading:
-                return Loader();
+                if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                  return VoidWidget();
+                } else {
+                  continue successCase;
+                }
               case BlocStatus.failure:
                 if (state.sourceEvent is OrganizerContestDetailsPageInit) {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<OrganizerContestDetailsPageBloc>()
                         .add(OrganizerContestDetailsPageInit(contestId: contestId)),
-                    child: ListView(),
+                    child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                   );
                 } else {
                   continue successCase;
@@ -72,24 +79,20 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                       elevation: 0.2,
                       color: Theme.of(context).colorScheme.tertiary,
                       child: ListTile(
-                        onTap: () async {
-                          final bool? res = await context.pushNamed(
+                        onTap: () {
+                          context.pushNamed(
                             AppRouter.organizerVotingFormEdit,
                             extra: votingFormBundle.votingForm.id,
                           );
-                          if (context.mounted && res != null && res) {
-                            context
-                                .read<OrganizerContestDetailsPageBloc>()
-                                .add(OrganizerContestDetailsPageInit(contestId: contestId));
-                          }
                         },
                         title: Text(
                           'Edit juror\'s form',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onTertiary),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Theme.of(context).colorScheme.onTertiary),
                         ),
-                        leading: Icon(Icons.edit,
-                            color: Theme.of(context).colorScheme.onTertiary),
+                        leading: Icon(Icons.edit, color: Theme.of(context).colorScheme.onTertiary),
                       ),
                     ),
                     SizedBox(height: 16),
@@ -122,7 +125,8 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                         elevation: 0.05,
                                         child: ListTile(
                                           onTap: () {
-                                            context.pushNamed(AppRouter.organizerVotingResultDetails,
+                                            context.pushNamed(
+                                                AppRouter.organizerVotingResultDetails,
                                                 extra: votingSession.id);
                                           },
                                           title: Text(
@@ -136,8 +140,10 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                           ),
                                           trailing: IconButton(
                                             onPressed: () async {
-                                              await _showEditVotingSessionNameDialog(
-                                                  context: context, votingSessionId: votingSession.id, contestId: contestId);
+                                              _showEditVotingSessionNameDialog(
+                                                  context: context,
+                                                  votingSessionId: votingSession.id,
+                                                  contestId: contestId);
                                             },
                                             icon: Icon(
                                               Icons.edit,
@@ -151,16 +157,12 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                   );
                                 },
                               )
-                            : LayoutBuilder(
-                                builder: (context, constraints) {
-                                  return ListView(
-                                    children: [
-                                      Text(
-                                        'No result yet',
-                                      ),
-                                    ],
-                                  );
-                                },
+                            : ListView(
+                                children: [
+                                  Text(
+                                    'No result yet',
+                                  ),
+                                ],
                               ),
                       ),
                     ),
@@ -171,72 +173,71 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
         ),
       ),
       floatingActionButton:
-          BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-        listener: (context, state) {
-          if (state.status.isFailure && state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-        },
+          BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
         builder: (context, state) {
-          if (state.status.isInitial) {
-            return SizedBox.shrink();
-          }
-          if (state.contestDetailsBundle!.liveVotingSession == null) {
-            return FloatingActionButton.extended(
-              onPressed: (!state.status.isLoading)
-                  ? () async {
-                      if (state.contestDetailsBundle!.joinedJurationsBundles.isEmpty) {
-                        showSnackBar(
-                          context: context,
-                          text: 'At least one juror is necessary',
-                        );
-                        return;
-                      }
-                      if (state.contestDetailsBundle!.joinedParticipationsBundles
-                          .where((e) => e.participation.hasSubmitted)
-                          .toList(growable: false)
-                          .isEmpty) {
-                        showSnackBar(
-                          context: context,
-                          text: 'At least one participant with submitted work is necessary',
-                        );
-                        return;
-                      }
+          switch (state.status) {
+            case BlocStatus.initial:
+              return VoidWidget();
+            case (BlocStatus.loading || BlocStatus.failure):
+              if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                return VoidWidget();
+              } else {
+                continue successCase;
+              }
+            successCase:
+            case BlocStatus.success:
+              if (state.contestDetailsBundle!.liveVotingSession == null) {
+                return FloatingActionButton.extended(
+                  onPressed: () async {
+                    if (state.contestDetailsBundle!.joinedJurationsBundles.isEmpty) {
+                      showSnackBar(
+                        context: context,
+                        text: 'At least one juror is necessary',
+                      );
+                      return;
+                    }
+                    if (state.contestDetailsBundle!.joinedParticipationsBundles
+                        .where((e) => e.participation.hasSubmitted)
+                        .toList(growable: false)
+                        .isEmpty) {
+                      showSnackBar(
+                        context: context,
+                        text: 'At least one participant with submitted work is necessary',
+                      );
+                      return;
+                    }
 
-                      final contestDetailsBundleJson = state.contestDetailsBundle!.toJson();
+                    final String? votingSessionId = await context.pushNamed(
+                        AppRouter.organizerVotingSettings,
+                        extra: contestId);
 
-                      final String? votingSessionId = await context.pushNamed(
-                          AppRouter.organizerVotingSettings,
-                          extra: contestDetailsBundleJson);
-                      if (votingSessionId != null) {
-                        if (context.mounted) {
-                          final bool? res = await context.pushNamed(
-                              AppRouter.organizerVotingProcedure,
-                              extra: votingSessionId);
-                          if (res == true) {
-                            if (context.mounted) {
-                              context
-                                  .read<OrganizerContestDetailsPageBloc>()
-                                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
-                            }
+                    if (votingSessionId != null) {
+                      if (context.mounted) {
+                        final bool? res = await context
+                            .pushNamed(AppRouter.organizerVotingProcedure, extra: votingSessionId);
+                        if (res == true) {
+                          if (context.mounted) {
+                            context
+                                .read<OrganizerContestDetailsPageBloc>()
+                                .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
                           }
                         }
                       }
                     }
-                  : null,
-              elevation: 1,
-              label: Text('Start voting'),
-            );
-          } else {
-            return FloatingActionButton.extended(
-              onPressed: (!state.status.isLoading)
-                  ? () {
-                      context.pushNamed(AppRouter.organizerVotingProcedure, extra: state.contestDetailsBundle!.liveVotingSession!.id);
-                    }
-                  : null,
-              elevation: 1,
-              label: Text('Continue voting'),
-            );
+                  },
+                  elevation: 1,
+                  label: Text('Start voting'),
+                );
+              } else {
+                return FloatingActionButton.extended(
+                  onPressed: () {
+                    context.pushNamed(AppRouter.organizerVotingProcedure,
+                        extra: state.contestDetailsBundle!.liveVotingSession!.id);
+                  },
+                  elevation: 1,
+                  label: Text('Continue voting'),
+                );
+              }
           }
         },
       ),
@@ -244,69 +245,70 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
   }
 }
 
-Future<bool?> _showEditVotingSessionNameDialog({
+void _showEditVotingSessionNameDialog({
   required BuildContext context,
   required String votingSessionId,
   required String contestId,
-}) async {
+}) {
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
 
-  return await showDialog(
+  showDialog(
     context: context,
     builder: (context) {
       return BlocProvider.value(
         value: organizerContestDetailsPageBloc,
-        child: BlocListener<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+        child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
           listener: (context, state) {
-            if (state.status.isSuccess && state.sourceEvent is OrganizerContestDetailsPageEditVotingSessionName) {
-              context.read<OrganizerContestDetailsPageBloc>().add(
-                  OrganizerContestDetailsPageRefresh(
-                      contestId: contestId));
+            if (state.status.isSuccess &&
+                state.sourceEvent is OrganizerContestDetailsPageEditVotingSessionName) {
+              context
+                  .read<OrganizerContestDetailsPageBloc>()
+                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
               context.pop();
             }
           },
-          child: BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-            builder: (context, state) {
-              return AlertDialog(
-                title: Text('Edit name'),
-                content: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      (!state.status.isLoading) ?
-                      CustomTextFormFieldUnderlined(
-                        controller: nameController,
-                        label: 'Name',
-                        validator: noEmptyValidator,
-                      ) : Loader(),
-                    ],
+          builder: (context, state) {
+            return Stack(
+              children: [
+                AlertDialog(
+                  title: Text('Edit name'),
+                  content: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomTextFormFieldUnderlined(
+                          controller: nameController,
+                          label: 'Name',
+                          validator: noEmptyValidator,
+                        ),
+                      ],
+                    ),
                   ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => context.pop(),
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          context.read<OrganizerContestDetailsPageBloc>().add(
+                              OrganizerContestDetailsPageEditVotingSessionName(
+                                  votingSessionId: votingSessionId,
+                                  name: nameController.text.trim()));
+                        }
+                      },
+                      child: Text('Edit'),
+                    ),
+                  ],
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: (!state.status.isLoading) ? () {
-                      context.pop();
-                    } : null,
-                    child: Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: (!state.status.isLoading) ? () {
-                      if (formKey.currentState!.validate()) {
-                        context.read<OrganizerContestDetailsPageBloc>().add(
-                            OrganizerContestDetailsPageEditVotingSessionName(
-                                votingSessionId: votingSessionId,
-                                name: nameController.text.trim()));
-                      }
-                    } : null,
-                    child: Text('Edit'),
-                  ),
-                ],
-              );
-            },
-          ),
+                if (state.status.isLoading) ObscuredLoader(),
+              ],
+            );
+          },
         ),
       );
     },

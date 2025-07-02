@@ -25,17 +25,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   })  : _authRepository = authRepository,
         super(AuthState(blocStatus: BlocStatus.initial, authStatus: AuthStatus.initial)) {
     on<AuthInit>(_init);
+    on<AuthRefresh>(_refresh);
     on<AuthFetchUser>(_fetchUser);
     on<AuthFetchProfile>(_fetchProfile);
     on<AuthFetchProfileMessages>(_fetchProfileMessages);
     on<AuthFetchUserInfo>(_fetchUserInfo);
     on<AuthSignOut>(_signOut);
-    on<AuthDeleteUser>(_deleteUser);
+    on<AuthDeleteAccount>(_deleteAccount);
     on<AuthEditPrefTheme>(_editPrefTheme);
     on<AuthEditPrefRole>(_editPrefRole);
     on<AuthEditFullName>(_editFullName);
     on<AuthMarkMessageAsRead>(_markMessageAsRead);
     on<AuthDeleteMessage>(_deleteMessage);
+    on<AuthDeleteAllMessages>(_deleteAllMessages);
   }
 
   //* Init the state
@@ -58,6 +60,39 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           authStatus: AuthStatus.initial,
           message: failure.message)),
       (success) => authBundle = success,
+    );
+    if (eitherAuthBundle.isLeft()) {
+      return;
+    }
+
+    if (authBundle != null) {
+      emit(state.copyWith(
+        blocStatus: BlocStatus.success,
+        authStatus: AuthStatus.authenticated,
+        user: authBundle!.user,
+        profile: authBundle!.profile,
+        messages: authBundle!.messages,
+      ));
+    } else {
+      emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
+    }
+  }
+
+  FutureOr<void> _refresh(
+      AuthRefresh event,
+      Emitter<AuthState> emit,
+      ) async {
+    emit(state.copyWith(
+        blocStatus: BlocStatus.loading, sourceEvent: event, authStatus: AuthStatus.initial));
+
+    late final UserAuthBundle? authBundle;
+    final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
+    eitherAuthBundle.fold(
+          (failure) => emit(state.copyWith(
+          blocStatus: BlocStatus.failure,
+          authStatus: AuthStatus.initial,
+          message: failure.message)),
+          (success) => authBundle = success,
     );
     if (eitherAuthBundle.isLeft()) {
       return;
@@ -227,8 +262,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  FutureOr<void> _deleteUser(
-    AuthDeleteUser event,
+  FutureOr<void> _deleteAccount(
+    AuthDeleteAccount event,
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
@@ -255,6 +290,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         updatedMessages.remove(updatedMessages.firstWhere((e) => e.id == event.messageId));
         emit(state.copyWith(blocStatus: BlocStatus.success, messages: updatedMessages));
       },
+    );
+  }
+
+  FutureOr<void> _deleteAllMessages(AuthDeleteAllMessages event, Emitter<AuthState> emit,) async {
+    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
+
+    final eitherDeleteAllMessages = await _authRepository.deleteAllProfileMessages(profileId: event.profileId);
+    eitherDeleteAllMessages.fold(
+          (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(blocStatus: BlocStatus.success,messages: [])),
     );
   }
 }

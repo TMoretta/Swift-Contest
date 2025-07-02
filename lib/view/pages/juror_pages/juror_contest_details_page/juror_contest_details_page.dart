@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_voting_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class JurorContestDetailsPage extends StatefulWidget {
   final String contestId;
@@ -20,14 +21,14 @@ class JurorContestDetailsPage extends StatefulWidget {
 }
 
 class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
-  late Profile profile;
+  late String profileId;
   late String contestId;
 
   @override
   void initState() {
     super.initState();
     contestId = widget.contestId;
-    profile = context.read<AuthBloc>().state.profile!;
+    profileId = context.read<AuthBloc>().state.profile!.id;
   }
 
   @override
@@ -37,120 +38,175 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
-        if(state.status.isSuccess && state.sourceEvent is JurorContestDetailsPageLeaveContest) {
+        if (state.status.isSuccess && state.sourceEvent is JurorContestDetailsPageLeaveContest) {
           context.pop(true);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(
-          title: 'Joined contest',
-          actions: [
-            BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
-              builder: (context, state) {
-                return PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (option) async {
-                    switch (option) {
-                      case 'Leave':
-                        final bool? res = await showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('Leave contest'),
-                              content: Text('Are you sure you want to leave the contest? '
-                                  'All related info will be lost and organizer will be notified'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    context.pop();
-                                  },
-                                  child: Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    context.pop(true);
-                                  },
-                                  child: Text('Proceed'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                        if (res == true) {
-                          if (context.mounted) {
-                            context.read<JurorContestDetailsPageBloc>().add(
-                                JurorContestDetailsPageLeaveContest(
-                                    contestId: contestId, jurorId: profile.id));
-                          }
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: CustomAppBar(
+              title: 'Joined contest',
+              actions: [
+                BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+                  builder: (context, state) {
+                    switch (state.status) {
+                      case BlocStatus.initial:
+                        return VoidWidget();
+                      case (BlocStatus.loading || BlocStatus.failure):
+                        if (state.sourceEvent is JurorContestDetailsPageInit) {
+                          return VoidWidget();
+                        } else {
+                          continue successCase;
                         }
-                        break;
+                      successCase:
+                      case BlocStatus.success:
+                        return _Menu(
+                          contestId: contestId,
+                          profileId: profileId,
+                        );
                     }
                   },
-                  itemBuilder: (context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem(
-                      value: 'Leave',
-                      child: ListTile(
-                        leading: Icon(Icons.logout_rounded),
-                        title: Text('Leave'),
+                ),
+              ],
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: DefaultTabController(
+                  length: 2,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 16),
+                      BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+                        builder: (context, state) {
+                          switch (state.status) {
+                            case BlocStatus.initial:
+                              return VoidWidget();
+                            case (BlocStatus.loading || BlocStatus.failure):
+                              if (state.sourceEvent is JurorContestDetailsPageInit) {
+                                return VoidWidget();
+                              } else {
+                                continue successCase;
+                              }
+                            successCase:
+                            case BlocStatus.success:
+                              return Card(
+                                shape:
+                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0.6,
+                                child: TabBar(
+                                  labelColor: Theme.of(context).colorScheme.onPrimary,
+                                  isScrollable: false,
+                                  dividerColor: Colors.transparent,
+                                  tabAlignment: TabAlignment.center,
+                                  splashBorderRadius: BorderRadius.circular(16),
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  indicator: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  tabs: [
+                                    Tab(text: 'Details'),
+                                    Tab(text: 'Voting'),
+                                  ],
+                                ),
+                              );
+                          }
+                        },
                       ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: TabBarView(
+                          physics: NeverScrollableScrollPhysics(),
+                          children: [
+                            JurorDetailsTab(contestId: contestId),
+                            JurorVotingTab(contestId: contestId),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+            builder: (context, state) {
+              if (state.status.isLoading) {
+                return ObscuredLoader();
+              }
+              return VoidWidget();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Menu extends StatelessWidget {
+  final String contestId;
+  final String profileId;
+
+  const _Menu({required this.contestId, required this.profileId});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      menuPadding: EdgeInsets.symmetric(vertical: 4),
+      onSelected: (option) async {
+        switch (option) {
+          case 'Leave':
+            final jurorContestDetailsPageBloc = context.read<JurorContestDetailsPageBloc>();
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('Leave contest'),
+                  content: Text('Are you sure you want to leave the contest? '
+                      'The organizer will be notified'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        jurorContestDetailsPageBloc.add(JurorContestDetailsPageLeaveContest(
+                            contestId: contestId, jurorId: profileId));
+                        context.pop();
+                      },
+                      child: Text('Proceed'),
                     ),
                   ],
                 );
               },
+            );
+            break;
+        }
+      },
+      itemBuilder: (context) => <PopupMenuEntry<String>>[
+        PopupMenuItem(
+          value: 'Leave',
+          child: ListTile(
+            leading: Icon(
+              Icons.logout_rounded,
+              color: Theme.of(context).colorScheme.error,
             ),
-          ],
-        ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  SizedBox(height: 16),
-                  Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0.6,
-                    child: BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
-                      builder: (context, state) {
-                        return (state.status.isInitial || state.status.isLoading)
-                            ? SizedBox.shrink()
-                            : TabBar(
-                                labelColor: Theme.of(context).colorScheme.onPrimary,
-                                isScrollable: false,
-                                dividerColor: Colors.transparent,
-                                tabAlignment: TabAlignment.center,
-                                splashBorderRadius: BorderRadius.circular(16),
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicator: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                tabs: [
-                                  Tab(text: 'Details'),
-                                  // Tab(text: 'Works'),
-                                  Tab(text: 'Voting'),
-                                ],
-                              );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Expanded(
-                    child: TabBarView(
-                      physics: NeverScrollableScrollPhysics(),
-                      children: [
-                        JurorDetailsTab(contestId: contestId),
-                        JurorVotingTab(contestId: contestId),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            title: Text(
+              'Leave',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

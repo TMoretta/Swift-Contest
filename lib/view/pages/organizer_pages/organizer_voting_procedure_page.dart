@@ -8,6 +8,7 @@ import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_timer_countdown.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_procedure_page_bloc/organizer_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -64,7 +65,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
               builder: (context, state) {
                 switch (state.status) {
                   case BlocStatus.initial:
-                    return SizedBox.shrink();
+                    return VoidWidget();
                   case BlocStatus.loading:
                     return Loader();
                   case BlocStatus.failure:
@@ -282,6 +283,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                                 ],
                                               ),
                                             CustomTimerCountdown(
+                                                key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
                                                 label: 'Intermission',
                                                 endTime: currentStepDeadline),
                                           ],
@@ -312,6 +314,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                                 ],
                                               ),
                                             CustomTimerCountdown(
+                                                key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
                                                 label: 'Jurors are reviewing',
                                                 endTime: currentStepDeadline),
                                           ],
@@ -320,7 +323,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                     );
                                   case VotingSessionStatus.ended:
                                   case VotingSessionStatus.cancelled:
-                                    return SizedBox.shrink();
+                                    return VoidWidget();
                                 }
                               },
                             ),
@@ -339,11 +342,11 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
             switch (state.status) {
               case BlocStatus.initial:
               case BlocStatus.loading:
-                return const SizedBox.shrink();
+                return const VoidWidget();
               case BlocStatus.failure:
                 if (state.sourceEvent
                     is OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure) {
-                  return SizedBox.shrink();
+                  return VoidWidget();
                 } else {
                   continue successCase;
                 }

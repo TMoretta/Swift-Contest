@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -65,39 +66,37 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
         ),
       ),
       actions: [
-        BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-          switch (state.blocStatus) {
-            case BlocStatus.initial:
-            case BlocStatus.loading:
-              return IconButton(
-                onPressed: null,
-                icon: Icon(Icons.notifications),
-              );
-            case BlocStatus.failure:
-              if (state.sourceEvent is AuthInit) {
+        BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            switch (state.blocStatus) {
+              case BlocStatus.initial:
+                return VoidWidget();
+              case (BlocStatus.loading || BlocStatus.failure):
+                if (state.sourceEvent is AuthInit) {
+                  return VoidWidget();
+                } else {
+                  continue successCase;
+                }
+              successCase:
+              case BlocStatus.success:
+                final messagesCount = state.messages!.where((e) => !e.isRead).length;
                 return IconButton(
-                  onPressed: null,
-                  icon: Icon(Icons.notifications),
+                  onPressed: () {
+                    context.pushNamed(AppRouter.inbox);
+                  },
+                  icon: Badge.count(
+                    count: messagesCount,
+                    isLabelVisible: (messagesCount != 0),
+                    backgroundColor: Theme.of(context).colorScheme.tertiary,
+                    child: Icon(
+                      Icons.notifications,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
                 );
-              } else {
-                continue successCase;
-              }
-            successCase:
-            case BlocStatus.success:
-              final messagesCount = state.messages!.where((e) => !e.isRead).length;
-              return IconButton(
-                onPressed: () {
-                  context.pushNamed(AppRouter.inbox);
-                },
-                icon: Badge.count(
-                  count: messagesCount,
-                  isLabelVisible: (messagesCount != 0),
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  child: Icon(Icons.notifications),
-                ),
-              );
-          }
-        }),
+            }
+          },
+        ),
         IconButton(
           onPressed: () {
             context.pushNamed(AppRouter.settings);
@@ -182,7 +181,7 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   }
                   context.pop();
                 },
-                child: const Text('Confirm'),
+                child: const Text('Proceed'),
               ),
             ],
           );

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -32,7 +33,7 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
       builder: (context, state) {
         switch (state.status) {
           case BlocStatus.initial:
-            return SizedBox.shrink();
+            return VoidWidget();
           case BlocStatus.loading:
             return Loader();
           case BlocStatus.failure:

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_verify_page_bloc/sign_in_verify_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -46,7 +48,7 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Swift Contest',
+                      Labels.appTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
@@ -55,7 +57,7 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
                       ),
                     ),
                     Text(
-                      'Welcome to your contest manager',
+                      Labels.appSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
@@ -73,7 +75,7 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
                   builder: (context, state) {
                     switch (state.status) {
                       case BlocStatus.initial:
-                        return SizedBox.shrink();
+                        return VoidWidget();
                       case BlocStatus.loading:
                         return Loader();
                       case BlocStatus.failure:

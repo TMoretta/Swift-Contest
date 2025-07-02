@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class JurorDetailsTab extends StatefulWidget {
   final String contestId;
@@ -44,16 +46,20 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
         builder: (context, state) {
           switch (state.status) {
             case BlocStatus.initial:
-              return SizedBox.shrink();
+              return VoidWidget();
             case BlocStatus.loading:
-              return Loader();
+              if (state.sourceEvent is JurorContestDetailsPageInit) {
+                return VoidWidget();
+              } else {
+                continue successCase;
+              }
             case BlocStatus.failure:
               if (state.sourceEvent is JurorContestDetailsPageInit) {
                 return RefreshIndicator.adaptive(
                   onRefresh: () async => context
                       .read<JurorContestDetailsPageBloc>()
-                      .add(JurorContestDetailsPageRefresh(contestId: contestId)),
-                  child: ListView(),
+                      .add(JurorContestDetailsPageInit(contestId: contestId)),
+                  child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                 );
               } else {
                 continue successCase;
@@ -212,6 +218,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                             'Jurors: ${state.contestDetailsBundle!.joinedJurationsBundles.length}'),
                       ],
                     ),
+                    SizedBox(height: 8),
                     //* Place
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -288,6 +295,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         ),
                       ],
                     ),
+                    SizedBox(height: 72),
                   ],
                 ),
               );

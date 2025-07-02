@@ -139,9 +139,7 @@ class OrganizerContestDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherRemoveParticipant = await _organizerRepository.removeParticipant(
-        participationId: event.participationId,
-        messageTitle: event.messageTitle,
-        messageBody: event.messageBody);
+        participationId: event.participationId);
     eitherRemoveParticipant.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
@@ -155,9 +153,7 @@ class OrganizerContestDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherRemoveJuror = await _organizerRepository.removeJuror(
-        jurationId: event.jurationId,
-        messageTitle: event.messageTitle,
-        messageBody: event.messageBody);
+        jurationId: event.jurationId);
     eitherRemoveJuror.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

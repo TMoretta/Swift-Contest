@@ -57,32 +57,24 @@ final class OrganizerContestDetailsPageDeleteInvitation extends OrganizerContest
 
 final class OrganizerContestDetailsPageRemoveParticipant extends OrganizerContestDetailsPageEvent {
   final String participationId;
-  final String messageTitle;
-  final String messageBody;
 
   const OrganizerContestDetailsPageRemoveParticipant({
     required this.participationId,
-    required this.messageTitle,
-    required this.messageBody,
   });
 
   @override
-  List<Object?> get props => [participationId, messageTitle, messageBody];
+  List<Object?> get props => [participationId];
 }
 
 final class OrganizerContestDetailsPageRemoveJuror extends OrganizerContestDetailsPageEvent {
   final String jurationId;
-  final String messageTitle;
-  final String messageBody;
 
   const OrganizerContestDetailsPageRemoveJuror({
     required this.jurationId,
-    required this.messageTitle,
-    required this.messageBody,
   });
 
   @override
-  List<Object?> get props => [jurationId, messageTitle, messageBody];
+  List<Object?> get props => [jurationId];
 }
 
 final class OrganizerContestDetailsPageEditVotingSessionName

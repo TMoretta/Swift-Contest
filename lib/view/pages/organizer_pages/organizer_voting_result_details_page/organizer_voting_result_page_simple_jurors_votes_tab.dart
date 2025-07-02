@@ -7,6 +7,7 @@ import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class OrganizerVotingResultPageSimpleJurorsVotesTab extends StatefulWidget {
   final String votingSessionId;
@@ -14,10 +15,12 @@ class OrganizerVotingResultPageSimpleJurorsVotesTab extends StatefulWidget {
   const OrganizerVotingResultPageSimpleJurorsVotesTab({required this.votingSessionId, super.key});
 
   @override
-  State<OrganizerVotingResultPageSimpleJurorsVotesTab> createState() => _OrganizerVotingResultPageSimpleJurorsVotesTabState();
+  State<OrganizerVotingResultPageSimpleJurorsVotesTab> createState() =>
+      _OrganizerVotingResultPageSimpleJurorsVotesTabState();
 }
 
-class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<OrganizerVotingResultPageSimpleJurorsVotesTab> {
+class _OrganizerVotingResultPageSimpleJurorsVotesTabState
+    extends State<OrganizerVotingResultPageSimpleJurorsVotesTab> {
   late String votingSessionId;
   SimpleJuror? chosenSimpleJuror;
   ParticipationBundle? chosenParticipationBundle;
@@ -32,11 +35,11 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
   Widget build(BuildContext context) {
     return Scaffold(
       body:
-      BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
+          BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
         builder: (context, state) {
           switch (state.status) {
             case BlocStatus.initial:
-              return SizedBox.shrink();
+              return VoidWidget();
             case BlocStatus.loading:
               return Loader();
             case BlocStatus.failure:
@@ -46,8 +49,8 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
                     context
                         .read<OrganizerVotingResultDetailsPageBloc>()
                         .add(OrganizerVotingResultDetailsPageInit(
-                      votingSessionId: votingSessionId,
-                    ));
+                          votingSessionId: votingSessionId,
+                        ));
                   },
                   child: ListView(),
                 );
@@ -62,12 +65,16 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
               //     .participantsVotingsPerSimpleJurorMap.entries
               //     .map((e) => e.key)
               //     .toList(growable: false);
-              final List<SimpleJuror> simpleJurors = state.votingSessionResultBundle!.votingSessionSimpleJurorsBundles.map((e) => e.simpleJuror).toList(growable: false);
-              final List<ParticipationBundle> participationsBundles = state.votingSessionResultBundle!
-                  .simpleJurorsVotingsPerParticipantMap.entries
+              final List<SimpleJuror> simpleJurors = state
+                  .votingSessionResultBundle!.votingSessionSimpleJurorsBundles
+                  .map((e) => e.simpleJuror)
+                  .toList(growable: false);
+              final List<ParticipationBundle> participationsBundles = state
+                  .votingSessionResultBundle!.simpleJurorsVotingsPerParticipantMap.entries
                   .map((e) => e.key)
                   .toList(growable: false);
-              final participantsVotingsPerSimpleJurorMap = state.votingSessionResultBundle!.participantsVotingsPerSimpleJurorMap;
+              final participantsVotingsPerSimpleJurorMap =
+                  state.votingSessionResultBundle!.participantsVotingsPerSimpleJurorMap;
               late List<DataColumn> columnsHeaders;
               late List<DataRow> rows;
 
@@ -104,12 +111,13 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
                           DataCell(
                             Text(
                               (participantsVotingsPerSimpleJurorMap[simpleJuror]![
-                              participationBundle] !=
-                                  null)
+                                          participationBundle] !=
+                                      null)
                                   ? participantsVotingsPerSimpleJurorMap[simpleJuror]![
-                              participationBundle]![i]
-                                  .simpleJurorVote.value
-                                  .toString()
+                                          participationBundle]![i]
+                                      .simpleJurorVote
+                                      .value
+                                      .toString()
                                   : 'Excluded',
                             ),
                           ),
@@ -129,13 +137,13 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
                       DataCell(
                         Text(
                           (participantsVotingsPerSimpleJurorMap[chosenSimpleJuror]![
-                          chosenParticipationBundle] !=
-                              null)
+                                      chosenParticipationBundle] !=
+                                  null)
                               ? participantsVotingsPerSimpleJurorMap[chosenSimpleJuror]![
-                          chosenParticipationBundle]![i]
-                              .simpleJurorVote
-                              .value
-                              .toString()
+                                      chosenParticipationBundle]![i]
+                                  .simpleJurorVote
+                                  .value
+                                  .toString()
                               : 'Excluded',
                         ),
                       ),
@@ -158,13 +166,13 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
                           DataCell(
                             Text(
                               (participantsVotingsPerSimpleJurorMap[chosenSimpleJuror]![
-                              participationBundle] !=
-                                  null)
+                                          participationBundle] !=
+                                      null)
                                   ? participantsVotingsPerSimpleJurorMap[chosenSimpleJuror]![
-                              participationBundle]![i]
-                                  .simpleJurorVote
-                                  .value
-                                  .toString()
+                                          participationBundle]![i]
+                                      .simpleJurorVote
+                                      .value
+                                      .toString()
                                   : 'Excluded',
                             ),
                           ),
@@ -188,13 +196,13 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
                           DataCell(
                             Text(
                               (participantsVotingsPerSimpleJurorMap[simpleJuror]![
-                              chosenParticipationBundle] !=
-                                  null)
+                                          chosenParticipationBundle] !=
+                                      null)
                                   ? participantsVotingsPerSimpleJurorMap[simpleJuror]![
-                              chosenParticipationBundle]![i]
-                                  .simpleJurorVote
-                                  .value
-                                  .toString()
+                                          chosenParticipationBundle]![i]
+                                      .simpleJurorVote
+                                      .value
+                                      .toString()
                                   : 'Excluded',
                             ),
                           ),
@@ -288,16 +296,17 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState extends State<Organize
         },
       ),
       floatingActionButton:
-      BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
+          BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
         builder: (context, state) {
           if (state.status.isInitial) {
-            return SizedBox.shrink();
+            return VoidWidget();
           }
           return FloatingActionButton.extended(
             onPressed: (!state.status.isLoading)
                 ? () {
-              context.pushNamed(AppRouter.organizerVotingResultExport, extra: votingSessionId);
-            }
+                    context.pushNamed(AppRouter.organizerVotingResultExport,
+                        extra: votingSessionId);
+                  }
                 : null,
             elevation: 1,
             label: Text('Export'),
