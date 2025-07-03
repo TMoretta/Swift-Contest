@@ -5,14 +5,15 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_exclusion_bundle.dart';
+import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
+import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -31,6 +32,7 @@ class OrganizerVotingSettingsPage extends StatefulWidget {
 }
 
 class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
+  
   late String profileId;
   late final String contestId;
 
@@ -51,7 +53,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   Duration reviewTimer = Duration(minutes: 0, seconds: 20);
   bool isGeoRestricted = false;
   final geoRestrictionPlaceController = TextEditingController();
-  GooglePlace? geoRestrictionPlace;
+  PlaceNullable? geoRestrictionPlace;
   final geoRestrictionRadiusController = TextEditingController();
   final List<ParticipationBundle> participationsBundles = [];
   final List<ParticipationBundle> excludedParticipationsBundles = [];
@@ -81,138 +83,131 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         if (state.status.isFailure) {
           showSnackBar(context: context, text: state.message!);
         }
+        if(state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
         if (state.status.isSuccess &&
             state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
           context.pop(state.votingSessionId);
           // context.replaceNamed(AppRouter.organizerVotingProcedure, extra: state.votingSessionId);
         }
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            appBar: CustomAppBar(
-              title: 'Voting settings',
-            ),
-            body: SafeArea(
-              child: BlocBuilder<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
-                builder: (context, state) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case BlocStatus.loading:
-                      if (state.sourceEvent is OrganizerVotingSettingsPageInit) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    case BlocStatus.failure:
-                      if (state.sourceEvent is OrganizerVotingSettingsPageInit) {
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async => context
-                              .read<OrganizerVotingSettingsPageBloc>()
-                              .add(OrganizerVotingSettingsPageInit(contestId: contestId)),
-                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                        );
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      final contestDetailsBundle = state.contestDetailsBundle!;
-                      if(!isPageInitialized) {
-                        participationsBundles.addAll(contestDetailsBundle.joinedParticipationsWithWorksBundles);
-                        jurationsBundles.addAll(contestDetailsBundle.joinedJurationsBundles);
-                        isPageInitialized = true;
-                      }
-                      return Stepper(
-                        type: StepperType.horizontal,
-                        currentStep: currentStep,
-                        elevation: 0,
-                        onStepContinue: () {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          final isLastStep = (currentStep == getSteps().length - 1);
-                          if (formKeys[currentStep].currentState?.validate() ?? false) {
-                            if (isLastStep) {
-                              context
-                                  .read<OrganizerVotingSettingsPageBloc>()
-                                  .add(OrganizerVotingSettingsPageInitVotingProcedure(
-                                    contestId: contestDetailsBundle.contest.id,
-                                    votingFormId:
-                                        contestDetailsBundle.votingFormBundle.votingForm.id,
-                                    areSimpleJurorsAllowed: areSimpleJurorsAllowed,
-                                    votingExclusionsBundles: votingExclusions,
-                                    participationsBundles: participationsBundles,
-                                    excludedParticipationsBundles: excludedParticipationsBundles,
-                                    jurationsBundles: jurationsBundles,
-                                    excludedJurationsBundles: excludedJurationsBundles,
-                                    workTimer: workTimer,
-                                    intermissionTimer: intermissionTimer,
-                                    reviewTimer: reviewTimer,
-                                    votingFormFields: contestDetailsBundle
-                                        .votingFormBundle.votingFormFields
-                                        .map((e) => VotingFormFieldNullable(
-                                            name: e.name,
-                                            minValue: e.minValue,
-                                            maxValue: e.maxValue,
-                                            orderIndex: e.orderIndex))
-                                        .toList(growable: false),
-                                    isGeoRestricted: isGeoRestricted,
-                                    geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
-                                    geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
-                                    geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
-                                    geoRestrictionRadius:
-                                        (geoRestrictionRadiusController.text.isNotEmpty)
-                                            ? int.tryParse(geoRestrictionRadiusController.text)
-                                            : null,
-                                  ));
-                            } else {
-                              setState(() => ++currentStep);
-                            }
-                          }
-                        },
-                        onStepCancel: () {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          (currentStep == 0) ? null : setState(() => --currentStep);
-                        },
-                        controlsBuilder: (context, details) {
-                          final isLastStep = details.currentStep == getSteps().length - 1;
-                          return Container(
-                            margin: EdgeInsets.only(top: 20),
-                            child: Row(
-                              mainAxisAlignment: (currentStep == 0)
-                                  ? MainAxisAlignment.end
-                                  : MainAxisAlignment.spaceBetween,
-                              spacing: 12,
-                              children: [
-                                if (details.currentStep != 0)
-                                  ElevatedButton(
-                                    onPressed: details.onStepCancel,
-                                    child: Text('Back'),
-                                  ),
-                                ElevatedButton(
-                                  onPressed: details.onStepContinue,
-                                  child: Text((isLastStep) ? 'Start' : 'Next'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        steps: getSteps(),
-                      );
-                  }
-                },
-              ),
-            ),
-          ),
-          BlocBuilder<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: 'Voting settings',
+        ),
+        body: SafeArea(
+          child: BlocBuilder<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
             builder: (context, state) {
-              if (state.status.isLoading) {
-                return ObscuredLoader();
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return VoidWidget();
+                case BlocStatus.loading:
+                  if (state.sourceEvent is OrganizerVotingSettingsPageInit) {
+                    return VoidWidget();
+                  } else {
+                    continue successCase;
+                  }
+                case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerVotingSettingsPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<OrganizerVotingSettingsPageBloc>()
+                          .add(OrganizerVotingSettingsPageInit(contestId: contestId)),
+                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  final contestDetailsBundle = state.contestDetailsBundle!;
+                  if(!isPageInitialized) {
+                    participationsBundles.addAll(contestDetailsBundle.joinedParticipationsWithWorksBundles);
+                    jurationsBundles.addAll(contestDetailsBundle.joinedJurationsBundles);
+                    isPageInitialized = true;
+                  }
+                  return Stepper(
+                    type: StepperType.horizontal,
+                    currentStep: currentStep,
+                    elevation: 0,
+                    onStepContinue: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      final isLastStep = (currentStep == getSteps().length - 1);
+                      if (formKeys[currentStep].currentState?.validate() ?? false) {
+                        if (isLastStep) {
+                          context
+                              .read<OrganizerVotingSettingsPageBloc>()
+                              .add(OrganizerVotingSettingsPageInitVotingProcedure(
+                                contestId: contestDetailsBundle.contest.id,
+                                votingFormId:
+                                    contestDetailsBundle.votingFormBundle.votingForm.id,
+                                areSimpleJurorsAllowed: areSimpleJurorsAllowed,
+                                votingExclusionsBundles: votingExclusions,
+                                participationsBundles: participationsBundles,
+                                excludedParticipationsBundles: excludedParticipationsBundles,
+                                jurationsBundles: jurationsBundles,
+                                excludedJurationsBundles: excludedJurationsBundles,
+                                workTimer: workTimer,
+                                intermissionTimer: intermissionTimer,
+                                reviewTimer: reviewTimer,
+                                votingFormFields: contestDetailsBundle
+                                    .votingFormBundle.votingFormFields
+                                    .map((e) => VotingFormFieldNullable(
+                                        name: e.name,
+                                        minValue: e.minValue,
+                                        maxValue: e.maxValue,
+                                        orderIndex: e.orderIndex))
+                                    .toList(growable: false),
+                                isGeoRestricted: isGeoRestricted,
+                                geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
+                                geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
+                                geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
+                                geoRestrictionRadius:
+                                    (geoRestrictionRadiusController.text.isNotEmpty)
+                                        ? int.tryParse(geoRestrictionRadiusController.text)
+                                        : null,
+                              ));
+                        } else {
+                          setState(() => ++currentStep);
+                        }
+                      }
+                    },
+                    onStepCancel: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      (currentStep == 0) ? null : setState(() => --currentStep);
+                    },
+                    controlsBuilder: (context, details) {
+                      final isLastStep = details.currentStep == getSteps().length - 1;
+                      return Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: Row(
+                          mainAxisAlignment: (currentStep == 0)
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.spaceBetween,
+                          spacing: 12,
+                          children: [
+                            if (details.currentStep != 0)
+                              ElevatedButton(
+                                onPressed: details.onStepCancel,
+                                child: Text('Back'),
+                              ),
+                            ElevatedButton(
+                              onPressed: details.onStepContinue,
+                              child: Text((isLastStep) ? 'Start' : 'Next'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    steps: getSteps(),
+                  );
               }
-              return VoidWidget();
             },
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -512,20 +507,25 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     },
                   ),
                   SizedBox(height: 8),
-                  BlocProvider<PlacePickerFormFieldBloc>(
-                    create: (context) =>
-                        PlacePickerFormFieldBloc(googlePlaceRepository: context.read()),
-                    child: PlacePickerFormField(
-                      enabled: isGeoRestricted,
-                      controller: geoRestrictionPlaceController,
-                      label: 'Restricted location',
-                      validator: (isGeoRestricted) ? noEmptyValidator : null,
-                      onSelected: (placeValue) => geoRestrictionPlace = placeValue,
-                      prefixIcon: Icon(Icons.place_outlined),
+                  PlacePickerFormField(
+                    controller: geoRestrictionPlaceController,
+                    label: 'Restricted location',
+                    validator: (isGeoRestricted) ? noEmptyValidator : null,
+                    prefixIcon: Icon(Icons.place_outlined),
+                    suffixIcon: TextButton(
+                      onPressed: () async {
+                        final PlaceNullable? placeNullable = await context.pushNamed(AppRouter.placeSearch);
+                        if(placeNullable!=null) {
+                          geoRestrictionPlaceController.text = placeNullable.address!;
+                          geoRestrictionPlace = placeNullable;
+                        }
+                      },
+                      child: Text('Select'),
                     ),
                   ),
                   SizedBox(height: 6),
-                  CustomTextFormFieldOutlined(
+                  CustomTextFormField(
+                    borderType: InputBorderType.outlined,
                     enabled: isGeoRestricted,
                     controller: geoRestrictionRadiusController,
                     label: 'Restriction radius',

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -19,7 +22,7 @@ class OrganizerVotingResultPageInfoTab extends StatefulWidget {
 }
 
 class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResultPageInfoTab> {
-  late String votingSessionId;
+  late final String votingSessionId;
 
   @override
   void initState() {
@@ -35,7 +38,11 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
           case BlocStatus.initial:
             return VoidWidget();
           case BlocStatus.loading:
-            return Loader();
+            if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+              return VoidWidget();
+            } else {
+              continue successCase;
+            }
           case BlocStatus.failure:
             if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
               return RefreshIndicator.adaptive(
@@ -43,10 +50,10 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
                   context
                       .read<OrganizerVotingResultDetailsPageBloc>()
                       .add(OrganizerVotingResultDetailsPageInit(
-                    votingSessionId: votingSessionId,
-                  ));
+                        votingSessionId: votingSessionId,
+                      ));
                 },
-                child: ListView(),
+                child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
               );
             } else {
               continue successCase;
@@ -56,11 +63,16 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
             final votingSessionResultBundle = state.votingSessionResultBundle!;
             final votingSessionBundle = votingSessionResultBundle.votingSessionBundle;
             final votingSession = votingSessionBundle.votingSession;
-            final excludedVotingSessionParticipationsBundles =
-            state.votingSessionResultBundle!.votingSessionParticipationsBundles.where((e) => e.votingSessionParticipation.isExcluded).toList(growable: false);
-            final excludedVotingSessionJurationsBundles =
-            state.votingSessionResultBundle!.votingSessionJurationsBundles.where((e) => e.votingSessionJuration.isExcluded).toList(growable: false);
-            final jurorsWithoutSubmissionBundles = state.votingSessionResultBundle!.jurorsWithoutSubmission;
+            final excludedVotingSessionParticipationsBundles = state
+                .votingSessionResultBundle!.votingSessionParticipationsBundles
+                .where((e) => e.votingSessionParticipation.isExcluded)
+                .toList(growable: false);
+            final excludedVotingSessionJurationsBundles = state
+                .votingSessionResultBundle!.votingSessionJurationsBundles
+                .where((e) => e.votingSessionJuration.isExcluded)
+                .toList(growable: false);
+            final jurorsWithoutSubmissionBundles =
+                state.votingSessionResultBundle!.jurorsWithoutSubmission;
             return RefreshIndicator.adaptive(
               onRefresh: () async => context
                   .read<OrganizerVotingResultDetailsPageBloc>()
@@ -88,8 +100,8 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
                             ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
                       ),
                       trailing: IconButton(
-                        onPressed: () async {
-                          await _showEditVotingSessionNameDialog(
+                        onPressed: () {
+                          _showEditVotingSessionNameDialog(
                               context: context, votingSessionId: votingSessionId);
                         },
                         icon: Icon(
@@ -140,7 +152,7 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
                   ),
                   if (jurorsWithoutSubmissionBundles.isNotEmpty)
                     ...jurorsWithoutSubmissionBundles.map(
-                          (e) => Text(e.juror.fullName),
+                      (e) => Text(e.juror.fullName),
                     )
                   else
                     Text('All jurors submitted'),
@@ -153,28 +165,32 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
   }
 }
 
-Future<bool?> _showEditVotingSessionNameDialog({
+void _showEditVotingSessionNameDialog({
   required BuildContext context,
   required String votingSessionId,
-}) async {
+}) {
   final organizerContestDetailsPageBloc = context.read<OrganizerVotingResultDetailsPageBloc>();
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
 
-  return await showDialog(
+  showDialog(
     context: context,
     builder: (context) {
       return BlocProvider.value(
         value: organizerContestDetailsPageBloc,
-        child: BlocListener<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
+        child: BlocListener<OrganizerVotingResultDetailsPageBloc,
+            OrganizerVotingResultDetailsPageState>(
           listener: (context, state) {
-            if (state.status.isSuccess && state.sourceEvent is OrganizerVotingResultDetailsPageEditVotingSessionName) {
-              context.read<OrganizerVotingResultDetailsPageBloc>().add(
-                  OrganizerVotingResultDetailsPageRefresh(votingSessionId: votingSessionId));
+            if (state.status.isSuccess &&
+                state.sourceEvent is OrganizerVotingResultDetailsPageEditVotingSessionName) {
+              context
+                  .read<OrganizerVotingResultDetailsPageBloc>()
+                  .add(OrganizerVotingResultDetailsPageRefresh(votingSessionId: votingSessionId));
               context.pop();
             }
           },
-          child: BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
+          child: BlocBuilder<OrganizerVotingResultDetailsPageBloc,
+              OrganizerVotingResultDetailsPageState>(
             builder: (context, state) {
               return AlertDialog(
                 title: Text('Edit name'),
@@ -183,31 +199,31 @@ Future<bool?> _showEditVotingSessionNameDialog({
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      (!state.status.isLoading) ?
-                      CustomTextFormFieldUnderlined(
+                      CustomTextFormField(
+                        borderType: InputBorderType.underlined,
                         controller: nameController,
                         label: 'Name',
                         validator: noEmptyValidator,
-                      ) : Loader(),
+                      ),
                     ],
                   ),
                 ),
                 actions: [
                   TextButton(
-                    onPressed: (!state.status.isLoading) ? () {
+                    onPressed: () {
                       context.pop();
-                    } : null,
+                    },
                     child: Text('Cancel'),
                   ),
                   TextButton(
-                    onPressed: (!state.status.isLoading) ? () {
+                    onPressed: () {
                       if (formKey.currentState!.validate()) {
                         context.read<OrganizerVotingResultDetailsPageBloc>().add(
                             OrganizerVotingResultDetailsPageEditVotingSessionName(
                                 votingSessionId: votingSessionId,
                                 name: nameController.text.trim()));
                       }
-                    } : null,
+                    },
                     child: Text('Edit'),
                   ),
                 ],

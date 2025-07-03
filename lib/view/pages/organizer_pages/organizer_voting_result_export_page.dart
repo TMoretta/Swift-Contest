@@ -10,14 +10,17 @@ import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/data_models/simple_juror.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/media_types.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_export_page_bloc/organizer_voting_result_export_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 
 class OrganizerVotingResultExportPage extends StatefulWidget {
   final String votingSessionId;
@@ -29,7 +32,8 @@ class OrganizerVotingResultExportPage extends StatefulWidget {
 }
 
 class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultExportPage> {
-  late String votingSessionId;
+  
+  late final String votingSessionId;
   List<ParticipationBundle> selectedParticipationsBundles = [];
   List<JurationBundle> selectedJurationsBundles = [];
   List<SimpleJuror> selectedSimpleJurors = [];
@@ -51,38 +55,61 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
+        if(state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
       },
       child: Scaffold(
         appBar: CustomAppBar(title: 'Export'),
-        body:
-            BlocBuilder<OrganizerVotingResultExportPageBloc, OrganizerVotingResultExportPageState>(
+        body: BlocBuilder<OrganizerVotingResultExportPageBloc,
+            OrganizerVotingResultExportPageState>(
           builder: (context, state) {
             switch (state.status) {
               case BlocStatus.initial:
                 return VoidWidget();
               case BlocStatus.loading:
-                return Loader();
+                if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
+                  return VoidWidget();
+                } else {
+                  continue successCase;
+                }
               case BlocStatus.failure:
                 if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async {
                       context.read<OrganizerVotingResultExportPageBloc>().add(
-                          OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
+                          OrganizerVotingResultExportPageInit(
+                              votingSessionId: votingSessionId));
                     },
-                    child: ListView(),
+                    child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                   );
                 }
                 continue successCase;
               successCase:
               case BlocStatus.success:
                 final votingSessionResultBundle = state.votingSessionResultBundle!;
-                final votingFormFields = votingSessionResultBundle.votingFormBundle.votingFormFields;
+                final votingFormFields =
+                    votingSessionResultBundle.votingFormBundle.votingFormFields;
                 // Ottengo la lista di participation bundles dei partecipanti non esclusi
-                final participationsBundles = votingSessionResultBundle.votingSessionParticipationsBundles.where((e) => !e.votingSessionParticipation.isExcluded).map((e) => e.participationBundle).toList(growable: false);
+                final participationsBundles = votingSessionResultBundle
+                    .votingSessionParticipationsBundles
+                    .where((e) => !e.votingSessionParticipation.isExcluded)
+                    .map((e) => e.participationBundle)
+                    .toList(growable: false);
                 // Ottengo la lista di giurati non esclusi e che hanno inviato i voti
-                final jurationsBundles = votingSessionResultBundle.votingSessionJurationsBundles.where((e) => !e.votingSessionJuration.isExcluded && e.votingSessionJuration.hasSubmitted).map((e) => e.jurationBundle).toList(growable: false);
+                final jurationsBundles = votingSessionResultBundle.votingSessionJurationsBundles
+                    .where((e) =>
+                        !e.votingSessionJuration.isExcluded &&
+                        e.votingSessionJuration.hasSubmitted)
+                    .map((e) => e.jurationBundle)
+                    .toList(growable: false);
                 // Ottengo la lista di giurati semplici che hanno inviato i voti
-                final simpleJurors = votingSessionResultBundle.votingSessionSimpleJurorsBundles.where((e) => e.votingSessionSimpleJuror.hasSubmitted).map((e) => e.simpleJuror).toList(growable: false);
+                final simpleJurors = votingSessionResultBundle.votingSessionSimpleJurorsBundles
+                    .where((e) => e.votingSessionSimpleJuror.hasSubmitted)
+                    .map((e) => e.simpleJuror)
+                    .toList(growable: false);
                 return ListView(
                   children: [
                     // Selezione partecipanti
@@ -105,8 +132,9 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
 
                     // Selezione giurati
                     MultiSelectDialogField<JurationBundle>(
-                      items:
-                          jurationsBundles.map((e) => MultiSelectItem(e, e.juror.fullName)).toList(growable: false),
+                      items: jurationsBundles
+                          .map((e) => MultiSelectItem(e, e.juror.fullName))
+                          .toList(growable: false),
                       title: Text('Jurors'),
                       buttonText: Text('Select jurors'),
                       listType: MultiSelectListType.CHIP,
@@ -122,8 +150,9 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
 
                     // Selezione giurati semplici
                     MultiSelectDialogField<SimpleJuror>(
-                      items:
-                      simpleJurors.map((e) => MultiSelectItem(e, e.fullName)).toList(growable: false),
+                      items: simpleJurors
+                          .map((e) => MultiSelectItem(e, e.fullName))
+                          .toList(growable: false),
                       title: Text('Simple jurors'),
                       buttonText: Text('Select simple jurors'),
                       listType: MultiSelectListType.CHIP,
@@ -155,8 +184,8 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
             }
           },
         ),
-        floatingActionButton:
-            BlocBuilder<OrganizerVotingResultExportPageBloc, OrganizerVotingResultExportPageState>(
+        floatingActionButton: BlocBuilder<OrganizerVotingResultExportPageBloc,
+            OrganizerVotingResultExportPageState>(
           builder: (context, state) {
             switch (state.status) {
               case BlocStatus.initial:
@@ -168,7 +197,8 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                   return RefreshIndicator.adaptive(
                     onRefresh: () async {
                       context.read<OrganizerVotingResultExportPageBloc>().add(
-                          OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
+                          OrganizerVotingResultExportPageInit(
+                              votingSessionId: votingSessionId));
                     },
                     child: ListView(),
                   );
@@ -177,16 +207,23 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
               successCase:
               case BlocStatus.success:
                 final votingSessionResultBundle = state.votingSessionResultBundle!;
-                final participantsVotingsPerJurorMap = votingSessionResultBundle.participantsVotingsPerJurorMap;
-                final jurorsVotingsPerParticipantMap = votingSessionResultBundle.jurorsVotingsPerParticipantMap;
-                final participantsVotingsPerSimpleJurorMap = votingSessionResultBundle.participantsVotingsPerSimpleJurorMap;
-                final simpleJurorsVotingsPerParticipantMap = votingSessionResultBundle.simpleJurorsVotingsPerParticipantMap;
+                final participantsVotingsPerJurorMap =
+                    votingSessionResultBundle.participantsVotingsPerJurorMap;
+                final jurorsVotingsPerParticipantMap =
+                    votingSessionResultBundle.jurorsVotingsPerParticipantMap;
+                final participantsVotingsPerSimpleJurorMap =
+                    votingSessionResultBundle.participantsVotingsPerSimpleJurorMap;
+                final simpleJurorsVotingsPerParticipantMap =
+                    votingSessionResultBundle.simpleJurorsVotingsPerParticipantMap;
                 return FloatingActionButton(
                   onPressed: () async {
-                    if (selectedFields.isEmpty || (selectedJurationsBundles.isEmpty && selectedSimpleJurors.isEmpty) || selectedParticipationsBundles.isEmpty) {
+                    if (selectedFields.isEmpty ||
+                        (selectedJurationsBundles.isEmpty && selectedSimpleJurors.isEmpty) ||
+                        selectedParticipationsBundles.isEmpty) {
                       showSnackBar(
                           context: context,
-                          text: 'Select at least one field, one juror or simple juror, and one participant');
+                          text:
+                              'Select at least one field, one juror or simple juror, and one participant');
                       return;
                     }
 
@@ -197,8 +234,8 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                       return;
                     }
 
-                    final Workbook workbook = Workbook();
-                    final Worksheet sheet = workbook.worksheets[0];
+                    final xlsio.Workbook workbook = xlsio.Workbook();
+                    final xlsio.Worksheet sheet = workbook.worksheets[0];
                     sheet.name = 'Results';
 
                     // 3) Costruisci i dati di header
@@ -208,32 +245,36 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                       int start = col, end = col + selectedFields.length - 1;
                       sheet.getRangeByIndex(1, start, 1, end).merge();
                       sheet.getRangeByIndex(1, start).setText(jurationBundle.juror.fullName);
-                      sheet.getRangeByIndex(1, start).cellStyle.hAlign = HAlignType.center;
+                      sheet.getRangeByIndex(1, start).cellStyle.hAlign =
+                          xlsio.HAlignType.center;
                       col = end + 1;
                     }
-                    for(var simpleJuror in selectedSimpleJurors) {
+                    for (var simpleJuror in selectedSimpleJurors) {
                       int start = col, end = col + selectedFields.length - 1;
                       sheet.getRangeByIndex(1, start, 1, end).merge();
                       sheet.getRangeByIndex(1, start).setText(simpleJuror.fullName);
-                      sheet.getRangeByIndex(1, start).cellStyle.hAlign = HAlignType.center;
+                      sheet.getRangeByIndex(1, start).cellStyle.hAlign =
+                          xlsio.HAlignType.center;
                       col = end + 1;
                     }
                     sheet.getRangeByIndex(1, 1).setText('Participant');
-                    sheet.getRangeByIndex(1, 1).cellStyle.hAlign = HAlignType.center;
+                    sheet.getRangeByIndex(1, 1).cellStyle.hAlign = xlsio.HAlignType.center;
 
                     // Riga 2: nomi dei campi
                     col = 2;
                     for (var jurationBundle in selectedJurationsBundles) {
                       for (var field in selectedFields) {
                         sheet.getRangeByIndex(2, col).setText(field.name);
-                        sheet.getRangeByIndex(2, col).cellStyle.hAlign = HAlignType.center;
+                        sheet.getRangeByIndex(2, col).cellStyle.hAlign =
+                            xlsio.HAlignType.center;
                         col++;
                       }
                     }
                     for (var simpleJuror in selectedSimpleJurors) {
                       for (var field in selectedFields) {
                         sheet.getRangeByIndex(2, col).setText(field.name);
-                        sheet.getRangeByIndex(2, col).cellStyle.hAlign = HAlignType.center;
+                        sheet.getRangeByIndex(2, col).cellStyle.hAlign =
+                            xlsio.HAlignType.center;
                         col++;
                       }
                     }
@@ -242,10 +283,13 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                     for (int i = 0; i < selectedParticipationsBundles.length; i++) {
                       final participationBundle = selectedParticipationsBundles[i];
                       // colonna 1: nome partecipante, riga i+3
-                      sheet.getRangeByIndex(i + 3, 1).setText(participationBundle.participant.fullName);
+                      sheet
+                          .getRangeByIndex(i + 3, 1)
+                          .setText(participationBundle.participant.fullName);
                       col = 2;
                       for (var jurationBundle in selectedJurationsBundles) {
-                        final voteList = jurorsVotingsPerParticipantMap[participationBundle]![jurationBundle];
+                        final voteList = jurorsVotingsPerParticipantMap[participationBundle]![
+                            jurationBundle];
                         if (voteList == null) {
                           // riempi con "Excluded"
                           for (int k = 0; k < selectedFields.length; k++) {
@@ -262,7 +306,8 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                         }
                       }
                       for (var simpleJuror in selectedSimpleJurors) {
-                        final voteList = simpleJurorsVotingsPerParticipantMap[participationBundle]![simpleJuror];
+                        final voteList = simpleJurorsVotingsPerParticipantMap[
+                            participationBundle]![simpleJuror];
                         if (voteList == null) {
                           // riempi con "Excluded"
                           for (int k = 0; k < selectedFields.length; k++) {
@@ -282,7 +327,8 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
 
                     final directory = await ExternalPath.getExternalStoragePublicDirectory(
                         ExternalPath.DIRECTORY_DOWNLOAD);
-                    final baseName = state.votingSessionResultBundle!.votingSessionBundle.votingSession.name;
+                    final baseName =
+                        state.votingSessionResultBundle!.votingSessionBundle.votingSession.name;
                     final extension = '.xlsx';
 
                     String safeFilename;
@@ -309,7 +355,8 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
 
                     if (context.mounted) {
                       showSnackBar(
-                          context: context, text: 'File successfully saved in "Downloads" folder');
+                          context: context,
+                          text: 'File successfully saved in "Downloads" folder');
                     }
 
                     OpenFile.open(path, type: MediaTypes.mapExtension(extension));

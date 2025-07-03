@@ -36,7 +36,6 @@ class TimePickerFormField extends StatelessWidget {
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         label: Text(label ?? ''),
         filled: isFilled,
         fillColor: fillColor,

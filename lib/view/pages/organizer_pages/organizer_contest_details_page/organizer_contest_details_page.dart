@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_details_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_jurors_tab.dart';
@@ -25,6 +26,7 @@ class OrganizerContestDetailsPage extends StatefulWidget {
 }
 
 class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPage> {
+  
   late String contestId;
 
   @override
@@ -40,108 +42,101 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
+        if(state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            appBar: CustomAppBar(
-              title: 'Your contest',
-              actions: [
-                BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-                  builder: (context, state) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
-                        return VoidWidget();
-                      case (BlocStatus.loading || BlocStatus.failure):
-                        if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        return _Menu(contestId: contestId);
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: 'Your contest',
+          actions: [
+            BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+              builder: (context, state) {
+                switch (state.status) {
+                  case BlocStatus.initial:
+                    return VoidWidget();
+                  case (BlocStatus.loading || BlocStatus.failure):
+                    if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      return VoidWidget();
+                    } else {
+                      continue successCase;
                     }
-                  },
-                ),
-              ],
+                  successCase:
+                  case BlocStatus.success:
+                    return _Menu(contestId: contestId);
+                }
+              },
             ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DefaultTabController(
-                  length: 5,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 16),
-                      BlocBuilder<OrganizerContestDetailsPageBloc,
-                          OrganizerContestDetailsPageState>(
-                        builder: (context, state) {
-                            switch (state.status) {
-                              case BlocStatus.initial:
-                                return VoidWidget();
-                              case (BlocStatus.loading || BlocStatus.failure):
-                                if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-                                  return VoidWidget();
-                                } else {
-                                  continue successCase;
-                                }
-                              successCase:
-                              case BlocStatus.success:
-                                return Card(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  elevation: 0.6,
-                                  child: TabBar(
-                                    labelColor: Theme.of(context).colorScheme.onPrimary,
-                                    isScrollable: true,
-                                    dividerColor: Colors.transparent,
-                                    tabAlignment: TabAlignment.center,
-                                    splashBorderRadius: BorderRadius.circular(16),
-                                    indicatorSize: TabBarIndicatorSize.tab,
-                                    indicator: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    tabs: [
-                                      Tab(text: 'Details'),
-                                      Tab(text: 'Participants'),
-                                      Tab(text: 'Jurors'),
-                                      Tab(text: 'Works'),
-                                      Tab(text: 'Voting'),
-                                    ],
-                                  )
-                                );
+          ],
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DefaultTabController(
+              length: 5,
+              child: Column(
+                children: [
+                  SizedBox(height: 16),
+                  BlocBuilder<OrganizerContestDetailsPageBloc,
+                      OrganizerContestDetailsPageState>(
+                    builder: (context, state) {
+                        switch (state.status) {
+                          case BlocStatus.initial:
+                            return VoidWidget();
+                          case (BlocStatus.loading || BlocStatus.failure):
+                            if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                              return VoidWidget();
+                            } else {
+                              continue successCase;
                             }
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: TabBarView(
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [
-                            OrganizerDetailsTab(contestId: contestId),
-                            OrganizerParticipantsTab(contestId: contestId),
-                            OrganizerJurorsTab(contestId: contestId),
-                            OrganizerWorksTab(contestId: contestId),
-                            OrganizerVotingTab(contestId: contestId),
-                          ],
-                        ),
-                      ),
-                    ],
+                          successCase:
+                          case BlocStatus.success:
+                            return Card(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              elevation: 0.6,
+                              child: TabBar(
+                                labelColor: Theme.of(context).colorScheme.onPrimary,
+                                isScrollable: true,
+                                dividerColor: Colors.transparent,
+                                tabAlignment: TabAlignment.center,
+                                splashBorderRadius: BorderRadius.circular(16),
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                indicator: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                tabs: [
+                                  Tab(text: 'Details'),
+                                  Tab(text: 'Participants'),
+                                  Tab(text: 'Jurors'),
+                                  Tab(text: 'Works'),
+                                  Tab(text: 'Voting'),
+                                ],
+                              )
+                            );
+                        }
+                    },
                   ),
-                ),
+                  SizedBox(height: 16),
+                  Expanded(
+                    child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        OrganizerDetailsTab(contestId: contestId),
+                        OrganizerParticipantsTab(contestId: contestId),
+                        OrganizerJurorsTab(contestId: contestId),
+                        OrganizerWorksTab(contestId: contestId),
+                        OrganizerVotingTab(contestId: contestId),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-            builder: (context, state) {
-              if (state.status.isLoading) {
-                return ObscuredLoader();
-              }
-              return VoidWidget();
-            },
-          )
-        ],
+        ),
       ),
     );
   }
@@ -224,38 +219,33 @@ void _showSwitchStatusDialog({required BuildContext context, required String con
             }
           },
           builder: (context, state) {
-            return Stack(
-              children: [
-                AlertDialog(
-                  title: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated)
-                      ? 'Set as active'
-                      : 'Set as terminated'),
-                  content: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated)
-                      ? 'Are you sure you want to set this contest as active?'
-                      : 'Are you sure you want to set this contest as terminated?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (state.contestDetailsBundle!.contest.contestStatus.isTerminated) {
-                          organizerContestDetailsPageBloc.add(
-                              OrganizerContestDetailsPageSetStatusAsActive(contestId: contestId));
-                        } else {
-                          organizerContestDetailsPageBloc.add(
-                              OrganizerContestDetailsPageSetStatusAsTerminated(
-                                  contestId: contestId));
-                        }
-                      },
-                      child: Text('Proceed'),
-                    ),
-                  ],
+            return AlertDialog(
+              title: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated)
+                  ? 'Set as active'
+                  : 'Set as terminated'),
+              content: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated)
+                  ? 'Are you sure you want to set this contest as active?'
+                  : 'Are you sure you want to set this contest as terminated?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: Text('Cancel'),
                 ),
-                if (state.status.isLoading) ObscuredLoader(),
+                TextButton(
+                  onPressed: () {
+                    if (state.contestDetailsBundle!.contest.contestStatus.isTerminated) {
+                      organizerContestDetailsPageBloc.add(
+                          OrganizerContestDetailsPageSetStatusAsActive(contestId: contestId));
+                    } else {
+                      organizerContestDetailsPageBloc.add(
+                          OrganizerContestDetailsPageSetStatusAsTerminated(
+                              contestId: contestId));
+                    }
+                  },
+                  child: Text('Proceed'),
+                ),
               ],
             );
           },
@@ -281,29 +271,24 @@ void _showDeleteContestDialog({required BuildContext context, required String co
             }
           },
           builder: (context, state) {
-            return Stack(
-              children: [
-                AlertDialog(
-                  title: Text('Delete contest'),
-                  content: Text('Are you sure you want to delete this contest? '
-                      'All related info will be lost and members will be notified'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        organizerContestDetailsPageBloc
-                            .add(OrganizerContestDetailsPageDeleteContest(contestId: contestId));
-                      },
-                      child: Text('Proceed'),
-                    ),
-                  ],
+            return AlertDialog(
+              title: Text('Delete contest'),
+              content: Text('Are you sure you want to delete this contest? '
+                  'All related info will be lost and members will be notified'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: Text('Cancel'),
                 ),
-                if (state.status.isLoading) ObscuredLoader(),
+                TextButton(
+                  onPressed: () {
+                    organizerContestDetailsPageBloc
+                        .add(OrganizerContestDetailsPageDeleteContest(contestId: contestId));
+                  },
+                  child: Text('Proceed'),
+                ),
               ],
             );
           },

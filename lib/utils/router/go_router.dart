@@ -24,6 +24,7 @@ import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart';
+import 'package:swift_contest/view/pages/place_search_page.dart';
 import 'package:swift_contest/view/pages/root_page.dart';
 import 'package:swift_contest/view/pages/settings_page.dart';
 import 'package:swift_contest/view/pages/sign_in_page.dart';
@@ -47,6 +48,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_work_details
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_home_page_bloc/participant_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submit_page_bloc/participant_work_submit_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/place_search_page_bloc/place_search_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_verify_page_bloc/sign_in_verify_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_page_bloc/sign_up_page_bloc.dart';
@@ -95,14 +97,6 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
     initialLocation: '/',
     initialExtra: 1,
     routes: [
-      //* Splash route
-      // GoRoute(
-      //   name: AppRouter.splash,
-      //   path: '/splash',
-      //   pageBuilder: (context, state) {
-      //     return MaterialPage(child: SplashPage());
-      //   },
-      // ),
       GoRoute(
         name: AppRouter.root,
         path: '/',
@@ -198,6 +192,21 @@ GoRouter getGoRouter({required AuthBloc authBloc}) {
         pageBuilder: (context, state) {
           return MaterialPage(
             child: InboxPage(),
+          );
+        },
+      ),
+      //* PlaceSearch
+      GoRoute(
+        name: AppRouter.placeSearch,
+        path: '/place_search',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+            child: BlocProvider(
+              create: (context) => PlaceSearchPageBloc(
+                googlePlaceRepository: context.read(),
+              ),
+              child: PlaceSearchPage(),
+            ),
           );
         },
       ),
@@ -515,6 +524,7 @@ final class AppRouter {
   static const String settings = 'settings';
   static const String account = 'account';
   static const String inbox = 'inbox';
+  static const String placeSearch = 'placeSearch';
 
   // Routes organizzatore
   static const String organizerHome = 'organizerHome';

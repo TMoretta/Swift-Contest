@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_verify_page_bloc/sign_in_verify_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -20,6 +21,7 @@ class SignInVerifyPage extends StatefulWidget {
 }
 
 class _SignInVerifyPageState extends State<SignInVerifyPage> {
+  
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
 
@@ -30,6 +32,11 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
         //* Show a message if there is one
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
+        }
+        if(state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
         }
         //* Show a message to verify email and go to 'sign in' in case of success
         if (state.status.isSuccess && state.sourceEvent is SignInVerifyOtp) {
@@ -87,7 +94,8 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
                             child: Column(
                               children: [
                                 //* Otp field
-                                CustomTextFormFieldOutlined(
+                                CustomTextFormField(
+                                  borderType: InputBorderType.outlined,
                                   controller: _otpController,
                                   label: 'OTP',
                                   prefixIcon: Icon(Icons.lock),

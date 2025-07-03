@@ -411,48 +411,44 @@ void _showInviteDialog({required BuildContext context, required String contestId
             }
           },
           builder: (context, state) {
-            return Stack(
-              children: [
-                AlertDialog(
-                  title: Text(
-                    'Invite a participant',
-                  ),
-                  content: Form(
-                    key: invitationFormKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CustomTextFormFieldUnderlined(
-                          controller: emailController,
-                          label: 'Email',
-                          validator: emailValidator,
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (invitationFormKey.currentState?.validate() ?? false) {
-                          context
-                              .read<OrganizerContestDetailsPageBloc>()
-                              .add(OrganizerContestDetailsPageSendParticipantInvite(
-                                contestId: contestId,
-                                email: emailController.text.trim(),
-                              ));
-                        }
-                      },
-                      child: const Text('Proceed'),
+            return AlertDialog(
+              title: Text(
+                'Invite a participant',
+              ),
+              content: Form(
+                key: invitationFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CustomTextFormField(
+                      borderType: InputBorderType.underlined,
+                      controller: emailController,
+                      label: 'Email',
+                      validator: emailValidator,
                     ),
                   ],
                 ),
-                if (state.status.isLoading) ObscuredLoader(),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (invitationFormKey.currentState?.validate() ?? false) {
+                      context
+                          .read<OrganizerContestDetailsPageBloc>()
+                          .add(OrganizerContestDetailsPageSendParticipantInvite(
+                            contestId: contestId,
+                            email: emailController.text.trim(),
+                          ));
+                    }
+                  },
+                  child: const Text('Proceed'),
+                ),
               ],
             );
           },

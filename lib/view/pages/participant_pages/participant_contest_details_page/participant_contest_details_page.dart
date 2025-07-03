@@ -5,6 +5,7 @@ import 'package:swift_contest/view/pages/participant_pages/participant_contest_d
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_work_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
@@ -21,6 +22,7 @@ class ParticipantContestDetailsPage extends StatefulWidget {
 }
 
 class _ParticipantContestDetailsPageState extends State<ParticipantContestDetailsPage> {
+  
   late String profileId;
   late final String contestId;
 
@@ -38,112 +40,105 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
+        if(state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
         if (state.status.isSuccess &&
             state.sourceEvent is ParticipantContestDetailsPageLeaveContest) {
           context.pop(true);
         }
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            appBar: CustomAppBar(
-              title: 'Joined contest',
-              actions: [
-                BlocBuilder<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
-                  builder: (context, state) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
-                        return VoidWidget();
-                      case (BlocStatus.loading || BlocStatus.failure):
-                        if (state.sourceEvent is ParticipantContestDetailsPageInit) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        return _Menu(
-                          contestId: contestId,
-                          profileId: profileId,
-                        );
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: 'Joined contest',
+          actions: [
+            BlocBuilder<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
+              builder: (context, state) {
+                switch (state.status) {
+                  case BlocStatus.initial:
+                    return VoidWidget();
+                  case (BlocStatus.loading || BlocStatus.failure):
+                    if (state.sourceEvent is ParticipantContestDetailsPageInit) {
+                      return VoidWidget();
+                    } else {
+                      continue successCase;
                     }
-                  },
-                ),
-              ],
+                  successCase:
+                  case BlocStatus.success:
+                    return _Menu(
+                      contestId: contestId,
+                      profileId: profileId,
+                    );
+                }
+              },
             ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DefaultTabController(
-                  length: 2,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 16),
-                      BlocBuilder<ParticipantContestDetailsPageBloc,
-                          ParticipantContestDetailsPageState>(
-                        builder: (context, state) {
-                          switch (state.status) {
-                            case BlocStatus.initial:
-                              return VoidWidget();
-                            case (BlocStatus.loading || BlocStatus.failure):
-                              if (state.sourceEvent is ParticipantContestDetailsPageInit) {
-                                return VoidWidget();
-                              } else {
-                                continue successCase;
-                              }
-                            successCase:
-                            case BlocStatus.success:
-                              return Card(
-                                shape:
-                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0.6,
-                                child: TabBar(
-                                  labelColor: Theme.of(context).colorScheme.onPrimary,
-                                  isScrollable: false,
-                                  dividerColor: Colors.transparent,
-                                  tabAlignment: TabAlignment.center,
-                                  splashBorderRadius: BorderRadius.circular(16),
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  indicator: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                  tabs: [
-                                    Tab(text: 'Details'),
-                                    Tab(text: 'Work'),
-                                    // Tab(text: 'Voting'),
-                                  ],
-                                ),
-                              );
+          ],
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DefaultTabController(
+              length: 2,
+              child: Column(
+                children: [
+                  SizedBox(height: 16),
+                  BlocBuilder<ParticipantContestDetailsPageBloc,
+                      ParticipantContestDetailsPageState>(
+                    builder: (context, state) {
+                      switch (state.status) {
+                        case BlocStatus.initial:
+                          return VoidWidget();
+                        case (BlocStatus.loading || BlocStatus.failure):
+                          if (state.sourceEvent is ParticipantContestDetailsPageInit) {
+                            return VoidWidget();
+                          } else {
+                            continue successCase;
                           }
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: TabBarView(
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [
-                            ParticipantDetailsTab(contestId: contestId),
-                            ParticipantWorkTab(contestId: contestId),
-                            // ParticipantVotingTab(contestId: contestId),
-                          ],
-                        ),
-                      ),
-                    ],
+                        successCase:
+                        case BlocStatus.success:
+                          return Card(
+                            shape:
+                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 0.6,
+                            child: TabBar(
+                              labelColor: Theme.of(context).colorScheme.onPrimary,
+                              isScrollable: false,
+                              dividerColor: Colors.transparent,
+                              tabAlignment: TabAlignment.center,
+                              splashBorderRadius: BorderRadius.circular(16),
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              tabs: [
+                                Tab(text: 'Details'),
+                                Tab(text: 'Work'),
+                                // Tab(text: 'Voting'),
+                              ],
+                            ),
+                          );
+                      }
+                    },
                   ),
-                ),
+                  SizedBox(height: 16),
+                  Expanded(
+                    child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        ParticipantDetailsTab(contestId: contestId),
+                        ParticipantWorkTab(contestId: contestId),
+                        // ParticipantVotingTab(contestId: contestId),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          BlocBuilder<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
-            builder: (context, state) {
-              if (state.status.isLoading) {
-                return ObscuredLoader();
-              }
-              return VoidWidget();
-            },
-          )
-        ],
+        ),
       ),
     );
   }

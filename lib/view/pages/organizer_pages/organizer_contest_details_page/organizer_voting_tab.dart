@@ -270,42 +270,38 @@ void _showEditVotingSessionNameDialog({
             }
           },
           builder: (context, state) {
-            return Stack(
-              children: [
-                AlertDialog(
-                  title: Text('Edit name'),
-                  content: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CustomTextFormFieldUnderlined(
-                          controller: nameController,
-                          label: 'Name',
-                          validator: noEmptyValidator,
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => context.pop(),
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          context.read<OrganizerContestDetailsPageBloc>().add(
-                              OrganizerContestDetailsPageEditVotingSessionName(
-                                  votingSessionId: votingSessionId,
-                                  name: nameController.text.trim()));
-                        }
-                      },
-                      child: Text('Edit'),
+            return AlertDialog(
+              title: Text('Edit name'),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CustomTextFormField(
+                      borderType: InputBorderType.underlined,
+                      controller: nameController,
+                      label: 'Name',
+                      validator: noEmptyValidator,
                     ),
                   ],
                 ),
-                if (state.status.isLoading) ObscuredLoader(),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      context.read<OrganizerContestDetailsPageBloc>().add(
+                          OrganizerContestDetailsPageEditVotingSessionName(
+                              votingSessionId: votingSessionId,
+                              name: nameController.text.trim()));
+                    }
+                  },
+                  child: Text('Edit'),
+                ),
               ],
             );
           },

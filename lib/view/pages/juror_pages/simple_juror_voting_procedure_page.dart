@@ -10,13 +10,13 @@ import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/custom_timer_countdown.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/view/widgets/work_details_view.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/simple_juror_voting_procedure_page_bloc/simple_juror_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class SimpleJurorVotingProcedurePage extends StatefulWidget {
   final String simpleJurorId;
@@ -33,6 +33,7 @@ class SimpleJurorVotingProcedurePage extends StatefulWidget {
 }
 
 class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProcedurePage> {
+  
   late String? profileId;
   late final String votingSessionId;
   late final String simpleJurorId;
@@ -62,6 +63,11 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
+        if(state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
         if (state.status.isSuccess &&
             state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
                 VotingSessionStatus.ended) {
@@ -82,261 +88,251 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
           context.pop(true);
         }
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            appBar: CustomAppBar(title: 'Voting'),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: BlocBuilder<SimpleJurorVotingProcedurePageBloc,
-                    SimpleJurorVotingProcedurePageState>(
-                  builder: (context, state) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
-                        return VoidWidget();
-                      case BlocStatus.loading:
-                        if (state.sourceEvent
-                            is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      case BlocStatus.failure:
-                        if (state.sourceEvent
-                            is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
-                          return RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<SimpleJurorVotingProcedurePageBloc>()
-                                .add(
-                                    SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure(
-                                        votingSessionId: votingSessionId)),
-                            child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                          );
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
-                        final votingSessionBundle =
-                            state.votingSessionProcedureBundle!.votingSessionBundle;
-                        final votingSession = votingSessionBundle.votingSession;
-                        final sessionStatus = votingSession.sessionStatus;
-                        final votingFormFields =
-                            state.votingSessionProcedureBundle!.votingFormBundle.votingFormFields;
-
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async => context
-                              .read<SimpleJurorVotingProcedurePageBloc>()
-                              .add(
-                                  SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure(
-                                      votingSessionId: votingSessionId)),
-                          child: Builder(
-                            builder: (context) {
-                              switch (sessionStatus) {
-                                case VotingSessionStatus.initialized:
-                                  return ListViewWithCentralLabel(
-                                    label: 'Await here the beginning of the voting session',
-                                  );
-                                case VotingSessionStatus.work:
-                                  final currentStepDeadline = votingSession.currentStepDeadline!;
-                                  final currentParticipantIndex =
-                                      votingSession.currentParticipantIndex!;
-                                  final currentParticipant = votingSessionProcedureBundle
-                                      .votingSessionParticipationsBundles[currentParticipantIndex]
-                                      .participationBundle
-                                      .participant;
-                                  final currentWork = votingSessionProcedureBundle
-                                      .votingSessionParticipationsBundles[currentParticipantIndex]
-                                      .participationBundle
-                                      .work!;
-                                  final votingSessionParticipation = votingSessionProcedureBundle
-                                      .votingSessionParticipationsBundles[currentParticipantIndex]
-                                      .votingSessionParticipation;
-
-                                  return ListView(
-                                    children: [
-                                      SizedBox(height: 16),
-                                      CustomTimerCountdown(
-                                        label: 'Voting phase',
-                                        endTime: currentStepDeadline,
-                                      ),
-                                      Divider(height: 24),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Form',
-                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                                color: Theme.of(context).colorScheme.primary),
-                                          ),
-                                          SizedBox(height: 12),
-                                          for (var votingFormField in votingFormFields)
-                                            Builder(
-                                              builder: (context) {
-                                                if (votesPerParticipantMap[
-                                                        votingSessionParticipation] ==
-                                                    null) {
-                                                  votesPerParticipantMap
-                                                      .addAll({votingSessionParticipation: {}});
-                                                }
-                                                return CustomTextFormFieldOutlined(
-                                                  label: votingFormField.name,
-                                                  onChanged: (value) => votesPerParticipantMap[
-                                                          votingSessionParticipation]!
-                                                      .addAll(
-                                                          {votingFormField: double.parse(value)}),
-                                                  keyboardType: TextInputType.number,
-                                                );
-                                              },
-                                            ),
-                                        ],
-                                      ),
-                                      Divider(height: 32),
-                                      WorkDetailsView(
-                                          work: currentWork, participant: currentParticipant),
-                                      SizedBox(height: 72),
-                                    ],
-                                  );
-                                case VotingSessionStatus.intermission:
-                                  final currentStepDeadline = votingSession.currentStepDeadline!;
-                                  return ListViewWithCentralWidget(
-                                    centralWidget: CustomTimerCountdown(
-                                      label: 'Intermission',
-                                      endTime: currentStepDeadline,
-                                    ),
-                                  );
-                                case VotingSessionStatus.review:
-                                  final currentStepDeadline = votingSession.currentStepDeadline!;
-                                  final votingSessionParticipationsBundles = state
-                                      .votingSessionProcedureBundle!
-                                      .includedVotingSessionParticipationsBundles;
-
-                                  return ListView(
-                                    children: [
-                                      CustomTimerCountdown(
-                                        label: 'Review',
-                                        endTime: currentStepDeadline,
-                                      ),
-                                      Divider(height: 24),
-                                      Form(
-                                        key: reviewFormKey,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            for (var votingSessionParticipationBundle
-                                                in votingSessionParticipationsBundles) ...[
-                                              Text(
-                                                '${votingSessionParticipationBundle.participationBundle.work!.name} '
-                                                '(${votingSessionParticipationBundle.participationBundle.participant.fullName})',
-                                                style: Theme.of(context).textTheme.titleMedium,
-                                              ),
-                                              SizedBox(height: 12),
-
-                                              // ---- INIZIO annidamento ----
-                                              for (var votingFormField in votingFormFields) ...[
-                                                Builder(builder: (context) {
-                                                  return CustomTextFormFieldOutlined(
-                                                    label: votingFormField.name,
-                                                    keyboardType: TextInputType.number,
-                                                    validator: (value) {
-                                                      if (value == null || value.trim().isEmpty) {
-                                                        return 'Required';
-                                                      }
-                                                      if (double.tryParse(value) == null) {
-                                                        return 'Must be a number';
-                                                      }
-                                                      return null;
-                                                    },
-                                                    initialValue: votesPerParticipantMap[
-                                                                votingSessionParticipationBundle
-                                                                    .votingSessionParticipation]
-                                                            ?[votingFormField]
-                                                        ?.toString(),
-                                                    onChanged: (value) {
-                                                      votesPerParticipantMap[
-                                                              votingSessionParticipationBundle
-                                                                  .votingSessionParticipation]![
-                                                          votingFormField] = double.parse(value);
-                                                    },
-                                                  );
-                                                }),
-                                                SizedBox(height: 8),
-                                              ],
-                                              // ---- FINE annidamento ----
-                                            ],
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(height: 72),
-                                    ],
-                                  );
-                                case VotingSessionStatus.cancelled:
-                                case VotingSessionStatus.ended:
-                                  return VoidWidget();
-                              }
-                            },
-                          ),
-                        );
-                    }
-                  },
-                ),
-              ),
-            ),
-            floatingActionButton: BlocBuilder<SimpleJurorVotingProcedurePageBloc,
+      child: Scaffold(
+        appBar: CustomAppBar(title: 'Voting'),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: BlocBuilder<SimpleJurorVotingProcedurePageBloc,
                 SimpleJurorVotingProcedurePageState>(
               builder: (context, state) {
                 switch (state.status) {
                   case BlocStatus.initial:
                     return VoidWidget();
-                  case (BlocStatus.loading || BlocStatus.failure):
+                  case BlocStatus.loading:
                     if (state.sourceEvent
                         is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
                       return VoidWidget();
                     } else {
                       continue successCase;
                     }
+                  case BlocStatus.failure:
+                    if (state.sourceEvent
+                        is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async => context
+                            .read<SimpleJurorVotingProcedurePageBloc>()
+                            .add(
+                                SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure(
+                                    votingSessionId: votingSessionId)),
+                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                      );
+                    } else {
+                      continue successCase;
+                    }
                   successCase:
                   case BlocStatus.success:
+                    final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
                     final votingSessionBundle =
                         state.votingSessionProcedureBundle!.votingSessionBundle;
                     final votingSession = votingSessionBundle.votingSession;
-                    if (!votingSession.sessionStatus.isReview) {
-                      return VoidWidget();
-                    }
-                    return FilledButton(
-                      onPressed: () {
-                        if (reviewFormKey.currentState?.validate() ?? false) {
-                          context
-                              .read<SimpleJurorVotingProcedurePageBloc>()
-                              .add(SimpleJurorVotingProcedurePageSubmitVotes(
-                                simpleJurorId: simpleJurorId,
-                                votingSession: votingSessionBundle.votingSession,
-                                geoResPlace: state
-                                    .votingSessionProcedureBundle!.votingSessionBundle.geoResPlace,
-                                votesPerParticipantMap: votesPerParticipantMap,
-                                jurorId: profileId,
-                              ));
-                        }
-                      },
-                      child: Text('Submit'),
+                    final sessionStatus = votingSession.sessionStatus;
+                    final votingFormFields =
+                        state.votingSessionProcedureBundle!.votingFormBundle.votingFormFields;
+
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<SimpleJurorVotingProcedurePageBloc>()
+                          .add(
+                              SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure(
+                                  votingSessionId: votingSessionId)),
+                      child: Builder(
+                        builder: (context) {
+                          switch (sessionStatus) {
+                            case VotingSessionStatus.initialized:
+                              return ListViewWithCentralLabel(
+                                label: 'Await here the beginning of the voting session',
+                              );
+                            case VotingSessionStatus.work:
+                              final currentStepDeadline = votingSession.currentStepDeadline!;
+                              final currentParticipantIndex =
+                                  votingSession.currentParticipantIndex!;
+                              final currentParticipant = votingSessionProcedureBundle
+                                  .votingSessionParticipationsBundles[currentParticipantIndex]
+                                  .participationBundle
+                                  .participant;
+                              final currentWork = votingSessionProcedureBundle
+                                  .votingSessionParticipationsBundles[currentParticipantIndex]
+                                  .participationBundle
+                                  .work!;
+                              final votingSessionParticipation = votingSessionProcedureBundle
+                                  .votingSessionParticipationsBundles[currentParticipantIndex]
+                                  .votingSessionParticipation;
+
+                              return ListView(
+                                children: [
+                                  SizedBox(height: 16),
+                                  CustomTimerCountdown(
+                                    label: 'Voting phase',
+                                    endTime: currentStepDeadline,
+                                  ),
+                                  Divider(height: 24),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Form',
+                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                            color: Theme.of(context).colorScheme.primary),
+                                      ),
+                                      SizedBox(height: 12),
+                                      for (var votingFormField in votingFormFields)
+                                        Builder(
+                                          builder: (context) {
+                                            if (votesPerParticipantMap[
+                                                    votingSessionParticipation] ==
+                                                null) {
+                                              votesPerParticipantMap
+                                                  .addAll({votingSessionParticipation: {}});
+                                            }
+                                            return CustomTextFormField(
+                                              borderType: InputBorderType.outlined,
+                                              label: votingFormField.name,
+                                              onChanged: (value) => votesPerParticipantMap[
+                                                      votingSessionParticipation]!
+                                                  .addAll(
+                                                      {votingFormField: double.parse(value)}),
+                                              keyboardType: TextInputType.number,
+                                            );
+                                          },
+                                        ),
+                                    ],
+                                  ),
+                                  Divider(height: 32),
+                                  WorkDetailsView(
+                                      work: currentWork, participant: currentParticipant),
+                                  SizedBox(height: 72),
+                                ],
+                              );
+                            case VotingSessionStatus.intermission:
+                              final currentStepDeadline = votingSession.currentStepDeadline!;
+                              return ListViewWithCentralWidget(
+                                centralWidget: CustomTimerCountdown(
+                                  label: 'Intermission',
+                                  endTime: currentStepDeadline,
+                                ),
+                              );
+                            case VotingSessionStatus.review:
+                              final currentStepDeadline = votingSession.currentStepDeadline!;
+                              final votingSessionParticipationsBundles = state
+                                  .votingSessionProcedureBundle!
+                                  .includedVotingSessionParticipationsBundles;
+
+                              return ListView(
+                                children: [
+                                  CustomTimerCountdown(
+                                    label: 'Review',
+                                    endTime: currentStepDeadline,
+                                  ),
+                                  Divider(height: 24),
+                                  Form(
+                                    key: reviewFormKey,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        for (var votingSessionParticipationBundle
+                                            in votingSessionParticipationsBundles) ...[
+                                          Text(
+                                            '${votingSessionParticipationBundle.participationBundle.work!.name} '
+                                            '(${votingSessionParticipationBundle.participationBundle.participant.fullName})',
+                                            style: Theme.of(context).textTheme.titleMedium,
+                                          ),
+                                          SizedBox(height: 12),
+
+                                          // ---- INIZIO annidamento ----
+                                          for (var votingFormField in votingFormFields) ...[
+                                            Builder(builder: (context) {
+                                              return CustomTextFormField(
+                                                borderType: InputBorderType.outlined,
+                                                label: votingFormField.name,
+                                                keyboardType: TextInputType.number,
+                                                validator: (value) {
+                                                  if (value == null || value.trim().isEmpty) {
+                                                    return 'Required';
+                                                  }
+                                                  if (double.tryParse(value) == null) {
+                                                    return 'Must be a number';
+                                                  }
+                                                  return null;
+                                                },
+                                                initialValue: votesPerParticipantMap[
+                                                            votingSessionParticipationBundle
+                                                                .votingSessionParticipation]
+                                                        ?[votingFormField]
+                                                    ?.toString(),
+                                                onChanged: (value) {
+                                                  votesPerParticipantMap[
+                                                          votingSessionParticipationBundle
+                                                              .votingSessionParticipation]![
+                                                      votingFormField] = double.parse(value);
+                                                },
+                                              );
+                                            }),
+                                            SizedBox(height: 8),
+                                          ],
+                                          // ---- FINE annidamento ----
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 72),
+                                ],
+                              );
+                            case VotingSessionStatus.cancelled:
+                            case VotingSessionStatus.ended:
+                              return VoidWidget();
+                          }
+                        },
+                      ),
                     );
                 }
               },
             ),
           ),
-          BlocBuilder<SimpleJurorVotingProcedurePageBloc, SimpleJurorVotingProcedurePageState>(
-            builder: (context, state) {
-              if (state.status.isLoading) {
-                return ObscuredLoader();
-              }
-              return VoidWidget();
-            },
-          ),
-        ],
+        ),
+        floatingActionButton: BlocBuilder<SimpleJurorVotingProcedurePageBloc,
+            SimpleJurorVotingProcedurePageState>(
+          builder: (context, state) {
+            switch (state.status) {
+              case BlocStatus.initial:
+                return VoidWidget();
+              case (BlocStatus.loading || BlocStatus.failure):
+                if (state.sourceEvent
+                    is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                  return VoidWidget();
+                } else {
+                  continue successCase;
+                }
+              successCase:
+              case BlocStatus.success:
+                final votingSessionBundle =
+                    state.votingSessionProcedureBundle!.votingSessionBundle;
+                final votingSession = votingSessionBundle.votingSession;
+                if (!votingSession.sessionStatus.isReview) {
+                  return VoidWidget();
+                }
+                return FilledButton(
+                  onPressed: () {
+                    if (reviewFormKey.currentState?.validate() ?? false) {
+                      context
+                          .read<SimpleJurorVotingProcedurePageBloc>()
+                          .add(SimpleJurorVotingProcedurePageSubmitVotes(
+                            simpleJurorId: simpleJurorId,
+                            votingSession: votingSessionBundle.votingSession,
+                            geoResPlace: state
+                                .votingSessionProcedureBundle!.votingSessionBundle.geoResPlace,
+                            votesPerParticipantMap: votesPerParticipantMap,
+                            jurorId: profileId,
+                          ));
+                    }
+                  },
+                  child: Text('Submit'),
+                );
+            }
+          },
+        ),
       ),
     );
   }

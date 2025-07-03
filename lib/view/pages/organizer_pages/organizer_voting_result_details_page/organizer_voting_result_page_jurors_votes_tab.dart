@@ -3,11 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
+import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class OrganizerVotingResultPageJurorsVotesTab extends StatefulWidget {
   final String votingSessionId;
@@ -21,7 +22,7 @@ class OrganizerVotingResultPageJurorsVotesTab extends StatefulWidget {
 
 class _OrganizerVotingResultPageJurorsVotesTabState
     extends State<OrganizerVotingResultPageJurorsVotesTab> {
-  late String votingSessionId;
+  late final String votingSessionId;
   JurationBundle? chosenJurationBundle;
   ParticipationBundle? chosenParticipationBundle;
 
@@ -41,7 +42,11 @@ class _OrganizerVotingResultPageJurorsVotesTabState
             case BlocStatus.initial:
               return VoidWidget();
             case BlocStatus.loading:
-              return Loader();
+              if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+                return VoidWidget();
+              } else {
+                continue successCase;
+              }
             case BlocStatus.failure:
               if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
                 return RefreshIndicator.adaptive(
@@ -52,7 +57,7 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                           votingSessionId: votingSessionId,
                         ));
                   },
-                  child: ListView(),
+                  child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                 );
               } else {
                 continue successCase;
@@ -294,19 +299,25 @@ class _OrganizerVotingResultPageJurorsVotesTabState
       floatingActionButton:
           BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
         builder: (context, state) {
-          if (state.status.isInitial) {
-            return VoidWidget();
+          switch (state.status) {
+            case BlocStatus.initial:
+              return VoidWidget();
+            case (BlocStatus.loading || BlocStatus.failure):
+              if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+                return VoidWidget();
+              } else {
+                continue successCase;
+              }
+            successCase:
+            case BlocStatus.success:
+              return FloatingActionButton.extended(
+                onPressed: () {
+                  context.pushNamed(AppRouter.organizerVotingResultExport, extra: votingSessionId);
+                },
+                elevation: 1,
+                label: Text('Export'),
+              );
           }
-          return FloatingActionButton.extended(
-            onPressed: (!state.status.isLoading)
-                ? () {
-                    context.pushNamed(AppRouter.organizerVotingResultExport,
-                        extra: votingSessionId);
-                  }
-                : null,
-            elevation: 1,
-            label: Text('Export'),
-          );
         },
       ),
     );

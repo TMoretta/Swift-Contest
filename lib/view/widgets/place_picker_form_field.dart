@@ -1,31 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/google_place_models/google_place.dart';
-import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_form_field_bloc/place_picker_form_field_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 class PlacePickerFormField extends StatelessWidget {
   final TextEditingController controller;
   final String? label;
-  final Function(GooglePlace)? onSelected;
   final String? Function(String?)? validator;
   final AutovalidateMode? autovalidateMode;
   final bool? isFilled;
   final Color? fillColor;
-  final Icon? externalIcon;
+  final Widget? externalIcon;
   final Color? externalIconColor;
-  final Icon? prefixIcon;
+  final Widget? prefixIcon;
   final Color? prefixIconColor;
+  final Widget? suffixIcon;
+  final Color? suffixIconColor;
   final bool? enabled;
+  final Widget? prefix;
+  final TextStyle? prefixStyle;
+  final Widget? suffix;
+  final TextStyle? suffixStyle;
+
 
   const PlacePickerFormField({
     required this.controller,
     this.label,
-    this.onSelected,
     this.validator,
     this.autovalidateMode,
     this.isFilled,
@@ -34,7 +31,13 @@ class PlacePickerFormField extends StatelessWidget {
     this.externalIconColor,
     this.prefixIcon,
     this.prefixIconColor,
+    this.suffixIcon,
+    this.suffixIconColor,
     this.enabled,
+    this.prefix,
+    this.prefixStyle,
+    this.suffix,
+    this.suffixStyle,
     super.key,
   });
 
@@ -47,7 +50,6 @@ class PlacePickerFormField extends StatelessWidget {
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         label: Text(label ?? ''),
         filled: isFilled,
         fillColor: fillColor,
@@ -55,19 +57,11 @@ class PlacePickerFormField extends StatelessWidget {
         iconColor: externalIconColor,
         prefixIcon: prefixIcon,
         prefixIconColor: prefixIconColor,
-        suffixIcon: TextButton(
-          onPressed: (enabled ?? true) ? () async {
-            FocusManager.instance.primaryFocus?.unfocus();
-            final place = await _showLocationSearchDialog(context: context);
-            if (place != null) {
-              controller.text = place.address;
-              if (onSelected != null) {
-                onSelected!(place);
-              }
-            }
-          } : null,
-          child: Text('Select'),
-        ),
+        suffixIcon: suffixIcon,
+        prefix: prefix,
+        prefixStyle: prefixStyle,
+        suffix: suffix,
+        suffixStyle: suffixStyle,
         helperText: '',
         helperStyle: TextStyle(height: 1),
         errorStyle: TextStyle(height: 1),
@@ -109,155 +103,103 @@ class PlacePickerFormField extends StatelessWidget {
   }
 }
 
-Future<GooglePlace?> _showLocationSearchDialog({
-  required BuildContext context,
-}) async {
-  final TextEditingController searchController = TextEditingController();
-  GooglePlaceSuggestion? selectedSuggestion;
-  final placePickerFormFieldBloc = context.read<PlacePickerFormFieldBloc>();
-
-  return await showDialog<GooglePlace?>(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(builder: (context, setState) {
-        return BlocProvider.value(
-          value: placePickerFormFieldBloc,
-          child: BlocListener<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
-            listener: (context, state) {
-              if (state.message != null) {
-                showSnackBar(context: context, text: state.message!);
-              }
-              if (state.status.isSuccess && state.sourceEvent is PlacePickerFormFieldFetchPlace) {
-                context.pop(state.googlePlace);
-              }
-            },
-            child: AlertDialog(
-              title: const Text('Location'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
-                    builder: (context, state) {
-                      return SizedBox(
-                        width: 250,
-                        child: TextField(
-                          controller: searchController,
-                          decoration: const InputDecoration(
-                            labelText: 'Search',
-                            prefixIcon: Icon(Icons.search, size: 24),
-                          ),
-                          onChanged: (value) {
-                            context
-                                .read<PlacePickerFormFieldBloc>()
-                                .add(PlacePickerFormFieldSearchPlaceSuggestions(query: value));
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
-                    builder: (context, state) {
-                      if (state.googlePlaceSuggestions == null ||
-                          state.googlePlaceSuggestions!.isEmpty) {
-                        return VoidWidget();
-                      } else {
-                        final suggestions = state.googlePlaceSuggestions!;
-                        return SizedBox(
-                          height: 150,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                for (var suggestion in suggestions)
-                                  ListTile(
-                                    title: Text(suggestion.address),
-                                    onTap: () {
-                                      searchController.text = suggestion.address;
-                                      setState(() => selectedSuggestion = suggestion);
-                                    },
-                                  )
-                              ],
-                            ),
-                          ),
-                          // child: ListView.builder(
-                          //   // shrinkWrap: true,
-                          //   itemCount: 4,
-                          //   itemBuilder: (context, index) {
-                          //     final suggestion = suggestions[index];
-                          //     return ListTile(
-                          //       title: Text(suggestion.address),
-                          //       onTap: () {
-                          //         searchController.text = suggestion.address;
-                          //         setState(() => selectedSuggestion = suggestion);
-                          //       },
-                          //     );
-                          //   },
-                          // ),
-                        );
-                      }
-                      // if (suggestions == null) {
-                      //   return const Center(child: Text('No suggestion'));
-                      // }
-                      // if (suggestions.isNotEmpty) {
-                      //   return SizedBox(
-                      //     width: 250,
-                      //     height: 150,
-                      //     child: ListView.builder(
-                      //       itemCount: (suggestions.length > 5) ? 5 : suggestions.length,
-                      //       itemBuilder: (context, index) {
-                      //         final suggestion = suggestions[index];
-                      //         return ListTile(
-                      //           title: Text(suggestion.address),
-                      //           onTap: () {
-                      //             searchController.text = suggestion.address;
-                      //             setState(() => selectedSuggestion = suggestion);
-                      //           },
-                      //         );
-                      //       },
-                      //     ),
-                      //   );
-                      // }
-                      // if (suggestions.isEmpty) {
-                      //   return const Center(child: Text('No suggestion'));
-                      // }
-                      // return Container();
-                    },
-                  ),
-                ],
-              ),
-              actions: [
-                BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
-                  builder: (context, state) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            context.pop();
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: (selectedSuggestion != null)
-                              ? () {
-                                  context.read<PlacePickerFormFieldBloc>().add(
-                                      PlacePickerFormFieldFetchPlace(
-                                          id: selectedSuggestion!.placeId));
-                                }
-                              : null,
-                          child: Text('Confirm'),
-                        )
-                      ],
-                    );
-                  },
-                )
-              ],
-            ),
-          ),
-        );
-      });
-    },
-  );
-}
+// Future<GooglePlace?> showLocationSearchDialog({
+//   required BuildContext context,
+// }) async {
+//   final TextEditingController searchController = TextEditingController();
+//   GooglePlaceSuggestion? selectedSuggestion;
+//   final placePickerFormFieldBloc = context.read<PlacePickerFormFieldBloc>();
+//   final formKey = GlobalKey<FormState>();
+//
+//   return await showDialog<GooglePlace?>(
+//     context: context,
+//     builder: (context) {
+//       return BlocProvider.value(
+//         value: placePickerFormFieldBloc,
+//         child: BlocListener<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
+//           listener: (context, state) {
+//             if (state.message != null) {
+//               showSnackBar(context: context, text: state.message!);
+//             }
+//             if (state.status.isSuccess && state.sourceEvent is PlacePickerFormFieldFetchPlace) {
+//               context.pop(state.googlePlace);
+//             }
+//           },
+//           child: AlertDialog(
+//             title: const Text('Location'),
+//             content: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
+//                   builder: (context, state) {
+//                     return SizedBox(
+//                       width: 250,
+//                       child: Form(
+//                         key: formKey,
+//                         child: CustomTextFormField(
+//                           borderType: InputBorderType.outlined,
+//                           controller: searchController,
+//                           label: 'Search',
+//                           validator: (_) => (selectedSuggestion == null) ? 'Select a result' : null,
+//                           prefixIcon: Icon(Icons.search, size: 24),
+//                           onChanged: (value) async => context
+//                               .read<PlacePickerFormFieldBloc>()
+//                               .add(PlacePickerFormFieldSearchPlaceSuggestions(query: value)),
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//                 const SizedBox(height: 10),
+//                 BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
+//                   builder: (context, state) {
+//                     if (state.googlePlaceSuggestions == null ||
+//                         state.googlePlaceSuggestions!.isEmpty) {
+//                       return VoidWidget();
+//                     } else {
+//                       final suggestions = state.googlePlaceSuggestions!;
+//                       return SizedBox(
+//                         height: 150,
+//                         child: ListView(
+//                           shrinkWrap: true,
+//                           children: [
+//                             for (var suggestion in suggestions)
+//                               ListTile(
+//                                 title: Text(suggestion.address),
+//                                 onTap: () {
+//                                   searchController.text = suggestion.address;
+//                                   selectedSuggestion = suggestion;
+//                                 },
+//                               )
+//                           ],
+//                         ),
+//                       );
+//                     }
+//                   },
+//                 ),
+//               ],
+//             ),
+//             actions: [
+//               TextButton(
+//                 onPressed: () {
+//                   context.pop();
+//                 },
+//                 child: const Text('Cancel'),
+//               ),
+//               TextButton(
+//                 onPressed: () {
+//                   if (formKey.currentState?.validate() ?? false) {
+//                     context
+//                         .read<PlacePickerFormFieldBloc>()
+//                         .add(PlacePickerFormFieldFetchPlace(id: selectedSuggestion!.placeId));
+//                   }
+//                 },
+//                 child: Text('Confirm'),
+//               )
+//             ],
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
