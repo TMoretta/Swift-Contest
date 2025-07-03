@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
-import 'package:swift_contest/view/widgets/overlay_loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:go_router/go_router.dart';
+import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_details_page/organizer_voting_result_page_info_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_details_page/organizer_voting_result_page_jurors_votes_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_details_page/organizer_voting_result_page_simple_jurors_votes_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class OrganizerVotingResultDetailsPage extends StatefulWidget {
   final String votingSessionId;
@@ -24,7 +25,6 @@ class OrganizerVotingResultDetailsPage extends StatefulWidget {
 }
 
 class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResultDetailsPage> {
-  
   late String votingSessionId;
 
   @override
@@ -37,6 +37,12 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<OrganizerVotingResultDetailsPageBloc,
         OrganizerVotingResultDetailsPageState>(
@@ -44,7 +50,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
-        if(state.status.isLoading) {
+        if (state.status.isLoading) {
           context.showLoader();
         } else {
           context.hideLoader();
@@ -75,32 +81,24 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
                         successCase:
                         case BlocStatus.success:
                           return Card(
-                            shape:
-                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             elevation: 0.6,
-                            child: BlocBuilder<OrganizerVotingResultDetailsPageBloc,
-                                OrganizerVotingResultDetailsPageState>(
-                              builder: (context, state) {
-                                return (state.status.isInitial || state.status.isLoading)
-                                    ? VoidWidget()
-                                    : TabBar(
-                                        labelColor: Theme.of(context).colorScheme.onPrimary,
-                                        isScrollable: false,
-                                        dividerColor: Colors.transparent,
-                                        tabAlignment: TabAlignment.center,
-                                        splashBorderRadius: BorderRadius.circular(16),
-                                        indicatorSize: TabBarIndicatorSize.tab,
-                                        indicator: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(16),
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                        tabs: [
-                                          Tab(text: 'Info'),
-                                          Tab(text: 'Jurors'),
-                                          Tab(text: 'Simple Jurors'),
-                                        ],
-                                      );
-                              },
+                            child: TabBar(
+                              labelColor: Theme.of(context).colorScheme.onPrimary,
+                              isScrollable: false,
+                              dividerColor: Colors.transparent,
+                              tabAlignment: TabAlignment.center,
+                              splashBorderRadius: BorderRadius.circular(16),
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              tabs: [
+                                Tab(text: 'Info'),
+                                Tab(text: 'Jurors'),
+                                Tab(text: 'Simple Jurors'),
+                              ],
                             ),
                           );
                       }
@@ -112,8 +110,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
                       physics: NeverScrollableScrollPhysics(),
                       children: [
                         OrganizerVotingResultPageInfoTab(votingSessionId: votingSessionId),
-                        OrganizerVotingResultPageJurorsVotesTab(
-                            votingSessionId: votingSessionId),
+                        OrganizerVotingResultPageJurorsVotesTab(votingSessionId: votingSessionId),
                         OrganizerVotingResultPageSimpleJurorsVotesTab(
                             votingSessionId: votingSessionId),
                       ],
@@ -123,6 +120,30 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
               ),
             ),
           ),
+        ),
+        floatingActionButton:
+        BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
+          builder: (context, state) {
+            switch (state.status) {
+              case BlocStatus.initial:
+                return VoidWidget();
+              case (BlocStatus.loading || BlocStatus.failure):
+                if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+                  return VoidWidget();
+                } else {
+                  continue successCase;
+                }
+              successCase:
+              case BlocStatus.success:
+                return FloatingActionButton.extended(
+                  onPressed: () {
+                    context.pushNamed(AppRouter.organizerVotingResultExport, extra: votingSessionId);
+                  },
+                  elevation: 1,
+                  label: Text('Export'),
+                );
+            }
+          },
         ),
       ),
     );

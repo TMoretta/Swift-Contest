@@ -43,6 +43,12 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<OrganizerVotingProcedurePageBloc, OrganizerVotingProcedurePageState>(
       listener: (context, state) {

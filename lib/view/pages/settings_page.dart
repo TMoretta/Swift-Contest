@@ -22,6 +22,12 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _AuthState extends State<SettingsPage> {
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
   
   @override
   Widget build(BuildContext context) {

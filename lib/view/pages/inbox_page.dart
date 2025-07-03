@@ -29,6 +29,12 @@ class _InboxPageState extends State<InboxPage> {
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -38,6 +39,12 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
           .read<JurorContestDetailsPageBloc>()
           .add(JurorContestDetailsPageInit(contestId: contestId));
     }
+  }
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
   }
 
   @override

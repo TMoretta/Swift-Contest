@@ -57,6 +57,12 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
       listener: (context, state) {

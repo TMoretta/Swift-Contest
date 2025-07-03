@@ -6,6 +6,7 @@ import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -37,6 +38,12 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
           .read<JurorContestDetailsPageBloc>()
           .add(JurorContestDetailsPageInit(contestId: contestId));
     }
+  }
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
   }
 
   @override

@@ -51,6 +51,12 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<JurorVotingProcedurePageBloc, JurorVotingProcedurePageState>(
       listener: (context, state) {

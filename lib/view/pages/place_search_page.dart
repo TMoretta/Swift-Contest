@@ -20,6 +20,12 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
   final searchController = TextEditingController();
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<PlaceSearchPageBloc, PlaceSearchPageState>(
       listener: (context, state) {

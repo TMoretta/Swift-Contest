@@ -18,20 +18,25 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocListener<SignInPageBloc, SignInPageState>(
+    return BlocConsumer<SignInPageBloc, SignInPageState>(
       listener: (context, state) {
         //* Show a message if there is one
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
-        if(state.status.isLoading) {
+        if (state.status.isLoading) {
           context.showLoader();
         } else {
           context.hideLoader();
@@ -41,151 +46,147 @@ class _SignInPageState extends State<SignInPage> {
           context.goNamed(AppRouter.root, extra: 0);
         }
       },
-      child: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: BlocBuilder<SignInPageBloc, SignInPageState>(
-              builder: (context, state) {
-                return Center(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      //* Title
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          Labels.appTitle,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayMedium!
-                              .copyWith(color: Theme.of(context).colorScheme.primary),
-                        ),
+      builder: (context, state) {
+        return Scaffold(
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    //* Title
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        Labels.appTitle,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(color: Theme.of(context).colorScheme.primary),
                       ),
-                      //* Subtitle
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          Labels.appSubtitle,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
+                    ),
+                    //* Subtitle
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        Labels.appSubtitle,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      SizedBox(
-                        height: 12,
-                      ),
-                      //* Form
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            //* Email text field
-                            ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 420),
-                              child: CustomTextFormField(
-                                borderType: InputBorderType.outlined,
-                                controller: _emailController,
-                                label: 'Email',
-                                validator: emailValidator,
-                                prefixIcon: Icon(Icons.email_outlined),
-                              ),
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    //* Form
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          //* Email text field
+                          ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: 420),
+                            child: CustomTextFormField(
+                              borderType: InputBorderType.outlined,
+                              controller: _emailController,
+                              label: 'Email',
+                              validator: emailValidator,
+                              prefixIcon: Icon(Icons.email_outlined),
                             ),
-                            //* Password text field
-                            ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 420),
-                              child: CustomTextFormField(
-                                borderType: InputBorderType.outlined,
-                                controller: _passwordController,
-                                label: 'Password',
-                                prefixIcon: Icon(Icons.lock),
-                                obscureText: true,
-                                validator: noEmptyValidator,
-                              ),
+                          ),
+                          //* Password text field
+                          ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: 420),
+                            child: CustomTextFormField(
+                              borderType: InputBorderType.outlined,
+                              controller: _passwordController,
+                              label: 'Password',
+                              prefixIcon: Icon(Icons.lock),
+                              obscureText: true,
+                              validator: noEmptyValidator,
                             ),
-                            //* Sign in button
-                            ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: 100,
+                          ),
+                          //* Sign in button
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: 100,
+                            ),
+                            child: FilledButton(
+                              onPressed: () {
+                                if (_formKey.currentState?.validate() ?? false) {
+                                  context.read<SignInPageBloc>().add(SignInWithEmailAndPassword(
+                                      email: _emailController.text.trim(),
+                                      password: _passwordController.text.trim()));
+                                }
+                              },
+                              child: Text('Sign in'),
+                            ),
+                          ),
+                          // TextButton(
+                          //   onPressed: () {
+                          //
+                          //   },
+                          //   child: DecoratedBox(
+                          //     decoration: BoxDecoration(
+                          //       border: Border(
+                          //         bottom: BorderSide(
+                          //           color: Theme.of(context).colorScheme.primary,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     child: Text('Forgot password?',style: Theme.of(context).textTheme.bodyMedium,),
+                          //   ),
+                          // ),
+                          //* Sign up instead button
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Don\'t have an account?',
                               ),
-                              child: FilledButton(
+                              TextButton(
                                 onPressed: () {
-                                  if (_formKey.currentState?.validate() ?? false) {
-                                    context.read<SignInPageBloc>().add(
-                                        SignInWithEmailAndPassword(
-                                            email: _emailController.text.trim(),
-                                            password: _passwordController.text.trim()));
-                                  }
+                                  context.replaceNamed(AppRouter.signUp);
                                 },
-                                child: Text('Sign in'),
-                              ),
-                            ),
-                            // TextButton(
-                            //   onPressed: () {
-                            //
-                            //   },
-                            //   child: DecoratedBox(
-                            //     decoration: BoxDecoration(
-                            //       border: Border(
-                            //         bottom: BorderSide(
-                            //           color: Theme.of(context).colorScheme.primary,
-                            //         ),
-                            //       ),
-                            //     ),
-                            //     child: Text('Forgot password?',style: Theme.of(context).textTheme.bodyMedium,),
-                            //   ),
-                            // ),
-                            //* Sign up instead button
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Don\'t have an account?',
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    context.replaceNamed(AppRouter.signUp);
-                                  },
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Theme.of(context).colorScheme.primary,
                                       ),
                                     ),
-                                    child: Text('Sign up'),
                                   ),
+                                  child: Text('Sign up'),
                                 ),
-                              ],
-                            ),
-                            SizedBox(height: 24),
-                            //* Vote as a simple juror
-                            TextButton(
-                              onPressed: () {
-                                _showVoteAsSimpleJurorDialog(context: context);
-                              },
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                        color: Theme.of(context).colorScheme.primary),
-                                  ),
-                                ),
-                                child: Text('Vote in a contest as a simple juror'),
                               ),
+                            ],
+                          ),
+                          SizedBox(height: 24),
+                          //* Vote as a simple juror
+                          TextButton(
+                            onPressed: () {
+                              _showVoteAsSimpleJurorDialog(context: context);
+                            },
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: Theme.of(context).colorScheme.primary),
+                                ),
+                              ),
+                              child: Text('Vote in a contest as a simple juror'),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              },
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -200,7 +201,7 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
       final tokenController = TextEditingController();
       return BlocProvider.value(
         value: signInPageBloc,
-        child: BlocListener<SignInPageBloc, SignInPageState>(
+        child: BlocConsumer<SignInPageBloc, SignInPageState>(
           listener: (context, state) {
             if (state.status.isSuccess && state.sourceEvent is SignInPageVoteAsSimpleJuror) {
               context.pop();
@@ -208,51 +209,53 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                   extra: state.simpleJurorAndVotingSessionBundle!.toJson());
             }
           },
-          child: AlertDialog(
-            title: Text('Vote as simple juror'),
-            content: Form(
-              key: accessVotingFormKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomTextFormField(
-                    borderType: InputBorderType.underlined,
-                    controller: fullNameController,
-                    label: 'Full name',
-                    validator: (value) => noEmptyValidator(value?.trim()),
-                  ),
-                  CustomTextFormField(
-                    borderType: InputBorderType.underlined,
-                    controller: tokenController,
-                    label: 'Token',
-                    validator: (value) => noEmptyValidator(value?.trim()),
-                  ),
-                ],
+          builder: (context, state) {
+            return AlertDialog(
+              title: Text('Vote as simple juror'),
+              content: Form(
+                key: accessVotingFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextFormField(
+                      borderType: InputBorderType.underlined,
+                      controller: fullNameController,
+                      label: 'Full name',
+                      validator: (value) => noEmptyValidator(value?.trim()),
+                    ),
+                    CustomTextFormField(
+                      borderType: InputBorderType.underlined,
+                      controller: tokenController,
+                      label: 'Token',
+                      validator: (value) => noEmptyValidator(value?.trim()),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  context.pop();
-                },
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (accessVotingFormKey.currentState?.validate() ?? false) {
-                    signInPageBloc.add(
-                      SignInPageVoteAsSimpleJuror(
-                        fullName: fullNameController.text.trim(),
-                        token: tokenController.text.trim(),
-                      ),
-                    );
-                  }
-                },
-                child: Text('Ok'),
-              ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (accessVotingFormKey.currentState?.validate() ?? false) {
+                      context.read<SignInPageBloc>().add(
+                            SignInPageVoteAsSimpleJuror(
+                              fullName: fullNameController.text.trim(),
+                              token: tokenController.text.trim(),
+                            ),
+                          );
+                    }
+                  },
+                  child: Text('Ok'),
+                ),
+              ],
+            );
+          },
         ),
       );
     },

@@ -6,6 +6,7 @@ import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -30,6 +31,12 @@ class _OrganizerVotingResultPageJurorsVotesTabState
   void initState() {
     super.initState();
     votingSessionId = widget.votingSessionId;
+  }
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
   }
 
   @override
@@ -80,9 +87,7 @@ class _OrganizerVotingResultPageJurorsVotesTabState
               late List<DataRow> rows;
 
               if (participantsVotingsPerJurorMap.isEmpty) {
-                return Center(
-                  child: Text('No vote submitted'),
-                );
+                return ListViewWithCentralLabel(label: 'No vote submitted');
               }
 
               if (chosenJurationBundle == null && chosenParticipationBundle == null) {
@@ -212,110 +217,81 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                 ];
               }
 
-              return RefreshIndicator.adaptive(
-                onRefresh: () async => context
-                    .read<OrganizerVotingResultDetailsPageBloc>()
-                    .add(OrganizerVotingResultDetailsPageRefresh(votingSessionId: votingSessionId)),
-                child: ListView(
-                  children: [
-                    Text('Juror'),
-                    DropdownMenu(
-                      enableSearch: false,
-                      onSelected: (value) {
-                        setState(() {
-                          chosenJurationBundle = value;
-                        });
-                      },
-                      dropdownMenuEntries: [
+              return ListView(
+                children: [
+                  Text('Juror'),
+                  DropdownMenu(
+                    enableSearch: false,
+                    onSelected: (value) {
+                      setState(() {
+                        chosenJurationBundle = value;
+                      });
+                    },
+                    dropdownMenuEntries: [
+                      DropdownMenuEntry(
+                        value: null,
+                        label: 'All',
+                      ),
+                      for (var jurationBundle in jurationsBundles)
                         DropdownMenuEntry(
-                          value: null,
-                          label: 'All',
+                          value: jurationBundle,
+                          label: jurationBundle.juror.fullName,
                         ),
-                        for (var jurationBundle in jurationsBundles)
-                          DropdownMenuEntry(
-                            value: jurationBundle,
-                            label: jurationBundle.juror.fullName,
-                          ),
-                      ],
-                    ),
-                    Text('Participant'),
-                    DropdownMenu(
-                      enableSearch: false,
-                      onSelected: (value) {
-                        setState(() {
-                          chosenParticipationBundle = value;
-                        });
-                      },
-                      dropdownMenuEntries: [
+                    ],
+                  ),
+                  Text('Participant'),
+                  DropdownMenu(
+                    enableSearch: false,
+                    onSelected: (value) {
+                      setState(() {
+                        chosenParticipationBundle = value;
+                      });
+                    },
+                    dropdownMenuEntries: [
+                      DropdownMenuEntry(
+                        value: null,
+                        label: 'All',
+                      ),
+                      for (var participationBundle in participationsBundles)
                         DropdownMenuEntry(
-                          value: null,
-                          label: 'All',
+                          value: participationBundle,
+                          label: participationBundle.participant.fullName,
                         ),
-                        for (var participationBundle in participationsBundles)
-                          DropdownMenuEntry(
-                            value: participationBundle,
-                            label: participationBundle.participant.fullName,
-                          ),
-                      ],
+                    ],
+                  ),
+                  if (chosenJurationBundle == null && chosenParticipationBundle == null)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: columnsHeaders,
+                        rows: rows,
+                      ),
                     ),
-                    if (chosenJurationBundle == null && chosenParticipationBundle == null)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: columnsHeaders,
-                          rows: rows,
-                        ),
+                  if (chosenJurationBundle != null && chosenParticipationBundle != null)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: columnsHeaders,
+                        rows: rows,
                       ),
-                    if (chosenJurationBundle != null && chosenParticipationBundle != null)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: columnsHeaders,
-                          rows: rows,
-                        ),
+                    ),
+                  if (chosenJurationBundle != null && chosenParticipationBundle == null)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: columnsHeaders,
+                        rows: rows,
                       ),
-                    if (chosenJurationBundle != null && chosenParticipationBundle == null)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: columnsHeaders,
-                          rows: rows,
-                        ),
+                    ),
+                  if (chosenJurationBundle == null && chosenParticipationBundle != null)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: columnsHeaders,
+                        rows: rows,
                       ),
-                    if (chosenJurationBundle == null && chosenParticipationBundle != null)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: columnsHeaders,
-                          rows: rows,
-                        ),
-                      ),
-                  ],
-                ),
-              );
-          }
-        },
-      ),
-      floatingActionButton:
-          BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case BlocStatus.initial:
-              return VoidWidget();
-            case (BlocStatus.loading || BlocStatus.failure):
-              if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
-                return VoidWidget();
-              } else {
-                continue successCase;
-              }
-            successCase:
-            case BlocStatus.success:
-              return FloatingActionButton.extended(
-                onPressed: () {
-                  context.pushNamed(AppRouter.organizerVotingResultExport, extra: votingSessionId);
-                },
-                elevation: 1,
-                label: Text('Export'),
+                    ),
+                ],
               );
           }
         },

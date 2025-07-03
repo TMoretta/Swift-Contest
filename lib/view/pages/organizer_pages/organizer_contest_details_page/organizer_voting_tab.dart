@@ -8,6 +8,7 @@ import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
@@ -40,6 +41,12 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
           .read<OrganizerContestDetailsPageBloc>()
           .add(OrganizerContestDetailsPageInit(contestId: contestId));
     }
+  }
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
   }
 
   @override

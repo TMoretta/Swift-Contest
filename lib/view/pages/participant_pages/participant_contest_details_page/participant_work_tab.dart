@@ -14,6 +14,7 @@ import 'package:swift_contest/utils/media_types.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
@@ -49,6 +50,12 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
           .read<ParticipantContestDetailsPageBloc>()
           .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: profileId));
     }
+  }
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
   }
 
   @override

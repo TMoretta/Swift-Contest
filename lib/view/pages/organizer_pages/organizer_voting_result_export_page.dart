@@ -49,6 +49,12 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<OrganizerVotingResultExportPageBloc, OrganizerVotingResultExportPageState>(
       listener: (context, state) {

@@ -36,6 +36,7 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
 
   @override
   void dispose() {
+    context.hideLoader();
     if (kIsWeb) {
       BrowserContextMenu.enableContextMenu();
     }
@@ -45,7 +46,7 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SignUpVerifyPageBloc, SignUpVerifyPageState>(
+    return BlocConsumer<SignUpVerifyPageBloc, SignUpVerifyPageState>(
       listener: (context, state) {
         //* Show a message if there is one
         if (state.message != null) {
@@ -60,72 +61,71 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
           context.goNamed(AppRouter.root, extra: 0);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Verify account'),
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: BlocBuilder<SignUpVerifyPageBloc, SignUpVerifyPageState>(
-              builder: (context, state) {
-                return Center(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      Text(
-                        'A code has been sent to your email. Please check your inbox and verify your account.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      SizedBox(height: 32),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FormField(
-                              validator: (value) => otpValidator(_otpController.text, 6),
-                              builder: (field) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    OtpField(
-                                      length: 6,
-                                      controller: _otpController,
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Verify account'),
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Text(
+                      'A code has been sent to your email. Please check your inbox and verify your account.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    SizedBox(height: 32),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FormField(
+                            validator: (value) => otpValidator(_otpController.text, 6),
+                            builder: (field) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  OtpField(
+                                    length: 6,
+                                    controller: _otpController,
+                                  ),
+                                  if (field.hasError)
+                                    SizedBox(height: 8),
+                                  if (field.hasError)
+                                    Text(
+                                      'Enter a valid OTP',
+                                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          color: Theme.of(context).colorScheme.error),
                                     ),
-                                    if (field.hasError)
-                                      SizedBox(height: 8),
-                                    if (field.hasError)
-                                      Text(
-                                        'Enter a valid OTP',
-                                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                            color: Theme.of(context).colorScheme.error),
-                                      ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              },
+                    ),
+                    SizedBox(height: 72),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            if (_formKey.currentState?.validate() ?? false) {
-              final otp = _otpController.text;
-              context
-                  .read<SignUpVerifyPageBloc>()
-                  .add(SignUpVerifyOtp(email: widget.email, otp: otp));
-            }
-          },
-          label: const Text('Verify'),
-        ),
-      ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              if (_formKey.currentState?.validate() ?? false) {
+                final otp = _otpController.text;
+                context
+                    .read<SignUpVerifyPageBloc>()
+                    .add(SignUpVerifyOtp(email: widget.email, otp: otp));
+              }
+            },
+            label: const Text('Verify'),
+          ),
+        );
+      },
     );
   }
 }

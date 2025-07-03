@@ -4,13 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_voting_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class JurorContestDetailsPage extends StatefulWidget {
   final String contestId;
@@ -31,6 +30,12 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
     super.initState();
     contestId = widget.contestId;
     profileId = context.read<AuthBloc>().state.profile!.id;
+  }
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
   }
 
   @override

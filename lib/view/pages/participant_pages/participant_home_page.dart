@@ -36,6 +36,12 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<ParticipantHomePageBloc, ParticipantHomePageState>(
       listener: (context, state) {

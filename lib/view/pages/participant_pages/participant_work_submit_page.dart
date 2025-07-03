@@ -56,6 +56,12 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
       listener: (context, state) {

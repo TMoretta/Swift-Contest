@@ -34,6 +34,12 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<OrganizerHomePageBloc, OrganizerHomePageState>(
       listener: (context, state) {

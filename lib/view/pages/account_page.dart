@@ -21,6 +21,12 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
   
   @override
   Widget build(BuildContext context) {

@@ -38,6 +38,12 @@ class _JurorHomePageState extends State<JurorHomePage> {
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<JurorHomePageBloc, JurorHomePageState>(
       listener: (context, state) {

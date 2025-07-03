@@ -8,6 +8,7 @@ import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/obscured_loader.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -28,6 +29,12 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
   void initState() {
     super.initState();
     votingSessionId = widget.votingSessionId;
+  }
+
+  @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
   }
 
   @override
@@ -73,91 +80,86 @@ class _OrganizerVotingResultPageInfoTabState extends State<OrganizerVotingResult
                 .toList(growable: false);
             final jurorsWithoutSubmissionBundles =
                 state.votingSessionResultBundle!.jurorsWithoutSubmission;
-            return RefreshIndicator.adaptive(
-              onRefresh: () async => context
-                  .read<OrganizerVotingResultDetailsPageBloc>()
-                  .add(OrganizerVotingResultDetailsPageRefresh(votingSessionId: votingSessionId)),
-              child: ListView(
-                children: [
-                  Card(
-                    elevation: 0.1,
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    child: ListTile(
-                      title: Text(
-                        votingSession.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
-                      ),
-                      subtitle: Text(
-                        DateFormat('dd MMM, yyyy | HH:mm').format(votingSession.createdAt),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
-                      ),
-                      trailing: IconButton(
-                        onPressed: () {
-                          _showEditVotingSessionNameDialog(
-                              context: context, votingSessionId: votingSessionId);
-                        },
-                        icon: Icon(
-                          Icons.edit,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
+            return ListView(
+              children: [
+                Card(
+                  elevation: 0.1,
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: ListTile(
+                    title: Text(
+                      votingSession.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                    ),
+                    subtitle: Text(
+                      DateFormat('dd MMM, yyyy | HH:mm').format(votingSession.createdAt),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () {
+                        _showEditVotingSessionNameDialog(
+                            context: context, votingSessionId: votingSessionId);
+                      },
+                      icon: Icon(
+                        Icons.edit,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  //* Excluded participants
-                  Text(
-                    'Excluded participants',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                  ),
-                  SizedBox(height: 4),
-                  if (excludedVotingSessionParticipationsBundles.isNotEmpty)
-                    ...excludedVotingSessionParticipationsBundles
-                        .map((e) => Text(e.participationBundle.participant.fullName))
-                  else
-                    Text('No participant excluded'),
-                  SizedBox(height: 12),
-                  //* Excluded jurors
-                  Text(
-                    'Excluded jurors',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                  ),
-                  SizedBox(height: 4),
-                  if (excludedVotingSessionJurationsBundles.isNotEmpty)
-                    ...excludedVotingSessionJurationsBundles
-                        .map((e) => Text(e.jurationBundle.juror.fullName))
-                  else
-                    Text('No juror excluded'),
-                  SizedBox(height: 12),
-                  //* Jurors with no submission
-                  Text(
-                    'Jurors that did\'t submit',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                  ),
-                  if (jurorsWithoutSubmissionBundles.isNotEmpty)
-                    ...jurorsWithoutSubmissionBundles.map(
-                      (e) => Text(e.juror.fullName),
-                    )
-                  else
-                    Text('All jurors submitted'),
-                ],
-              ),
+                ),
+                SizedBox(height: 16),
+                //* Excluded participants
+                Text(
+                  'Excluded participants',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                ),
+                SizedBox(height: 4),
+                if (excludedVotingSessionParticipationsBundles.isNotEmpty)
+                  ...excludedVotingSessionParticipationsBundles
+                      .map((e) => Text(e.participationBundle.participant.fullName))
+                else
+                  Text('No participant excluded'),
+                SizedBox(height: 12),
+                //* Excluded jurors
+                Text(
+                  'Excluded jurors',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                ),
+                SizedBox(height: 4),
+                if (excludedVotingSessionJurationsBundles.isNotEmpty)
+                  ...excludedVotingSessionJurationsBundles
+                      .map((e) => Text(e.jurationBundle.juror.fullName))
+                else
+                  Text('No juror excluded'),
+                SizedBox(height: 12),
+                //* Jurors with no submission
+                Text(
+                  'Jurors that did\'t submit',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                ),
+                if (jurorsWithoutSubmissionBundles.isNotEmpty)
+                  ...jurorsWithoutSubmissionBundles.map(
+                    (e) => Text(e.juror.fullName),
+                  )
+                else
+                  Text('All jurors submitted'),
+              ],
             );
         }
       },
