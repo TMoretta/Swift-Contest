@@ -6,8 +6,6 @@ import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
@@ -180,7 +178,7 @@ void _showEditVotingSessionNameDialog({
     builder: (context) {
       return BlocProvider.value(
         value: organizerContestDetailsPageBloc,
-        child: BlocListener<OrganizerVotingResultDetailsPageBloc,
+        child: BlocConsumer<OrganizerVotingResultDetailsPageBloc,
             OrganizerVotingResultDetailsPageState>(
           listener: (context, state) {
             if (state.status.isSuccess &&
@@ -191,47 +189,44 @@ void _showEditVotingSessionNameDialog({
               context.pop();
             }
           },
-          child: BlocBuilder<OrganizerVotingResultDetailsPageBloc,
-              OrganizerVotingResultDetailsPageState>(
-            builder: (context, state) {
-              return AlertDialog(
-                title: Text('Edit name'),
-                content: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CustomTextFormField(
-                        borderType: InputBorderType.underlined,
-                        controller: nameController,
-                        label: 'Name',
-                        validator: noEmptyValidator,
-                      ),
-                    ],
-                  ),
+          builder: (context, state) {
+            return AlertDialog(
+              title: Text('Edit name'),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CustomTextFormField(
+                      borderType: InputBorderType.underlined,
+                      controller: nameController,
+                      label: 'Name',
+                      validator: noEmptyValidator,
+                    ),
+                  ],
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        context.read<OrganizerVotingResultDetailsPageBloc>().add(
-                            OrganizerVotingResultDetailsPageEditVotingSessionName(
-                                votingSessionId: votingSessionId,
-                                name: nameController.text.trim()));
-                      }
-                    },
-                    child: Text('Edit'),
-                  ),
-                ],
-              );
-            },
-          ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      context.read<OrganizerVotingResultDetailsPageBloc>().add(
+                          OrganizerVotingResultDetailsPageEditVotingSessionName(
+                              votingSessionId: votingSessionId,
+                              name: nameController.text.trim()));
+                    }
+                  },
+                  child: Text('Edit'),
+                ),
+              ],
+            );
+          },
         ),
       );
     },

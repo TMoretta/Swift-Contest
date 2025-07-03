@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
@@ -23,14 +22,13 @@ class OrganizerHomePage extends StatefulWidget {
 }
 
 class _OrganizerHomePageState extends State<OrganizerHomePage> {
-
-  late Profile profile;
+  late String profileId;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profile = context.read<AuthBloc>().state.profile!;
-    context.read<OrganizerHomePageBloc>().add(OrganizerHomePageInit(organizerId: profile.id));
+    profileId = context.read<AuthBloc>().state.profile!.id;
+    context.read<OrganizerHomePageBloc>().add(OrganizerHomePageInit(organizerId: profileId));
   }
 
   @override
@@ -41,7 +39,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<OrganizerHomePageBloc, OrganizerHomePageState>(
+    return BlocConsumer<OrganizerHomePageBloc, OrganizerHomePageState>(
       listener: (context, state) {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
@@ -57,93 +55,95 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
           context.hideLoader();
         }
       },
-      child: Scaffold(
-        appBar: HomePageAppBar(contestRole: ContestRole.organizer),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: BlocBuilder<OrganizerHomePageBloc, OrganizerHomePageState>(
-              builder: (context, state) {
-                switch (state.status) {
-                  case BlocStatus.initial:
-                    return VoidWidget();
-                  case BlocStatus.loading:
-                    if (state.sourceEvent is OrganizerHomePageInit) {
+      builder: (context, state) {
+        return Scaffold(
+          appBar: HomePageAppBar(contestRole: ContestRole.organizer),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Builder(
+                builder: (context) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
                       return VoidWidget();
-                    } else {
-                      continue successCase;
-                    }
-                  case BlocStatus.failure:
-                    if (state.sourceEvent is OrganizerHomePageInit) {
+                    case BlocStatus.loading:
+                      if (state.sourceEvent is OrganizerHomePageInit) {
+                        return VoidWidget();
+                      } else {
+                        continue successCase;
+                      }
+                    case BlocStatus.failure:
+                      if (state.sourceEvent is OrganizerHomePageInit) {
+                        return RefreshIndicator.adaptive(
+                          onRefresh: () async => context
+                              .read<OrganizerHomePageBloc>()
+                              .add(OrganizerHomePageInit(organizerId: profileId)),
+                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                        );
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
                       return RefreshIndicator.adaptive(
-                        onRefresh: () async => context
-                            .read<OrganizerHomePageBloc>()
-                            .add(OrganizerHomePageInit(organizerId: profile.id)),
-                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                        onRefresh: () async {
+                          context
+                              .read<OrganizerHomePageBloc>()
+                              .add(OrganizerHomePageRefresh(organizerId: profileId));
+                          context.read<AuthBloc>().add(AuthFetchProfileMessages());
+                        },
+                        child: (state.createdContestsBundles!.isNotEmpty)
+                            ? ListView(
+                          children: [
+                            SizedBox(height: 16),
+                            ...state.createdContestsBundles!.map((homeContestBundle) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ContestCard(
+                                    homeContestBundle: homeContestBundle,
+                                    onTap: () async {
+                                      final bool? res = await context.pushNamed(
+                                          AppRouter.organizerContestDetails,
+                                          extra: homeContestBundle.contest.id);
+                                      if (res == true) {
+                                        if (context.mounted) {
+                                          context.read<OrganizerHomePageBloc>().add(
+                                              OrganizerHomePageRefresh(
+                                                  organizerId: profileId));
+                                        }
+                                      }
+                                    },
+                                  ),
+                                  SizedBox(height: 8),
+                                ],
+                              );
+                            }),
+                            SizedBox(height: 64),
+                          ],
+                        )
+                            : ListViewWithCentralLabel(label: 'No contest created yet'),
                       );
-                    } else {
-                      continue successCase;
-                    }
-                  successCase:
-                  case BlocStatus.success:
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async {
-                        context
-                            .read<OrganizerHomePageBloc>()
-                            .add(OrganizerHomePageRefresh(organizerId: profile.id));
-                        context.read<AuthBloc>().add(AuthFetchProfileMessages());
-                      },
-                      child: (state.createdContestsBundles!.isNotEmpty)
-                          ? ListView(
-                              children: [
-                                SizedBox(height: 16),
-                                ...state.createdContestsBundles!.map((homeContestBundle) {
-                                  return Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ContestCard(
-                                        homeContestBundle: homeContestBundle,
-                                        onTap: () async {
-                                          final bool? res = await context.pushNamed(
-                                              AppRouter.organizerContestDetails,
-                                              extra: homeContestBundle.contest.id);
-                                          if (res == true) {
-                                            if (context.mounted) {
-                                              context.read<OrganizerHomePageBloc>().add(
-                                                  OrganizerHomePageRefresh(
-                                                      organizerId: profile.id));
-                                            }
-                                          }
-                                        },
-                                      ),
-                                      SizedBox(height: 8),
-                                    ],
-                                  );
-                                }),
-                                SizedBox(height: 64),
-                              ],
-                            )
-                          : ListViewWithCentralLabel(label: 'No contest created yet'),
-                    );
-                }
-              },
+                  }
+                },
+              ),
             ),
           ),
-        ),
-        floatingActionButton: FilledButton(
-          onPressed: () async {
-            final bool? res = await context.pushNamed(AppRouter.organizerContestCreation);
-            if (res == true) {
-              if (context.mounted) {
-                context
-                    .read<OrganizerHomePageBloc>()
-                    .add(OrganizerHomePageRefresh(organizerId: profile.id));
+          floatingActionButton: FilledButton(
+            onPressed: () async {
+              final bool? res = await context.pushNamed(AppRouter.organizerContestCreation);
+              if (res == true) {
+                if (context.mounted) {
+                  context
+                      .read<OrganizerHomePageBloc>()
+                      .add(OrganizerHomePageRefresh(organizerId: profileId));
+                }
               }
-            }
-          },
-          child: Text('Create contest'),
-        ),
-      ),
+            },
+            child: Text('Create contest'),
+          ),
+        ) ;
+      },
     );
   }
 }

@@ -49,101 +49,103 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case BlocStatus.initial:
-              return VoidWidget();
-            case BlocStatus.loading:
-              if (state.sourceEvent is JurorContestDetailsPageInit) {
-                return VoidWidget();
-              } else {
-                continue successCase;
+    return BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: Builder(
+            builder: (context) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return VoidWidget();
+                case BlocStatus.loading:
+                  if (state.sourceEvent is JurorContestDetailsPageInit) {
+                    return VoidWidget();
+                  } else {
+                    continue successCase;
+                  }
+                case BlocStatus.failure:
+                  if (state.sourceEvent is JurorContestDetailsPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<JurorContestDetailsPageBloc>()
+                          .add(JurorContestDetailsPageInit(contestId: contestId)),
+                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  return RefreshIndicator.adaptive(
+                    onRefresh: () async => context
+                        .read<JurorContestDetailsPageBloc>()
+                        .add(JurorContestDetailsPageRefresh(contestId: contestId)),
+                    child: Builder(
+                      builder: (context) {
+                        if (state.contestDetailsBundle!.liveVotingSession == null) {
+                          return ListViewWithCentralLabel(label: 'No voting session live');
+                        }
+                        final isExcludedFromTheSession = state.votingSessionProcedureBundle!
+                                    .excludedVotingSessionJurationsBundles
+                                    .any((e) => e.jurationBundle.juror.id == profileId);
+                        if (isExcludedFromTheSession) {
+                          return ListViewWithCentralLabel(
+                              label: 'Voting session is live, but the '
+                                  'organizer excluded you from voting to this session');
+                        } else {
+                          return ListViewWithCentralLabel(label: 'Voting session is live');
+                        }
+                      },
+                    ),
+                  );
               }
-            case BlocStatus.failure:
-              if (state.sourceEvent is JurorContestDetailsPageInit) {
-                return RefreshIndicator.adaptive(
-                  onRefresh: () async => context
-                      .read<JurorContestDetailsPageBloc>()
-                      .add(JurorContestDetailsPageInit(contestId: contestId)),
-                  child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+            },
+          ),
+          floatingActionButton: Builder(
+            builder: (
+              context,
+            ) {
+              if (state.contestDetailsBundle!.liveVotingSession == null) {
+                return FilledButton(
+                  onPressed: null,
+                  child: Text('Vote'),
+                );
+              }
+              final isExcludedFromTheSession = (state
+                          .votingSessionProcedureBundle?.excludedVotingSessionJurationsBundles
+                          .where((e) => e.jurationBundle.juror.id == profileId)
+                          .firstOrNull !=
+                      null)
+                  ? true
+                  : false;
+              if (isExcludedFromTheSession) {
+                return FilledButton(
+                  onPressed: null,
+                  child: Text('Vote'),
                 );
               } else {
-                continue successCase;
-              }
-            successCase:
-            case BlocStatus.success:
-              return RefreshIndicator.adaptive(
-                onRefresh: () async => context
-                    .read<JurorContestDetailsPageBloc>()
-                    .add(JurorContestDetailsPageRefresh(contestId: contestId)),
-                child: Builder(
-                  builder: (context) {
-                    if (state.contestDetailsBundle!.liveVotingSession == null) {
-                      return ListViewWithCentralLabel(label: 'No voting session live');
-                    }
-                    final isExcludedFromTheSession = (state
-                                .votingSessionProcedureBundle!.excludedVotingSessionJurationsBundles
-                                .where((e) => e.jurationBundle.juror.id == profileId)
-                                .firstOrNull !=
-                            null)
-                        ? true
-                        : false;
-                    if (isExcludedFromTheSession) {
-                      return ListViewWithCentralLabel(
-                          label: 'Voting session is live, but the '
-                              'organizer excluded you from voting to this session');
-                    } else {
-                      return ListViewWithCentralLabel(label: 'Voting session is live');
-                    }
-                  },
-                ),
-              );
-          }
-        },
-      ),
-      floatingActionButton: BlocBuilder<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
-        builder: (context, state) {
-          if (state.contestDetailsBundle!.liveVotingSession == null) {
-            return FilledButton(
-              onPressed: null,
-              child: Text('Vote'),
-            );
-          }
-          final isExcludedFromTheSession = (state
-                      .votingSessionProcedureBundle?.excludedVotingSessionJurationsBundles
-                      .where((e) => e.jurationBundle.juror.id == profileId)
-                      .firstOrNull !=
-                  null)
-              ? true
-              : false;
-          if (isExcludedFromTheSession) {
-            return FilledButton(
-              onPressed: null,
-              child: Text('Vote'),
-            );
-          } else {
-            return FilledButton(
-              onPressed: (state.contestDetailsBundle!.liveVotingSession != null &&
-                      !isExcludedFromTheSession)
-                  ? () async {
-                      final bool? res = await context.pushNamed(AppRouter.jurorVotingProcedure,
-                          extra: state.contestDetailsBundle!.liveVotingSession!.id);
-                      if (res == true) {
-                        if (context.mounted) {
-                          context
-                              .read<JurorContestDetailsPageBloc>()
-                              .add(JurorContestDetailsPageRefresh(contestId: contestId));
+                return FilledButton(
+                  onPressed: (state.contestDetailsBundle!.liveVotingSession != null &&
+                          !isExcludedFromTheSession)
+                      ? () async {
+                          final bool? res = await context.pushNamed(AppRouter.jurorVotingProcedure,
+                              extra: state.contestDetailsBundle!.liveVotingSession!.id);
+                          if (res == true) {
+                            if (context.mounted) {
+                              context
+                                  .read<JurorContestDetailsPageBloc>()
+                                  .add(JurorContestDetailsPageRefresh(contestId: contestId));
+                            }
+                          }
                         }
-                      }
-                    }
-                  : null,
-              child: Text('Vote'),
-            );
-          }
-        },
-      ),
+                      : null,
+                  child: Text('Vote'),
+                );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }

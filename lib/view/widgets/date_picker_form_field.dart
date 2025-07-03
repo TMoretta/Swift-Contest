@@ -9,9 +9,9 @@ class DatePickerFormField extends StatelessWidget {
   final AutovalidateMode? autovalidateMode;
   final bool? isFilled;
   final Color? fillColor;
-  final Icon? externalIcon;
+  final Widget? externalIcon;
   final Color? externalIconColor;
-  final Icon? prefixIcon;
+  final Widget? prefixIcon;
   final Color? prefixIconColor;
   final DateTime? initialDate;
 

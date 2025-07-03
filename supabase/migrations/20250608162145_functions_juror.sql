@@ -274,6 +274,7 @@ RETURNS TABLE (
 ) AS $$
 DECLARE
   v_voting_session voting_sessions;
+  v_juration jurations;
   v_simple_juror simple_jurors;
   v_voting_session_simple_juror voting_session_simple_jurors;
 BEGIN
@@ -291,11 +292,14 @@ BEGIN
   END IF;
 
   IF (p_juror_id IS NOT null) THEN
+    SELECT * INTO v_juration
+    WHERE juror_id = p_juror_id;
+
     IF EXISTS (
       SELECT 1
       FROM voting_session_jurations vsj
       JOIN jurations j ON vsj.juration_id = j.id
-      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = p_juror_id AND vsj.has_submitted = false
+      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = p_juror_id AND vsj.has_submitted = false AND v_juration.juror_status = 'joined'
     ) THEN
       RAISE EXCEPTION 'You are a member in this contest, vote as an official juror instead';
     END IF;

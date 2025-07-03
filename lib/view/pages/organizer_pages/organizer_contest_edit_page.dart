@@ -35,8 +35,7 @@ class OrganizerContestEditPage extends StatefulWidget {
 }
 
 class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
-  
-  late String contestId;
+  late final String contestId;
   late Profile profile;
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
@@ -79,7 +78,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
+    return BlocConsumer<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
       listener: (context, state) {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
@@ -94,118 +93,120 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
           context.pop(true);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Edit contest'),
-        body: BlocBuilder<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
-          builder: (context, state) {
-            switch (state.status) {
-              case BlocStatus.initial:
-                return VoidWidget();
-              case BlocStatus.loading:
-                if (state.sourceEvent is OrganizerContestEditPageInit) {
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Edit contest'),
+          body: Builder(
+            builder: (context) {
+              switch (state.status) {
+                case BlocStatus.initial:
                   return VoidWidget();
-                } else {
-                  continue successCase;
-                }
-              case BlocStatus.failure:
-                if (state.sourceEvent is OrganizerContestEditPageInit) {
-                  return RefreshIndicator.adaptive(
-                    onRefresh: () async => context
-                        .read<OrganizerContestEditPageBloc>()
-                        .add(OrganizerContestEditPageInit(contestId: contestId)),
-                    child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                  );
-                } else {
-                  continue successCase;
-                }
-              successCase:
-              case BlocStatus.success:
-                if (!isPageInitialized) {
-                  final contestDetailsBundle = state.contestDetailsBundle!;
-                  nameController.setText(contestDetailsBundle.contest.name);
-                  descriptionController.setText(contestDetailsBundle.contest.description);
-                  date = contestDetailsBundle.contest.dateTime;
-                  dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
-                  time = TimeOfDay.fromDateTime(contestDetailsBundle.contest.dateTime);
-                  timeController.setText(
-                      '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
-                  place = contestDetailsBundle.place;
-                  placeController.setText(place!.address);
-                  worksSubmissionStart = contestDetailsBundle.contest.worksSubmissionStart;
-                  worksSubmissionEnd = contestDetailsBundle.contest.worksSubmissionEnd;
-                  worksSubmissionStartController
-                      .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
-                  worksSubmissionEndController
-                      .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
-                  oldImagesUrls.addAll(contestDetailsBundle.contest.imagesUrls);
-                  isPageInitialized = true;
-                }
-                return Stepper(
-                  type: StepperType.horizontal,
-                  elevation: 0,
-                  steps: getSteps(),
-                  currentStep: currentStep,
-                  onStepContinue: () {
-                    final isLastStep = (currentStep == getSteps().length - 1);
-                    if (formKeys[currentStep].currentState?.validate() ?? false) {
-                      if (isLastStep) {
-                        final name = nameController.text;
-                        final description = descriptionController.text;
-                        final dateTime = DateTime(
-                            date!.year, date!.month, date!.day, time!.hour, time!.minute);
-                        context.read<OrganizerContestEditPageBloc>().add(
-                              OrganizerContestEditPageEditContest(
-                                contestId: contestId,
-                                name: name,
-                                description: description,
-                                place: place!,
-                                dateTime: dateTime,
-                                worksSubmissionStart: worksSubmissionStart!,
-                                worksSubmissionEnd: worksSubmissionEnd!,
-                                images: (images.isNotEmpty) ? images : null,
-                                oldImagesUrls: oldImagesUrls,
-                              ),
-                            );
-                      } else {
-                        setState(() => ++currentStep);
+                case BlocStatus.loading:
+                  if (state.sourceEvent is OrganizerContestEditPageInit) {
+                    return VoidWidget();
+                  } else {
+                    continue successCase;
+                  }
+                case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerContestEditPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<OrganizerContestEditPageBloc>()
+                          .add(OrganizerContestEditPageInit(contestId: contestId)),
+                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  if (!isPageInitialized) {
+                    final contestDetailsBundle = state.contestDetailsBundle!;
+                    nameController.setText(contestDetailsBundle.contest.name);
+                    descriptionController.setText(contestDetailsBundle.contest.description);
+                    date = contestDetailsBundle.contest.dateTime;
+                    dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
+                    time = TimeOfDay.fromDateTime(contestDetailsBundle.contest.dateTime);
+                    timeController.setText(
+                        '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
+                    place = contestDetailsBundle.place;
+                    placeController.setText(place!.address);
+                    worksSubmissionStart = contestDetailsBundle.contest.worksSubmissionStart;
+                    worksSubmissionEnd = contestDetailsBundle.contest.worksSubmissionEnd;
+                    worksSubmissionStartController
+                        .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
+                    worksSubmissionEndController
+                        .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
+                    oldImagesUrls.addAll(contestDetailsBundle.contest.imagesUrls);
+                    isPageInitialized = true;
+                  }
+                  return Stepper(
+                    type: StepperType.horizontal,
+                    elevation: 0,
+                    steps: getSteps(),
+                    currentStep: currentStep,
+                    onStepContinue: () {
+                      final isLastStep = (currentStep == getSteps().length - 1);
+                      if (formKeys[currentStep].currentState?.validate() ?? false) {
+                        if (isLastStep) {
+                          final name = nameController.text;
+                          final description = descriptionController.text;
+                          final dateTime = DateTime(
+                              date!.year, date!.month, date!.day, time!.hour, time!.minute);
+                          context.read<OrganizerContestEditPageBloc>().add(
+                            OrganizerContestEditPageEditContest(
+                              contestId: contestId,
+                              name: name,
+                              description: description,
+                              place: place!,
+                              dateTime: dateTime,
+                              worksSubmissionStart: worksSubmissionStart!,
+                              worksSubmissionEnd: worksSubmissionEnd!,
+                              images: (images.isNotEmpty) ? images : null,
+                              oldImagesUrls: oldImagesUrls,
+                            ),
+                          );
+                        } else {
+                          setState(() => ++currentStep);
+                        }
                       }
-                    }
-                  },
-                  onStepCancel: () {
-                    (currentStep == 0) ? null : setState(() => --currentStep);
-                  },
-                  controlsBuilder: (context, details) {
-                    final isLastStep = details.currentStep == getSteps().length - 1;
-                    return Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Row(
-                        mainAxisAlignment: (currentStep == 0)
-                            ? MainAxisAlignment.end
-                            : MainAxisAlignment.spaceBetween,
-                        spacing: 12,
-                        children: [
-                          if (details.currentStep != 0)
+                    },
+                    onStepCancel: () {
+                      (currentStep == 0) ? null : setState(() => --currentStep);
+                    },
+                    controlsBuilder: (context, details) {
+                      final isLastStep = details.currentStep == getSteps().length - 1;
+                      return Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: Row(
+                          mainAxisAlignment: (currentStep == 0)
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.spaceBetween,
+                          spacing: 12,
+                          children: [
+                            if (details.currentStep != 0)
+                              ElevatedButton(
+                                onPressed: () {
+                                  details.onStepCancel!();
+                                },
+                                child: Text('Back'),
+                              ),
                             ElevatedButton(
                               onPressed: () {
-                                details.onStepCancel!();
+                                details.onStepContinue!();
                               },
-                              child: Text('Back'),
+                              child: isLastStep ? Text('Edit') : Text('Next'),
                             ),
-                          ElevatedButton(
-                            onPressed: () {
-                              details.onStepContinue!();
-                            },
-                            child: isLastStep ? Text('Edit') : Text('Next'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-            }
-          },
-        ),
-      ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 

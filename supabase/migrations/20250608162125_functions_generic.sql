@@ -78,7 +78,7 @@ BEGIN
     FROM contests cont
     JOIN profiles org ON cont.organizer_id = org.id
     JOIN places pla ON cont.place_id = pla.id
-    WHERE cont.id = p_contest_id
+    WHERE cont.id = p_contest_id AND cont.deleted_at is null
     LIMIT 1;
 
 EXCEPTION

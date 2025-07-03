@@ -11,13 +11,11 @@ import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submit_page_bloc/participant_work_submit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class ParticipantWorkSubmitPage extends StatefulWidget {
   final String contestId;
@@ -63,7 +61,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
+    return BlocConsumer<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
       listener: (context, state) {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
@@ -77,61 +75,63 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
           context.pop(true);
         }
       },
-      child: Scaffold(
-        appBar: CustomAppBar(title: 'Submit work'),
-        body: Stepper(
-          type: StepperType.horizontal,
-          elevation: 0,
-          steps: getSteps(),
-          currentStep: currentStep,
-          onStepContinue: () {
-            final isLastStep = (currentStep == getSteps().length - 1);
-            if (formKeys[currentStep].currentState?.validate() ?? false) {
-              if (isLastStep) {
-                final name = nameController.text;
-                final description = descriptionController.text;
-                context
-                    .read<ParticipantWorkSubmitPageBloc>()
-                    .add(ParticipantWorkSubmitPageSubmitWork(
-                      contestId: contestId,
-                      participantId: profileId,
-                      name: name,
-                      description: description,
-                      images: images,
-                      file: file!,
-                    ));
-              } else {
-                setState(() => ++currentStep);
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Submit work'),
+          body: Stepper(
+            type: StepperType.horizontal,
+            elevation: 0,
+            steps: getSteps(),
+            currentStep: currentStep,
+            onStepContinue: () {
+              final isLastStep = (currentStep == getSteps().length - 1);
+              if (formKeys[currentStep].currentState?.validate() ?? false) {
+                if (isLastStep) {
+                  final name = nameController.text;
+                  final description = descriptionController.text;
+                  context
+                      .read<ParticipantWorkSubmitPageBloc>()
+                      .add(ParticipantWorkSubmitPageSubmitWork(
+                    contestId: contestId,
+                    participantId: profileId,
+                    name: name,
+                    description: description,
+                    images: images,
+                    file: file!,
+                  ));
+                } else {
+                  setState(() => ++currentStep);
+                }
               }
-            }
-          },
-          onStepCancel: () {
-            (currentStep == 0) ? null : setState(() => --currentStep);
-          },
-          controlsBuilder: (context, details) {
-            final isLastStep = details.currentStep == getSteps().length - 1;
-            return Container(
-              margin: EdgeInsets.only(top: 20),
-              child: Row(
-                mainAxisAlignment:
-                    (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
-                spacing: 12,
-                children: [
-                  if (details.currentStep != 0)
+            },
+            onStepCancel: () {
+              (currentStep == 0) ? null : setState(() => --currentStep);
+            },
+            controlsBuilder: (context, details) {
+              final isLastStep = details.currentStep == getSteps().length - 1;
+              return Container(
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                  mainAxisAlignment:
+                  (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
+                  spacing: 12,
+                  children: [
+                    if (details.currentStep != 0)
+                      ElevatedButton(
+                        onPressed: details.onStepCancel,
+                        child: Text('Back'),
+                      ),
                     ElevatedButton(
-                      onPressed: details.onStepCancel,
-                      child: Text('Back'),
+                      onPressed: details.onStepContinue,
+                      child: isLastStep ? Text('Submit') : Text('Next'),
                     ),
-                  ElevatedButton(
-                    onPressed: details.onStepContinue,
-                    child: isLastStep ? Text('Submit') : Text('Next'),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

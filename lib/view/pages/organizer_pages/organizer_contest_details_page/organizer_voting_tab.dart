@@ -7,7 +7,6 @@ import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
-import 'package:swift_contest/view/widgets/obscured_loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -51,10 +50,12 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+  builder: (context, state) {
     return Scaffold(
       body: SafeArea(
-        child: BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-          builder: (context, state) {
+        child: Builder(
+          builder: (context) {
             switch (state.status) {
               case BlocStatus.initial:
                 return VoidWidget();
@@ -180,8 +181,8 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
         ),
       ),
       floatingActionButton:
-          BlocBuilder<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-        builder: (context, state) {
+          Builder(
+        builder: (context) {
           switch (state.status) {
             case BlocStatus.initial:
               return VoidWidget();
@@ -249,6 +250,8 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
         },
       ),
     );
+  },
+);
   }
 }
 

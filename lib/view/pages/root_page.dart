@@ -6,7 +6,6 @@ import 'package:swift_contest/view/widgets/my_logo.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
-import 'package:swift_contest/view/widgets/pull_to_refresh_hint.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -30,7 +29,7 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         //* Show a message if there is one
         if (state.message != null) {
@@ -56,61 +55,63 @@ class _RootPageState extends State<RootPage> {
           }
         }
       },
-      child: Scaffold(
-        body: SafeArea(
-          child: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              switch (state.blocStatus) {
-                case BlocStatus.failure:
-                  return RefreshIndicator(
-                    onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
-                    child: LayoutBuilder(builder: (context, constraints) {
-                      return ListView(
-                        children: [
-                          SizedBox(
-                            height: constraints.maxHeight,
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  MyLogo(),
-                                  SizedBox(height: 32),
-                                  Text(
-                                    'An error occurred',
-                                    style: Theme
-                                        .of(context)
-                                        .textTheme
-                                        .bodyLarge,
-                                  )
-                                ],
+      builder: (context, state) {
+        return Scaffold(
+          body: SafeArea(
+            child: Builder(
+              builder: (context) {
+                switch (state.blocStatus) {
+                  case BlocStatus.failure:
+                    return RefreshIndicator(
+                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                      child: LayoutBuilder(builder: (context, constraints) {
+                        return ListView(
+                          children: [
+                            SizedBox(
+                              height: constraints.maxHeight,
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    MyLogo(),
+                                    SizedBox(height: 32),
+                                    Text(
+                                      'An error occurred',
+                                      style: Theme
+                                          .of(context)
+                                          .textTheme
+                                          .bodyLarge,
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                          )
+                            )
+                          ],
+                        );
+                      },),
+                    );
+                  case BlocStatus.loading:
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MyLogo(),
+                          SizedBox(height: 32),
+                          Loader(),
                         ],
-                      );
-                    },),
-                  );
-                case BlocStatus.loading:
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MyLogo(),
-                        SizedBox(height: 32),
-                        Loader(),
-                      ],
-                    ),
-                  );
-                case BlocStatus.initial:
-                case BlocStatus.success:
-                  return Center(
-                    child: MyLogo(),
-                  );
-              }
-            },
+                      ),
+                    );
+                  case BlocStatus.initial:
+                  case BlocStatus.success:
+                    return Center(
+                      child: MyLogo(),
+                    );
+                }
+              },
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -32,7 +32,7 @@ class ParticipantWorkTab extends StatefulWidget {
 
 class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
   late String profileId;
-  late String contestId;
+  late final String contestId;
 
   @override
   void initState() {
@@ -60,9 +60,11 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
+  builder: (context, state) {
     return Scaffold(
-      body: BlocBuilder<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
-        builder: (context, state) {
+      body: Builder(
+        builder: (context) {
           switch (state.status) {
             case BlocStatus.initial:
               return VoidWidget();
@@ -250,8 +252,8 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
         },
       ),
       floatingActionButton:
-          BlocBuilder<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
-        builder: (context, state) {
+          Builder(
+        builder: (context) {
           final bool isInParticipationPhase =
               state.contestDetailsBundle!.contest.worksSubmissionStart.isBefore(now()) &&
                   state.contestDetailsBundle!.contest.worksSubmissionEnd.isAfter(now());
@@ -276,5 +278,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
         },
       ),
     );
+  },
+);
   }
 }

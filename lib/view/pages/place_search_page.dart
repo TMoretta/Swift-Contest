@@ -40,7 +40,8 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
         }
         if (state.status.isSuccess && state.sourceEvent is PlaceSearchPageFetchPlace) {
           final googlePlace = state.googlePlace!;
-          final PlaceNullable place = PlaceNullable(address: googlePlace.address,lat: googlePlace.lat, lon: googlePlace.lon);
+          final PlaceNullable place = PlaceNullable(
+              address: googlePlace.address, lat: googlePlace.lat, lon: googlePlace.lon);
           context.pop(place);
         }
       },
@@ -62,6 +63,17 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
                     onChanged: (value) async => context
                         .read<PlaceSearchPageBloc>()
                         .add(PlaceSearchPageSearchPlaceSuggestions(query: value)),
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            searchController.clear();
+                          },
+                          icon: Icon(Icons.clear),
+                        ),
+                      ],
+                    ),
                   ),
                   Builder(
                     builder: (context) {

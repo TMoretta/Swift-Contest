@@ -48,6 +48,7 @@ class JurorContestDetailsPageBloc
 
     if (contestDetailsBundle.liveVotingSession == null) {
       emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: contestDetailsBundle));
+      return;
     }
 
     final eitherProcedureBundle = await _genericRepository.getVotingSessionProcedureBundle(
@@ -80,6 +81,7 @@ class JurorContestDetailsPageBloc
 
     if (contestDetailsBundle.liveVotingSession == null) {
       emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: contestDetailsBundle));
+      return;
     }
 
     final eitherProcedureBundle = await _genericRepository.getVotingSessionProcedureBundle(
@@ -91,14 +93,6 @@ class JurorContestDetailsPageBloc
           contestDetailsBundle: contestDetailsBundle,
           votingSessionProcedureBundle: success)),
     );
-    // emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-    //
-    // final eitherContestDetails =
-    //     await _genericRepository.getContestDetails(contestId: event.contestId);
-    // eitherContestDetails.fold(
-    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-    //   (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
-    // );
   }
 
   FutureOr<void> _leaveContest(
