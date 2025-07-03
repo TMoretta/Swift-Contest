@@ -52,7 +52,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   Duration reviewTimer = Duration(minutes: 0, seconds: 20);
   bool isGeoRestricted = false;
   final geoRestrictionPlaceController = TextEditingController();
-  PlaceNullable? geoRestrictionPlace;
+  PlaceModel? geoRestrictionPlace;
   final geoRestrictionRadiusController = TextEditingController();
   final List<ParticipationBundle> participationsBundles = [];
   final List<ParticipationBundle> excludedParticipationsBundles = [];
@@ -161,7 +161,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                               reviewTimer: reviewTimer,
                               votingFormFields: contestDetailsBundle
                                   .votingFormBundle.votingFormFields
-                                  .map((e) => VotingFormFieldNullable(
+                                  .map((e) => VotingFormFieldModel(
                                   name: e.name,
                                   minValue: e.minValue,
                                   maxValue: e.maxValue,
@@ -522,7 +522,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     enabled: isGeoRestricted,
                     suffixIcon: TextButton(
                       onPressed: (isGeoRestricted) ? () async {
-                        final PlaceNullable? placeNullable = await context.pushNamed(AppRouter.placeSearch);
+                        final PlaceModel? placeNullable = await context.pushNamed(AppRouter.placeSearch);
                         if(placeNullable!=null) {
                           geoRestrictionPlaceController.text = placeNullable.address!;
                           geoRestrictionPlace = placeNullable;

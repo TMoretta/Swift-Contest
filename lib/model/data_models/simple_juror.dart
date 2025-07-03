@@ -47,12 +47,12 @@ class SimpleJuror extends Equatable {
       ];
 }
 
-class SimpleJurorNullable extends Equatable {
+class SimpleJurorModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? fullName;
 
-  const SimpleJurorNullable({
+  const SimpleJurorModel({
     this.id,
     this.createdAt,
     this.fullName,

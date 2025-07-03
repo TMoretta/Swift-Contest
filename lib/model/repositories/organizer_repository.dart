@@ -20,8 +20,8 @@ abstract interface class OrganizerRepository {
   });
 
   Future<Either<Failure, Unit>> createContest({
-    required ContestNullable contest,
-    required PlaceNullable place,
+    required ContestModel contest,
+    required PlaceModel place,
   });
 
   Future<Either<Failure, Unit>> editContest({
@@ -43,11 +43,11 @@ abstract interface class OrganizerRepository {
 
   Future<Either<Failure, Unit>> setContestStatusAsTerminated({required String contestId});
 
-  Future<Either<Failure, Unit>> sendInvite({required InvitationNullable invitation});
+  Future<Either<Failure, Unit>> sendInvite({required InvitationModel invitation});
 
   Future<Either<Failure, Unit>> updateVotingFormFields({
     required String votingFormId,
-    required List<VotingFormFieldNullable> votingFormFields,
+    required List<VotingFormFieldModel> votingFormFields,
   });
 
   Future<Either<Failure, Unit>> deleteInvitation({required String invitationId});
@@ -61,12 +61,12 @@ abstract interface class OrganizerRepository {
   });
 
   Future<Either<Failure, VotingSession>> initVotingSession({
-    required List<VotingFormFieldNullable> votingFormFields,
-    required PlaceNullable? geoRestrictionPlace,
-    required VotingSessionNullable votingSession,
-    required List<VotingSessionParticipationNullable> votingSessionParticipations,
-    required List<VotingSessionJurationNullable> votingSessionJurations,
-    required List<VotingSessionExclusionNullable> votingSessionExclusions,
+    required List<VotingFormFieldModel> votingFormFields,
+    required PlaceModel? geoRestrictionPlace,
+    required VotingSessionModel votingSession,
+    required List<VotingSessionParticipationModel> votingSessionParticipations,
+    required List<VotingSessionJurationModel> votingSessionJurations,
+    required List<VotingSessionExclusionModel> votingSessionExclusions,
   });
 
   Future<Either<Failure, Unit>> startVotingSession({
@@ -121,8 +121,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> createContest({
-    required ContestNullable contest,
-    required PlaceNullable place,
+    required ContestModel contest,
+    required PlaceModel place,
   }) async {
     try {
       await _supabase.rpc('organizer_create_contest', params: {
@@ -226,7 +226,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> sendInvite({
-    required InvitationNullable invitation,
+    required InvitationModel invitation,
   }) async {
     try {
       final FunctionResponse res = await _supabase.functions
@@ -301,7 +301,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> updateVotingFormFields({
     required String votingFormId,
-    required List<VotingFormFieldNullable> votingFormFields,
+    required List<VotingFormFieldModel> votingFormFields,
   }) async {
     try {
       await _supabase.rpc('organizer_update_voting_form_fields', params: {
@@ -320,12 +320,12 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, VotingSession>> initVotingSession({
-    required List<VotingFormFieldNullable> votingFormFields,
-    required PlaceNullable? geoRestrictionPlace,
-    required VotingSessionNullable votingSession,
-    required List<VotingSessionParticipationNullable> votingSessionParticipations,
-    required List<VotingSessionJurationNullable> votingSessionJurations,
-    required List<VotingSessionExclusionNullable> votingSessionExclusions,
+    required List<VotingFormFieldModel> votingFormFields,
+    required PlaceModel? geoRestrictionPlace,
+    required VotingSessionModel votingSession,
+    required List<VotingSessionParticipationModel> votingSessionParticipations,
+    required List<VotingSessionJurationModel> votingSessionJurations,
+    required List<VotingSessionExclusionModel> votingSessionExclusions,
   }) async {
     try {
       final Map<String, dynamic> res =

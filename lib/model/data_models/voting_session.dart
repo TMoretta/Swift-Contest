@@ -96,8 +96,8 @@ class VotingSession extends Equatable {
     Duration? reviewTimer,
     String? token,
     bool? isGeoRestricted,
-    String? geoRestrictionPlaceId,
-    int? geoRestrictionRadius,
+    String? geoResPlaceId,
+    int? geoResRadius,
     VotingSessionStatus? sessionStatus,
     int? currentParticipantIndex,
     DateTime? currentStepDeadline,
@@ -114,8 +114,8 @@ class VotingSession extends Equatable {
       reviewTimer: reviewTimer ?? this.reviewTimer,
       token: token ?? this.token,
       isGeoRestricted: isGeoRestricted ?? this.isGeoRestricted,
-      geoResPlaceId: geoRestrictionPlaceId ?? this.geoResPlaceId,
-      geoResRadius: geoRestrictionRadius ?? this.geoResRadius,
+      geoResPlaceId: geoResPlaceId ?? this.geoResPlaceId,
+      geoResRadius: geoResRadius ?? this.geoResRadius,
       sessionStatus: sessionStatus ?? this.sessionStatus,
       currentParticipantIndex: currentParticipantIndex ?? this.currentParticipantIndex,
       currentStepDeadline: currentStepDeadline ?? this.currentStepDeadline,
@@ -143,7 +143,7 @@ class VotingSession extends Equatable {
       ];
 }
 
-class VotingSessionNullable extends Equatable {
+class VotingSessionModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? name;
@@ -163,7 +163,7 @@ class VotingSessionNullable extends Equatable {
   final int? currentParticipantIndex;
   final DateTime? currentStepDeadline;
 
-  const VotingSessionNullable({
+  const VotingSessionModel({
     this.id,
     this.createdAt,
     this.name,

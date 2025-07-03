@@ -55,21 +55,21 @@ class JurorVoting extends Equatable {
       ];
 }
 
-class JurorVotingNullable extends Equatable {
+class JurorVotingModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionJurationId;
   final String? votingSessionParticipationId;
 
-  const JurorVotingNullable({
+  const JurorVotingModel({
     this.id,
     this.createdAt,
     this.votingSessionJurationId,
     this.votingSessionParticipationId,
   });
 
-  factory JurorVotingNullable.fromJson(Map<String, dynamic> json) {
-    return JurorVotingNullable(
+  factory JurorVotingModel.fromJson(Map<String, dynamic> json) {
+    return JurorVotingModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       votingSessionJurationId: json['voting_session_juration_id'] as String?,

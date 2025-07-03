@@ -62,14 +62,14 @@ class VotingSessionExclusion extends Equatable {
       ];
 }
 
-class VotingSessionExclusionNullable extends Equatable {
+class VotingSessionExclusionModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionId;
   final String? votingSessionJurationId;
   final String? votingSessionParticipationId;
 
-  const VotingSessionExclusionNullable({
+  const VotingSessionExclusionModel({
     this.id,
     this.createdAt,
     this.votingSessionId,
@@ -77,8 +77,8 @@ class VotingSessionExclusionNullable extends Equatable {
     this.votingSessionParticipationId,
   });
 
-  factory VotingSessionExclusionNullable.fromJson(Map<String, dynamic> json) {
-    return VotingSessionExclusionNullable(
+  factory VotingSessionExclusionModel.fromJson(Map<String, dynamic> json) {
+    return VotingSessionExclusionModel(
       id: json['id'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       votingSessionId: json['voting_session_id'],

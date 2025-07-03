@@ -43,7 +43,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   final timeController = TextEditingController();
   TimeOfDay? time;
   final placeController = TextEditingController();
-  PlaceNullable? place;
+  PlaceModel? place;
   final worksSubmissionStartController = TextEditingController();
   DateTime? worksSubmissionStart;
   final worksSubmissionEndController = TextEditingController();
@@ -201,7 +201,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   prefixIcon: Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
-                      final PlaceNullable? placeNullable = await context.pushNamed(AppRouter.placeSearch);
+                      final PlaceModel? placeNullable = await context.pushNamed(AppRouter.placeSearch);
                       if(placeNullable!=null) {
                         placeController.text = placeNullable.address!;
                         place = placeNullable;

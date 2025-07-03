@@ -74,14 +74,14 @@ class OrganizerVotingSettingsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final List<VotingFormFieldNullable> votingFormFields = event.votingFormFields
-        .map((e) => VotingFormFieldNullable(
+    final List<VotingFormFieldModel> votingFormFields = event.votingFormFields
+        .map((e) => VotingFormFieldModel(
             name: e.name, minValue: e.minValue, maxValue: e.maxValue, orderIndex: e.orderIndex))
         .toList(growable: false);
 
     //* Create a new place for the session only if georestricted
     final geoRestrictionPlace = (event.isGeoRestricted)
-        ? PlaceNullable(
+        ? PlaceModel(
             address: event.geoRestrictionPlaceAddress,
             lat: event.geoRestrictionPlaceLat,
             lon: event.geoRestrictionPlaceLon,
@@ -89,7 +89,7 @@ class OrganizerVotingSettingsPageBloc
         : null;
 
     final createdAt = now();
-    final VotingSessionNullable votingSession = VotingSessionNullable(
+    final VotingSessionModel votingSession = VotingSessionModel(
       name:
           'Voting ${createdAt.day.toString().padLeft(2, '0')}_${createdAt.month.toString().padLeft(2, '0')}_${createdAt.year}',
       contestId: event.contestId,
@@ -103,25 +103,25 @@ class OrganizerVotingSettingsPageBloc
     );
 
     //* Create voting session participations
-    final List<VotingSessionParticipationNullable> votingSessionParticipations = [];
+    final List<VotingSessionParticipationModel> votingSessionParticipations = [];
     for (int i = 0; i < event.participationsBundles.length; i++) {
       final participation = event.participationsBundles[i].participation;
-      final votingSessionParticipation = VotingSessionParticipationNullable(
+      final votingSessionParticipation = VotingSessionParticipationModel(
           id: genUuid(), participationId: participation.id, orderIndex: i, isExcluded: false);
       votingSessionParticipations.add(votingSessionParticipation);
     }
     for (int i = 0; i < event.excludedParticipationsBundles.length; i++) {
       final participation = event.excludedParticipationsBundles[i].participation;
-      final votingSessionParticipation = VotingSessionParticipationNullable(
+      final votingSessionParticipation = VotingSessionParticipationModel(
           id: genUuid(), participationId: participation.id, orderIndex: i, isExcluded: true);
       votingSessionParticipations.add(votingSessionParticipation);
     }
 
     //* Create voting session jurations
-    final List<VotingSessionJurationNullable> votingSessionJurations = [];
+    final List<VotingSessionJurationModel> votingSessionJurations = [];
     for (var jurationBundle in event.jurationsBundles) {
       final juration = jurationBundle.juration;
-      final votingSessionJuration = VotingSessionJurationNullable(
+      final votingSessionJuration = VotingSessionJurationModel(
         id: genUuid(),
         jurationId: juration.id,
         isExcluded: false,
@@ -130,7 +130,7 @@ class OrganizerVotingSettingsPageBloc
     }
     for (var jurationBundle in event.excludedJurationsBundles) {
       final juration = jurationBundle.juration;
-      final votingSessionJuration = VotingSessionJurationNullable(
+      final votingSessionJuration = VotingSessionJurationModel(
         id: genUuid(),
         jurationId: juration.id,
         isExcluded: true,
@@ -139,14 +139,14 @@ class OrganizerVotingSettingsPageBloc
     }
 
     //* Create voting session exclusions
-    final List<VotingSessionExclusionNullable> votingSessionExclusions = [];
+    final List<VotingSessionExclusionModel> votingSessionExclusions = [];
     for (var votingExclusionBundle in event.votingExclusionsBundles) {
       final votingSessionJuration = votingSessionJurations
           .firstWhere((e) => e.jurationId == votingExclusionBundle.jurationBundle.juration.id);
       final votingSessionParticipation = votingSessionParticipations.firstWhere(
           (e) => e.participationId == votingExclusionBundle.participationBundle.participation.id);
       votingSessionExclusions.add(
-        VotingSessionExclusionNullable(
+        VotingSessionExclusionModel(
             votingSessionJurationId: votingSessionJuration.id,
             votingSessionParticipationId: votingSessionParticipation.id),
       );

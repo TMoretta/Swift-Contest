@@ -77,7 +77,7 @@ class Profile extends Equatable {
       ];
 }
 
-class ProfileNullable extends Equatable {
+class ProfileModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? userId;
@@ -86,7 +86,7 @@ class ProfileNullable extends Equatable {
   final ContestRole? prefRole;
   final DateTime? deletedAt;
 
-  const ProfileNullable({
+  const ProfileModel({
     this.id,
     this.createdAt,
     this.userId,

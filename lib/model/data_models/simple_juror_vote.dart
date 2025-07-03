@@ -56,14 +56,14 @@ class SimpleJurorVote extends Equatable {
   List<Object?> get props => [id, createdAt, simpleJurorVotingId, votingFormFieldId, value];
 }
 
-class SimpleJurorVoteNullable extends Equatable {
+class SimpleJurorVoteModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? simpleJurorVotingId;
   final String? votingFormFieldId;
   final double? value;
 
-  const SimpleJurorVoteNullable({
+  const SimpleJurorVoteModel({
     this.id,
     this.createdAt,
     this.simpleJurorVotingId,
@@ -71,8 +71,8 @@ class SimpleJurorVoteNullable extends Equatable {
     this.value,
   });
 
-  factory SimpleJurorVoteNullable.fromJson(Map<String, dynamic> json) {
-    return SimpleJurorVoteNullable(
+  factory SimpleJurorVoteModel.fromJson(Map<String, dynamic> json) {
+    return SimpleJurorVoteModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       simpleJurorVotingId: json['simple_juror_voting_id'] as String?,

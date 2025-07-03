@@ -68,7 +68,7 @@ class Message extends Equatable {
       ];
 }
 
-class MessageNullable extends Equatable {
+class MessageModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? profileId;
@@ -76,7 +76,7 @@ class MessageNullable extends Equatable {
   final String? body;
   final bool? isRead;
 
-  const MessageNullable({
+  const MessageModel({
     this.id,
     this.createdAt,
     this.profileId,
@@ -85,8 +85,8 @@ class MessageNullable extends Equatable {
     this.isRead,
   });
 
-  factory MessageNullable.fromJson(Map<String, dynamic> json) {
-    return MessageNullable(
+  factory MessageModel.fromJson(Map<String, dynamic> json) {
+    return MessageModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at']).toLocal()

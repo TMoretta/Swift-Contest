@@ -34,7 +34,7 @@ class OrganizerContestCreationPageBloc
   ) async {
     emit(OrganizerContestCreationPageState(status: BlocStatus.loading, sourceEvent: event));
 
-    final PlaceNullable place = PlaceNullable(
+    final PlaceModel place = PlaceModel(
       address: event.placeAddress,
       lat: event.placeLat,
       lon: event.placeLon,
@@ -51,7 +51,7 @@ class OrganizerContestCreationPageBloc
       return;
     }
 
-    final ContestNullable contest = ContestNullable(
+    final ContestModel contest = ContestModel(
       organizerId: event.organizerId,
       name: event.name,
       description: event.description,

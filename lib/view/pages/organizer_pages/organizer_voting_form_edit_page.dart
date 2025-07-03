@@ -27,7 +27,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   late final String votingFormId;
   bool isPageInitialized = false;
   bool isEdited = false;
-  final List<VotingFormFieldNullable> updatedFields = [];
+  final List<VotingFormFieldModel> updatedFields = [];
 
   @override
   void initState() {
@@ -124,7 +124,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                     case BlocStatus.success:
                       if (!isPageInitialized) {
                         updatedFields.addAll(state.votingFormBundle!.votingFormFields
-                            .map((e) => VotingFormFieldNullable(
+                            .map((e) => VotingFormFieldModel(
                           name: e.name,
                           minValue: e.minValue,
                           maxValue: e.maxValue,
@@ -175,7 +175,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
             builder: (context) {
               return FloatingActionButton(
                 onPressed: () async {
-                  final VotingFormFieldNullable? newField = await showAddFieldDialog(
+                  final VotingFormFieldModel? newField = await showAddFieldDialog(
                       context: context,
                       votingFormId: votingFormId,
                       orderIndex: updatedFields.length);
@@ -197,7 +197,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   }
 }
 
-Future<VotingFormFieldNullable?> showAddFieldDialog({
+Future<VotingFormFieldModel?> showAddFieldDialog({
   required BuildContext context,
   required String votingFormId,
   required int orderIndex,
@@ -207,7 +207,7 @@ Future<VotingFormFieldNullable?> showAddFieldDialog({
   final minValueController = TextEditingController();
   final maxValueController = TextEditingController();
 
-  return await showDialog<VotingFormFieldNullable?>(
+  return await showDialog<VotingFormFieldModel?>(
     context: context,
     builder: (context) {
       return Form(
@@ -251,7 +251,7 @@ Future<VotingFormFieldNullable?> showAddFieldDialog({
                 if (formKey.currentState?.validate() ?? false) {
                   final minValueDouble = double.parse(minValueController.text.trim());
                   final maxValueDouble = double.parse(maxValueController.text.trim());
-                  final newField = VotingFormFieldNullable(
+                  final newField = VotingFormFieldModel(
                     orderIndex: orderIndex,
                     name: nameController.text.trim(),
                     minValue: minValueDouble,

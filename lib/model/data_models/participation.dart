@@ -76,7 +76,7 @@ class Participation extends Equatable {
       ];
 }
 
-class ParticipationNullable extends Equatable {
+class ParticipationModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? contestId;
@@ -85,7 +85,7 @@ class ParticipationNullable extends Equatable {
   final String? invitationEmail;
   final bool? hasSubmitted;
 
-  const ParticipationNullable({
+  const ParticipationModel({
     this.id,
     this.createdAt,
     this.contestId,
@@ -95,8 +95,8 @@ class ParticipationNullable extends Equatable {
     this.hasSubmitted,
   });
 
-  factory ParticipationNullable.fromJson(Map<String, dynamic> json) {
-    return ParticipationNullable(
+  factory ParticipationModel.fromJson(Map<String, dynamic> json) {
+    return ParticipationModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       contestId: json['contest_id'] as String?,

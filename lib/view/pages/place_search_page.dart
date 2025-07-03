@@ -40,7 +40,7 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
         }
         if (state.status.isSuccess && state.sourceEvent is PlaceSearchPageFetchPlace) {
           final googlePlace = state.googlePlace!;
-          final PlaceNullable place = PlaceNullable(
+          final PlaceModel place = PlaceModel(
               address: googlePlace.address, lat: googlePlace.lat, lon: googlePlace.lon);
           context.pop(place);
         }

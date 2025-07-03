@@ -69,7 +69,7 @@ class Juration extends Equatable {
       ];
 }
 
-class JurationNullable extends Equatable {
+class JurationModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? contestId;
@@ -77,7 +77,7 @@ class JurationNullable extends Equatable {
   final JurorStatus? jurorStatus;
   final String? invitationEmail;
 
-  const JurationNullable({
+  const JurationModel({
     this.id,
     this.createdAt,
     this.contestId,

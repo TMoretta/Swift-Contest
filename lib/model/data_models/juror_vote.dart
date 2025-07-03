@@ -55,14 +55,14 @@ class JurorVote extends Equatable {
   List<Object?> get props => [id, createdAt, jurorVotingId, votingFormFieldId, value];
 }
 
-class JurorVoteNullable extends Equatable {
+class JurorVoteModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? jurorVotingId;
   final String? votingFormFieldId;
   final double? value;
 
-  const JurorVoteNullable({
+  const JurorVoteModel({
     this.id,
     this.createdAt,
     this.jurorVotingId,
@@ -70,8 +70,8 @@ class JurorVoteNullable extends Equatable {
     this.value,
   });
 
-  factory JurorVoteNullable.fromJson(Map<String, dynamic> json) {
-    return JurorVoteNullable(
+  factory JurorVoteModel.fromJson(Map<String, dynamic> json) {
+    return JurorVoteModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       jurorVotingId: json['juror_voting_id'] as String?,

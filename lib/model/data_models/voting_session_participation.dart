@@ -62,7 +62,7 @@ class VotingSessionParticipation extends Equatable {
   List<Object?> get props => [id, createdAt, votingSessionId, participationId,orderIndex, isExcluded];
 }
 
-class VotingSessionParticipationNullable extends Equatable {
+class VotingSessionParticipationModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionId;
@@ -70,7 +70,7 @@ class VotingSessionParticipationNullable extends Equatable {
   final int? orderIndex;
   final bool? isExcluded;
 
-  const VotingSessionParticipationNullable({
+  const VotingSessionParticipationModel({
     this.id,
     this.createdAt,
     this.votingSessionId,
@@ -79,8 +79,8 @@ class VotingSessionParticipationNullable extends Equatable {
     this.isExcluded,
   });
 
-  factory VotingSessionParticipationNullable.fromJson(Map<String, dynamic> json) {
-    return VotingSessionParticipationNullable(
+  factory VotingSessionParticipationModel.fromJson(Map<String, dynamic> json) {
+    return VotingSessionParticipationModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       votingSessionId: json['voting_session_id'] as String?,

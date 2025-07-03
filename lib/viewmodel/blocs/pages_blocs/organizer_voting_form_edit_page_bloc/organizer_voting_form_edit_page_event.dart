@@ -15,7 +15,7 @@ final class OrganizerVotingFormEditPageInit extends OrganizerVotingFormEditPageE
 
 final class OrganizerVotingFormEditPageUpdateVotingForm extends OrganizerVotingFormEditPageEvent {
   final String votingFormId;
-  final List<VotingFormFieldNullable> votingFormFields;
+  final List<VotingFormFieldModel> votingFormFields;
 
   const OrganizerVotingFormEditPageUpdateVotingForm({
     required this.votingFormId,

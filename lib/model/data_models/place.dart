@@ -55,14 +55,14 @@ class Place extends Equatable {
   List<Object?> get props => [id, createdAt, address, lat, lon];
 }
 
-class PlaceNullable extends Equatable {
+class PlaceModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? address;
   final double? lat;
   final double? lon;
 
-  const PlaceNullable({
+  const PlaceModel({
     this.id,
     this.createdAt,
     this.address,
@@ -70,12 +70,10 @@ class PlaceNullable extends Equatable {
     this.lon,
   });
 
-  factory PlaceNullable.fromJson(Map<String, dynamic> json) {
-    return PlaceNullable(
+  factory PlaceModel.fromJson(Map<String, dynamic> json) {
+    return PlaceModel(
       id: json['id'] as String?,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at']).toLocal()
-          : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       address: json['address'] as String?,
       lat: json['lat'] as double?,
       lon: json['lon'] as double?,

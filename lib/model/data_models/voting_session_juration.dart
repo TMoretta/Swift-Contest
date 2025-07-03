@@ -68,7 +68,7 @@ class VotingSessionJuration extends Equatable {
       ];
 }
 
-class VotingSessionJurationNullable extends Equatable {
+class VotingSessionJurationModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionId;
@@ -76,7 +76,7 @@ class VotingSessionJurationNullable extends Equatable {
   final bool? hasSubmitted;
   final bool? isExcluded;
 
-  const VotingSessionJurationNullable({
+  const VotingSessionJurationModel({
     this.id,
     this.createdAt,
     this.votingSessionId,

@@ -37,17 +37,17 @@ class User extends Equatable{
   List<Object?> get props => [id,email];
 }
 
-class UserNullable extends Equatable{
+class UserModel extends Equatable{
   final String? id;
   final String? email;
 
-  const UserNullable({
+  const UserModel({
     this.id,
     this.email,
   });
 
-  factory UserNullable.fromJson(Map<String, dynamic> json) {
-    return UserNullable(
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
       id: json['id'] as String?,
       email: json['email'] as String?,
     );

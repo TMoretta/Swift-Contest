@@ -75,7 +75,7 @@ class Work extends Equatable {
       ];
 }
 
-class WorkNullable extends Equatable {
+class WorkModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? participationId;
@@ -84,7 +84,7 @@ class WorkNullable extends Equatable {
   final List<String>? imagesUrls;
   final String? fileUrl;
 
-  const WorkNullable({
+  const WorkModel({
     this.id,
     this.createdAt,
     this.participationId,

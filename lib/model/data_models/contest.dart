@@ -31,7 +31,7 @@ class Contest extends Equatable {
     required this.contestStatus,
     required this.token,
     required this.votingFormId,
-     this.deletedAt,
+    this.deletedAt,
   });
 
   factory Contest.fromJson(Map<String, dynamic> json) {
@@ -125,7 +125,7 @@ class Contest extends Equatable {
       ];
 }
 
-class ContestNullable extends Equatable {
+class ContestModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? organizerId;
@@ -141,7 +141,7 @@ class ContestNullable extends Equatable {
   final String? votingFormId;
   final DateTime? deletedAt;
 
-  const ContestNullable({
+  const ContestModel({
     this.id,
     this.createdAt,
     this.organizerId,
@@ -158,7 +158,7 @@ class ContestNullable extends Equatable {
     this.deletedAt,
   });
 
-  Map<String,dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'created_at': createdAt?.toUtc().toIso8601String(),
@@ -179,19 +179,19 @@ class ContestNullable extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    createdAt,
-    organizerId,
-    name,
-    description,
-    dateTime,
-    worksSubmissionStart,
-    worksSubmissionEnd,
-    placeId,
-    contestStatus,
-    imagesUrls,
-    token,
-    votingFormId,
-    deletedAt,
-  ];
+        id,
+        createdAt,
+        organizerId,
+        name,
+        description,
+        dateTime,
+        worksSubmissionStart,
+        worksSubmissionEnd,
+        placeId,
+        contestStatus,
+        imagesUrls,
+        token,
+        votingFormId,
+        deletedAt,
+      ];
 }

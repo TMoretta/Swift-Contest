@@ -74,7 +74,7 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final InvitationNullable invitation = InvitationNullable(
+    final InvitationModel invitation = InvitationModel(
       contestId: event.contestId,
       email: event.email,
       memberRole: MemberRole.participant,
@@ -92,7 +92,7 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final InvitationNullable invitation = InvitationNullable(
+    final InvitationModel invitation = InvitationModel(
       contestId: event.contestId,
       email: event.email,
       memberRole: MemberRole.juror,

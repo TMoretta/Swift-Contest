@@ -42,21 +42,21 @@ class SimpleJurorVoting extends Equatable {
       ];
 }
 
-class SimpleJurorVotingNullable extends Equatable {
+class SimpleJurorVotingModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionSimpleJurorId;
   final String? votingSessionParticipationId;
 
-  const SimpleJurorVotingNullable({
+  const SimpleJurorVotingModel({
     this.id,
     this.createdAt,
     this.votingSessionSimpleJurorId,
     this.votingSessionParticipationId,
   });
 
-  factory SimpleJurorVotingNullable.fromJson(Map<String, dynamic> json) {
-    return SimpleJurorVotingNullable(
+  factory SimpleJurorVotingModel.fromJson(Map<String, dynamic> json) {
+    return SimpleJurorVotingModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String).toLocal()

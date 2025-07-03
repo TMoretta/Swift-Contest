@@ -75,7 +75,7 @@ class VotingFormField extends Equatable {
       ];
 }
 
-class VotingFormFieldNullable {
+class VotingFormFieldModel {
   final String? id;
   final DateTime? createdAt;
   final String? votingFormId;
@@ -84,7 +84,7 @@ class VotingFormFieldNullable {
   final double? minValue;
   final double? maxValue;
 
-  VotingFormFieldNullable({
+  VotingFormFieldModel({
     this.id,
     this.createdAt,
     this.votingFormId,
@@ -94,8 +94,8 @@ class VotingFormFieldNullable {
     this.maxValue,
   });
 
-  factory VotingFormFieldNullable.fromJson(Map<String, dynamic> json) {
-    return VotingFormFieldNullable(
+  factory VotingFormFieldModel.fromJson(Map<String, dynamic> json) {
+    return VotingFormFieldModel(
       id: json['id'] as String?,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']).toLocal() : null,
       votingFormId: json['voting_form_id'] as String?,

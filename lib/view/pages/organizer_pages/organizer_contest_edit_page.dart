@@ -261,7 +261,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   prefixIcon: Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
-                      final PlaceNullable? placeNullable = await context.pushNamed(AppRouter.placeSearch);
+                      final PlaceModel? placeNullable = await context.pushNamed(AppRouter.placeSearch);
                       if(placeNullable!=null) {
                         placeController.text = placeNullable.address!;
                         place = place?.copyWith(address: placeNullable.address,lat: placeNullable.lat,lon: placeNullable.lon);

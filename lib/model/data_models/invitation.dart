@@ -63,7 +63,7 @@ class Invitation extends Equatable {
   List<Object?> get props => [id, createdAt, contestId, token, email, memberRole, token];
 }
 
-class InvitationNullable extends Equatable {
+class InvitationModel extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? contestId;
@@ -71,7 +71,7 @@ class InvitationNullable extends Equatable {
   final String? email;
   final MemberRole? memberRole;
 
-  const InvitationNullable({
+  const InvitationModel({
     this.id,
     this.createdAt,
     this.contestId,
