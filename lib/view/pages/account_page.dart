@@ -1,8 +1,10 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/utils/router/app_routes.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -13,6 +15,7 @@ import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
+@RoutePage()
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
 
@@ -41,7 +44,7 @@ class _AccountPageState extends State<AccountPage> {
         }
         if (state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteAccount) {
           showSnackBar(context: context, text: 'Account deleted successfully');
-          context.goNamed(AppRouter.root);
+          context.router.replaceAll([RootRoute()]);
         }
       },
       builder: (context, state) {
@@ -100,11 +103,12 @@ class _AccountPageState extends State<AccountPage> {
                                       'Are you sure you want to delete your account? This action is irreversible'),
                                   actions: [
                                     TextButton(
-                                      onPressed: () => context.pop(),
+                                      onPressed: () =>
+                                          context.router.pop(),
                                       child: Text('Cancel'),
                                     ),
                                     TextButton(
-                                      onPressed: () => context.pop(true),
+                                      onPressed: () => context.router.pop(true),
                                       child: Text('Proceed'),
                                     ),
                                   ],
@@ -155,7 +159,7 @@ void _showEditFullNameDialog({required BuildContext context}) {
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditFullName) {
               showSnackBar(context: context, text: 'Full name updated successfully');
               context.read<AuthBloc>().add(AuthFetchProfile());
-              context.pop();
+              context.router.pop();
             }
           },
           builder: (context, state) {
@@ -174,9 +178,7 @@ void _showEditFullNameDialog({required BuildContext context}) {
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    context.pop();
-                  },
+                  onPressed: () => context.router.pop(),
                   child: Text('Cancel'),
                 ),
                 TextButton(

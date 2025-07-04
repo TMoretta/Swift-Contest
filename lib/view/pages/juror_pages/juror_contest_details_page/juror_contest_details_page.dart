@@ -1,6 +1,7 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_voting_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -11,10 +12,14 @@ import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
+@RoutePage()
 class JurorContestDetailsPage extends StatefulWidget {
   final String contestId;
 
-  const JurorContestDetailsPage({required this.contestId, super.key});
+  const JurorContestDetailsPage({
+    @PathParam('contestId') required this.contestId,
+    super.key,
+  });
 
   @override
   State<JurorContestDetailsPage> createState() => _JurorContestDetailsPageState();
@@ -39,106 +44,112 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
-      listener: (context, state) {
-        if (state.message != null) {
-          showSnackBar(context: context, text: state.message!);
-        }
-        if (state.status.isLoading) {
-          context.showLoader();
-        } else {
-          context.hideLoader();
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          appBar: CustomAppBar(
-            title: 'Joined contest',
-            actions: [
-              Builder(
-                builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case (BlocStatus.loading || BlocStatus.failure):
-                      if (state.sourceEvent is JurorContestDetailsPageInit) {
+    return BlocProvider<JurorContestDetailsPageBloc>(
+      create: (context) => JurorContestDetailsPageBloc(
+        genericRepository: context.read(),
+        jurorRepository: context.read(),
+      ),
+      child: BlocConsumer<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
+        listener: (context, state) {
+          if (state.message != null) {
+            showSnackBar(context: context, text: state.message!);
+          }
+          if (state.status.isLoading) {
+            context.showLoader();
+          } else {
+            context.hideLoader();
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            appBar: CustomAppBar(
+              title: 'Joined contest',
+              actions: [
+                Builder(
+                  builder: (context) {
+                    switch (state.status) {
+                      case BlocStatus.initial:
                         return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      return _Menu(
-                        contestId: contestId,
-                        profileId: profileId,
-                      );
-                  }
-                },
-              ),
-            ],
-          ),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DefaultTabController(
-                length: 2,
-                child: Column(
-                  children: [
-                    SizedBox(height: 16),
-                    Builder(
-                      builder: (context) {
-                        switch (state.status) {
-                          case BlocStatus.initial:
-                            return VoidWidget();
-                          case (BlocStatus.loading || BlocStatus.failure):
-                            if (state.sourceEvent is JurorContestDetailsPageInit) {
-                              return VoidWidget();
-                            } else {
-                              continue successCase;
-                            }
-                          successCase:
-                          case BlocStatus.success:
-                            return Card(
-                              shape:
-                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              elevation: 0.6,
-                              child: TabBar(
-                                labelColor: Theme.of(context).colorScheme.onPrimary,
-                                isScrollable: false,
-                                dividerColor: Colors.transparent,
-                                tabAlignment: TabAlignment.center,
-                                splashBorderRadius: BorderRadius.circular(16),
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicator: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                tabs: [
-                                  Tab(text: 'Details'),
-                                  Tab(text: 'Voting'),
-                                ],
-                              ),
-                            );
+                      case (BlocStatus.loading || BlocStatus.failure):
+                        if (state.sourceEvent is JurorContestDetailsPageInit) {
+                          return VoidWidget();
+                        } else {
+                          continue successCase;
                         }
-                      },
-                    ),
-                    SizedBox(height: 16),
-                    Expanded(
-                      child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
-                          JurorDetailsTab(contestId: contestId),
-                          JurorVotingTab(contestId: contestId),
-                        ],
+                      successCase:
+                      case BlocStatus.success:
+                        return _Menu(
+                          contestId: contestId,
+                          profileId: profileId,
+                        );
+                    }
+                  },
+                ),
+              ],
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: DefaultTabController(
+                  length: 2,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 16),
+                      Builder(
+                        builder: (context) {
+                          switch (state.status) {
+                            case BlocStatus.initial:
+                              return VoidWidget();
+                            case (BlocStatus.loading || BlocStatus.failure):
+                              if (state.sourceEvent is JurorContestDetailsPageInit) {
+                                return VoidWidget();
+                              } else {
+                                continue successCase;
+                              }
+                            successCase:
+                            case BlocStatus.success:
+                              return Card(
+                                shape:
+                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0.6,
+                                child: TabBar(
+                                  labelColor: Theme.of(context).colorScheme.onPrimary,
+                                  isScrollable: false,
+                                  dividerColor: Colors.transparent,
+                                  tabAlignment: TabAlignment.center,
+                                  splashBorderRadius: BorderRadius.circular(16),
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  indicator: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  tabs: [
+                                    Tab(text: 'Details'),
+                                    Tab(text: 'Voting'),
+                                  ],
+                                ),
+                              );
+                          }
+                        },
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: TabBarView(
+                          physics: NeverScrollableScrollPhysics(),
+                          children: [
+                            JurorDetailsTab(contestId: contestId),
+                            JurorVotingTab(contestId: contestId),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -165,9 +176,10 @@ class _Menu extends StatelessWidget {
                   value: jurorContestDetailsPageBloc,
                   child: BlocConsumer<JurorContestDetailsPageBloc, JurorContestDetailsPageState>(
                     listener: (context, state) {
-                      if (state.status.isSuccess && state.sourceEvent is JurorContestDetailsPageLeaveContest) {
-                        context.pop();
-                        context.pop(true);
+                      if (state.status.isSuccess &&
+                          state.sourceEvent is JurorContestDetailsPageLeaveContest) {
+                        context.router.pop();
+                        context.router.pop(true);
                       }
                     },
                     builder: (context, state) {
@@ -178,7 +190,7 @@ class _Menu extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () {
-                              context.pop();
+                              context.router.pop();
                             },
                             child: Text('Cancel'),
                           ),

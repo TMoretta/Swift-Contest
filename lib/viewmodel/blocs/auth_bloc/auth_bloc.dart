@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:swift_contest/model/bundles/user_auth_bundle.dart';
 import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
@@ -17,7 +17,7 @@ part 'auth_event.dart';
 
 part 'auth_state.dart';
 
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
+class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
 
   AuthBloc({
@@ -301,5 +301,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
           (success) => emit(state.copyWith(blocStatus: BlocStatus.success,messages: [])),
     );
+  }
+
+  @override
+  AuthState? fromJson(Map<String, dynamic> json) {
+    try {
+      return AuthState.fromJson(json);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(AuthState state) {
+    try {
+      return state.toJson();
+    } catch (_) {
+      return null;
+    }
   }
 }

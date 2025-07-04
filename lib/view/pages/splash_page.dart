@@ -11,18 +11,18 @@ import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class RootPage extends StatefulWidget {
-  const RootPage({super.key});
+class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
 
   @override
-  State<RootPage> createState() => _RootPageState();
+  State<SplashPage> createState() => _SplashPageState();
 }
 
-class _RootPageState extends State<RootPage> {
+class _SplashPageState extends State<SplashPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthInit(delay: 0));
+    context.read<AuthBloc>().add(AuthInit(delay: 1));
   }
 
   @override

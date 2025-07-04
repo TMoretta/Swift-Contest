@@ -91,7 +91,7 @@ class OrganizerVotingSettingsPageBloc
     final createdAt = now();
     final VotingSessionModel votingSession = VotingSessionModel(
       name:
-          'Voting ${createdAt.day.toString().padLeft(2, '0')}_${createdAt.month.toString().padLeft(2, '0')}_${createdAt.year}',
+          'Voting ${createdAt.day.toString().padLeft(2, '0')}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.year}',
       contestId: event.contestId,
       areSimpleJurorsAllowed: event.areSimpleJurorsAllowed,
       workTimer: event.workTimer,

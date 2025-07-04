@@ -1,8 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
+import 'package:swift_contest/utils/router/app_router.dart';
 import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
 import 'viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -15,14 +16,16 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late GoRouter goRouter;
+ final AppRouter _appRouter = AppRouter();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    //* Get goRouter instance and passing AuthBloc to allow redirect base on auth state
-    goRouter = getGoRouter(authBloc: context.read<AuthBloc>());
-  }
+  // late GoRouter goRouter;
+  //
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   //* Get goRouter instance and passing AuthBloc to allow redirect base on auth state
+  //   goRouter = getGoRouter(authBloc: context.read<AuthBloc>());
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +63,13 @@ class _AppState extends State<App> {
         final appTheme = context.read<AuthBloc>().state.profile?.prefTheme ?? AppTheme.system;
         themeMode = ThemeMode.values.byName(appTheme.name);
         return MaterialApp.router(
+          routerConfig: _appRouter.config(),
           themeMode: themeMode,
           theme: materialTheme.light(),
           darkTheme: materialTheme.dark(),
           // highContrastTheme: materialTheme.lightHighContrast(),
           // highContrastDarkTheme: materialTheme.darkHighContrast(),
           debugShowCheckedModeBanner: false,
-          routerConfig: goRouter,
         );
       },
     );

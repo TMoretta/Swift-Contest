@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +16,10 @@ import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 class ParticipantDetailsTab extends StatefulWidget {
   final String contestId;
 
-  const ParticipantDetailsTab({super.key, required this.contestId});
+  const ParticipantDetailsTab({
+    required this.contestId,
+    super.key,
+  });
 
   @override
   State<ParticipantDetailsTab> createState() => _ParticipantDetailsTabState();
@@ -23,7 +27,7 @@ class ParticipantDetailsTab extends StatefulWidget {
 
 class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
   late String profileId;
-  late String contestId;
+  late final String contestId;
 
   @override
   void initState() {

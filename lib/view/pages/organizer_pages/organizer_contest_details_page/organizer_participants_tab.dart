@@ -1,6 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
@@ -349,7 +350,7 @@ void _showInviteDialog({required BuildContext context, required String contestId
               context
                   .read<OrganizerContestDetailsPageBloc>()
                   .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
-              context.pop();
+              context.router.pop();
             }
           },
           builder: (context, state) {
@@ -374,7 +375,7 @@ void _showInviteDialog({required BuildContext context, required String contestId
               actions: [
                 TextButton(
                   onPressed: () {
-                    context.pop();
+                    context.router.pop();
                   },
                   child: const Text('Cancel'),
                 ),
@@ -416,7 +417,7 @@ void _showRemoveParticipantDialog({
           listener: (context, state) {
             if (state.status.isSuccess &&
                 state.sourceEvent is OrganizerContestDetailsPageRemoveParticipant) {
-              context.pop();
+              context.router.pop();
               showSnackBar(context: context, text: 'Participant removed successfully');
               context
                   .read<OrganizerContestDetailsPageBloc>()
@@ -430,7 +431,7 @@ void _showRemoveParticipantDialog({
               actions: [
                 TextButton(
                   onPressed: () {
-                    context.pop();
+                    context.router.pop();
                   },
                   child: Text('Cancel'),
                 ),
@@ -467,7 +468,7 @@ void _showDeleteInvitationDialog({
           listener: (context, state) {
             if (state.status.isSuccess &&
                 state.sourceEvent is OrganizerContestDetailsPageDeleteInvitation) {
-              context.pop();
+              context.router.pop();
               showSnackBar(context: context, text: 'Invitation deleted successfully');
               context
                   .read<OrganizerContestDetailsPageBloc>()
@@ -481,7 +482,7 @@ void _showDeleteInvitationDialog({
               actions: [
                 TextButton(
                   onPressed: () {
-                    context.pop();
+                    context.router.pop();
                   },
                   child: Text('Cancel'),
                 ),

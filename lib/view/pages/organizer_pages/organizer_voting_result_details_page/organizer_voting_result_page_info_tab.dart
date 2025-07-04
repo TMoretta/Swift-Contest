@@ -1,6 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:intl/intl.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -186,7 +187,7 @@ void _showEditVotingSessionNameDialog({
               context
                   .read<OrganizerVotingResultDetailsPageBloc>()
                   .add(OrganizerVotingResultDetailsPageRefresh(votingSessionId: votingSessionId));
-              context.pop();
+              context.router.pop();
             }
           },
           builder: (context, state) {
@@ -209,7 +210,7 @@ void _showEditVotingSessionNameDialog({
               actions: [
                 TextButton(
                   onPressed: () {
-                    context.pop();
+                    context.router.pop();
                   },
                   child: Text('Cancel'),
                 ),

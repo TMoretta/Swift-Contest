@@ -1,10 +1,11 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
@@ -14,6 +15,7 @@ import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
+@RoutePage()
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -22,13 +24,12 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _AuthState extends State<SettingsPage> {
-
   @override
   void dispose() {
     context.hideLoader();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
@@ -36,13 +37,13 @@ class _AuthState extends State<SettingsPage> {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
-        if(state.blocStatus.isLoading) {
+        if (state.blocStatus.isLoading) {
           context.showLoader();
         } else {
           context.hideLoader();
         }
         if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
-          context.goNamed(AppRouter.root);
+          context.router.replaceAll([RootRoute()]);
         }
       },
       builder: (context, state) {
@@ -78,7 +79,7 @@ class _AuthState extends State<SettingsPage> {
                         //* Account option
                         InkWell(
                           onTap: () {
-                            context.pushNamed(AppRouter.account);
+                            context.router.push(AccountRoute());
                           },
                           child: ListTile(
                             leading: Icon(
@@ -101,8 +102,7 @@ class _AuthState extends State<SettingsPage> {
                         //* Theme option
                         InkWell(
                           onTap: () {
-                            _showEditThemeDialog(
-                                context: context, currentTheme: profile.prefTheme);
+                            _showEditThemeDialog(context: context, currentTheme: profile.prefTheme);
                           },
                           child: ListTile(
                             leading: Icon(
@@ -139,7 +139,7 @@ class _AuthState extends State<SettingsPage> {
                             titleTextStyle: Theme.of(context).textTheme.titleMedium,
                             subtitle: Text(
                               '${profile.prefRole.name[0].toUpperCase()}'
-                                  '${profile.prefRole.name.substring(1).toLowerCase()}',
+                              '${profile.prefRole.name.substring(1).toLowerCase()}',
                             ),
                             subtitleTextStyle: Theme.of(context)
                                 .textTheme
@@ -199,7 +199,7 @@ void _showEditThemeDialog({
                 if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditPrefTheme) {
                   showSnackBar(context: context, text: 'Theme changed successfully');
                   context.read<AuthBloc>().add(AuthFetchProfile());
-                  context.pop();
+                  context.router.pop();
                 }
               },
               builder: (context, state) {
@@ -215,7 +215,7 @@ void _showEditThemeDialog({
                         value: AppTheme.system,
                         onChanged: (value) {
                           setState(
-                                () => selectedTheme = value!,
+                            () => selectedTheme = value!,
                           );
                         },
                       ),
@@ -225,7 +225,7 @@ void _showEditThemeDialog({
                         value: AppTheme.light,
                         onChanged: (value) {
                           setState(
-                                () => selectedTheme = value!,
+                            () => selectedTheme = value!,
                           );
                         },
                       ),
@@ -235,7 +235,7 @@ void _showEditThemeDialog({
                         value: AppTheme.dark,
                         onChanged: (value) {
                           setState(
-                                () => selectedTheme = value!,
+                            () => selectedTheme = value!,
                           );
                         },
                       ),
@@ -243,7 +243,7 @@ void _showEditThemeDialog({
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () => context.router.pop(),
                       child: Text('Cancel'),
                     ),
                     TextButton(
@@ -282,7 +282,7 @@ void _showEditPrefRoleDialog({
                 if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditPrefRole) {
                   showSnackBar(context: context, text: 'Preferred role changed successfully');
                   context.read<AuthBloc>().add(AuthFetchProfile());
-                  context.pop();
+                  context.router.pop();
                 }
               },
               builder: (context, state) {
@@ -298,7 +298,7 @@ void _showEditPrefRoleDialog({
                         value: ContestRole.organizer,
                         onChanged: (value) {
                           setState(
-                                () => selectedRole = value!,
+                            () => selectedRole = value!,
                           );
                         },
                       ),
@@ -308,7 +308,7 @@ void _showEditPrefRoleDialog({
                         value: ContestRole.participant,
                         onChanged: (value) {
                           setState(
-                                () => selectedRole = value!,
+                            () => selectedRole = value!,
                           );
                         },
                       ),
@@ -318,7 +318,7 @@ void _showEditPrefRoleDialog({
                         value: ContestRole.juror,
                         onChanged: (value) {
                           setState(
-                                () => selectedRole = value!,
+                            () => selectedRole = value!,
                           );
                         },
                       ),
@@ -326,7 +326,7 @@ void _showEditPrefRoleDialog({
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () => context.router.pop(),
                       child: Text('Cancel'),
                     ),
                     TextButton(

@@ -1,8 +1,9 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -25,6 +26,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
   Widget build(BuildContext context) {
     final contestRole = widget.contestRole;
     return AppBar(
+      automaticallyImplyLeading: !kIsWeb,
       title: FittedBox(
         fit: BoxFit.scaleDown,
         child: Row(
@@ -82,7 +84,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                 final messagesCount = state.messages!.where((e) => !e.isRead).length;
                 return IconButton(
                   onPressed: () {
-                    context.pushNamed(AppRouter.inbox);
+                    context.router.push(InboxRoute());
                   },
                   icon: Badge.count(
                     count: messagesCount,
@@ -99,7 +101,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
         ),
         IconButton(
           onPressed: () {
-            context.pushNamed(AppRouter.settings);
+            context.router.push(SettingsRoute());
           },
           icon: Icon(Icons.more_vert),
           color: Theme.of(context).colorScheme.secondary,
@@ -162,7 +164,7 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
             actions: [
               TextButton(
                 onPressed: () {
-                  context.pop();
+                  context.router.pop();
                 },
                 child: const Text('Cancel'),
               ),
@@ -170,16 +172,16 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                 onPressed: () {
                   switch (selectedRole) {
                     case ContestRole.organizer:
-                      context.replaceNamed(AppRouter.organizerHome);
+                      context.router.replace(OrganizerHomeRoute());
                       break;
                     case ContestRole.participant:
-                      context.replaceNamed(AppRouter.participantHome);
+                      context.router.replace(ParticipantHomeRoute());
                       break;
                     case ContestRole.juror:
-                      context.replaceNamed(AppRouter.jurorHome);
+                      context.router.replace(JurorHomeRoute());
                       break;
                   }
-                  context.pop();
+                  context.router.pop();
                 },
                 child: const Text('Proceed'),
               ),

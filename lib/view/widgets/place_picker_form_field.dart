@@ -182,7 +182,7 @@ class PlacePickerFormField extends StatelessWidget {
 //             actions: [
 //               TextButton(
 //                 onPressed: () {
-//                   context.pop();
+//                   context.router.pop();
 //                 },
 //                 child: const Text('Cancel'),
 //               ),

@@ -40,6 +40,26 @@ final class AuthState extends Equatable {
     );
   }
 
+  factory AuthState.fromJson(Map<String, dynamic> json) {
+    return AuthState(
+      blocStatus: BlocStatus.values.byName(json['bloc_status']),
+      authStatus: AuthStatus.values.byName(json['auth_status']),
+      user: (json['user'] !=null) ? User.fromJson(json['user']) : null,
+      profile: (json['profile'] !=null) ? Profile.fromJson(json['profile']) : null,
+      messages:(json['messages'] !=null) ? (json['messages'] as List<dynamic>).map((e) => Message.fromJson(e)).toList(growable: false) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'bloc_status': blocStatus.name,
+      'auth_status': authStatus.name,
+      'user': user?.toJson(),
+      'profile': profile?.toJson(),
+      'messages': messages?.map((e) => e.toJson()).toList(growable: false),
+    };
+  }
+
   @override
   List<Object?> get props => [
         authStatus,

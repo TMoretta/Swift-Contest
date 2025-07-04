@@ -1,6 +1,7 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -11,6 +12,7 @@ import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
+@RoutePage()
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
 
@@ -126,14 +128,10 @@ class _InboxPageState extends State<InboxPage> {
                                                 'Are you sure you want to delete this message?'),
                                             actions: [
                                               TextButton(
-                                                  onPressed: () {
-                                                    context.pop();
-                                                  },
+                                                  onPressed: () => context.router.pop(),
                                                   child: Text('Cancel')),
                                               TextButton(
-                                                  onPressed: () {
-                                                    context.pop(true);
-                                                  },
+                                                  onPressed: () => context.router.pop(true),
                                                   child: Text('Proceed')),
                                             ],
                                           );
@@ -172,7 +170,7 @@ void _showDeleteAllMessagesDialog({required BuildContext context, required Strin
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteAllMessages) {
-              context.pop();
+              context.router.pop();
             }
           },
           builder: (context, state) {
@@ -181,9 +179,7 @@ void _showDeleteAllMessagesDialog({required BuildContext context, required Strin
               content: Text('Are you sure you want to delete all messages?'),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    context.pop();
-                  },
+                  onPressed: () => context.router.pop(),
                   child: Text('Cancel'),
                 ),
                 TextButton(

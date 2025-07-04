@@ -1,13 +1,15 @@
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/utils/router/app_routes.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
@@ -18,9 +20,9 @@ import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_creation_page_bloc/organizer_contest_creation_page_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/widgets_blocs/place_picker_form_field_bloc/place_picker_form_field_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
+@RoutePage()
 class OrganizerContestCreationPage extends StatefulWidget {
   const OrganizerContestCreationPage({super.key});
 
@@ -64,89 +66,96 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
-      listener: (context, state) {
-        if (state.message != null) {
-          showSnackBar(context: context, text: state.message!);
-        }
-        if (state.status.isLoading) {
-          context.showLoader();
-        } else {
-          context.hideLoader();
-        }
-        if (state.status.isSuccess &&
-            state.sourceEvent is OrganizerContestCreationPageCreateContest) {
-          showSnackBar(context: context, text: 'Contest created successfully');
-          context.pop(true);
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          appBar: CustomAppBar(title: 'Contest Creation'),
-          body: Builder(
-            builder: (context) {
-              return Stepper(
-                type: StepperType.horizontal,
-                elevation: 0,
-                steps: getSteps(),
-                currentStep: currentStep,
-                onStepContinue: () {
-                  final isLastStep = (currentStep == getSteps().length - 1);
-                  if (formKeys[currentStep].currentState?.validate() ?? false) {
-                    if (isLastStep) {
-                      final name = nameController.text;
-                      final description = descriptionController.text;
-                      final dateTime =
-                      DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
-                      context.read<OrganizerContestCreationPageBloc>().add(
-                        OrganizerContestCreationPageCreateContest(
-                          name: name,
-                          description: description,
-                          organizerId: profileId,
-                          placeAddress: place!.address!,
-                          placeLat: place!.lat!,
-                          placeLon: place!.lon!,
-                          dateTime: dateTime,
-                          worksSubmissionStart: worksSubmissionStart!,
-                          worksSubmissionEnd: worksSubmissionEnd!,
-                          images: images,
-                        ),
-                      );
-                    } else {
-                      setState(() => ++currentStep);
+    return BlocProvider<OrganizerContestCreationPageBloc>(
+      create: (context) => OrganizerContestCreationPageBloc(
+        storageRepository: context.read(),
+        organizerRepository: context.read(),
+      ),
+      child: BlocConsumer<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
+        listener: (context, state) {
+          if (state.message != null) {
+            showSnackBar(context: context, text: state.message!);
+          }
+          if (state.status.isLoading) {
+            context.showLoader();
+          } else {
+            context.hideLoader();
+          }
+          if (state.status.isSuccess &&
+              state.sourceEvent is OrganizerContestCreationPageCreateContest) {
+            showSnackBar(context: context, text: 'Contest created successfully');
+            context.router.pop(true);
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            appBar: CustomAppBar(title: 'Contest Creation'),
+            body: Builder(
+              builder: (context) {
+                return Stepper(
+                  type: StepperType.horizontal,
+                  elevation: 0,
+                  steps: getSteps(),
+                  currentStep: currentStep,
+                  onStepContinue: () {
+                    final isLastStep = (currentStep == getSteps().length - 1);
+                    if (formKeys[currentStep].currentState?.validate() ?? false) {
+                      if (isLastStep) {
+                        final name = nameController.text;
+                        final description = descriptionController.text;
+                        final dateTime =
+                            DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
+                        context.read<OrganizerContestCreationPageBloc>().add(
+                              OrganizerContestCreationPageCreateContest(
+                                name: name,
+                                description: description,
+                                organizerId: profileId,
+                                placeAddress: place!.address!,
+                                placeLat: place!.lat!,
+                                placeLon: place!.lon!,
+                                dateTime: dateTime,
+                                worksSubmissionStart: worksSubmissionStart!,
+                                worksSubmissionEnd: worksSubmissionEnd!,
+                                images: images,
+                              ),
+                            );
+                      } else {
+                        setState(() => ++currentStep);
+                      }
                     }
-                  }
-                },
-                onStepCancel: () {
-                  (currentStep == 0) ? null : setState(() => --currentStep);
-                },
-                controlsBuilder: (context, details) {
-                  final isLastStep = details.currentStep == getSteps().length - 1;
-                  return Container(
-                    margin: EdgeInsets.only(top: 20),
-                    child: Row(
-                      mainAxisAlignment:
-                      (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
-                      spacing: 12,
-                      children: [
-                        if (details.currentStep != 0)
+                  },
+                  onStepCancel: () {
+                    (currentStep == 0) ? null : setState(() => --currentStep);
+                  },
+                  controlsBuilder: (context, details) {
+                    final isLastStep = details.currentStep == getSteps().length - 1;
+                    return Container(
+                      margin: EdgeInsets.only(top: 20),
+                      child: Row(
+                        mainAxisAlignment: (currentStep == 0)
+                            ? MainAxisAlignment.end
+                            : MainAxisAlignment.spaceBetween,
+                        spacing: 12,
+                        children: [
+                          if (details.currentStep != 0)
+                            ElevatedButton(
+                              onPressed: details.onStepCancel,
+                              child: Text('Back'),
+                            ),
                           ElevatedButton(
-                            onPressed: details.onStepCancel,
-                            child: Text('Back'),
+                            onPressed: details.onStepContinue,
+                            child: isLastStep ? Text('Create') : Text('Next'),
                           ),
-                        ElevatedButton(
-                          onPressed: details.onStepContinue,
-                          child: isLastStep ? Text('Create') : Text('Next'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        );
-      },
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -201,8 +210,9 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   prefixIcon: Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
-                      final PlaceModel? placeNullable = await context.pushNamed(AppRouter.placeSearch);
-                      if(placeNullable!=null) {
+                      final PlaceModel? placeNullable =
+                          await context.router.push(PlaceSearchRoute());
+                      if (placeNullable != null) {
                         placeController.text = placeNullable.address!;
                         place = placeNullable;
                       }
@@ -351,13 +361,13 @@ Future<bool?> showImagesDialog({required BuildContext context}) async {
       actions: [
         TextButton(
           onPressed: () {
-            context.pop();
+            context.router.pop();
           },
           child: const Text('Cancel'),
         ),
         TextButton(
           onPressed: () {
-            context.pop(true);
+            context.router.pop(true);
           },
           child: const Text('Ok'),
         ),

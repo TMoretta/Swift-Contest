@@ -1,14 +1,15 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 
 class JurorVotingTab extends StatefulWidget {
   final String contestId;
@@ -85,9 +86,9 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                         if (state.contestDetailsBundle!.liveVotingSession == null) {
                           return ListViewWithCentralLabel(label: 'No voting session live');
                         }
-                        final isExcludedFromTheSession = state.votingSessionProcedureBundle!
-                                    .excludedVotingSessionJurationsBundles
-                                    .any((e) => e.jurationBundle.juror.id == profileId);
+                        final isExcludedFromTheSession = state
+                            .votingSessionProcedureBundle!.excludedVotingSessionJurationsBundles
+                            .any((e) => e.jurationBundle.juror.id == profileId);
                         if (isExcludedFromTheSession) {
                           return ListViewWithCentralLabel(
                               label: 'Voting session is live, but the '
@@ -128,8 +129,8 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                   onPressed: (state.contestDetailsBundle!.liveVotingSession != null &&
                           !isExcludedFromTheSession)
                       ? () async {
-                          final bool? res = await context.pushNamed(AppRouter.jurorVotingProcedure,
-                              extra: state.contestDetailsBundle!.liveVotingSession!.id);
+                          final bool? res = await context.router.push(JurorVotingProcedureRoute(
+                              votingSessionId: state.contestDetailsBundle!.liveVotingSession!.id));
                           if (res == true) {
                             if (context.mounted) {
                               context
