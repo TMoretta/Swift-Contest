@@ -11,8 +11,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i28;
 import 'package:flutter/cupertino.dart' as _i31;
-import 'package:flutter/foundation.dart' as _i30;
-import 'package:flutter/material.dart' as _i29;
+import 'package:flutter/foundation.dart' as _i29;
+import 'package:flutter/material.dart' as _i30;
 import 'package:swift_contest/view/pages/account_page.dart' as _i1;
 import 'package:swift_contest/view/pages/inbox_page.dart' as _i2;
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_contest_details_page.dart'
@@ -169,7 +169,7 @@ class JurorVotingProcedureRoute
     extends _i28.PageRouteInfo<JurorVotingProcedureRouteArgs> {
   JurorVotingProcedureRoute({
     required String votingSessionId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           JurorVotingProcedureRoute.name,
@@ -208,7 +208,7 @@ class JurorVotingProcedureRouteArgs {
 
   final String votingSessionId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -248,7 +248,7 @@ class OrganizerContestDetailsRoute
     extends _i28.PageRouteInfo<OrganizerContestDetailsRouteArgs> {
   OrganizerContestDetailsRoute({
     required String contestId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerContestDetailsRoute.name,
@@ -282,7 +282,7 @@ class OrganizerContestDetailsRouteArgs {
 
   final String contestId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -306,7 +306,7 @@ class OrganizerContestEditRoute
     extends _i28.PageRouteInfo<OrganizerContestEditRouteArgs> {
   OrganizerContestEditRoute({
     required String contestId,
-    _i30.Key? key,
+    _i29.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerContestEditRoute.name,
@@ -339,7 +339,7 @@ class OrganizerContestEditRouteArgs {
 
   final String contestId;
 
-  final _i30.Key? key;
+  final _i29.Key? key;
 
   @override
   String toString() {
@@ -379,7 +379,7 @@ class OrganizerVotingFormEditRoute
     extends _i28.PageRouteInfo<OrganizerVotingFormEditRouteArgs> {
   OrganizerVotingFormEditRoute({
     required String votingFormId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingFormEditRoute.name,
@@ -418,7 +418,7 @@ class OrganizerVotingFormEditRouteArgs {
 
   final String votingFormId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -442,7 +442,7 @@ class OrganizerVotingProcedureRoute
     extends _i28.PageRouteInfo<OrganizerVotingProcedureRouteArgs> {
   OrganizerVotingProcedureRoute({
     required String votingSessionId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingProcedureRoute.name,
@@ -481,7 +481,7 @@ class OrganizerVotingProcedureRouteArgs {
 
   final String votingSessionId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -505,7 +505,7 @@ class OrganizerVotingResultDetailsRoute
     extends _i28.PageRouteInfo<OrganizerVotingResultDetailsRouteArgs> {
   OrganizerVotingResultDetailsRoute({
     required String votingSessionId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingResultDetailsRoute.name,
@@ -544,7 +544,7 @@ class OrganizerVotingResultDetailsRouteArgs {
 
   final String votingSessionId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -568,7 +568,7 @@ class OrganizerVotingResultExportRoute
     extends _i28.PageRouteInfo<OrganizerVotingResultExportRouteArgs> {
   OrganizerVotingResultExportRoute({
     required String votingSessionId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingResultExportRoute.name,
@@ -607,7 +607,7 @@ class OrganizerVotingResultExportRouteArgs {
 
   final String votingSessionId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -689,7 +689,7 @@ class OrganizerWorkDetailsRoute
     extends _i28.PageRouteInfo<OrganizerWorkDetailsRouteArgs> {
   OrganizerWorkDetailsRoute({
     required String participationId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerWorkDetailsRoute.name,
@@ -728,7 +728,7 @@ class OrganizerWorkDetailsRouteArgs {
 
   final String participationId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -752,7 +752,7 @@ class ParticipantContestDetailsRoute
     extends _i28.PageRouteInfo<ParticipantContestDetailsRouteArgs> {
   ParticipantContestDetailsRoute({
     required String contestId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           ParticipantContestDetailsRoute.name,
@@ -788,7 +788,7 @@ class ParticipantContestDetailsRouteArgs {
 
   final String contestId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -828,7 +828,7 @@ class ParticipantWorkSubmitRoute
     extends _i28.PageRouteInfo<ParticipantWorkSubmitRouteArgs> {
   ParticipantWorkSubmitRoute({
     required String contestId,
-    _i30.Key? key,
+    _i29.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           ParticipantWorkSubmitRoute.name,
@@ -861,7 +861,7 @@ class ParticipantWorkSubmitRouteArgs {
 
   final String contestId;
 
-  final _i30.Key? key;
+  final _i29.Key? key;
 
   @override
   String toString() {
@@ -948,7 +948,7 @@ class SignInRoute extends _i28.PageRouteInfo<void> {
 class SignInVerifyRoute extends _i28.PageRouteInfo<SignInVerifyRouteArgs> {
   SignInVerifyRoute({
     required String email,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           SignInVerifyRoute.name,
@@ -977,7 +977,7 @@ class SignInVerifyRouteArgs {
 
   final String email;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {
@@ -1016,7 +1016,7 @@ class SignUpRoute extends _i28.PageRouteInfo<void> {
 class SignUpVerifyRoute extends _i28.PageRouteInfo<SignUpVerifyRouteArgs> {
   SignUpVerifyRoute({
     required String email,
-    _i30.Key? key,
+    _i29.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           SignUpVerifyRoute.name,
@@ -1045,7 +1045,7 @@ class SignUpVerifyRouteArgs {
 
   final String email;
 
-  final _i30.Key? key;
+  final _i29.Key? key;
 
   @override
   String toString() {
@@ -1070,7 +1070,7 @@ class SimpleJurorVotingProcedureRoute
   SimpleJurorVotingProcedureRoute({
     required String simpleJurorId,
     required String votingSessionId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           SimpleJurorVotingProcedureRoute.name,
@@ -1118,7 +1118,7 @@ class SimpleJurorVotingProcedureRouteArgs {
 
   final String votingSessionId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {

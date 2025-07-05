@@ -3,10 +3,10 @@ import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/work.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 
-class WorkDetailsView extends StatelessWidget {
+class VotingProcedureWorkDetailsView extends StatelessWidget {
   final Work work;
   final Profile participant;
-  const WorkDetailsView({required this.work, required this.participant, super.key});
+  const VotingProcedureWorkDetailsView({required this.work, required this.participant, super.key});
 
   @override
   Widget build(BuildContext context) {

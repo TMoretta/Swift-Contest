@@ -114,106 +114,106 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
-                                          OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                      OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: (participationsWithWorksBundles.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No work submitted yet')
                                       : ListView.builder(
-                                          itemCount: participationsWithWorksBundles.length,
-                                          itemBuilder: (context, index) {
-                                            final participationBundle =
-                                                participationsWithWorksBundles[index];
-                                            return Card(
-                                              clipBehavior: Clip.hardEdge,
-                                              elevation: 0.2,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12)),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  context.router.push(OrganizerWorkDetailsRoute(
-                                                      participationId:
-                                                          participationBundle.participation.id));
-                                                },
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  spacing: 16,
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 65,
-                                                      height: 65,
-                                                      child: ClipRRect(
-                                                        borderRadius: BorderRadius.all(
-                                                          Radius.circular(12),
-                                                        ),
-                                                        clipBehavior: Clip.hardEdge,
-                                                        child: Image.network(
-                                                          participationBundle.work!.imagesUrls[0],
-                                                          width: 65,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder:
-                                                              (context, error, stackTrace) {
-                                                            return Image.asset(
-                                                              'assets/images/image_not_found.jpg',
-                                                              width: 65,
-                                                              fit: BoxFit.cover,
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(vertical: 8),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment.start,
-                                                          spacing: 4,
-                                                          children: [
-                                                            Text(
-                                                              participationBundle.work!.name,
-                                                              style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight: FontWeight.w500),
-                                                            ),
-                                                            Text(participationBundle
-                                                                .participant.fullName),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
+                                    itemCount: participationsWithWorksBundles.length,
+                                    itemBuilder: (context, index) {
+                                      final participationBundle =
+                                      participationsWithWorksBundles[index];
+                                      return Card(
+                                        clipBehavior: Clip.hardEdge,
+                                        elevation: 0.2,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12)),
+                                        child: InkWell(
+                                          onTap: () {
+                                            context.router.push(OrganizerWorkDetailsRoute(
+                                                participationId:
+                                                participationBundle.participation.id));
+                                          },
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            spacing: 16,
+                                            children: [
+                                              SizedBox(
+                                                width: 65,
+                                                height: 65,
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.all(
+                                                    Radius.circular(12),
+                                                  ),
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: Image.network(
+                                                    participationBundle.work!.imagesUrls[0],
+                                                    width: 65,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder:
+                                                        (context, error, stackTrace) {
+                                                      return Image.asset(
+                                                        'assets/images/image_not_found.jpg',
+                                                        width: 65,
+                                                        fit: BoxFit.cover,
+                                                      );
+                                                    },
+                                                  ),
                                                 ),
                                               ),
-                                            );
-                                          },
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                  const EdgeInsets.symmetric(vertical: 8),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                    spacing: 4,
+                                                    children: [
+                                                      Text(
+                                                        participationBundle.work!.name,
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.w500),
+                                                      ),
+                                                      Text(participationBundle
+                                                          .participant.fullName),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                         ),
+                                      );
+                                    },
+                                  ),
                                 ),
                                 //* Attended
                                 RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
-                                          OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                      OrganizerContestDetailsPageRefresh(contestId: contestId)),
                                   child: (participationsWithoutWorksBundles.isEmpty)
                                       ? ListViewWithCentralLabel(
-                                          label: 'No work attended from joined participants')
+                                      label: 'No work attended from joined participants')
                                       : ListView.builder(
-                                          itemCount: participationsWithWorksBundles.length,
-                                          itemBuilder: (context, index) {
-                                            final participationBundle =
-                                                participationsWithoutWorksBundles[index];
-                                            return Card(
-                                              elevation: 0.2,
-                                              child: ListTile(
-                                                title:
-                                                    Text(participationBundle.participant.fullName),
-                                                subtitle: Text(participationBundle
-                                                    .participation.invitationEmail),
-                                              ),
-                                            );
-                                          },
+                                    itemCount: participationsWithWorksBundles.length,
+                                    itemBuilder: (context, index) {
+                                      final participationBundle =
+                                      participationsWithoutWorksBundles[index];
+                                      return Card(
+                                        elevation: 0.2,
+                                        child: ListTile(
+                                          title:
+                                          Text(participationBundle.participant.fullName),
+                                          subtitle: Text(participationBundle
+                                              .participation.invitationEmail),
                                         ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ],
                             ),

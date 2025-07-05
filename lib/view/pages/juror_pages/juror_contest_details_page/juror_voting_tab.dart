@@ -89,13 +89,14 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                         final isExcludedFromTheSession = state
                             .votingSessionProcedureBundle!.excludedVotingSessionJurationsBundles
                             .any((e) => e.jurationBundle.juror.id == profileId);
+
                         if (isExcludedFromTheSession) {
                           return ListViewWithCentralLabel(
                               label: 'Voting session is live, but the '
                                   'organizer excluded you from voting to this session');
-                        } else {
-                          return ListViewWithCentralLabel(label: 'Voting session is live');
                         }
+
+                        return ListViewWithCentralLabel(label: 'Voting session is live');
                       },
                     ),
                   );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/utils/router/app_routes.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -26,7 +27,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
   Widget build(BuildContext context) {
     final contestRole = widget.contestRole;
     return AppBar(
-      automaticallyImplyLeading: !kIsWeb,
+      // automaticallyImplyLeading: !kIsWeb,
       title: FittedBox(
         fit: BoxFit.scaleDown,
         child: Row(

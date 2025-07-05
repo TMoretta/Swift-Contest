@@ -12,7 +12,7 @@ import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/view/widgets/work_details_view.dart';
+import 'package:swift_contest/view/widgets/voting_procedure_work_details_view.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_procedure_page_bloc/organizer_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -185,7 +185,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                         ),
                                       ),
                                       Divider(height: 24),
-                                      WorkDetailsView(
+                                      VotingProcedureWorkDetailsView(
                                         work: currentWork,
                                         participant: currentParticipant,
                                       ),

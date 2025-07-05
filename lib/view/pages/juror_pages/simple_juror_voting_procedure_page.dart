@@ -1,21 +1,18 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
 import 'package:swift_contest/model/enums/voting_session_status.dart';
-import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/custom_timer_countdown.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/view/widgets/work_details_view.dart';
+import 'package:swift_contest/view/widgets/voting_procedure_form_and_work_view.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/simple_juror_voting_procedure_page_bloc/simple_juror_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -40,7 +37,9 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
   late final String votingSessionId;
   late final String simpleJurorId;
   final reviewFormKey = GlobalKey<FormState>();
-  Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap = {};
+  final List<VotingProcedureFormAndWorkView> votingFormAndWorkViews = [];
+  final Map<VotingSessionParticipation, Map<VotingFormField, TextEditingController>> votesMap = {};
+  bool isPageInitialized = false;
 
   @override
   void initState() {
@@ -58,6 +57,12 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
   @override
   void dispose() {
     context.hideLoader();
+    votesMap.forEach((key, value) {
+      value.forEach((key, value) {
+        value.dispose();
+      });
+    });
+    reviewFormKey.currentState?.dispose();
     super.dispose();
   }
 
@@ -91,12 +96,12 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
             showSnackBar(
                 context: context,
                 text: 'Voting session procedure has been cancelled by the organizer');
-            context.router.pop(true);
+            context.router.pop();
           }
           if (state.status.isSuccess &&
               state.sourceEvent is SimpleJurorVotingProcedurePageSubmitVotes) {
             showSnackBar(context: context, text: 'Votes submitted successfully');
-            context.router.pop(true);
+            context.router.pop();
           }
         },
         builder: (context, state) {
@@ -141,6 +146,29 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                         final votingFormFields =
                             state.votingSessionProcedureBundle!.votingFormBundle.votingFormFields;
 
+                        if (!isPageInitialized) {
+                          final votingSessionParticipationsBundles =
+                              votingSessionProcedureBundle.votingSessionParticipationsBundles;
+                          for (var votingSessionParticipationBundle
+                              in votingSessionParticipationsBundles) {
+                            final Map<VotingFormField, TextEditingController> fieldsControllers =
+                                {};
+                            for (var votingFormField in votingFormFields) {
+                              fieldsControllers.addAll({votingFormField: TextEditingController()});
+                            }
+                            final votingSessionParticipation =
+                                votingSessionParticipationBundle.votingSessionParticipation;
+                            votesMap.addAll({votingSessionParticipation: fieldsControllers});
+                            votingFormAndWorkViews.add(VotingProcedureFormAndWorkView(
+                              isExcludedFromParticipant: false,
+                              votingSessionParticipationBundle: votingSessionParticipationBundle,
+                              votingFormFields: votingFormFields,
+                              votesMap: votesMap,
+                            ));
+                          }
+                          isPageInitialized = true;
+                        }
+
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<SimpleJurorVotingProcedurePageBloc>()
@@ -158,74 +186,18 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                                   final currentStepDeadline = votingSession.currentStepDeadline!;
                                   final currentParticipantIndex =
                                       votingSession.currentParticipantIndex!;
-                                  final currentParticipant = votingSessionProcedureBundle
-                                      .votingSessionParticipationsBundles[currentParticipantIndex]
-                                      .participationBundle
-                                      .participant;
-                                  final currentWork = votingSessionProcedureBundle
-                                      .votingSessionParticipationsBundles[currentParticipantIndex]
-                                      .participationBundle
-                                      .work!;
-                                  final votingSessionParticipation = votingSessionProcedureBundle
-                                      .votingSessionParticipationsBundles[currentParticipantIndex]
-                                      .votingSessionParticipation;
 
                                   return ListView(
                                     children: [
                                       SizedBox(height: 16),
-                                      CustomTimerCountdown(
-                                        label: 'Voting phase',
-                                        endTime: currentStepDeadline,
+                                      Center(
+                                        child: CustomTimerCountdown(
+                                          label: 'Voting phase',
+                                          endTime: currentStepDeadline,
+                                        ),
                                       ),
                                       Divider(height: 24),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Form',
-                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                                color: Theme.of(context).colorScheme.primary),
-                                          ),
-                                          SizedBox(height: 12),
-                                          for (var votingFormField in votingFormFields)
-                                            Builder(
-                                              builder: (context) {
-                                                if (votesPerParticipantMap[
-                                                        votingSessionParticipation] ==
-                                                    null) {
-                                                  votesPerParticipantMap
-                                                      .addAll({votingSessionParticipation: {}});
-                                                }
-                                                return CustomTextFormField(
-                                                  borderType: InputBorderType.outlined,
-                                                  label: votingFormField.name,
-                                                  suffixIcon: Row(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      SizedBox(width: 12),
-                                                      Text(
-                                                        '${prettyDouble(votingFormField.minValue)} - ${prettyDouble(votingFormField.maxValue)}',
-                                                        // textAlign: TextAlign.center,
-                                                        style:
-                                                            Theme.of(context).textTheme.labelLarge,
-                                                      ),
-                                                      SizedBox(width: 12),
-                                                    ],
-                                                  ),
-                                                  onChanged: (value) => votesPerParticipantMap[
-                                                          votingSessionParticipation]!
-                                                      .addAll(
-                                                          {votingFormField: double.parse(value)}),
-                                                  keyboardType: TextInputType.number,
-                                                );
-                                              },
-                                            ),
-                                        ],
-                                      ),
-                                      Divider(height: 32),
-                                      WorkDetailsView(
-                                          work: currentWork, participant: currentParticipant),
+                                      votingFormAndWorkViews[currentParticipantIndex],
                                       SizedBox(height: 72),
                                     ],
                                   );
@@ -239,88 +211,27 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                                   );
                                 case VotingSessionStatus.review:
                                   final currentStepDeadline = votingSession.currentStepDeadline!;
-                                  final votingSessionParticipationsBundles = state
-                                      .votingSessionProcedureBundle!
-                                      .includedVotingSessionParticipationsBundles;
 
                                   return ListView(
                                     children: [
-                                      CustomTimerCountdown(
-                                        label: 'Review',
-                                        endTime: currentStepDeadline,
+                                      SizedBox(height: 16),
+                                      Center(
+                                        child: CustomTimerCountdown(
+                                          label: 'Review',
+                                          endTime: currentStepDeadline,
+                                        ),
                                       ),
                                       Divider(height: 24),
                                       Form(
                                         key: reviewFormKey,
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            for (var votingSessionParticipationBundle
-                                                in votingSessionParticipationsBundles) ...[
-                                              Text(
-                                                '${votingSessionParticipationBundle.participationBundle.work!.name} '
-                                                '(${votingSessionParticipationBundle.participationBundle.participant.fullName})',
-                                                style: Theme.of(context).textTheme.titleMedium,
-                                              ),
-                                              SizedBox(height: 12),
-
-                                              // ---- INIZIO annidamento ----
-                                              for (var votingFormField in votingFormFields) ...[
-                                                Builder(builder: (context) {
-                                                  return CustomTextFormField(
-                                                    borderType: InputBorderType.outlined,
-                                                    label: votingFormField.name,
-                                                    suffixIcon: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        SizedBox(width: 12),
-                                                        Text(
-                                                          '${prettyDouble(votingFormField.minValue)} - ${prettyDouble(votingFormField.maxValue)}',
-                                                          // textAlign: TextAlign.center,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .labelLarge,
-                                                        ),
-                                                        SizedBox(width: 12),
-                                                      ],
-                                                    ),
-                                                    keyboardType: TextInputType.number,
-                                                    validator: (value) {
-                                                      if (value == null || value.trim().isEmpty) {
-                                                        return 'Required';
-                                                      }
-                                                      if (double.tryParse(value) == null) {
-                                                        return 'Must be a number';
-                                                      }
-                                                      final number = double.parse(value);
-                                                      if (!(number >= votingFormField.minValue &&
-                                                          number <= votingFormField.maxValue)) {
-                                                        return 'The vote does not respect the boundaries';
-                                                      }
-                                                      return null;
-                                                    },
-                                                    initialValue: votesPerParticipantMap[
-                                                                votingSessionParticipationBundle
-                                                                    .votingSessionParticipation]
-                                                            ?[votingFormField]
-                                                        ?.toString(),
-                                                    onChanged: (value) {
-                                                      votesPerParticipantMap[
-                                                              votingSessionParticipationBundle
-                                                                  .votingSessionParticipation]![
-                                                          votingFormField] = double.parse(value);
-                                                    },
-                                                  );
-                                                }),
-                                                SizedBox(height: 8),
-                                              ],
-                                              // ---- FINE annidamento ----
-                                            ],
+                                            ...votingFormAndWorkViews,
+                                            SizedBox(height: 72),
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 72),
                                     ],
                                   );
                                 case VotingSessionStatus.cancelled:
@@ -358,6 +269,20 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                     return FilledButton(
                       onPressed: () {
                         if (reviewFormKey.currentState?.validate() ?? false) {
+                          final Map<VotingSessionParticipation, Map<VotingFormField, double>>
+                              votesPerParticipantMap = {};
+                          for (var entry in votesMap.entries) {
+                            final votingSessionParticipation = entry.key;
+                            final votingFormFieldAndController = entry.value;
+                            final Map<VotingFormField, double> votes = {};
+                            for (var votingFormFieldAndControllerEntry
+                                in votingFormFieldAndController.entries) {
+                              final votingFormField = votingFormFieldAndControllerEntry.key;
+                              final controller = votingFormFieldAndControllerEntry.value;
+                              votes.addAll({votingFormField: double.parse(controller.text)});
+                            }
+                            votesPerParticipantMap.addAll({votingSessionParticipation: votes});
+                          }
                           context
                               .read<SimpleJurorVotingProcedurePageBloc>()
                               .add(SimpleJurorVotingProcedurePageSubmitVotes(

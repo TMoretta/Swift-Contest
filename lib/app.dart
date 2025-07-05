@@ -1,12 +1,10 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
-import 'viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -16,7 +14,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
- final AppRouter _appRouter = AppRouter();
+  final AppRouter _appRouter = AppRouter();
 
   // late GoRouter goRouter;
   //
@@ -63,7 +61,7 @@ class _AppState extends State<App> {
         final appTheme = context.read<AuthBloc>().state.profile?.prefTheme ?? AppTheme.system;
         themeMode = ThemeMode.values.byName(appTheme.name);
         return MaterialApp.router(
-          routerConfig: _appRouter.config(),
+          routerConfig: _appRouter.config(neglectWhen: (_) => true),
           themeMode: themeMode,
           theme: materialTheme.light(),
           darkTheme: materialTheme.dark(),

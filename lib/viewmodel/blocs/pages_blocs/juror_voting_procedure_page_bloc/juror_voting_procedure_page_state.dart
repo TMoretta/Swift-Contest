@@ -24,15 +24,16 @@ final class JurorVotingProcedurePageState extends Equatable {
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      votingSessionProcedureBundle: votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
+      votingSessionProcedureBundle:
+          votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
     );
   }
 
   @override
   List<Object?> get props => [
-    status,
-    sourceEvent,
-    message,
-    votingSessionProcedureBundle,
-  ];
+        status,
+        sourceEvent,
+        message,
+        votingSessionProcedureBundle,
+      ];
 }

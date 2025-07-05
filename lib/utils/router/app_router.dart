@@ -49,9 +49,9 @@ class AppRouter extends RootStackRouter {
             path: '/organizer_voting_settings/:contestId', page: OrganizerVotingSettingsRoute.page),
         AutoRoute(
             path: '/organizer_work_details/:participationId', page: OrganizerWorkDetailsRoute.page),
-        AutoRoute(path: '/participant_home', page: ParticipantHomeRoute.page),
 
         // Participant
+        AutoRoute(path: '/participant_home', page: ParticipantHomeRoute.page),
         AutoRoute(
             path: '/participant_contest_details/:contestId',
             page: ParticipantContestDetailsRoute.page),

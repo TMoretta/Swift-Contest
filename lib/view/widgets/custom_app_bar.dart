@@ -11,7 +11,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      automaticallyImplyLeading: !kIsWeb,
+      // automaticallyImplyLeading: !kIsWeb,
       title: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(

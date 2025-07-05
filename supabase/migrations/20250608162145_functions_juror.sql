@@ -293,6 +293,7 @@ BEGIN
 
   IF (p_juror_id IS NOT null) THEN
     SELECT * INTO v_juration
+    FROM jurations
     WHERE juror_id = p_juror_id;
 
     IF EXISTS (

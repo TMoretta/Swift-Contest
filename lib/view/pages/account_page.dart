@@ -1,10 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/utils/router/app_routes.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -103,8 +101,7 @@ class _AccountPageState extends State<AccountPage> {
                                       'Are you sure you want to delete your account? This action is irreversible'),
                                   actions: [
                                     TextButton(
-                                      onPressed: () =>
-                                          context.router.pop(),
+                                      onPressed: () => context.router.pop(),
                                       child: Text('Cancel'),
                                     ),
                                     TextButton(

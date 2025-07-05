@@ -1,6 +1,7 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// 
+// import 'package:go_router/go_router.dart';
+//
 // import 'package:swift_contest/model/bundles/simple_juror_and_voting_session_bundle.dart';
 // import 'package:swift_contest/utils/router/app_routes.dart';
 // import 'package:swift_contest/view/pages/account_page.dart';
@@ -29,6 +30,7 @@
 // import 'package:swift_contest/view/pages/sign_in_verify_page.dart';
 // import 'package:swift_contest/view/pages/sign_up_page.dart';
 // import 'package:swift_contest/view/pages/sign_up_verify_page.dart';
+// import 'package:swift_contest/view/pages/splash_page.dart';
 // import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 // import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/juror_home_page_bloc.dart';
 // import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_voting_procedure_page_bloc/juror_voting_procedure_page_bloc.dart';
@@ -55,27 +57,32 @@
 // class MyRoutes {
 //   const MyRoutes._();
 //
-//   //* Root
-//   static GoRoute root({List<GoRoute> routes = const []}) {
+//   //* Splash
+//   static GoRoute splash({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.root,
-//       path: '/',
+//       path: path,
 //       pageBuilder: (context, state) {
-//         if (state.extra == null) {
-//           return const MaterialPage(child: RootPage());
-//         }
-//         final delay = state.extra as int;
-//         return MaterialPage(child: RootPage(delay: delay));
+//         return MaterialPage(child: SplashPage());
+//       },
+//       routes: routes,
+//     );
+//   }
+//
+//   //* Root
+//   static GoRoute root({required String path, List<GoRoute> routes = const []}) {
+//     return GoRoute(
+//       path: path,
+//       pageBuilder: (context, state) {
+//         return MaterialPage(child: RootPage());
 //       },
 //       routes: routes,
 //     );
 //   }
 //
 //   // * SignIn
-//   static GoRoute signIn({List<GoRoute> routes = const []}) {
+//   static GoRoute signIn({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.signIn,
-//       path: '/sign_in',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: BlocProvider(
@@ -92,10 +99,9 @@
 //   }
 //
 //   //* SignInVerify
-//   static GoRoute signInVerify({List<GoRoute> routes = const []}) {
+//   static GoRoute signInVerify({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.signInVerify,
-//       path: '/sign_in_verify',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String email = state.extra as String;
 //         return MaterialPage(
@@ -110,10 +116,9 @@
 //   }
 //
 //   //* SignUp
-//   static GoRoute signUp({List<GoRoute> routes = const []}) {
+//   static GoRoute signUp({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.signUp,
-//       path: '/sign_up',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: BlocProvider(
@@ -127,10 +132,9 @@
 //   }
 //
 //   //* SignUpVerify
-//   static GoRoute signUpVerify({List<GoRoute> routes = const []}) {
+//   static GoRoute signUpVerify({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.signUpVerify,
-//       path: '/sign_up_verify',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String email = state.extra as String;
 //         return MaterialPage(
@@ -145,10 +149,9 @@
 //   }
 //
 //   //* Settings
-//   static GoRoute settings({List<GoRoute> routes = const []}) {
+//   static GoRoute settings({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.settings,
-//       path: '/settings',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: SettingsPage(),
@@ -159,10 +162,9 @@
 //   }
 //
 //   //* Account
-//   static GoRoute account({List<GoRoute> routes = const []}) {
+//   static GoRoute account({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.account,
-//       path: '/account',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: AccountPage(),
@@ -173,10 +175,9 @@
 //   }
 //
 //   //* Inbox
-//   static GoRoute inbox({List<GoRoute> routes = const []}) {
+//   static GoRoute inbox({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.inbox,
-//       path: '/inbox',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: InboxPage(),
@@ -187,10 +188,9 @@
 //   }
 //
 //   //* PlaceSearch
-//   static GoRoute placeSearch({List<GoRoute> routes = const []}) {
+//   static GoRoute placeSearch({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.placeSearch,
-//       path: '/place_search',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: BlocProvider(
@@ -205,10 +205,9 @@
 //     );
 //   }
 //   //* OrganizerHome
-//   static GoRoute organizerHome({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerHome({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerHome,
-//       path: '/organizer_home',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: BlocProvider(
@@ -223,10 +222,9 @@
 //     );
 //   }
 //   //* OrganizerContestCreation
-//   static GoRoute organizerContestCreation({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerContestCreation({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerContestCreation,
-//       path: '/organizer_contest_creation',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: BlocProvider(
@@ -242,10 +240,9 @@
 //     );
 //   }
 //   //* OrganizerContestDetails
-//   static GoRoute organizerContestDetails({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerContestDetails({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerContestDetails,
-//       path: '/organizer_contest_details:contestId',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String contestId = state.extra as String;
 //         return MaterialPage(
@@ -264,10 +261,9 @@
 //     );
 //   }
 //   //* OrganizerContestEdit
-//   static GoRoute organizerContestEdit({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerContestEdit({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerContestEdit,
-//       path: '/organizer_contest_edit',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String contestId = state.extra as String;
 //         return MaterialPage(
@@ -287,10 +283,9 @@
 //     );
 //   }
 //   //* OrganizerWorkDetails
-//   static GoRoute organizerWorkDetails({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerWorkDetails({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerWorkDetails,
-//       path: '/organizer_work_details',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String participationId = state.extra as String;
 //         return MaterialPage(
@@ -306,10 +301,9 @@
 //     );
 //   }
 //   //* OrganizerVotingFormEdit
-//   static GoRoute organizerVotingFormEdit({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerVotingFormEdit({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerVotingFormEdit,
-//       path: '/organizer_voting_form',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String votingFormId = state.extra as String;
 //         return MaterialPage(
@@ -328,10 +322,9 @@
 //     );
 //   }
 //   //* OrganizerVotingResultDetails
-//   static GoRoute organizerVotingResultDetails({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerVotingResultDetails({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerVotingResultDetails,
-//       path: '/organizer_voting_results',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final votingSessionId = state.extra as String;
 //         return MaterialPage(
@@ -350,10 +343,9 @@
 //     );
 //   }
 //   //* OrganizerVotingResultExport
-//   static GoRoute organizerVotingResultExport({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerVotingResultExport({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerVotingResultExport,
-//       path: '/organizer_export',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String votingSessionId = state.extra as String;
 //         return MaterialPage(
@@ -370,10 +362,9 @@
 //     );
 //   }
 //   //* OrganizerVotingSettings
-//   static GoRoute organizerVotingSettings({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerVotingSettings({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerVotingSettings,
-//       path: '/organizer_voting_settings',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String contestId = state.extra as String;
 //         return MaterialPage(
@@ -390,10 +381,9 @@
 //     );
 //   }
 //   //* OrganizerVotingProcedure
-//   static GoRoute organizerVotingProcedure({List<GoRoute> routes = const []}) {
+//   static GoRoute organizerVotingProcedure({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.organizerVotingProcedure,
-//       path: '/organizer_voting_procedure',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String votingSessionId = state.extra as String;
 //         return MaterialPage(
@@ -410,10 +400,9 @@
 //     );
 //   }
 //   //* ParticipantHome
-//   static GoRoute participantHome({List<GoRoute> routes = const []}) {
+//   static GoRoute participantHome({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.participantHome,
-//       path: '/participant_home',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: BlocProvider(
@@ -428,10 +417,9 @@
 //     );
 //   }
 //   //* ParticipantContestDetails
-//   static GoRoute participantContestDetails({List<GoRoute> routes = const []}) {
+//   static GoRoute participantContestDetails({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.participantContestDetails,
-//       path: '/participant_contest_details',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String contestId = state.extra as String;
 //         return MaterialPage(
@@ -448,10 +436,9 @@
 //     );
 //   }
 //   //* ParticipantWorkSubmit
-//   static GoRoute participantWorkSubmit({List<GoRoute> routes = const []}) {
+//   static GoRoute participantWorkSubmit({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.participantWorkSubmit,
-//       path: '/participant_submit_work',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String contestId = state.extra as String;
 //         return MaterialPage(
@@ -468,10 +455,9 @@
 //     );
 //   }
 //   //* JurorHome
-//   static GoRoute jurorHome({List<GoRoute> routes = const []}) {
+//   static GoRoute jurorHome({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.jurorHome,
-//       path: '/juror_home',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         return MaterialPage(
 //           child: BlocProvider(
@@ -486,10 +472,9 @@
 //     );
 //   }
 //   //* JurorContestDetails
-//   static GoRoute jurorContestDetails({List<GoRoute> routes = const []}) {
+//   static GoRoute jurorContestDetails({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.jurorContestDetails,
-//       path: '/juror_contest_details',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String contestId = state.extra as String;
 //         return MaterialPage(
@@ -508,10 +493,9 @@
 //     );
 //   }
 //   //* JurorVotingProcedure
-//   static GoRoute jurorVotingProcedure({List<GoRoute> routes = const []}) {
+//   static GoRoute jurorVotingProcedure({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.jurorVotingProcedure,
-//       path: '/juror_voting_procedure',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final String votingSessionId = state.extra as String;
 //         return MaterialPage(
@@ -528,10 +512,9 @@
 //     );
 //   }
 //   //* SimpleJurorVotingProcedure
-//   static GoRoute simpleJurorVotingProcedure({List<GoRoute> routes = const []}) {
+//   static GoRoute simpleJurorVotingProcedure({required String path, List<GoRoute> routes = const []}) {
 //     return GoRoute(
-//       name: AppRoutes.simpleJurorVotingProcedure,
-//       path: '/simple_juror_voting_procedure',
+//       path: path,
 //       pageBuilder: (context, state) {
 //         final SimpleJurorAndVotingSessionBundle simpleJurorAndVotingSessionBundle =
 //         SimpleJurorAndVotingSessionBundle.fromJson(state.extra as Map<String, dynamic>);
