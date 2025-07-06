@@ -27,7 +27,7 @@ void main() async {
   // );
   WidgetsFlutterBinding.ensureInitialized();
 
-  // configureUrlStrategy();
+  configureUrlStrategy();
 
   //* Force vertical orientation
   await SystemChrome.setPreferredOrientations([

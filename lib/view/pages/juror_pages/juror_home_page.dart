@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
@@ -58,7 +57,9 @@ class _JurorHomePageState extends State<JurorHomePage> {
         },
         builder: (context, state) {
           return Scaffold(
-            appBar: HomePageAppBar(contestRole: ContestRole.juror),
+            appBar: HomePageAppBar(
+              contestRole: ContestRole.juror,
+            ),
             body: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

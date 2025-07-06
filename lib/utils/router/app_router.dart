@@ -28,6 +28,17 @@ class AppRouter extends RootStackRouter {
         AutoRoute(path: '/inbox', page: InboxRoute.page),
         AutoRoute(path: '/place_search', page: PlaceSearchRoute.page),
 
+        // AutoRoute(
+        //   path: '/organizer/home',
+        //   page: EmptyShellRoute('OrganizerHomeRouter'),
+        //   children: [
+        //     AutoRoute(path: '', page: OrganizerHomeRoute.page, initial: true),
+        //     AutoRoute(path: 'contest-creation', page: OrganizerContestCreationRoute.page),
+        //     AutoRoute(path: 'contest-details/:contestId', page: OrganizerContestDetailsRoute.page),
+        //     RedirectRoute(path: '*', redirectTo: ''), // Redirect unmatched paths
+        //   ],
+        // ),
+
         // Organizer
         AutoRoute(path: '/organizer_home', page: OrganizerHomeRoute.page),
         AutoRoute(path: '/organizer_contest_creation', page: OrganizerContestCreationRoute.page),

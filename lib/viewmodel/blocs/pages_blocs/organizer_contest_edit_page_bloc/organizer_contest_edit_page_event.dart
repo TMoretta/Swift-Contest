@@ -13,6 +13,15 @@ final class OrganizerContestEditPageInit extends OrganizerContestEditPageEvent {
   List<Object?> get props => [contestId];
 }
 
+final class OrganizerContestEditPageRefresh extends OrganizerContestEditPageEvent {
+  final String contestId;
+
+  const OrganizerContestEditPageRefresh({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+}
+
 final class OrganizerContestEditPageEditContest extends OrganizerContestEditPageEvent {
   final String contestId;
   final String name;

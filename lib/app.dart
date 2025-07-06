@@ -61,7 +61,7 @@ class _AppState extends State<App> {
         final appTheme = context.read<AuthBloc>().state.profile?.prefTheme ?? AppTheme.system;
         themeMode = ThemeMode.values.byName(appTheme.name);
         return MaterialApp.router(
-          routerConfig: _appRouter.config(neglectWhen: (_) => true),
+          routerConfig: _appRouter.config(),
           themeMode: themeMode,
           theme: materialTheme.light(),
           darkTheme: materialTheme.dark(),

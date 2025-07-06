@@ -80,7 +80,11 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerContestEditPageBloc>(
-      create: (context) => OrganizerContestEditPageBloc(genericRepository: context.read(), organizerRepository: context.read(), storageRepository: context.read(),)..add(OrganizerContestEditPageInit(contestId: contestId)),
+      create: (context) => OrganizerContestEditPageBloc(
+        genericRepository: context.read(),
+        organizerRepository: context.read(),
+        storageRepository: context.read(),
+      )..add(OrganizerContestEditPageInit(contestId: contestId)),
       child: BlocConsumer<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
         listener: (context, state) {
           if (state.message != null) {
@@ -98,7 +102,9 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
         },
         builder: (context, state) {
           return Scaffold(
-            appBar: CustomAppBar(title: 'Edit contest'),
+            appBar: CustomAppBar(
+              title: 'Edit contest',
+            ),
             body: Builder(
               builder: (context) {
                 switch (state.status) {

@@ -31,6 +31,7 @@ class OrganizerContestEditPageBloc
         _storageRepository = storageRepository,
         super(OrganizerContestEditPageState(status: BlocStatus.initial)) {
     on<OrganizerContestEditPageInit>(_init);
+    on<OrganizerContestEditPageRefresh>(_refresh);
     on<OrganizerContestEditPageEditContest>(_edit);
   }
 
@@ -38,6 +39,21 @@ class OrganizerContestEditPageBloc
     OrganizerContestEditPageInit event,
     Emitter<OrganizerContestEditPageState> emit,
   ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherContestDetails = await _genericRepository.getContestDetails(contestId: event.contestId);
+    eitherContestDetails.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) {
+        emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
+      },
+    );
+  }
+
+  FutureOr<void> _refresh(
+      OrganizerContestEditPageRefresh event,
+      Emitter<OrganizerContestEditPageState> emit,
+      ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherContestDetails = await _genericRepository.getContestDetails(contestId: event.contestId);

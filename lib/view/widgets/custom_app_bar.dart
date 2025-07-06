@@ -1,17 +1,20 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
+  final double leadingWidth = 100;
 
-  const CustomAppBar({required this.title, this.actions, super.key});
+  const CustomAppBar({
+    required this.title,
+    this.actions,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      // automaticallyImplyLeading: !kIsWeb,
       title: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(

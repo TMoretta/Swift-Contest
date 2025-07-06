@@ -57,7 +57,9 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
         },
         builder: (context, state) {
           return Scaffold(
-            appBar: HomePageAppBar(contestRole: ContestRole.participant),
+            appBar: HomePageAppBar(
+              contestRole: ContestRole.participant,
+            ),
             body: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

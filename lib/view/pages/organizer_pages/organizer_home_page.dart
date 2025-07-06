@@ -60,7 +60,9 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
         },
         builder: (context, state) {
           return Scaffold(
-            appBar: HomePageAppBar(contestRole: ContestRole.organizer),
+            appBar: HomePageAppBar(
+              contestRole: ContestRole.organizer,
+            ),
             body: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
