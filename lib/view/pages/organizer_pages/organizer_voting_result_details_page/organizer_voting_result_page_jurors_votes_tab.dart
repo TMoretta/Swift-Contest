@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:swift_contest/model/bundles/juration_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/utils/router/go_router.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -44,8 +42,7 @@ class _OrganizerVotingResultPageJurorsVotesTabState
     return BlocBuilder<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
       builder: (context, state) {
         return Scaffold(
-          body:
-          Builder(
+          body: Builder(
             builder: (context) {
               switch (state.status) {
                 case BlocStatus.initial:
@@ -63,8 +60,8 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                         context
                             .read<OrganizerVotingResultDetailsPageBloc>()
                             .add(OrganizerVotingResultDetailsPageInit(
-                          votingSessionId: votingSessionId,
-                        ));
+                              votingSessionId: votingSessionId,
+                            ));
                       },
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
@@ -74,8 +71,8 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                 successCase:
                 case BlocStatus.success:
                   final votingSessionResultBundle = state.votingSessionResultBundle!;
-                  final votingFormFields = votingSessionResultBundle.votingFormBundle
-                      .votingFormFields;
+                  final votingFormFields =
+                      votingSessionResultBundle.votingFormBundle.votingFormFields;
                   final List<JurationBundle> jurationsBundles = state
                       .votingSessionResultBundle!.participantsVotingsPerJurorMap.entries
                       .map((e) => e.key)
@@ -120,13 +117,13 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                               DataCell(
                                 Text(
                                   (participantsVotingsPerJurorMap[jurationBundle]![
-                                  participationBundle] !=
-                                      null)
+                                              participationBundle] !=
+                                          null)
                                       ? participantsVotingsPerJurorMap[jurationBundle]![
-                                  participationBundle]![i]
-                                      .jurorVote
-                                      .value
-                                      .toString()
+                                              participationBundle]![i]
+                                          .jurorVote
+                                          .value
+                                          .toString()
                                       : 'Excluded',
                                 ),
                               ),
@@ -146,13 +143,13 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                           DataCell(
                             Text(
                               (participantsVotingsPerJurorMap[chosenJurationBundle]![
-                              chosenParticipationBundle] !=
-                                  null)
+                                          chosenParticipationBundle] !=
+                                      null)
                                   ? participantsVotingsPerJurorMap[chosenJurationBundle]![
-                              chosenParticipationBundle]![i]
-                                  .jurorVote
-                                  .value
-                                  .toString()
+                                          chosenParticipationBundle]![i]
+                                      .jurorVote
+                                      .value
+                                      .toString()
                                   : 'Excluded',
                             ),
                           ),
@@ -175,13 +172,13 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                               DataCell(
                                 Text(
                                   (participantsVotingsPerJurorMap[chosenJurationBundle]![
-                                  participationBundle] !=
-                                      null)
+                                              participationBundle] !=
+                                          null)
                                       ? participantsVotingsPerJurorMap[chosenJurationBundle]![
-                                  participationBundle]![i]
-                                      .jurorVote
-                                      .value
-                                      .toString()
+                                              participationBundle]![i]
+                                          .jurorVote
+                                          .value
+                                          .toString()
                                       : 'Excluded',
                                 ),
                               ),
@@ -205,13 +202,13 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                               DataCell(
                                 Text(
                                   (participantsVotingsPerJurorMap[jurationBundle]![
-                                  chosenParticipationBundle] !=
-                                      null)
+                                              chosenParticipationBundle] !=
+                                          null)
                                       ? participantsVotingsPerJurorMap[jurationBundle]![
-                                  chosenParticipationBundle]![i]
-                                      .jurorVote
-                                      .value
-                                      .toString()
+                                              chosenParticipationBundle]![i]
+                                          .jurorVote
+                                          .value
+                                          .toString()
                                       : 'Excluded',
                                 ),
                               ),

@@ -14,7 +14,6 @@ import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/repositories/participant_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
-import 'package:swift_contest/model/repositories/utils_repository.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/utils/functions/configure_url_strategy_mobile.dart' if (dart.library.html) 'package:swift_contest/utils/functions/configure_url_strategy_web.dart';
 
@@ -66,9 +65,6 @@ void main() async {
         ),
         RepositoryProvider<StorageRepository>(
           create: (context) => StorageRepositoryImpl(supabaseClient: supabaseClient),
-        ),
-        RepositoryProvider<UtilsRepository>(
-          create: (context) => UtilsRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<AuthRepository>(
           create: (context) => AuthRepositoryImpl(supabaseClient: supabaseClient),

@@ -4,12 +4,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/utils/router/app_routes.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/date_picker_form_field.dart';

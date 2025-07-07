@@ -248,7 +248,7 @@ class OrganizerContestDetailsRoute
     extends _i28.PageRouteInfo<OrganizerContestDetailsRouteArgs> {
   OrganizerContestDetailsRoute({
     required String contestId,
-    _i29.Key? key,
+    _i30.Key? key,
     List<_i28.PageRouteInfo>? children,
   }) : super(
           OrganizerContestDetailsRoute.name,
@@ -282,7 +282,7 @@ class OrganizerContestDetailsRouteArgs {
 
   final String contestId;
 
-  final _i29.Key? key;
+  final _i30.Key? key;
 
   @override
   String toString() {

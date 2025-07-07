@@ -54,6 +54,7 @@ dependencies:
   hydrated_bloc: ^10.0.0
   auto_route: ^10.1.0+1
   dynamic_path_url_strategy: ^1.0.0
+  numberpicker: ^2.1.2
 #  go_router: ^16.0.0
 
 dev_dependencies:

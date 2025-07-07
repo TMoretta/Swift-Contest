@@ -1,4 +1,4 @@
--- ORGANIZER GET CREATED CONTESTS
+--region organizer get created contests
 CREATE OR REPLACE FUNCTION organizer_get_created_contests (
   p_organizer_id uuid
 )
@@ -9,7 +9,28 @@ RETURNS TABLE (
   participations jsonb,
   jurations jsonb
 ) AS $$
+DECLARE
+  v_profile profiles;
 BEGIN
+
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  SELECT * INTO v_profile
+  FROM profiles
+  WHERE id = p_organizer_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Organizer not found';
+  END IF;
+
+  IF (
+    v_profile.user_id <> auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
   RETURN QUERY
     SELECT
       to_jsonb(cont) AS contest,
@@ -39,18 +60,37 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER CREATE CONTEST
+--region organizer create contest
 CREATE OR REPLACE FUNCTION organizer_create_contest (
   p_contest contests,
   p_place places
 )
 RETURNS contests AS $$
 DECLARE
+  v_profile profiles;
   v_place places;
   v_voting_form voting_forms;
   v_contest_status contest_status;
   v_contest contests;
 BEGIN
+
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  SELECT * INTO v_profile
+  FROM profiles
+  WHERE id = p_contest.organizer_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Organizer not found';
+  END IF;
+
+  IF (
+    v_profile.user_id <> auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   INSERT INTO places (
     address,
@@ -131,7 +171,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER EDIT CONTEST
+--region organizer edit contest
 CREATE OR REPLACE FUNCTION organizer_edit_contest (
   p_contest_id uuid,
   p_name varchar,
@@ -144,15 +184,38 @@ CREATE OR REPLACE FUNCTION organizer_edit_contest (
 )
 RETURNS contests AS $$
 DECLARE
+  v_organizer_id uuid;
+  v_profile profiles;
   v_contest_status contest_status;
   v_contest contests;
 BEGIN
+
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests WHERE id = p_contest_id;
+
+  SELECT * INTO v_profile
+  FROM profiles
+  WHERE id = v_organizer_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Organizer not found';
+  END IF;
+
+  IF (
+    v_profile.user_id <> auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   IF EXISTS (
     SELECT 1 FROM contests
     WHERE id = p_contest_id AND deleted_at is not null
   ) THEN
-    RAISE EXCEPTION 'Can not execute, the contest has been deleted';
+    RAISE EXCEPTION 'Operation not allowed, the contest has been deleted';
   END IF;
 
   v_contest_status := CASE
@@ -190,16 +253,40 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER UPDATE VOTING FORM FIELDS
+--region organizer update voting form fields
 CREATE OR REPLACE FUNCTION organizer_update_voting_form_fields (
   p_voting_form_id uuid,
   p_voting_form_fields voting_form_fields[]
 )
 RETURNS SETOF voting_form_fields AS $$
 DECLARE
+  v_organizer_id uuid;
+  v_profile profiles;
   v_field voting_form_fields;
 BEGIN
-  -- 1) Verifico che esista il form
+
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE voting_form_id = p_voting_form_id;
+
+  SELECT * INTO v_profile
+  FROM profiles
+  WHERE id = v_organizer_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Organizer not found';
+  END IF;
+
+  IF (
+    v_profile.user_id <> auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
   IF NOT EXISTS (
     SELECT 1 FROM voting_forms
     WHERE id = p_voting_form_id
@@ -207,11 +294,9 @@ BEGIN
     RAISE EXCEPTION 'Voting form not found';
   END IF;
 
-  -- 2) Rimuovo i campi esistenti
   DELETE FROM voting_form_fields
   WHERE voting_form_id = p_voting_form_id;
 
-  -- 3) Re-inserisco quelli nuovi
   IF p_voting_form_fields IS NOT NULL THEN
     FOREACH v_field IN ARRAY p_voting_form_fields LOOP
       INSERT INTO voting_form_fields (
@@ -341,62 +426,6 @@ EXCEPTION
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
-
---CREATE OR REPLACE FUNCTION organizer_update_voting_form_fields (
---  p_voting_form_id uuid,
---  p_voting_form_fields voting_form_fields[]
---)
---RETURNS void AS $$
---DECLARE
---  v_voting_form_field voting_form_fields;
---BEGIN
---
---  IF NOT EXISTS (
---    SELECT 1 FROM voting_forms
---    WHERE id = p_voting_form_id
---  ) THEN
---    RAISE EXCEPTION 'Voting form not found';
---  END IF;
---
---  DELETE FROM voting_form_fields
---  WHERE voting_form_id = p_voting_form_id;
---
---  IF NOT FOUND THEN
---    RAISE EXCEPTION 'An error occurred while updating the voting form fields';
---  END IF;
---
---  IF array_length(p_voting_form_fields, 1) IS NOT NULL THEN
---    FOR i IN 1..array_length(p_voting_form_fields, 1) LOOP
---      v_voting_form_field := p_voting_form_fields[i];
---
---      INSERT INTO voting_form_fields (
---        voting_form_id,
---        name,
---        order_index,
---        min_value,
---        max_value
---      )
---      VALUES (
---        p_voting_form_id,
---        v_voting_form_field.name,
---        v_voting_form_field.order_index,
---        v_voting_form_field.min_value,
---        v_voting_form_field.max_value
---      );
---
---      IF NOT FOUND THEN
---        RAISE EXCEPTION 'An error occurred while updating the voting form fields';
---      END IF;
---    END LOOP;
---  END IF;
---
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
---END;
---$$ LANGUAGE plpgsql SECURITY definer;
 
 -- ORGANIZER INIT VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_init_voting_session (
