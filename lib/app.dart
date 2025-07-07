@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -14,21 +14,13 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final AppRouter _appRouter = AppRouter();
-
-  // late GoRouter goRouter;
-  //
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   //* Get goRouter instance and passing AuthBloc to allow redirect base on auth state
-  //   goRouter = getGoRouter(authBloc: context.read<AuthBloc>());
-  // }
+  late final AppRouter _appRouter;
+  late final MaterialTheme _materialTheme;
 
   @override
-  Widget build(BuildContext context) {
-    late ThemeMode themeMode;
-
+  void initState() {
+    super.initState();
+    _appRouter = AppRouter();
     TextTheme textTheme = Theme.of(context).textTheme;
     final TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Roboto', textTheme);
     final TextTheme displayTextTheme = GoogleFonts.getTextTheme('Roboto', textTheme);
@@ -49,24 +41,20 @@ class _AppState extends State<App> {
       labelMedium: bodyTextTheme.labelMedium,
       labelSmall: bodyTextTheme.labelSmall,
     );
-
     textTheme.apply(fontSizeDelta: 1.2, fontFamilyFallback: ['sans-serif']);
+    _materialTheme = MaterialTheme(textTheme: textTheme);
+  }
 
-    final materialTheme = MaterialTheme(textTheme: textTheme);
-    return BlocBuilder<AuthBloc, AuthState>(
-      //* Rebuild only when the pref theme changes
-      buildWhen: (previous, current) => current.profile?.prefTheme != previous.profile?.prefTheme,
-      builder: (context, state) {
-        //* Change dynamically the theme mode based on user pref theme
-        final appTheme = context.read<AuthBloc>().state.profile?.prefTheme ?? AppTheme.system;
-        themeMode = ThemeMode.values.byName(appTheme.name);
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<ThemeBloc, ThemeState, AppTheme>(
+      selector: (state) => state.theme ?? AppTheme.system,
+      builder: (context, appTheme) {
         return MaterialApp.router(
           routerConfig: _appRouter.config(),
-          themeMode: themeMode,
-          theme: materialTheme.light(),
-          darkTheme: materialTheme.dark(),
-          // highContrastTheme: materialTheme.lightHighContrast(),
-          // highContrastDarkTheme: materialTheme.darkHighContrast(),
+          themeMode: ThemeMode.values.byName(appTheme.name),
+          theme: _materialTheme.light(),
+          darkTheme: _materialTheme.dark(),
           debugShowCheckedModeBanner: false,
         );
       },

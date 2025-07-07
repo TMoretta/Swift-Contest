@@ -43,15 +43,6 @@ final class AuthSignOut extends AuthEvent {
   List<Object?> get props => [];
 }
 
-final class AuthEditPrefTheme extends AuthEvent {
-  final AppTheme prefTheme;
-
-  const AuthEditPrefTheme({required this.prefTheme});
-
-  @override
-  List<Object?> get props => [prefTheme];
-}
-
 final class AuthEditPrefRole extends AuthEvent {
   final ContestRole prefRole;
 

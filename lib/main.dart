@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/app.dart';
 import 'package:swift_contest/model/repositories/auth_repository.dart';
@@ -14,8 +15,11 @@ import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/repositories/participant_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
+import 'package:swift_contest/model/repositories/theme_repository.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/utils/functions/configure_url_strategy_mobile.dart' if (dart.library.html) 'package:swift_contest/utils/functions/configure_url_strategy_web.dart';
+import 'package:swift_contest/utils/functions/configure_url_strategy_mobile.dart'
+    if (dart.library.html) 'package:swift_contest/utils/functions/configure_url_strategy_web.dart';
+import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 void main() async {
   // ScaledWidgetsFlutterBinding.ensureInitialized(
@@ -46,7 +50,6 @@ void main() async {
       eventsPerSecond: 2,
     ),
   );
-  final supabaseClient = Supabase.instance.client;
 
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
@@ -54,11 +57,20 @@ void main() async {
         : HydratedStorageDirectory((await getTemporaryDirectory()).path),
   );
 
+  final supabaseClient = Supabase.instance.client;
+  final sharedPreferencesInstance = await SharedPreferences.getInstance();
+
   //* App
   runApp(
     MultiRepositoryProvider(
       //* Repositories
       providers: [
+        RepositoryProvider<ThemeRepository>(
+          create: (context) => ThemeRepositoryImpl(
+            sharedPreferencesInstance: sharedPreferencesInstance,
+            key: 'app_theme',
+          ),
+        ),
         RepositoryProvider<GooglePlaceRepository>(
           create: (context) =>
               GooglePlaceRepositoryImpl(apiKey: dotenv.env['GOOGLE_PLACES_API_KEY']!),
@@ -85,9 +97,13 @@ void main() async {
       child: MultiBlocProvider(
         providers: [
           //* AuthBloc provide authentication management through all the app
-          BlocProvider(
+          BlocProvider<AuthBloc>(
             lazy: false,
             create: (context) => AuthBloc(authRepository: context.read<AuthRepository>()),
+          ),
+          BlocProvider<ThemeBloc>(
+            lazy: false,
+            create: (context) => ThemeBloc(themeRepository: context.read<ThemeRepository>()),
           ),
         ],
         child: App(),
@@ -95,5 +111,3 @@ void main() async {
     ),
   );
 }
-
-

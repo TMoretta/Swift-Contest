@@ -39,24 +39,24 @@ VALUES
 	(uuid_generate_v4(), (SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'), '{"sub": "9639036b-eee8-4996-a547-3eef0708cadc", "email": "simplejuror3@example.com", "email_verified": false, "phone_verified": false}', 'email', '2025-05-22 20:24:50.568268+00', '2025-05-22 20:24:50.568317+00', '2025-05-22 20:24:50.568317+00', uuid_generate_v4());
 
 -- PROFILES
-INSERT INTO profiles (id,created_at,user_id,full_name,pref_theme,pref_role)
+INSERT INTO profiles (id,created_at,user_id,full_name,pref_role)
 VALUES
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),'Organizer1','system','organizer'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'organizer2@example.com'),'Organizer2','system','organizer'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'organizer3@example.com'),'Organizer3','system','organizer'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant1@example.com'),'Participant1','system','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant2@example.com'),'Participant2','system','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant3@example.com'),'Participant3','system','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant4@example.com'),'Participant4','system','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant5@example.com'),'Participant5','system','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror1@example.com'),'Juror1','system','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror2@example.com'),'Juror2','system','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror3@example.com'),'Juror3','system','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror4@example.com'),'Juror4','system','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror5@example.com'),'Juror5','system','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'simplejuror1@example.com'),'SimpleJuror1','system','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'simplejuror2@example.com'),'SimpleJuror2','system','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'),'SimpleJuror3','system','juror');
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),'Organizer1','organizer'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'organizer2@example.com'),'Organizer2','organizer'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'organizer3@example.com'),'Organizer3','organizer'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant1@example.com'),'Participant1','participant'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant2@example.com'),'Participant2','participant'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant3@example.com'),'Participant3','participant'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant4@example.com'),'Participant4','participant'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant5@example.com'),'Participant5','participant'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror1@example.com'),'Juror1','juror'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror2@example.com'),'Juror2','juror'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror3@example.com'),'Juror3','juror'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror4@example.com'),'Juror4','juror'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror5@example.com'),'Juror5','juror'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'simplejuror1@example.com'),'SimpleJuror1','juror'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'simplejuror2@example.com'),'SimpleJuror2','juror'),
+  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'simplejuror3@example.com'),'SimpleJuror3','juror');
 
 -- todo: Remove
 ALTER TABLE auth.users

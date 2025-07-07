@@ -27,8 +27,6 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
 
-  Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme});
-
   Future<Either<Failure, Profile>> updateProfilePrefRole({required ContestRole prefRole});
 
   Future<Either<Failure, Unit>> deleteCurrentAccount();
@@ -198,23 +196,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_role', params: {
         'p_user_id': currentSession?.user.id,
         'p_pref_role': prefRole.name,
-      });
-      return right(Profile.fromJson(res));
-    } on SocketException {
-      return left(Failure(message: 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure(message: e.message));
-    } catch (e) {
-      return left(Failure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, Profile>> updateProfilePrefTheme({required AppTheme prefTheme}) async {
-    try {
-      final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_theme', params: {
-        'p_user_id': currentSession?.user.id,
-        'p_pref_theme': prefTheme.name,
       });
       return right(Profile.fromJson(res));
     } on SocketException {

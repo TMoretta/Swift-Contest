@@ -186,42 +186,6 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- UPDATE PROFILE PREF THEME
-CREATE OR REPLACE FUNCTION update_profile_pref_theme (
-  p_user_id uuid,
-  p_pref_theme app_theme
-)
-RETURNS profiles AS $$
-DECLARE
-  v_profile profiles;
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM profiles
-    WHERE user_id = p_user_id
-  ) THEN
-    RAISE EXCEPTION 'Profile not found';
-  END IF;
-
-  UPDATE profiles
-  SET
-    pref_theme = p_pref_theme
-  WHERE user_id = p_user_id
-  RETURNING * INTO v_profile;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while updating profile';
-  END IF;
-
-  RETURN v_profile;
-
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
-END;
-$$ LANGUAGE plpgsql SECURITY definer;
-
 -- UPDATE PROFILE PREF ROLE
 CREATE OR REPLACE FUNCTION update_profile_pref_role (
   p_user_id uuid,

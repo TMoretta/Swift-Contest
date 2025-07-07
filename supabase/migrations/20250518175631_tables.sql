@@ -3,7 +3,6 @@ CREATE TABLE profiles (
   created_at timestamptz NOT NULL DEFAULT now(),
   user_id uuid NOT NULL REFERENCES auth.users(id),
   full_name varchar(30) NOT NULL,
-  pref_theme app_theme NOT NULL DEFAULT 'system',
   pref_role contest_role NOT NULL DEFAULT 'organizer',
   deleted_at timestamptz
 );

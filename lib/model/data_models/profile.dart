@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 
 class Profile extends Equatable {
@@ -7,7 +6,6 @@ class Profile extends Equatable {
   final DateTime createdAt;
   final String userId;
   final String fullName;
-  final AppTheme prefTheme;
   final ContestRole prefRole;
   final DateTime? deletedAt;
 
@@ -16,7 +14,6 @@ class Profile extends Equatable {
     required this.createdAt,
     required this.userId,
     required this.fullName,
-    required this.prefTheme,
     required this.prefRole,
      this.deletedAt,
   });
@@ -27,7 +24,6 @@ class Profile extends Equatable {
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       userId: json['user_id'] as String,
       fullName: json['full_name'] as String,
-      prefTheme: AppTheme.values.byName(json['pref_theme']),
       prefRole: ContestRole.values.byName(json['pref_role']),
       deletedAt: (json['deleted_at'] != null) ? DateTime.parse(json['deleted_at']).toLocal() : null,
     );
@@ -39,7 +35,6 @@ class Profile extends Equatable {
       'created_at': createdAt.toUtc().toIso8601String(),
       'user_id': userId,
       'full_name': fullName,
-      'pref_theme': prefTheme.name,
       'pref_role': prefRole.name,
       'deleted_at': deletedAt?.toUtc().toIso8601String(),
     };
@@ -50,7 +45,6 @@ class Profile extends Equatable {
     DateTime? createdAt,
     String? userId,
     String? fullName,
-    AppTheme? prefTheme,
     ContestRole? prefRole,
     DateTime? deletedAt,
   }) {
@@ -59,7 +53,6 @@ class Profile extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,
       fullName: fullName ?? this.fullName,
-      prefTheme: prefTheme ?? this.prefTheme,
       prefRole: prefRole ?? this.prefRole,
       deletedAt: deletedAt ?? this.deletedAt,
     );
@@ -71,7 +64,6 @@ class Profile extends Equatable {
         createdAt,
         userId,
         fullName,
-        prefTheme,
         prefRole,
         deletedAt,
       ];
@@ -82,7 +74,6 @@ class ProfileModel extends Equatable {
   final DateTime? createdAt;
   final String? userId;
   final String? fullName;
-  final AppTheme? prefTheme;
   final ContestRole? prefRole;
   final DateTime? deletedAt;
 
@@ -91,7 +82,6 @@ class ProfileModel extends Equatable {
     this.createdAt,
     this.userId,
     this.fullName,
-    this.prefTheme,
     this.prefRole,
     this.deletedAt,
   });
@@ -102,7 +92,6 @@ class ProfileModel extends Equatable {
       'created_at': createdAt?.toUtc().toIso8601String(),
       'user_id': userId,
       'full_name': fullName,
-      'pref_theme': prefTheme?.name,
       'pref_role': prefRole?.name,
       'deleted_at': deletedAt?.toUtc().toIso8601String(),
     };
@@ -114,7 +103,6 @@ class ProfileModel extends Equatable {
         createdAt,
         userId,
         fullName,
-        prefTheme,
         prefRole,
         deletedAt,
       ];

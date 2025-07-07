@@ -32,7 +32,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     on<AuthFetchUserInfo>(_fetchUserInfo);
     on<AuthSignOut>(_signOut);
     on<AuthDeleteAccount>(_deleteAccount);
-    on<AuthEditPrefTheme>(_editPrefTheme);
     on<AuthEditPrefRole>(_editPrefRole);
     on<AuthEditFullName>(_editFullName);
     on<AuthMarkMessageAsRead>(_markMessageAsRead);
@@ -195,20 +194,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) =>
           emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.initial)),
-    );
-  }
-
-  FutureOr<void> _editPrefTheme(
-    AuthEditPrefTheme event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherEditPrefTheme =
-        await _authRepository.updateProfilePrefTheme(prefTheme: event.prefTheme);
-    eitherEditPrefTheme.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
     );
   }
 

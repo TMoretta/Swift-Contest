@@ -12,6 +12,7 @@ import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
@@ -31,150 +32,171 @@ class _AuthState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state.message != null) {
-          showSnackBar(context: context, text: state.message!);
-        }
-        if (state.blocStatus.isLoading) {
-          context.showLoader();
-        } else {
-          context.hideLoader();
-        }
-        if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
-          context.router.replaceAll([RootRoute()]);
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          appBar: CustomAppBar(title: 'Settings'),
-          body: Builder(
-            builder: (context) {
-              switch (state.blocStatus) {
-                case BlocStatus.initial:
-                  return VoidWidget();
-                case BlocStatus.loading:
-                  if (state.sourceEvent is AuthInit) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.message != null) {
+              showSnackBar(context: context, text: state.message!);
+            }
+            if (state.blocStatus.isLoading) {
+              context.showLoader();
+            } else {
+              context.hideLoader();
+            }
+            if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
+              context.router.replaceAll([RootRoute()]);
+            }
+          },
+        ),
+        BlocListener<ThemeBloc, ThemeState>(
+          listener: (context, state) {
+            if (state.message != null) {
+              showSnackBar(context: context, text: state.message!);
+            }
+            if (state.status.isLoading) {
+              context.showLoader();
+            } else {
+              context.hideLoader();
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          return Scaffold(
+            appBar: CustomAppBar(title: 'Settings'),
+            body: Builder(
+              builder: (context) {
+                switch (state.blocStatus) {
+                  case BlocStatus.initial:
                     return VoidWidget();
-                  } else {
-                    continue successCase;
-                  }
-                case BlocStatus.failure:
-                  if (state.sourceEvent is AuthInit) {
+                  case BlocStatus.loading:
+                    if (state.sourceEvent is AuthInit) {
+                      return VoidWidget();
+                    } else {
+                      continue successCase;
+                    }
+                  case BlocStatus.failure:
+                    if (state.sourceEvent is AuthInit) {
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                      );
+                    } else {
+                      continue successCase;
+                    }
+                  successCase:
+                  case BlocStatus.success:
+                    final profile = state.profile!;
                     return RefreshIndicator.adaptive(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
-                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                      onRefresh: () async => context.read<AuthBloc>().add(AuthRefresh()),
+                      child: ListView(
+                        children: [
+                          //* Account option
+                          InkWell(
+                            onTap: () {
+                              context.router.push(AccountRoute());
+                            },
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.person,
+                                size: 28,
+                              ),
+                              title: Text(
+                                'Account',
+                              ),
+                              titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                              subtitle: Text(
+                                'Full name',
+                              ),
+                              subtitleTextStyle: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                            ),
+                          ),
+                          //* Theme option
+                          BlocBuilder<ThemeBloc, ThemeState>(
+                            builder: (context, state) {
+                              final theme = state.theme!;
+                              return InkWell(
+                                onTap: () {
+                                  _showEditThemeDialog(context: context, currentTheme: theme);
+                                },
+                                child: ListTile(
+                                  leading: Icon(
+                                    Icons.contrast,
+                                    size: 28,
+                                  ),
+                                  title: Text('Theme'),
+                                  titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                                  subtitle: Text(
+                                    '${theme.name[0].toUpperCase()}${theme.name.substring(1).toLowerCase()}',
+                                  ),
+                                  subtitleTextStyle: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                                ),
+                              );
+                            },
+                          ),
+                          //* Preferred role option
+                          InkWell(
+                            onTap: () {
+                              _showEditPrefRoleDialog(
+                                  context: context, currentPrefRole: profile.prefRole);
+                            },
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.face,
+                                size: 28,
+                              ),
+                              title: Text(
+                                'Preferred role',
+                              ),
+                              titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                              subtitle: Text(
+                                '${profile.prefRole.name[0].toUpperCase()}'
+                                '${profile.prefRole.name.substring(1).toLowerCase()}',
+                              ),
+                              subtitleTextStyle: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                            ),
+                          ),
+                          //* Logout option
+                          InkWell(
+                            onTap: () {
+                              context.read<AuthBloc>().add(AuthSignOut());
+                            },
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.logout,
+                                size: 28,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                              iconColor: Theme.of(context).colorScheme.error,
+                              title: Text(
+                                'Logout',
+                              ),
+                              titleTextStyle: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: Theme.of(context).colorScheme.error),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  final profile = state.profile!;
-                  return RefreshIndicator.adaptive(
-                    onRefresh: () async => context.read<AuthBloc>().add(AuthRefresh()),
-                    child: ListView(
-                      children: [
-                        //* Account option
-                        InkWell(
-                          onTap: () {
-                            context.router.push(AccountRoute());
-                          },
-                          child: ListTile(
-                            leading: Icon(
-                              Icons.person,
-                              size: 28,
-                            ),
-                            title: Text(
-                              'Account',
-                            ),
-                            titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                            subtitle: Text(
-                              'Full name',
-                            ),
-                            subtitleTextStyle: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                          ),
-                        ),
-                        //* Theme option
-                        InkWell(
-                          onTap: () {
-                            _showEditThemeDialog(context: context, currentTheme: profile.prefTheme);
-                          },
-                          child: ListTile(
-                            leading: Icon(
-                              Icons.contrast,
-                              size: 28,
-                            ),
-                            title: Text(
-                              'Theme',
-                            ),
-                            titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                            subtitle: Text(
-                              '${profile.prefTheme.name[0].toUpperCase()}${profile.prefTheme.name.substring(1).toLowerCase()}',
-                            ),
-                            subtitleTextStyle: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                          ),
-                        ),
-                        //* Preferred role option
-                        InkWell(
-                          onTap: () {
-                            _showEditPrefRoleDialog(
-                                context: context, currentPrefRole: profile.prefRole);
-                          },
-                          child: ListTile(
-                            leading: Icon(
-                              Icons.face,
-                              size: 28,
-                            ),
-                            title: Text(
-                              'Preferred role',
-                            ),
-                            titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                            subtitle: Text(
-                              '${profile.prefRole.name[0].toUpperCase()}'
-                              '${profile.prefRole.name.substring(1).toLowerCase()}',
-                            ),
-                            subtitleTextStyle: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                          ),
-                        ),
-                        //* Logout option
-                        InkWell(
-                          onTap: () {
-                            context.read<AuthBloc>().add(AuthSignOut());
-                          },
-                          child: ListTile(
-                            leading: Icon(
-                              Icons.logout,
-                              size: 28,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                            iconColor: Theme.of(context).colorScheme.error,
-                            title: Text(
-                              'Logout',
-                            ),
-                            titleTextStyle: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(color: Theme.of(context).colorScheme.error),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-              }
-            },
-          ),
-        );
-      },
+                }
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -183,7 +205,7 @@ void _showEditThemeDialog({
   required BuildContext context,
   required AppTheme currentTheme,
 }) {
-  final authBloc = context.read<AuthBloc>();
+  final themeBloc = context.read<ThemeBloc>();
 
   showDialog(
     context: context,
@@ -192,12 +214,11 @@ void _showEditThemeDialog({
       return StatefulBuilder(
         builder: (context, setState) {
           return BlocProvider.value(
-            value: authBloc,
-            child: BlocConsumer<AuthBloc, AuthState>(
+            value: themeBloc,
+            child: BlocConsumer<ThemeBloc, ThemeState>(
               listener: (context, state) {
-                if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditPrefTheme) {
+                if (state.status.isSuccess && state.sourceEvent is SaveTheme) {
                   showSnackBar(context: context, text: 'Theme changed successfully');
-                  context.read<AuthBloc>().add(AuthFetchProfile());
                   context.router.pop();
                 }
               },
@@ -247,7 +268,7 @@ void _showEditThemeDialog({
                     ),
                     TextButton(
                       onPressed: () {
-                        context.read<AuthBloc>().add(AuthEditPrefTheme(prefTheme: selectedTheme));
+                        context.read<ThemeBloc>().add(SaveTheme(theme: selectedTheme));
                       },
                       child: Text('Proceed'),
                     ),
