@@ -21,3 +21,16 @@ final class OrganizerHomePageRefresh extends OrganizerHomePageEvent {
   @override
   List<Object?> get props => [organizerId];
 }
+
+final class OrganizerHomePageFilterResults extends OrganizerHomePageEvent {
+  final List<HomeContestBundle> contestsBundles;
+  final String query;
+
+  const OrganizerHomePageFilterResults({
+    required this.contestsBundles,
+    required this.query,
+  });
+
+  @override
+  List<Object?> get props => [contestsBundles, query];
+}

@@ -21,6 +21,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
         super(JurorHomePageState(status: BlocStatus.initial)) {
     on<JurorHomePageInit>(_init);
     on<JurorHomePageRefresh>(_refresh);
+    on<JurorHomePageFilterResults>(_filterResults);
     on<JurorHomePageJoinContest>(_joinContest);
     on<JurorHomePageVoteAsSimpleJuror>(_voteAsAuthenticatedSimpleJuror);
   }
@@ -34,7 +35,10 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     final eitherContests = await _jurorRepository.getJoinedContests(jurorId: event.jurorId);
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, joinedContestsBundles: success)),
+      (success) => emit(state.copyWith(
+          status: BlocStatus.success,
+          joinedContestsBundles: success,
+          filteredContestsBundles: success)),
     );
   }
 
@@ -47,7 +51,10 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     final eitherContests = await _jurorRepository.getJoinedContests(jurorId: event.jurorId);
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, joinedContestsBundles: success)),
+      (success) => emit(state.copyWith(
+          status: BlocStatus.success,
+          joinedContestsBundles: success,
+          filteredContestsBundles: success)),
     );
   }
 
@@ -68,16 +75,37 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
 
   //* Vote as simple juror
   FutureOr<void> _voteAsAuthenticatedSimpleJuror(
-      JurorHomePageVoteAsSimpleJuror event,
+    JurorHomePageVoteAsSimpleJuror event,
     Emitter<JurorHomePageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherJoinContest =
-    await _jurorRepository.accessVotingAsSimpleJuror(fullName: event.fullName,token: event.token,jurorId: event.jurorId);
+    final eitherJoinContest = await _jurorRepository.accessVotingAsSimpleJuror(
+        fullName: event.fullName, token: event.token, jurorId: event.jurorId);
     eitherJoinContest.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => emit(state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(
+          state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),
     );
+  }
+
+  FutureOr<void> _filterResults(
+    JurorHomePageFilterResults event,
+    Emitter<JurorHomePageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final query = event.query.toLowerCase();
+    final allContestsBundles = event.contestsBundles;
+    final List<HomeContestBundle> filteredContestsBundles = query.isEmpty
+        ? allContestsBundles
+        : allContestsBundles
+            .where((e) =>
+                e.contest.name.toLowerCase().contains(query) ||
+                e.contest.description.toLowerCase().contains(query))
+            .toList();
+
+    emit(state.copyWith(
+        status: BlocStatus.success, filteredContestsBundles: filteredContestsBundles));
   }
 }

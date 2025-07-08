@@ -22,6 +22,19 @@ final class ParticipantHomePageRefresh extends ParticipantHomePageEvent {
   List<Object?> get props => [participantId];
 }
 
+final class ParticipantHomePageFilterResults extends ParticipantHomePageEvent {
+  final List<HomeContestBundle> contestsBundles;
+  final String query;
+
+  const ParticipantHomePageFilterResults({
+    required this.contestsBundles,
+    required this.query,
+  });
+
+  @override
+  List<Object?> get props => [contestsBundles, query];
+}
+
 final class ParticipantHomePageJoinContest extends ParticipantHomePageEvent {
   final String participantId;
   final String token;

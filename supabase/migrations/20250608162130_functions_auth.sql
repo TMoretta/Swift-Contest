@@ -21,7 +21,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
-    RAISE LOG 'Profile creation error: %', SQLERRM;
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -36,20 +36,26 @@ ALTER TABLE auth.users
 DISABLE TRIGGER user_created_trigger;
 
 -- GET USER BY EMAIL
-CREATE OR REPLACE FUNCTION get_user_by_email (
+CREATE OR REPLACE FUNCTION user_exists (
   p_email varchar
 )
-RETURNS SETOF auth.users AS $$
+RETURNS boolean AS $$
 BEGIN
-  RETURN QUERY
-    SELECT *
-    FROM auth.users
-    WHERE email = p_email;
+
+  IF EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE email = p_email
+  ) THEN
+      RETURN true;
+    ELSE
+      RETURN false;
+  END IF;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -64,6 +70,18 @@ RETURNS TABLE (
   messages jsonb
 ) AS $$
 BEGIN
+
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF (auth.uid() <> p_user_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the owner of this account';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT * FROM auth
+  )
 
   RETURN QUERY
     SELECT
@@ -85,6 +103,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -96,6 +115,14 @@ CREATE OR REPLACE FUNCTION get_user (
 RETURNS SETOF auth.users AS $$
 BEGIN
 
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF (auth.uid() <> p_user_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the owner of this account';
+  END IF;
+
   RETURN QUERY
     SELECT * FROM auth.users
     WHERE id = p_user_id
@@ -105,6 +132,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -115,6 +143,14 @@ CREATE OR REPLACE FUNCTION get_profile (
 RETURNS SETOF profiles AS $$
 BEGIN
 
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF (auth.uid() <> p_user_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the owner of this account';
+  END IF;
+
   RETURN QUERY
     SELECT * FROM profiles
     WHERE user_id = p_user_id
@@ -124,16 +160,26 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 -- GET PROFILE MESSAGES
-CREATE OR REPLACE FUNCTION get_profile_messages (
+CREATE OR REPLACE FUNCTION get_messages (
   p_user_id uuid
 )
 RETURNS SETOF messages AS $$
 BEGIN
+
+  IF (auth.uid() = null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF (auth.uid() <> p_user_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the owner of this account';
+  END IF;
+
   RETURN QUERY
     SELECT mes.*
     FROM messages mes
@@ -146,6 +192,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -182,6 +229,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -218,6 +266,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -266,6 +315,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -307,6 +357,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
@@ -343,6 +394,7 @@ EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
   WHEN OTHERS THEN
+    RAISE LOG 'Error: %', SQLERRM;
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;

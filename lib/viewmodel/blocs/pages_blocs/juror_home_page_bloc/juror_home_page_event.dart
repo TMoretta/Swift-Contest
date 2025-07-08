@@ -22,6 +22,20 @@ final class JurorHomePageRefresh extends JurorHomePageEvent {
   List<Object?> get props => [jurorId];
 }
 
+final class JurorHomePageFilterResults extends JurorHomePageEvent {
+  final List<HomeContestBundle> contestsBundles;
+  final String query;
+
+  const JurorHomePageFilterResults({
+    required this.contestsBundles,
+    required this.query,
+  });
+
+  @override
+  List<Object?> get props => [contestsBundles, query];
+}
+
+
 final class JurorHomePageJoinContest extends JurorHomePageEvent {
   final String jurorId;
   final String token;

@@ -9,6 +9,15 @@ DECLARE
   v_joined_participation participations;
   v_joined_juration jurations;
 BEGIN
+
+  IF (auth.uid() is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF (auth.uid() <> p_user_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  END IF;
+
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
     WHERE id = p_user_id
@@ -16,10 +25,15 @@ BEGIN
     RAISE EXCEPTION 'Account not found';
   END IF;
 
+  IF EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = p_user_id AND deleted_at is not null
+  ) THEN
+    RAISE EXCEPTION 'The account has already been deleted';
+  END IF;
+
   UPDATE profiles
-  SET
-    user_id = '00000000-0000-0000-0000-000000000000',
-    deleted_at = now()
+  SET deleted_at = now()
   WHERE user_id = p_user_id
   RETURNING * INTO v_profile;
 
@@ -27,8 +41,10 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while deleting account';
   END IF;
 
-  DELETE FROM auth.users
-  WHERE id = p_user_id;
+  UPDATE auth.users
+  SET deleted_at = now(),
+     email = email || '.deleted_' || to_char(now(), 'YYYYMMDD_HH24MI') || '_' || id
+   WHERE id = p_user_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'An error occurred while deleting account';
@@ -61,10 +77,10 @@ BEGIN
     PERFORM juror_leave_contest(v_joined_juration.contest_id, v_joined_juration.juror_id);
   END LOOP;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;

@@ -9,6 +9,7 @@ import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_home_page_event.dart';
+
 part 'organizer_home_page_state.dart';
 
 class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePageState> {
@@ -20,6 +21,7 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
         super(OrganizerHomePageState(status: BlocStatus.initial)) {
     on<OrganizerHomePageInit>(_init);
     on<OrganizerHomePageRefresh>(_refresh);
+    on<OrganizerHomePageFilterResults>(_filterResults);
   }
 
   FutureOr<void> _init(
@@ -28,11 +30,14 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
   ) async {
     emit(OrganizerHomePageState(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContests = await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
+    final eitherContests =
+        await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) =>
-          emit(state.copyWith(status: BlocStatus.success, createdContestsBundles: success)),
+      (success) => emit(state.copyWith(
+          status: BlocStatus.success,
+          createdContestsBundles: success,
+          filteredContestsBundles: success)),
     );
   }
 
@@ -42,11 +47,34 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContests = await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
+    final eitherContests =
+        await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) =>
-          emit(state.copyWith(status: BlocStatus.success, createdContestsBundles: success)),
+      (success) => emit(state.copyWith(
+          status: BlocStatus.success,
+          createdContestsBundles: success,
+          filteredContestsBundles: success)),
     );
+  }
+
+  FutureOr<void> _filterResults(
+    OrganizerHomePageFilterResults event,
+    Emitter<OrganizerHomePageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final query = event.query.toLowerCase();
+    final allContestsBundles = event.contestsBundles;
+    final List<HomeContestBundle> filteredContestsBundles = query.isEmpty
+        ? allContestsBundles
+        : allContestsBundles
+            .where((e) =>
+                e.contest.name.toLowerCase().contains(query) ||
+                e.contest.description.toLowerCase().contains(query))
+            .toList();
+
+    emit(state.copyWith(
+        status: BlocStatus.success, filteredContestsBundles: filteredContestsBundles));
   }
 }

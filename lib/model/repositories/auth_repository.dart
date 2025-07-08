@@ -242,9 +242,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String fullName,
   }) async {
     try {
-      final List<Map<String, dynamic>> res =
-          await _supabase.rpc('get_user_by_email', params: {'p_email': email});
-      if (res.isNotEmpty) {
+      final bool res =
+          await _supabase.rpc('user_exists', params: {'p_email': email});
+      if (res) {
         return left(Failure(message: 'An account with this email already exists. Sign in instead'));
       }
       await _supabase.auth.signInWithOtp(

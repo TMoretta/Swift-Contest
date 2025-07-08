@@ -6,6 +6,7 @@ final class JurorHomePageState extends Equatable {
   final JurorHomePageEvent? sourceEvent;
   final String? message;
   final List<HomeContestBundle>? joinedContestsBundles;
+  final List<HomeContestBundle>? filteredContestsBundles;
   final SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle;
 
   const JurorHomePageState({
@@ -13,6 +14,7 @@ final class JurorHomePageState extends Equatable {
     this.sourceEvent,
     this.message,
     this.joinedContestsBundles,
+    this.filteredContestsBundles,
     this.simpleJurorAndVotingSessionBundle,
   });
 
@@ -21,6 +23,7 @@ final class JurorHomePageState extends Equatable {
     JurorHomePageEvent? sourceEvent,
     String? message,
     List<HomeContestBundle>? joinedContestsBundles,
+    List<HomeContestBundle>? filteredContestsBundles,
     SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle,
   }) {
     return JurorHomePageState(
@@ -28,7 +31,9 @@ final class JurorHomePageState extends Equatable {
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
       joinedContestsBundles: joinedContestsBundles ?? this.joinedContestsBundles,
-      simpleJurorAndVotingSessionBundle: simpleJurorAndVotingSessionBundle ?? this.simpleJurorAndVotingSessionBundle,
+      filteredContestsBundles: filteredContestsBundles ?? this.filteredContestsBundles,
+      simpleJurorAndVotingSessionBundle:
+          simpleJurorAndVotingSessionBundle ?? this.simpleJurorAndVotingSessionBundle,
     );
   }
 
@@ -38,6 +43,7 @@ final class JurorHomePageState extends Equatable {
         sourceEvent,
         message,
         joinedContestsBundles,
+        filteredContestsBundles,
         simpleJurorAndVotingSessionBundle,
       ];
 }

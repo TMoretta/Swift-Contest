@@ -36,7 +36,7 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
           if (state.message != null) {
             showSnackBar(context: context, text: state.message!);
           }
-          if (state.status.isLoading && state.sourceEvent is PlaceSearchPageFetchPlace) {
+          if (state.status.isLoading) {
             context.showLoader();
           }
           if (!state.status.isLoading) {

@@ -6,6 +6,7 @@ import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
+import 'package:swift_contest/view/widgets/custom_search_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/home_page_app_bar.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
@@ -26,6 +27,15 @@ class JurorHomePage extends StatefulWidget {
 
 class _JurorHomePageState extends State<JurorHomePage> {
   late String profileId;
+  late final FocusNode _searchFocusNode;
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode = FocusNode();
+    _searchController = TextEditingController();
+  }
 
   @override
   void didChangeDependencies() {
@@ -36,6 +46,8 @@ class _JurorHomePageState extends State<JurorHomePage> {
   @override
   void dispose() {
     context.hideLoader();
+    _searchFocusNode.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -87,43 +99,60 @@ class _JurorHomePageState extends State<JurorHomePage> {
                         }
                       successCase:
                       case BlocStatus.success:
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async {
-                            context
-                                .read<JurorHomePageBloc>()
-                                .add(JurorHomePageRefresh(jurorId: profileId));
-                            context.read<AuthBloc>().add(AuthFetchProfileMessages());
-                          },
-                          child: (state.joinedContestsBundles!.isNotEmpty)
-                              ? ListView(
-                                  children: [
-                                    SizedBox(height: 16),
-                                    ...state.joinedContestsBundles!.map((homeContestBundle) {
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
+                        return Column(
+                          children: [
+                            SizedBox(height: 16),
+                            CustomSearchBar(
+                              controller: _searchController,
+                              focusNode: _searchFocusNode,
+                              onChanged: (value) {
+                                context.read<JurorHomePageBloc>().add(
+                                    JurorHomePageFilterResults(
+                                        contestsBundles: state.joinedContestsBundles!,
+                                        query: value));
+                              },
+                            ),
+                            Expanded(
+                              child: RefreshIndicator.adaptive(
+                                onRefresh: () async {
+                                  context
+                                      .read<JurorHomePageBloc>()
+                                      .add(JurorHomePageRefresh(jurorId: profileId));
+                                  context.read<AuthBloc>().add(AuthFetchProfileMessages());
+                                },
+                                child: (state.filteredContestsBundles!.isNotEmpty)
+                                    ? ListView(
                                         children: [
-                                          ContestCard(
-                                            homeContestBundle: homeContestBundle,
-                                            onTap: () async {
-                                              final bool? res = await context.router.push(
-                                                  JurorContestDetailsRoute(
-                                                      contestId: homeContestBundle.contest.id));
-                                              if (res == true) {
-                                                if (context.mounted) {
-                                                  context.read<JurorHomePageBloc>().add(
-                                                      JurorHomePageRefresh(jurorId: profileId));
-                                                }
-                                              }
-                                            },
-                                          ),
-                                          SizedBox(height: 8),
+                                          SizedBox(height: 16),
+                                          ...state.filteredContestsBundles!.map((homeContestBundle) {
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ContestCard(
+                                                  homeContestBundle: homeContestBundle,
+                                                  onTap: () async {
+                                                    final bool? res = await context.router.push(
+                                                        JurorContestDetailsRoute(
+                                                            contestId: homeContestBundle.contest.id));
+                                                    if (res == true) {
+                                                      if (context.mounted) {
+                                                        context.read<JurorHomePageBloc>().add(
+                                                            JurorHomePageRefresh(jurorId: profileId));
+                                                      }
+                                                    }
+                                                  },
+                                                ),
+                                                SizedBox(height: 8),
+                                              ],
+                                            );
+                                          }),
+                                          SizedBox(height: 64),
                                         ],
-                                      );
-                                    }),
-                                    SizedBox(height: 64),
-                                  ],
-                                )
-                              : ListViewWithCentralLabel(label: 'No contest joined yet'),
+                                      )
+                                    : ListViewWithCentralLabel(label: 'No contest'),
+                              ),
+                            ),
+                          ],
                         );
                     }
                   },
@@ -144,7 +173,6 @@ class _JurorHomePageState extends State<JurorHomePage> {
                   ),
                   child: Text('Vote as simple juror'),
                 ),
-                SizedBox(height: 8),
                 FilledButton(
                   onPressed: () {
                     _showJoinContestDialog(context: context, profileId: profileId);

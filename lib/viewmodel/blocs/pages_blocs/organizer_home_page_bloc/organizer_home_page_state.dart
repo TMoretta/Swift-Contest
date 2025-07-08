@@ -6,12 +6,14 @@ final class OrganizerHomePageState extends Equatable {
   final OrganizerHomePageEvent? sourceEvent;
   final String? message;
   final List<HomeContestBundle>? createdContestsBundles;
+  final List<HomeContestBundle>? filteredContestsBundles;
 
   const OrganizerHomePageState({
     required this.status,
     this.sourceEvent,
     this.message,
     this.createdContestsBundles,
+    this.filteredContestsBundles,
   });
 
   OrganizerHomePageState copyWith({
@@ -20,12 +22,15 @@ final class OrganizerHomePageState extends Equatable {
     String? message,
     List<HomeContestBundle>? createdContestsBundles,
     List<Message>? messages,
+    List<HomeContestBundle>? filteredContestsBundles,
   }) {
     return OrganizerHomePageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
       createdContestsBundles: createdContestsBundles ?? this.createdContestsBundles,
+      filteredContestsBundles: filteredContestsBundles ?? this.filteredContestsBundles,
+
     );
   }
 
@@ -35,5 +40,6 @@ final class OrganizerHomePageState extends Equatable {
         sourceEvent,
         message,
         createdContestsBundles,
+        filteredContestsBundles,
       ];
 }

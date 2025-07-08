@@ -5,6 +5,7 @@ import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
+import 'package:swift_contest/view/widgets/custom_search_bar.dart';
 import 'package:swift_contest/view/widgets/home_page_app_bar.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -24,6 +25,15 @@ class OrganizerHomePage extends StatefulWidget {
 
 class _OrganizerHomePageState extends State<OrganizerHomePage> {
   late String profileId;
+  late final FocusNode _searchFocusNode;
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode = FocusNode();
+    _searchController = TextEditingController();
+  }
 
   @override
   void didChangeDependencies() {
@@ -34,6 +44,8 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   @override
   void dispose() {
     context.hideLoader();
+    _searchFocusNode.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -80,9 +92,13 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                       case BlocStatus.failure:
                         if (state.sourceEvent is OrganizerHomePageInit) {
                           return RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<OrganizerHomePageBloc>()
-                                .add(OrganizerHomePageInit(organizerId: profileId)),
+                            onRefresh: () async {
+                              _searchController.clear();
+                              _searchFocusNode.unfocus();
+                              context
+                                  .read<OrganizerHomePageBloc>()
+                                  .add(OrganizerHomePageInit(organizerId: profileId));
+                            },
                             child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                           );
                         } else {
@@ -90,44 +106,63 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                         }
                       successCase:
                       case BlocStatus.success:
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async {
-                            context
-                                .read<OrganizerHomePageBloc>()
-                                .add(OrganizerHomePageRefresh(organizerId: profileId));
-                            context.read<AuthBloc>().add(AuthFetchProfileMessages());
-                          },
-                          child: (state.createdContestsBundles!.isNotEmpty)
-                              ? ListView(
-                                  children: [
-                                    SizedBox(height: 16),
-                                    ...state.createdContestsBundles!.map((homeContestBundle) {
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
+                        return Column(
+                          children: [
+                            SizedBox(height: 16),
+                            CustomSearchBar(
+                              controller: _searchController,
+                              focusNode: _searchFocusNode,
+                              onChanged: (value) {
+                                context.read<OrganizerHomePageBloc>().add(
+                                    OrganizerHomePageFilterResults(
+                                        contestsBundles: state.createdContestsBundles!,
+                                        query: value));
+                              },
+                            ),
+                            Expanded(
+                              child: RefreshIndicator.adaptive(
+                                onRefresh: () async {
+                                  _searchController.clear();
+                                  _searchFocusNode.unfocus();
+                                  context
+                                      .read<OrganizerHomePageBloc>()
+                                      .add(OrganizerHomePageRefresh(organizerId: profileId));
+                                },
+                                child: (state.filteredContestsBundles!.isNotEmpty)
+                                    ? ListView(
                                         children: [
-                                          ContestCard(
-                                            homeContestBundle: homeContestBundle,
-                                            onTap: () async {
-                                              final bool? res = await context.router.push(
-                                                  OrganizerContestDetailsRoute(
-                                                      contestId: homeContestBundle.contest.id));
-                                              if (res == true) {
-                                                if (context.mounted) {
-                                                  context.read<OrganizerHomePageBloc>().add(
-                                                      OrganizerHomePageRefresh(
-                                                          organizerId: profileId));
-                                                }
-                                              }
-                                            },
-                                          ),
-                                          SizedBox(height: 8),
+                                          SizedBox(height: 16),
+                                          ...state.filteredContestsBundles!.map((homeContestBundle) {
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ContestCard(
+                                                  homeContestBundle: homeContestBundle,
+                                                  onTap: () async {
+                                                    final bool? res = await context.router.push(
+                                                        OrganizerContestDetailsRoute(
+                                                            contestId:
+                                                                homeContestBundle.contest.id));
+                                                    if (res == true) {
+                                                      if (context.mounted) {
+                                                        context.read<OrganizerHomePageBloc>().add(
+                                                            OrganizerHomePageRefresh(
+                                                                organizerId: profileId));
+                                                      }
+                                                    }
+                                                  },
+                                                ),
+                                                SizedBox(height: 8),
+                                              ],
+                                            );
+                                          }),
+                                          SizedBox(height: 64),
                                         ],
-                                      );
-                                    }),
-                                    SizedBox(height: 64),
-                                  ],
-                                )
-                              : ListViewWithCentralLabel(label: 'No contest created yet'),
+                                      )
+                                    : ListViewWithCentralLabel(label: 'No contest'),
+                              ),
+                            ),
+                          ],
                         );
                     }
                   },
