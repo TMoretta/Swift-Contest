@@ -335,11 +335,13 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
 
 void _showInviteDialog({required BuildContext context, required String contestId}) {
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
+  final invitationFormKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final emailFocusNode = FocusNode();
+
   showDialog(
     context: context,
     builder: (context) {
-      final invitationFormKey = GlobalKey<FormState>();
-      final emailController = TextEditingController();
       return BlocProvider.value(
         value: organizerContestDetailsPageBloc,
         child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
@@ -366,6 +368,7 @@ void _showInviteDialog({required BuildContext context, required String contestId
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: emailController,
+                      focusNode: emailFocusNode,
                       label: 'Email',
                       validator: emailValidator,
                     ),

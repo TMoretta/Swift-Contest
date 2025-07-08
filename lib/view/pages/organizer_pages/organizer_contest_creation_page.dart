@@ -49,6 +49,14 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   final worksSubmissionEndController = TextEditingController();
   DateTime? worksSubmissionEnd;
   final List<XFile> images = [];
+  final nameFocusNode = FocusNode();
+  final descriptionFocusNode = FocusNode();
+  final dateFocusNode = FocusNode();
+  final worksSubmissionStartFocusNode = FocusNode();
+  final worksSubmissionEndFocusNode = FocusNode();
+  final placeFocusNode = FocusNode();
+  final timeFocusNode = FocusNode();
+
 
   @override
   void didChangeDependencies() {
@@ -59,6 +67,23 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   @override
   void dispose() {
     context.hideLoader();
+    nameController.dispose();
+    descriptionController.dispose();
+    dateController.dispose();
+    timeController.dispose();
+    placeController.dispose();
+    worksSubmissionStartController.dispose();
+    worksSubmissionEndController.dispose();
+    nameFocusNode.dispose();
+    descriptionFocusNode.dispose();
+    dateFocusNode.dispose();
+    worksSubmissionStartFocusNode.dispose();
+    worksSubmissionEndFocusNode.dispose();
+    placeFocusNode.dispose();
+    timeFocusNode.dispose();
+    for (var formKey in formKeys) {
+      formKey.currentState?.dispose();
+    }
     super.dispose();
   }
 
@@ -174,6 +199,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: nameController,
+                  focusNode: nameFocusNode,
                   label: 'Name',
                   validator: (value) => nameValidator(value?.trim()),
                   minLines: 1,
@@ -182,6 +208,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: descriptionController,
+                  focusNode: descriptionFocusNode,
                   label: 'Description',
                   validator: (value) => descriptionValidator(value?.trim()),
                   minLines: 2,
@@ -189,6 +216,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 ),
                 DatePickerFormField(
                   controller: dateController,
+                  focusNode: dateFocusNode,
                   label: 'Date',
                   validator: (value) => dateValidator(value),
                   onSelected: (dateValue) => date = dateValue,
@@ -196,6 +224,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 ),
                 TimePickerFormField(
                   controller: timeController,
+                  focusNode: timeFocusNode,
                   label: 'Time',
                   validator: (value) => timeValidator(value),
                   onSelected: (timeValue) => time = timeValue,
@@ -203,6 +232,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 ),
                 PlacePickerFormField(
                   controller: placeController,
+                  focusNode: placeFocusNode,
                   label: 'Location',
                   validator: (value) => locationValidator(value),
                   prefixIcon: Icon(Icons.place_outlined),
@@ -328,6 +358,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 SizedBox(height: 10),
                 DatePickerFormField(
                   controller: worksSubmissionStartController,
+                  focusNode: worksSubmissionStartFocusNode,
                   label: 'Start date',
                   validator: (value) =>
                       _worksSubmissionStartValidator(value, date!, worksSubmissionEnd),
@@ -336,6 +367,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 ),
                 DatePickerFormField(
                   controller: worksSubmissionEndController,
+                  focusNode: worksSubmissionEndFocusNode,
                   label: 'End date',
                   validator: (value) =>
                       _worksSubmissionEndValidator(value, date!, worksSubmissionStart),

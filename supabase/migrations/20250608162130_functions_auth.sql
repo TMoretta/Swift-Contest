@@ -79,10 +79,6 @@ BEGIN
     RAISE EXCEPTION 'Operation not allowed, you are not the owner of this account';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT * FROM auth
-  )
-
   RETURN QUERY
     SELECT
       to_jsonb(u),

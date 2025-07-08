@@ -70,11 +70,21 @@ class _AccountPageState extends State<AccountPage> {
                   }
                 successCase:
                 case BlocStatus.success:
+                  final user = state.user!;
                   final profile = state.profile!;
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context.read<AuthBloc>().add(AuthRefresh()),
                     child: ListView(
                       children: [
+                        ListTile(
+                          title: Text('Email'),
+                          titleTextStyle: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                          subtitle: Text(user.email),
+                          subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
+                        ),
                         ListTile(
                           title: Text('Full name'),
                           titleTextStyle: Theme.of(context)
@@ -145,6 +155,7 @@ class _AccountPageState extends State<AccountPage> {
 void _showEditFullNameDialog({required BuildContext context}) {
   final authBloc = context.read<AuthBloc>();
   final fullNameController = TextEditingController();
+  final fullNameFocusNode = FocusNode();
 
   showDialog(
     context: context,
@@ -170,6 +181,7 @@ void _showEditFullNameDialog({required BuildContext context}) {
                     borderType: InputBorderType.underlined,
                     label: 'Full name',
                     controller: fullNameController,
+                    focusNode: fullNameFocusNode,
                   ),
                 ],
               ),

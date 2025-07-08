@@ -19,13 +19,20 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _passwordFocusNode = FocusNode();
 
   @override
   void dispose() {
     context.hideLoader();
+    _formKey.currentState?.dispose();
+    _emailController.dispose();
+    _emailFocusNode.dispose();
+    _passwordController.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -61,6 +68,7 @@ class _SignInPageState extends State<SignInPage> {
                   child: ListView(
                     shrinkWrap: true,
                     children: [
+                      SizedBox(height: 72),
                       //* Title
                       FittedBox(
                         fit: BoxFit.scaleDown,
@@ -96,6 +104,7 @@ class _SignInPageState extends State<SignInPage> {
                               child: CustomTextFormField(
                                 borderType: InputBorderType.outlined,
                                 controller: _emailController,
+                                focusNode: _emailFocusNode,
                                 label: 'Email',
                                 validator: emailValidator,
                                 prefixIcon: Icon(Icons.email_outlined),
@@ -107,6 +116,7 @@ class _SignInPageState extends State<SignInPage> {
                               child: CustomTextFormField(
                                 borderType: InputBorderType.outlined,
                                 controller: _passwordController,
+                                focusNode: _passwordFocusNode,
                                 label: 'Password',
                                 prefixIcon: Icon(Icons.lock),
                                 obscureText: true,
@@ -187,6 +197,7 @@ class _SignInPageState extends State<SignInPage> {
                           ],
                         ),
                       ),
+                      SizedBox(height: 72),
                     ],
                   ),
                 ),
@@ -201,12 +212,14 @@ class _SignInPageState extends State<SignInPage> {
 
 void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
   final signInPageBloc = context.read<SignInPageBloc>();
+  final accessVotingFormKey = GlobalKey<FormState>();
+  final fullNameController = TextEditingController();
+  final fullNameFocusNode = FocusNode();
+  final tokenController = TextEditingController();
+  final tokenFocusNode = FocusNode();
   showDialog(
     context: context,
     builder: (context) {
-      final accessVotingFormKey = GlobalKey<FormState>();
-      final fullNameController = TextEditingController();
-      final tokenController = TextEditingController();
       return BlocProvider.value(
         value: signInPageBloc,
         child: BlocConsumer<SignInPageBloc, SignInPageState>(
@@ -232,12 +245,14 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: fullNameController,
+                      focusNode: fullNameFocusNode,
                       label: 'Full name',
                       validator: (value) => noEmptyValidator(value?.trim()),
                     ),
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: tokenController,
+                      focusNode: tokenFocusNode,
                       label: 'Token',
                       validator: (value) => noEmptyValidator(value?.trim()),
                     ),

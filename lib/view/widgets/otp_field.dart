@@ -21,6 +21,7 @@ class OtpField extends StatelessWidget {
       length: length,
       controller: controller,
       focusNode: focusNode,
+      onTapOutside: (event) => focusNode?.unfocus(),
       validator: validator,
       pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
       cursor: Column(

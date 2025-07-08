@@ -23,12 +23,16 @@ class SignInVerifyPage extends StatefulWidget {
 }
 
 class _SignInVerifyPageState extends State<SignInVerifyPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _otpController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _otpController = TextEditingController();
+  final FocusNode _otpFocusNode = FocusNode();
 
   @override
   void dispose() {
     context.hideLoader();
+    _formKey.currentState?.dispose();
+    _otpController.dispose();
+    _otpFocusNode.dispose();
     super.dispose();
   }
 
@@ -98,6 +102,7 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
                             CustomTextFormField(
                               borderType: InputBorderType.outlined,
                               controller: _otpController,
+                              focusNode: _otpFocusNode,
                               label: 'OTP',
                               prefixIcon: Icon(Icons.lock),
                             ),

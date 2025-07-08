@@ -34,14 +34,16 @@ class ParticipantWorkSubmitPage extends StatefulWidget {
 class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   late String profileId;
   late final String contestId;
-  final detailsFormKey = GlobalKey<FormState>();
-  final imagesFormKey = GlobalKey<FormState>();
-  final fileFormKey = GlobalKey<FormState>();
-
+  final GlobalKey<FormState> detailsFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> imagesFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> fileFormKey = GlobalKey<FormState>();
   List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey, fileFormKey];
+
   int currentStep = 0;
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
+  final nameFocusNode = FocusNode();
+  final descriptionFocusNode = FocusNode();
   final List<XFile> images = [];
   File? file;
 
@@ -60,6 +62,13 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   @override
   void dispose() {
     context.hideLoader();
+    nameController.dispose();
+    descriptionController.dispose();
+    nameFocusNode.dispose();
+    descriptionFocusNode.dispose();
+    for (var formKey in formKeys) {
+      formKey.currentState?.dispose();
+    }
     super.dispose();
   }
 
@@ -170,6 +179,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: nameController,
+                  focusNode: nameFocusNode,
                   label: 'Name',
                   validator: (value) => nameValidator(value?.trim()),
                   minLines: 1,
@@ -179,6 +189,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: descriptionController,
+                  focusNode: descriptionFocusNode,
                   label: 'Description',
                   validator: (value) => descriptionValidator(value?.trim()),
                   minLines: 2,

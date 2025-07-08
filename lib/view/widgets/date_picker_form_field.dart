@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 class DatePickerFormField extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
   final String? label;
   final Function(DateTime)? onSelected;
   final String? Function(String?)? validator;
@@ -17,6 +18,7 @@ class DatePickerFormField extends StatelessWidget {
 
   const DatePickerFormField({
     required this.controller,
+    this.focusNode,
     this.label,
     this.onSelected,
     this.validator,
@@ -36,6 +38,8 @@ class DatePickerFormField extends StatelessWidget {
     return TextFormField(
       readOnly: true,
       controller: controller,
+      focusNode: focusNode,
+      onTapOutside: (event) => focusNode?.unfocus(),
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(
@@ -48,7 +52,7 @@ class DatePickerFormField extends StatelessWidget {
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
           onPressed: () async {
-            FocusManager.instance.primaryFocus?.unfocus();
+            // FocusManager.instance.primaryFocus?.unfocus();
             final date = await _showDatePicker(context: context, initialDate: initialDate);
             if (date != null) {
               controller.text = DateFormat('dd/MM/yyyy').format(date);

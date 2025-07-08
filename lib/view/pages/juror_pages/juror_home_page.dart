@@ -193,11 +193,13 @@ void _showJoinContestDialog({
   required String profileId,
 }) {
   final jurorHomePageBloc = context.read<JurorHomePageBloc>();
+  final joinContestFormKey = GlobalKey<FormState>();
+  final tokenController = TextEditingController();
+  final tokenFocusNode = FocusNode();
+
   showDialog(
     context: context,
     builder: (context) {
-      final joinContestFormKey = GlobalKey<FormState>();
-      final tokenController = TextEditingController();
       return BlocProvider.value(
         value: jurorHomePageBloc,
         child: BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
@@ -221,6 +223,7 @@ void _showJoinContestDialog({
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: tokenController,
+                      focusNode: tokenFocusNode,
                       label: 'Token',
                       validator: (value) => noEmptyValidator(value?.trim()),
                     ),
@@ -261,12 +264,15 @@ void _showVoteAsSimpleJurorDialog({
   required String profileId,
 }) {
   final jurorHomePageBloc = context.read<JurorHomePageBloc>();
+  final votingAccessFormKey = GlobalKey<FormState>();
+  final fullNameController = TextEditingController();
+  final tokenController = TextEditingController();
+  final fullNameFocusNode = FocusNode();
+  final tokenFocusNode = FocusNode();
+
   showDialog(
     context: context,
     builder: (context) {
-      final votingAccessFormKey = GlobalKey<FormState>();
-      final fullNameController = TextEditingController();
-      final tokenController = TextEditingController();
       return BlocProvider.value(
         value: jurorHomePageBloc,
         child: BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
@@ -292,12 +298,14 @@ void _showVoteAsSimpleJurorDialog({
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: fullNameController,
+                      focusNode: fullNameFocusNode,
                       label: 'Full name',
                       validator: (value) => noEmptyValidator(value?.trim()),
                     ),
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: tokenController,
+                      focusNode: tokenFocusNode,
                       label: 'Token',
                       validator: (value) => noEmptyValidator(value?.trim()),
                     ),

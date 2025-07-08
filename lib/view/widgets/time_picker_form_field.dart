@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class TimePickerFormField extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
   final String? label;
   final Function(TimeOfDay)? onSelected;
   final String? Function(String?)? validator;
@@ -13,8 +14,9 @@ class TimePickerFormField extends StatelessWidget {
   final Widget? prefixIcon;
   final Color? prefixIconColor;
 
-   const TimePickerFormField({
+  const TimePickerFormField({
     required this.controller,
+    this.focusNode,
     this.label,
     this.onSelected,
     this.validator,
@@ -33,6 +35,9 @@ class TimePickerFormField extends StatelessWidget {
     return TextFormField(
       readOnly: true,
       controller: controller,
+      focusNode: focusNode,
+      onTapOutside: (event) => focusNode?.unfocus(),
+      autovalidateMode: autovalidateMode,
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(
@@ -44,19 +49,19 @@ class TimePickerFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
-            onPressed: () async {
-              FocusManager.instance.primaryFocus?.unfocus();
-              final time = await _showTimePicker(context: context);
-              if (time != null) {
-                controller.text =
-                '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-                if(onSelected!=null) {
-                  onSelected!(time);
-                }
-
+          onPressed: () async {
+            // FocusManager.instance.primaryFocus?.unfocus();
+            final time = await _showTimePicker(context: context);
+            if (time != null) {
+              controller.text =
+                  '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+              if (onSelected != null) {
+                onSelected!(time);
               }
-            },
-            child: Text('Select'),),
+            }
+          },
+          child: Text('Select'),
+        ),
         helperText: '',
         helperStyle: TextStyle(height: 1),
         errorStyle: TextStyle(height: 1),

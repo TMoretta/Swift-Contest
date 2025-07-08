@@ -55,8 +55,10 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   Duration reviewTimer = Duration(minutes: 0, seconds: 0);
   bool isGeoRestricted = false;
   final geoRestrictionPlaceController = TextEditingController();
+  final geoRestrictionPlaceFocusNode = FocusNode();
   PlaceModel? geoRestrictionPlace;
   final geoRestrictionRadiusController = TextEditingController();
+  final geoRestrictionRadiusFocusNode = FocusNode();
   final List<ParticipationBundle> participationsBundles = [];
   final List<ParticipationBundle> excludedParticipationsBundles = [];
   final List<JurationBundle> jurationsBundles = [];
@@ -78,6 +80,13 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   void dispose() {
     context.hideLoader();
+    geoRestrictionPlaceController.dispose();
+    geoRestrictionPlaceFocusNode.dispose();
+    geoRestrictionRadiusController.dispose();
+    geoRestrictionRadiusFocusNode.dispose();
+    for (var formKey in formKeys) {
+      formKey.currentState?.dispose();
+    }
     super.dispose();
   }
 
@@ -147,7 +156,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                         currentStep: currentStep,
                         elevation: 0,
                         onStepContinue: () {
-                          FocusManager.instance.primaryFocus?.unfocus();
+                          // FocusManager.instance.primaryFocus?.unfocus();
                           final isLastStep = (currentStep == getSteps().length - 1);
                           if (formKeys[currentStep].currentState?.validate() ?? false) {
                             if (isLastStep) {
@@ -189,7 +198,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                           }
                         },
                         onStepCancel: () {
-                          FocusManager.instance.primaryFocus?.unfocus();
+                          // FocusManager.instance.primaryFocus?.unfocus();
                           (currentStep == 0) ? null : setState(() => --currentStep);
                         },
                         controlsBuilder: (context, details) {
@@ -485,6 +494,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                 SizedBox(height: 8),
                 PlacePickerFormField(
                   controller: geoRestrictionPlaceController,
+                  focusNode: geoRestrictionPlaceFocusNode,
                   label: 'Restricted location',
                   validator: (isGeoRestricted) ? noEmptyValidator : null,
                   prefixIcon: Icon(Icons.place_outlined),
@@ -508,6 +518,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   borderType: InputBorderType.outlined,
                   enabled: isGeoRestricted,
                   controller: geoRestrictionRadiusController,
+                  focusNode: geoRestrictionRadiusFocusNode,
                   label: 'Restriction radius',
                   validator: (isGeoRestricted) ? integerValidator : null,
                 ),

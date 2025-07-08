@@ -203,8 +203,11 @@ Future<VotingFormFieldModel?> showAddFieldDialog({
 }) async {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
+  final nameFocusNode = FocusNode();
   final minValueController = TextEditingController();
+  final minValueFocusNode = FocusNode();
   final maxValueController = TextEditingController();
+  final maxValueFocusNode = FocusNode();
 
   return await showDialog<VotingFormFieldModel?>(
     context: context,
@@ -219,12 +222,14 @@ Future<VotingFormFieldModel?> showAddFieldDialog({
               CustomTextFormField(
                 borderType: InputBorderType.underlined,
                 controller: nameController,
+                focusNode: nameFocusNode,
                 validator: noEmptyValidator,
                 label: 'Name',
               ),
               CustomTextFormField(
                 borderType: InputBorderType.underlined,
                 controller: minValueController,
+                focusNode: minValueFocusNode,
                 label: 'Min value',
                 keyboardType: TextInputType.number,
                 validator: (value) => _minValueValidator(value, maxValueController.text),
@@ -232,6 +237,7 @@ Future<VotingFormFieldModel?> showAddFieldDialog({
               CustomTextFormField(
                 borderType: InputBorderType.underlined,
                 controller: maxValueController,
+                focusNode: maxValueFocusNode,
                 label: 'Max value',
                 keyboardType: TextInputType.number,
                 validator: (value) => _maxValueValidator(value, minValueController.text),

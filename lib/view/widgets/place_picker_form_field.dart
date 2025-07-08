@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class PlacePickerFormField extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
   final String? label;
   final String? Function(String?)? validator;
   final AutovalidateMode? autovalidateMode;
@@ -22,6 +23,7 @@ class PlacePickerFormField extends StatelessWidget {
 
   const PlacePickerFormField({
     required this.controller,
+     this.focusNode,
     this.label,
     this.validator,
     this.autovalidateMode,
@@ -47,6 +49,8 @@ class PlacePickerFormField extends StatelessWidget {
       readOnly: true,
       enabled: enabled,
       controller: controller,
+      focusNode: focusNode,
+      onTapOutside: (event) => focusNode?.unfocus(),
       validator: validator,
       textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(

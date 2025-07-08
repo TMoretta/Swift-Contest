@@ -180,11 +180,13 @@ void _showJoinContestDialog({
   required String profileId,
 }) {
   final participantHomePageBloc = context.read<ParticipantHomePageBloc>();
+  final joinContestFormKey = GlobalKey<FormState>();
+  final tokenController = TextEditingController();
+  final tokenFocusNode = FocusNode();
+
   showDialog(
     context: context,
     builder: (context) {
-      final joinContestFormKey = GlobalKey<FormState>();
-      final tokenController = TextEditingController();
       return BlocProvider.value(
         value: participantHomePageBloc,
         child: BlocConsumer<ParticipantHomePageBloc, ParticipantHomePageState>(
@@ -209,6 +211,7 @@ void _showJoinContestDialog({
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: tokenController,
+                      focusNode: tokenFocusNode,
                       label: 'Token',
                       validator: (value) => noEmptyValidator(value?.trim()),
                     ),

@@ -262,6 +262,7 @@ void _showEditVotingSessionNameDialog({
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
+  final nameFocusNode = FocusNode();
 
   showDialog(
     context: context,
@@ -289,6 +290,7 @@ void _showEditVotingSessionNameDialog({
                     CustomTextFormField(
                       borderType: InputBorderType.underlined,
                       controller: nameController,
+                      focusNode: nameFocusNode,
                       label: 'Name',
                       validator: noEmptyValidator,
                     ),

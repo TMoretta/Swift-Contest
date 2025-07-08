@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
@@ -20,15 +19,28 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _fullNameController = TextEditingController();
+  final FocusNode _fullNameFocusNode = FocusNode();
+  final TextEditingController _emailController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final FocusNode _confirmPasswordFocusNode = FocusNode();
 
   @override
   void dispose() {
     context.hideLoader();
+    _formKey.currentState?.dispose();
+    _fullNameController.dispose();
+    _fullNameFocusNode.dispose();
+    _emailController.dispose();
+    _emailFocusNode.dispose();
+    _passwordController.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordController.dispose();
+    _confirmPasswordFocusNode.dispose();
     super.dispose();
   }
 
@@ -99,6 +111,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: CustomTextFormField(
                                   borderType: InputBorderType.outlined,
                                   controller: _fullNameController,
+                                  focusNode: _fullNameFocusNode,
                                   label: 'Full name',
                                   validator: fullNameValidator,
                                   prefixIcon: Icon(Icons.person_outlined),
@@ -111,6 +124,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: CustomTextFormField(
                                   borderType: InputBorderType.outlined,
                                   controller: _emailController,
+                                  focusNode: _emailFocusNode,
                                   label: 'Email',
                                   validator: emailValidator,
                                   prefixIcon: Icon(Icons.email_outlined),
@@ -123,6 +137,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: CustomTextFormField(
                                   borderType: InputBorderType.outlined,
                                   controller: _passwordController,
+                                  focusNode: _passwordFocusNode,
                                   validator: passwordValidator,
                                   label: 'Password',
                                   prefixIcon: Icon(Icons.lock),
@@ -136,6 +151,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: CustomTextFormField(
                                   borderType: InputBorderType.outlined,
                                   controller: _confirmPasswordController,
+                                  focusNode: _confirmPasswordFocusNode,
                                   validator: (value) =>
                                       confirmPasswordValidator(value, _passwordController.text),
                                   label: 'Confirm password',
