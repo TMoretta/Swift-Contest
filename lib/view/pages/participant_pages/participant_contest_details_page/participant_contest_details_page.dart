@@ -108,27 +108,14 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                               }
                             successCase:
                             case BlocStatus.success:
-                              return Card(
-                                shape:
-                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0.6,
-                                child: TabBar(
-                                  labelColor: Theme.of(context).colorScheme.onPrimary,
-                                  isScrollable: false,
-                                  dividerColor: Colors.transparent,
-                                  tabAlignment: TabAlignment.center,
-                                  splashBorderRadius: BorderRadius.circular(16),
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  indicator: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                  tabs: [
-                                    Tab(text: 'Details'),
-                                    Tab(text: 'Work'),
-                                    // Tab(text: 'Voting'),
-                                  ],
-                                ),
+                              return TabBar(
+                                isScrollable: true,
+                                tabAlignment: TabAlignment.center,
+                                indicatorSize: TabBarIndicatorSize.label,
+                                tabs: [
+                                  Tab(text: 'Details'),
+                                  Tab(text: 'Work'),
+                                ],
                               );
                           }
                         },

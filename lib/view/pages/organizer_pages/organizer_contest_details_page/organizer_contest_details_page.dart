@@ -106,29 +106,18 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                               }
                             successCase:
                             case BlocStatus.success:
-                              return Card(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16)),
-                                  elevation: 0.6,
-                                  child: TabBar(
-                                    labelColor: Theme.of(context).colorScheme.onPrimary,
-                                    isScrollable: true,
-                                    dividerColor: Colors.transparent,
-                                    tabAlignment: TabAlignment.center,
-                                    splashBorderRadius: BorderRadius.circular(16),
-                                    indicatorSize: TabBarIndicatorSize.tab,
-                                    indicator: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    tabs: [
-                                      Tab(text: 'Details'),
-                                      Tab(text: 'Participants'),
-                                      Tab(text: 'Jurors'),
-                                      Tab(text: 'Works'),
-                                      Tab(text: 'Voting'),
-                                    ],
-                                  ));
+                              return TabBar(
+                                isScrollable: true,
+                                tabAlignment: TabAlignment.center,
+                                indicatorSize: TabBarIndicatorSize.label,
+                                tabs: [
+                                  Tab(text: 'Details'),
+                                  Tab(text: 'Participants'),
+                                  Tab(text: 'Jurors'),
+                                  Tab(text: 'Works'),
+                                  Tab(text: 'Voting'),
+                                ],
+                              );
                           }
                         },
                       ),
