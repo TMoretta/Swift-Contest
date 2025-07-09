@@ -6,16 +6,17 @@ import 'package:swift_contest/model/bundles/user_auth_bundle.dart';
 import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart' as my;
-import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, UserAuthBundle?>> getCurrentUserAuthBundle();
+  Future<Either<Failure,bool>> verifyCurrentUserExistence();
 
-  Future<Either<Failure, my.User?>> getCurrentUser();
+  Future<Either<Failure, UserAuthBundle>> getCurrentUserAuthBundle();
 
-  Future<Either<Failure, Profile?>> getCurrentProfile();
+  Future<Either<Failure, my.User>> getCurrentUser();
+
+  Future<Either<Failure, Profile>> getCurrentProfile();
 
   Future<Either<Failure, List<Message>>> getCurrentProfileMessages();
 
@@ -61,13 +62,24 @@ class AuthRepositoryImpl implements AuthRepository {
   Session? get currentSession => _supabase.auth.currentSession;
 
   @override
-  Future<Either<Failure, UserAuthBundle?>> getCurrentUserAuthBundle() async {
+  Future<Either<Failure,bool>> verifyCurrentUserExistence() async {
+    try {
+      final bool exists = await _supabase.rpc('verify_user_existence_by_id', params: {'p_user_id':currentSession?.user.id});
+      return right(exists);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserAuthBundle>> getCurrentUserAuthBundle() async {
     try {
       final List<Map<String, dynamic>> res = await _supabase
           .rpc('get_user_auth_bundle', params: {'p_user_id': currentSession?.user.id});
-      if (res.isEmpty) {
-        return right(null);
-      }
       return right(UserAuthBundle.fromRpcJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -79,13 +91,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, my.User?>> getCurrentUser() async {
+  Future<Either<Failure, my.User>> getCurrentUser() async {
     try {
       final List<Map<String, dynamic>> res =
           await _supabase.rpc('get_user', params: {'p_user_id': currentSession?.user.id});
-      if (res.isEmpty) {
-        return right(null);
-      }
       return right(my.User.fromJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -97,13 +106,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Profile?>> getCurrentProfile() async {
+  Future<Either<Failure, Profile>> getCurrentProfile() async {
     try {
       final List<Map<String, dynamic>> res =
           await _supabase.rpc('get_profile', params: {'p_user_id': currentSession?.user.id});
-      if (res.isEmpty) {
-        return right(null);
-      }
       return right(Profile.fromJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -243,7 +249,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final bool res =
-          await _supabase.rpc('user_exists', params: {'p_email': email});
+          await _supabase.rpc('verify_user_existence_by_email', params: {'p_email': email});
       if (res) {
         return left(Failure(message: 'An account with this email already exists. Sign in instead'));
       }

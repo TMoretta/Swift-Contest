@@ -18,11 +18,6 @@ final class AuthRefresh extends AuthEvent {
   List<Object?> get props => [];
 }
 
-final class AuthFetchUserInfo extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
-
 final class AuthFetchUser extends AuthEvent {
   @override
   List<Object?> get props => [];

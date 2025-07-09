@@ -5,8 +5,23 @@ void configureUrlStrategy() {
 }
 
 class NoHistoryUrlStrategy extends PathUrlStrategy {
+  NoHistoryUrlStrategy([super.platformLocation])
+      : _basePath = stripTrailingSlash(extractPathname(checkBaseHref(
+    platformLocation.getBaseHref(),
+  )));
+
+  final String _basePath;
+
   @override
   void pushState(Object? state, String title, String url) {
     replaceState(state, title, url);
+  }
+
+  @override
+  String prepareExternalUrl(String internalUrl) {
+    if (internalUrl.isNotEmpty && !internalUrl.startsWith('/')) {
+      internalUrl = '/$internalUrl';
+    }
+    return '$_basePath/';
   }
 }

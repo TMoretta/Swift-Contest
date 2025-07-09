@@ -7,7 +7,6 @@ import 'package:swift_contest/model/bundles/user_auth_bundle.dart';
 import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart';
-import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/model/enums/contest_role.dart';
 import 'package:swift_contest/model/repositories/auth_repository.dart';
 import 'package:swift_contest/viewmodel/enums/auth_status.dart';
@@ -29,7 +28,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     on<AuthFetchUser>(_fetchUser);
     on<AuthFetchProfile>(_fetchProfile);
     on<AuthFetchProfileMessages>(_fetchProfileMessages);
-    on<AuthFetchUserInfo>(_fetchUserInfo);
     on<AuthSignOut>(_signOut);
     on<AuthDeleteAccount>(_deleteAccount);
     on<AuthEditPrefRole>(_editPrefRole);
@@ -51,7 +49,22 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       await Future.delayed(Duration(seconds: event.delay));
     }
 
-    late final UserAuthBundle? authBundle;
+    late final bool userExists;
+    final eitherExists = await _authRepository.verifyCurrentUserExistence();
+    eitherExists.fold(
+      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+      (success) => userExists = success,
+    );
+    if (eitherExists.isLeft()) {
+      return;
+    }
+
+    if (!userExists) {
+      emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
+      return;
+    }
+
+    late final UserAuthBundle authBundle;
     final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
     eitherAuthBundle.fold(
       (failure) => emit(state.copyWith(
@@ -64,72 +77,57 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       return;
     }
 
-    if (authBundle != null) {
-      emit(state.copyWith(
-        blocStatus: BlocStatus.success,
-        authStatus: AuthStatus.authenticated,
-        user: authBundle!.user,
-        profile: authBundle!.profile,
-        messages: authBundle!.messages,
-      ));
-    } else {
-      emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
-    }
+    emit(state.copyWith(
+      blocStatus: BlocStatus.success,
+      authStatus: AuthStatus.authenticated,
+      user: authBundle.user,
+      profile: authBundle.profile,
+      messages: authBundle.messages,
+    ));
   }
 
   FutureOr<void> _refresh(
-      AuthRefresh event,
-      Emitter<AuthState> emit,
-      ) async {
+    AuthRefresh event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(state.copyWith(
         blocStatus: BlocStatus.loading, sourceEvent: event, authStatus: AuthStatus.initial));
 
-    late final UserAuthBundle? authBundle;
+    late final bool userExists;
+    final eitherExists = await _authRepository.verifyCurrentUserExistence();
+    eitherExists.fold(
+      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+      (success) => userExists = success,
+    );
+    if (eitherExists.isLeft()) {
+      return;
+    }
+
+    if (!userExists) {
+      emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
+      return;
+    }
+
+    late final UserAuthBundle authBundle;
     final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
     eitherAuthBundle.fold(
-          (failure) => emit(state.copyWith(
+      (failure) => emit(state.copyWith(
           blocStatus: BlocStatus.failure,
           authStatus: AuthStatus.initial,
           message: failure.message)),
-          (success) => authBundle = success,
+      (success) => authBundle = success,
     );
     if (eitherAuthBundle.isLeft()) {
       return;
     }
 
-    if (authBundle != null) {
-      emit(state.copyWith(
-        blocStatus: BlocStatus.success,
-        authStatus: AuthStatus.authenticated,
-        user: authBundle!.user,
-        profile: authBundle!.profile,
-        messages: authBundle!.messages,
-      ));
-    } else {
-      emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
-    }
-  }
-
-  FutureOr<void> _fetchUserInfo(
-    AuthFetchUserInfo event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
-    eitherAuthBundle.fold(
-        (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-        (success) {
-      if (success != null) {
-        emit(state.copyWith(
-            blocStatus: BlocStatus.success,
-            user: success.user,
-            profile: success.profile,
-            messages: success.messages));
-      } else {
-        emit(state.copyWith(blocStatus: BlocStatus.failure, message: 'No user found'));
-      }
-    });
+    emit(state.copyWith(
+      blocStatus: BlocStatus.success,
+      authStatus: AuthStatus.authenticated,
+      user: authBundle.user,
+      profile: authBundle.profile,
+      messages: authBundle.messages,
+    ));
   }
 
   FutureOr<void> _fetchUser(
@@ -141,13 +139,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     final eitherUser = await _authRepository.getCurrentUser();
     eitherUser.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) {
-        if (success != null) {
-          emit(state.copyWith(blocStatus: BlocStatus.success, user: success));
-        } else {
-          emit(state.copyWith(blocStatus: BlocStatus.failure, message: 'No user found'));
-        }
-      },
+      (success) => emit(state.copyWith(blocStatus: BlocStatus.success, user: success)),
     );
   }
 
@@ -160,13 +152,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     final eitherProfile = await _authRepository.getCurrentProfile();
     eitherProfile.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) {
-        if (success != null) {
-          emit(state.copyWith(blocStatus: BlocStatus.success, profile: success));
-        } else {
-          emit(state.copyWith(blocStatus: BlocStatus.failure, message: 'No profile found'));
-        }
-      },
+      (success) => emit(state.copyWith(blocStatus: BlocStatus.success, profile: success)),
     );
   }
 
@@ -278,13 +264,17 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     );
   }
 
-  FutureOr<void> _deleteAllMessages(AuthDeleteAllMessages event, Emitter<AuthState> emit,) async {
+  FutureOr<void> _deleteAllMessages(
+    AuthDeleteAllMessages event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDeleteAllMessages = await _authRepository.deleteAllProfileMessages(profileId: event.profileId);
+    final eitherDeleteAllMessages =
+        await _authRepository.deleteAllProfileMessages(profileId: event.profileId);
     eitherDeleteAllMessages.fold(
-          (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-          (success) => emit(state.copyWith(blocStatus: BlocStatus.success,messages: [])),
+      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(blocStatus: BlocStatus.success, messages: [])),
     );
   }
 
