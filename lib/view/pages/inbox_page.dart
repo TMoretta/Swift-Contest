@@ -183,7 +183,7 @@ void _showDeleteAllMessagesDialog({required BuildContext context, required Strin
                 ),
                 TextButton(
                   onPressed: () {
-                    authBloc.add(AuthDeleteAllMessages(profileId: profileId));
+                    authBloc.add(AuthDeleteAllMessages());
                   },
                   child: Text('Proceed'),
                 ),

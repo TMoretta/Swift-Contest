@@ -60,6 +60,97 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+--region ORGANIZER GET CONTEST DETAILS
+CREATE OR REPLACE FUNCTION organizer_get_contest_details (
+  p_contest_id uuid
+)
+RETURNS TABLE (
+  contest jsonb,
+  organizer jsonb,
+  place jsonb,
+  participations jsonb,
+  participants jsonb,
+  works jsonb,
+  jurations jsonb,
+  jurors jsonb,
+  invitations jsonb,
+  voting_form jsonb,
+  voting_form_fields jsonb,
+  voting_sessions jsonb
+) AS $$
+BEGIN
+  RETURN QUERY
+    SELECT
+      to_jsonb(cont) AS contest,
+      to_jsonb(org) AS organizer,
+      to_jsonb(pla) AS place,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(part) ORDER BY pro.full_name ASC)
+         FROM participations part
+         JOIN profiles pro ON pro.id = part.participant_id
+         WHERE part.contest_id = cont.id
+        ), '[]'::jsonb) AS participations,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(par))
+         FROM profiles par
+         JOIN participations part ON par.id = part.participant_id
+         WHERE part.contest_id = cont.id
+        ), '[]'::jsonb) AS participants,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(wor))
+         FROM works wor
+         JOIN participations part
+          ON wor.participation_id = part.id
+            AND part.has_submitted = true
+            AND part.participant_status = 'joined'
+         WHERE part.contest_id = cont.id
+        ), '[]'::jsonb) AS works,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jura) ORDER BY pro.full_name ASC)
+         FROM jurations jura
+         JOIN profiles pro ON pro.id = jura.juror_id
+         WHERE jura.contest_id = cont.id
+        ), '[]'::jsonb) AS jurations,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(juro))
+         FROM profiles juro
+         JOIN jurations jura ON juro.id = jura.juror_id
+         WHERE jura.contest_id = cont.id
+        ), '[]'::jsonb) AS jurors,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(inv) ORDER BY inv.created_at DESC)
+         FROM invitations inv
+         WHERE inv.contest_id = cont.id
+        ), '[]'::jsonb) AS invitations,
+      COALESCE(
+        (SELECT to_jsonb(vf)
+         FROM voting_forms vf
+         WHERE vf.id = cont.voting_form_id
+        ), 'null'::jsonb) AS voting_form,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vf_field) ORDER BY vf_field.order_index ASC)
+         FROM voting_form_fields vf_field
+         WHERE vf_field.voting_form_id = cont.voting_form_id
+        ), '[]'::jsonb) AS voting_form_fields,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vs) ORDER BY vs.created_at DESC)
+         FROM voting_sessions vs
+         WHERE vs.contest_id = cont.id
+        ), '[]'::jsonb) AS voting_sessions
+    FROM contests cont
+    JOIN profiles org ON cont.organizer_id = org.id
+    JOIN places pla ON cont.place_id = pla.id
+    WHERE cont.id = p_contest_id
+    LIMIT 1;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
 --region organizer create contest
 CREATE OR REPLACE FUNCTION organizer_create_contest (
   p_contest contests,

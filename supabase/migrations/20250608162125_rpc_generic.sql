@@ -1,4 +1,4 @@
--- GET CONTEST DETAILS
+--region GET CONTEST DETAILS
 CREATE OR REPLACE FUNCTION get_contest_details (
   p_contest_id uuid
 )
@@ -89,7 +89,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- GET VOTING SESSION PROCEDURE BUNDLE
+--region GET VOTING SESSION PROCEDURE BUNDLE
 CREATE OR REPLACE FUNCTION get_voting_session_procedure_bundle (
   p_voting_session_id uuid
 )
@@ -216,7 +216,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- GET VOTING SESSION RESULT BUNDLE
+--region GET VOTING SESSION RESULT BUNDLE
 CREATE OR REPLACE FUNCTION get_voting_session_result_bundle (
   p_voting_session_id uuid
 )
@@ -406,7 +406,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- GET VOTING FORM BUNDLE
+--region GET VOTING FORM BUNDLE
 CREATE OR REPLACE FUNCTION get_voting_form_bundle (
   p_voting_form_id uuid
 )

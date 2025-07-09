@@ -24,11 +24,11 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, Unit>> deleteMessage({required String messageId});
 
-  Future<Either<Failure, Unit>> deleteAllProfileMessages({required String profileId});
+  Future<Either<Failure, Unit>> deleteAllCurrentProfileMessages();
 
-  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
+  Future<Either<Failure, Profile>> updateCurrentProfileFullName({required String fullName});
 
-  Future<Either<Failure, Profile>> updateProfilePrefRole({required ContestRole prefRole});
+  Future<Either<Failure, Profile>> updateCurrentProfilePrefRole({required ContestRole prefRole});
 
   Future<Either<Failure, Unit>> deleteCurrentAccount();
 
@@ -64,7 +64,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure,bool>> verifyCurrentUserExistence() async {
     try {
-      final bool exists = await _supabase.rpc('verify_user_existence_by_id', params: {'p_user_id':currentSession?.user.id});
+      final bool exists = await _supabase.rpc('verify_current_user_existence');
       return right(exists);
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -79,7 +79,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserAuthBundle>> getCurrentUserAuthBundle() async {
     try {
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_user_auth_bundle', params: {'p_user_id': currentSession?.user.id});
+          .rpc('get_current_user_auth_bundle');
       return right(UserAuthBundle.fromRpcJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -94,7 +94,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, my.User>> getCurrentUser() async {
     try {
       final List<Map<String, dynamic>> res =
-          await _supabase.rpc('get_user', params: {'p_user_id': currentSession?.user.id});
+          await _supabase.rpc('get_current_user');
       return right(my.User.fromJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -109,7 +109,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Profile>> getCurrentProfile() async {
     try {
       final List<Map<String, dynamic>> res =
-          await _supabase.rpc('get_profile', params: {'p_user_id': currentSession?.user.id});
+          await _supabase.rpc('get_current_profile');
       return right(Profile.fromJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -124,7 +124,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, List<Message>>> getCurrentProfileMessages() async {
     try {
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('get_profile_messages', params: {'p_user_id': currentSession?.user.id});
+          .rpc('get_current_profile_messages');
       return right(res.map((e) => Message.fromJson(e)).toList(growable: false));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -164,9 +164,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> deleteAllProfileMessages({required String profileId}) async {
+  Future<Either<Failure, Unit>> deleteAllCurrentProfileMessages() async {
     try {
-      await _supabase.rpc('delete_all_profile_messages', params: {'p_profile_id': profileId});
+      await _supabase.rpc('delete_all_current_profile_messages');
       return right(unit);
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -178,10 +178,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName}) async {
+  Future<Either<Failure, Profile>> updateCurrentProfileFullName({required String fullName}) async {
     try {
-      final Map<String, dynamic> res = await _supabase.rpc('update_profile_full_name', params: {
-        'p_user_id': currentSession?.user.id,
+      final Map<String, dynamic> res = await _supabase.rpc('update_current_profile_full_name', params: {
         'p_full_name': fullName,
       });
       return right(Profile.fromJson(res));
@@ -195,12 +194,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Profile>> updateProfilePrefRole({
+  Future<Either<Failure, Profile>> updateCurrentProfilePrefRole({
     required ContestRole prefRole,
   }) async {
     try {
-      final Map<String, dynamic> res = await _supabase.rpc('update_profile_pref_role', params: {
-        'p_user_id': currentSession?.user.id,
+      final Map<String, dynamic> res = await _supabase.rpc('update_current_profile_pref_role', params: {
         'p_pref_role': prefRole.name,
       });
       return right(Profile.fromJson(res));
@@ -216,7 +214,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> deleteCurrentAccount() async {
     try {
-      await _supabase.rpc('delete_account', params: {'p_user_id': currentSession?.user.id});
+      await _supabase.rpc('delete_current_account');
       _supabase.auth.signOut(scope: SignOutScope.global);
       return right(unit);
     } on SocketException {

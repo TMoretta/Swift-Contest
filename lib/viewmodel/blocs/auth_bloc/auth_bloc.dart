@@ -190,7 +190,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
     final eitherEditPrefRole =
-        await _authRepository.updateProfilePrefRole(prefRole: event.prefRole);
+        await _authRepository.updateCurrentProfilePrefRole(prefRole: event.prefRole);
     eitherEditPrefRole.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
@@ -204,7 +204,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
     final eitherEditFullName =
-        await _authRepository.updateProfileFullName(fullName: event.fullName);
+        await _authRepository.updateCurrentProfileFullName(fullName: event.fullName);
     eitherEditFullName.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
@@ -271,7 +271,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
     final eitherDeleteAllMessages =
-        await _authRepository.deleteAllProfileMessages(profileId: event.profileId);
+        await _authRepository.deleteAllCurrentProfileMessages();
     eitherDeleteAllMessages.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success, messages: [])),

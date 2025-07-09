@@ -35,16 +35,14 @@ EXECUTE FUNCTION auto_create_profile();
 ALTER TABLE auth.users
 DISABLE TRIGGER user_created_trigger;
 
---region VERIFY USER EXISTENCE BY ID
-CREATE OR REPLACE FUNCTION verify_user_existence_by_id (
-  p_user_id uuid
-)
+--region VERIFY CURRENT USER EXISTENCE
+CREATE OR REPLACE FUNCTION verify_current_user_existence ()
 RETURNS boolean AS $$
 BEGIN
 
   IF EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is null
+    WHERE id = auth.uid() AND deleted_at is null
   ) THEN
     RETURN true;
   ELSE
@@ -85,35 +83,33 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
---region GET USER AUTH BUNDLE
-CREATE OR REPLACE FUNCTION get_user_auth_bundle (
-  p_user_id uuid
-)
+--region GET CURRENT USER AUTH BUNDLE
+CREATE OR REPLACE FUNCTION get_current_user_auth_bundle ()
 RETURNS TABLE (
   m_user jsonb,
   profile jsonb,
   messages jsonb
 ) AS $$
+DECLARE
+  v_current_user_id uuid;
 BEGIN
 
-  IF (auth.uid() = null) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
+  v_current_user_id := auth.uid();
 
-  IF (auth.uid() <> p_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = p_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
@@ -131,7 +127,7 @@ BEGIN
       )
     FROM auth.users u
     JOIN profiles p ON p.user_id = u.id
-    WHERE u.id = p_user_id
+    WHERE u.id = v_current_user_id
     LIMIT 1;
 
 EXCEPTION
@@ -144,37 +140,35 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 --region GET USER
-CREATE OR REPLACE FUNCTION get_user (
-  p_user_id uuid
-)
+CREATE OR REPLACE FUNCTION get_current_user ()
 RETURNS SETOF auth.users AS $$
+DECLARE
+  v_current_user_id uuid;
 BEGIN
 
-  IF (auth.uid() = null) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
+  v_current_user_id := auth.uid();
 
-  IF (auth.uid() <> p_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = p_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
   RETURN QUERY
     SELECT * FROM auth.users
-    WHERE id = p_user_id
+    WHERE id = v_current_user_id
     LIMIT 1;
 
 EXCEPTION
@@ -187,37 +181,35 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 --region GET PROFILE
-CREATE OR REPLACE FUNCTION get_profile (
-  p_user_id uuid
-)
+CREATE OR REPLACE FUNCTION get_current_profile ()
 RETURNS SETOF profiles AS $$
+DECLARE
+  v_current_user_id uuid;
 BEGIN
 
-  IF (auth.uid() = null) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
+  v_current_user_id := auth.uid();
 
-  IF (auth.uid() <> p_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = p_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
   RETURN QUERY
     SELECT * FROM profiles
-    WHERE user_id = p_user_id
+    WHERE user_id = v_current_user_id
     LIMIT 1;
 
 EXCEPTION
@@ -230,40 +222,38 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 --region GET PROFILE MESSAGES
-CREATE OR REPLACE FUNCTION get_profile_messages (
-  p_user_id uuid
-)
+CREATE OR REPLACE FUNCTION get_current_profile_messages ()
 RETURNS SETOF messages AS $$
+DECLARE
+  v_current_user_id uuid;
 BEGIN
 
-  IF (auth.uid() = null) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
+  v_current_user_id := auth.uid();
 
-  IF (auth.uid() <> p_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = p_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
   RETURN QUERY
-    SELECT mes.*
-    FROM messages mes
-    JOIN profiles pro ON pro.id = mes.profile_id
-    JOIN auth.users use ON use.id = pro.user_id
-    WHERE use.id = p_user_id AND mes.deleted_at is null
+    SELECT m.*
+    FROM messages m
+    JOIN profiles p ON p.id = m.profile_id
+    JOIN auth.users u ON u.id = p.user_id
+    WHERE u.id = v_current_user_id AND m.deleted_at is null
     ORDER BY created_at DESC;
 
 EXCEPTION
@@ -276,40 +266,38 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 --region UPDATE PROFILE FULL NAME
-CREATE OR REPLACE FUNCTION update_profile_full_name (
-  p_user_id uuid,
+CREATE OR REPLACE FUNCTION update_current_profile_full_name (
   p_full_name varchar
 )
 RETURNS profiles AS $$
 DECLARE
+  v_current_user_id uuid;
   v_profile profiles;
 BEGIN
 
-  IF (auth.uid() = null) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
+  v_current_user_id := auth.uid();
 
-  IF (auth.uid() <> p_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = p_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
   UPDATE profiles
   SET full_name = p_full_name
-  WHERE user_id = p_user_id
+  WHERE user_id = v_current_user_id
   RETURNING * INTO v_profile;
 
   IF NOT FOUND THEN
@@ -328,40 +316,38 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 --region UPDATE PROFILE PREF ROLE
-CREATE OR REPLACE FUNCTION update_profile_pref_role (
-  p_user_id uuid,
+CREATE OR REPLACE FUNCTION update_current_profile_pref_role (
   p_pref_role contest_role
 )
 RETURNS profiles AS $$
 DECLARE
+  v_current_user_id uuid;
   v_profile profiles;
 BEGIN
 
-  IF (auth.uid() = null) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
+  v_current_user_id := auth.uid();
 
-  IF (auth.uid() <> p_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = p_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
   UPDATE profiles
   SET pref_role = p_pref_role
-  WHERE user_id = p_user_id
+  WHERE user_id = v_current_user_id
   RETURNING * INTO v_profile;
 
   IF NOT FOUND THEN
@@ -385,11 +371,14 @@ CREATE OR REPLACE FUNCTION mark_message_as_read (
 )
 RETURNS messages AS $$
 DECLARE
+  v_current_user_id uuid;
   v_user_id uuid;
   v_message messages;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
@@ -400,20 +389,20 @@ BEGIN
   WHERE m.id = p_message_id
   LIMIT 1;
 
-  IF (auth.uid() <> v_user_id) THEN
+  IF (v_user_id <> v_current_user_id) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = v_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = v_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
@@ -458,11 +447,14 @@ CREATE OR REPLACE FUNCTION delete_message (
 )
 RETURNS messages AS $$
 DECLARE
+  v_current_user_id uuid;
   v_user_id uuid;
   v_message messages;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
@@ -473,20 +465,20 @@ BEGIN
   WHERE m.id = p_message_id
   LIMIT 1;
 
-  IF (auth.uid() <> v_user_id) THEN
+  IF (v_user_id <> v_current_user_id) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = v_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM profiles
-    WHERE user_id = v_user_id AND deleted_at is null
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
@@ -519,52 +511,44 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 --region DELETE ALL MESSAGES
-CREATE OR REPLACE FUNCTION delete_all_profile_messages (
-  p_profile_id uuid
-)
+CREATE OR REPLACE FUNCTION delete_all_current_profile_messages ()
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
   v_user_id uuid;
+  v_profile_id uuid;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
-
-  SELECT u.id INTO v_user_id
-  FROM auth.users u
-  JOIN profiles p ON p.user_id = u.id
-  WHERE p.id = p_profile_id
-  LIMIT 1;
-
-  IF (auth.uid() <> v_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = v_user_id AND deleted_at is null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'User not found';
   END IF;
 
   IF NOT EXISTS (
-    SELECT 1 FROM profiles
-    WHERE user_id = v_user_id AND deleted_at is null
+    SELECT id INTO v_profile_id FROM profiles
+    WHERE user_id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM messages
-    WHERE profile_id = p_profile_id AND deleted_at is null
+    WHERE profile_id = v_profile_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'No message to delete';
   END IF;
 
   UPDATE messages
   SET deleted_at = now()
-  WHERE profile_id = p_profile_id;
+  WHERE profile_id = v_profile_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'An error occurred while deleting messages';

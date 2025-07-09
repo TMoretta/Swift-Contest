@@ -1,40 +1,37 @@
 -- DELETE ACCOUNT
-CREATE OR REPLACE FUNCTION delete_account (
-  p_user_id uuid
-)
+CREATE OR REPLACE FUNCTION delete_current_account ()
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
   v_profile profiles;
   v_created_contest_id uuid;
   v_joined_participation participations;
   v_joined_juration jurations;
 BEGIN
 
-  IF (auth.uid() is null) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-  END IF;
+  v_current_user_id := auth.uid();
 
-  IF (auth.uid() <> p_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id
+    WHERE id = v_current_user_id
   ) THEN
-    RAISE EXCEPTION 'Account not found';
+    RAISE EXCEPTION 'User not found';
   END IF;
 
-  IF EXISTS (
+  IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = p_user_id AND deleted_at is not null
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'The account has already been deleted';
   END IF;
 
   UPDATE profiles
   SET deleted_at = now()
-  WHERE user_id = p_user_id
+  WHERE user_id = v_current_user_id
   RETURNING * INTO v_profile;
 
   IF NOT FOUND THEN
@@ -42,9 +39,10 @@ BEGIN
   END IF;
 
   UPDATE auth.users
-  SET deleted_at = now(),
-     email = email || '.deleted_' || to_char(now(), 'YYYYMMDD_HH24MI') || '_' || id
-   WHERE id = p_user_id;
+  SET
+    deleted_at = now(),
+    email = email || '.deleted_' || to_char(now(), 'YYYYMMDD_HH24MI') || '_' || id
+   WHERE id = v_current_user_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'An error occurred while deleting account';

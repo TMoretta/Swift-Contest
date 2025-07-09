@@ -80,10 +80,6 @@ final class AuthDeleteMessage extends AuthEvent {
 }
 
 final class AuthDeleteAllMessages extends AuthEvent {
-  final String profileId;
-
-  const AuthDeleteAllMessages({required this.profileId});
-
   @override
-  List<Object?> get props => [profileId];
+  List<Object?> get props => [];
 }
