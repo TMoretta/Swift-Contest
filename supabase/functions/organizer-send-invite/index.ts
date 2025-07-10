@@ -87,9 +87,9 @@ serve(async (req: Request) => {
         : "You have been invited to participate in a contest";
 
     const html = `
-      <h1>Welcome!</h1>
+      <h2>Welcome!</h2>
       <p>You’ve been invited as a <strong>${member_role}</strong>.</p>
-      <p>Use this token to join: <code>${token}</code></p>
+      <p>Use this token to join: <strong>${token}</strong></p>
     `;
 
     const emailRes = await fetch(RESEND_API_URL, {

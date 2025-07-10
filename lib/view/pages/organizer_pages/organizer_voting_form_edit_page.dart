@@ -62,6 +62,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
           }
           if (state.status.isSuccess &&
               state.sourceEvent is OrganizerVotingFormEditPageUpdateVotingForm) {
+            showSnackBar(context: context, text: 'Voting form updated successfully');
             context.router.pop(true);
           }
         },

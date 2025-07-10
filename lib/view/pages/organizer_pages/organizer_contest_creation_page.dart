@@ -132,7 +132,6 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                               OrganizerContestCreationPageCreateContest(
                                 name: name,
                                 description: description,
-                                organizerId: profileId,
                                 placeAddress: place!.address!,
                                 placeLat: place!.lat!,
                                 placeLon: place!.lon!,
@@ -502,7 +501,7 @@ String? locationValidator(String? value) {
 
 Future<List<XFile>> pickMultipleImages() async {
   final ImagePicker picker = ImagePicker();
-  final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 80);
+  final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 60);
 
   return pickedImages;
 }

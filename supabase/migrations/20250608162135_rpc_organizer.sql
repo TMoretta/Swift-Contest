@@ -1,7 +1,5 @@
---region organizer get created contests
-CREATE OR REPLACE FUNCTION organizer_get_created_contests (
-  p_organizer_id uuid
-)
+--region ORGANIZER GET CREATED CONTESTS
+CREATE OR REPLACE FUNCTION organizer_get_created_contests ()
 RETURNS TABLE (
   contest jsonb,
   organizer jsonb,
@@ -10,25 +8,29 @@ RETURNS TABLE (
   jurations jsonb
 ) AS $$
 DECLARE
-  v_profile profiles;
+  v_current_user_id uuid;
+  v_current_profile profiles;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
-  SELECT * INTO v_profile
-  FROM profiles
-  WHERE id = p_organizer_id AND deleted_at is null;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Organizer not found';
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
   END IF;
 
-  IF (
-    v_profile.user_id <> auth.uid()
-  ) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   RETURN QUERY
@@ -49,14 +51,14 @@ BEGIN
     FROM contests cont
     JOIN profiles org ON cont.organizer_id = org.id
     JOIN places pla ON cont.place_id = pla.id
-    WHERE cont.organizer_id = p_organizer_id AND cont.deleted_at is null
+    WHERE cont.organizer_id = v_current_profile.id AND cont.deleted_at is null
     ORDER BY cont.created_at DESC;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -78,7 +80,45 @@ RETURNS TABLE (
   voting_form_fields jsonb,
   voting_sessions jsonb
 ) AS $$
+DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = p_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_organizer_id <> v_current_profile.id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
   RETURN QUERY
     SELECT
       to_jsonb(cont) AS contest,
@@ -140,47 +180,51 @@ BEGIN
     FROM contests cont
     JOIN profiles org ON cont.organizer_id = org.id
     JOIN places pla ON cont.place_id = pla.id
-    WHERE cont.id = p_contest_id
+    WHERE cont.id = p_contest_id AND cont.deleted_at is null
     LIMIT 1;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
---region organizer create contest
+--region ORGANIZER CREATE CONTEST
 CREATE OR REPLACE FUNCTION organizer_create_contest (
   p_contest contests,
   p_place places
 )
 RETURNS contests AS $$
 DECLARE
-  v_profile profiles;
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_place places;
   v_voting_form voting_forms;
   v_contest_status contest_status;
   v_contest contests;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
-  SELECT * INTO v_profile
-  FROM profiles
-  WHERE id = p_contest.organizer_id AND deleted_at is null;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Organizer not found';
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
   END IF;
 
-  IF (
-    v_profile.user_id <> auth.uid()
-  ) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   INSERT INTO places (
@@ -235,7 +279,7 @@ BEGIN
     voting_form_id
   )
   VALUES (
-    p_contest.organizer_id,
+    v_current_profile.id,
     p_contest.name,
     p_contest.description,
     p_contest.date_time,
@@ -254,15 +298,15 @@ BEGIN
 
   RETURN v_contest;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
---region organizer edit contest
+--region ORGANIZER EDIT CONTEST
 CREATE OR REPLACE FUNCTION organizer_edit_contest (
   p_contest_id uuid,
   p_name varchar,
@@ -275,43 +319,47 @@ CREATE OR REPLACE FUNCTION organizer_edit_contest (
 )
 RETURNS contests AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+
   v_organizer_id uuid;
   v_profile profiles;
   v_contest_status contest_status;
   v_contest contests;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
-  SELECT organizer_id INTO v_organizer_id
-  FROM contests WHERE id = p_contest_id;
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
 
-  SELECT * INTO v_profile
+  SELECT * INTO v_current_profile
   FROM profiles
-  WHERE id = v_organizer_id AND deleted_at is null;
+  WHERE user_id = v_current_user_id AND deleted_at is null;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Organizer not found';
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
-  IF (
-    v_profile.user_id <> auth.uid()
-  ) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
-  END IF;
-
-  IF EXISTS (
-    SELECT 1 FROM contests
-    WHERE id = p_contest_id AND deleted_at is not null
-  ) THEN
-    RAISE EXCEPTION 'Operation not allowed, the contest has been deleted';
-  END IF;
-
-  SELECT * INTO v_contest
+  SELECT organizer_id INTO v_organizer_id
   FROM contests
   WHERE id = p_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   v_contest_status := CASE
     WHEN now() < v_contest.works_submission_start THEN
@@ -348,49 +396,59 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
---region organizer update voting form fields
+--region ORGANIZER UPDATE VOTING FORM FIELDS
 CREATE OR REPLACE FUNCTION organizer_update_voting_form_fields (
   p_voting_form_id uuid,
   p_voting_form_fields voting_form_fields[]
 )
 RETURNS SETOF voting_form_fields AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_organizer_id uuid;
-  v_profile profiles;
   v_field voting_form_fields;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   SELECT organizer_id INTO v_organizer_id
   FROM contests
-  WHERE voting_form_id = p_voting_form_id;
-
-  SELECT * INTO v_profile
-  FROM profiles
-  WHERE id = v_organizer_id AND deleted_at is null;
+  WHERE voting_form_id = p_voting_form_id AND deleted_at is null
+  LIMIT 1;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Organizer not found';
+    RAISE EXCEPTION 'Contest not found';
   END IF;
 
-  IF (
-    v_profile.user_id <> auth.uid()
-  ) THEN
+  IF (v_current_profile.id <> v_organizer_id) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM voting_forms
-    WHERE id = p_voting_form_id
-  ) THEN
-    RAISE EXCEPTION 'Voting form not found';
   END IF;
 
   DELETE FROM voting_form_fields
   WHERE voting_form_id = p_voting_form_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while updating the voting form fields';
+  END IF;
 
   IF p_voting_form_fields IS NOT NULL THEN
     FOREACH v_field IN ARRAY p_voting_form_fields LOOP
@@ -419,11 +477,11 @@ BEGIN
     END LOOP;
   END IF;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexpected error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -433,23 +491,44 @@ CREATE OR REPLACE FUNCTION organizer_set_contest_status_as_active (
 )
 RETURNS contests AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
   v_contest_status contest_status;
   v_contest contests;
 BEGIN
 
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
   IF NOT EXISTS (
-    SELECT 1 FROM contests
-    WHERE id = p_contest_id
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = p_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'Contest not found';
   END IF;
 
-  SELECT * INTO v_contest
-  FROM contests
-  WHERE id = p_contest_id;
-
-  IF (v_contest.deleted_at is not null) THEN
-    RAISE EXCEPTION 'Can not execute, the contest has been deleted';
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
   END IF;
 
   v_contest_status := CASE
@@ -472,11 +551,11 @@ BEGIN
 
   RETURN v_contest;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -486,21 +565,43 @@ CREATE OR REPLACE FUNCTION organizer_set_contest_status_as_terminated (
 )
 RETURNS contests AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
   v_contest contests;
 BEGIN
 
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
   IF NOT EXISTS (
-    SELECT 1 FROM contests
-    WHERE id = p_contest_id
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = p_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'Contest not found';
   END IF;
 
-  IF EXISTS (
-    SELECT 1 FROM contests
-    WHERE id = p_contest_id AND deleted_at is not null
-  ) THEN
-    RAISE EXCEPTION 'Can not execute, the contest has been deleted';
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
   END IF;
 
   UPDATE contests
@@ -514,11 +615,11 @@ BEGIN
 
   RETURN v_contest;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -533,6 +634,9 @@ CREATE OR REPLACE FUNCTION organizer_init_voting_session (
 )
 RETURNS voting_sessions AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
   v_voting_form voting_forms;
   v_geores_place places;
   v_voting_session voting_sessions;
@@ -541,9 +645,42 @@ DECLARE
   v_voting_session_juration voting_session_jurations;
   v_voting_session_exclusion voting_session_exclusions;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = p_voting_session.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
   IF EXISTS (
-    SELECT 1
-    FROM voting_sessions
+    SELECT 1 FROM voting_sessions
     WHERE contest_id = p_voting_session.contest_id AND session_status <> 'ended' AND session_status <> 'cancelled'
   ) THEN
     RAISE EXCEPTION 'A voting session is already in progress for this contest';
@@ -718,11 +855,11 @@ BEGIN
 
   RETURN v_voting_session;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -732,20 +869,56 @@ CREATE OR REPLACE FUNCTION organizer_start_voting_session (
 )
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
+  v_voting_session voting_sessions;
   v_work_timer interval;
   v_job_name text := 'voting_session_' || p_voting_session_id;
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM voting_sessions
-    WHERE id = p_voting_session_id
-  ) THEN
-    RAISE EXCEPTION 'Voting session not found';
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
-    SELECT 1 FROM voting_sessions
-    WHERE id = p_voting_session_id AND session_status <> 'ended' AND session_status <> 'cancelled'
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_voting_session.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
+  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
     RAISE EXCEPTION 'Voting session already ended or cancelled';
   END IF;
 
@@ -774,11 +947,11 @@ BEGIN
     )
   );
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -878,15 +1051,57 @@ CREATE OR REPLACE FUNCTION organizer_end_voting_session(
 )
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
+  v_voting_session voting_sessions;
   v_job_name text := 'voting_session_' || p_voting_session_id;
   v_job_exists boolean;
 BEGIN
 
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
   IF NOT EXISTS (
-    SELECT 1 FROM voting_sessions
-    WHERE id = p_voting_session_id
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_voting_session.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
+  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+    RAISE EXCEPTION 'Voting session already ended or cancelled';
   END IF;
 
   SELECT EXISTS(
@@ -901,7 +1116,7 @@ BEGIN
 
   UPDATE voting_sessions
   SET
-    session_status = 'ended'::voting_session_status,
+    session_status = 'ended',
     current_participant_index = NULL,
     current_step_deadline = NULL
   WHERE id = p_voting_session_id;
@@ -909,7 +1124,6 @@ BEGIN
   IF NOT FOUND THEN
     RAISE EXCEPTION 'An error occurred while ending the voting session';
   END IF;
-
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -925,15 +1139,57 @@ CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (
 )
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
+  v_voting_session voting_sessions;
   v_job_name text := 'voting_session_' || p_voting_session_id;
   v_job_exists boolean;
 BEGIN
 
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
   IF NOT EXISTS (
-    SELECT 1 FROM voting_sessions
-    WHERE id = p_voting_session_id
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_voting_session.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
+  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+    RAISE EXCEPTION 'Voting session already ended or cancelled';
   END IF;
 
   SELECT EXISTS(
@@ -948,7 +1204,7 @@ BEGIN
 
   UPDATE voting_sessions
   SET
-    session_status = 'cancelled'::voting_session_status,
+    session_status = 'cancelled',
     current_participant_index = NULL,
     current_step_deadline = NULL
   WHERE id = p_voting_session_id;
@@ -957,11 +1213,11 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while cancelling the voting session';
   END IF;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -971,15 +1227,53 @@ CREATE OR REPLACE FUNCTION organizer_delete_invitation (
 )
 RETURNS invitations AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_contest_id uuid;
+  v_organizer_id uuid;
   v_invitation invitations;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
   IF NOT EXISTS (
-    SELECT 1 FROM invitations
-    WHERE id = p_invitation_id
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT contest_id INTO v_contest_id
+  FROM invitations
+  WHERE id = p_invitation_id;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'Invitation not found';
   END IF;
 
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF(v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   DELETE FROM invitations
   WHERE id = p_invitation_id
@@ -991,11 +1285,11 @@ BEGIN
 
   RETURN v_invitation;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1006,14 +1300,51 @@ CREATE OR REPLACE FUNCTION organizer_update_voting_session_name (
 )
 RETURNS voting_sessions AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
   v_voting_session voting_sessions;
 BEGIN
 
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
   IF NOT EXISTS (
-    SELECT 1 FROM voting_sessions
-    WHERE id = p_voting_session_id
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_voting_session.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
   END IF;
 
   UPDATE voting_sessions
@@ -1041,32 +1372,53 @@ CREATE OR REPLACE FUNCTION organizer_remove_participant (
 )
 RETURNS void as $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_participation participations;
   v_contest contests;
   v_organizer profiles;
 BEGIN
 
-  IF NOT EXISTS (
-    SELECT 1 FROM participations
-    WHERE id = p_participation_id
-  ) THEN
-    RAISE EXCEPTION 'Participant not found';
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
-    SELECT 1 FROM participations
-    WHERE id = p_participation_id AND participant_status = 'joined'
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
-    RAISE EXCEPTION 'Participant is not a member of the contest';
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   SELECT * INTO v_participation
   FROM participations
-  WHERE id = p_participation_id;
+  WHERE id = p_participation_id AND participant_status = 'joined';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Participant not found';
+  END IF;
 
   SELECT * INTO v_contest
   FROM contests
-  WHERE id = v_participation.contest_id;
+  WHERE id = v_participation.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_contest.organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   SELECT * INTO v_organizer
   FROM profiles
@@ -1095,11 +1447,11 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while removing the participant';
   END IF;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1109,32 +1461,53 @@ CREATE OR REPLACE FUNCTION organizer_remove_juror (
 )
 RETURNS void as $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_juration jurations;
   v_contest contests;
   v_organizer profiles;
 BEGIN
 
-  IF NOT EXISTS (
-    SELECT 1 FROM jurations
-    WHERE id = p_juration_id
-  ) THEN
-    RAISE EXCEPTION 'Juror not found';
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
   IF NOT EXISTS (
-    SELECT 1 FROM jurations
-    WHERE id = p_juration_id AND juror_status = 'joined'
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
-    RAISE EXCEPTION 'Juror is not a member of the contest';
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   SELECT * INTO v_juration
   FROM jurations
-  WHERE id = p_juration_id;
+  WHERE id = p_juration_id AND juror_status = 'joined';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Juror not found';
+  END IF;
 
   SELECT * INTO v_contest
   FROM contests
-  WHERE id = v_juration.contest_id;
+  WHERE id = v_juration.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_contest.organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   SELECT * INTO v_organizer
   FROM profiles
@@ -1163,11 +1536,11 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while removing the juror';
   END IF;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1177,6 +1550,8 @@ CREATE OR REPLACE FUNCTION organizer_delete_contest (
 )
 RETURNS contests AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_contest contests;
   v_organizer profiles;
   v_participation participations;
@@ -1185,20 +1560,46 @@ DECLARE
   v_message_body text;
 BEGIN
 
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
   IF NOT EXISTS (
-    SELECT 1 FROM contests
-    WHERE id = p_contest_id
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
-    RAISE EXCEPTION 'Contest not found';
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   SELECT * INTO v_contest
   FROM contests
-  WHERE id = p_contest_id;
+  WHERE id = p_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_contest.organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   SELECT * INTO v_organizer
   FROM profiles
   WHERE id = v_contest.organizer_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Organizer not found';
+  END IF;
 
   v_message_title := 'Deleted contest';
   v_message_body  := format(
@@ -1246,11 +1647,11 @@ BEGIN
 
   RETURN v_contest;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1263,7 +1664,53 @@ RETURNS TABLE (
   participant jsonb,
   work jsonb
 ) AS $$
+DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
+  v_participation participations;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT * INTO v_participation
+  FROM participations
+  WHERE id = p_participation_id AND participant_status = 'joined';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Participant not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_participation.contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
 
   RETURN QUERY
     SELECT

@@ -50,7 +50,7 @@ class TimePickerFormField extends StatelessWidget {
         prefixIconColor: prefixIconColor,
         suffixIcon: TextButton(
           onPressed: () async {
-            // FocusManager.instance.primaryFocus?.unfocus();
+            FocusManager.instance.primaryFocus?.unfocus();
             final time = await _showTimePicker(context: context);
             if (time != null) {
               controller.text =

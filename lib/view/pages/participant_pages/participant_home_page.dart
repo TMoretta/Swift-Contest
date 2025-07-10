@@ -109,7 +109,6 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                               onChanged: (value) {
                                 context.read<ParticipantHomePageBloc>().add(
                                     ParticipantHomePageFilterResults(
-                                        contestsBundles: state.joinedContestsBundles!,
                                         query: value));
                               },
                             ),

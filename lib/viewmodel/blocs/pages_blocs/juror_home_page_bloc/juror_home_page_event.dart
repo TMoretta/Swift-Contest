@@ -15,16 +15,14 @@ final class JurorHomePageRefresh extends JurorHomePageEvent {
 }
 
 final class JurorHomePageFilterResults extends JurorHomePageEvent {
-  final List<HomeContestBundle> contestsBundles;
   final String query;
 
   const JurorHomePageFilterResults({
-    required this.contestsBundles,
     required this.query,
   });
 
   @override
-  List<Object?> get props => [contestsBundles, query];
+  List<Object?> get props => [query];
 }
 
 final class JurorHomePageJoinContest extends JurorHomePageEvent {

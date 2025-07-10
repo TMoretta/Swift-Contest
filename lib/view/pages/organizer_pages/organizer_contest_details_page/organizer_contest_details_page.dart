@@ -181,21 +181,40 @@ class _Menu extends StatelessWidget {
             value: 'Switch status',
             child: ListTile(
               leading: Icon(Icons.circle),
-              title: Text('Switch status'),
+              title: Text(
+                'Switch status',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
           const PopupMenuItem(
             value: 'Edit',
             child: ListTile(
               leading: Icon(Icons.edit),
-              title: Text('Edit'),
+              title: Text(
+                'Edit',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'Delete',
             child: ListTile(
-              leading: Icon(Icons.delete),
-              title: Text('Delete'),
+              leading: Icon(
+                Icons.delete,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(
+                'Delete',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge
+                    ?.copyWith(color: Theme.of(context).colorScheme.error),
+              ),
             ),
           ),
         ];
@@ -270,6 +289,7 @@ void _showDeleteContestDialog({required BuildContext context, required String co
           listener: (context, state) {
             if (state.status.isSuccess &&
                 state.sourceEvent is OrganizerContestDetailsPageDeleteContest) {
+              showSnackBar(context: context, text: 'Contest deleted successfully');
               context.router.pop();
               context.router.pop(true);
             }

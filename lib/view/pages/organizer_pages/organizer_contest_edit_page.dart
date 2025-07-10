@@ -600,7 +600,7 @@ String? locationValidator(String? value) {
 
 Future<List<XFile>> pickMultipleImages() async {
   final ImagePicker picker = ImagePicker();
-  final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 80);
+  final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 60);
 
   return pickedImages;
 }

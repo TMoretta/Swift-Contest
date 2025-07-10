@@ -53,7 +53,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => OrganizerHomePageBloc(organizerRepository: context.read())
-        ..add(OrganizerHomePageInit(organizerId: profileId)),
+        ..add(OrganizerHomePageInit()),
       child: BlocConsumer<OrganizerHomePageBloc, OrganizerHomePageState>(
         listener: (context, state) {
           if (state.message != null) {
@@ -97,7 +97,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                               _searchFocusNode.unfocus();
                               context
                                   .read<OrganizerHomePageBloc>()
-                                  .add(OrganizerHomePageInit(organizerId: profileId));
+                                  .add(OrganizerHomePageInit());
                             },
                             child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                           );
@@ -115,7 +115,6 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                               onChanged: (value) {
                                 context.read<OrganizerHomePageBloc>().add(
                                     OrganizerHomePageFilterResults(
-                                        contestsBundles: state.createdContestsBundles!,
                                         query: value));
                               },
                             ),
@@ -126,7 +125,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                                   _searchFocusNode.unfocus();
                                   context
                                       .read<OrganizerHomePageBloc>()
-                                      .add(OrganizerHomePageRefresh(organizerId: profileId));
+                                      .add(OrganizerHomePageRefresh());
                                 },
                                 child: (state.filteredContestsBundles!.isNotEmpty)
                                     ? ListView(
@@ -147,7 +146,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                                                       if (context.mounted) {
                                                         context.read<OrganizerHomePageBloc>().add(
                                                             OrganizerHomePageRefresh(
-                                                                organizerId: profileId));
+                                                                ));
                                                       }
                                                     }
                                                   },
@@ -176,7 +175,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                   if (context.mounted) {
                     context
                         .read<OrganizerHomePageBloc>()
-                        .add(OrganizerHomePageRefresh(organizerId: profileId));
+                        .add(OrganizerHomePageRefresh());
                   }
                 }
               },

@@ -31,7 +31,7 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
     emit(OrganizerHomePageState(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherContests =
-        await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
+        await _organizerRepository.getCreatedContests();
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(
@@ -48,7 +48,7 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherContests =
-        await _organizerRepository.getCreatedContests(organizerId: event.organizerId);
+        await _organizerRepository.getCreatedContests();
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(
@@ -65,7 +65,11 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final query = event.query.toLowerCase();
-    final allContestsBundles = event.contestsBundles;
+    final allContestsBundles = state.createdContestsBundles;
+    if(allContestsBundles == null) {
+      emit(state.copyWith(status: BlocStatus.failure, message: 'No contest to filter'));
+      return;
+    }
     final List<HomeContestBundle> filteredContestsBundles = query.isEmpty
         ? allContestsBundles
         : allContestsBundles

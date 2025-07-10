@@ -52,7 +52,6 @@ class OrganizerContestCreationPageBloc
     }
 
     final ContestModel contest = ContestModel(
-      organizerId: event.organizerId,
       name: event.name,
       description: event.description,
       dateTime: event.dateTime,

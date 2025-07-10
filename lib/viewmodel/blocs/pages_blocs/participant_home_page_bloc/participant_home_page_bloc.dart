@@ -79,7 +79,11 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final query = event.query.toLowerCase();
-    final allContestsBundles = event.contestsBundles;
+    final allContestsBundles = state.joinedContestsBundles;
+    if(allContestsBundles == null) {
+      emit(state.copyWith(status: BlocStatus.failure, message: 'No contest to filter'));
+      return;
+    }
     final List<HomeContestBundle> filteredContestsBundles = query.isEmpty
         ? allContestsBundles
         : allContestsBundles

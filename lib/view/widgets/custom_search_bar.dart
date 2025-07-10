@@ -52,7 +52,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             onPressed: () {
               setState(() {
                 controller.clear();
-                focusNode.requestFocus();
+                onChanged('');
               });
             },
             icon: Icon(Icons.clear),

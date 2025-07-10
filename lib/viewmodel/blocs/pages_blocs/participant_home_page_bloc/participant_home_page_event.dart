@@ -23,16 +23,14 @@ final class ParticipantHomePageRefresh extends ParticipantHomePageEvent {
 }
 
 final class ParticipantHomePageFilterResults extends ParticipantHomePageEvent {
-  final List<HomeContestBundle> contestsBundles;
   final String query;
 
   const ParticipantHomePageFilterResults({
-    required this.contestsBundles,
     required this.query,
   });
 
   @override
-  List<Object?> get props => [contestsBundles, query];
+  List<Object?> get props => [query];
 }
 
 final class ParticipantHomePageJoinContest extends ParticipantHomePageEvent {

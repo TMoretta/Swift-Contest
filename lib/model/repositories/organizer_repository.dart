@@ -16,9 +16,7 @@ import 'package:swift_contest/model/data_models/voting_session_participation.dar
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class OrganizerRepository {
-  Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests({
-    required String organizerId,
-  });
+  Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests();
 
   Future<Either<Failure,ContestDetailsBundle>> getContestDetails({required String contestId});
 
@@ -106,12 +104,10 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   OrganizerRepositoryImpl({required SupabaseClient supabaseClient}) : _supabase = supabaseClient;
 
   @override
-  Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests({
-    required String organizerId,
-  }) async {
+  Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
     try {
       final List<Map<String, dynamic>> res = await _supabase
-          .rpc('organizer_get_created_contests', params: {'p_organizer_id': organizerId});
+          .rpc('organizer_get_created_contests');
       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
     } on SocketException {
       return left(Failure(message: 'Network error'));

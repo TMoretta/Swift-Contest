@@ -108,7 +108,6 @@ class _JurorHomePageState extends State<JurorHomePage> {
                               onChanged: (value) {
                                 context.read<JurorHomePageBloc>().add(
                                     JurorHomePageFilterResults(
-                                        contestsBundles: state.joinedContestsBundles!,
                                         query: value));
                               },
                             ),
@@ -177,7 +176,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                   onPressed: () {
                     _showJoinContestDialog(context: context, profileId: profileId);
                   },
-                  child: Text('Vote as simple juror'),
+                  child: Text('Join contest'),
                 ),
               ],
             ),

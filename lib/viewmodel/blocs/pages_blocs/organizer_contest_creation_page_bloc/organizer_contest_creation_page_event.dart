@@ -5,7 +5,6 @@ sealed class OrganizerContestCreationPageEvent extends Equatable {
 }
 
 final class OrganizerContestCreationPageCreateContest extends OrganizerContestCreationPageEvent {
-  final String organizerId;
   final String name;
   final String description;
   final DateTime dateTime;
@@ -17,7 +16,6 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
   final double placeLat;
 
   const OrganizerContestCreationPageCreateContest({
-    required this.organizerId,
     required this.name,
     required this.description,
     required this.dateTime,
@@ -31,7 +29,6 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
 
   @override
   List<Object?> get props => [
-    organizerId,
     name,
     description,
     dateTime,
