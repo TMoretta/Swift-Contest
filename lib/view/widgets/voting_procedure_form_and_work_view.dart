@@ -81,40 +81,48 @@ class _VotingProcedureFormAndWorkViewState extends State<VotingProcedureFormAndW
             for (var votingFormField in votingFormFields)
               Builder(
                 builder: (context) {
-                  return CustomTextFormField(
-                    controller: votesMap[votingSessionParticipation]![votingFormField],
-                    borderType: InputBorderType.outlined,
-                    enabled: isExcludedFromParticipant ? false : true,
-                    label: votingFormField.name,
-                    keyboardType: TextInputType.number,
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(width: 12),
-                        Text(
-                          '${prettyDouble(votingFormField.minValue)} - ${prettyDouble(votingFormField.maxValue)}',
-                          // textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.labelLarge,
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomTextFormField(
+                        controller: votesMap[votingSessionParticipation]![votingFormField],
+                        focusNode: FocusNode(),
+                        borderType: InputBorderType.outlined,
+                        enabled: isExcludedFromParticipant ? false : true,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        label: votingFormField.name,
+                        keyboardType: TextInputType.number,
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(width: 12),
+                            Text(
+                              '${prettyDouble(votingFormField.minValue)} - ${prettyDouble(votingFormField.maxValue)}',
+                              // textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            SizedBox(width: 12),
+                          ],
                         ),
-                        SizedBox(width: 12),
-                      ],
-                    ),
-                    validator: (isExcludedFromParticipant)
-                        ? null
-                        : (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Required';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Must be a number';
-                            }
-                            final number = double.parse(value);
-                            if (!(number >= votingFormField.minValue &&
-                                number <= votingFormField.maxValue)) {
-                              return 'The vote does not respect the boundaries';
-                            }
-                            return null;
-                          },
+                        validator: (isExcludedFromParticipant)
+                            ? null
+                            : (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Required';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Must be a number';
+                                }
+                                final number = double.parse(value);
+                                if (!(number >= votingFormField.minValue &&
+                                    number <= votingFormField.maxValue)) {
+                                  return 'The vote does not respect the boundaries';
+                                }
+                                return null;
+                              },
+                      ),
+                      SizedBox(height: 12),
+                    ],
                   );
                 },
               ),

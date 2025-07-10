@@ -146,7 +146,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
 
                         if (!isPageInitialized) {
                           final votingSessionParticipationsBundles =
-                              votingSessionProcedureBundle.votingSessionParticipationsBundles;
+                              votingSessionProcedureBundle.includedVotingSessionParticipationsBundles;
                           for (var votingSessionParticipationBundle
                               in votingSessionParticipationsBundles) {
                             final Map<VotingFormField, TextEditingController> fieldsControllers =
@@ -300,6 +300,8 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                 geoResPlace: votingSessionBundle.geoResPlace,
                                 votesPerParticipantMap: votesPerParticipantMap,
                               ));
+                        } else {
+                          showSnackBar(context: context, text: 'Fill all the fields');
                         }
                       },
                       child: Text('Submit'),

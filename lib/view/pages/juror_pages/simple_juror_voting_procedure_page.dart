@@ -148,7 +148,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
 
                         if (!isPageInitialized) {
                           final votingSessionParticipationsBundles =
-                              votingSessionProcedureBundle.votingSessionParticipationsBundles;
+                              votingSessionProcedureBundle.includedVotingSessionParticipationsBundles;
                           for (var votingSessionParticipationBundle
                               in votingSessionParticipationsBundles) {
                             final Map<VotingFormField, TextEditingController> fieldsControllers =

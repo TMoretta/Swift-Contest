@@ -83,43 +83,155 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                       .toList(growable: false);
                   final participantsVotingsPerJurorMap =
                       state.votingSessionResultBundle!.participantsVotingsPerJurorMap;
-                  late List<DataColumn> columnsHeaders;
-                  late List<DataRow> rows;
+                  List<DataColumn> columnsHeaders = [];
+                  List<DataRow> rows = [];
 
                   if (participantsVotingsPerJurorMap.isEmpty) {
                     return ListViewWithCentralLabel(label: 'No vote submitted');
                   }
 
-                  if (chosenJurationBundle == null && chosenParticipationBundle == null) {
+                  //* Table headers
+                  if (chosenParticipationBundle != null) {
                     columnsHeaders = <DataColumn>[
-                      DataColumn(label: Text('Participant')),
-                      for (var jurationBundle in jurationsBundles)
+                      DataColumn(label: VoidWidget()),
+                      for (var field in votingFormFields)
+                        DataColumn(
+                          label: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                chosenParticipationBundle!.participant.fullName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                              ),
+                              Text(
+                                field.name,
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                            ],
+                          ),
+                        ),
+                    ];
+                  } else {
+                    columnsHeaders = <DataColumn>[
+                      DataColumn(label: VoidWidget()),
+                      for (var participationBundle in participationsBundles)
                         for (var field in votingFormFields)
                           DataColumn(
                             label: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(jurationBundle.juror.fullName,
-                                    style: TextStyle(fontWeight: FontWeight.bold)),
-                                Text(field.name,
-                                    style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
+                                Text(
+                                  participationBundle.participant.fullName,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                                ),
+                                Text(
+                                  field.name,
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
                               ],
                             ),
                           ),
                     ];
+                  }
 
-                    rows = participationsBundles.map((participationBundle) {
-                      return DataRow(
-                        cells: <DataCell>[
-                          DataCell(Text(participationBundle.participant.fullName)),
-                          for (var jurationBundle in jurationsBundles)
+                  //* Table rows
+                  if (chosenJurationBundle == null && chosenParticipationBundle == null) {
+                    rows.clear();
+                    for (var jurationBundle in jurationsBundles) {
+                      rows.add(
+                        DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                jurationBundle.juror.fullName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                            for (var participationBundle in participationsBundles)
+                              for (int i = 0; i < votingFormFields.length; i++)
+                                DataCell(
+                                  Text(
+                                    (participantsVotingsPerJurorMap[jurationBundle]![
+                                                participationBundle] !=
+                                            null)
+                                        ? participantsVotingsPerJurorMap[jurationBundle]![
+                                                participationBundle]![i]
+                                            .jurorVote
+                                            .value
+                                            .toString()
+                                        : 'Excluded',
+                                  ),
+                                ),
+                          ],
+                        ),
+                      );
+                    }
+                  }
+
+                  if (chosenJurationBundle != null && chosenParticipationBundle != null) {
+                    rows.clear();
+                    rows.add(
+                      DataRow(
+                        cells: [
+                          DataCell(
+                            Text(
+                              chosenJurationBundle!.juror.fullName,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                            ),
+                          ),
+                          for (int i = 0; i < votingFormFields.length; i++)
+                            DataCell(
+                              Text(
+                                (participantsVotingsPerJurorMap[chosenJurationBundle!]![
+                                            chosenParticipationBundle!] !=
+                                        null)
+                                    ? participantsVotingsPerJurorMap[chosenJurationBundle!]![
+                                            chosenParticipationBundle!]![i]
+                                        .jurorVote
+                                        .value
+                                        .toString()
+                                    : 'Excluded',
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (chosenJurationBundle != null && chosenParticipationBundle == null) {
+                    rows.clear();
+                    rows.add(
+                      DataRow(
+                        cells: [
+                          DataCell(
+                            Text(
+                              chosenJurationBundle!.juror.fullName,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                            ),
+                          ),
+                          for (var participationBundle in participationsBundles)
                             for (int i = 0; i < votingFormFields.length; i++)
                               DataCell(
                                 Text(
-                                  (participantsVotingsPerJurorMap[jurationBundle]![
+                                  (participantsVotingsPerJurorMap[chosenJurationBundle!]![
                                               participationBundle] !=
                                           null)
-                                      ? participantsVotingsPerJurorMap[jurationBundle]![
+                                      ? participantsVotingsPerJurorMap[chosenJurationBundle!]![
                                               participationBundle]![i]
                                           .jurorVote
                                           .value
@@ -128,84 +240,33 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                                 ),
                               ),
                         ],
-                      );
-                    }).toList();
-                  }
-
-                  if (chosenJurationBundle != null && chosenParticipationBundle != null) {
-                    columnsHeaders = <DataColumn>[
-                      ...votingFormFields.map((e) => DataColumn(label: Text(e.name))),
-                    ];
-
-                    rows = [
-                      DataRow(cells: [
-                        for (int i = 0; i < votingFormFields.length; i++)
-                          DataCell(
-                            Text(
-                              (participantsVotingsPerJurorMap[chosenJurationBundle]![
-                                          chosenParticipationBundle] !=
-                                      null)
-                                  ? participantsVotingsPerJurorMap[chosenJurationBundle]![
-                                          chosenParticipationBundle]![i]
-                                      .jurorVote
-                                      .value
-                                      .toString()
-                                  : 'Excluded',
-                            ),
-                          ),
-                      ])
-                    ];
-                  }
-
-                  if (chosenJurationBundle != null && chosenParticipationBundle == null) {
-                    columnsHeaders = <DataColumn>[
-                      const DataColumn(label: Text('Participant')),
-                      ...votingFormFields.map((e) => DataColumn(label: Text(e.name))),
-                    ];
-
-                    rows = <DataRow>[
-                      for (var participationBundle in participationsBundles)
-                        DataRow(
-                          cells: [
-                            DataCell(Text(participationBundle.participant.fullName)),
-                            for (int i = 0; i < votingFormFields.length; i++)
-                              DataCell(
-                                Text(
-                                  (participantsVotingsPerJurorMap[chosenJurationBundle]![
-                                              participationBundle] !=
-                                          null)
-                                      ? participantsVotingsPerJurorMap[chosenJurationBundle]![
-                                              participationBundle]![i]
-                                          .jurorVote
-                                          .value
-                                          .toString()
-                                      : 'Excluded',
-                                ),
-                              ),
-                          ],
-                        )
-                    ];
+                      ),
+                    );
                   }
 
                   if (chosenJurationBundle == null && chosenParticipationBundle != null) {
-                    columnsHeaders = <DataColumn>[
-                      const DataColumn(label: Text('Juror')),
-                      ...votingFormFields.map((e) => DataColumn(label: Text(e.name))),
-                    ];
-
-                    rows = <DataRow>[
-                      for (var jurationBundle in jurationsBundles)
+                    rows.clear();
+                    for (var jurationBundle in jurationsBundles) {
+                      rows.add(
                         DataRow(
                           cells: [
-                            DataCell(Text(jurationBundle.juror.fullName)),
+                            DataCell(
+                              Text(
+                                jurationBundle.juror.fullName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
                             for (int i = 0; i < votingFormFields.length; i++)
                               DataCell(
                                 Text(
                                   (participantsVotingsPerJurorMap[jurationBundle]![
-                                              chosenParticipationBundle] !=
+                                              chosenParticipationBundle!] !=
                                           null)
                                       ? participantsVotingsPerJurorMap[jurationBundle]![
-                                              chosenParticipationBundle]![i]
+                                              chosenParticipationBundle!]![i]
                                           .jurorVote
                                           .value
                                           .toString()
@@ -214,17 +275,23 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                               ),
                           ],
                         ),
-                    ];
+                      );
+                    }
                   }
 
                   return ListView(
                     children: [
-                      Text('Juror'),
+                      SizedBox(height: 16),
                       DropdownMenu(
+                        label: Text('Juror'),
                         enableSearch: false,
+                        maxLines: 1,
+                        textStyle: Theme.of(context).textTheme.labelLarge,
                         onSelected: (value) {
                           setState(() {
                             chosenJurationBundle = value;
+                            columnsHeaders = columnsHeaders;
+                            rows = rows;
                           });
                         },
                         dropdownMenuEntries: [
@@ -239,12 +306,17 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                             ),
                         ],
                       ),
-                      Text('Participant'),
+                      SizedBox(height: 20),
                       DropdownMenu(
+                        label: Text('Participant'),
                         enableSearch: false,
+                        maxLines: 1,
+                        textStyle: Theme.of(context).textTheme.labelLarge,
                         onSelected: (value) {
                           setState(() {
                             chosenParticipationBundle = value;
+                            columnsHeaders = columnsHeaders;
+                            rows = rows;
                           });
                         },
                         dropdownMenuEntries: [
@@ -259,38 +331,15 @@ class _OrganizerVotingResultPageJurorsVotesTabState
                             ),
                         ],
                       ),
-                      if (chosenJurationBundle == null && chosenParticipationBundle == null)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columns: columnsHeaders,
-                            rows: rows,
-                          ),
+                      SizedBox(height: 24),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columns: columnsHeaders,
+                          rows: rows,
                         ),
-                      if (chosenJurationBundle != null && chosenParticipationBundle != null)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columns: columnsHeaders,
-                            rows: rows,
-                          ),
-                        ),
-                      if (chosenJurationBundle != null && chosenParticipationBundle == null)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columns: columnsHeaders,
-                            rows: rows,
-                          ),
-                        ),
-                      if (chosenJurationBundle == null && chosenParticipationBundle != null)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columns: columnsHeaders,
-                            rows: rows,
-                          ),
-                        ),
+                      ),
+                      SizedBox(height: 72),
                     ],
                   );
               }
