@@ -72,7 +72,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
       create: (context) => SimpleJurorVotingProcedurePageBloc(
         genericRepository: context.read(),
         jurorRepository: context.read(),
-      )..add(SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure(
+      )..add(SimpleJurorVotingProcedurePageInit(
           votingSessionId: votingSessionId)),
       child: BlocConsumer<SimpleJurorVotingProcedurePageBloc, SimpleJurorVotingProcedurePageState>(
         listener: (context, state) {
@@ -117,19 +117,19 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                         return VoidWidget();
                       case BlocStatus.loading:
                         if (state.sourceEvent
-                            is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                            is SimpleJurorVotingProcedurePageInit) {
                           return VoidWidget();
                         } else {
                           continue successCase;
                         }
                       case BlocStatus.failure:
                         if (state.sourceEvent
-                            is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                            is SimpleJurorVotingProcedurePageInit) {
                           return RefreshIndicator.adaptive(
                             onRefresh: () async => context
                                 .read<SimpleJurorVotingProcedurePageBloc>()
                                 .add(
-                                    SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure(
+                                    SimpleJurorVotingProcedurePageInit(
                                         votingSessionId: votingSessionId)),
                             child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                           );
@@ -173,7 +173,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                           onRefresh: () async => context
                               .read<SimpleJurorVotingProcedurePageBloc>()
                               .add(
-                                  SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure(
+                                  SimpleJurorVotingProcedurePageRefresh(
                                       votingSessionId: votingSessionId)),
                           child: Builder(
                             builder: (context) {
@@ -253,7 +253,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                     return VoidWidget();
                   case (BlocStatus.loading || BlocStatus.failure):
                     if (state.sourceEvent
-                        is SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                        is SimpleJurorVotingProcedurePageInit) {
                       return VoidWidget();
                     } else {
                       continue successCase;

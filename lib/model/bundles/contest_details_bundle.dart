@@ -145,7 +145,7 @@ class ContestDetailsBundle extends Equatable {
           .map((
             e,
           ) =>
-          JurationBundle.fromJson(e))
+              JurationBundle.fromJson(e))
           .toList(growable: false),
       invitations: (json['invitations'] as List<dynamic>)
           .map((e) => Invitation.fromJson(e))

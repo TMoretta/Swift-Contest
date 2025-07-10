@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
@@ -186,7 +185,7 @@ class _Menu extends StatelessWidget {
                             onPressed: () {
                               context.read<JurorContestDetailsPageBloc>().add(
                                   JurorContestDetailsPageLeaveContest(
-                                      contestId: contestId, jurorId: profileId));
+                                      contestId: contestId));
                             },
                             child: Text('Proceed'),
                           ),

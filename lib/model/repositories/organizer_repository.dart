@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
@@ -18,6 +19,8 @@ abstract interface class OrganizerRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests({
     required String organizerId,
   });
+
+  Future<Either<Failure,ContestDetailsBundle>> getContestDetails({required String contestId});
 
   Future<Either<Failure, Unit>> createContest({
     required ContestModel contest,
@@ -110,6 +113,21 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
       final List<Map<String, dynamic>> res = await _supabase
           .rpc('organizer_get_created_contests', params: {'p_organizer_id': organizerId});
       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure,ContestDetailsBundle>> getContestDetails({required String contestId}) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase
+          .rpc('organizer_get_contest_details',params: {'p_contest_id':contestId});
+      return right(ContestDetailsBundle.fromRpcJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {

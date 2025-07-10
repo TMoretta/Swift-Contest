@@ -55,7 +55,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
   Widget build(BuildContext context) {
     return BlocProvider<JurorHomePageBloc>(
       create: (context) => JurorHomePageBloc(jurorRepository: context.read())
-        ..add(JurorHomePageInit(jurorId: profileId)),
+        ..add(JurorHomePageInit()),
       child: BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
         listener: (context, state) {
           if (state.message != null) {
@@ -91,7 +91,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                           return RefreshIndicator.adaptive(
                             onRefresh: () async => context
                                 .read<JurorHomePageBloc>()
-                                .add(JurorHomePageInit(jurorId: profileId)),
+                                .add(JurorHomePageInit()),
                             child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                           );
                         } else {
@@ -117,7 +117,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                                 onRefresh: () async {
                                   context
                                       .read<JurorHomePageBloc>()
-                                      .add(JurorHomePageRefresh(jurorId: profileId));
+                                      .add(JurorHomePageRefresh());
                                   context.read<AuthBloc>().add(AuthFetchProfileMessages());
                                 },
                                 child: (state.filteredContestsBundles!.isNotEmpty)
@@ -137,7 +137,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                                                     if (res == true) {
                                                       if (context.mounted) {
                                                         context.read<JurorHomePageBloc>().add(
-                                                            JurorHomePageRefresh(jurorId: profileId));
+                                                            JurorHomePageRefresh());
                                                       }
                                                     }
                                                   },
@@ -206,7 +206,7 @@ void _showJoinContestDialog({
           listener: (context, state) {
             if (state.status.isSuccess && state.sourceEvent is JurorHomePageJoinContest) {
               showSnackBar(context: context, text: 'Joined contest successfully');
-              context.read<JurorHomePageBloc>().add(JurorHomePageRefresh(jurorId: profileId));
+              context.read<JurorHomePageBloc>().add(JurorHomePageRefresh());
               context.router.pop(true);
             }
           },
@@ -242,7 +242,6 @@ void _showJoinContestDialog({
                     if (joinContestFormKey.currentState?.validate() ?? false) {
                       context.read<JurorHomePageBloc>().add(
                             JurorHomePageJoinContest(
-                              jurorId: profileId,
                               token: tokenController.text.trim(),
                             ),
                           );
@@ -326,7 +325,6 @@ void _showVoteAsSimpleJurorDialog({
                             JurorHomePageVoteAsSimpleJuror(
                               fullName: fullNameController.text.trim(),
                               token: tokenController.text.trim(),
-                              jurorId: profileId,
                             ),
                           );
                     }

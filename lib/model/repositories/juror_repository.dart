@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/bundles/simple_juror_and_voting_session_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
@@ -10,19 +11,17 @@ import 'package:swift_contest/model/data_models/voting_session_participation.dar
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class JurorRepository {
-  Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests({
-    required String jurorId,
-  });
+  Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests();
+
+  Future<Either<Failure,ContestDetailsBundle>> getContestDetails({required String contestId});
 
   Future<Either<Failure, Unit>> joinContest({
-    required String jurorId,
     required String token,
   });
 
-  Future<Either<Failure,Unit>> leaveContest({required String contestId, required String jurorId,});
+  Future<Either<Failure,Unit>> leaveContest({required String contestId});
 
   Future<Either<Failure, Unit>> jurorSubmitVotes({
-    required String jurorId,
     required String votingSessionId,
     required String contestId,
     required Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap,
@@ -32,12 +31,9 @@ abstract interface class JurorRepository {
     required String votingSessionId,
   });
 
-  // Future<Either<Failure, Place?>> getVotingSessionGeoRestrictionPlace({required String placeId});
-
   Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsSimpleJuror({
     required String fullName,
     required String token,
-     String? jurorId,
   });
   
   Future<Either<Failure, Unit>> simpleJurorSubmitVotes({
@@ -45,7 +41,6 @@ abstract interface class JurorRepository {
     required String votingSessionId,
     required String contestId,
     required Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap,
-    String? jurorId,
   });
 }
 
@@ -55,12 +50,10 @@ class JurorRepositoryImpl implements JurorRepository {
   JurorRepositoryImpl({required SupabaseClient supabaseClient}) : _supabase = supabaseClient;
 
   @override
-  Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests({
-    required String jurorId,
-  }) async {
+  Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests() async {
     try {
       final List<Map<String, dynamic>> res =
-          await _supabase.rpc('juror_get_joined_contests', params: {'p_juror_id': jurorId});
+          await _supabase.rpc('juror_get_joined_contests');
       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -72,13 +65,26 @@ class JurorRepositoryImpl implements JurorRepository {
   }
 
   @override
+  Future<Either<Failure,ContestDetailsBundle>> getContestDetails({required String contestId}) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase
+          .rpc('juror_get_contest_details',params: {'p_contest_id':contestId});
+      return right(ContestDetailsBundle.fromRpcJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> joinContest({
-    required String jurorId,
     required String token,
   }) async {
     try {
       await _supabase.rpc('juror_join_contest', params: {
-        'p_juror_id': jurorId,
         'p_token': token,
       });
       return right(unit);
@@ -92,11 +98,10 @@ class JurorRepositoryImpl implements JurorRepository {
   }
 
   @override
-  Future<Either<Failure,Unit>> leaveContest({required String contestId, required String jurorId,}) async {
+  Future<Either<Failure,Unit>> leaveContest({required String contestId}) async {
     try {
       await _supabase.rpc('juror_leave_contest', params: {
         'p_contest_id' : contestId,
-        'p_juror_id': jurorId,
       });
       return right(unit);
     } on SocketException {
@@ -110,7 +115,6 @@ class JurorRepositoryImpl implements JurorRepository {
 
   @override
   Future<Either<Failure, Unit>> jurorSubmitVotes({
-    required String jurorId,
     required String votingSessionId,
     required String contestId,
     required Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap,
@@ -120,7 +124,6 @@ class JurorRepositoryImpl implements JurorRepository {
           votesPerParticipantMap.map(
               (key, value) => MapEntry(key.id, value.map((key, value) => MapEntry(key.id, value))));
       await _supabase.rpc('juror_submit_votes', params: {
-        'p_juror_id': jurorId,
         'p_voting_session_id': votingSessionId,
         'p_contest_id': contestId,
         'p_votes_per_participant_map': votesPerParticipantMapWithIds,
@@ -158,33 +161,15 @@ class JurorRepositoryImpl implements JurorRepository {
     }
   }
 
-  // @override
-  // Future<Either<Failure, Place?>> getVotingSessionGeoRestrictionPlace(
-  //     {required String placeId}) async {
-  //   try {
-  //     final List<Map<String, dynamic>> res = await _supabase
-  //         .rpc('juror_get_voting_session_geores_place', params: {'p_place_id': placeId});
-  //     if (res.isEmpty) {
-  //       return left(Failure(message: 'Place not found'));
-  //     }
-  //     return right(Place.fromJson(res.first));
-  //   } on PostgrestException catch (e) {
-  //     return left(Failure(message: e.message));
-  //   } catch (e) {
-  //     return left(Failure());
-  //   }
-  // }
-
   @override
   Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsSimpleJuror({
     required String fullName,
     required String token,
-    String? jurorId,
   }) async {
     try {
       final List<Map<String, dynamic>> res = await _supabase.rpc(
           'juror_access_voting_as_simple_juror',
-          params: {'p_full_name': fullName, 'p_token': token, 'p_juror_id': jurorId});
+          params: {'p_full_name': fullName, 'p_token': token});
       return right(SimpleJurorAndVotingSessionBundle.fromJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -201,7 +186,6 @@ class JurorRepositoryImpl implements JurorRepository {
     required String votingSessionId,
     required String contestId,
     required Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap,
-    String? jurorId,
   }) async {
     try {
       final Map<String, Map<String, double>> votesPerParticipantMapWithIds =
@@ -212,7 +196,6 @@ class JurorRepositoryImpl implements JurorRepository {
         'p_voting_session_id': votingSessionId,
         'p_contest_id': contestId,
         'p_votes_per_participant_map': votesPerParticipantMapWithIds,
-        'p_juror_id' : jurorId,
       });
       return right(unit);
     } on SocketException {

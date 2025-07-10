@@ -1,7 +1,5 @@
 --region PARTICIPANT GET JOINED CONTESTS
-CREATE OR REPLACE FUNCTION participant_get_joined_contests (
-  p_participant_id uuid
-)
+CREATE OR REPLACE FUNCTION participant_get_joined_contests ()
 RETURNS TABLE (
   contest jsonb,
   organizer jsonb,
@@ -10,22 +8,29 @@ RETURNS TABLE (
   jurations jsonb
 ) AS $$
 DECLARE
-DECLARE
-  v_user_id uuid;
+  v_current_user_id uuid;
+  v_current_profile profiles;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
-  SELECT u.id INTO v_user_id
-  FROM auth.users u
-  JOIN profiles p ON p.user_id = u.id
-  WHERE p.id = p_participant_id
-  LIMIT 1;
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
 
-  IF (auth.uid() <> v_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   RETURN QUERY
@@ -47,7 +52,7 @@ BEGIN
     JOIN places pla ON cont.place_id = pla.id
     JOIN profiles org ON cont.organizer_id = org.id
     JOIN participations par ON par.contest_id = cont.id AND par.participant_status = 'joined'
-    WHERE par.participant_id = p_participant_id
+    WHERE par.participant_id = v_current_profile.id
     ORDER BY cont.created_at DESC;
 
 EXCEPTION
@@ -59,7 +64,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
 --region PARTICIPANT GET CONTEST DETAILS
-CREATE OR REPLACE FUNCTION get_contest_details (
+CREATE OR REPLACE FUNCTION participant_get_contest_details (
   p_contest_id uuid
 )
 RETURNS TABLE (
@@ -76,7 +81,39 @@ RETURNS TABLE (
   voting_form_fields jsonb,
   voting_sessions jsonb
 ) AS $$
+DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM participations
+    WHERE contest_id = p_contest_id AND participant_id = v_current_profile.id AND participant_status = 'joined'
+  ) THEN
+    RAISE EXCEPTION 'You are not a participant in this contest';
+  END IF;
+
   RETURN QUERY
     SELECT
       to_jsonb(cont) AS contest,
@@ -151,53 +188,79 @@ $$ LANGUAGE plpgsql SECURITY definer;
 
 --region PARTICIPANT JOIN CONTEST
 CREATE OR REPLACE FUNCTION participant_join_contest(
-  p_participant_id uuid,
   p_token varchar
 )
 RETURNS void AS $$
 DECLARE
-  v_user_id uuid;
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_invitation invitations;
   v_contest contests;
   v_participation participations;
-  v_participant profiles;
 BEGIN
 
-  IF (auth.uid() = null) THEN
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
-  SELECT u.id INTO v_user_id
-  FROM auth.users u
-  JOIN profiles p ON p.user_id = u.id
-  WHERE p.id = p_participant_id
-  LIMIT 1;
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
 
-  IF (auth.uid() <> v_user_id) THEN
-    RAISE EXCEPTION 'Operation not allowed, you are not the account owner';
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM invitations
+    WHERE token = p_token AND member_role = 'participant'
+  ) THEN
+    RAISE EXCEPTION 'No invitation found with the provided token';
   END IF;
 
   SELECT * INTO v_invitation
   FROM invitations
   WHERE token = p_token AND member_role = 'participant';
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'No invitation found with the provided token';
+  IF NOT EXISTS (
+    SELECT 1
+    FROM contests
+    WHERE id = v_invitation.contest_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'No contest found with the provided invitation';
   END IF;
 
   SELECT * INTO v_contest
   FROM contests
   WHERE id = v_invitation.contest_id AND deleted_at is null;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'No contest found with the provided invitation';
-  END IF;
-
   SELECT * INTO v_participation
   FROM participations
-  WHERE contest_id = v_contest.id AND participant_id = p_participant_id;
+  WHERE contest_id = v_contest.id AND participant_id = v_current_profile.id;
 
-  IF FOUND THEN
+  IF NOT FOUND THEN
+    INSERT INTO participations (
+      contest_id,
+      participant_id,
+      participant_status,
+      invitation_email
+    ) VALUES (
+      v_contest.id,
+      v_current_profile.id,
+      'joined',
+      v_invitation.email
+    );
+  ELSE
     IF (v_participation.participant_status = 'joined') THEN
       RAISE EXCEPTION 'You are already a participant in this contest';
     ELSE
@@ -207,29 +270,13 @@ BEGIN
         invitation_email = v_invitation.email
       WHERE id = v_participation.id;
     END IF;
-  ELSE
-    INSERT INTO participations (
-      contest_id,
-      participant_id,
-      participant_status,
-      invitation_email
-    ) VALUES (
-      v_contest.id,
-      p_participant_id,
-      'joined',
-      v_invitation.email
-    );
   END IF;
 
   DELETE FROM invitations
   WHERE id = v_invitation.id;
 
-  SELECT * INTO v_participant
-  FROM profiles
-  WHERE id = p_participant_id;
-
   INSERT INTO messages (profile_id, title, body)
-  VALUES (v_contest.organizer_id, 'Participant join', format('"%s" joined the contest "%s"',v_participant.full_name, v_contest.name));
+  VALUES (v_contest.organizer_id, 'Participant join', format('"%s" joined the contest "%s"',v_current_profile.full_name, v_contest.name));
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -239,45 +286,59 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- PARTICIPANT LEAVE CONTEST
+--region PARTICIPANT LEAVE CONTEST
 CREATE OR REPLACE FUNCTION participant_leave_contest (
-  p_contest_id uuid,
-  p_participant_id uuid
+  p_contest_id uuid
 )
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_contest contests;
-  v_participant profiles;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM participations
-    WHERE contest_id = p_contest_id AND participant_id = p_participant_id
+    WHERE contest_id = p_contest_id AND participant_id = v_current_profile.id AND participant_status = 'joined'
   ) THEN
-    RAISE EXCEPTION 'Participant not found';
-  END IF;
-
-  IF EXISTS (
-    SELECT 1 FROM participations
-    WHERE contest_id = p_contest_id AND participant_id = p_participant_id AND participant_status = 'out'
-  ) THEN
-    RAISE EXCEPTION 'Participant is already out from the contest';
+    RAISE EXCEPTION 'Participant not found or already out from the contest';
   END IF;
 
   UPDATE participations
   SET participant_status = 'out'
-  WHERE contest_id = p_contest_id AND participant_id = p_participant_id;
+  WHERE contest_id = p_contest_id AND participant_id = v_current_profile.id;
 
   SELECT * INTO v_contest
   FROM contests
   WHERE id = p_contest_id;
 
-  SELECT * INTO v_participant
-  FROM profiles
-  WHERE id = p_participant_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
 
   INSERT INTO messages (profile_id, title, body)
-  VALUES (v_contest.organizer_id, 'Participant leave', format('"%s" leave the contest "%s"',v_participant.full_name, v_contest.name));
+  VALUES (v_contest.organizer_id, 'Participant leave', format('"%s" leave the contest "%s"',v_current_profile.full_name, v_contest.name));
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -287,23 +348,44 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- PARTICIPANT GET OWN WORK
+--region PARTICIPANT GET SUBMITTED WORK
 CREATE OR REPLACE FUNCTION participant_get_submitted_work (
-  p_contest_id uuid,
-  p_participant_id uuid
+  p_contest_id uuid
 )
 RETURNS SETOF works AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_participation participations;
 BEGIN
 
-  SELECT * INTO v_participation
-  FROM participations
-  WHERE contest_id = p_contest_id AND participant_id = p_participant_id
-  LIMIT 1;
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'No participant found';
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT * INTO v_participation
+  FROM participations
+  WHERE contest_id = p_contest_id AND participant_id = v_current_profile.id AND participant_status = 'joined';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Participant not found';
   END IF;
 
   RETURN QUERY
@@ -320,9 +402,8 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- PARTICIPANT SUBMIT WORK
+--region PARTICIPANT SUBMIT WORK
 CREATE OR REPLACE FUNCTION participant_submit_work(
-  p_participant_id uuid,
   p_contest_id uuid,
   p_name varchar,
   p_description varchar,
@@ -331,33 +412,51 @@ CREATE OR REPLACE FUNCTION participant_submit_work(
 )
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_contest contests;
   v_participation participations;
-  v_participant profiles;
 BEGIN
 
-  SELECT * INTO v_contest
-  FROM contests
-  WHERE id = p_contest_id;
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'No contest found';
-  END IF;
-
-  IF (v_contest.deleted_at IS NOT null) THEN
-    RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
-  END IF;
-
-  IF (v_contest.contest_status <> 'participationPhase') THEN
-    RAISE EXCEPTION 'Operation not allowed. The contest is not in participation phase';
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   SELECT * INTO v_participation
   FROM participations
-  WHERE contest_id = p_contest_id AND participant_id = p_participant_id;
+  WHERE contest_id = p_contest_id AND participant_id = v_current_profile.id AND participant_status = 'joined';
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'No participation found';
+    RAISE EXCEPTION 'Participant not found';
+  END IF;
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF (v_contest.contest_status <> 'participationPhase') THEN
+    RAISE EXCEPTION 'Operation not allowed. The contest is not in participation phase';
   END IF;
 
   IF (v_participation.has_submitted = true) THEN
@@ -371,15 +470,11 @@ BEGIN
   SET has_submitted = true
   WHERE id = v_participation.id;
 
-  SELECT * INTO v_participant
-  FROM profiles
-  WHERE id = p_participant_id;
-
   INSERT INTO messages (profile_id, title, body)
   VALUES (
     v_contest.organizer_id,
     'Work submission',
-    format('"%s" submitted a work for the contest "%s"', v_participant.full_name, v_contest.name)
+    format('"%s" submitted a work for the contest "%s"', v_current_profile.full_name, v_contest.name)
   );
 
 EXCEPTION

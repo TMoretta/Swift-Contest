@@ -53,7 +53,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
       create: (context) => OrganizerVotingProcedurePageBloc(
         genericRepository: context.read(),
         organizerRepository: context.read(),
-      )..add(OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure(
+      )..add(OrganizerVotingProcedurePageInit(
           votingSessionId: votingSessionId)),
       child: BlocConsumer<OrganizerVotingProcedurePageBloc, OrganizerVotingProcedurePageState>(
         listener: (context, state) {
@@ -91,18 +91,18 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                         return VoidWidget();
                       case BlocStatus.loading:
                         if (state.sourceEvent
-                            is OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                            is OrganizerVotingProcedurePageInit) {
                           return VoidWidget();
                         } else {
                           continue successCase;
                         }
                       case BlocStatus.failure:
                         if (state.sourceEvent
-                            is OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                            is OrganizerVotingProcedurePageInit) {
                           return RefreshIndicator.adaptive(
                             onRefresh: () async => context
                                 .read<OrganizerVotingProcedurePageBloc>()
-                                .add(OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure(
+                                .add(OrganizerVotingProcedurePageInit(
                                     votingSessionId: votingSessionId)),
                             child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                           );
@@ -114,7 +114,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<OrganizerVotingProcedurePageBloc>()
-                              .add(OrganizerVotingProcedurePageResubscribeToVotingSessionProcedure(
+                              .add(OrganizerVotingProcedurePageRefresh(
                                   votingSessionId: votingSessionId)),
                           child: Builder(
                             builder: (context) {
@@ -261,7 +261,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                     return VoidWidget();
                   case (BlocStatus.loading || BlocStatus.failure):
                     if (state.sourceEvent
-                        is OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                        is OrganizerVotingProcedurePageInit) {
                       return VoidWidget();
                     } else {
                       continue successCase;

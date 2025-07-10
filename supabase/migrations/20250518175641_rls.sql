@@ -7,6 +7,13 @@ begin
     end loop;
 end $$;
 
+CREATE POLICY "VotingSessions All"
+ON voting_sessions
+FOR ALL
+TO authenticated
+USING (TRUE)
+WITH CHECK (TRUE);
+
 -- 1. Abilita RLS sulle tabelle di storage
 ALTER TABLE storage.buckets
   ENABLE ROW LEVEL SECURITY;

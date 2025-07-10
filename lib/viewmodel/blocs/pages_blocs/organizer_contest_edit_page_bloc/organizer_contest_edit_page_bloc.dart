@@ -1,12 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/repositories/storage_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -17,17 +16,13 @@ part 'organizer_contest_edit_page_state.dart';
 
 class OrganizerContestEditPageBloc
     extends Bloc<OrganizerContestEditPageEvent, OrganizerContestEditPageState> {
-  final GenericRepository _genericRepository;
   final OrganizerRepository _organizerRepository;
   final StorageRepository _storageRepository;
 
-  OrganizerContestEditPageBloc({
-    required GenericRepository genericRepository,
-    required OrganizerRepository organizerRepository,
-  required StorageRepository storageRepository})
-      :
-        _genericRepository = genericRepository,
-        _organizerRepository = organizerRepository,
+  OrganizerContestEditPageBloc(
+      {required OrganizerRepository organizerRepository,
+      required StorageRepository storageRepository})
+      : _organizerRepository = organizerRepository,
         _storageRepository = storageRepository,
         super(OrganizerContestEditPageState(status: BlocStatus.initial)) {
     on<OrganizerContestEditPageInit>(_init);
@@ -41,25 +36,27 @@ class OrganizerContestEditPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContestDetails = await _genericRepository.getContestDetails(contestId: event.contestId);
+    final eitherContestDetails =
+        await _organizerRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) {
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) {
         emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
       },
     );
   }
 
   FutureOr<void> _refresh(
-      OrganizerContestEditPageRefresh event,
-      Emitter<OrganizerContestEditPageState> emit,
-      ) async {
+    OrganizerContestEditPageRefresh event,
+    Emitter<OrganizerContestEditPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContestDetails = await _genericRepository.getContestDetails(contestId: event.contestId);
+    final eitherContestDetails =
+        await _organizerRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) {
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) {
         emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
       },
     );
@@ -72,13 +69,14 @@ class OrganizerContestEditPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     List<String>? newImagesUrls;
-    if(event.images!=null) {
-      final eitherImagesUrls = await _storageRepository.uploadImages(bucket: StorageBucket.contestsImages, images: event.images!);
+    if (event.images != null) {
+      final eitherImagesUrls = await _storageRepository.uploadImages(
+          bucket: StorageBucket.contestsImages, images: event.images!);
       eitherImagesUrls.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-          (success) => newImagesUrls = success,
+        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+        (success) => newImagesUrls = success,
       );
-      if(eitherImagesUrls.isLeft()) {
+      if (eitherImagesUrls.isLeft()) {
         return;
       }
     }
@@ -91,36 +89,13 @@ class OrganizerContestEditPageBloc
       place: event.place,
       worksSubmissionStart: event.worksSubmissionStart,
       worksSubmissionEnd: event.worksSubmissionEnd,
-      imagesUrls: (newImagesUrls != null && newImagesUrls!.isNotEmpty) ? newImagesUrls! : event.oldImagesUrls,
+      imagesUrls: (newImagesUrls != null && newImagesUrls!.isNotEmpty)
+          ? newImagesUrls!
+          : event.oldImagesUrls,
     );
     eitherEditContest.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-        (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

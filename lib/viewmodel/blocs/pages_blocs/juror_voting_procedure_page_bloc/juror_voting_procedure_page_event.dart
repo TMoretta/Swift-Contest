@@ -4,11 +4,11 @@ sealed class JurorVotingProcedurePageEvent extends Equatable {
   const JurorVotingProcedurePageEvent();
 }
 
-final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
+final class JurorVotingProcedurePageInit
     extends JurorVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const JurorVotingProcedurePageSubscribeToVotingSessionProcedure({
+  const JurorVotingProcedurePageInit({
     required this.votingSessionId,
   });
 
@@ -16,11 +16,11 @@ final class JurorVotingProcedurePageSubscribeToVotingSessionProcedure
   List<Object?> get props => [votingSessionId];
 }
 
-final class JurorVotingProcedurePageResubscribeToVotingSessionProcedure
+final class JurorVotingProcedurePageRefresh
     extends JurorVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const JurorVotingProcedurePageResubscribeToVotingSessionProcedure({
+  const JurorVotingProcedurePageRefresh({
     required this.votingSessionId,
   });
 
@@ -29,21 +29,18 @@ final class JurorVotingProcedurePageResubscribeToVotingSessionProcedure
 }
 
 final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {
-  final String jurorId;
   final VotingSession votingSession;
   final Place? geoResPlace;
   final Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap;
 
   const JurorVotingProcedurePageSubmitVotes({
-    required this.jurorId,
     required this.votingSession,
-     this.geoResPlace,
+    this.geoResPlace,
     required this.votesPerParticipantMap,
   });
 
   @override
   List<Object?> get props => [
-        jurorId,
         votingSession,
         geoResPlace,
         votesPerParticipantMap,

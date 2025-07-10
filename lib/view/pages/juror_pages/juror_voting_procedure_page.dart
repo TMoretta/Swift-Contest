@@ -68,7 +68,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
       create: (context) => JurorVotingProcedurePageBloc(
         genericRepository: context.read(),
         jurorRepository: context.read(),
-      )..add(JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
+      )..add(JurorVotingProcedurePageInit(
           votingSessionId: votingSessionId)),
       child: BlocConsumer<JurorVotingProcedurePageBloc, JurorVotingProcedurePageState>(
         listener: (context, state) {
@@ -112,17 +112,17 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                         return VoidWidget();
                       case BlocStatus.loading:
                         if (state.sourceEvent
-                            is JurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                            is JurorVotingProcedurePageInit) {
                           return VoidWidget();
                         } else {
                           continue successCase;
                         }
                       case BlocStatus.failure:
                         if (state.sourceEvent
-                            is JurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                            is JurorVotingProcedurePageInit) {
                           return RefreshIndicator.adaptive(
                             onRefresh: () async => context.read<JurorVotingProcedurePageBloc>().add(
-                                JurorVotingProcedurePageSubscribeToVotingSessionProcedure(
+                                JurorVotingProcedurePageInit(
                                     votingSessionId: votingSessionId)),
                             child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                           );
@@ -175,7 +175,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
 
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context.read<JurorVotingProcedurePageBloc>().add(
-                              JurorVotingProcedurePageResubscribeToVotingSessionProcedure(
+                              JurorVotingProcedurePageRefresh(
                                   votingSessionId: votingSessionId)),
                           child: Builder(
                             builder: (context) {
@@ -257,7 +257,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                     return VoidWidget();
                   case (BlocStatus.loading || BlocStatus.failure):
                     if (state.sourceEvent
-                        is JurorVotingProcedurePageSubscribeToVotingSessionProcedure) {
+                        is JurorVotingProcedurePageInit) {
                       return VoidWidget();
                     } else {
                       continue successCase;
@@ -296,7 +296,6 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                           context
                               .read<JurorVotingProcedurePageBloc>()
                               .add(JurorVotingProcedurePageSubmitVotes(
-                                jurorId: profileId,
                                 votingSession: votingSession,
                                 geoResPlace: votingSessionBundle.geoResPlace,
                                 votesPerParticipantMap: votesPerParticipantMap,

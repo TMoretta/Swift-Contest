@@ -426,10 +426,6 @@ BEGIN
   WHERE id = p_message_id
   RETURNING * INTO v_message;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while updating message';
-  END IF;
-
   RETURN v_message;
 
 EXCEPTION
@@ -495,10 +491,6 @@ BEGIN
   WHERE id = p_message_id
   RETURNING * INTO v_message;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while updating message';
-  END IF;
-
   RETURN v_message;
 
 EXCEPTION
@@ -515,8 +507,7 @@ CREATE OR REPLACE FUNCTION delete_all_current_profile_messages ()
 RETURNS void AS $$
 DECLARE
   v_current_user_id uuid;
-  v_user_id uuid;
-  v_profile_id uuid;
+  v_current_profile profiles;
 BEGIN
 
   v_current_user_id := auth.uid();
@@ -532,27 +523,24 @@ BEGIN
     RAISE EXCEPTION 'User not found';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT id INTO v_profile_id FROM profiles
-    WHERE user_id = v_current_user_id AND deleted_at is null
-  ) THEN
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM messages
-    WHERE profile_id = v_profile_id AND deleted_at is null
+    WHERE profile_id = v_current_profile.id AND deleted_at is null
   ) THEN
     RAISE EXCEPTION 'No message to delete';
   END IF;
 
   UPDATE messages
   SET deleted_at = now()
-  WHERE profile_id = v_profile_id;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while deleting messages';
-  END IF;
+  WHERE profile_id = v_current_profile.id;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN

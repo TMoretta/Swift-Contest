@@ -31,7 +31,7 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
     emit(ParticipantHomePageState(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherContests =
-        await _participantRepository.getJoinedContests(participantId: event.participantId);
+        await _participantRepository.getJoinedContests();
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(
@@ -48,7 +48,7 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherContests =
-        await _participantRepository.getJoinedContests(participantId: event.participantId);
+        await _participantRepository.getJoinedContests();
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(
@@ -65,8 +65,7 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherJoinContest = await _participantRepository.joinContest(
-        participantId: event.participantId, token: event.token);
+    final eitherJoinContest = await _participantRepository.joinContest(token: event.token);
     eitherJoinContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

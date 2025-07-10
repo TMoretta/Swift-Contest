@@ -309,10 +309,14 @@ BEGIN
     RAISE EXCEPTION 'Operation not allowed, the contest has been deleted';
   END IF;
 
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id AND deleted_at is null;
+
   v_contest_status := CASE
-    WHEN now() < p_contest.works_submission_start THEN
+    WHEN now() < v_contest.works_submission_start THEN
       'preparationPhase'
-    WHEN now() BETWEEN p_contest.works_submission_start AND p_contest.works_submission_end THEN
+    WHEN now() BETWEEN v_contest.works_submission_start AND v_contest.works_submission_end THEN
       'participationPhase'
     ELSE
       'votingPhase'
@@ -336,11 +340,11 @@ BEGIN
 
   RETURN v_contest;
 
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -423,7 +427,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER SET CONTEST STATUS AS ACTIVE
+--region ORGANIZER SET CONTEST STATUS AS ACTIVE
 CREATE OR REPLACE FUNCTION organizer_set_contest_status_as_active (
   p_contest_id uuid
 )
@@ -476,7 +480,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER SET CONTEST STATUS AS TERMINATED
+--region ORGANIZER SET CONTEST STATUS AS TERMINATED
 CREATE OR REPLACE FUNCTION organizer_set_contest_status_as_terminated (
   p_contest_id uuid
 )
@@ -518,7 +522,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER INIT VOTING SESSION
+--region ORGANIZER INIT VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_init_voting_session (
   p_voting_form_fields voting_form_fields[],
   p_geores_place places,
@@ -722,7 +726,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER START VOTING SESSION
+--region ORGANIZER START VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_start_voting_session (
   p_voting_session_id uuid
 )
@@ -778,7 +782,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER ADVANCE VOTING SESSION
+--region ORGANIZER ADVANCE VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
   p_voting_session_id uuid
 )
@@ -868,7 +872,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER END VOTING SESSION
+--region ORGANIZER END VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_end_voting_session(
   p_voting_session_id uuid
 )
@@ -915,7 +919,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER CANCEL VOTING SESSION
+--region ORGANIZER CANCEL VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (
   p_voting_session_id uuid
 )
@@ -961,7 +965,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER DELETE INVITATION
+--region ORGANIZER DELETE INVITATION
 CREATE OR REPLACE FUNCTION organizer_delete_invitation (
   p_invitation_id uuid
 )
@@ -995,6 +999,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+--region ORGANIZER UPDATE VOTING SESSION NAME
 CREATE OR REPLACE FUNCTION organizer_update_voting_session_name (
   p_voting_session_id uuid,
   p_name varchar
@@ -1030,7 +1035,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ORGANIZER REMOVE PARTICIPANT
+--region ORGANIZER REMOVE PARTICIPANT
 CREATE OR REPLACE FUNCTION organizer_remove_participant (
   p_participation_id uuid
 )
@@ -1098,7 +1103,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER REMOVE JUROR
+--region ORGANIZER REMOVE JUROR
 CREATE OR REPLACE FUNCTION organizer_remove_juror (
   p_juration_id uuid
 )
@@ -1166,7 +1171,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER DELETE CONTEST
+--region ORGANIZER DELETE CONTEST
 CREATE OR REPLACE FUNCTION organizer_delete_contest (
   p_contest_id uuid
 )
@@ -1249,7 +1254,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- ORGANIZER GET PARTICIPATION BUNDLE
+--region ORGANIZER GET PARTICIPATION BUNDLE
 CREATE OR REPLACE FUNCTION organizer_get_participation_bundle (
   p_participation_id uuid
 )

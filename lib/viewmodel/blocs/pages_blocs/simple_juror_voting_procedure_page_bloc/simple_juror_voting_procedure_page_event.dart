@@ -4,11 +4,11 @@ sealed class SimpleJurorVotingProcedurePageEvent extends Equatable {
   const SimpleJurorVotingProcedurePageEvent();
 }
 
-final class SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure
+final class SimpleJurorVotingProcedurePageInit
     extends SimpleJurorVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure({
+  const SimpleJurorVotingProcedurePageInit({
     required this.votingSessionId,
   });
 
@@ -16,11 +16,11 @@ final class SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure
   List<Object?> get props => [votingSessionId];
 }
 
-final class SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure
+final class SimpleJurorVotingProcedurePageRefresh
     extends SimpleJurorVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure({
+  const SimpleJurorVotingProcedurePageRefresh({
     required this.votingSessionId,
   });
 

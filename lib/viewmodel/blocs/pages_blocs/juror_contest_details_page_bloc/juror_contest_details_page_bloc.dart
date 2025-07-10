@@ -37,7 +37,7 @@ class JurorContestDetailsPageBloc
 
     late final ContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
-        await _genericRepository.getContestDetails(contestId: event.contestId);
+        await _jurorRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => contestDetailsBundle = success,
@@ -70,7 +70,7 @@ class JurorContestDetailsPageBloc
 
     late final ContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
-    await _genericRepository.getContestDetails(contestId: event.contestId);
+    await _jurorRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
           (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
           (success) => contestDetailsBundle = success,
@@ -102,7 +102,7 @@ class JurorContestDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherLeaveContest =
-        await _jurorRepository.leaveContest(contestId: event.contestId, jurorId: event.jurorId);
+        await _jurorRepository.leaveContest(contestId: event.contestId);
     eitherLeaveContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

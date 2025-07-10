@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/model/enums/member_role.dart';
-import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -16,14 +15,11 @@ part 'organizer_contest_details_page_state.dart';
 
 class OrganizerContestDetailsPageBloc
     extends Bloc<OrganizerContestDetailsPageEvent, OrganizerContestDetailsPageState> {
-  final GenericRepository _genericRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerContestDetailsPageBloc({
-    required GenericRepository genericRepository,
     required OrganizerRepository organizerRepository,
-  })  : _genericRepository = genericRepository,
-        _organizerRepository = organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerContestDetailsPageInit>(_init);
     on<OrganizerContestDetailsPageRefresh>(_refresh);
@@ -44,7 +40,7 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDetails = await _genericRepository.getContestDetails(contestId: event.contestId);
+    final eitherDetails = await _organizerRepository.getContestDetails(contestId: event.contestId);
     eitherDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) {
@@ -59,7 +55,7 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDetails = await _genericRepository.getContestDetails(contestId: event.contestId);
+    final eitherDetails = await _organizerRepository.getContestDetails(contestId: event.contestId);
     eitherDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) {
@@ -138,8 +134,8 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherRemoveParticipant = await _organizerRepository.removeParticipant(
-        participationId: event.participationId);
+    final eitherRemoveParticipant =
+        await _organizerRepository.removeParticipant(participationId: event.participationId);
     eitherRemoveParticipant.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
@@ -152,8 +148,7 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherRemoveJuror = await _organizerRepository.removeJuror(
-        jurationId: event.jurationId);
+    final eitherRemoveJuror = await _organizerRepository.removeJuror(jurationId: event.jurationId);
     eitherRemoveJuror.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

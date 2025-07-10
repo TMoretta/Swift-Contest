@@ -27,17 +27,16 @@ class JurorVotingProcedurePageBloc
   JurorVotingProcedurePageBloc({
     required GenericRepository genericRepository,
     required JurorRepository jurorRepository,
-  })  :
-        _genericRepository = genericRepository,
+  })  : _genericRepository = genericRepository,
         _jurorRepository = jurorRepository,
         super(JurorVotingProcedurePageState(status: BlocStatus.initial)) {
-    on<JurorVotingProcedurePageSubscribeToVotingSessionProcedure>(_subscribeToVotingSessionProcedure);
-    on<JurorVotingProcedurePageResubscribeToVotingSessionProcedure>(_resubscribeToVotingSessionProcedure);
+    on<JurorVotingProcedurePageInit>(_init);
+    on<JurorVotingProcedurePageRefresh>(_refresh);
     on<JurorVotingProcedurePageSubmitVotes>(_submitVotes);
   }
 
-  FutureOr<void> _subscribeToVotingSessionProcedure(
-    JurorVotingProcedurePageSubscribeToVotingSessionProcedure event,
+  FutureOr<void> _init(
+    JurorVotingProcedurePageInit event,
     Emitter<JurorVotingProcedurePageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -84,8 +83,8 @@ class JurorVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
-        if (newVotingSession == oldVotingSessionProcedure) {
+        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        if (newVotingSession == oldVotingSession) {
           return state;
         }
 
@@ -102,10 +101,10 @@ class JurorVotingProcedurePageBloc
     );
   }
 
-  FutureOr<void> _resubscribeToVotingSessionProcedure(
-      JurorVotingProcedurePageResubscribeToVotingSessionProcedure event,
-      Emitter<JurorVotingProcedurePageState> emit,
-      ) async {
+  FutureOr<void> _refresh(
+    JurorVotingProcedurePageRefresh event,
+    Emitter<JurorVotingProcedurePageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     //* Getting the voting session bundle
@@ -113,17 +112,17 @@ class JurorVotingProcedurePageBloc
     final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionBundle = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionBundle = success,
     );
 
     //* Getting the stream
     late final Stream<Either<Failure, VotingSession?>> votingSessionStream;
     final eitherVotingSessionStream =
-    await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
+        await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
     eitherVotingSessionStream.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionStream = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionStream = success,
     );
     if (eitherVotingSessionStream.isLeft()) {
       return;
@@ -140,8 +139,8 @@ class JurorVotingProcedurePageBloc
         late VotingSession? newVotingSession;
 
         eitherNewVotingSession.fold(
-              (failure) => null,
-              (success) => newVotingSession = success,
+          (failure) => null,
+          (success) => newVotingSession = success,
         );
         if (eitherNewVotingSession.isLeft()) {
           return state.copyWith(status: BlocStatus.failure, message: 'No data received');
@@ -150,8 +149,8 @@ class JurorVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
-        if (newVotingSession == oldVotingSessionProcedure) {
+        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        if (newVotingSession == oldVotingSession) {
           return state;
         }
 
@@ -177,7 +176,7 @@ class JurorVotingProcedurePageBloc
     final votingSession = event.votingSession;
     final Place? geoResPlace = event.geoResPlace;
 
-    if (votingSession.isGeoRestricted && geoResPlace!=null) {
+    if (votingSession.isGeoRestricted && geoResPlace != null) {
       final status = await Geolocator.checkPermission();
       if (status == LocationPermission.denied) {
         await Geolocator.requestPermission();
@@ -216,7 +215,6 @@ class JurorVotingProcedurePageBloc
     }
 
     final eitherSubmitVotes = await _jurorRepository.jurorSubmitVotes(
-        jurorId: event.jurorId,
         votingSessionId: event.votingSession.id,
         contestId: event.votingSession.contestId,
         votesPerParticipantMap: event.votesPerParticipantMap);

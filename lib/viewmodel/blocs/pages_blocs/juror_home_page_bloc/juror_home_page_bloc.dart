@@ -32,7 +32,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
   ) async {
     emit(JurorHomePageState(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContests = await _jurorRepository.getJoinedContests(jurorId: event.jurorId);
+    final eitherContests = await _jurorRepository.getJoinedContests();
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(
@@ -48,7 +48,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherContests = await _jurorRepository.getJoinedContests(jurorId: event.jurorId);
+    final eitherContests = await _jurorRepository.getJoinedContests();
     eitherContests.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(
@@ -66,7 +66,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherJoinContest =
-        await _jurorRepository.joinContest(jurorId: event.jurorId, token: event.token);
+        await _jurorRepository.joinContest(token: event.token);
     eitherJoinContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
@@ -81,7 +81,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherJoinContest = await _jurorRepository.accessVotingAsSimpleJuror(
-        fullName: event.fullName, token: event.token, jurorId: event.jurorId);
+        fullName: event.fullName, token: event.token);
     eitherJoinContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(

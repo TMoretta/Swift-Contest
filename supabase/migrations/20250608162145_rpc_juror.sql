@@ -1,7 +1,5 @@
--- JUROR GET JOINED CONTESTS
-CREATE OR REPLACE FUNCTION juror_get_joined_contests (
-  p_juror_id uuid
-)
+--region JUROR GET JOINED CONTESTS
+CREATE OR REPLACE FUNCTION juror_get_joined_contests ()
 RETURNS TABLE (
   contest jsonb,
   organizer jsonb,
@@ -10,7 +8,31 @@ RETURNS TABLE (
   jurations jsonb
 ) AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
   RETURN QUERY
     SELECT
       to_jsonb(cont),
@@ -30,7 +52,7 @@ BEGIN
     JOIN places pla ON cont.place_id = pla.id
     JOIN profiles org ON cont.organizer_id = org.id
     JOIN jurations jura ON jura.contest_id = cont.id AND jura.juror_status = 'joined'
-    WHERE jura.juror_id = p_juror_id
+    WHERE jura.juror_id = v_current_profile.id
     ORDER BY cont.created_at DESC;
 
 EXCEPTION
@@ -41,18 +63,162 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- JUROR JOIN CONTEST
+--region JUROR GET CONTEST DETAILS
+CREATE OR REPLACE FUNCTION juror_get_contest_details (
+  p_contest_id uuid
+)
+RETURNS TABLE (
+  contest jsonb,
+  organizer jsonb,
+  place jsonb,
+  participations jsonb,
+  participants jsonb,
+  works jsonb,
+  jurations jsonb,
+  jurors jsonb,
+  invitations jsonb,
+  voting_form jsonb,
+  voting_form_fields jsonb,
+  voting_sessions jsonb
+) AS $$
+DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM jurations
+    WHERE contest_id = p_contest_id AND juror_id = v_current_profile.id AND juror_status = 'joined'
+  ) THEN
+    RAISE EXCEPTION 'You are not a juror in this contest';
+  END IF;
+
+  RETURN QUERY
+    SELECT
+      to_jsonb(cont) AS contest,
+      to_jsonb(org) AS organizer,
+      to_jsonb(pla) AS place,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(part) ORDER BY pro.full_name ASC)
+         FROM participations part
+         JOIN profiles pro ON pro.id = part.participant_id
+         WHERE part.contest_id = cont.id
+        ), '[]'::jsonb) AS participations,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(par))
+         FROM profiles par
+         JOIN participations part ON par.id = part.participant_id
+         WHERE part.contest_id = cont.id
+        ), '[]'::jsonb) AS participants,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(wor))
+         FROM works wor
+         JOIN participations part
+          ON wor.participation_id = part.id
+            AND part.has_submitted = true
+            AND part.participant_status = 'joined'
+         WHERE part.contest_id = cont.id
+        ), '[]'::jsonb) AS works,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jura) ORDER BY pro.full_name ASC)
+         FROM jurations jura
+         JOIN profiles pro ON pro.id = jura.juror_id
+         WHERE jura.contest_id = cont.id
+        ), '[]'::jsonb) AS jurations,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(juro))
+         FROM profiles juro
+         JOIN jurations jura ON juro.id = jura.juror_id
+         WHERE jura.contest_id = cont.id
+        ), '[]'::jsonb) AS jurors,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(inv) ORDER BY inv.created_at DESC)
+         FROM invitations inv
+         WHERE inv.contest_id = cont.id
+        ), '[]'::jsonb) AS invitations,
+      COALESCE(
+        (SELECT to_jsonb(vf)
+         FROM voting_forms vf
+         WHERE vf.id = cont.voting_form_id
+        ), 'null'::jsonb) AS voting_form,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vf_field) ORDER BY vf_field.order_index ASC)
+         FROM voting_form_fields vf_field
+         WHERE vf_field.voting_form_id = cont.voting_form_id
+        ), '[]'::jsonb) AS voting_form_fields,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vs) ORDER BY vs.created_at DESC)
+         FROM voting_sessions vs
+         WHERE vs.contest_id = cont.id
+        ), '[]'::jsonb) AS voting_sessions
+    FROM contests cont
+    JOIN profiles org ON cont.organizer_id = org.id
+    JOIN places pla ON cont.place_id = pla.id
+    WHERE cont.id = p_contest_id
+    LIMIT 1;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+--region JUROR JOIN CONTEST
 CREATE OR REPLACE FUNCTION juror_join_contest (
-  p_juror_id uuid,
   p_token varchar
 )
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_invitation invitations;
   v_contest contests;
   v_juration jurations;
-  v_juror profiles;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
 
   SELECT * INTO v_invitation
   FROM invitations
@@ -64,21 +230,29 @@ BEGIN
 
   SELECT * INTO v_contest
   FROM contests
-  WHERE id = v_invitation.contest_id;
+  WHERE id = v_invitation.contest_id AND deleted_at is null;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'No contest found with the provided invitation';
   END IF;
 
-  IF (v_contest.deleted_at IS NOT null) THEN
-    RAISE EXCEPTION 'The contest has been deleted';
-  END IF;
-
   SELECT * INTO v_juration
   FROM jurations
-  WHERE contest_id = v_contest.id AND juror_id = p_juror_id;
+  WHERE contest_id = v_contest.id AND juror_id = v_current_profile.id;
 
-  IF FOUND THEN
+  IF NOT FOUND THEN
+    INSERT INTO jurations (
+          contest_id,
+          juror_id,
+          juror_status,
+          invitation_email
+        ) VALUES (
+          v_contest.id,
+          v_current_profile.id,
+          'joined',
+          v_invitation.email
+        );
+  ELSE
     IF (v_juration.juror_status = 'joined') THEN
       RAISE EXCEPTION 'You are already a juror in this contest';
     ELSE
@@ -88,29 +262,13 @@ BEGIN
         invitation_email = v_invitation.email
       WHERE id = v_juration.id;
     END IF;
-  ELSE
-    INSERT INTO jurations (
-      contest_id,
-      juror_id,
-      juror_status,
-      invitation_email
-    ) VALUES (
-      v_contest.id,
-      p_juror_id,
-      'joined',
-      v_invitation.email
-    );
   END IF;
 
   DELETE FROM invitations
   WHERE id = v_invitation.id;
 
-  SELECT * INTO v_juror
-  FROM profiles
-  WHERE id = p_juror_id;
-
   INSERT INTO messages (profile_id, title, body)
-  VALUES (v_contest.organizer_id, 'Juror join', format('"%s" joined the contest "%s"',v_juror.full_name, v_contest.name));
+  VALUES (v_contest.organizer_id, 'Juror join', format('"%s" joined the contest "%s"',v_current_profile.full_name, v_contest.name));
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -120,45 +278,56 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- JUROR LEAVE CONTEST
+--region JUROR LEAVE CONTEST
 CREATE OR REPLACE FUNCTION juror_leave_contest (
-  p_contest_id uuid,
-  p_juror_id uuid
+  p_contest_id uuid
 )
 RETURNS void AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_contest contests;
-  v_juror profiles;
 BEGIN
 
-  IF NOT EXISTS (
-    SELECT 1 FROM jurations
-    WHERE contest_id = p_contest_id AND juror_id = p_juror_id
-  ) THEN
-    RAISE EXCEPTION 'Juror not found';
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
-  IF EXISTS (
-    SELECT 1 FROM jurations
-    WHERE contest_id = p_contest_id AND juror_id = p_juror_id AND juror_status = 'out'
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
-    RAISE EXCEPTION 'Juror is already out from the contest';
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   UPDATE jurations
   SET juror_status = 'out'
-  WHERE contest_id = p_contest_id AND juror_id = p_juror_id;
+  WHERE contest_id = p_contest_id AND juror_id = v_current_profile.id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Juror not found or already out from the contest';
+  END IF;
 
   SELECT * INTO v_contest
   FROM contests
   WHERE id = p_contest_id;
 
-  SELECT * INTO v_juror
-  FROM profiles
-  WHERE id = p_juror_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
 
   INSERT INTO messages (profile_id, title, body)
-  VALUES (v_contest.organizer_id, 'Juror leave', format('"%s" leave the contest "%s"',v_juror.full_name, v_contest.name));
+  VALUES (v_contest.organizer_id, 'Juror leave', format('"%s" leave the contest "%s"',v_current_profile.full_name, v_contest.name));
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
@@ -168,15 +337,17 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- JUROR SUBMIT VOTES
+--region JUROR SUBMIT VOTES
 CREATE OR REPLACE FUNCTION juror_submit_votes (
-    p_juror_id uuid,
     p_voting_session_id uuid,
     p_contest_id uuid,
     p_votes_per_participant_map jsonb
 )
 RETURNS void AS $$
 DECLARE
+  v_voting_session voting_sessions;
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_contest contests;
   v_juration jurations;
   v_voting_session_juration voting_session_jurations;
@@ -188,26 +359,53 @@ DECLARE
   v_vote record;
 BEGIN
 
-  SELECT * INTO v_contest
-  FROM contests
-  WHERE id = p_contest_id;
+  v_current_user_id := auth.uid();
 
-  IF (v_contest.deleted_at IS NOT null) THEN
-    RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
   END IF;
 
-  SELECT *
-  INTO v_juration
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT * INTO v_contest
+  FROM contests
+  WHERE id = p_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  SELECT * INTO v_juration
   FROM jurations
-  WHERE contest_id = p_contest_id AND juror_id = p_juror_id;
+  WHERE contest_id = p_contest_id AND juror_id = v_current_profile.id AND juror_status = 'joined';
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Juror member not found';
   END IF;
 
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
   -- Step 2: Retrieve the VotingSessionJuration
-  SELECT *
-  INTO v_voting_session_juration
+  SELECT * INTO v_voting_session_juration
   FROM voting_session_jurations
   WHERE voting_session_id = p_voting_session_id AND juration_id = v_juration.id;
 
@@ -215,15 +413,31 @@ BEGIN
     RAISE EXCEPTION 'Juror member not found';
   END IF;
 
+  IF(v_voting_session_juration.is_excluded = true) THEN
+    RAISE EXCEPTION 'Juror excluded from the voting session';
+  END IF;
+
   IF (v_voting_session_juration.has_submitted = true) THEN
     RAISE EXCEPTION 'Votes already submitted';
   END IF;
 
+  IF(v_voting_session.session_status = 'ended') THEN
+    RAISE EXCEPTION 'Voting session has ended';
+  END IF;
+
+  IF(v_voting_session.session_status = 'cancelled') THEN
+    RAISE EXCEPTION 'Voting session has been cancelled';
+  END IF;
+
+  IF(v_voting_session.session_status <> 'review') THEN
+    RAISE EXCEPTION 'Submit is possible only during review phase';
+  END IF;
+
   -- Step 3: Iterate over votesPerParticipantMap
-  FOR v_vot_session_participation_id, v_votes
-      IN
+  FOR v_vot_session_participation_id, v_votes IN (
     SELECT js.key::uuid, js.value
     FROM jsonb_each(p_votes_per_participant_map) AS js(key, value)
+  )
   LOOP
     -- Create JurorVoting
     INSERT INTO juror_votings (voting_session_juration_id, voting_session_participation_id)
@@ -251,10 +465,6 @@ BEGIN
   SET has_submitted = true
   WHERE id = v_voting_session_juration.id;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while submitting';
-  END IF;
-
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN
     RAISE;
@@ -263,21 +473,42 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+--region JUROR ACCESS VOTING AS SIMPLE JUROR
 CREATE OR REPLACE FUNCTION juror_access_voting_as_simple_juror (
   p_full_name varchar,
-  p_token varchar,
-  p_juror_id uuid DEFAULT null
+  p_token varchar
 )
 RETURNS TABLE (
   simple_juror simple_jurors,
   voting_session voting_sessions
 ) AS $$
 DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_voting_session voting_sessions;
   v_juration jurations;
   v_simple_juror simple_jurors;
   v_voting_session_simple_juror voting_session_simple_jurors;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is not null) THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE id = v_current_user_id AND deleted_at is null
+    ) THEN
+      RAISE EXCEPTION 'User not found';
+    END IF;
+
+    SELECT * INTO v_current_profile
+    FROM profiles
+    WHERE user_id = v_current_user_id AND deleted_at is null;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Profile not found';
+    END IF;
+  END IF;
 
   SELECT * INTO v_voting_session
   FROM voting_sessions
@@ -291,27 +522,23 @@ BEGIN
     RAISE EXCEPTION 'Simple jurors not allowed for this voting session';
   END IF;
 
-  IF (p_juror_id IS NOT null) THEN
-    SELECT * INTO v_juration
-    FROM jurations
-    WHERE juror_id = p_juror_id;
-
+  IF (v_current_user_id is not null) THEN
     IF EXISTS (
       SELECT 1
       FROM voting_session_jurations vsj
       JOIN jurations j ON vsj.juration_id = j.id
-      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = p_juror_id AND vsj.has_submitted = false AND v_juration.juror_status = 'joined'
+      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = v_current_profile.id AND vsj.has_submitted = false AND j.juror_status = 'joined'
     ) THEN
       RAISE EXCEPTION 'You are a member in this contest, vote as an official juror instead';
     END IF;
   END IF;
 
-  IF (p_juror_id IS NOT null) THEN
+  IF (v_current_user_id is not null) THEN
     IF EXISTS (
       SELECT 1
       FROM voting_session_jurations vsj
       JOIN jurations j ON vsj.juration_id = j.id
-      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = p_juror_id AND vsj.has_submitted = true
+      WHERE vsj.voting_session_id = v_voting_session.id AND j.juror_id = v_current_profile.id AND vsj.has_submitted = true
     ) THEN
       RAISE EXCEPTION 'You have already voted in this voting session as an official juror';
     END IF;
@@ -335,16 +562,18 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
--- SIMPLE JUROR SUBMIT VOTES
+--region SIMPLE JUROR SUBMIT VOTES
 CREATE OR REPLACE FUNCTION simple_juror_submit_votes (
     p_simple_juror_id uuid,
     p_voting_session_id uuid,
     p_contest_id uuid,
-    p_votes_per_participant_map jsonb,
-    p_juror_id uuid DEFAULT null
+    p_votes_per_participant_map jsonb
 )
 RETURNS void AS $$
 DECLARE
+  v_voting_session voting_sessions;
+  v_current_user_id uuid;
+  v_current_profile profiles;
   v_contest contests;
   v_simple_juror simple_jurors;
   v_voting_session_simple_juror voting_session_simple_jurors;
@@ -356,13 +585,40 @@ DECLARE
   v_vote record;
 BEGIN
 
-  IF (p_juror_id IS NOT null) THEN
+  v_current_user_id := auth.uid();
+
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  IF (v_current_user_id is not null) THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE id = v_current_user_id AND deleted_at is null
+    ) THEN
+      RAISE EXCEPTION 'User not found';
+    END IF;
+
+    SELECT * INTO v_current_profile
+    FROM profiles
+    WHERE user_id = v_current_user_id AND deleted_at is null;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Profile not found';
+    END IF;
+  END IF;
+
+  IF (v_current_user_id is not null) THEN
     IF EXISTS (
       SELECT 1
       FROM voting_session_jurations vsj
       JOIN jurations j ON vsj.juration_id = j.id
       WHERE vsj.voting_session_id = p_voting_session_id
-        AND j.juror_id = p_juror_id
+        AND j.juror_id = v_current_profile.id
         AND vsj.has_submitted = true
     ) THEN
       RAISE EXCEPTION 'You have already submitted votes for this voting session as an official juror';
@@ -371,10 +627,10 @@ BEGIN
 
   SELECT * INTO v_contest
   FROM contests
-  WHERE id = p_contest_id;
+  WHERE id = p_contest_id AND deleted_at is null;
 
-  IF (v_contest.deleted_at IS NOT null) THEN
-    RAISE EXCEPTION 'Operation not allowed. The contest has been deleted';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
   END IF;
 
   SELECT * INTO v_simple_juror
@@ -392,6 +648,18 @@ BEGIN
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Simple juror not found';
+  END IF;
+
+  IF(v_voting_session.session_status = 'ended') THEN
+    RAISE EXCEPTION 'Voting session has ended';
+  END IF;
+
+  IF(v_voting_session.session_status = 'cancelled') THEN
+    RAISE EXCEPTION 'Voting session has been cancelled';
+  END IF;
+
+  IF(v_voting_session.session_status <> 'review') THEN
+    RAISE EXCEPTION 'Submit is possible only during review phase';
   END IF;
 
   -- Step 3: Iterate over votesPerParticipantMap
@@ -424,10 +692,6 @@ BEGIN
   UPDATE voting_session_simple_jurors
   SET has_submitted = true
   WHERE id = v_voting_session_simple_juror.id;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while submitting';
-  END IF;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN

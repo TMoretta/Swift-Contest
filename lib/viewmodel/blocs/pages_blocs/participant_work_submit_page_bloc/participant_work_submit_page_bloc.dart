@@ -55,7 +55,6 @@ class ParticipantWorkSubmitPageBloc
 
     final eitherWork = await _participantRepository.submitWork(
       contestId: event.contestId,
-      participantId: event.participantId,
       name: event.name,
       description: event.description,
       imagesUrls: imagesUrls,

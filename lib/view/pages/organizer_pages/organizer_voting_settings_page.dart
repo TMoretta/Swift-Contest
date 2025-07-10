@@ -50,9 +50,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
 
   bool areSimpleJurorsAllowed = false;
   final List<VotingExclusionBundle> votingExclusions = [];
-  Duration workTimer = Duration(minutes: 0, seconds: 0);
-  Duration intermissionTimer = Duration(minutes: 0, seconds: 0);
-  Duration reviewTimer = Duration(minutes: 0, seconds: 0);
+  Duration workTimer = Duration(minutes: 5, seconds: 0);
+  Duration intermissionTimer = Duration(minutes: 1, seconds: 0);
+  Duration reviewTimer = Duration(minutes: 5, seconds: 0);
   bool isGeoRestricted = false;
   final geoRestrictionPlaceController = TextEditingController();
   final geoRestrictionPlaceFocusNode = FocusNode();
@@ -94,7 +94,6 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerVotingSettingsPageBloc>(
       create: (context) => OrganizerVotingSettingsPageBloc(
-        genericRepository: context.read(),
         organizerRepository: context.read(),
       )..add(OrganizerVotingSettingsPageInit(contestId: contestId)),
       child: BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
@@ -675,7 +674,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                 ),
                 SizedBox(height: 6),
                 TimerPickerFormField(
-                  minutes: 0,
+                  minutes: 5,
                   seconds: 0,
                   onChanged: (minutes, seconds) =>
                       workTimer = Duration(minutes: minutes, seconds: seconds),
@@ -688,7 +687,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                 ),
                 SizedBox(height: 6),
                 TimerPickerFormField(
-                  minutes: 0,
+                  minutes: 1,
                   seconds: 0,
                   onChanged: (minutes, seconds) =>
                       intermissionTimer = Duration(minutes: minutes, seconds: seconds),
@@ -701,7 +700,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                 ),
                 SizedBox(height: 6),
                 TimerPickerFormField(
-                  minutes: 0,
+                  minutes: 5,
                   seconds: 0,
                   onChanged: (minutes, seconds) =>
                       reviewTimer = Duration(minutes: minutes, seconds: seconds),

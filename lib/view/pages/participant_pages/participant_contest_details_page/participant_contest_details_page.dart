@@ -46,7 +46,6 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
   Widget build(BuildContext context) {
     return BlocProvider<ParticipantContestDetailsPageBloc>(
       create: (context) => ParticipantContestDetailsPageBloc(
-        genericRepository: context.read(),
         participantRepository: context.read(),
       ),
       child: BlocConsumer<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(

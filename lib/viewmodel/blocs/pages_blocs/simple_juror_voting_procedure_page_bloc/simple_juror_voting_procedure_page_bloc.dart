@@ -32,13 +32,13 @@ class SimpleJurorVotingProcedurePageBloc
         _genericRepository = genericRepository,
         _jurorRepository = jurorRepository,
         super(SimpleJurorVotingProcedurePageState(status: BlocStatus.loading)) {
-    on<SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure>(_subscribeToVotingSessionProcedure);
-    on<SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure>(_resubscribeToVotingSessionProcedure);
+    on<SimpleJurorVotingProcedurePageInit>(_init);
+    on<SimpleJurorVotingProcedurePageRefresh>(_refresh);
     on<SimpleJurorVotingProcedurePageSubmitVotes>(_submitVotes);
   }
 
-  FutureOr<void> _subscribeToVotingSessionProcedure(
-    SimpleJurorVotingProcedurePageSubscribeToVotingSessionProcedure event,
+  FutureOr<void> _init(
+    SimpleJurorVotingProcedurePageInit event,
     Emitter<SimpleJurorVotingProcedurePageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -85,8 +85,8 @@ class SimpleJurorVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
-        if (newVotingSession == oldVotingSessionProcedure) {
+        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        if (newVotingSession == oldVotingSession) {
           return state;
         }
 
@@ -103,8 +103,8 @@ class SimpleJurorVotingProcedurePageBloc
     );
   }
 
-  FutureOr<void> _resubscribeToVotingSessionProcedure(
-      SimpleJurorVotingProcedurePageResubscribeToVotingSessionProcedure event,
+  FutureOr<void> _refresh(
+      SimpleJurorVotingProcedurePageRefresh event,
       Emitter<SimpleJurorVotingProcedurePageState> emit,
       ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -151,8 +151,8 @@ class SimpleJurorVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
-        if (newVotingSession == oldVotingSessionProcedure) {
+        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        if (newVotingSession == oldVotingSession) {
           return state;
         }
 

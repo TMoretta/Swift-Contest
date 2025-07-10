@@ -106,7 +106,6 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerContestEditPageBloc>(
       create: (context) => OrganizerContestEditPageBloc(
-        genericRepository: context.read(),
         organizerRepository: context.read(),
         storageRepository: context.read(),
       )..add(OrganizerContestEditPageInit(contestId: contestId)),

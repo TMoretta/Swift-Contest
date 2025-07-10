@@ -47,7 +47,6 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerContestDetailsPageBloc>(
       create: (context) => OrganizerContestDetailsPageBloc(
-        genericRepository: context.read(),
         organizerRepository: context.read(),
       ),
       child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(

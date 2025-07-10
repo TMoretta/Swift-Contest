@@ -13,10 +13,10 @@ final class OrganizerVotingProcedurePageStartVotingSessionProcedure extends Orga
   List<Object?> get props => [votingSessionId];
 }
 
-final class OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure extends OrganizerVotingProcedurePageEvent {
+final class OrganizerVotingProcedurePageInit extends OrganizerVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure({
+  const OrganizerVotingProcedurePageInit({
     required this.votingSessionId,
   });
 
@@ -24,10 +24,10 @@ final class OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure extend
   List<Object?> get props => [votingSessionId];
 }
 
-final class OrganizerVotingProcedurePageResubscribeToVotingSessionProcedure extends OrganizerVotingProcedurePageEvent {
+final class OrganizerVotingProcedurePageRefresh extends OrganizerVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const OrganizerVotingProcedurePageResubscribeToVotingSessionProcedure({
+  const OrganizerVotingProcedurePageRefresh({
     required this.votingSessionId,
   });
 

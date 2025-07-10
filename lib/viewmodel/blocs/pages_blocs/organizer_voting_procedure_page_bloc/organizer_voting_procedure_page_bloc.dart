@@ -28,9 +28,9 @@ class OrganizerVotingProcedurePageBloc
         _genericRepository = genericRepository,
         _organizerRepository = organizerRepository,
         super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
+    on<OrganizerVotingProcedurePageInit>(_init);
+    on<OrganizerVotingProcedurePageRefresh>(_refresh);
     on<OrganizerVotingProcedurePageStartVotingSessionProcedure>(_startVotingProcedure);
-    on<OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure>(_subscribeToVotingSessionProcedure);
-    on<OrganizerVotingProcedurePageResubscribeToVotingSessionProcedure>(_resubscribeToVotingSessionProcedure);
     on<OrganizerVotingProcedurePageCancelVotingSessionProcedure>(_cancelVotingSessionProcedure);
     on<OrganizerVotingProcedurePageEndVotingSessionProcedure>(_endVotingSessionProcedure);
   }
@@ -49,8 +49,8 @@ class OrganizerVotingProcedurePageBloc
     );
   }
 
-  FutureOr<void> _subscribeToVotingSessionProcedure(
-    OrganizerVotingProcedurePageSubscribeToVotingSessionProcedure event,
+  FutureOr<void> _init(
+    OrganizerVotingProcedurePageInit event,
     Emitter<OrganizerVotingProcedurePageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -95,8 +95,8 @@ class OrganizerVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
-        if (newVotingSession == oldVotingSessionProcedure) {
+        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        if (newVotingSession == oldVotingSession) {
           return state;
         }
 
@@ -113,8 +113,8 @@ class OrganizerVotingProcedurePageBloc
     );
   }
 
-  FutureOr<void> _resubscribeToVotingSessionProcedure(
-      OrganizerVotingProcedurePageResubscribeToVotingSessionProcedure event,
+  FutureOr<void> _refresh(
+      OrganizerVotingProcedurePageRefresh event,
       Emitter<OrganizerVotingProcedurePageState> emit,
       ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -159,8 +159,8 @@ class OrganizerVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSessionProcedure = state.votingSessionProcedureBundle!.votingSessionBundle;
-        if (newVotingSession == oldVotingSessionProcedure) {
+        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        if (newVotingSession == oldVotingSession) {
           return state;
         }
 
