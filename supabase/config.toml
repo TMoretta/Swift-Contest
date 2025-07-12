@@ -55,7 +55,7 @@ schema_paths = []
 enabled = true
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed/admins.sql","./seed/users.sql","./seed/contests.sql"]
+sql_paths = ["./seed/seed.sql","./seed/admins.sql","./seed/users.sql","./seed/contests.sql"]
 
 [realtime]
 enabled = true
@@ -317,3 +317,14 @@ entrypoint = "./functions/organizer-send-invite/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/organizer-send-invite/*.html" ]
+
+[functions.auth-hook]
+enabled = true
+verify_jwt = true
+import_map = "./functions/auth-hook/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/auth-hook/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/auth-hook/*.html" ]

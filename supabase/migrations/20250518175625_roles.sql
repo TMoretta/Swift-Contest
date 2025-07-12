@@ -1,0 +1,1 @@
+--create role "admin" with login password '1234';

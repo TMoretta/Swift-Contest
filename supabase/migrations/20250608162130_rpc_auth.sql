@@ -86,7 +86,7 @@ $$ LANGUAGE plpgsql SECURITY definer;
 --region GET CURRENT USER AUTH BUNDLE
 CREATE OR REPLACE FUNCTION get_current_user_auth_bundle ()
 RETURNS TABLE (
-  m_user jsonb,
+  "user" jsonb,
   profile jsonb,
   messages jsonb
 ) AS $$

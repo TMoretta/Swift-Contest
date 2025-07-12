@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:swift_contest/model/bundles/user_auth_bundle.dart';
+import 'package:swift_contest/model/bundles/auth_bundle.dart';
 import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart';
@@ -64,7 +64,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       return;
     }
 
-    late final UserAuthBundle authBundle;
+    late final AuthBundle authBundle;
     final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
     eitherAuthBundle.fold(
       (failure) => emit(state.copyWith(
@@ -108,7 +108,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       return;
     }
 
-    late final UserAuthBundle authBundle;
+    late final AuthBundle authBundle;
     final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
     eitherAuthBundle.fold(
       (failure) => emit(state.copyWith(

@@ -21,9 +21,16 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "deno": "^2.3.3"
+    "@faker-js/faker": "^9.9.0",
+    "bcryptjs": "^3.0.2",
+    "deno": "^2.3.3",
+    "tsx": "^4.20.3"
   },
   "devDependencies": {
+    "@snaplet/copycat": "^6.0.0",
+    "@snaplet/seed": "^0.98.0",
+    "@types/pg": "^8.15.4",
+    "pg": "^8.16.3",
     "supabase": "^2.24.3"
   }
 }

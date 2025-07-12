@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/bundles/user_auth_bundle.dart';
+import 'package:swift_contest/model/bundles/auth_bundle.dart';
 import 'package:swift_contest/model/data_models/message.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/model/data_models/user.dart' as my;
@@ -12,7 +12,7 @@ import 'package:swift_contest/utils/failures/failures.dart';
 abstract interface class AuthRepository {
   Future<Either<Failure,bool>> verifyCurrentUserExistence();
 
-  Future<Either<Failure, UserAuthBundle>> getCurrentUserAuthBundle();
+  Future<Either<Failure, AuthBundle>> getCurrentUserAuthBundle();
 
   Future<Either<Failure, my.User>> getCurrentUser();
 
@@ -76,11 +76,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserAuthBundle>> getCurrentUserAuthBundle() async {
+  Future<Either<Failure, AuthBundle>> getCurrentUserAuthBundle() async {
     try {
       final List<Map<String, dynamic>> res = await _supabase
           .rpc('get_current_user_auth_bundle');
-      return right(UserAuthBundle.fromRpcJson(res.first));
+      return right(AuthBundle.fromRpcJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {
@@ -329,7 +329,12 @@ class AuthRepositoryImpl implements AuthRepository {
       if (session == null) {
         return left(Failure(message: 'No valid session found'));
       }
-      return right(my.User.fromJson(session.user.toJson()));
+      final user = my.User.fromRpcJson(session.user.toJson());
+      if(user.isAdmin) {
+        await _supabase.auth.signOut();
+        return left(Failure(message: 'Invalid credentials'));
+      }
+      return right(user);
     } on SocketException {
       return left(Failure(message: 'Network error'));
     } on AuthException catch (e) {

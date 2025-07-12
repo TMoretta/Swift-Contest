@@ -9,64 +9,67 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i28;
-import 'package:flutter/cupertino.dart' as _i31;
-import 'package:flutter/foundation.dart' as _i29;
-import 'package:flutter/material.dart' as _i30;
+import 'package:auto_route/auto_route.dart' as _i30;
+import 'package:flutter/foundation.dart' as _i32;
+import 'package:flutter/material.dart' as _i31;
 import 'package:swift_contest/view/pages/account_page.dart' as _i1;
-import 'package:swift_contest/view/pages/inbox_page.dart' as _i2;
-import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_contest_details_page.dart'
+import 'package:swift_contest/view/pages/admin_pages/admin_home_page.dart'
+    as _i2;
+import 'package:swift_contest/view/pages/admin_pages/admin_sign_in_page.dart'
     as _i3;
-import 'package:swift_contest/view/pages/juror_pages/juror_home_page.dart'
-    as _i4;
-import 'package:swift_contest/view/pages/juror_pages/juror_voting_procedure_page.dart'
+import 'package:swift_contest/view/pages/inbox_page.dart' as _i4;
+import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_contest_details_page.dart'
     as _i5;
-import 'package:swift_contest/view/pages/juror_pages/simple_juror_voting_procedure_page.dart'
-    as _i26;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_creation_page.dart'
+import 'package:swift_contest/view/pages/juror_pages/juror_home_page.dart'
     as _i6;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_contest_details_page.dart'
+import 'package:swift_contest/view/pages/juror_pages/juror_voting_procedure_page.dart'
     as _i7;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_edit_page.dart'
+import 'package:swift_contest/view/pages/juror_pages/simple_juror_voting_procedure_page.dart'
+    as _i28;
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_creation_page.dart'
     as _i8;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_contest_details_page.dart'
     as _i9;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_edit_page.dart'
     as _i10;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_procedure_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart'
     as _i11;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_details_page/organizer_voting_result_details_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart'
     as _i12;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_export_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_procedure_page.dart'
     as _i13;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_settings_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_details_page/organizer_voting_result_details_page.dart'
     as _i14;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_result_export_page.dart'
     as _i15;
-import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_settings_page.dart'
     as _i16;
-import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_page.dart'
     as _i17;
-import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart'
+import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart'
     as _i18;
-import 'package:swift_contest/view/pages/place_search_page.dart' as _i19;
-import 'package:swift_contest/view/pages/root_page.dart' as _i20;
-import 'package:swift_contest/view/pages/settings_page.dart' as _i21;
-import 'package:swift_contest/view/pages/sign_in_page.dart' as _i22;
-import 'package:swift_contest/view/pages/sign_in_verify_page.dart' as _i23;
-import 'package:swift_contest/view/pages/sign_up_page.dart' as _i24;
-import 'package:swift_contest/view/pages/sign_up_verify_page.dart' as _i25;
-import 'package:swift_contest/view/pages/splash_page.dart' as _i27;
+import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart'
+    as _i19;
+import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart'
+    as _i20;
+import 'package:swift_contest/view/pages/place_search_page.dart' as _i21;
+import 'package:swift_contest/view/pages/root_page.dart' as _i22;
+import 'package:swift_contest/view/pages/settings_page.dart' as _i23;
+import 'package:swift_contest/view/pages/sign_in_page.dart' as _i24;
+import 'package:swift_contest/view/pages/sign_in_verify_page.dart' as _i25;
+import 'package:swift_contest/view/pages/sign_up_page.dart' as _i26;
+import 'package:swift_contest/view/pages/sign_up_verify_page.dart' as _i27;
+import 'package:swift_contest/view/pages/splash_page.dart' as _i29;
 
 /// generated route for
 /// [_i1.AccountPage]
-class AccountRoute extends _i28.PageRouteInfo<void> {
-  const AccountRoute({List<_i28.PageRouteInfo>? children})
+class AccountRoute extends _i30.PageRouteInfo<void> {
+  const AccountRoute({List<_i30.PageRouteInfo>? children})
       : super(AccountRoute.name, initialChildren: children);
 
   static const String name = 'AccountRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i1.AccountPage();
@@ -75,29 +78,61 @@ class AccountRoute extends _i28.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i2.InboxPage]
-class InboxRoute extends _i28.PageRouteInfo<void> {
-  const InboxRoute({List<_i28.PageRouteInfo>? children})
-      : super(InboxRoute.name, initialChildren: children);
+/// [_i2.AdminHomePage]
+class AdminHomeRoute extends _i30.PageRouteInfo<void> {
+  const AdminHomeRoute({List<_i30.PageRouteInfo>? children})
+      : super(AdminHomeRoute.name, initialChildren: children);
 
-  static const String name = 'InboxRoute';
+  static const String name = 'AdminHomeRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i2.InboxPage();
+      return const _i2.AdminHomePage();
     },
   );
 }
 
 /// generated route for
-/// [_i3.JurorContestDetailsPage]
+/// [_i3.AdminSignInPage]
+class AdminSignInRoute extends _i30.PageRouteInfo<void> {
+  const AdminSignInRoute({List<_i30.PageRouteInfo>? children})
+      : super(AdminSignInRoute.name, initialChildren: children);
+
+  static const String name = 'AdminSignInRoute';
+
+  static _i30.PageInfo page = _i30.PageInfo(
+    name,
+    builder: (data) {
+      return const _i3.AdminSignInPage();
+    },
+  );
+}
+
+/// generated route for
+/// [_i4.InboxPage]
+class InboxRoute extends _i30.PageRouteInfo<void> {
+  const InboxRoute({List<_i30.PageRouteInfo>? children})
+      : super(InboxRoute.name, initialChildren: children);
+
+  static const String name = 'InboxRoute';
+
+  static _i30.PageInfo page = _i30.PageInfo(
+    name,
+    builder: (data) {
+      return const _i4.InboxPage();
+    },
+  );
+}
+
+/// generated route for
+/// [_i5.JurorContestDetailsPage]
 class JurorContestDetailsRoute
-    extends _i28.PageRouteInfo<JurorContestDetailsRouteArgs> {
+    extends _i30.PageRouteInfo<JurorContestDetailsRouteArgs> {
   JurorContestDetailsRoute({
     required String contestId,
-    _i29.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           JurorContestDetailsRoute.name,
           args: JurorContestDetailsRouteArgs(contestId: contestId, key: key),
@@ -107,7 +142,7 @@ class JurorContestDetailsRoute
 
   static const String name = 'JurorContestDetailsRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -116,7 +151,7 @@ class JurorContestDetailsRoute
           contestId: pathParams.getString('contestId'),
         ),
       );
-      return _i3.JurorContestDetailsPage(
+      return _i5.JurorContestDetailsPage(
         contestId: args.contestId,
         key: args.key,
       );
@@ -129,7 +164,7 @@ class JurorContestDetailsRouteArgs {
 
   final String contestId;
 
-  final _i29.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -148,29 +183,29 @@ class JurorContestDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i4.JurorHomePage]
-class JurorHomeRoute extends _i28.PageRouteInfo<void> {
-  const JurorHomeRoute({List<_i28.PageRouteInfo>? children})
+/// [_i6.JurorHomePage]
+class JurorHomeRoute extends _i30.PageRouteInfo<void> {
+  const JurorHomeRoute({List<_i30.PageRouteInfo>? children})
       : super(JurorHomeRoute.name, initialChildren: children);
 
   static const String name = 'JurorHomeRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i4.JurorHomePage();
+      return const _i6.JurorHomePage();
     },
   );
 }
 
 /// generated route for
-/// [_i5.JurorVotingProcedurePage]
+/// [_i7.JurorVotingProcedurePage]
 class JurorVotingProcedureRoute
-    extends _i28.PageRouteInfo<JurorVotingProcedureRouteArgs> {
+    extends _i30.PageRouteInfo<JurorVotingProcedureRouteArgs> {
   JurorVotingProcedureRoute({
     required String votingSessionId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           JurorVotingProcedureRoute.name,
           args: JurorVotingProcedureRouteArgs(
@@ -183,7 +218,7 @@ class JurorVotingProcedureRoute
 
   static const String name = 'JurorVotingProcedureRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -192,7 +227,7 @@ class JurorVotingProcedureRoute
           votingSessionId: pathParams.getString('votingSessionId'),
         ),
       );
-      return _i5.JurorVotingProcedurePage(
+      return _i7.JurorVotingProcedurePage(
         votingSessionId: args.votingSessionId,
         key: args.key,
       );
@@ -208,7 +243,7 @@ class JurorVotingProcedureRouteArgs {
 
   final String votingSessionId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -227,29 +262,29 @@ class JurorVotingProcedureRouteArgs {
 }
 
 /// generated route for
-/// [_i6.OrganizerContestCreationPage]
-class OrganizerContestCreationRoute extends _i28.PageRouteInfo<void> {
-  const OrganizerContestCreationRoute({List<_i28.PageRouteInfo>? children})
+/// [_i8.OrganizerContestCreationPage]
+class OrganizerContestCreationRoute extends _i30.PageRouteInfo<void> {
+  const OrganizerContestCreationRoute({List<_i30.PageRouteInfo>? children})
       : super(OrganizerContestCreationRoute.name, initialChildren: children);
 
   static const String name = 'OrganizerContestCreationRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i6.OrganizerContestCreationPage();
+      return const _i8.OrganizerContestCreationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i7.OrganizerContestDetailsPage]
+/// [_i9.OrganizerContestDetailsPage]
 class OrganizerContestDetailsRoute
-    extends _i28.PageRouteInfo<OrganizerContestDetailsRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerContestDetailsRouteArgs> {
   OrganizerContestDetailsRoute({
     required String contestId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerContestDetailsRoute.name,
           args:
@@ -260,7 +295,7 @@ class OrganizerContestDetailsRoute
 
   static const String name = 'OrganizerContestDetailsRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -269,7 +304,7 @@ class OrganizerContestDetailsRoute
           contestId: pathParams.getString('contestId'),
         ),
       );
-      return _i7.OrganizerContestDetailsPage(
+      return _i9.OrganizerContestDetailsPage(
         contestId: args.contestId,
         key: args.key,
       );
@@ -282,7 +317,7 @@ class OrganizerContestDetailsRouteArgs {
 
   final String contestId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -301,13 +336,13 @@ class OrganizerContestDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i8.OrganizerContestEditPage]
+/// [_i10.OrganizerContestEditPage]
 class OrganizerContestEditRoute
-    extends _i28.PageRouteInfo<OrganizerContestEditRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerContestEditRouteArgs> {
   OrganizerContestEditRoute({
     required String contestId,
-    _i29.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i32.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerContestEditRoute.name,
           args: OrganizerContestEditRouteArgs(contestId: contestId, key: key),
@@ -317,7 +352,7 @@ class OrganizerContestEditRoute
 
   static const String name = 'OrganizerContestEditRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -326,7 +361,7 @@ class OrganizerContestEditRoute
           contestId: pathParams.getString('contestId'),
         ),
       );
-      return _i8.OrganizerContestEditPage(
+      return _i10.OrganizerContestEditPage(
         contestId: args.contestId,
         key: args.key,
       );
@@ -339,7 +374,7 @@ class OrganizerContestEditRouteArgs {
 
   final String contestId;
 
-  final _i29.Key? key;
+  final _i32.Key? key;
 
   @override
   String toString() {
@@ -358,29 +393,29 @@ class OrganizerContestEditRouteArgs {
 }
 
 /// generated route for
-/// [_i9.OrganizerHomePage]
-class OrganizerHomeRoute extends _i28.PageRouteInfo<void> {
-  const OrganizerHomeRoute({List<_i28.PageRouteInfo>? children})
+/// [_i11.OrganizerHomePage]
+class OrganizerHomeRoute extends _i30.PageRouteInfo<void> {
+  const OrganizerHomeRoute({List<_i30.PageRouteInfo>? children})
       : super(OrganizerHomeRoute.name, initialChildren: children);
 
   static const String name = 'OrganizerHomeRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i9.OrganizerHomePage();
+      return const _i11.OrganizerHomePage();
     },
   );
 }
 
 /// generated route for
-/// [_i10.OrganizerVotingFormEditPage]
+/// [_i12.OrganizerVotingFormEditPage]
 class OrganizerVotingFormEditRoute
-    extends _i28.PageRouteInfo<OrganizerVotingFormEditRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerVotingFormEditRouteArgs> {
   OrganizerVotingFormEditRoute({
     required String votingFormId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingFormEditRoute.name,
           args: OrganizerVotingFormEditRouteArgs(
@@ -393,7 +428,7 @@ class OrganizerVotingFormEditRoute
 
   static const String name = 'OrganizerVotingFormEditRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -402,7 +437,7 @@ class OrganizerVotingFormEditRoute
           votingFormId: pathParams.getString('votingFormId'),
         ),
       );
-      return _i10.OrganizerVotingFormEditPage(
+      return _i12.OrganizerVotingFormEditPage(
         votingFormId: args.votingFormId,
         key: args.key,
       );
@@ -418,7 +453,7 @@ class OrganizerVotingFormEditRouteArgs {
 
   final String votingFormId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -437,13 +472,13 @@ class OrganizerVotingFormEditRouteArgs {
 }
 
 /// generated route for
-/// [_i11.OrganizerVotingProcedurePage]
+/// [_i13.OrganizerVotingProcedurePage]
 class OrganizerVotingProcedureRoute
-    extends _i28.PageRouteInfo<OrganizerVotingProcedureRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerVotingProcedureRouteArgs> {
   OrganizerVotingProcedureRoute({
     required String votingSessionId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingProcedureRoute.name,
           args: OrganizerVotingProcedureRouteArgs(
@@ -456,7 +491,7 @@ class OrganizerVotingProcedureRoute
 
   static const String name = 'OrganizerVotingProcedureRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -465,7 +500,7 @@ class OrganizerVotingProcedureRoute
           votingSessionId: pathParams.getString('votingSessionId'),
         ),
       );
-      return _i11.OrganizerVotingProcedurePage(
+      return _i13.OrganizerVotingProcedurePage(
         votingSessionId: args.votingSessionId,
         key: args.key,
       );
@@ -481,7 +516,7 @@ class OrganizerVotingProcedureRouteArgs {
 
   final String votingSessionId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -500,13 +535,13 @@ class OrganizerVotingProcedureRouteArgs {
 }
 
 /// generated route for
-/// [_i12.OrganizerVotingResultDetailsPage]
+/// [_i14.OrganizerVotingResultDetailsPage]
 class OrganizerVotingResultDetailsRoute
-    extends _i28.PageRouteInfo<OrganizerVotingResultDetailsRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerVotingResultDetailsRouteArgs> {
   OrganizerVotingResultDetailsRoute({
     required String votingSessionId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingResultDetailsRoute.name,
           args: OrganizerVotingResultDetailsRouteArgs(
@@ -519,7 +554,7 @@ class OrganizerVotingResultDetailsRoute
 
   static const String name = 'OrganizerVotingResultDetailsRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -528,7 +563,7 @@ class OrganizerVotingResultDetailsRoute
           votingSessionId: pathParams.getString('votingSessionId'),
         ),
       );
-      return _i12.OrganizerVotingResultDetailsPage(
+      return _i14.OrganizerVotingResultDetailsPage(
         votingSessionId: args.votingSessionId,
         key: args.key,
       );
@@ -544,7 +579,7 @@ class OrganizerVotingResultDetailsRouteArgs {
 
   final String votingSessionId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -563,13 +598,13 @@ class OrganizerVotingResultDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i13.OrganizerVotingResultExportPage]
+/// [_i15.OrganizerVotingResultExportPage]
 class OrganizerVotingResultExportRoute
-    extends _i28.PageRouteInfo<OrganizerVotingResultExportRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerVotingResultExportRouteArgs> {
   OrganizerVotingResultExportRoute({
     required String votingSessionId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingResultExportRoute.name,
           args: OrganizerVotingResultExportRouteArgs(
@@ -582,7 +617,7 @@ class OrganizerVotingResultExportRoute
 
   static const String name = 'OrganizerVotingResultExportRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -591,7 +626,7 @@ class OrganizerVotingResultExportRoute
           votingSessionId: pathParams.getString('votingSessionId'),
         ),
       );
-      return _i13.OrganizerVotingResultExportPage(
+      return _i15.OrganizerVotingResultExportPage(
         votingSessionId: args.votingSessionId,
         key: args.key,
       );
@@ -607,7 +642,7 @@ class OrganizerVotingResultExportRouteArgs {
 
   final String votingSessionId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -626,13 +661,13 @@ class OrganizerVotingResultExportRouteArgs {
 }
 
 /// generated route for
-/// [_i14.OrganizerVotingSettingsPage]
+/// [_i16.OrganizerVotingSettingsPage]
 class OrganizerVotingSettingsRoute
-    extends _i28.PageRouteInfo<OrganizerVotingSettingsRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerVotingSettingsRouteArgs> {
   OrganizerVotingSettingsRoute({
     required String contestId,
     _i31.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerVotingSettingsRoute.name,
           args:
@@ -643,7 +678,7 @@ class OrganizerVotingSettingsRoute
 
   static const String name = 'OrganizerVotingSettingsRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -652,7 +687,7 @@ class OrganizerVotingSettingsRoute
           contestId: pathParams.getString('contestId'),
         ),
       );
-      return _i14.OrganizerVotingSettingsPage(
+      return _i16.OrganizerVotingSettingsPage(
         contestId: args.contestId,
         key: args.key,
       );
@@ -684,13 +719,13 @@ class OrganizerVotingSettingsRouteArgs {
 }
 
 /// generated route for
-/// [_i15.OrganizerWorkDetailsPage]
+/// [_i17.OrganizerWorkDetailsPage]
 class OrganizerWorkDetailsRoute
-    extends _i28.PageRouteInfo<OrganizerWorkDetailsRouteArgs> {
+    extends _i30.PageRouteInfo<OrganizerWorkDetailsRouteArgs> {
   OrganizerWorkDetailsRoute({
     required String participationId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           OrganizerWorkDetailsRoute.name,
           args: OrganizerWorkDetailsRouteArgs(
@@ -703,7 +738,7 @@ class OrganizerWorkDetailsRoute
 
   static const String name = 'OrganizerWorkDetailsRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -712,7 +747,7 @@ class OrganizerWorkDetailsRoute
           participationId: pathParams.getString('participationId'),
         ),
       );
-      return _i15.OrganizerWorkDetailsPage(
+      return _i17.OrganizerWorkDetailsPage(
         participationId: args.participationId,
         key: args.key,
       );
@@ -728,7 +763,7 @@ class OrganizerWorkDetailsRouteArgs {
 
   final String participationId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -747,13 +782,13 @@ class OrganizerWorkDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i16.ParticipantContestDetailsPage]
+/// [_i18.ParticipantContestDetailsPage]
 class ParticipantContestDetailsRoute
-    extends _i28.PageRouteInfo<ParticipantContestDetailsRouteArgs> {
+    extends _i30.PageRouteInfo<ParticipantContestDetailsRouteArgs> {
   ParticipantContestDetailsRoute({
     required String contestId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           ParticipantContestDetailsRoute.name,
           args: ParticipantContestDetailsRouteArgs(
@@ -766,7 +801,7 @@ class ParticipantContestDetailsRoute
 
   static const String name = 'ParticipantContestDetailsRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -775,7 +810,7 @@ class ParticipantContestDetailsRoute
           contestId: pathParams.getString('contestId'),
         ),
       );
-      return _i16.ParticipantContestDetailsPage(
+      return _i18.ParticipantContestDetailsPage(
         contestId: args.contestId,
         key: args.key,
       );
@@ -788,7 +823,7 @@ class ParticipantContestDetailsRouteArgs {
 
   final String contestId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -807,29 +842,29 @@ class ParticipantContestDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i17.ParticipantHomePage]
-class ParticipantHomeRoute extends _i28.PageRouteInfo<void> {
-  const ParticipantHomeRoute({List<_i28.PageRouteInfo>? children})
+/// [_i19.ParticipantHomePage]
+class ParticipantHomeRoute extends _i30.PageRouteInfo<void> {
+  const ParticipantHomeRoute({List<_i30.PageRouteInfo>? children})
       : super(ParticipantHomeRoute.name, initialChildren: children);
 
   static const String name = 'ParticipantHomeRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i17.ParticipantHomePage();
+      return const _i19.ParticipantHomePage();
     },
   );
 }
 
 /// generated route for
-/// [_i18.ParticipantWorkSubmitPage]
+/// [_i20.ParticipantWorkSubmitPage]
 class ParticipantWorkSubmitRoute
-    extends _i28.PageRouteInfo<ParticipantWorkSubmitRouteArgs> {
+    extends _i30.PageRouteInfo<ParticipantWorkSubmitRouteArgs> {
   ParticipantWorkSubmitRoute({
     required String contestId,
-    _i29.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i32.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           ParticipantWorkSubmitRoute.name,
           args: ParticipantWorkSubmitRouteArgs(contestId: contestId, key: key),
@@ -839,7 +874,7 @@ class ParticipantWorkSubmitRoute
 
   static const String name = 'ParticipantWorkSubmitRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -848,7 +883,7 @@ class ParticipantWorkSubmitRoute
           contestId: pathParams.getString('contestId'),
         ),
       );
-      return _i18.ParticipantWorkSubmitPage(
+      return _i20.ParticipantWorkSubmitPage(
         contestId: args.contestId,
         key: args.key,
       );
@@ -861,7 +896,7 @@ class ParticipantWorkSubmitRouteArgs {
 
   final String contestId;
 
-  final _i29.Key? key;
+  final _i32.Key? key;
 
   @override
   String toString() {
@@ -880,76 +915,76 @@ class ParticipantWorkSubmitRouteArgs {
 }
 
 /// generated route for
-/// [_i19.PlaceSearchPage]
-class PlaceSearchRoute extends _i28.PageRouteInfo<void> {
-  const PlaceSearchRoute({List<_i28.PageRouteInfo>? children})
+/// [_i21.PlaceSearchPage]
+class PlaceSearchRoute extends _i30.PageRouteInfo<void> {
+  const PlaceSearchRoute({List<_i30.PageRouteInfo>? children})
       : super(PlaceSearchRoute.name, initialChildren: children);
 
   static const String name = 'PlaceSearchRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i19.PlaceSearchPage();
+      return const _i21.PlaceSearchPage();
     },
   );
 }
 
 /// generated route for
-/// [_i20.RootPage]
-class RootRoute extends _i28.PageRouteInfo<void> {
-  const RootRoute({List<_i28.PageRouteInfo>? children})
+/// [_i22.RootPage]
+class RootRoute extends _i30.PageRouteInfo<void> {
+  const RootRoute({List<_i30.PageRouteInfo>? children})
       : super(RootRoute.name, initialChildren: children);
 
   static const String name = 'RootRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i20.RootPage();
+      return const _i22.RootPage();
     },
   );
 }
 
 /// generated route for
-/// [_i21.SettingsPage]
-class SettingsRoute extends _i28.PageRouteInfo<void> {
-  const SettingsRoute({List<_i28.PageRouteInfo>? children})
+/// [_i23.SettingsPage]
+class SettingsRoute extends _i30.PageRouteInfo<void> {
+  const SettingsRoute({List<_i30.PageRouteInfo>? children})
       : super(SettingsRoute.name, initialChildren: children);
 
   static const String name = 'SettingsRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i21.SettingsPage();
+      return const _i23.SettingsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i22.SignInPage]
-class SignInRoute extends _i28.PageRouteInfo<void> {
-  const SignInRoute({List<_i28.PageRouteInfo>? children})
+/// [_i24.SignInPage]
+class SignInRoute extends _i30.PageRouteInfo<void> {
+  const SignInRoute({List<_i30.PageRouteInfo>? children})
       : super(SignInRoute.name, initialChildren: children);
 
   static const String name = 'SignInRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i22.SignInPage();
+      return const _i24.SignInPage();
     },
   );
 }
 
 /// generated route for
-/// [_i23.SignInVerifyPage]
-class SignInVerifyRoute extends _i28.PageRouteInfo<SignInVerifyRouteArgs> {
+/// [_i25.SignInVerifyPage]
+class SignInVerifyRoute extends _i30.PageRouteInfo<SignInVerifyRouteArgs> {
   SignInVerifyRoute({
     required String email,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           SignInVerifyRoute.name,
           args: SignInVerifyRouteArgs(email: email, key: key),
@@ -959,7 +994,7 @@ class SignInVerifyRoute extends _i28.PageRouteInfo<SignInVerifyRouteArgs> {
 
   static const String name = 'SignInVerifyRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -967,7 +1002,7 @@ class SignInVerifyRoute extends _i28.PageRouteInfo<SignInVerifyRouteArgs> {
         orElse: () =>
             SignInVerifyRouteArgs(email: pathParams.getString('email')),
       );
-      return _i23.SignInVerifyPage(email: args.email, key: args.key);
+      return _i25.SignInVerifyPage(email: args.email, key: args.key);
     },
   );
 }
@@ -977,7 +1012,7 @@ class SignInVerifyRouteArgs {
 
   final String email;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -996,28 +1031,28 @@ class SignInVerifyRouteArgs {
 }
 
 /// generated route for
-/// [_i24.SignUpPage]
-class SignUpRoute extends _i28.PageRouteInfo<void> {
-  const SignUpRoute({List<_i28.PageRouteInfo>? children})
+/// [_i26.SignUpPage]
+class SignUpRoute extends _i30.PageRouteInfo<void> {
+  const SignUpRoute({List<_i30.PageRouteInfo>? children})
       : super(SignUpRoute.name, initialChildren: children);
 
   static const String name = 'SignUpRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i24.SignUpPage();
+      return const _i26.SignUpPage();
     },
   );
 }
 
 /// generated route for
-/// [_i25.SignUpVerifyPage]
-class SignUpVerifyRoute extends _i28.PageRouteInfo<SignUpVerifyRouteArgs> {
+/// [_i27.SignUpVerifyPage]
+class SignUpVerifyRoute extends _i30.PageRouteInfo<SignUpVerifyRouteArgs> {
   SignUpVerifyRoute({
     required String email,
-    _i29.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i32.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           SignUpVerifyRoute.name,
           args: SignUpVerifyRouteArgs(email: email, key: key),
@@ -1027,7 +1062,7 @@ class SignUpVerifyRoute extends _i28.PageRouteInfo<SignUpVerifyRouteArgs> {
 
   static const String name = 'SignUpVerifyRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -1035,7 +1070,7 @@ class SignUpVerifyRoute extends _i28.PageRouteInfo<SignUpVerifyRouteArgs> {
         orElse: () =>
             SignUpVerifyRouteArgs(email: pathParams.getString('email')),
       );
-      return _i25.SignUpVerifyPage(email: args.email, key: args.key);
+      return _i27.SignUpVerifyPage(email: args.email, key: args.key);
     },
   );
 }
@@ -1045,7 +1080,7 @@ class SignUpVerifyRouteArgs {
 
   final String email;
 
-  final _i29.Key? key;
+  final _i32.Key? key;
 
   @override
   String toString() {
@@ -1064,14 +1099,14 @@ class SignUpVerifyRouteArgs {
 }
 
 /// generated route for
-/// [_i26.SimpleJurorVotingProcedurePage]
+/// [_i28.SimpleJurorVotingProcedurePage]
 class SimpleJurorVotingProcedureRoute
-    extends _i28.PageRouteInfo<SimpleJurorVotingProcedureRouteArgs> {
+    extends _i30.PageRouteInfo<SimpleJurorVotingProcedureRouteArgs> {
   SimpleJurorVotingProcedureRoute({
     required String simpleJurorId,
     required String votingSessionId,
-    _i30.Key? key,
-    List<_i28.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           SimpleJurorVotingProcedureRoute.name,
           args: SimpleJurorVotingProcedureRouteArgs(
@@ -1088,7 +1123,7 @@ class SimpleJurorVotingProcedureRoute
 
   static const String name = 'SimpleJurorVotingProcedureRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
@@ -1098,7 +1133,7 @@ class SimpleJurorVotingProcedureRoute
           votingSessionId: pathParams.getString('votingSessionId'),
         ),
       );
-      return _i26.SimpleJurorVotingProcedurePage(
+      return _i28.SimpleJurorVotingProcedurePage(
         simpleJurorId: args.simpleJurorId,
         votingSessionId: args.votingSessionId,
         key: args.key,
@@ -1118,7 +1153,7 @@ class SimpleJurorVotingProcedureRouteArgs {
 
   final String votingSessionId;
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   @override
   String toString() {
@@ -1140,17 +1175,17 @@ class SimpleJurorVotingProcedureRouteArgs {
 }
 
 /// generated route for
-/// [_i27.SplashPage]
-class SplashRoute extends _i28.PageRouteInfo<void> {
-  const SplashRoute({List<_i28.PageRouteInfo>? children})
+/// [_i29.SplashPage]
+class SplashRoute extends _i30.PageRouteInfo<void> {
+  const SplashRoute({List<_i30.PageRouteInfo>? children})
       : super(SplashRoute.name, initialChildren: children);
 
   static const String name = 'SplashRoute';
 
-  static _i28.PageInfo page = _i28.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i27.SplashPage();
+      return const _i29.SplashPage();
     },
   );
 }

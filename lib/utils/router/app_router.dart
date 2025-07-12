@@ -139,5 +139,16 @@ class AppRouter extends RootStackRouter {
           path: '/simple-juror-voting-procedure/:votingSessionId/:simpleJurorId',
           page: SimpleJurorVotingProcedureRoute.page,
         ),
+
+        //region Admin pages
+        AutoRoute(
+          path: '/admin/sign-in',
+          page: AdminSignInRoute.page,
+        ),
+
+        AutoRoute(
+          path: '/admin/home',
+          page: AdminHomeRoute.page,
+        ),
       ];
 }
