@@ -44,7 +44,6 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerVotingResultDetailsPageBloc>(
       create: (context) => OrganizerVotingResultDetailsPageBloc(
-        genericRepository: context.read(),
         organizerRepository: context.read(),
       )..add(OrganizerVotingResultDetailsPageInit(votingSessionId: votingSessionId)),
       child:

@@ -58,7 +58,6 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerVotingResultExportPageBloc>(
       create: (context) => OrganizerVotingResultExportPageBloc(
-        genericRepository: context.read(),
         organizerRepository: context.read(),
       )..add(OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId)),
       child:

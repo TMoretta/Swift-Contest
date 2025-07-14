@@ -112,6 +112,14 @@ class TimePickerFormField extends StatelessWidget {
 Future<TimeOfDay?> _showTimePicker({required BuildContext context}) async {
   final TimeOfDay? time = await showTimePicker(
     context: context,
+    builder: (context, child) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+      child: Localizations.override(
+        context: context,
+        locale: const Locale('en', 'US'),
+        child: child!,
+      ),
+    ),
     initialTime: TimeOfDay.now(),
   );
   return time;

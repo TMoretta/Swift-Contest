@@ -54,11 +54,11 @@ BEGIN
     WHERE cont.organizer_id = v_current_profile.id AND cont.deleted_at is null
     ORDER BY cont.created_at DESC;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -183,11 +183,11 @@ BEGIN
     WHERE cont.id = p_contest_id AND cont.deleted_at is null
     LIMIT 1;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -298,11 +298,11 @@ BEGIN
 
   RETURN v_contest;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -388,11 +388,11 @@ BEGIN
 
   RETURN v_contest;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -477,11 +477,11 @@ BEGIN
     END LOOP;
   END IF;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexpected error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexpected error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -551,11 +551,11 @@ BEGIN
 
   RETURN v_contest;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -615,11 +615,11 @@ BEGIN
 
   RETURN v_contest;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -855,11 +855,11 @@ BEGIN
 
   RETURN v_voting_session;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -947,11 +947,11 @@ BEGIN
     )
   );
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1213,11 +1213,11 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while cancelling the voting session';
   END IF;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1285,11 +1285,11 @@ BEGIN
 
   RETURN v_invitation;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1447,11 +1447,11 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while removing the participant';
   END IF;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1536,11 +1536,11 @@ BEGIN
     RAISE EXCEPTION 'An error occurred while removing the juror';
   END IF;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1647,11 +1647,11 @@ BEGIN
 
   RETURN v_contest;
 
---EXCEPTION
---  WHEN SQLSTATE 'P0001' THEN
---    RAISE;
---  WHEN OTHERS THEN
---    RAISE EXCEPTION 'An unexcepted error occurred';
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
@@ -1725,9 +1725,309 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
+--region ORGANIZER GET CONTEST VOTING FORM BUNDLE
+CREATE OR REPLACE FUNCTION organizer_get_contest_voting_form_bundle (
+  p_voting_form_id uuid
+)
+RETURNS TABLE (
+  voting_form jsonb,
+  voting_form_fields jsonb
+) AS $$
+DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_organizer_id uuid;
+BEGIN
 
+  v_current_user_id := auth.uid();
 
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
 
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE voting_form_id = p_voting_form_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF(v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
+  RETURN QUERY
+    SELECT
+      to_jsonb(form) AS voting_form,
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(field) ORDER BY field.order_index)
+         FROM voting_form_fields field
+         WHERE field.voting_form_id = p_voting_form_id
+        ), '[]'::jsonb) AS voting_form_fields
+    FROM voting_forms form
+    WHERE form.id = p_voting_form_id
+    LIMIT 1;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+--region ORGANIZER GET VOTING SESSION RESULT BUNDLE
+CREATE OR REPLACE FUNCTION organizer_get_voting_session_result_bundle (
+  p_voting_session_id uuid
+)
+RETURNS TABLE (
+  participations jsonb,
+  participants jsonb,
+  works jsonb,
+  jurations jsonb,
+  jurors jsonb,
+  voting_form jsonb,
+  voting_form_fields jsonb,
+  voting_session jsonb,
+  geo_res_place jsonb,
+  voting_session_participations jsonb,
+  voting_session_jurations jsonb,
+  voting_session_exclusions jsonb,
+  simple_jurors jsonb,
+  voting_session_simple_jurors jsonb,
+  raw_jurors_votings jsonb,
+  raw_jurors_votes jsonb,
+  raw_simple_jurors_votings jsonb,
+  raw_simple_jurors_votes jsonb
+) AS $$
+DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_contest_id uuid;
+  v_organizer_id uuid;
+BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT contest_id INTO v_contest_id
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF(v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
+  RETURN QUERY
+    SELECT
+      -- 1) all participations for the contest
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(part) ORDER BY pro.full_name ASC)
+         FROM participations part
+         JOIN profiles pro ON pro.id = part.participant_id
+         WHERE part.contest_id = c.id),
+        '[]'::jsonb
+      ) AS participations,
+
+      -- 2) all participant profiles
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(pr))
+         FROM profiles pr
+         JOIN participations p ON pr.id = p.participant_id
+         WHERE p.contest_id = c.id),
+        '[]'::jsonb
+      ) AS participants,
+
+      -- 3) submitted works of joined participants
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(w))
+         FROM works w
+         JOIN participations p ON w.participation_id = p.id
+         WHERE p.contest_id = c.id
+           AND p.has_submitted = TRUE
+           AND p.participant_status = 'joined'),
+        '[]'::jsonb
+      ) AS works,
+
+      -- 4) all juration records
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jur) ORDER BY pro.full_name ASC)
+         FROM jurations jur
+         JOIN profiles pro ON pro.id = jur.juror_id
+         WHERE jur.contest_id = c.id),
+        '[]'::jsonb
+      ) AS jurations,
+
+      -- 5) juror profiles
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jp))
+         FROM profiles jp
+         JOIN jurations j ON jp.id = j.juror_id
+         WHERE j.contest_id = c.id),
+        '[]'::jsonb
+      ) AS jurors,
+
+      -- 6) associated voting form
+      COALESCE(
+        (SELECT to_jsonb(vf)
+         FROM voting_forms vf
+         WHERE vf.id = c.voting_form_id),
+        'null'::jsonb
+      ) AS voting_form,
+
+      -- 7) fields of that voting form
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(ff) ORDER BY ff.order_index ASC)
+         FROM voting_form_fields ff
+         WHERE ff.voting_form_id = c.voting_form_id),
+        '[]'::jsonb
+      ) AS voting_form_fields,
+
+      -- 8) single voting session requested
+      to_jsonb(ses) AS voting_session,
+
+      -- 9) optional geographic restriction place (can be null)
+      to_jsonb(geopla) AS geo_res_place,
+
+      -- 10) participations in this voting session
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index ASC)
+         FROM voting_session_participations vsp
+         WHERE vsp.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_participations,
+
+      -- 11) jurations in this voting session
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vsj))
+         FROM voting_session_jurations vsj
+         WHERE vsj.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_jurations,
+
+      -- 12) exclusions in this voting session
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vse))
+         FROM voting_session_exclusions vse
+         WHERE vse.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_exclusions,
+
+      -- 13) all simple jurors (the “who can vote by token”)
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(simjur) ORDER BY simjur.full_name ASC)
+         FROM simple_jurors simjur
+         JOIN voting_session_simple_jurors vsjs ON simjur.id = vsjs.simple_juror_id
+         WHERE vsjs.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS simple_jurors,
+
+      -- 14) linking table entries for those simple jurors
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(vssj) ORDER BY simjur.full_name ASC)
+         FROM voting_session_simple_jurors vssj
+         JOIN simple_jurors simjur ON vssj.simple_juror_id = simjur.id
+         WHERE vssj.voting_session_id = ses.id),
+        '[]'::jsonb
+      ) AS voting_session_simple_jurors,
+
+      -- 15) raw juror votings
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jv))
+         FROM juror_votings jv
+         JOIN voting_session_jurations vsj ON jv.voting_session_juration_id = vsj.id
+         WHERE vsj.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_juror_votings,
+
+      -- 16) raw juror votes
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(jv2))
+         FROM juror_votes jv2
+         JOIN juror_votings jv ON jv2.juror_voting_id = jv.id
+         JOIN voting_session_jurations vsj2 ON jv.voting_session_juration_id = vsj2.id
+         WHERE vsj2.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_juror_votes,
+
+      -- 17) raw simple juror votings
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(sjv))
+         FROM simple_juror_votings sjv
+         JOIN voting_session_simple_jurors vssj ON sjv.voting_session_simple_juror_id = vssj.id
+         WHERE vssj.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_simple_jurors_votings,
+
+      -- 18) raw simple juror votes
+      COALESCE(
+        (SELECT jsonb_agg(to_jsonb(sjv2))
+         FROM simple_juror_votes sjv2
+         JOIN simple_juror_votings sjv ON sjv2.simple_juror_voting_id = sjv.id
+         JOIN voting_session_simple_jurors vssj2 ON sjv.voting_session_simple_juror_id = vssj2.id
+         WHERE vssj2.voting_session_id = p_voting_session_id),
+        '[]'::jsonb
+      ) AS raw_simple_jurors_votes
+
+    FROM voting_sessions ses
+    JOIN contests c ON ses.contest_id = c.id
+    LEFT JOIN places geopla ON ses.geo_res_place_id = geopla.id
+    WHERE ses.id = p_voting_session_id
+    LIMIT 1;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 

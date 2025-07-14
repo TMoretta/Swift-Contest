@@ -3,25 +3,20 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/voting_session_result_bundle.dart';
-import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_voting_result_details_page_event.dart';
+
 part 'organizer_voting_result_details_page_state.dart';
 
 class OrganizerVotingResultDetailsPageBloc
     extends Bloc<OrganizerVotingResultDetailsPageEvent, OrganizerVotingResultDetailsPageState> {
-  final GenericRepository _genericRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingResultDetailsPageBloc({
-    required GenericRepository genericRepository,
     required OrganizerRepository organizerRepository,
-  })  :
-
-        _genericRepository = genericRepository,
-        _organizerRepository = organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingResultDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingResultDetailsPageInit>(_init);
     on<OrganizerVotingResultDetailsPageRefresh>(_refresh);
@@ -35,8 +30,8 @@ class OrganizerVotingResultDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     late final VotingSessionResultBundle votingSessionBundle;
-    final eitherVotingSessionBundle =
-        await _genericRepository.getVotingSessionResultBundle(votingSessionId: event.votingSessionId);
+    final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionResultBundle(
+        votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => votingSessionBundle = success,
@@ -55,11 +50,11 @@ class OrganizerVotingResultDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     late final VotingSessionResultBundle votingSessionBundle;
-    final eitherVotingSessionBundle =
-    await _genericRepository.getVotingSessionResultBundle(votingSessionId: event.votingSessionId);
+    final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionResultBundle(
+        votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionBundle = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionBundle = success,
     );
 
     emit(state.copyWith(

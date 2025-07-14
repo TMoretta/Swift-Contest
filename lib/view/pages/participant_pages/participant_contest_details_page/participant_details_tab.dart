@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -8,10 +7,12 @@ import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ParticipantDetailsTab extends StatefulWidget {
   final String contestId;
@@ -251,8 +252,27 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             SizedBox(width: 4),
-                            Text(
-                              state.contestDetailsBundle!.place.address,
+                            GestureDetector(
+                              onTap: () async {
+                                final address = state.contestDetailsBundle!.place.address;
+                                final query = Uri.encodeComponent(address);
+                                final uri = Uri.parse(
+                                    'https://www.google.com/maps/search/?api=1&query=$query');
+
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                } else {
+                                  if (context.mounted) {
+                                    showSnackBar(
+                                        context: context,
+                                        text: 'It has not been possible to open the map');
+                                  }
+                                }
+                              },
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.onSurface))),
+                                child: Text(state.contestDetailsBundle!.place.address),
+                              ),
                             ),
                           ],
                         ),

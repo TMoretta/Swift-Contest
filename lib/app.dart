@@ -5,6 +5,7 @@ import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -56,6 +57,16 @@ class _AppState extends State<App> {
           theme: _materialTheme.light(),
           darkTheme: _materialTheme.dark(),
           debugShowCheckedModeBanner: false,
+          // locale: const Locale('it','IT'),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'),
+            Locale('it'),
+          ],
         );
       },
     );

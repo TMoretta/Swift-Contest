@@ -5,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_result_bundle.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/model/data_models/place.dart';
@@ -18,7 +20,7 @@ import 'package:swift_contest/utils/failures/failures.dart';
 abstract interface class OrganizerRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests();
 
-  Future<Either<Failure,ContestDetailsBundle>> getContestDetails({required String contestId});
+  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({required String contestId});
 
   Future<Either<Failure, Unit>> createContest({
     required ContestModel contest,
@@ -93,9 +95,13 @@ abstract interface class OrganizerRepository {
 
   Future<Either<Failure, Unit>> deleteContest({required String contestId});
 
-// Future<Either<Failure, JurorVotesRawBundle>> getVotingSessionJurorVotes({
-//   required String votingSessionId,
-// });
+  Future<Either<Failure, VotingFormBundle>> getContestVotingFormBundle({
+    required String votingFormId,
+  });
+
+  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
+    required String votingSessionId,
+  });
 }
 
 class OrganizerRepositoryImpl implements OrganizerRepository {
@@ -106,8 +112,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
     try {
-      final List<Map<String, dynamic>> res = await _supabase
-          .rpc('organizer_get_created_contests');
+      final List<Map<String, dynamic>> res = await _supabase.rpc('organizer_get_created_contests');
       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -119,10 +124,11 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure,ContestDetailsBundle>> getContestDetails({required String contestId}) async {
+  Future<Either<Failure, ContestDetailsBundle>> getContestDetails(
+      {required String contestId}) async {
     try {
-      final List<Map<String, dynamic>> res = await _supabase
-          .rpc('organizer_get_contest_details',params: {'p_contest_id':contestId});
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('organizer_get_contest_details', params: {'p_contest_id': contestId});
       return right(ContestDetailsBundle.fromRpcJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
@@ -190,10 +196,11 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required String participationId,
   }) async {
     try {
-      final List<Map<String, dynamic>> res = await _supabase.rpc('organizer_get_participation_bundle', params: {
+      final List<Map<String, dynamic>> res =
+          await _supabase.rpc('organizer_get_participation_bundle', params: {
         'p_participation_id': participationId,
       });
-      if(res.isEmpty) {
+      if (res.isEmpty) {
         return right(null);
       }
       return right(ParticipationBundle.fromJson(res.first));
@@ -477,21 +484,45 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     }
   }
 
-// @override
-// Future<Either<Failure, JurorVotesRawBundle>> getVotingSessionJurorVotes({
-//   required String votingSessionId,
-// }) async {
-//   try {
-//     final List<Map<String, dynamic>> res = await _supabase
-//         .rpc('organizer_get_voting_session_raw_juror_votes', params: {'p_voting_session_id': votingSessionId});
-//     if (res.isEmpty) {
-//       return left(Failure(message: 'No votes found'));
-//     }
-//     return right(JurorVotesRawBundle.fromRpcJson(res.first));
-//   } on PostgrestException catch (e) {
-//     return left(Failure(message: e.message));
-//   } catch (e) {
-//     return left(Failure());
-//   }
-// }
+  @override
+  Future<Either<Failure, VotingFormBundle>> getContestVotingFormBundle({
+    required String votingFormId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'organizer_get_contest_voting_form_bundle',
+          params: {'p_voting_form_id': votingFormId});
+      if (res.isEmpty) {
+        return left(Failure(message: 'Voting form not found'));
+      }
+      return right(VotingFormBundle.fromJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
+    required String votingSessionId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'organizer_get_voting_session_result_bundle',
+          params: {'p_voting_session_id': votingSessionId});
+      if (res.isEmpty) {
+        return left(Failure(message: 'Voting session not found'));
+      }
+      return right(VotingSessionResultBundle.fromRpcJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
 }

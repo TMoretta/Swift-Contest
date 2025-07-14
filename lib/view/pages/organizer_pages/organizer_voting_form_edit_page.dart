@@ -47,8 +47,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrganizerVotingFormEditPageBloc>(
-      create: (context) => OrganizerVotingFormEditPageBloc(
-          genericRepository: context.read(), organizerRepository: context.read())
+      create: (context) => OrganizerVotingFormEditPageBloc(organizerRepository: context.read())
         ..add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId)),
       child: BlocConsumer<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
         listener: (context, state) {
@@ -170,25 +169,21 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                 ),
               ),
             ),
-            floatingActionButton: Builder(
-              builder: (context) {
-                return FloatingActionButton(
-                  onPressed: () async {
-                    final VotingFormFieldModel? newField = await showAddFieldDialog(
-                        context: context,
-                        votingFormId: votingFormId,
-                        orderIndex: updatedFields.length);
-                    if (newField != null) {
-                      setState(() {
-                        isEdited = true;
-                        updatedFields.add(newField);
-                      });
-                    }
-                  },
-                  elevation: 1,
-                  child: Icon(Icons.add),
-                );
+            floatingActionButton: FloatingActionButton(
+              onPressed: () async {
+                final VotingFormFieldModel? newField = await _showAddFieldDialog(
+                    context: context,
+                    votingFormId: votingFormId,
+                    orderIndex: updatedFields.length);
+                if (newField != null) {
+                  setState(() {
+                    isEdited = true;
+                    updatedFields.add(newField);
+                  });
+                }
               },
+              elevation: 1,
+              child: Icon(Icons.add),
             ),
           );
         },
@@ -197,7 +192,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   }
 }
 
-Future<VotingFormFieldModel?> showAddFieldDialog({
+Future<VotingFormFieldModel?> _showAddFieldDialog({
   required BuildContext context,
   required String votingFormId,
   required int orderIndex,
@@ -213,12 +208,12 @@ Future<VotingFormFieldModel?> showAddFieldDialog({
   return await showDialog<VotingFormFieldModel?>(
     context: context,
     builder: (context) {
-      return Form(
-        key: formKey,
-        child: AlertDialog(
-          title: Text('Add field'),
-          content: ListView(
-            shrinkWrap: true,
+      return AlertDialog(
+        title: Text('Add field'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               CustomTextFormField(
                 borderType: InputBorderType.underlined,
@@ -245,31 +240,31 @@ Future<VotingFormFieldModel?> showAddFieldDialog({
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                context.router.pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (formKey.currentState?.validate() ?? false) {
-                  final minValueDouble = double.parse(minValueController.text.trim());
-                  final maxValueDouble = double.parse(maxValueController.text.trim());
-                  final newField = VotingFormFieldModel(
-                    orderIndex: orderIndex,
-                    name: nameController.text.trim(),
-                    minValue: minValueDouble,
-                    maxValue: maxValueDouble,
-                  );
-                  context.router.pop(newField);
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.router.pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                final minValueDouble = double.parse(minValueController.text.trim());
+                final maxValueDouble = double.parse(maxValueController.text.trim());
+                final newField = VotingFormFieldModel(
+                  orderIndex: orderIndex,
+                  name: nameController.text.trim(),
+                  minValue: minValueDouble,
+                  maxValue: maxValueDouble,
+                );
+                context.router.pop(newField);
+              }
+            },
+            child: Text('Add'),
+          ),
+        ],
       );
     },
   );

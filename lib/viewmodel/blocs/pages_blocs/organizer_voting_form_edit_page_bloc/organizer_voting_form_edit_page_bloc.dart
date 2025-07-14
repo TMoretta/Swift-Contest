@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
-import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -15,14 +14,11 @@ part 'organizer_voting_form_edit_page_state.dart';
 
 class OrganizerVotingFormEditPageBloc
     extends Bloc<OrganizerVotingFormEditPageEvent, OrganizerVotingFormEditPageState> {
-  final GenericRepository _genericRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingFormEditPageBloc({
-    required GenericRepository genericRepository,
     required OrganizerRepository organizerRepository,
-  })  : _genericRepository = genericRepository,
-        _organizerRepository = organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingFormEditPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingFormEditPageInit>(_getVotingForm);
     on<OrganizerVotingFormEditPageUpdateVotingForm>(_updateVotingForm);
@@ -35,7 +31,7 @@ class OrganizerVotingFormEditPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherVotingForm =
-        await _genericRepository.getVotingFormBundle(votingFormId: event.votingFormId);
+        await _organizerRepository.getContestVotingFormBundle(votingFormId: event.votingFormId);
     eitherVotingForm.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, votingFormBundle: success)),

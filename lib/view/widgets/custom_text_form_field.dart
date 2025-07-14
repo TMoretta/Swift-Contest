@@ -29,6 +29,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextInputType? keyboardType;
   final int? minLines;
   final int? maxLines;
+  final bool? autofocus;
 
   const CustomTextFormField({
     required this.borderType,
@@ -57,6 +58,7 @@ class CustomTextFormField extends StatelessWidget {
     this.keyboardType,
     this.minLines,
     this.maxLines,
+    this.autofocus,
     super.key,
   });
 
@@ -87,6 +89,7 @@ class CustomTextFormField extends StatelessWidget {
       enabled: enabled,
       minLines: minLines ?? 1,
       maxLines: maxLines ?? 1,
+      autofocus: autofocus ?? false,
       onTapOutside: (event) => focusNode?.unfocus(),
       onChanged: onChanged,
       obscureText: obscureText ?? false,
