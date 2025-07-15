@@ -23,7 +23,7 @@ class User extends Equatable {
     return User(
       id: json['id'] as String,
       email: json['email'] as String,
-      isAdmin: json['is_admin'] as bool,
+      isAdmin: (json['is_admin'] as bool?) ?? false,
     );
   }
 

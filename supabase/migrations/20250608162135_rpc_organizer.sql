@@ -321,8 +321,6 @@ RETURNS contests AS $$
 DECLARE
   v_current_user_id uuid;
   v_current_profile profiles;
-
-  v_organizer_id uuid;
   v_profile profiles;
   v_contest_status contest_status;
   v_contest contests;
@@ -349,7 +347,7 @@ BEGIN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
-  SELECT organizer_id INTO v_organizer_id
+  SELECT * INTO v_contest
   FROM contests
   WHERE id = p_contest_id AND deleted_at is null;
 
@@ -357,7 +355,7 @@ BEGIN
     RAISE EXCEPTION 'Contest not found';
   END IF;
 
-  IF (v_current_profile.id <> v_organizer_id) THEN
+  IF (v_current_profile.id <> v_contest.organizer_id) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
   END IF;
 
@@ -446,10 +444,6 @@ BEGIN
   DELETE FROM voting_form_fields
   WHERE voting_form_id = p_voting_form_id;
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while updating the voting form fields';
-  END IF;
-
   IF p_voting_form_fields IS NOT NULL THEN
     FOREACH v_field IN ARRAY p_voting_form_fields LOOP
       INSERT INTO voting_form_fields (
@@ -493,7 +487,6 @@ RETURNS contests AS $$
 DECLARE
   v_current_user_id uuid;
   v_current_profile profiles;
-  v_organizer_id uuid;
   v_contest_status contest_status;
   v_contest contests;
 BEGIN
@@ -519,7 +512,7 @@ BEGIN
     RAISE EXCEPTION 'Profile not found';
   END IF;
 
-  SELECT organizer_id INTO v_organizer_id
+  SELECT * INTO v_contest
   FROM contests
   WHERE id = p_contest_id AND deleted_at is null;
 
@@ -527,7 +520,7 @@ BEGIN
     RAISE EXCEPTION 'Contest not found';
   END IF;
 
-  IF (v_current_profile.id <> v_organizer_id) THEN
+  IF (v_current_profile.id <> v_contest.organizer_id) THEN
     RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
   END IF;
 

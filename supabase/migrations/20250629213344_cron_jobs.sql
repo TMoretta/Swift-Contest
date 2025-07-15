@@ -1,21 +1,21 @@
-CREATE OR REPLACE FUNCTION update_contests_status()
-RETURNS void AS $$
+CREATE OR REPLACE PROCEDURE update_contests_status()
+AS $$
 BEGIN
   UPDATE contests
   SET contest_status = CASE
-    WHEN now() < p_contest.works_submission_start THEN
-      'preparationPhase'
-    WHEN now() BETWEEN p_contest.works_submission_start AND p_contest.works_submission_end THEN
-      'participationPhase'
+    WHEN now() < works_submission_start THEN
+      'preparationPhase'::contest_status
+    WHEN now() BETWEEN works_submission_start AND works_submission_end THEN
+      'participationPhase'::contest_status
     ELSE
-      'votingPhase'
-  END
-  WHERE contest_status NOT IN ('terminated', 'deleted');
+      'votingPhase'::contest_status
+  END;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY definer;
+
 
 SELECT cron.schedule(
-  'update_contests_status_daily',
-  '0 22 * * *',
+  'update_contests_status',
+  '* * * * *',
   $$CALL update_contests_status();$$
 );

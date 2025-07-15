@@ -17,35 +17,9 @@ BEGIN
 
   IF NOT EXISTS (
     SELECT 1 FROM auth.users
-    WHERE id = v_current_user_id
-  ) THEN
-    RAISE EXCEPTION 'User not found';
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM auth.users
     WHERE id = v_current_user_id AND deleted_at is null
   ) THEN
-    RAISE EXCEPTION 'The account has already been deleted';
-  END IF;
-
-  UPDATE profiles
-  SET deleted_at = now()
-  WHERE user_id = v_current_user_id
-  RETURNING * INTO v_profile;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while deleting account';
-  END IF;
-
-  UPDATE auth.users
-  SET
-    deleted_at = now(),
-    email = email || '.deleted_' || to_char(now(), 'YYYYMMDD_HH24MI') || '_' || id
-   WHERE id = v_current_user_id;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while deleting account';
+    RAISE EXCEPTION 'User not found';
   END IF;
 
   -- set all created contests as deleted
@@ -74,6 +48,25 @@ BEGIN
   ) LOOP
     PERFORM juror_leave_contest(v_joined_juration.contest_id, v_joined_juration.juror_id);
   END LOOP;
+
+  UPDATE profiles
+  SET deleted_at = now()
+  WHERE user_id = v_current_user_id
+  RETURNING * INTO v_profile;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while deleting account';
+  END IF;
+
+  UPDATE auth.users
+  SET
+    deleted_at = now(),
+    email = email || '.deleted_' || to_char(now(), 'YYYYMMDD_HH24MI') || '_' || id
+   WHERE id = v_current_user_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while deleting account';
+  END IF;
 
 EXCEPTION
   WHEN SQLSTATE 'P0001' THEN

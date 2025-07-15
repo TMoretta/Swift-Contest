@@ -110,12 +110,14 @@ class DatePickerFormField extends StatelessWidget {
   }
 }
 
-Future<DateTime?> _showDatePicker(
-    {required BuildContext context, required DateTime? initialDate}) async {
+Future<DateTime?> _showDatePicker({
+  required BuildContext context,
+  required DateTime? initialDate,
+}) async {
   final DateTime? date = await showDatePicker(
     context: context,
     initialDate: initialDate ?? DateTime.now(),
-    firstDate: initialDate ?? DateTime.now(),
+    firstDate: DateTime(2000),
     lastDate: DateTime(2100),
   );
 

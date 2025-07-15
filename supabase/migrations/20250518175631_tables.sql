@@ -2,7 +2,7 @@ CREATE TABLE profiles (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   user_id uuid NOT NULL REFERENCES auth.users(id),
-  full_name varchar(30) NOT NULL,
+  full_name varchar NOT NULL,
   pref_role contest_role NOT NULL DEFAULT 'organizer',
   deleted_at timestamptz
 );
@@ -20,7 +20,7 @@ CREATE TABLE messages (
 CREATE TABLE places (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  address varchar(150) NOT NULL,
+  address varchar NOT NULL,
   lat float NOT NULL,
   lon float NOT NULL
 );
@@ -34,8 +34,8 @@ CREATE TABLE contests (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   organizer_id uuid NOT NULL REFERENCES profiles (id),
-  name varchar(30) NOT NULL,
-  description varchar(200) NOT NULL,
+  name varchar NOT NULL,
+  description varchar NOT NULL,
   date_time timestamptz NOT NULL,
   works_submission_start timestamptz NOT NULL,
   works_submission_end timestamptz NOT NULL,
@@ -71,8 +71,8 @@ CREATE TABLE works (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   participation_id uuid NOT NULL REFERENCES participations (id) ON DELETE cascade,
-  name varchar(20) NOT NULL,
-  description varchar(200) NOT NULL,
+  name varchar NOT NULL,
+  description varchar NOT NULL,
   images_urls text[] NOT NULL,
   file_url text NOT NULL
 );
@@ -91,7 +91,7 @@ CREATE TABLE voting_form_fields (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_form_id uuid NOT NULL REFERENCES voting_forms (id) ON DELETE cascade,
-  name varchar(20) NOT NULL,
+  name varchar NOT NULL,
   order_index int NOT NULL,
   min_value numeric(7,2) NOT NULL,
   max_value numeric(7,2) NOT NULL

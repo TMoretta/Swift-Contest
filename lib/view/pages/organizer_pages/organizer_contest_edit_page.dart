@@ -11,6 +11,7 @@ import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/profile.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
@@ -279,17 +280,27 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                 DatePickerFormField(
                   controller: dateController,
                   focusNode: dateFocusNode,
+                  initialDate: date,
                   label: 'Date',
                   validator: (value) => dateValidator(value),
-                  onSelected: (dateValue) => date = dateValue,
+                  onSelected: (dateValue) {
+                    setState(() {
+                      date = dateValue;
+                    });
+                  },
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                 ),
                 TimePickerFormField(
                   controller: timeController,
                   focusNode: timeFocusNode,
+                  initialTime: time,
                   label: 'Time',
                   validator: (value) => timeValidator(value),
-                  onSelected: (timeValue) => time = timeValue,
+                  onSelected: (timeValue) {
+                    setState(() {
+                      time = timeValue;
+                    });
+                  },
                   prefixIcon: Icon(Icons.access_time_outlined),
                 ),
                 PlacePickerFormField(
@@ -457,19 +468,25 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                 DatePickerFormField(
                   controller: worksSubmissionStartController,
                   focusNode: worksSubmissionStartFocusNode,
+                  initialDate: worksSubmissionStart,
                   label: 'Start date',
                   validator: (value) =>
-                      _worksSubmissionStartValidator(value, date!, worksSubmissionEnd),
-                  onSelected: (workDateStartValue) => worksSubmissionStart = workDateStartValue,
+                      worksSubmissionStartValidator(value, date!, worksSubmissionEnd),
+                  onSelected: (workDateStartValue) {
+                    worksSubmissionStart = workDateStartValue;
+                  },
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                 ),
                 DatePickerFormField(
                   controller: worksSubmissionEndController,
                   focusNode: worksSubmissionEndFocusNode,
+                  initialDate: worksSubmissionEnd,
                   label: 'End date',
                   validator: (value) =>
-                      _worksSubmissionEndValidator(value, date!, worksSubmissionStart),
-                  onSelected: (workDateEndValue) => worksSubmissionEnd = workDateEndValue,
+                      worksSubmissionEndValidator(value, date!, worksSubmissionStart),
+                  onSelected: (workDateEndValue) {
+                    worksSubmissionEnd = workDateEndValue;
+                  },
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                 ),
               ],
@@ -502,52 +519,6 @@ Future<bool?> showImagesDialog({required BuildContext context}) async {
       ],
     ),
   );
-}
-
-String? _worksSubmissionStartValidator(
-    String? value, DateTime contestDate, DateTime? worksSubmissionEnd) {
-  if (value == null || value.isEmpty) {
-    return '';
-  }
-
-  try {
-    final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy').parse(value);
-    if (worksSubmissionStart.isAfter(contestDate)) {
-      return 'Can\'t be after contest date';
-    }
-    if (worksSubmissionEnd == null) {
-      return null;
-    }
-    if (worksSubmissionStart.isAfter(worksSubmissionEnd)) {
-      return 'Can\'t be after the date of the end';
-    }
-  } catch (e) {
-    return 'Invalid date format';
-  }
-  return null;
-}
-
-String? _worksSubmissionEndValidator(
-    String? value, DateTime contestDate, DateTime? worksSubmissionStart) {
-  if (value == null || value.isEmpty) {
-    return '';
-  }
-
-  try {
-    final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy').parse(value);
-    if (worksSubmissionEnd.isAfter(contestDate)) {
-      return 'Can\'t be after contest date';
-    }
-    if (worksSubmissionStart == null) {
-      return null;
-    }
-    if (worksSubmissionEnd.isBefore(worksSubmissionStart)) {
-      return 'Can\'t be before the date of begin';
-    }
-  } catch (e) {
-    return 'Invalid date format';
-  }
-  return null;
 }
 
 String? _imagesValidator(List<XFile> images, List<String> oldImagesUrls) {

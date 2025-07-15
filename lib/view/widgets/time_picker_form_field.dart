@@ -13,6 +13,7 @@ class TimePickerFormField extends StatelessWidget {
   final Color? externalIconColor;
   final Widget? prefixIcon;
   final Color? prefixIconColor;
+  final TimeOfDay? initialTime;
 
   const TimePickerFormField({
     required this.controller,
@@ -27,6 +28,7 @@ class TimePickerFormField extends StatelessWidget {
     this.externalIconColor,
     this.prefixIcon,
     this.prefixIconColor,
+    this.initialTime,
     super.key,
   });
 
@@ -51,7 +53,7 @@ class TimePickerFormField extends StatelessWidget {
         suffixIcon: TextButton(
           onPressed: () async {
             FocusManager.instance.primaryFocus?.unfocus();
-            final time = await _showTimePicker(context: context);
+            final time = await _showTimePicker(context: context, initialTime: initialTime);
             if (time != null) {
               controller.text =
                   '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
@@ -109,7 +111,10 @@ class TimePickerFormField extends StatelessWidget {
   }
 }
 
-Future<TimeOfDay?> _showTimePicker({required BuildContext context}) async {
+Future<TimeOfDay?> _showTimePicker({
+  required BuildContext context,
+  required TimeOfDay? initialTime,
+}) async {
   final TimeOfDay? time = await showTimePicker(
     context: context,
     builder: (context, child) => MediaQuery(
@@ -120,7 +125,7 @@ Future<TimeOfDay?> _showTimePicker({required BuildContext context}) async {
         child: child!,
       ),
     ),
-    initialTime: TimeOfDay.now(),
+    initialTime: initialTime ?? TimeOfDay.now(),
   );
   return time;
 }

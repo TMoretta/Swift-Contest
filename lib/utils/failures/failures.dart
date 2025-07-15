@@ -1,7 +1,7 @@
 class Failure {
   final String message;
 
-  Failure({this.message = 'An error occurred. Check connection or retry'});
+  Failure({this.message = 'An error occurred'});
 
   @override
   String toString() {

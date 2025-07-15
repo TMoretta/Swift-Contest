@@ -1,4 +1,6 @@
 //* No empty validator
+import 'package:intl/intl.dart';
+
 String? noEmptyValidator(String? value) {
   final val = value?.trim();
 
@@ -104,13 +106,83 @@ String? otpValidator(String? value, int length) {
 String? integerValidator(String? value) {
   final val = value?.trim();
 
-  if(val == null || val.isEmpty) {
+  if (val == null || val.isEmpty) {
     return '';
   }
 
-  if(!RegExp(r'^\d+$').hasMatch(val)) {
+  if (!RegExp(r'^\d+$').hasMatch(val)) {
     return 'Invalid number, only integers allowed';
   }
 
+  return null;
+}
+
+//* Works submission start validator
+String? worksSubmissionStartValidator(
+  String? value,
+  DateTime contestDate,
+  DateTime? worksSubmissionEnd,
+) {
+  if (value == null || value.isEmpty) {
+    return '';
+  }
+
+  try {
+    final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy').parse(value);
+    if (worksSubmissionStart.isAfter(contestDate)) {
+      return 'Can\'t be after contest date';
+    }
+    if (worksSubmissionStart.day == contestDate.day &&
+        worksSubmissionStart.month == contestDate.month &&
+        worksSubmissionStart.year == contestDate.year) {
+      return 'Can\'t be equal to contest date';
+    }
+    if (worksSubmissionEnd == null) {
+      return null;
+    }
+    if (worksSubmissionStart.isAfter(worksSubmissionEnd)) {
+      return 'Can\'t be after the date of the end';
+    }
+    if (worksSubmissionStart == worksSubmissionEnd) {
+      return 'Can\'t be the same date of the ending';
+    }
+  } catch (e) {
+    return 'Invalid date format';
+  }
+  return null;
+}
+
+//* Works submission start validator
+String? worksSubmissionEndValidator(
+  String? value,
+  DateTime contestDate,
+  DateTime? worksSubmissionStart,
+) {
+  if (value == null || value.isEmpty) {
+    return '';
+  }
+
+  try {
+    final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy').parse(value);
+    if (worksSubmissionEnd.isAfter(contestDate)) {
+      return 'Can\'t be after contest date';
+    }
+    if (worksSubmissionEnd.day == contestDate.day &&
+        worksSubmissionEnd.month == contestDate.month &&
+        worksSubmissionEnd.year == contestDate.year) {
+      return 'Can\'t be equal to contest date';
+    }
+    if (worksSubmissionStart == null) {
+      return null;
+    }
+    if (worksSubmissionEnd.isBefore(worksSubmissionStart)) {
+      return 'Can\'t be before the date of begin';
+    }
+    if (worksSubmissionEnd == worksSubmissionStart) {
+      return 'Can\'t be the same date of the starting';
+    }
+  } catch (e) {
+    return 'Invalid date format';
+  }
   return null;
 }
