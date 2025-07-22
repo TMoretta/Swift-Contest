@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
-import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -17,16 +16,11 @@ part 'organizer_voting_procedure_page_state.dart';
 
 class OrganizerVotingProcedurePageBloc
     extends Bloc<OrganizerVotingProcedurePageEvent, OrganizerVotingProcedurePageState> {
-  final GenericRepository _genericRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingProcedurePageBloc({
-    required GenericRepository genericRepository,
     required OrganizerRepository organizerRepository,
-  })  :
-
-        _genericRepository = genericRepository,
-        _organizerRepository = organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
     on<OrganizerVotingProcedurePageInit>(_init);
     on<OrganizerVotingProcedurePageRefresh>(_refresh);
@@ -57,7 +51,7 @@ class OrganizerVotingProcedurePageBloc
 
     //* Getting the voting session bundle
     late final VotingSessionProcedureBundle votingSessionBundle;
-    final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
+    final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
@@ -95,7 +89,8 @@ class OrganizerVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        final oldVotingSession =
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
         if (newVotingSession == oldVotingSession) {
           return state;
         }
@@ -114,27 +109,27 @@ class OrganizerVotingProcedurePageBloc
   }
 
   FutureOr<void> _refresh(
-      OrganizerVotingProcedurePageRefresh event,
-      Emitter<OrganizerVotingProcedurePageState> emit,
-      ) async {
+    OrganizerVotingProcedurePageRefresh event,
+    Emitter<OrganizerVotingProcedurePageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     //* Getting the voting session bundle
     late final VotingSessionProcedureBundle votingSessionBundle;
-    final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
+    final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionBundle = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionBundle = success,
     );
 
     //* Getting the stream
     late final Stream<Either<Failure, VotingSession?>> votingSessionStream;
     final eitherVotingSessionStream =
-    await _organizerRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
+        await _organizerRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
     eitherVotingSessionStream.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionStream = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionStream = success,
     );
     if (eitherVotingSessionStream.isLeft()) {
       return;
@@ -149,8 +144,8 @@ class OrganizerVotingProcedurePageBloc
         late VotingSession? newVotingSession;
 
         eitherNewVotingSession.fold(
-              (failure) => null,
-              (success) => newVotingSession = success,
+          (failure) => null,
+          (success) => newVotingSession = success,
         );
         if (eitherNewVotingSession.isLeft()) {
           return state.copyWith(status: BlocStatus.failure, message: 'No data received');
@@ -159,7 +154,8 @@ class OrganizerVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        final oldVotingSession =
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
         if (newVotingSession == oldVotingSession) {
           return state;
         }

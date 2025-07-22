@@ -13,7 +13,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_verify_page_bl
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class SignUpVerifyPage extends StatefulWidget {
+class SignUpVerifyPage extends StatefulWidget implements AutoRouteWrapper {
   final String email;
 
   const SignUpVerifyPage({
@@ -23,13 +23,22 @@ class SignUpVerifyPage extends StatefulWidget {
 
   @override
   State<SignUpVerifyPage> createState() => _SignUpVerifyPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<SignUpVerifyPageBloc>(
+      create: (context) => SignUpVerifyPageBloc(
+        authRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
   final _otpFocusNode = FocusNode();
-
 
   @override
   void initState() {
@@ -52,91 +61,88 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<SignUpVerifyPageBloc>(
-      create: (context) => SignUpVerifyPageBloc(authRepository: context.read()),
-      child: BlocConsumer<SignUpVerifyPageBloc, SignUpVerifyPageState>(
-        listener: (context, state) {
-          //* Show a message if there is one
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-          if (state.status.isSuccess && state.sourceEvent is SignUpVerifyOtp) {
-            context.router.replaceAll([RootRoute()]);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Verify account'),
-            body: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Center(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      Text(
-                        'A code has been sent to your email. Please check your inbox and verify your account.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      SizedBox(height: 32),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FormField(
-                              validator: (value) => otpValidator(_otpController.text, 6),
-                              builder: (field) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    OtpField(
-                                      length: 6,
-                                      controller: _otpController,
-                                      focusNode: _otpFocusNode,
+    return BlocConsumer<SignUpVerifyPageBloc, SignUpVerifyPageState>(
+      listener: (context, state) {
+        //* Show a message if there is one
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+        if (state.status.isSuccess && state.sourceEvent is SignUpVerifyOtp) {
+          context.router.replaceAll([RootRoute()]);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Verify account'),
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Text(
+                      'A code has been sent to your email. Please check your inbox and verify your account.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    SizedBox(height: 32),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FormField(
+                            validator: (value) => otpValidator(_otpController.text, 6),
+                            builder: (field) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  OtpField(
+                                    length: 6,
+                                    controller: _otpController,
+                                    focusNode: _otpFocusNode,
+                                  ),
+                                  if (field.hasError) SizedBox(height: 8),
+                                  if (field.hasError)
+                                    Text(
+                                      'Enter a valid OTP',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(color: Theme.of(context).colorScheme.error),
                                     ),
-                                    if (field.hasError) SizedBox(height: 8),
-                                    if (field.hasError)
-                                      Text(
-                                        'Enter a valid OTP',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(color: Theme.of(context).colorScheme.error),
-                                      ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 72),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 72),
+                  ],
                 ),
               ),
             ),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  final otp = _otpController.text;
-                  context
-                      .read<SignUpVerifyPageBloc>()
-                      .add(SignUpVerifyOtp(email: widget.email, otp: otp));
-                }
-              },
-              label: const Text('Verify'),
-            ),
-          );
-        },
-      ),
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              if (_formKey.currentState?.validate() ?? false) {
+                final otp = _otpController.text;
+                context
+                    .read<SignUpVerifyPageBloc>()
+                    .add(SignUpVerifyOtp(email: widget.email, otp: otp));
+              }
+            },
+            label: const Text('Verify'),
+          ),
+        );
+      },
     );
   }
 }

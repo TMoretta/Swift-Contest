@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/app.dart';
 import 'package:swift_contest/model/repositories/auth_repository.dart';
-import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/google_place_repository.dart';
 import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/model/repositories/organizer_repository.dart';
@@ -80,9 +79,6 @@ void main() async {
         ),
         RepositoryProvider<AuthRepository>(
           create: (context) => AuthRepositoryImpl(supabaseClient: supabaseClient),
-        ),
-        RepositoryProvider<GenericRepository>(
-          create: (context) => GenericRepositoryImpl(supabaseClient: supabaseClient),
         ),
         RepositoryProvider<OrganizerRepository>(
           create: (context) => OrganizerRepositoryImpl(supabaseClient: supabaseClient),

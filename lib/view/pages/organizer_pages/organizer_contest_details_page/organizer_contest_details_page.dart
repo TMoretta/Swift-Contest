@@ -16,7 +16,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_deta
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class OrganizerContestDetailsPage extends StatefulWidget {
+class OrganizerContestDetailsPage extends StatefulWidget implements AutoRouteWrapper {
   final String contestId;
 
   const OrganizerContestDetailsPage({
@@ -26,6 +26,16 @@ class OrganizerContestDetailsPage extends StatefulWidget {
 
   @override
   State<OrganizerContestDetailsPage> createState() => _OrganizerContestDetailsPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OrganizerContestDetailsPageBloc>(
+      create: (context) => OrganizerContestDetailsPageBloc(
+        organizerRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPage> {
@@ -38,6 +48,14 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context
+        .read<OrganizerContestDetailsPageBloc>()
+        .add(OrganizerContestDetailsPageInit(contestId: contestId));
+  }
+
+  @override
   void dispose() {
     context.hideLoader();
     super.dispose();
@@ -45,102 +63,97 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerContestDetailsPageBloc>(
-      create: (context) => OrganizerContestDetailsPageBloc(
-        organizerRepository: context.read(),
-      ),
-      child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(
-              title: 'Your contest',
-              actions: [
-                Builder(
-                  builder: (context) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
+    return BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(
+            title: 'Your contest',
+            actions: [
+              Builder(
+                builder: (context) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return VoidWidget();
+                    case (BlocStatus.loading || BlocStatus.failure):
+                      if (state.sourceEvent is OrganizerContestDetailsPageInit) {
                         return VoidWidget();
-                      case (BlocStatus.loading || BlocStatus.failure):
-                        if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        return _Menu(contestId: contestId);
-                    }
-                  },
-                ),
-              ],
-            ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DefaultTabController(
-                  length: 5,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 16),
-                      Builder(
-                        builder: (context) {
-                          switch (state.status) {
-                            case BlocStatus.initial:
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
+                      return _Menu(contestId: contestId);
+                  }
+                },
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DefaultTabController(
+                length: 5,
+                child: Column(
+                  children: [
+                    SizedBox(height: 16),
+                    Builder(
+                      builder: (context) {
+                        switch (state.status) {
+                          case BlocStatus.initial:
+                            return VoidWidget();
+                          case (BlocStatus.loading || BlocStatus.failure):
+                            if (state.sourceEvent is OrganizerContestDetailsPageInit) {
                               return VoidWidget();
-                            case (BlocStatus.loading || BlocStatus.failure):
-                              if (state.sourceEvent is OrganizerContestDetailsPageInit) {
-                                return VoidWidget();
-                              } else {
-                                continue successCase;
-                              }
-                            successCase:
-                            case BlocStatus.success:
-                              return TabBar(
-                                isScrollable: true,
-                                tabAlignment: TabAlignment.center,
-                                indicatorSize: TabBarIndicatorSize.label,
-                                tabs: [
-                                  Tab(text: 'Details'),
-                                  Tab(text: 'Participants'),
-                                  Tab(text: 'Jurors'),
-                                  Tab(text: 'Works'),
-                                  Tab(text: 'Voting'),
-                                ],
-                              );
-                          }
-                        },
+                            } else {
+                              continue successCase;
+                            }
+                          successCase:
+                          case BlocStatus.success:
+                            return TabBar(
+                              isScrollable: true,
+                              tabAlignment: TabAlignment.center,
+                              indicatorSize: TabBarIndicatorSize.label,
+                              tabs: [
+                                Tab(text: 'Details'),
+                                Tab(text: 'Participants'),
+                                Tab(text: 'Jurors'),
+                                Tab(text: 'Works'),
+                                Tab(text: 'Voting'),
+                              ],
+                            );
+                        }
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    Expanded(
+                      child: TabBarView(
+                        physics: NeverScrollableScrollPhysics(),
+                        children: [
+                          OrganizerDetailsTab(contestId: contestId),
+                          OrganizerParticipantsTab(contestId: contestId),
+                          OrganizerJurorsTab(contestId: contestId),
+                          OrganizerWorksTab(contestId: contestId),
+                          OrganizerVotingTab(contestId: contestId),
+                        ],
                       ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: TabBarView(
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [
-                            OrganizerDetailsTab(contestId: contestId),
-                            OrganizerParticipantsTab(contestId: contestId),
-                            OrganizerJurorsTab(contestId: contestId),
-                            OrganizerWorksTab(contestId: contestId),
-                            OrganizerVotingTab(contestId: contestId),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

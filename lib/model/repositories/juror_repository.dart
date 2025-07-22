@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/bundles/simple_juror_and_voting_session_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
@@ -41,6 +42,10 @@ abstract interface class JurorRepository {
     required String votingSessionId,
     required String contestId,
     required Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap,
+  });
+
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
   });
 }
 
@@ -198,6 +203,27 @@ class JurorRepositoryImpl implements JurorRepository {
         'p_votes_per_participant_map': votesPerParticipantMapWithIds,
       });
       return right(unit);
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'juror_get_voting_session_procedure_bundle',
+          params: {'p_voting_session_id': votingSessionId});
+      if (res.isEmpty) {
+        return left(Failure(message: 'Voting session not found'));
+      }
+      return right(VotingSessionProcedureBundle.fromRpcJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {

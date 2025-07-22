@@ -202,7 +202,6 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.person_rounded,
@@ -210,8 +209,10 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             SizedBox(width: 4),
-                            Text(
-                              state.contestDetailsBundle!.organizer.fullName,
+                            Expanded(
+                              child: Text(
+                                state.contestDetailsBundle!.organizer.fullName,
+                              ),
                             ),
                           ],
                         ),
@@ -220,7 +221,6 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.people,
@@ -228,9 +228,11 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             SizedBox(width: 4),
-                            Text(
-                                'Participants: ${state.contestDetailsBundle!.joinedParticipationsBundles.length} | '
-                                'Jurors: ${state.contestDetailsBundle!.joinedJurationsBundles.length}'),
+                            Expanded(
+                              child: Text(
+                                  'Participants: ${state.contestDetailsBundle!.joinedParticipationsBundles.length} | '
+                                  'Jurors: ${state.contestDetailsBundle!.joinedJurationsBundles.length}'),
+                            ),
                           ],
                         ),
                         SizedBox(height: 8),
@@ -238,7 +240,6 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.location_on_rounded,
@@ -246,26 +247,25 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             SizedBox(width: 4),
-                            GestureDetector(
-                              onTap: () async {
-                                final address = state.contestDetailsBundle!.place.address;
-                                final query = Uri.encodeComponent(address);
-                                final uri = Uri.parse(
-                                    'https://www.google.com/maps/search/?api=1&query=$query');
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final address = state.contestDetailsBundle!.place.address;
+                                  final query = Uri.encodeComponent(address);
+                                  final uri = Uri.parse(
+                                      'https://www.google.com/maps/search/?api=1&query=$query');
 
-                                if (await canLaunchUrl(uri)) {
-                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                } else {
-                                  if (context.mounted) {
-                                    showSnackBar(
-                                        context: context,
-                                        text: 'It has not been possible to open the map');
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  } else {
+                                    if (context.mounted) {
+                                      showSnackBar(
+                                          context: context,
+                                          text: 'It has not been possible to open the map');
+                                    }
                                   }
-                                }
-                              },
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.onSurface))),
-                                child: Text(state.contestDetailsBundle!.place.address),
+                                },
+                                child: Text(state.contestDetailsBundle!.place.address, style: Theme.of(context).textTheme.bodyMedium?.copyWith(decoration: TextDecoration.underline),),
                               ),
                             ),
                           ],
@@ -275,7 +275,6 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.calendar_month_rounded,
@@ -283,9 +282,11 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             SizedBox(width: 4),
-                            Text(
-                              DateFormat('dd MMM, yyyy | HH:mm')
-                                  .format(state.contestDetailsBundle!.contest.dateTime),
+                            Expanded(
+                              child: Text(
+                                DateFormat('dd MMM, yyyy | HH:mm')
+                                    .format(state.contestDetailsBundle!.contest.dateTime),
+                              ),
                             ),
                           ],
                         ),
@@ -307,9 +308,11 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
                             SizedBox(width: 4),
-                            Text(
-                              DateFormat('dd MMM, yyyy | HH:mm')
-                                  .format(state.contestDetailsBundle!.contest.worksSubmissionStart),
+                            Expanded(
+                              child: Text(
+                                DateFormat('dd MMM, yyyy | HH:mm')
+                                    .format(state.contestDetailsBundle!.contest.worksSubmissionStart),
+                              ),
                             ),
                           ],
                         ),
@@ -323,9 +326,11 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
                             SizedBox(width: 4),
-                            Text(
-                              DateFormat('dd MMM, yyyy | HH:mm')
-                                  .format(state.contestDetailsBundle!.contest.worksSubmissionEnd),
+                            Expanded(
+                              child: Text(
+                                DateFormat('dd MMM, yyyy | HH:mm')
+                                    .format(state.contestDetailsBundle!.contest.worksSubmissionEnd),
+                              ),
                             ),
                           ],
                         ),

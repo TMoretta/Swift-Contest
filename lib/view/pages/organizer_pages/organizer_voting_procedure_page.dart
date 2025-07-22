@@ -18,7 +18,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_proce
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class OrganizerVotingProcedurePage extends StatefulWidget {
+class OrganizerVotingProcedurePage extends StatefulWidget implements AutoRouteWrapper {
   final String votingSessionId;
 
   const OrganizerVotingProcedurePage({
@@ -28,6 +28,16 @@ class OrganizerVotingProcedurePage extends StatefulWidget {
 
   @override
   State<OrganizerVotingProcedurePage> createState() => _OrganizerVotingProcedurePageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OrganizerVotingProcedurePageBloc>(
+      create: (context) => OrganizerVotingProcedurePageBloc(
+        organizerRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedurePage> {
@@ -42,6 +52,14 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context
+        .read<OrganizerVotingProcedurePageBloc>()
+        .add(OrganizerVotingProcedurePageInit(votingSessionId: votingSessionId));
+  }
+
+  @override
   void dispose() {
     context.hideLoader();
     super.dispose();
@@ -49,127 +67,77 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerVotingProcedurePageBloc>(
-      create: (context) => OrganizerVotingProcedurePageBloc(
-        genericRepository: context.read(),
-        organizerRepository: context.read(),
-      )..add(OrganizerVotingProcedurePageInit(
-          votingSessionId: votingSessionId)),
-      child: BlocConsumer<OrganizerVotingProcedurePageBloc, OrganizerVotingProcedurePageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-          if (state.status.isSuccess &&
-              state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
-                  VotingSessionStatus.ended) {
-            showSnackBar(context: context, text: 'Voting session ended successfully');
-            context.router.pop();
-          }
-          if (state.status.isSuccess &&
-              state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
-                  VotingSessionStatus.cancelled) {
-            showSnackBar(context: context, text: 'Voting session cancelled successfully');
-            context.router.pop();
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Voting'),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Builder(
-                  builder: (context) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
+    return BlocConsumer<OrganizerVotingProcedurePageBloc, OrganizerVotingProcedurePageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+        if (state.status.isSuccess &&
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
+                VotingSessionStatus.ended) {
+          showSnackBar(context: context, text: 'Voting session ended successfully');
+          context.router.pop();
+        }
+        if (state.status.isSuccess &&
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
+                VotingSessionStatus.cancelled) {
+          showSnackBar(context: context, text: 'Voting session cancelled successfully');
+          context.router.pop();
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Voting'),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Builder(
+                builder: (context) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return VoidWidget();
+                    case BlocStatus.loading:
+                      if (state.sourceEvent is OrganizerVotingProcedurePageInit) {
                         return VoidWidget();
-                      case BlocStatus.loading:
-                        if (state.sourceEvent
-                            is OrganizerVotingProcedurePageInit) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      case BlocStatus.failure:
-                        if (state.sourceEvent
-                            is OrganizerVotingProcedurePageInit) {
-                          return RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<OrganizerVotingProcedurePageBloc>()
-                                .add(OrganizerVotingProcedurePageInit(
-                                    votingSessionId: votingSessionId)),
-                            child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                          );
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
+                      } else {
+                        continue successCase;
+                      }
+                    case BlocStatus.failure:
+                      if (state.sourceEvent is OrganizerVotingProcedurePageInit) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<OrganizerVotingProcedurePageBloc>()
-                              .add(OrganizerVotingProcedurePageRefresh(
+                              .add(OrganizerVotingProcedurePageInit(
                                   votingSessionId: votingSessionId)),
-                          child: Builder(
-                            builder: (context) {
-                              final votingSessionProcedureBundle =
-                                  state.votingSessionProcedureBundle!;
-                              final votingSessionBundle =
-                                  votingSessionProcedureBundle.votingSessionBundle;
-                              final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
+                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                        );
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async => context.read<OrganizerVotingProcedurePageBloc>().add(
+                            OrganizerVotingProcedurePageRefresh(votingSessionId: votingSessionId)),
+                        child: Builder(
+                          builder: (context) {
+                            final votingSessionProcedureBundle =
+                                state.votingSessionProcedureBundle!;
+                            final votingSessionBundle =
+                                votingSessionProcedureBundle.votingSessionBundle;
+                            final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
 
-                              switch (sessionStatus) {
-                                case VotingSessionStatus.initialized:
-                                  return ListViewWithCentralWidget(
-                                    centralWidget: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (votingSessionBundle
-                                            .votingSession.areSimpleJurorsAllowed)
-                                          Text(
-                                            'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
-                                            textAlign: TextAlign.center,
-                                            style: Theme.of(context).textTheme.titleMedium,
-                                          ),
-                                        if (votingSessionBundle
-                                            .votingSession.areSimpleJurorsAllowed)
-                                          SizedBox(height: 16),
-                                        FilledButton(
-                                          onPressed: () {
-                                            context.read<OrganizerVotingProcedurePageBloc>().add(
-                                                OrganizerVotingProcedurePageStartVotingSessionProcedure(
-                                                    votingSessionId: votingSessionProcedureBundle
-                                                        .votingSessionBundle.votingSession.id));
-                                          },
-                                          child: Text('Start'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                case VotingSessionStatus.work:
-                                  final currentStepDeadline =
-                                      votingSessionBundle.votingSession.currentStepDeadline!;
-                                  final currentParticipantIndex =
-                                      votingSessionBundle.votingSession.currentParticipantIndex!;
-                                  final currentParticipant = votingSessionProcedureBundle
-                                      .includedVotingSessionParticipationsBundles[
-                                          currentParticipantIndex]
-                                      .participationBundle
-                                      .participant;
-                                  final currentWork = votingSessionProcedureBundle
-                                      .includedVotingSessionParticipationsBundles[
-                                          currentParticipantIndex]
-                                      .participationBundle
-                                      .work!;
-                                  return ListView(
+                            switch (sessionStatus) {
+                              case VotingSessionStatus.initialized:
+                                return ListViewWithCentralWidget(
+                                  centralWidget: Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      SizedBox(height: 16),
                                       if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
                                         Text(
                                           'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
@@ -177,156 +145,186 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                           style: Theme.of(context).textTheme.titleMedium,
                                         ),
                                       if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                        Divider(height: 16),
-                                      Center(
-                                        child: CustomTimerCountdown(
-                                          label: 'Jurors are voting',
-                                          endTime: currentStepDeadline,
-                                        ),
+                                        SizedBox(height: 16),
+                                      FilledButton(
+                                        onPressed: () {
+                                          context.read<OrganizerVotingProcedurePageBloc>().add(
+                                              OrganizerVotingProcedurePageStartVotingSessionProcedure(
+                                                  votingSessionId: votingSessionProcedureBundle
+                                                      .votingSessionBundle.votingSession.id));
+                                        },
+                                        child: Text('Start'),
                                       ),
-                                      Divider(height: 24),
-                                      VotingProcedureWorkDetailsView(
-                                        work: currentWork,
-                                        participant: currentParticipant,
-                                      ),
-                                      SizedBox(height: 72),
                                     ],
-                                  );
-                                case VotingSessionStatus.intermission:
-                                  final currentStepDeadline =
-                                      votingSessionBundle.votingSession.currentStepDeadline!;
-                                  return ListViewWithCentralWidget(
-                                    centralWidget: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (votingSessionBundle
-                                            .votingSession.areSimpleJurorsAllowed)
-                                          Text(
-                                            'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
-                                            style: Theme.of(context).textTheme.titleMedium,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        if (votingSessionBundle
-                                            .votingSession.areSimpleJurorsAllowed)
-                                          SizedBox(height: 16),
-                                        CustomTimerCountdown(
-                                            key: ValueKey(
-                                                currentStepDeadline.millisecondsSinceEpoch),
-                                            label: 'Intermission',
-                                            endTime: currentStepDeadline),
-                                      ],
+                                  ),
+                                );
+                              case VotingSessionStatus.work:
+                                final currentStepDeadline =
+                                    votingSessionBundle.votingSession.currentStepDeadline!;
+                                final currentParticipantIndex =
+                                    votingSessionBundle.votingSession.currentParticipantIndex!;
+                                final currentParticipant = votingSessionProcedureBundle
+                                    .includedVotingSessionParticipationsBundles[
+                                        currentParticipantIndex]
+                                    .participationBundle
+                                    .participant;
+                                final currentWork = votingSessionProcedureBundle
+                                    .includedVotingSessionParticipationsBundles[
+                                        currentParticipantIndex]
+                                    .participationBundle
+                                    .work!;
+                                return ListView(
+                                  children: [
+                                    SizedBox(height: 16),
+                                    if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                      Text(
+                                        'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context).textTheme.titleMedium,
+                                      ),
+                                    if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                      Divider(height: 16),
+                                    Center(
+                                      child: CustomTimerCountdown(
+                                        label: 'Jurors are voting',
+                                        endTime: currentStepDeadline,
+                                      ),
                                     ),
-                                  );
-                                case VotingSessionStatus.review:
-                                  final currentStepDeadline =
-                                      votingSessionBundle.votingSession.currentStepDeadline!;
-                                  return ListViewWithCentralWidget(
-                                    centralWidget: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (votingSessionBundle
-                                            .votingSession.areSimpleJurorsAllowed)
-                                          Text(
-                                            'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
-                                            style: Theme.of(context).textTheme.titleMedium,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        if (votingSessionBundle
-                                            .votingSession.areSimpleJurorsAllowed)
-                                          SizedBox(height: 16),
-                                        CustomTimerCountdown(
-                                            key: ValueKey(
-                                                currentStepDeadline.millisecondsSinceEpoch),
-                                            label: 'Jurors are reviewing',
-                                            endTime: currentStepDeadline),
-                                      ],
+                                    Divider(height: 24),
+                                    VotingProcedureWorkDetailsView(
+                                      work: currentWork,
+                                      participant: currentParticipant,
                                     ),
-                                  );
-                                case VotingSessionStatus.ended:
-                                case VotingSessionStatus.cancelled:
-                                  return VoidWidget();
-                              }
-                            },
-                          ),
-                        );
-                    }
-                  },
-                ),
+                                    SizedBox(height: 72),
+                                  ],
+                                );
+                              case VotingSessionStatus.intermission:
+                                final currentStepDeadline =
+                                    votingSessionBundle.votingSession.currentStepDeadline!;
+                                return ListViewWithCentralWidget(
+                                  centralWidget: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                        Text(
+                                          'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                        SizedBox(height: 16),
+                                      CustomTimerCountdown(
+                                          key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
+                                          label: 'Intermission',
+                                          endTime: currentStepDeadline),
+                                    ],
+                                  ),
+                                );
+                              case VotingSessionStatus.review:
+                                final currentStepDeadline =
+                                    votingSessionBundle.votingSession.currentStepDeadline!;
+                                return ListViewWithCentralWidget(
+                                  centralWidget: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                        Text(
+                                          'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                        SizedBox(height: 16),
+                                      CustomTimerCountdown(
+                                          key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
+                                          label: 'Jurors are reviewing',
+                                          endTime: currentStepDeadline),
+                                    ],
+                                  ),
+                                );
+                              case VotingSessionStatus.ended:
+                              case VotingSessionStatus.cancelled:
+                                return VoidWidget();
+                            }
+                          },
+                        ),
+                      );
+                  }
+                },
               ),
             ),
-            floatingActionButton: Builder(
-              builder: (context) {
-                switch (state.status) {
-                  case BlocStatus.initial:
+          ),
+          floatingActionButton: Builder(
+            builder: (context) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return VoidWidget();
+                case (BlocStatus.loading || BlocStatus.failure):
+                  if (state.sourceEvent is OrganizerVotingProcedurePageInit) {
                     return VoidWidget();
-                  case (BlocStatus.loading || BlocStatus.failure):
-                    if (state.sourceEvent
-                        is OrganizerVotingProcedurePageInit) {
-                      return VoidWidget();
-                    } else {
-                      continue successCase;
-                    }
-                  successCase:
-                  case BlocStatus.success:
-                    final votingSessionBundle =
-                        state.votingSessionProcedureBundle!.votingSessionBundle;
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  final votingSessionBundle =
+                      state.votingSessionProcedureBundle!.votingSessionBundle;
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      FilledButton(
+                        onPressed: () {
+                          context.read<OrganizerVotingProcedurePageBloc>().add(
+                                OrganizerVotingProcedurePageCancelVotingSessionProcedure(
+                                  votingSessionId: votingSessionBundle.votingSession.id,
+                                ),
+                              );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.error),
+                        ),
+                        child: Text(
+                          'Cancel procedure',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: Theme.of(context).colorScheme.onError),
+                        ),
+                      ),
+                      if (votingSessionBundle.votingSession.sessionStatus.isReview)
+                        const SizedBox(width: 8),
+                      if (votingSessionBundle.votingSession.sessionStatus.isReview)
                         FilledButton(
                           onPressed: () {
                             context.read<OrganizerVotingProcedurePageBloc>().add(
-                                  OrganizerVotingProcedurePageCancelVotingSessionProcedure(
+                                  OrganizerVotingProcedurePageEndVotingSessionProcedure(
                                     votingSessionId: votingSessionBundle.votingSession.id,
                                   ),
                                 );
                           },
                           style: ButtonStyle(
                             backgroundColor:
-                                WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.error),
+                                WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.green),
                           ),
                           child: Text(
-                            'Cancel procedure',
+                            'End procedure',
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
-                                ?.copyWith(color: Theme.of(context).colorScheme.onError),
+                                ?.copyWith(color: Theme.of(context).colorScheme.onGreen),
                           ),
                         ),
-                        if (votingSessionBundle.votingSession.sessionStatus.isReview)
-                          const SizedBox(width: 8),
-                        if (votingSessionBundle.votingSession.sessionStatus.isReview)
-                          FilledButton(
-                            onPressed: () {
-                              context.read<OrganizerVotingProcedurePageBloc>().add(
-                                    OrganizerVotingProcedurePageEndVotingSessionProcedure(
-                                      votingSessionId: votingSessionBundle.votingSession.id,
-                                    ),
-                                  );
-                            },
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all<Color>(
-                                  Theme.of(context).colorScheme.green),
-                            ),
-                            child: Text(
-                              'End procedure',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(color: Theme.of(context).colorScheme.onGreen),
-                            ),
-                          ),
-                      ],
-                    );
-                }
-              },
-            ),
-          );
-        },
-      ),
+                    ],
+                  );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }

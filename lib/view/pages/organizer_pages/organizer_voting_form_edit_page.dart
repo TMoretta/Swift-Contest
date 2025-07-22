@@ -14,7 +14,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_form_
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class OrganizerVotingFormEditPage extends StatefulWidget {
+class OrganizerVotingFormEditPage extends StatefulWidget implements AutoRouteWrapper {
   final String votingFormId;
 
   const OrganizerVotingFormEditPage({
@@ -24,6 +24,16 @@ class OrganizerVotingFormEditPage extends StatefulWidget {
 
   @override
   State<OrganizerVotingFormEditPage> createState() => _OrganizerVotingFormEditPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OrganizerVotingFormEditPageBloc>(
+      create: (context) => OrganizerVotingFormEditPageBloc(
+        organizerRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPage> {
@@ -39,6 +49,14 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context
+        .read<OrganizerVotingFormEditPageBloc>()
+        .add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId));
+  }
+
+  @override
   void dispose() {
     context.hideLoader();
     super.dispose();
@@ -46,148 +64,141 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerVotingFormEditPageBloc>(
-      create: (context) => OrganizerVotingFormEditPageBloc(organizerRepository: context.read())
-        ..add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId)),
-      child: BlocConsumer<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-          if (state.status.isSuccess &&
-              state.sourceEvent is OrganizerVotingFormEditPageUpdateVotingForm) {
-            showSnackBar(context: context, text: 'Voting form updated successfully');
-            context.router.pop(true);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(
-              title: 'Voting Form',
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Builder(
-                    builder: (context) {
-                      return (isEdited)
-                          ? FilledButton(
-                              onPressed: () {
-                                context.read<OrganizerVotingFormEditPageBloc>().add(
-                                    OrganizerVotingFormEditPageUpdateVotingForm(
-                                        votingFormId: votingFormId,
-                                        votingFormFields: updatedFields));
-                              },
-                              style: FilledButton.styleFrom(
-                                shape:
-                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              ),
-                              child: Text('Save'),
-                            )
-                          : VoidWidget();
-                    },
-                  ),
-                ),
-              ],
-            ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+    return BlocConsumer<OrganizerVotingFormEditPageBloc, OrganizerVotingFormEditPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerVotingFormEditPageUpdateVotingForm) {
+          showSnackBar(context: context, text: 'Voting form updated successfully');
+          context.router.pop(true);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(
+            title: 'Voting Form',
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
                 child: Builder(
                   builder: (context) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
-                        return VoidWidget();
-                      case BlocStatus.loading:
-                        if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      case BlocStatus.failure:
-                        if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
-                          return RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<OrganizerVotingFormEditPageBloc>()
-                                .add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId)),
-                            child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                          );
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        if (!isPageInitialized) {
-                          updatedFields.addAll(state.votingFormBundle!.votingFormFields
-                              .map((e) => VotingFormFieldModel(
-                                    name: e.name,
-                                    minValue: e.minValue,
-                                    maxValue: e.maxValue,
-                                    orderIndex: e.orderIndex,
-                                  )));
-                          isPageInitialized = true;
-                        }
-                        return (updatedFields.isEmpty)
-                            ? ListViewWithCentralLabel(label: 'No field added yet')
-                            : Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: ListView.builder(
-                                  itemCount: updatedFields.length,
-                                  itemBuilder: (context, index) {
-                                    final field = updatedFields[index];
-                                    return Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Card(
-                                          elevation: 0,
-                                          child: ListTile(
-                                            title: Text(field.name!),
-                                            subtitle: Text('${field.minValue} - ${field.maxValue}'),
-                                            trailing: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  isEdited = true;
-                                                  updatedFields.remove(field);
-                                                });
-                                              },
-                                              icon: Icon(Icons.remove),
-                                            ),
-                                          ),
-                                        ),
-                                        if (index == updatedFields.length - 1) SizedBox(height: 72),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              );
-                    }
+                    return (isEdited)
+                        ? FilledButton(
+                            onPressed: () {
+                              context.read<OrganizerVotingFormEditPageBloc>().add(
+                                  OrganizerVotingFormEditPageUpdateVotingForm(
+                                      votingFormId: votingFormId, votingFormFields: updatedFields));
+                            },
+                            style: FilledButton.styleFrom(
+                              shape:
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            child: Text('Save'),
+                          )
+                        : VoidWidget();
                   },
                 ),
               ),
+            ],
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Builder(
+                builder: (context) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return VoidWidget();
+                    case BlocStatus.loading:
+                      if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
+                        return VoidWidget();
+                      } else {
+                        continue successCase;
+                      }
+                    case BlocStatus.failure:
+                      if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
+                        return RefreshIndicator.adaptive(
+                          onRefresh: () async => context
+                              .read<OrganizerVotingFormEditPageBloc>()
+                              .add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId)),
+                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                        );
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
+                      if (!isPageInitialized) {
+                        updatedFields.addAll(state.votingFormBundle!.votingFormFields
+                            .map((e) => VotingFormFieldModel(
+                                  name: e.name,
+                                  minValue: e.minValue,
+                                  maxValue: e.maxValue,
+                                  orderIndex: e.orderIndex,
+                                )));
+                        isPageInitialized = true;
+                      }
+                      return (updatedFields.isEmpty)
+                          ? ListViewWithCentralLabel(label: 'No field added yet')
+                          : Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: ListView.builder(
+                                itemCount: updatedFields.length,
+                                itemBuilder: (context, index) {
+                                  final field = updatedFields[index];
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Card(
+                                        elevation: 0,
+                                        child: ListTile(
+                                          title: Text(field.name!),
+                                          subtitle: Text('${field.minValue} - ${field.maxValue}'),
+                                          trailing: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isEdited = true;
+                                                updatedFields.remove(field);
+                                              });
+                                            },
+                                            icon: Icon(Icons.remove),
+                                          ),
+                                        ),
+                                      ),
+                                      if (index == updatedFields.length - 1) SizedBox(height: 72),
+                                    ],
+                                  );
+                                },
+                              ),
+                            );
+                  }
+                },
+              ),
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                final VotingFormFieldModel? newField = await _showAddFieldDialog(
-                    context: context,
-                    votingFormId: votingFormId,
-                    orderIndex: updatedFields.length);
-                if (newField != null) {
-                  setState(() {
-                    isEdited = true;
-                    updatedFields.add(newField);
-                  });
-                }
-              },
-              elevation: 1,
-              child: Icon(Icons.add),
-            ),
-          );
-        },
-      ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              final VotingFormFieldModel? newField = await _showAddFieldDialog(
+                  context: context, votingFormId: votingFormId, orderIndex: updatedFields.length);
+              if (newField != null) {
+                setState(() {
+                  isEdited = true;
+                  updatedFields.add(newField);
+                });
+              }
+            },
+            elevation: 1,
+            child: Icon(Icons.add),
+          ),
+        );
+      },
     );
   }
 }

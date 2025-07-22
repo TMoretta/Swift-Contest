@@ -13,7 +13,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_resul
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class OrganizerVotingResultDetailsPage extends StatefulWidget {
+class OrganizerVotingResultDetailsPage extends StatefulWidget implements AutoRouteWrapper {
   final String votingSessionId;
 
   const OrganizerVotingResultDetailsPage({
@@ -23,15 +23,33 @@ class OrganizerVotingResultDetailsPage extends StatefulWidget {
 
   @override
   State<OrganizerVotingResultDetailsPage> createState() => _OrganizerVotingResultDetailsPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OrganizerVotingResultDetailsPageBloc>(
+      create: (context) => OrganizerVotingResultDetailsPageBloc(
+        organizerRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResultDetailsPage> {
   late String votingSessionId;
 
   @override
+  void initState() {
+    super.initState();
+    votingSessionId = widget.votingSessionId;
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    votingSessionId = widget.votingSessionId;
+    context
+        .read<OrganizerVotingResultDetailsPageBloc>()
+        .add(OrganizerVotingResultDetailsPageInit(votingSessionId: votingSessionId));
   }
 
   @override
@@ -42,116 +60,110 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerVotingResultDetailsPageBloc>(
-      create: (context) => OrganizerVotingResultDetailsPageBloc(
-        organizerRepository: context.read(),
-      )..add(OrganizerVotingResultDetailsPageInit(votingSessionId: votingSessionId)),
-      child:
-          BlocConsumer<OrganizerVotingResultDetailsPageBloc, OrganizerVotingResultDetailsPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Results'),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DefaultTabController(
-                  length: 3,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 16),
-                      Builder(
-                        builder: (context) {
-                          switch (state.status) {
-                            case BlocStatus.initial:
+    return BlocConsumer<OrganizerVotingResultDetailsPageBloc,
+        OrganizerVotingResultDetailsPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Results'),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DefaultTabController(
+                length: 3,
+                child: Column(
+                  children: [
+                    SizedBox(height: 16),
+                    Builder(
+                      builder: (context) {
+                        switch (state.status) {
+                          case BlocStatus.initial:
+                            return VoidWidget();
+                          case (BlocStatus.loading || BlocStatus.failure):
+                            if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
                               return VoidWidget();
-                            case (BlocStatus.loading || BlocStatus.failure):
-                              if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
-                                return VoidWidget();
-                              } else {
-                                continue successCase;
-                              }
-                            successCase:
-                            case BlocStatus.success:
-                              return Card(
-                                shape:
-                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0.6,
-                                child: TabBar(
-                                  labelColor: Theme.of(context).colorScheme.onPrimary,
-                                  isScrollable: false,
-                                  dividerColor: Colors.transparent,
-                                  tabAlignment: TabAlignment.center,
-                                  splashBorderRadius: BorderRadius.circular(16),
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  indicator: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                  tabs: [
-                                    Tab(text: 'Info'),
-                                    Tab(text: 'Jurors'),
-                                    Tab(text: 'Simple Jurors'),
-                                  ],
+                            } else {
+                              continue successCase;
+                            }
+                          successCase:
+                          case BlocStatus.success:
+                            return Card(
+                              shape:
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              elevation: 0.6,
+                              child: TabBar(
+                                labelColor: Theme.of(context).colorScheme.onPrimary,
+                                isScrollable: false,
+                                dividerColor: Colors.transparent,
+                                tabAlignment: TabAlignment.center,
+                                splashBorderRadius: BorderRadius.circular(16),
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                indicator: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
-                              );
-                          }
-                        },
+                                tabs: [
+                                  Tab(text: 'Info'),
+                                  Tab(text: 'Jurors'),
+                                  Tab(text: 'Simple Jurors'),
+                                ],
+                              ),
+                            );
+                        }
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    Expanded(
+                      child: TabBarView(
+                        physics: NeverScrollableScrollPhysics(),
+                        children: [
+                          OrganizerVotingResultPageInfoTab(votingSessionId: votingSessionId),
+                          OrganizerVotingResultPageJurorsVotesTab(votingSessionId: votingSessionId),
+                          OrganizerVotingResultPageSimpleJurorsVotesTab(
+                              votingSessionId: votingSessionId),
+                        ],
                       ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: TabBarView(
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [
-                            OrganizerVotingResultPageInfoTab(votingSessionId: votingSessionId),
-                            OrganizerVotingResultPageJurorsVotesTab(
-                                votingSessionId: votingSessionId),
-                            OrganizerVotingResultPageSimpleJurorsVotesTab(
-                                votingSessionId: votingSessionId),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            floatingActionButton: Builder(
-              builder: (context) {
-                switch (state.status) {
-                  case BlocStatus.initial:
+          ),
+          floatingActionButton: Builder(
+            builder: (context) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return VoidWidget();
+                case (BlocStatus.loading || BlocStatus.failure):
+                  if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
                     return VoidWidget();
-                  case (BlocStatus.loading || BlocStatus.failure):
-                    if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
-                      return VoidWidget();
-                    } else {
-                      continue successCase;
-                    }
-                  successCase:
-                  case BlocStatus.success:
-                    return FloatingActionButton.extended(
-                      onPressed: () {
-                        context.router.push(
-                            OrganizerVotingResultExportRoute(votingSessionId: votingSessionId));
-                      },
-                      elevation: 1,
-                      label: Text('Export'),
-                    );
-                }
-              },
-            ),
-          );
-        },
-      ),
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  return FloatingActionButton.extended(
+                    onPressed: () {
+                      context.router
+                          .push(OrganizerVotingResultExportRoute(votingSessionId: votingSessionId));
+                    },
+                    elevation: 1,
+                    label: Text('Export'),
+                  );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }

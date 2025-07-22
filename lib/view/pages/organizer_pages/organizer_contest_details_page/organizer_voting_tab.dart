@@ -32,17 +32,6 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final state = context.read<OrganizerContestDetailsPageBloc>().state;
-    if (state.status.isInitial) {
-      context
-          .read<OrganizerContestDetailsPageBloc>()
-          .add(OrganizerContestDetailsPageInit(contestId: contestId));
-    }
-  }
-
-  @override
   void dispose() {
     context.hideLoader();
     super.dispose();

@@ -1,7 +1,7 @@
 CREATE TABLE profiles (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  user_id uuid NOT NULL REFERENCES auth.users(id),
+  user_id uuid NOT NULL UNIQUE REFERENCES auth.users(id),
   full_name varchar NOT NULL,
   pref_role contest_role NOT NULL DEFAULT 'organizer',
   deleted_at timestamptz
@@ -39,11 +39,11 @@ CREATE TABLE contests (
   date_time timestamptz NOT NULL,
   works_submission_start timestamptz NOT NULL,
   works_submission_end timestamptz NOT NULL,
-  place_id uuid NOT NULL REFERENCES places (id),
+  place_id uuid NOT NULL UNIQUE REFERENCES places (id),
   contest_status contest_status NOT NULL,
   images_urls text[] NOT NULL,
   token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('contests', 'token', 14),
-  voting_form_id uuid NOT NULL REFERENCES voting_forms (id),
+  voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
   deleted_at timestamptz
 );
 
@@ -70,7 +70,7 @@ CREATE TABLE participations (
 CREATE TABLE works (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  participation_id uuid NOT NULL REFERENCES participations (id) ON DELETE cascade,
+  participation_id uuid NOT NULL UNIQUE REFERENCES participations (id) ON DELETE cascade,
   name varchar NOT NULL,
   description varchar NOT NULL,
   images_urls text[] NOT NULL,
@@ -103,13 +103,13 @@ CREATE TABLE voting_sessions (
   name varchar NOT NULL,
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   are_simple_jurors_allowed bool NOT NULL,
-  voting_form_id uuid NOT NULL REFERENCES voting_forms (id),
+  voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
   work_timer int NOT NULL,
   intermission_timer int NOT NULL,
   review_timer int NOT NULL,
   token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('voting_sessions', 'token', 14),
   is_geo_restricted bool NOT NULL,
-  geo_res_place_id uuid REFERENCES places (id),
+  geo_res_place_id uuid UNIQUE REFERENCES places (id),
   geo_res_radius int,
   session_status voting_session_status NOT NULL,
   current_participant_index int,
@@ -141,7 +141,8 @@ CREATE TABLE voting_session_exclusions (
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   voting_session_juration_id uuid NOT NULL REFERENCES voting_session_jurations (id),
-  voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id)
+  voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
+  UNIQUE (voting_session_juration_id, voting_session_participation_id)
 );
 
 CREATE TABLE juror_votings (
@@ -149,10 +150,7 @@ CREATE TABLE juror_votings (
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_juration_id uuid NOT NULL REFERENCES voting_session_jurations (id),
   voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
-  UNIQUE (
-    voting_session_juration_id,
-    voting_session_participation_id
-  )
+  UNIQUE (voting_session_juration_id, voting_session_participation_id)
 );
 
 CREATE TABLE juror_votes (
@@ -175,7 +173,8 @@ CREATE TABLE voting_session_simple_jurors (
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   simple_juror_id uuid NOT NULL REFERENCES simple_jurors (id),
-  has_submitted bool NOT NULL DEFAULT false
+  has_submitted bool NOT NULL DEFAULT false,
+  UNIQUE (voting_session_id, simple_juror_id)
 );
 
 CREATE TABLE simple_juror_votings (
@@ -183,10 +182,7 @@ CREATE TABLE simple_juror_votings (
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_simple_juror_id uuid NOT NULL REFERENCES voting_session_simple_jurors (id),
   voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
-  UNIQUE (
-    voting_session_simple_juror_id,
-    voting_session_participation_id
-  )
+  UNIQUE (voting_session_simple_juror_id, voting_session_participation_id)
 );
 
 CREATE TABLE simple_juror_votes (

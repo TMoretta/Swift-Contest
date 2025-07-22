@@ -13,7 +13,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_de
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class ParticipantContestDetailsPage extends StatefulWidget {
+class ParticipantContestDetailsPage extends StatefulWidget implements AutoRouteWrapper {
   final String contestId;
 
   const ParticipantContestDetailsPage({
@@ -23,6 +23,16 @@ class ParticipantContestDetailsPage extends StatefulWidget {
 
   @override
   State<ParticipantContestDetailsPage> createState() => _ParticipantContestDetailsPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<ParticipantContestDetailsPageBloc>(
+      create: (context) => ParticipantContestDetailsPageBloc(
+        participantRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _ParticipantContestDetailsPageState extends State<ParticipantContestDetailsPage> {
@@ -44,100 +54,95 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ParticipantContestDetailsPageBloc>(
-      create: (context) => ParticipantContestDetailsPageBloc(
-        participantRepository: context.read(),
-      ),
-      child: BlocConsumer<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(
-              title: 'Joined contest',
-              actions: [
-                Builder(
-                  builder: (context) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
+    return BlocConsumer<ParticipantContestDetailsPageBloc, ParticipantContestDetailsPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(
+            title: 'Joined contest',
+            actions: [
+              Builder(
+                builder: (context) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return VoidWidget();
+                    case (BlocStatus.loading || BlocStatus.failure):
+                      if (state.sourceEvent is ParticipantContestDetailsPageInit) {
                         return VoidWidget();
-                      case (BlocStatus.loading || BlocStatus.failure):
-                        if (state.sourceEvent is ParticipantContestDetailsPageInit) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        return _Menu(
-                          contestId: contestId,
-                          profileId: profileId,
-                        );
-                    }
-                  },
-                ),
-              ],
-            ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DefaultTabController(
-                  length: 2,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 16),
-                      Builder(
-                        builder: (context) {
-                          switch (state.status) {
-                            case BlocStatus.initial:
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
+                      return _Menu(
+                        contestId: contestId,
+                        profileId: profileId,
+                      );
+                  }
+                },
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DefaultTabController(
+                length: 2,
+                child: Column(
+                  children: [
+                    SizedBox(height: 16),
+                    Builder(
+                      builder: (context) {
+                        switch (state.status) {
+                          case BlocStatus.initial:
+                            return VoidWidget();
+                          case (BlocStatus.loading || BlocStatus.failure):
+                            if (state.sourceEvent is ParticipantContestDetailsPageInit) {
                               return VoidWidget();
-                            case (BlocStatus.loading || BlocStatus.failure):
-                              if (state.sourceEvent is ParticipantContestDetailsPageInit) {
-                                return VoidWidget();
-                              } else {
-                                continue successCase;
-                              }
-                            successCase:
-                            case BlocStatus.success:
-                              return TabBar(
-                                isScrollable: true,
-                                tabAlignment: TabAlignment.center,
-                                indicatorSize: TabBarIndicatorSize.label,
-                                tabs: [
-                                  Tab(text: 'Details'),
-                                  Tab(text: 'Work'),
-                                ],
-                              );
-                          }
-                        },
+                            } else {
+                              continue successCase;
+                            }
+                          successCase:
+                          case BlocStatus.success:
+                            return TabBar(
+                              isScrollable: true,
+                              tabAlignment: TabAlignment.center,
+                              indicatorSize: TabBarIndicatorSize.label,
+                              tabs: [
+                                Tab(text: 'Details'),
+                                Tab(text: 'Work'),
+                              ],
+                            );
+                        }
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    Expanded(
+                      child: TabBarView(
+                        physics: NeverScrollableScrollPhysics(),
+                        children: [
+                          ParticipantDetailsTab(contestId: contestId),
+                          ParticipantWorkTab(contestId: contestId),
+                          // ParticipantVotingTab(contestId: contestId),
+                        ],
                       ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: TabBarView(
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [
-                            ParticipantDetailsTab(contestId: contestId),
-                            ParticipantWorkTab(contestId: contestId),
-                            // ParticipantVotingTab(contestId: contestId),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

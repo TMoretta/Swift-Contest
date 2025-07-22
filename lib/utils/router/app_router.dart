@@ -60,7 +60,19 @@ class AppRouter extends RootStackRouter {
         //   page: EmptyShellRoute('OrganizerHomeRouter'),
         //   children: [
         //     AutoRoute(path: '', page: OrganizerHomeRoute.page, initial: true),
-        //     AutoRoute(path: 'contest-creation', page: OrganizerContestCreationRoute.page),
+        //     // AutoRoute(
+        //     //   path: 'contest-creation',
+        //     //   page: OrganizerContestCreationRoute.page,
+        //     // ),
+        //     AutoRoute(
+        //       path: 'contest-creation',
+        //       page: EmptyShellRoute('OrganizerContestCreationRouter'),
+        //       children: [
+        //         AutoRoute(path: '', page: OrganizerContestCreationRoute.page, initial: true),
+        //         AutoRoute(path: 'place-search', page: PlaceSearchRoute.page),
+        //       ],
+        //     ),
+        //     // AutoRoute(path: 'contest-creation', page: OrganizerContestCreationRoute.page),
         //     AutoRoute(path: 'contest-details/:contestId', page: OrganizerContestDetailsRoute.page),
         //     RedirectRoute(path: '*', redirectTo: ''), // Redirect unmatched paths
         //   ],
@@ -138,17 +150,6 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           path: '/simple-juror-voting-procedure/:votingSessionId/:simpleJurorId',
           page: SimpleJurorVotingProcedureRoute.page,
-        ),
-
-        //region Admin pages
-        AutoRoute(
-          path: '/admin/sign-in',
-          page: AdminSignInRoute.page,
-        ),
-
-        AutoRoute(
-          path: '/admin/home',
-          page: AdminHomeRoute.page,
         ),
       ];
 }

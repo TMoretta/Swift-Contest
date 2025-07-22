@@ -7,6 +7,7 @@ class Message extends Equatable {
   final String title;
   final String body;
   final bool isRead;
+  final DateTime? deletedAt;
 
   const Message({
     required this.id,
@@ -15,6 +16,7 @@ class Message extends Equatable {
     required this.title,
     required this.body,
     required this.isRead,
+    required this.deletedAt,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,8 @@ class Message extends Equatable {
       title: json['title'] as String,
       body: json['body'] as String,
       isRead: json['is_read'] as bool,
+      deletedAt: (json['deleted_at'] != null)
+          ? DateTime.parse(json['deleted_at']).toLocal() : null,
     );
   }
 
@@ -36,6 +40,7 @@ class Message extends Equatable {
       'title': title,
       'body': body,
       'is_read': isRead,
+      'deleted_at': deletedAt?.toUtc().toIso8601String(),
     };
   }
 
@@ -46,6 +51,7 @@ class Message extends Equatable {
     String? title,
     String? body,
     bool? isRead,
+    DateTime? deletedAt,
   }) {
     return Message(
       id: id ?? this.id,
@@ -54,6 +60,7 @@ class Message extends Equatable {
       title: title ?? this.title,
       body: body ?? this.body,
       isRead: isRead ?? this.isRead,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -65,6 +72,7 @@ class Message extends Equatable {
         title,
         body,
         isRead,
+        deletedAt,
       ];
 }
 
@@ -75,6 +83,7 @@ class MessageModel extends Equatable {
   final String? title;
   final String? body;
   final bool? isRead;
+  final DateTime? deletedAt;
 
   const MessageModel({
     this.id,
@@ -83,6 +92,7 @@ class MessageModel extends Equatable {
     this.title,
     this.body,
     this.isRead,
+    this.deletedAt,
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
@@ -95,6 +105,8 @@ class MessageModel extends Equatable {
       title: json['title'] as String?,
       body: json['body'] as String?,
       isRead: json['is_read'] as bool?,
+      deletedAt: (json['deleted_at'] != null)
+          ? DateTime.parse(json['deleted_at']).toLocal() : null,
     );
   }
 
@@ -106,6 +118,7 @@ class MessageModel extends Equatable {
       'title': title,
       'body': body,
       'is_read': isRead,
+      'deleted_at': deletedAt?.toUtc().toIso8601String(),
     };
   }
 
@@ -117,5 +130,6 @@ class MessageModel extends Equatable {
         title,
         body,
         isRead,
+        deletedAt,
       ];
 }

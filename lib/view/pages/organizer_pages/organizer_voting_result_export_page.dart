@@ -23,7 +23,7 @@ import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 
 @RoutePage()
-class OrganizerVotingResultExportPage extends StatefulWidget {
+class OrganizerVotingResultExportPage extends StatefulWidget implements AutoRouteWrapper {
   final String votingSessionId;
 
   const OrganizerVotingResultExportPage({
@@ -33,6 +33,16 @@ class OrganizerVotingResultExportPage extends StatefulWidget {
 
   @override
   State<OrganizerVotingResultExportPage> createState() => _OrganizerVotingResultExportPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OrganizerVotingResultExportPageBloc>(
+      create: (context) => OrganizerVotingResultExportPageBloc(
+        organizerRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultExportPage> {
@@ -49,6 +59,14 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context
+        .read<OrganizerVotingResultExportPageBloc>()
+        .add(OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
+  }
+
+  @override
   void dispose() {
     context.hideLoader();
     super.dispose();
@@ -56,363 +74,354 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerVotingResultExportPageBloc>(
-      create: (context) => OrganizerVotingResultExportPageBloc(
-        organizerRepository: context.read(),
-      )..add(OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId)),
-      child:
-          BlocConsumer<OrganizerVotingResultExportPageBloc, OrganizerVotingResultExportPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Export'),
-            body: Builder(
-              builder: (context) {
-                switch (state.status) {
-                  case BlocStatus.initial:
+    return BlocConsumer<OrganizerVotingResultExportPageBloc, OrganizerVotingResultExportPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Export'),
+          body: Builder(
+            builder: (context) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return VoidWidget();
+                case BlocStatus.loading:
+                  if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
                     return VoidWidget();
-                  case BlocStatus.loading:
-                    if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
-                      return VoidWidget();
-                    } else {
-                      continue successCase;
-                    }
-                  case BlocStatus.failure:
-                    if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
-                      return RefreshIndicator.adaptive(
-                        onRefresh: () async {
-                          context.read<OrganizerVotingResultExportPageBloc>().add(
-                              OrganizerVotingResultExportPageInit(
-                                  votingSessionId: votingSessionId));
-                        },
-                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                      );
-                    }
+                  } else {
                     continue successCase;
-                  successCase:
-                  case BlocStatus.success:
-                    final votingSessionResultBundle = state.votingSessionResultBundle!;
-                    final votingFormFields =
-                        votingSessionResultBundle.votingFormBundle.votingFormFields;
-                    // Ottengo la lista di participation bundles dei partecipanti non esclusi
-                    final participationsBundles = votingSessionResultBundle
-                        .votingSessionParticipationsBundles
-                        .where((e) => !e.votingSessionParticipation.isExcluded)
-                        .map((e) => e.participationBundle)
-                        .toList(growable: false);
-                    // Ottengo la lista di giurati non esclusi e che hanno inviato i voti
-                    final jurationsBundles = votingSessionResultBundle.votingSessionJurationsBundles
-                        .where((e) =>
-                            !e.votingSessionJuration.isExcluded &&
-                            e.votingSessionJuration.hasSubmitted)
-                        .map((e) => e.jurationBundle)
-                        .toList(growable: false);
-                    // Ottengo la lista di giurati semplici che hanno inviato i voti
-                    final simpleJurors = votingSessionResultBundle.votingSessionSimpleJurorsBundles
-                        .where((e) => e.votingSessionSimpleJuror.hasSubmitted)
-                        .map((e) => e.simpleJuror)
-                        .toList(growable: false);
-                    return ListView(
-                      children: [
-                        SizedBox(height: 16),
-                        // Selezione partecipanti
-                        MultiSelectDialogField<ParticipationBundle>(
-                          items: participationsBundles
-                              .map((e) => MultiSelectItem(e, e.participant.fullName))
-                              .toList(growable: false),
-                          title: Text('Participants'),
-                          buttonText: Text('Select participants'),
-                          initialValue: selectedParticipationsBundles,
-                          onConfirm: (values) {
-                            setState(() {
-                              selectedParticipationsBundles = values;
-                            });
-                          },
-                          listType: MultiSelectListType.LIST,
-                          dialogHeight: 250,
-                          selectedColor: Theme.of(context).colorScheme.primary,
-                          itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                          selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                          checkColor: Theme.of(context).colorScheme.onPrimary,
-                        ),
-
-                        SizedBox(height: 20),
-
-                        // Selezione giurati
-                        if (jurationsBundles.isNotEmpty)
-                          MultiSelectDialogField<JurationBundle>(
-                            items: jurationsBundles
-                                .map((e) => MultiSelectItem(e, e.juror.fullName))
-                                .toList(growable: false),
-                            title: Text('Jurors'),
-                            buttonText: Text('Select jurors'),
-                            initialValue: selectedJurationsBundles,
-                            onConfirm: (values) {
-                              setState(() {
-                                selectedJurationsBundles = values;
-                              });
-                            },
-                            listType: MultiSelectListType.LIST,
-                            dialogHeight: 250,
-                            selectedColor: Theme.of(context).colorScheme.primary,
-                            itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                            selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                            checkColor: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        if (jurationsBundles.isNotEmpty) SizedBox(height: 20),
-
-                        // Selezione giurati semplici
-                        if (simpleJurors.isNotEmpty)
-                          MultiSelectDialogField<SimpleJuror>(
-                            items: simpleJurors
-                                .map((e) => MultiSelectItem(e, e.fullName))
-                                .toList(growable: false),
-                            title: Text('Simple jurors'),
-                            buttonText: Text('Select simple jurors'),
-                            initialValue: selectedSimpleJurors,
-                            onConfirm: (values) {
-                              setState(() {
-                                selectedSimpleJurors = values;
-                              });
-                            },
-                            listType: MultiSelectListType.LIST,
-                            dialogHeight: 250,
-                            selectedColor: Theme.of(context).colorScheme.primary,
-                            itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                            selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                            checkColor: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        if (simpleJurors.isNotEmpty) SizedBox(height: 20),
-
-                        // Selezione campi del form
-                        MultiSelectDialogField<VotingFormField>(
-                          items: votingFormFields.map((f) => MultiSelectItem(f, f.name)).toList(),
-                          title: Text('Fields'),
-                          buttonText: Text('Select fields'),
-                          initialValue: selectedFields,
-                          onConfirm: (values) {
-                            setState(() {
-                              selectedFields = values;
-                            });
-                          },
-                          listType: MultiSelectListType.LIST,
-                          dialogHeight: 250,
-                          selectedColor: Theme.of(context).colorScheme.primary,
-                          itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                          selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-                          checkColor: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ],
+                  }
+                case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async {
+                        context.read<OrganizerVotingResultExportPageBloc>().add(
+                            OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
+                      },
+                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
-                }
-              },
-            ),
-            floatingActionButton: Builder(
-              builder: (context) {
-                switch (state.status) {
-                  case BlocStatus.initial:
-                    return VoidWidget();
-                  case BlocStatus.loading:
-                    return VoidWidget();
-                  case BlocStatus.failure:
-                    if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
-                      return RefreshIndicator.adaptive(
-                        onRefresh: () async {
-                          context.read<OrganizerVotingResultExportPageBloc>().add(
-                              OrganizerVotingResultExportPageInit(
-                                  votingSessionId: votingSessionId));
+                  }
+                  continue successCase;
+                successCase:
+                case BlocStatus.success:
+                  final votingSessionResultBundle = state.votingSessionResultBundle!;
+                  final votingFormFields =
+                      votingSessionResultBundle.votingFormBundle.votingFormFields;
+                  // Ottengo la lista di participation bundles dei partecipanti non esclusi
+                  final participationsBundles = votingSessionResultBundle
+                      .votingSessionParticipationsBundles
+                      .where((e) => !e.votingSessionParticipation.isExcluded)
+                      .map((e) => e.participationBundle)
+                      .toList(growable: false);
+                  // Ottengo la lista di giurati non esclusi e che hanno inviato i voti
+                  final jurationsBundles = votingSessionResultBundle.votingSessionJurationsBundles
+                      .where((e) =>
+                          !e.votingSessionJuration.isExcluded &&
+                          e.votingSessionJuration.hasSubmitted)
+                      .map((e) => e.jurationBundle)
+                      .toList(growable: false);
+                  // Ottengo la lista di giurati semplici che hanno inviato i voti
+                  final simpleJurors = votingSessionResultBundle.votingSessionSimpleJurorsBundles
+                      .where((e) => e.votingSessionSimpleJuror.hasSubmitted)
+                      .map((e) => e.simpleJuror)
+                      .toList(growable: false);
+                  return ListView(
+                    children: [
+                      SizedBox(height: 16),
+                      // Selezione partecipanti
+                      MultiSelectDialogField<ParticipationBundle>(
+                        items: participationsBundles
+                            .map((e) => MultiSelectItem(e, e.participant.fullName))
+                            .toList(growable: false),
+                        title: Text('Participants'),
+                        buttonText: Text('Select participants'),
+                        initialValue: selectedParticipationsBundles,
+                        onConfirm: (values) {
+                          setState(() {
+                            selectedParticipationsBundles = values;
+                          });
                         },
-                        child: ListView(),
-                      );
-                    }
-                    continue successCase;
-                  successCase:
-                  case BlocStatus.success:
-                    final votingSessionResultBundle = state.votingSessionResultBundle!;
-                    final jurorsVotingsPerParticipantMap =
-                        votingSessionResultBundle.jurorsVotingsPerParticipantMap;
-                    final simpleJurorsVotingsPerParticipantMap =
-                        votingSessionResultBundle.simpleJurorsVotingsPerParticipantMap;
-                    return FloatingActionButton(
-                      onPressed: () async {
-                        if (selectedFields.isEmpty ||
-                            (selectedJurationsBundles.isEmpty && selectedSimpleJurors.isEmpty) ||
-                            selectedParticipationsBundles.isEmpty) {
-                          showSnackBar(
-                              context: context,
-                              text:
-                                  'Select at least one field, one juror or simple juror, and one participant');
-                          return;
+                        listType: MultiSelectListType.LIST,
+                        dialogHeight: 250,
+                        selectedColor: Theme.of(context).colorScheme.primary,
+                        itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                        selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                        checkColor: Theme.of(context).colorScheme.onPrimary,
+                      ),
+
+                      SizedBox(height: 20),
+
+                      // Selezione giurati
+                      if (jurationsBundles.isNotEmpty)
+                        MultiSelectDialogField<JurationBundle>(
+                          items: jurationsBundles
+                              .map((e) => MultiSelectItem(e, e.juror.fullName))
+                              .toList(growable: false),
+                          title: Text('Jurors'),
+                          buttonText: Text('Select jurors'),
+                          initialValue: selectedJurationsBundles,
+                          onConfirm: (values) {
+                            setState(() {
+                              selectedJurationsBundles = values;
+                            });
+                          },
+                          listType: MultiSelectListType.LIST,
+                          dialogHeight: 250,
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                          itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                          selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                          checkColor: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      if (jurationsBundles.isNotEmpty) SizedBox(height: 20),
+
+                      // Selezione giurati semplici
+                      if (simpleJurors.isNotEmpty)
+                        MultiSelectDialogField<SimpleJuror>(
+                          items: simpleJurors
+                              .map((e) => MultiSelectItem(e, e.fullName))
+                              .toList(growable: false),
+                          title: Text('Simple jurors'),
+                          buttonText: Text('Select simple jurors'),
+                          initialValue: selectedSimpleJurors,
+                          onConfirm: (values) {
+                            setState(() {
+                              selectedSimpleJurors = values;
+                            });
+                          },
+                          listType: MultiSelectListType.LIST,
+                          dialogHeight: 250,
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                          itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                          selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                          checkColor: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      if (simpleJurors.isNotEmpty) SizedBox(height: 20),
+
+                      // Selezione campi del form
+                      MultiSelectDialogField<VotingFormField>(
+                        items: votingFormFields.map((f) => MultiSelectItem(f, f.name)).toList(),
+                        title: Text('Fields'),
+                        buttonText: Text('Select fields'),
+                        initialValue: selectedFields,
+                        onConfirm: (values) {
+                          setState(() {
+                            selectedFields = values;
+                          });
+                        },
+                        listType: MultiSelectListType.LIST,
+                        dialogHeight: 250,
+                        selectedColor: Theme.of(context).colorScheme.primary,
+                        itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                        selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
+                        checkColor: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ],
+                  );
+              }
+            },
+          ),
+          floatingActionButton: Builder(
+            builder: (context) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return VoidWidget();
+                case BlocStatus.loading:
+                  return VoidWidget();
+                case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async {
+                        context.read<OrganizerVotingResultExportPageBloc>().add(
+                            OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
+                      },
+                      child: ListView(),
+                    );
+                  }
+                  continue successCase;
+                successCase:
+                case BlocStatus.success:
+                  final votingSessionResultBundle = state.votingSessionResultBundle!;
+                  final jurorsVotingsPerParticipantMap =
+                      votingSessionResultBundle.jurorsVotingsPerParticipantMap;
+                  final simpleJurorsVotingsPerParticipantMap =
+                      votingSessionResultBundle.simpleJurorsVotingsPerParticipantMap;
+                  return FloatingActionButton(
+                    onPressed: () async {
+                      if (selectedFields.isEmpty ||
+                          (selectedJurationsBundles.isEmpty && selectedSimpleJurors.isEmpty) ||
+                          selectedParticipationsBundles.isEmpty) {
+                        showSnackBar(
+                            context: context,
+                            text:
+                                'Select at least one field, one juror or simple juror, and one participant');
+                        return;
+                      }
+
+                      if (!await requestStoragePermission()) {
+                        if (context.mounted) {
+                          showSnackBar(context: context, text: 'Permission denied');
                         }
+                        return;
+                      }
 
-                        if (!await requestStoragePermission()) {
-                          if (context.mounted) {
-                            showSnackBar(context: context, text: 'Permission denied');
-                          }
-                          return;
-                        }
+                      final xlsio.Workbook workbook = xlsio.Workbook();
+                      final xlsio.Worksheet sheet = workbook.worksheets[0];
+                      sheet.name = 'Results';
 
-                        final xlsio.Workbook workbook = xlsio.Workbook();
-                        final xlsio.Worksheet sheet = workbook.worksheets[0];
-                        sheet.name = 'Results';
+                      // 3) Costruisci i dati di header
+                      // Riga 1: merged cell per i partecipanti
+                      sheet.getRangeByIndex(1, 1).setText('Jurors');
+                      int rowIndex = 1;
+                      int colIndex = 2;
+                      for (var participationBundle in selectedParticipationsBundles) {
+                        int start = colIndex;
+                        int end = colIndex + selectedFields.length - 1;
+                        sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
+                        sheet
+                            .getRangeByIndex(rowIndex, start)
+                            .setText(participationBundle.participant.fullName);
+                        sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
+                            xlsio.HAlignType.center;
+                        colIndex = end + 1;
+                      }
 
-                        // 3) Costruisci i dati di header
-                        // Riga 1: merged cell per i partecipanti
-                        sheet.getRangeByIndex(1, 1).setText('Jurors');
-                        int rowIndex = 1;
-                        int colIndex = 2;
-                        for (var participationBundle in selectedParticipationsBundles) {
-                          int start = colIndex;
-                          int end = colIndex + selectedFields.length - 1;
-                          sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
-                          sheet
-                              .getRangeByIndex(rowIndex, start)
-                              .setText(participationBundle.participant.fullName);
-                          sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
+                      ++rowIndex;
+                      // Riga 2: nomi dei campi
+                      colIndex = 2;
+                      for (int i = 0; i < selectedParticipationsBundles.length; i++) {
+                        for (var field in selectedFields) {
+                          sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
+                          sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
                               xlsio.HAlignType.center;
-                          colIndex = end + 1;
+                          colIndex++;
                         }
+                      }
 
-                        ++rowIndex;
-                        // Riga 2: nomi dei campi
-                        colIndex = 2;
-                        for (int i = 0; i < selectedParticipationsBundles.length; i++) {
-                          for (var field in selectedFields) {
-                            sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
-                            sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
-                                xlsio.HAlignType.center;
-                            colIndex++;
-                          }
-                        }
+                      ++rowIndex;
 
-                        ++rowIndex;
-
-                        // 4) Scrivi il corpo dati
-                        for (var jurationBundle in selectedJurationsBundles) {
-                          sheet.getRangeByIndex(rowIndex, 1).setText(jurationBundle.juror.fullName);
-                          colIndex = 2;
-                          for (var participationBundle in selectedParticipationsBundles) {
-                            for (int i = 0; i < selectedFields.length; i++) {
-                              final jurorVoteBundle = jurorsVotingsPerParticipantMap[
-                                  participationBundle]![jurationBundle]?[i];
-                              if (jurorVoteBundle != null) {
-                                sheet
-                                    .getRangeByIndex(rowIndex, colIndex)
-                                    .setText(jurorVoteBundle.jurorVote.value.toString());
-                                colIndex++;
-                              } else {
-                                sheet.getRangeByIndex(rowIndex, colIndex).setText('Excluded');
-                                colIndex++;
-                              }
-                            }
-                          }
-                          ++rowIndex;
-                        }
-
-
-                        ++rowIndex;
-                        ++rowIndex;
-
-                        //* Simple Jurors
-                        sheet.getRangeByIndex(rowIndex, 1).setText('Simple jurors');
-                        // headers
+                      // 4) Scrivi il corpo dati
+                      for (var jurationBundle in selectedJurationsBundles) {
+                        sheet.getRangeByIndex(rowIndex, 1).setText(jurationBundle.juror.fullName);
                         colIndex = 2;
                         for (var participationBundle in selectedParticipationsBundles) {
-                          int start = colIndex;
-                          int end = colIndex + selectedFields.length - 1;
-                          sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
-                          sheet
-                              .getRangeByIndex(rowIndex, start)
-                              .setText(participationBundle.participant.fullName);
-                          sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
-                              xlsio.HAlignType.center;
-                          colIndex = end + 1;
-                        }
-
-                        ++rowIndex;
-                        // Riga 2: nomi dei campi
-                        colIndex = 2;
-                        for (int i = 0; i < selectedParticipationsBundles.length; i++) {
-                          for (var field in selectedFields) {
-                            sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
-                            sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
-                                xlsio.HAlignType.center;
-                            colIndex++;
-                          }
-                        }
-
-                        ++rowIndex;
-
-                        for (var simpleJuror in selectedSimpleJurors) {
-                          sheet.getRangeByIndex(rowIndex, 1).setText(simpleJuror.fullName);
-                          colIndex = 2;
-                          for (var participationBundle in selectedParticipationsBundles) {
-                            for (int i = 0; i < selectedFields.length; i++) {
-                              final simpleJurorVoteBundle = simpleJurorsVotingsPerParticipantMap[
-                                  participationBundle]![simpleJuror]![i];
+                          for (int i = 0; i < selectedFields.length; i++) {
+                            final jurorVoteBundle =
+                                jurorsVotingsPerParticipantMap[participationBundle]![jurationBundle]
+                                    ?[i];
+                            if (jurorVoteBundle != null) {
                               sheet
                                   .getRangeByIndex(rowIndex, colIndex)
-                                  .setText(simpleJurorVoteBundle.simpleJurorVote.value.toString());
+                                  .setText(jurorVoteBundle.jurorVote.value.toString());
+                              colIndex++;
+                            } else {
+                              sheet.getRangeByIndex(rowIndex, colIndex).setText('Excluded');
                               colIndex++;
                             }
                           }
-                          ++rowIndex;
+                        }
+                        ++rowIndex;
+                      }
+
+                      ++rowIndex;
+                      ++rowIndex;
+
+                      //* Simple Jurors
+                      sheet.getRangeByIndex(rowIndex, 1).setText('Simple jurors');
+                      // headers
+                      colIndex = 2;
+                      for (var participationBundle in selectedParticipationsBundles) {
+                        int start = colIndex;
+                        int end = colIndex + selectedFields.length - 1;
+                        sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
+                        sheet
+                            .getRangeByIndex(rowIndex, start)
+                            .setText(participationBundle.participant.fullName);
+                        sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
+                            xlsio.HAlignType.center;
+                        colIndex = end + 1;
+                      }
+
+                      ++rowIndex;
+                      // Riga 2: nomi dei campi
+                      colIndex = 2;
+                      for (int i = 0; i < selectedParticipationsBundles.length; i++) {
+                        for (var field in selectedFields) {
+                          sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
+                          sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
+                              xlsio.HAlignType.center;
+                          colIndex++;
+                        }
+                      }
+
+                      ++rowIndex;
+
+                      for (var simpleJuror in selectedSimpleJurors) {
+                        sheet.getRangeByIndex(rowIndex, 1).setText(simpleJuror.fullName);
+                        colIndex = 2;
+                        for (var participationBundle in selectedParticipationsBundles) {
+                          for (int i = 0; i < selectedFields.length; i++) {
+                            final simpleJurorVoteBundle = simpleJurorsVotingsPerParticipantMap[
+                                participationBundle]![simpleJuror]![i];
+                            sheet
+                                .getRangeByIndex(rowIndex, colIndex)
+                                .setText(simpleJurorVoteBundle.simpleJurorVote.value.toString());
+                            colIndex++;
+                          }
+                        }
+                        ++rowIndex;
+                      }
+
+                      try {
+                        final directory = await ExternalPath.getExternalStoragePublicDirectory(
+                            ExternalPath.DIRECTORY_DOWNLOAD);
+                        final baseName =
+                            state.votingSessionResultBundle!.votingSessionBundle.votingSession.name;
+                        final extension = '.xlsx';
+
+                        String safeFilename;
+                        int count = 0;
+                        do {
+                          safeFilename =
+                              (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
+                          count++;
+                        } while (await File('$directory/$safeFilename').exists());
+
+                        final path = '$directory/$safeFilename';
+
+                        final fileBytes = workbook.saveAsStream();
+                        workbook.dispose();
+
+                        final file = File(path);
+                        await file.writeAsBytes(fileBytes, flush: true);
+
+                        if (context.mounted) {
+                          showSnackBar(
+                              context: context,
+                              text: 'File successfully saved in "Downloads" folder');
                         }
 
-                        try {
-                          final directory = await ExternalPath.getExternalStoragePublicDirectory(
-                              ExternalPath.DIRECTORY_DOWNLOAD);
-                          final baseName = state
-                              .votingSessionResultBundle!.votingSessionBundle.votingSession.name;
-                          final extension = '.xlsx';
-
-                          String safeFilename;
-                          int count = 0;
-                          do {
-                            safeFilename = (count == 0)
-                                ? '$baseName$extension'
-                                : '$baseName ($count)$extension';
-                            count++;
-                          } while (await File('$directory/$safeFilename').exists());
-
-                          final path = '$directory/$safeFilename';
-
-                          final fileBytes = workbook.saveAsStream();
-                          workbook.dispose();
-
-                          final file = File(path);
-                          await file.writeAsBytes(fileBytes, flush: true);
-
-                          if (context.mounted) {
-                            showSnackBar(
-                                context: context,
-                                text: 'File successfully saved in "Downloads" folder');
-                          }
-
-                          OpenFile.open(path, type: MediaTypes.mapExtension(extension));
-                        } catch (e) {
-                          if (context.mounted) {
-                            showSnackBar(context: context, text: Labels.anErrorOccurred);
-                          }
+                        OpenFile.open(path, type: MediaTypes.mapExtension(extension));
+                      } catch (e) {
+                        if (context.mounted) {
+                          showSnackBar(context: context, text: Labels.anErrorOccurred);
                         }
-                      },
-                      child: Icon(Icons.download),
-                    );
-                }
-              },
-            ),
-          );
-        },
-      ),
+                      }
+                    },
+                    child: Icon(Icons.download),
+                  );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }

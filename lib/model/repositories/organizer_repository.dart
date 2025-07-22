@@ -6,6 +6,7 @@ import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
+import 'package:swift_contest/model/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/bundles/voting_session_result_bundle.dart';
 import 'package:swift_contest/model/data_models/contest.dart';
 import 'package:swift_contest/model/data_models/invitation.dart';
@@ -100,6 +101,10 @@ abstract interface class OrganizerRepository {
   });
 
   Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   });
 }
@@ -517,6 +522,27 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
         return left(Failure(message: 'Voting session not found'));
       }
       return right(VotingSessionResultBundle.fromRpcJson(res.first));
+    } on SocketException {
+      return left(Failure(message: 'Network error'));
+    } on PostgrestException catch (e) {
+      return left(Failure(message: e.message));
+    } catch (e) {
+      return left(Failure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> res = await _supabase.rpc(
+          'organizer_get_voting_session_procedure_bundle',
+          params: {'p_voting_session_id': votingSessionId});
+      if (res.isEmpty) {
+        return left(Failure(message: 'Voting session not found'));
+      }
+      return right(VotingSessionProcedureBundle.fromRpcJson(res.first));
     } on SocketException {
       return left(Failure(message: 'Network error'));
     } on PostgrestException catch (e) {

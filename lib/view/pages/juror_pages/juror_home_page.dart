@@ -18,11 +18,21 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/j
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class JurorHomePage extends StatefulWidget {
+class JurorHomePage extends StatefulWidget implements AutoRouteWrapper {
   const JurorHomePage({super.key});
 
   @override
   State<JurorHomePage> createState() => _JurorHomePageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<JurorHomePageBloc>(
+      create: (context) => JurorHomePageBloc(
+        jurorRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _JurorHomePageState extends State<JurorHomePage> {
@@ -41,6 +51,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     profileId = context.read<AuthBloc>().state.profile!.id;
+    context.read<JurorHomePageBloc>().add(JurorHomePageInit());
   }
 
   @override
@@ -53,136 +64,130 @@ class _JurorHomePageState extends State<JurorHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<JurorHomePageBloc>(
-      create: (context) => JurorHomePageBloc(jurorRepository: context.read())
-        ..add(JurorHomePageInit()),
-      child: BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: HomePageAppBar(
-              contestRole: ContestRole.juror,
-            ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Builder(
-                  builder: (context) {
-                    switch (state.status) {
-                      case BlocStatus.initial:
+    return BlocConsumer<JurorHomePageBloc, JurorHomePageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: HomePageAppBar(
+            contestRole: ContestRole.juror,
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Builder(
+                builder: (context) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return VoidWidget();
+                    case BlocStatus.loading:
+                      if (state.sourceEvent is JurorHomePageInit) {
                         return VoidWidget();
-                      case BlocStatus.loading:
-                        if (state.sourceEvent is JurorHomePageInit) {
-                          return VoidWidget();
-                        } else {
-                          continue successCase;
-                        }
-                      case BlocStatus.failure:
-                        if (state.sourceEvent is JurorHomePageInit) {
-                          return RefreshIndicator.adaptive(
-                            onRefresh: () async => context
-                                .read<JurorHomePageBloc>()
-                                .add(JurorHomePageInit()),
-                            child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                          );
-                        } else {
-                          continue successCase;
-                        }
-                      successCase:
-                      case BlocStatus.success:
-                        return Column(
-                          children: [
-                            SizedBox(height: 16),
-                            CustomSearchBar(
-                              controller: _searchController,
-                              focusNode: _searchFocusNode,
-                              onChanged: (value) {
-                                context.read<JurorHomePageBloc>().add(
-                                    JurorHomePageFilterResults(
-                                        query: value));
-                              },
-                            ),
-                            Expanded(
-                              child: RefreshIndicator.adaptive(
-                                onRefresh: () async {
-                                  context
-                                      .read<JurorHomePageBloc>()
-                                      .add(JurorHomePageRefresh());
-                                  context.read<AuthBloc>().add(AuthFetchProfileMessages());
-                                },
-                                child: (state.filteredContestsBundles!.isNotEmpty)
-                                    ? ListView(
-                                        children: [
-                                          SizedBox(height: 16),
-                                          ...state.filteredContestsBundles!.map((homeContestBundle) {
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                ContestCard(
-                                                  homeContestBundle: homeContestBundle,
-                                                  onTap: () async {
-                                                    final bool? res = await context.router.push(
-                                                        JurorContestDetailsRoute(
-                                                            contestId: homeContestBundle.contest.id));
-                                                    if (res == true) {
-                                                      if (context.mounted) {
-                                                        context.read<JurorHomePageBloc>().add(
-                                                            JurorHomePageRefresh());
-                                                      }
-                                                    }
-                                                  },
-                                                ),
-                                                SizedBox(height: 8),
-                                              ],
-                                            );
-                                          }),
-                                          SizedBox(height: 64),
-                                        ],
-                                      )
-                                    : ListViewWithCentralLabel(label: 'No contest'),
-                              ),
-                            ),
-                          ],
+                      } else {
+                        continue successCase;
+                      }
+                    case BlocStatus.failure:
+                      if (state.sourceEvent is JurorHomePageInit) {
+                        return RefreshIndicator.adaptive(
+                          onRefresh: () async =>
+                              context.read<JurorHomePageBloc>().add(JurorHomePageInit()),
+                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
-                    }
-                  },
-                ),
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
+                      return Column(
+                        children: [
+                          SizedBox(height: 16),
+                          CustomSearchBar(
+                            controller: _searchController,
+                            focusNode: _searchFocusNode,
+                            onChanged: (value) {
+                              context
+                                  .read<JurorHomePageBloc>()
+                                  .add(JurorHomePageFilterResults(query: value));
+                            },
+                          ),
+                          Expanded(
+                            child: RefreshIndicator.adaptive(
+                              onRefresh: () async {
+                                context.read<JurorHomePageBloc>().add(JurorHomePageRefresh());
+                                context.read<AuthBloc>().add(AuthFetchProfileMessages());
+                              },
+                              child: (state.filteredContestsBundles!.isNotEmpty)
+                                  ? ListView(
+                                      children: [
+                                        SizedBox(height: 16),
+                                        ...state.filteredContestsBundles!.map((homeContestBundle) {
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ContestCard(
+                                                homeContestBundle: homeContestBundle,
+                                                onTap: () async {
+                                                  final bool? res = await context.router.push(
+                                                      JurorContestDetailsRoute(
+                                                          contestId: homeContestBundle.contest.id));
+                                                  if (res == true) {
+                                                    if (context.mounted) {
+                                                      context
+                                                          .read<JurorHomePageBloc>()
+                                                          .add(JurorHomePageRefresh());
+                                                    }
+                                                  }
+                                                },
+                                              ),
+                                              SizedBox(height: 8),
+                                            ],
+                                          );
+                                        }),
+                                        SizedBox(height: 64),
+                                      ],
+                                    )
+                                  : ListViewWithCentralLabel(label: 'No contest'),
+                            ),
+                          ),
+                        ],
+                      );
+                  }
+                },
               ),
             ),
-            floatingActionButton: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FilledButton(
-                  onPressed: () {
-                    _showVoteAsSimpleJurorDialog(context: context, profileId: profileId);
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-                    foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                  ),
-                  child: Text('Vote as simple juror'),
+          ),
+          floatingActionButton: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  _showVoteAsSimpleJurorDialog(context: context, profileId: profileId);
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                  foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
                 ),
-                FilledButton(
-                  onPressed: () {
-                    _showJoinContestDialog(context: context, profileId: profileId);
-                  },
-                  child: Text('Join contest'),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                child: Text('Vote as simple juror'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  _showJoinContestDialog(context: context, profileId: profileId);
+                },
+                child: Text('Join contest'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

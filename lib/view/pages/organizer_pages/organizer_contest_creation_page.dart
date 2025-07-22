@@ -21,11 +21,22 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_crea
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class OrganizerContestCreationPage extends StatefulWidget {
+class OrganizerContestCreationPage extends StatefulWidget implements AutoRouteWrapper {
   const OrganizerContestCreationPage({super.key});
 
   @override
   State<OrganizerContestCreationPage> createState() => _OrganizerContestCreationPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OrganizerContestCreationPageBloc>(
+      create: (context) => OrganizerContestCreationPageBloc(
+        storageRepository: context.read(),
+        organizerRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _OrganizerContestCreationPageState extends State<OrganizerContestCreationPage> {
@@ -88,95 +99,89 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerContestCreationPageBloc>(
-      create: (context) => OrganizerContestCreationPageBloc(
-        storageRepository: context.read(),
-        organizerRepository: context.read(),
-      ),
-      child: BlocConsumer<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-          if (state.status.isSuccess &&
-              state.sourceEvent is OrganizerContestCreationPageCreateContest) {
-            showSnackBar(context: context, text: 'Contest created successfully');
-            context.router.pop(true);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Contest Creation'),
-            body: Builder(
-              builder: (context) {
-                return Stepper(
-                  type: StepperType.horizontal,
-                  elevation: 0,
-                  steps: getSteps(),
-                  currentStep: currentStep,
-                  onStepContinue: () {
-                    final isLastStep = (currentStep == getSteps().length - 1);
-                    if (formKeys[currentStep].currentState?.validate() ?? false) {
-                      if (isLastStep) {
-                        final name = nameController.text;
-                        final description = descriptionController.text;
-                        final dateTime =
-                            DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
-                        context.read<OrganizerContestCreationPageBloc>().add(
-                              OrganizerContestCreationPageCreateContest(
-                                name: name,
-                                description: description,
-                                placeAddress: place!.address!,
-                                placeLat: place!.lat!,
-                                placeLon: place!.lon!,
-                                dateTime: dateTime,
-                                worksSubmissionStart: worksSubmissionStart!,
-                                worksSubmissionEnd: worksSubmissionEnd!,
-                                images: images,
-                              ),
-                            );
-                      } else {
-                        setState(() => ++currentStep);
-                      }
-                    }
-                  },
-                  onStepCancel: () {
-                    (currentStep == 0) ? null : setState(() => --currentStep);
-                  },
-                  controlsBuilder: (context, details) {
-                    final isLastStep = details.currentStep == getSteps().length - 1;
-                    return Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Row(
-                        mainAxisAlignment: (currentStep == 0)
-                            ? MainAxisAlignment.end
-                            : MainAxisAlignment.spaceBetween,
-                        spacing: 12,
-                        children: [
-                          if (details.currentStep != 0)
-                            ElevatedButton(
-                              onPressed: details.onStepCancel,
-                              child: Text('Back'),
+    return BlocConsumer<OrganizerContestCreationPageBloc, OrganizerContestCreationPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerContestCreationPageCreateContest) {
+          showSnackBar(context: context, text: 'Contest created successfully');
+          context.router.pop(true);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Contest Creation'),
+          body: Builder(
+            builder: (context) {
+              return Stepper(
+                type: StepperType.horizontal,
+                elevation: 0,
+                steps: getSteps(),
+                currentStep: currentStep,
+                onStepContinue: () {
+                  final isLastStep = (currentStep == getSteps().length - 1);
+                  if (formKeys[currentStep].currentState?.validate() ?? false) {
+                    if (isLastStep) {
+                      final name = nameController.text;
+                      final description = descriptionController.text;
+                      final dateTime =
+                          DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
+                      context.read<OrganizerContestCreationPageBloc>().add(
+                            OrganizerContestCreationPageCreateContest(
+                              name: name,
+                              description: description,
+                              placeAddress: place!.address!,
+                              placeLat: place!.lat!,
+                              placeLon: place!.lon!,
+                              dateTime: dateTime,
+                              worksSubmissionStart: worksSubmissionStart!,
+                              worksSubmissionEnd: worksSubmissionEnd!,
+                              images: images,
                             ),
+                          );
+                    } else {
+                      setState(() => ++currentStep);
+                    }
+                  }
+                },
+                onStepCancel: () {
+                  (currentStep == 0) ? null : setState(() => --currentStep);
+                },
+                controlsBuilder: (context, details) {
+                  final isLastStep = details.currentStep == getSteps().length - 1;
+                  return Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: (currentStep == 0)
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.spaceBetween,
+                      spacing: 12,
+                      children: [
+                        if (details.currentStep != 0)
                           ElevatedButton(
-                            onPressed: details.onStepContinue,
-                            child: isLastStep ? Text('Create') : Text('Next'),
+                            onPressed: details.onStepCancel,
+                            child: Text('Back'),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          );
-        },
-      ),
+                        ElevatedButton(
+                          onPressed: details.onStepContinue,
+                          child: isLastStep ? Text('Create') : Text('Next'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

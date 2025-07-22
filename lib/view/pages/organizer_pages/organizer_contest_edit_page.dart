@@ -27,7 +27,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_edit
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class OrganizerContestEditPage extends StatefulWidget {
+class OrganizerContestEditPage extends StatefulWidget implements AutoRouteWrapper {
   final String contestId;
 
   const OrganizerContestEditPage({
@@ -37,6 +37,17 @@ class OrganizerContestEditPage extends StatefulWidget {
 
   @override
   State<OrganizerContestEditPage> createState() => _OrganizerContestEditPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<OrganizerContestEditPageBloc>(
+      create: (context) => OrganizerContestEditPageBloc(
+        organizerRepository: context.read(),
+        storageRepository: context.read(),
+      ),
+      child: this,
+    );
+  }
 }
 
 class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
@@ -72,12 +83,19 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
   final placeFocusNode = FocusNode();
   final timeFocusNode = FocusNode();
 
-
   @override
   void initState() {
     super.initState();
     contestId = widget.contestId;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     profile = context.read<AuthBloc>().state.profile!;
+    context
+        .read<OrganizerContestEditPageBloc>()
+        .add(OrganizerContestEditPageInit(contestId: contestId));
   }
 
   @override
@@ -105,143 +123,137 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrganizerContestEditPageBloc>(
-      create: (context) => OrganizerContestEditPageBloc(
-        organizerRepository: context.read(),
-        storageRepository: context.read(),
-      )..add(OrganizerContestEditPageInit(contestId: contestId)),
-      child: BlocConsumer<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-          if (state.status.isSuccess && state.sourceEvent is OrganizerContestEditPageEditContest) {
-            showSnackBar(context: context, text: 'Contest updated successfully');
-            context.router.pop(true);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(
-              title: 'Edit contest',
-            ),
-            body: Builder(
-              builder: (context) {
-                switch (state.status) {
-                  case BlocStatus.initial:
+    return BlocConsumer<OrganizerContestEditPageBloc, OrganizerContestEditPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+        if (state.status.isSuccess && state.sourceEvent is OrganizerContestEditPageEditContest) {
+          showSnackBar(context: context, text: 'Contest updated successfully');
+          context.router.pop(true);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(
+            title: 'Edit contest',
+          ),
+          body: Builder(
+            builder: (context) {
+              switch (state.status) {
+                case BlocStatus.initial:
+                  return VoidWidget();
+                case BlocStatus.loading:
+                  if (state.sourceEvent is OrganizerContestEditPageInit) {
                     return VoidWidget();
-                  case BlocStatus.loading:
-                    if (state.sourceEvent is OrganizerContestEditPageInit) {
-                      return VoidWidget();
-                    } else {
-                      continue successCase;
-                    }
-                  case BlocStatus.failure:
-                    if (state.sourceEvent is OrganizerContestEditPageInit) {
-                      return RefreshIndicator.adaptive(
-                        onRefresh: () async => context
-                            .read<OrganizerContestEditPageBloc>()
-                            .add(OrganizerContestEditPageInit(contestId: contestId)),
-                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                      );
-                    } else {
-                      continue successCase;
-                    }
-                  successCase:
-                  case BlocStatus.success:
-                    if (!isPageInitialized) {
-                      final contestDetailsBundle = state.contestDetailsBundle!;
-                      nameController.setText(contestDetailsBundle.contest.name);
-                      descriptionController.setText(contestDetailsBundle.contest.description);
-                      date = contestDetailsBundle.contest.dateTime;
-                      dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
-                      time = TimeOfDay.fromDateTime(contestDetailsBundle.contest.dateTime);
-                      timeController.setText(
-                          '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
-                      place = contestDetailsBundle.place;
-                      placeController.setText(place!.address);
-                      worksSubmissionStart = contestDetailsBundle.contest.worksSubmissionStart;
-                      worksSubmissionEnd = contestDetailsBundle.contest.worksSubmissionEnd;
-                      worksSubmissionStartController
-                          .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
-                      worksSubmissionEndController
-                          .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
-                      oldImagesUrls.addAll(contestDetailsBundle.contest.imagesUrls);
-                      isPageInitialized = true;
-                    }
-                    return Stepper(
-                      type: StepperType.horizontal,
-                      elevation: 0,
-                      steps: getSteps(),
-                      currentStep: currentStep,
-                      onStepContinue: () {
-                        final isLastStep = (currentStep == getSteps().length - 1);
-                        if (formKeys[currentStep].currentState?.validate() ?? false) {
-                          if (isLastStep) {
-                            final name = nameController.text;
-                            final description = descriptionController.text;
-                            final dateTime = DateTime(
-                                date!.year, date!.month, date!.day, time!.hour, time!.minute);
-                            context.read<OrganizerContestEditPageBloc>().add(
-                                  OrganizerContestEditPageEditContest(
-                                    contestId: contestId,
-                                    name: name,
-                                    description: description,
-                                    place: place!,
-                                    dateTime: dateTime,
-                                    worksSubmissionStart: worksSubmissionStart!,
-                                    worksSubmissionEnd: worksSubmissionEnd!,
-                                    images: (images.isNotEmpty) ? images : null,
-                                    oldImagesUrls: oldImagesUrls,
-                                  ),
-                                );
-                          } else {
-                            setState(() => ++currentStep);
-                          }
-                        }
-                      },
-                      onStepCancel: () {
-                        (currentStep == 0) ? null : setState(() => --currentStep);
-                      },
-                      controlsBuilder: (context, details) {
-                        final isLastStep = details.currentStep == getSteps().length - 1;
-                        return Container(
-                          margin: EdgeInsets.only(top: 20),
-                          child: Row(
-                            mainAxisAlignment: (currentStep == 0)
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.spaceBetween,
-                            spacing: 12,
-                            children: [
-                              if (details.currentStep != 0)
-                                ElevatedButton(
-                                  onPressed: () {
-                                    details.onStepCancel!();
-                                  },
-                                  child: Text('Back'),
+                  } else {
+                    continue successCase;
+                  }
+                case BlocStatus.failure:
+                  if (state.sourceEvent is OrganizerContestEditPageInit) {
+                    return RefreshIndicator.adaptive(
+                      onRefresh: () async => context
+                          .read<OrganizerContestEditPageBloc>()
+                          .add(OrganizerContestEditPageInit(contestId: contestId)),
+                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                    );
+                  } else {
+                    continue successCase;
+                  }
+                successCase:
+                case BlocStatus.success:
+                  if (!isPageInitialized) {
+                    final contestDetailsBundle = state.contestDetailsBundle!;
+                    nameController.setText(contestDetailsBundle.contest.name);
+                    descriptionController.setText(contestDetailsBundle.contest.description);
+                    date = contestDetailsBundle.contest.dateTime;
+                    dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
+                    time = TimeOfDay.fromDateTime(contestDetailsBundle.contest.dateTime);
+                    timeController.setText(
+                        '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
+                    place = contestDetailsBundle.place;
+                    placeController.setText(place!.address);
+                    worksSubmissionStart = contestDetailsBundle.contest.worksSubmissionStart;
+                    worksSubmissionEnd = contestDetailsBundle.contest.worksSubmissionEnd;
+                    worksSubmissionStartController
+                        .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
+                    worksSubmissionEndController
+                        .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
+                    oldImagesUrls.addAll(contestDetailsBundle.contest.imagesUrls);
+                    isPageInitialized = true;
+                  }
+                  return Stepper(
+                    type: StepperType.horizontal,
+                    elevation: 0,
+                    steps: getSteps(),
+                    currentStep: currentStep,
+                    onStepContinue: () {
+                      final isLastStep = (currentStep == getSteps().length - 1);
+                      if (formKeys[currentStep].currentState?.validate() ?? false) {
+                        if (isLastStep) {
+                          final name = nameController.text;
+                          final description = descriptionController.text;
+                          final dateTime = DateTime(
+                              date!.year, date!.month, date!.day, time!.hour, time!.minute);
+                          context.read<OrganizerContestEditPageBloc>().add(
+                                OrganizerContestEditPageEditContest(
+                                  contestId: contestId,
+                                  name: name,
+                                  description: description,
+                                  place: place!,
+                                  dateTime: dateTime,
+                                  worksSubmissionStart: worksSubmissionStart!,
+                                  worksSubmissionEnd: worksSubmissionEnd!,
+                                  images: (images.isNotEmpty) ? images : null,
+                                  oldImagesUrls: oldImagesUrls,
                                 ),
+                              );
+                        } else {
+                          setState(() => ++currentStep);
+                        }
+                      }
+                    },
+                    onStepCancel: () {
+                      (currentStep == 0) ? null : setState(() => --currentStep);
+                    },
+                    controlsBuilder: (context, details) {
+                      final isLastStep = details.currentStep == getSteps().length - 1;
+                      return Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: Row(
+                          mainAxisAlignment: (currentStep == 0)
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.spaceBetween,
+                          spacing: 12,
+                          children: [
+                            if (details.currentStep != 0)
                               ElevatedButton(
                                 onPressed: () {
-                                  details.onStepContinue!();
+                                  details.onStepCancel!();
                                 },
-                                child: isLastStep ? Text('Edit') : Text('Next'),
+                                child: Text('Back'),
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                }
-              },
-            ),
-          );
-        },
-      ),
+                            ElevatedButton(
+                              onPressed: () {
+                                details.onStepContinue!();
+                              },
+                              child: isLastStep ? Text('Edit') : Text('Next'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 

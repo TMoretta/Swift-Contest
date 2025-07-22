@@ -19,7 +19,7 @@ import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submi
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 @RoutePage()
-class ParticipantWorkSubmitPage extends StatefulWidget {
+class ParticipantWorkSubmitPage extends StatefulWidget implements AutoRouteWrapper {
   final String contestId;
 
   const ParticipantWorkSubmitPage({
@@ -29,6 +29,17 @@ class ParticipantWorkSubmitPage extends StatefulWidget {
 
   @override
   State<ParticipantWorkSubmitPage> createState() => _ParticipantWorkSubmitPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<ParticipantWorkSubmitPageBloc>(
+        create: (context) => ParticipantWorkSubmitPageBloc(
+          storageRepository: context.read(),
+          participantRepository: context.read(),
+        ),
+        child: this,
+    );
+  }
 }
 
 class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
@@ -74,83 +85,77 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ParticipantWorkSubmitPageBloc>(
-      create: (context) => ParticipantWorkSubmitPageBloc(
-        storageRepository: context.read(),
-        participantRepository: context.read(),
-      ),
-      child: BlocConsumer<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
-        listener: (context, state) {
-          if (state.message != null) {
-            showSnackBar(context: context, text: state.message!);
-          }
-          if (state.status.isLoading) {
-            context.showLoader();
-          } else {
-            context.hideLoader();
-          }
-          if (state.status.isSuccess && state.sourceEvent is ParticipantWorkSubmitPageSubmitWork) {
-            context.router.pop(true);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: CustomAppBar(title: 'Submit work'),
-            body: Stepper(
-              type: StepperType.horizontal,
-              elevation: 0,
-              steps: getSteps(),
-              currentStep: currentStep,
-              onStepContinue: () {
-                final isLastStep = (currentStep == getSteps().length - 1);
-                if (formKeys[currentStep].currentState?.validate() ?? false) {
-                  if (isLastStep) {
-                    final name = nameController.text;
-                    final description = descriptionController.text;
-                    context
-                        .read<ParticipantWorkSubmitPageBloc>()
-                        .add(ParticipantWorkSubmitPageSubmitWork(
-                          contestId: contestId,
-                          participantId: profileId,
-                          name: name,
-                          description: description,
-                          images: images,
-                          file: file!,
-                        ));
-                  } else {
-                    setState(() => ++currentStep);
-                  }
+    return BlocConsumer<ParticipantWorkSubmitPageBloc, ParticipantWorkSubmitPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+        if (state.status.isSuccess && state.sourceEvent is ParticipantWorkSubmitPageSubmitWork) {
+          context.router.pop(true);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(title: 'Submit work'),
+          body: Stepper(
+            type: StepperType.horizontal,
+            elevation: 0,
+            steps: getSteps(),
+            currentStep: currentStep,
+            onStepContinue: () {
+              final isLastStep = (currentStep == getSteps().length - 1);
+              if (formKeys[currentStep].currentState?.validate() ?? false) {
+                if (isLastStep) {
+                  final name = nameController.text;
+                  final description = descriptionController.text;
+                  context
+                      .read<ParticipantWorkSubmitPageBloc>()
+                      .add(ParticipantWorkSubmitPageSubmitWork(
+                        contestId: contestId,
+                        participantId: profileId,
+                        name: name,
+                        description: description,
+                        images: images,
+                        file: file!,
+                      ));
+                } else {
+                  setState(() => ++currentStep);
                 }
-              },
-              onStepCancel: () {
-                (currentStep == 0) ? null : setState(() => --currentStep);
-              },
-              controlsBuilder: (context, details) {
-                final isLastStep = details.currentStep == getSteps().length - 1;
-                return Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment:
-                        (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
-                    spacing: 12,
-                    children: [
-                      if (details.currentStep != 0)
-                        ElevatedButton(
-                          onPressed: details.onStepCancel,
-                          child: Text('Back'),
-                        ),
+              }
+            },
+            onStepCancel: () {
+              (currentStep == 0) ? null : setState(() => --currentStep);
+            },
+            controlsBuilder: (context, details) {
+              final isLastStep = details.currentStep == getSteps().length - 1;
+              return Container(
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                  mainAxisAlignment:
+                      (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
+                  spacing: 12,
+                  children: [
+                    if (details.currentStep != 0)
                       ElevatedButton(
-                        onPressed: details.onStepContinue,
-                        child: isLastStep ? Text('Submit') : Text('Next'),
+                        onPressed: details.onStepCancel,
+                        child: Text('Back'),
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+                    ElevatedButton(
+                      onPressed: details.onStepContinue,
+                      child: isLastStep ? Text('Submit') : Text('Next'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

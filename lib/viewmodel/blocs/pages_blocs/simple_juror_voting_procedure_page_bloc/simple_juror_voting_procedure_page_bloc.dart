@@ -10,7 +10,6 @@ import 'package:swift_contest/model/data_models/place.dart';
 import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
-import 'package:swift_contest/model/repositories/generic_repository.dart';
 import 'package:swift_contest/model/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -21,16 +20,11 @@ part 'simple_juror_voting_procedure_page_state.dart';
 
 class SimpleJurorVotingProcedurePageBloc
     extends Bloc<SimpleJurorVotingProcedurePageEvent, SimpleJurorVotingProcedurePageState> {
-  final GenericRepository _genericRepository;
   final JurorRepository _jurorRepository;
 
   SimpleJurorVotingProcedurePageBloc({
-    required GenericRepository genericRepository,
     required JurorRepository jurorRepository,
-  })  :
-
-        _genericRepository = genericRepository,
-        _jurorRepository = jurorRepository,
+  })  : _jurorRepository = jurorRepository,
         super(SimpleJurorVotingProcedurePageState(status: BlocStatus.loading)) {
     on<SimpleJurorVotingProcedurePageInit>(_init);
     on<SimpleJurorVotingProcedurePageRefresh>(_refresh);
@@ -45,7 +39,7 @@ class SimpleJurorVotingProcedurePageBloc
 
     //* Getting the voting session bundle
     late final VotingSessionProcedureBundle votingSessionBundle;
-    final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
+    final eitherVotingSessionBundle = await _jurorRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
@@ -85,7 +79,8 @@ class SimpleJurorVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        final oldVotingSession =
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
         if (newVotingSession == oldVotingSession) {
           return state;
         }
@@ -104,27 +99,27 @@ class SimpleJurorVotingProcedurePageBloc
   }
 
   FutureOr<void> _refresh(
-      SimpleJurorVotingProcedurePageRefresh event,
-      Emitter<SimpleJurorVotingProcedurePageState> emit,
-      ) async {
+    SimpleJurorVotingProcedurePageRefresh event,
+    Emitter<SimpleJurorVotingProcedurePageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     //* Getting the voting session bundle
     late final VotingSessionProcedureBundle votingSessionBundle;
-    final eitherVotingSessionBundle = await _genericRepository.getVotingSessionProcedureBundle(
+    final eitherVotingSessionBundle = await _jurorRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionBundle = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionBundle = success,
     );
 
     //* Getting the stream
     late final Stream<Either<Failure, VotingSession?>> votingSessionStream;
     final eitherVotingSessionStream =
-    await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
+        await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
     eitherVotingSessionStream.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => votingSessionStream = success,
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionStream = success,
     );
     if (eitherVotingSessionStream.isLeft()) {
       return;
@@ -141,8 +136,8 @@ class SimpleJurorVotingProcedurePageBloc
         late VotingSession? newVotingSession;
 
         eitherNewVotingSession.fold(
-              (failure) => null,
-              (success) => newVotingSession = success,
+          (failure) => null,
+          (success) => newVotingSession = success,
         );
         if (eitherNewVotingSession.isLeft()) {
           return state.copyWith(status: BlocStatus.failure, message: 'No data received');
@@ -151,7 +146,8 @@ class SimpleJurorVotingProcedurePageBloc
         if (newVotingSession == null) {
           return state;
         }
-        final oldVotingSession = state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
+        final oldVotingSession =
+            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
         if (newVotingSession == oldVotingSession) {
           return state;
         }
@@ -178,7 +174,7 @@ class SimpleJurorVotingProcedurePageBloc
     final votingSession = event.votingSession;
     final Place? geoResPlace = event.geoResPlace;
 
-    if (votingSession.isGeoRestricted && geoResPlace!=null) {
+    if (votingSession.isGeoRestricted && geoResPlace != null) {
       final status = await Geolocator.checkPermission();
       if (status == LocationPermission.denied) {
         await Geolocator.requestPermission();
