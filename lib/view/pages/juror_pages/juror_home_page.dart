@@ -51,7 +51,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     profileId = context.read<AuthBloc>().state.profile!.id;
-    context.read<JurorHomePageBloc>().add(JurorHomePageInit());
+    context.read<JurorHomePageBloc>().add(JurorHomePageFetch());
   }
 
   @override
@@ -79,6 +79,9 @@ class _JurorHomePageState extends State<JurorHomePage> {
         return Scaffold(
           appBar: HomePageAppBar(
             contestRole: ContestRole.juror,
+              onRefresh: () async 
+                 => context.read<JurorHomePageBloc>().add(JurorHomePageFetch())
+              
           ),
           body: SafeArea(
             child: Padding(
@@ -89,16 +92,16 @@ class _JurorHomePageState extends State<JurorHomePage> {
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is JurorHomePageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is JurorHomePageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async =>
-                              context.read<JurorHomePageBloc>().add(JurorHomePageInit()),
+                              context.read<JurorHomePageBloc>().add(JurorHomePageFetch()),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
                       } else {
@@ -121,7 +124,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                           Expanded(
                             child: RefreshIndicator.adaptive(
                               onRefresh: () async {
-                                context.read<JurorHomePageBloc>().add(JurorHomePageRefresh());
+                                context.read<JurorHomePageBloc>().add(JurorHomePageFetch());
                                 context.read<AuthBloc>().add(AuthFetchProfileMessages());
                               },
                               child: (state.filteredContestsBundles!.isNotEmpty)
@@ -142,7 +145,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                                                     if (context.mounted) {
                                                       context
                                                           .read<JurorHomePageBloc>()
-                                                          .add(JurorHomePageRefresh());
+                                                          .add(JurorHomePageFetch());
                                                     }
                                                   }
                                                 },
@@ -210,7 +213,7 @@ void _showJoinContestDialog({
           listener: (context, state) {
             if (state.status.isSuccess && state.sourceEvent is JurorHomePageJoinContest) {
               showSnackBar(context: context, text: 'Joined contest successfully');
-              context.read<JurorHomePageBloc>().add(JurorHomePageRefresh());
+              context.read<JurorHomePageBloc>().add(JurorHomePageFetch());
               context.router.pop(true);
             }
           },

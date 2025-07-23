@@ -51,7 +51,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     profileId = context.read<AuthBloc>().state.profile!.id;
-    context.read<ParticipantHomePageBloc>().add(ParticipantHomePageInit(participantId: profileId));
+    context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch(participantId: profileId));
   }
 
   @override
@@ -79,6 +79,9 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
         return Scaffold(
           appBar: HomePageAppBar(
             contestRole: ContestRole.participant,
+              onRefresh: () async {
+                  context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch(participantId: profileId));
+              }
           ),
           body: SafeArea(
             child: Padding(
@@ -89,17 +92,17 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is ParticipantHomePageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.status.isFailure && state.sourceEvent is ParticipantHomePageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<ParticipantHomePageBloc>()
-                              .add(ParticipantHomePageInit(participantId: profileId)),
+                              .add(ParticipantHomePageFetch(participantId: profileId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
                       } else {
@@ -124,7 +127,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                               onRefresh: () async {
                                 context
                                     .read<ParticipantHomePageBloc>()
-                                    .add(ParticipantHomePageRefresh(participantId: profileId));
+                                    .add(ParticipantHomePageFetch(participantId: profileId));
                                 context.read<AuthBloc>().add(AuthFetchProfileMessages());
                               },
                               child: (state.filteredContestsBundles!.isNotEmpty)
@@ -144,7 +147,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                                                   if (res == true) {
                                                     if (context.mounted) {
                                                       context.read<ParticipantHomePageBloc>().add(
-                                                          ParticipantHomePageRefresh(
+                                                          ParticipantHomePageFetch(
                                                               participantId: profileId));
                                                     }
                                                   }
@@ -199,7 +202,7 @@ void _showJoinContestDialog({
               showSnackBar(context: context, text: 'Joined contest successfully');
               context
                   .read<ParticipantHomePageBloc>()
-                  .add(ParticipantHomePageRefresh(participantId: profileId));
+                  .add(ParticipantHomePageFetch(participantId: profileId));
               context.router.pop();
             }
           },

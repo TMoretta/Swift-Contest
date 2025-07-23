@@ -56,7 +56,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
     super.didChangeDependencies();
     context
         .read<OrganizerVotingProcedurePageBloc>()
-        .add(OrganizerVotingProcedurePageInit(votingSessionId: votingSessionId));
+        .add(OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId));
   }
 
   @override
@@ -92,7 +92,8 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Voting'),
+          appBar: CustomAppBar(title: 'Voting',
+          onRefresh: () => context.read<OrganizerVotingProcedurePageBloc>().add(OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId)),),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -102,17 +103,17 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is OrganizerVotingProcedurePageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is OrganizerVotingProcedurePageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<OrganizerVotingProcedurePageBloc>()
-                              .add(OrganizerVotingProcedurePageInit(
+                              .add(OrganizerVotingProcedurePageFetch(
                                   votingSessionId: votingSessionId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
@@ -123,7 +124,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                     case BlocStatus.success:
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context.read<OrganizerVotingProcedurePageBloc>().add(
-                            OrganizerVotingProcedurePageRefresh(votingSessionId: votingSessionId)),
+                            OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId)),
                         child: Builder(
                           builder: (context) {
                             final votingSessionProcedureBundle =
@@ -260,7 +261,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                 case BlocStatus.initial:
                   return VoidWidget();
                 case (BlocStatus.loading || BlocStatus.failure):
-                  if (state.sourceEvent is OrganizerVotingProcedurePageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;

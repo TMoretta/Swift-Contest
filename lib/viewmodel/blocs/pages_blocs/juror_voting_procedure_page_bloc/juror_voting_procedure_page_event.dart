@@ -4,23 +4,23 @@ sealed class JurorVotingProcedurePageEvent extends Equatable {
   const JurorVotingProcedurePageEvent();
 }
 
-final class JurorVotingProcedurePageInit
+// final class JurorVotingProcedurePageInit
+//     extends JurorVotingProcedurePageEvent {
+//   final String votingSessionId;
+//
+//   const JurorVotingProcedurePageInit({
+//     required this.votingSessionId,
+//   });
+//
+//   @override
+//   List<Object?> get props => [votingSessionId];
+// }
+
+final class JurorVotingProcedurePageFetch
     extends JurorVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const JurorVotingProcedurePageInit({
-    required this.votingSessionId,
-  });
-
-  @override
-  List<Object?> get props => [votingSessionId];
-}
-
-final class JurorVotingProcedurePageRefresh
-    extends JurorVotingProcedurePageEvent {
-  final String votingSessionId;
-
-  const JurorVotingProcedurePageRefresh({
+  const JurorVotingProcedurePageFetch({
     required this.votingSessionId,
   });
 

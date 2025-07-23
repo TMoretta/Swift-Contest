@@ -54,7 +54,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<OrganizerWorkDetailsPageBloc>().add(OrganizerWorkDetailsPageInit(
+    context.read<OrganizerWorkDetailsPageBloc>().add(OrganizerWorkDetailsPageFetch(
           participationId: participationId,
         ));
   }
@@ -77,7 +77,12 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Work'),
+          appBar: CustomAppBar(
+            title: 'Work',
+            onRefresh: () => context
+                .read<OrganizerWorkDetailsPageBloc>()
+                .add(OrganizerWorkDetailsPageFetch(participationId: participationId)),
+          ),
           body: SafeArea(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -87,17 +92,17 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is OrganizerWorkDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is OrganizerWorkDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<OrganizerWorkDetailsPageBloc>()
-                              .add(OrganizerWorkDetailsPageInit(participationId: participationId)),
+                              .add(OrganizerWorkDetailsPageFetch(participationId: participationId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
                       } else {
@@ -111,7 +116,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<OrganizerWorkDetailsPageBloc>()
-                            .add(OrganizerWorkDetailsPageRefresh(participationId: participationId)),
+                            .add(OrganizerWorkDetailsPageFetch(participationId: participationId)),
                         child: ListView(
                           children: [
                             SizedBox(height: 16),

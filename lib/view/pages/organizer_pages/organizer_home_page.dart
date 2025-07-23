@@ -49,7 +49,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     profileId = context.read<AuthBloc>().state.profile!.id;
-    context.read<OrganizerHomePageBloc>().add(OrganizerHomePageInit());
+    context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
   }
 
   @override
@@ -72,17 +72,13 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
         } else {
           context.hideLoader();
         }
-        if (state.status.isLoading) {
-          context.showLoader();
-        } else {
-          context.hideLoader();
-        }
       },
       builder: (context, state) {
         return Scaffold(
           appBar: HomePageAppBar(
-            contestRole: ContestRole.organizer,
-          ),
+              contestRole: ContestRole.organizer,
+              onRefresh: () async =>
+                  context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch())),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -92,18 +88,18 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is OrganizerHomePageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is OrganizerHomePageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async {
                             _searchController.clear();
                             _searchFocusNode.unfocus();
-                            context.read<OrganizerHomePageBloc>().add(OrganizerHomePageInit());
+                            context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
                           },
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
@@ -129,9 +125,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                               onRefresh: () async {
                                 _searchController.clear();
                                 _searchFocusNode.unfocus();
-                                context
-                                    .read<OrganizerHomePageBloc>()
-                                    .add(OrganizerHomePageRefresh());
+                                context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
                               },
                               child: (state.filteredContestsBundles!.isNotEmpty)
                                   ? ListView(
@@ -151,7 +145,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                                                     if (context.mounted) {
                                                       context
                                                           .read<OrganizerHomePageBloc>()
-                                                          .add(OrganizerHomePageRefresh());
+                                                          .add(OrganizerHomePageFetch());
                                                     }
                                                   }
                                                 },
@@ -178,7 +172,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
               final bool? res = await context.router.push(OrganizerContestCreationRoute());
               if (res == true) {
                 if (context.mounted) {
-                  context.read<OrganizerHomePageBloc>().add(OrganizerHomePageRefresh());
+                  context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
                 }
               }
             },

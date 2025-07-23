@@ -4,21 +4,21 @@ sealed class OrganizerVotingResultExportPageEvent extends Equatable {
   const OrganizerVotingResultExportPageEvent();
 }
 
-final class OrganizerVotingResultExportPageInit extends OrganizerVotingResultExportPageEvent {
+// final class OrganizerVotingResultExportPageInit extends OrganizerVotingResultExportPageEvent {
+//   final String votingSessionId;
+//
+//   const OrganizerVotingResultExportPageInit({
+//     required this.votingSessionId,
+//   });
+//
+//   @override
+//   List<Object?> get props => [votingSessionId];
+// }
+
+final class OrganizerVotingResultExportPageFetch extends OrganizerVotingResultExportPageEvent {
   final String votingSessionId;
 
-  const OrganizerVotingResultExportPageInit({
-    required this.votingSessionId,
-  });
-
-  @override
-  List<Object?> get props => [votingSessionId];
-}
-
-final class OrganizerVotingResultExportPageRefresh extends OrganizerVotingResultExportPageEvent {
-  final String votingSessionId;
-
-  const OrganizerVotingResultExportPageRefresh({
+  const OrganizerVotingResultExportPageFetch({
     required this.votingSessionId,
   });
 

@@ -85,7 +85,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   void didChangeDependencies() {
     super.didChangeDependencies();
     profileId = context.read<AuthBloc>().state.profile!.id;
-    context.read<OrganizerVotingSettingsPageBloc>().add(OrganizerVotingSettingsPageInit(
+    context.read<OrganizerVotingSettingsPageBloc>().add(OrganizerVotingSettingsPageFetch(
           contestId: contestId,
         ));
   }
@@ -126,6 +126,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         return Scaffold(
           appBar: CustomAppBar(
             title: 'Voting settings',
+            onRefresh: () => context.read<OrganizerVotingSettingsPageBloc>().add(OrganizerVotingSettingsPageFetch(contestId: contestId)),
           ),
           body: SafeArea(
             child: Builder(
@@ -134,17 +135,17 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   case BlocStatus.initial:
                     return VoidWidget();
                   case BlocStatus.loading:
-                    if (state.sourceEvent is OrganizerVotingSettingsPageInit) {
+                    if (!state.isInitialized) {
                       return VoidWidget();
                     } else {
                       continue successCase;
                     }
                   case BlocStatus.failure:
-                    if (state.sourceEvent is OrganizerVotingSettingsPageInit) {
+                    if (!state.isInitialized) {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<OrganizerVotingSettingsPageBloc>()
-                            .add(OrganizerVotingSettingsPageInit(contestId: contestId)),
+                            .add(OrganizerVotingSettingsPageFetch(contestId: contestId)),
                         child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                       );
                     } else {

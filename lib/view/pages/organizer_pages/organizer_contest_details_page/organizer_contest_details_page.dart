@@ -52,7 +52,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
     super.didChangeDependencies();
     context
         .read<OrganizerContestDetailsPageBloc>()
-        .add(OrganizerContestDetailsPageInit(contestId: contestId));
+        .add(OrganizerContestDetailsPageFetch(contestId: contestId));
   }
 
   @override
@@ -78,6 +78,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
         return Scaffold(
           appBar: CustomAppBar(
             title: 'Your contest',
+            onRefresh: () => context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageFetch(contestId: contestId)),
             actions: [
               Builder(
                 builder: (context) {
@@ -85,7 +86,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                     case BlocStatus.initial:
                       return VoidWidget();
                     case (BlocStatus.loading || BlocStatus.failure):
-                      if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
@@ -112,7 +113,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                           case BlocStatus.initial:
                             return VoidWidget();
                           case (BlocStatus.loading || BlocStatus.failure):
-                            if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                            if (!state.isInitialized) {
                               return VoidWidget();
                             } else {
                               continue successCase;
@@ -179,7 +180,7 @@ class _Menu extends StatelessWidget {
               if (context.mounted) {
                 context
                     .read<OrganizerContestDetailsPageBloc>()
-                    .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+                    .add(OrganizerContestDetailsPageFetch(contestId: contestId));
               }
             }
             break;
@@ -251,7 +252,7 @@ void _showSwitchStatusDialog({required BuildContext context, required String con
               context.router.pop();
               context
                   .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
             }
           },
           builder: (context, state) {

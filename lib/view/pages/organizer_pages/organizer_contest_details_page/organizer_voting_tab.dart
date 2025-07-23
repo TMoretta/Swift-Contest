@@ -49,17 +49,17 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                   case BlocStatus.initial:
                     return VoidWidget();
                   case BlocStatus.loading:
-                    if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                    if (!state.isInitialized) {
                       return VoidWidget();
                     } else {
                       continue successCase;
                     }
                   case BlocStatus.failure:
-                    if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                    if (!state.isInitialized) {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<OrganizerContestDetailsPageBloc>()
-                            .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                            .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                         child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                       );
                     } else {
@@ -108,7 +108,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                           child: RefreshIndicator.adaptive(
                             onRefresh: () async => context
                                 .read<OrganizerContestDetailsPageBloc>()
-                                .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                             child: (endedVotingSessions.isNotEmpty)
                                 ? ListView.builder(
                                     itemCount: endedVotingSessions.length,
@@ -174,7 +174,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case (BlocStatus.loading || BlocStatus.failure):
-                  if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
@@ -264,7 +264,7 @@ void _showEditVotingSessionNameDialog({
                 state.sourceEvent is OrganizerContestDetailsPageEditVotingSessionName) {
               context
                   .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
               context.router.pop();
             }
           },

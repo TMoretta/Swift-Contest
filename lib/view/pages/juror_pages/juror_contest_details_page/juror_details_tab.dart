@@ -32,17 +32,6 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final state = context.read<JurorContestDetailsPageBloc>().state;
-    if (state.status.isInitial) {
-      context
-          .read<JurorContestDetailsPageBloc>()
-          .add(JurorContestDetailsPageInit(contestId: contestId));
-    }
-  }
-
-  @override
   void dispose() {
     context.hideLoader();
     super.dispose();
@@ -59,17 +48,17 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is JurorContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is JurorContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async => context
                           .read<JurorContestDetailsPageBloc>()
-                          .add(JurorContestDetailsPageInit(contestId: contestId)),
+                          .add(JurorContestDetailsPageFetch(contestId: contestId)),
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
                   } else {
@@ -80,7 +69,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<JurorContestDetailsPageBloc>()
-                        .add(JurorContestDetailsPageRefresh(contestId: contestId)),
+                        .add(JurorContestDetailsPageFetch(contestId: contestId)),
                     child: ListView(
                       children: [
                         //* Title

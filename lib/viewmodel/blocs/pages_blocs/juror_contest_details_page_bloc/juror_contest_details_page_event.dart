@@ -4,19 +4,19 @@ sealed class JurorContestDetailsPageEvent extends Equatable {
   const JurorContestDetailsPageEvent();
 }
 
-final class JurorContestDetailsPageInit extends JurorContestDetailsPageEvent {
+// final class JurorContestDetailsPageInit extends JurorContestDetailsPageEvent {
+//   final String contestId;
+//
+//   const JurorContestDetailsPageInit({required this.contestId});
+//
+//   @override
+//   List<Object?> get props => [contestId];
+// }
+
+final class JurorContestDetailsPageFetch extends JurorContestDetailsPageEvent {
   final String contestId;
 
-  const JurorContestDetailsPageInit({required this.contestId});
-
-  @override
-  List<Object?> get props => [contestId];
-}
-
-final class JurorContestDetailsPageRefresh extends JurorContestDetailsPageEvent {
-  final String contestId;
-
-  const JurorContestDetailsPageRefresh({required this.contestId});
+  const JurorContestDetailsPageFetch({required this.contestId});
 
   @override
   List<Object?> get props => [contestId];

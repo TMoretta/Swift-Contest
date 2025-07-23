@@ -64,7 +64,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
     profileId = context.read<AuthBloc>().state.profile?.id;
     context
         .read<SimpleJurorVotingProcedurePageBloc>()
-        .add(SimpleJurorVotingProcedurePageInit(votingSessionId: votingSessionId));
+        .add(SimpleJurorVotingProcedurePageFetch(votingSessionId: votingSessionId));
   }
 
   @override
@@ -113,7 +113,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Voting'),
+          appBar: CustomAppBar(title: 'Voting', onRefresh: () => context.read<SimpleJurorVotingProcedurePageBloc>().add(SimpleJurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -123,17 +123,17 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is SimpleJurorVotingProcedurePageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is SimpleJurorVotingProcedurePageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<SimpleJurorVotingProcedurePageBloc>()
-                              .add(SimpleJurorVotingProcedurePageInit(
+                              .add(SimpleJurorVotingProcedurePageFetch(
                                   votingSessionId: votingSessionId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
@@ -175,7 +175,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<SimpleJurorVotingProcedurePageBloc>()
-                            .add(SimpleJurorVotingProcedurePageRefresh(
+                            .add(SimpleJurorVotingProcedurePageFetch(
                                 votingSessionId: votingSessionId)),
                         child: Builder(
                           builder: (context) {
@@ -254,7 +254,7 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
                 case BlocStatus.initial:
                   return VoidWidget();
                 case (BlocStatus.loading || BlocStatus.failure):
-                  if (state.sourceEvent is SimpleJurorVotingProcedurePageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;

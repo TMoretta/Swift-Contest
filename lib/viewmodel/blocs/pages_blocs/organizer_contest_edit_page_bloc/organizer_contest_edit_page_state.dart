@@ -4,12 +4,14 @@ part of 'organizer_contest_edit_page_bloc.dart';
 final class OrganizerContestEditPageState extends Equatable {
   final BlocStatus status;
   final OrganizerContestEditPageEvent? sourceEvent;
+  final bool isInitialized;
   final String? message;
   final ContestDetailsBundle? contestDetailsBundle;
 
   const OrganizerContestEditPageState({
     required this.status,
     this.sourceEvent,
+    this.isInitialized = false,
     this.message,
     this.contestDetailsBundle,
   });
@@ -17,12 +19,14 @@ final class OrganizerContestEditPageState extends Equatable {
   OrganizerContestEditPageState copyWith({
     required BlocStatus status,
     OrganizerContestEditPageEvent? sourceEvent,
+    bool? isInitialized,
     String? message,
     ContestDetailsBundle? contestDetailsBundle,
   }) {
     return OrganizerContestEditPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
+      isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
     );
@@ -32,6 +36,7 @@ final class OrganizerContestEditPageState extends Equatable {
   List<Object?> get props => [
         status,
         sourceEvent,
+        isInitialized,
         message,
         contestDetailsBundle,
       ];

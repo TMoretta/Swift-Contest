@@ -4,6 +4,7 @@ part of 'juror_home_page_bloc.dart';
 final class JurorHomePageState extends Equatable {
   final BlocStatus status;
   final JurorHomePageEvent? sourceEvent;
+  final bool isInitialized;
   final String? message;
   final List<HomeContestBundle>? joinedContestsBundles;
   final List<HomeContestBundle>? filteredContestsBundles;
@@ -12,6 +13,7 @@ final class JurorHomePageState extends Equatable {
   const JurorHomePageState({
     required this.status,
     this.sourceEvent,
+    this.isInitialized = false,
     this.message,
     this.joinedContestsBundles,
     this.filteredContestsBundles,
@@ -21,6 +23,7 @@ final class JurorHomePageState extends Equatable {
   JurorHomePageState copyWith({
     required BlocStatus status,
     JurorHomePageEvent? sourceEvent,
+    bool? isInitialized,
     String? message,
     List<HomeContestBundle>? joinedContestsBundles,
     List<HomeContestBundle>? filteredContestsBundles,
@@ -29,6 +32,7 @@ final class JurorHomePageState extends Equatable {
     return JurorHomePageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
+      isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       joinedContestsBundles: joinedContestsBundles ?? this.joinedContestsBundles,
       filteredContestsBundles: filteredContestsBundles ?? this.filteredContestsBundles,
@@ -41,6 +45,7 @@ final class JurorHomePageState extends Equatable {
   List<Object?> get props => [
         status,
         sourceEvent,
+        isInitialized,
         message,
         joinedContestsBundles,
         filteredContestsBundles,

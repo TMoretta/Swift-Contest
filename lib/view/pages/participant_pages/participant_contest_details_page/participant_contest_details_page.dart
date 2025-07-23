@@ -47,6 +47,14 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context
+        .read<ParticipantContestDetailsPageBloc>()
+        .add(ParticipantContestDetailsPageFetch(contestId: contestId, participantId: profileId));
+  }
+
+  @override
   void dispose() {
     context.hideLoader();
     super.dispose();
@@ -69,6 +77,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
         return Scaffold(
           appBar: CustomAppBar(
             title: 'Joined contest',
+            onRefresh: () => context.read<ParticipantContestDetailsPageBloc>().add(ParticipantContestDetailsPageFetch(contestId: contestId, participantId: profileId)),
             actions: [
               Builder(
                 builder: (context) {
@@ -76,7 +85,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                     case BlocStatus.initial:
                       return VoidWidget();
                     case (BlocStatus.loading || BlocStatus.failure):
-                      if (state.sourceEvent is ParticipantContestDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
@@ -106,7 +115,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                           case BlocStatus.initial:
                             return VoidWidget();
                           case (BlocStatus.loading || BlocStatus.failure):
-                            if (state.sourceEvent is ParticipantContestDetailsPageInit) {
+                            if (!state.isInitialized) {
                               return VoidWidget();
                             } else {
                               continue successCase;

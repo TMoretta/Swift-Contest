@@ -34,12 +34,6 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     profileId = context.read<AuthBloc>().state.profile!.id;
-    final state = context.read<JurorContestDetailsPageBloc>().state;
-    if (state.status.isInitial) {
-      context
-          .read<JurorContestDetailsPageBloc>()
-          .add(JurorContestDetailsPageInit(contestId: contestId));
-    }
   }
 
   @override
@@ -59,17 +53,17 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is JurorContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is JurorContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async => context
                           .read<JurorContestDetailsPageBloc>()
-                          .add(JurorContestDetailsPageInit(contestId: contestId)),
+                          .add(JurorContestDetailsPageFetch(contestId: contestId)),
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
                   } else {
@@ -80,7 +74,7 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<JurorContestDetailsPageBloc>()
-                        .add(JurorContestDetailsPageRefresh(contestId: contestId)),
+                        .add(JurorContestDetailsPageFetch(contestId: contestId)),
                     child: Builder(
                       builder: (context) {
                         if (state.contestDetailsBundle!.liveVotingSession == null) {
@@ -136,7 +130,7 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                             if (context.mounted) {
                               context
                                   .read<JurorContestDetailsPageBloc>()
-                                  .add(JurorContestDetailsPageRefresh(contestId: contestId));
+                                  .add(JurorContestDetailsPageFetch(contestId: contestId));
                             }
                           }
                         }

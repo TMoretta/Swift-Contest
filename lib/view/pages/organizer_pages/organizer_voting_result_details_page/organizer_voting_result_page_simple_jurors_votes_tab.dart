@@ -48,18 +48,18 @@ class _OrganizerVotingResultPageSimpleJurorsVotesTabState
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async {
                         context
                             .read<OrganizerVotingResultDetailsPageBloc>()
-                            .add(OrganizerVotingResultDetailsPageInit(
+                            .add(OrganizerVotingResultDetailsPageFetch(
                               votingSessionId: votingSessionId,
                             ));
                       },

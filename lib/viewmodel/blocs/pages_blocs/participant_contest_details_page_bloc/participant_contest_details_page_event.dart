@@ -4,24 +4,24 @@ sealed class ParticipantContestDetailsPageEvent extends Equatable {
   const ParticipantContestDetailsPageEvent();
 }
 
-final class ParticipantContestDetailsPageInit extends ParticipantContestDetailsPageEvent {
+// final class ParticipantContestDetailsPageInit extends ParticipantContestDetailsPageEvent {
+//   final String contestId;
+//   final String participantId;
+//
+//   const ParticipantContestDetailsPageInit({
+//     required this.contestId,
+//     required this.participantId,
+//   });
+//
+//   @override
+//   List<Object?> get props => [contestId, participantId];
+// }
+
+final class ParticipantContestDetailsPageFetch extends ParticipantContestDetailsPageEvent {
   final String contestId;
   final String participantId;
 
-  const ParticipantContestDetailsPageInit({
-    required this.contestId,
-    required this.participantId,
-  });
-
-  @override
-  List<Object?> get props => [contestId, participantId];
-}
-
-final class ParticipantContestDetailsPageRefresh extends ParticipantContestDetailsPageEvent {
-  final String contestId;
-  final String participantId;
-
-  const ParticipantContestDetailsPageRefresh({
+  const ParticipantContestDetailsPageFetch({
     required this.contestId,
     required this.participantId,
   });

@@ -46,13 +46,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final state = context.read<ParticipantContestDetailsPageBloc>().state;
     profileId = context.read<AuthBloc>().state.profile!.id;
-    if (state.status.isInitial) {
-      context
-          .read<ParticipantContestDetailsPageBloc>()
-          .add(ParticipantContestDetailsPageInit(contestId: contestId, participantId: profileId));
-    }
   }
 
   @override
@@ -72,16 +66,16 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is ParticipantContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is ParticipantContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async => context.read<ParticipantContestDetailsPageBloc>().add(
-                          ParticipantContestDetailsPageInit(
+                          ParticipantContestDetailsPageFetch(
                               contestId: contestId, participantId: profileId)),
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
@@ -95,7 +89,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<ParticipantContestDetailsPageBloc>()
-                            .add(ParticipantContestDetailsPageRefresh(
+                            .add(ParticipantContestDetailsPageFetch(
                                 contestId: contestId, participantId: profileId)),
                         child: (state.submittedWork != null)
                             ? ListView(
@@ -271,7 +265,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                     if (res == true) {
                       if (context.mounted) {
                         context.read<ParticipantContestDetailsPageBloc>().add(
-                            ParticipantContestDetailsPageRefresh(
+                            ParticipantContestDetailsPageFetch(
                                 contestId: contestId, participantId: profileId));
                       }
                     }

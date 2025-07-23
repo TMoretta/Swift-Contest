@@ -22,7 +22,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthInit(delay: 1));
+    context.read<AuthBloc>().add(AuthFetch(delay: 1));
   }
 
   @override
@@ -61,7 +61,7 @@ class _SplashPageState extends State<SplashPage> {
                 switch (state.blocStatus) {
                   case BlocStatus.failure:
                     return RefreshIndicator(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                      onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return ListViewWithCentralWidget(

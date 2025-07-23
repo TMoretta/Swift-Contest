@@ -4,19 +4,19 @@ sealed class OrganizerContestEditPageEvent extends Equatable {
   const OrganizerContestEditPageEvent();
 }
 
-final class OrganizerContestEditPageInit extends OrganizerContestEditPageEvent {
+// final class OrganizerContestEditPageInit extends OrganizerContestEditPageEvent {
+//   final String contestId;
+//
+//   const OrganizerContestEditPageInit({required this.contestId});
+//
+//   @override
+//   List<Object?> get props => [contestId];
+// }
+
+final class OrganizerContestEditPageFetch extends OrganizerContestEditPageEvent {
   final String contestId;
 
-  const OrganizerContestEditPageInit({required this.contestId});
-
-  @override
-  List<Object?> get props => [contestId];
-}
-
-final class OrganizerContestEditPageRefresh extends OrganizerContestEditPageEvent {
-  final String contestId;
-
-  const OrganizerContestEditPageRefresh({required this.contestId});
+  const OrganizerContestEditPageFetch({required this.contestId});
 
   @override
   List<Object?> get props => [contestId];

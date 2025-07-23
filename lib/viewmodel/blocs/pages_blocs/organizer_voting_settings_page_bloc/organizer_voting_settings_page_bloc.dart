@@ -31,13 +31,27 @@ class OrganizerVotingSettingsPageBloc
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
-    on<OrganizerVotingSettingsPageInit>(_init);
-    on<OrganizerVotingSettingsPageRefresh>(_refresh);
+    // on<OrganizerVotingSettingsPageInit>(_init);
+    on<OrganizerVotingSettingsPageFetch>(_fetch);
     on<OrganizerVotingSettingsPageInitVotingProcedure>(_initVotingProcedure);
   }
 
-  FutureOr<void> _init(
-    OrganizerVotingSettingsPageInit event,
+  // FutureOr<void> _init(
+  //   OrganizerVotingSettingsPageInit event,
+  //   Emitter<OrganizerVotingSettingsPageState> emit,
+  // ) async {
+  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+  //
+  //   final eitherContestDetailsBundle =
+  //       await _organizerRepository.getContestDetails(contestId: event.contestId);
+  //   eitherContestDetailsBundle.fold(
+  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+  //     (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+  //   );
+  // }
+
+  FutureOr<void> _fetch(
+    OrganizerVotingSettingsPageFetch event,
     Emitter<OrganizerVotingSettingsPageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -46,21 +60,7 @@ class OrganizerVotingSettingsPageBloc
         await _organizerRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetailsBundle.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
-    );
-  }
-
-  FutureOr<void> _refresh(
-    OrganizerVotingSettingsPageRefresh event,
-    Emitter<OrganizerVotingSettingsPageState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-
-    final eitherContestDetailsBundle =
-        await _organizerRepository.getContestDetails(contestId: event.contestId);
-    eitherContestDetailsBundle.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, isInitialized: true, contestDetailsBundle: success)),
     );
   }
 

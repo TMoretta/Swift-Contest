@@ -49,7 +49,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
     super.didChangeDependencies();
     context
         .read<OrganizerVotingResultDetailsPageBloc>()
-        .add(OrganizerVotingResultDetailsPageInit(votingSessionId: votingSessionId));
+        .add(OrganizerVotingResultDetailsPageFetch(votingSessionId: votingSessionId));
   }
 
   @override
@@ -74,7 +74,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Results'),
+          appBar: CustomAppBar(title: 'Results', onRefresh: () => context.read<OrganizerVotingResultDetailsPageBloc>().add(OrganizerVotingResultDetailsPageFetch(votingSessionId: votingSessionId)),),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -89,7 +89,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
                           case BlocStatus.initial:
                             return VoidWidget();
                           case (BlocStatus.loading || BlocStatus.failure):
-                            if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+                            if (!state.isInitialized) {
                               return VoidWidget();
                             } else {
                               continue successCase;
@@ -144,7 +144,7 @@ class _OrganizerVotingResultDetailsPageState extends State<OrganizerVotingResult
                 case BlocStatus.initial:
                   return VoidWidget();
                 case (BlocStatus.loading || BlocStatus.failure):
-                  if (state.sourceEvent is OrganizerVotingResultDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;

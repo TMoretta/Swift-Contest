@@ -48,17 +48,17 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async => context
                           .read<OrganizerContestDetailsPageBloc>()
-                          .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                          .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
                   } else {
@@ -69,7 +69,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<OrganizerContestDetailsPageBloc>()
-                        .add(OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                        .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                     child: ListView(
                       children: [
                         //* Title

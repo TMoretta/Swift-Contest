@@ -51,6 +51,9 @@ class _InboxPageState extends State<InboxPage> {
         return Scaffold(
           appBar: CustomAppBar(
             title: 'Inbox',
+            onRefresh: () {
+              context.read<AuthBloc>().add(AuthFetch());
+            },
             actions: [
               (state.messages != null && state.messages!.isNotEmpty)
                   ? TextButton(
@@ -68,15 +71,15 @@ class _InboxPageState extends State<InboxPage> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is AuthInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is AuthInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                      onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
                   } else {

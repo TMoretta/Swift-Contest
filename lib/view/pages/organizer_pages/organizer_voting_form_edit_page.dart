@@ -53,7 +53,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
     super.didChangeDependencies();
     context
         .read<OrganizerVotingFormEditPageBloc>()
-        .add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId));
+        .add(OrganizerVotingFormEditPageFetch(votingFormId: votingFormId));
   }
 
   @override
@@ -117,17 +117,17 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
+                      if (state.sourceEvent is OrganizerVotingFormEditPageFetch) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is OrganizerVotingFormEditPageInit) {
+                      if (state.sourceEvent is OrganizerVotingFormEditPageFetch) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<OrganizerVotingFormEditPageBloc>()
-                              .add(OrganizerVotingFormEditPageInit(votingFormId: votingFormId)),
+                              .add(OrganizerVotingFormEditPageFetch(votingFormId: votingFormId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
                       } else {

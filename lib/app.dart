@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -51,22 +52,40 @@ class _AppState extends State<App> {
     return BlocSelector<ThemeBloc, ThemeState, AppTheme>(
       selector: (state) => state.theme ?? AppTheme.system,
       builder: (context, appTheme) {
-        return MaterialApp.router(
-          routerConfig: _appRouter.config(),
-          themeMode: ThemeMode.values.byName(appTheme.name),
-          theme: _materialTheme.light(),
-          darkTheme: _materialTheme.dark(),
-          debugShowCheckedModeBanner: false,
-          // locale: const Locale('it','IT'),
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en'),
-            Locale('it'),
-          ],
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: switch (appTheme) {
+              AppTheme.system => (MediaQuery.of(context).platformBrightness == Brightness.light)
+                  ? const Color(0xFFECECF2)  // light background
+                  : const Color(0xFF1F2128), // dark background
+              AppTheme.light  => const Color(0xFFECECF2),
+              AppTheme.dark   => const Color(0xFF1F2128),
+            },
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 1000),
+              child: MaterialApp.router(
+                routerConfig: _appRouter.config(
+                  neglectWhen: (location) => true,
+                ),
+                themeMode: ThemeMode.values.byName(appTheme.name),
+                theme: _materialTheme.light(),
+                darkTheme: _materialTheme.dark(),
+                debugShowCheckedModeBanner: false,
+                // locale: const Locale('it','IT'),
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('en'),
+                  Locale('it'),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

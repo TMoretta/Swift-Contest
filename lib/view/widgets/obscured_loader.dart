@@ -7,7 +7,9 @@ class ObscuredLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withAlpha(40),
+      color: (Theme.of(context).brightness == Brightness.light)
+          ? Colors.black.withAlpha(10)
+          : Colors.black.withAlpha(40),
       child: Loader(),
     );
   }

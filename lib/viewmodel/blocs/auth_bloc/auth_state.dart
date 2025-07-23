@@ -4,6 +4,7 @@ part of 'auth_bloc.dart';
 final class AuthState extends Equatable {
   final BlocStatus blocStatus;
   final AuthStatus authStatus;
+  final bool isInitialized;
   final AuthEvent? sourceEvent;
   final String? message;
   final User? user;
@@ -13,6 +14,7 @@ final class AuthState extends Equatable {
   const AuthState({
     required this.blocStatus,
     required this.authStatus,
+    this.isInitialized = false,
     this.sourceEvent,
     this.message,
     this.user,
@@ -23,6 +25,7 @@ final class AuthState extends Equatable {
   AuthState copyWith({
     required BlocStatus blocStatus,
     AuthStatus? authStatus,
+    bool? isInitialized,
     AuthEvent? sourceEvent,
     String? message,
     User? user,
@@ -32,6 +35,7 @@ final class AuthState extends Equatable {
     return AuthState(
       blocStatus: blocStatus,
       authStatus: authStatus ?? this.authStatus,
+      isInitialized: isInitialized ?? this.isInitialized,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
       user: user ?? this.user,
@@ -44,6 +48,7 @@ final class AuthState extends Equatable {
     return AuthState(
       blocStatus: BlocStatus.values.byName(json['bloc_status']),
       authStatus: AuthStatus.values.byName(json['auth_status']),
+      isInitialized: json['is_initialized'] as bool,
       user: (json['user'] !=null) ? User.fromJson(json['user']) : null,
       profile: (json['profile'] !=null) ? Profile.fromJson(json['profile']) : null,
       messages:(json['messages'] !=null) ? (json['messages'] as List<dynamic>).map((e) => Message.fromJson(e)).toList(growable: false) : null,
@@ -54,6 +59,7 @@ final class AuthState extends Equatable {
     return {
       'bloc_status': blocStatus.name,
       'auth_status': authStatus.name,
+      'is_initialized': isInitialized,
       'user': user?.toJson(),
       'profile': profile?.toJson(),
       'messages': messages?.map((e) => e.toJson()).toList(growable: false),
@@ -64,6 +70,7 @@ final class AuthState extends Equatable {
   List<Object?> get props => [
         authStatus,
         blocStatus,
+        isInitialized,
         sourceEvent,
         message,
         user,

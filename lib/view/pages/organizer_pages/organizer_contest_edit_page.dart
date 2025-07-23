@@ -95,7 +95,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
     profile = context.read<AuthBloc>().state.profile!;
     context
         .read<OrganizerContestEditPageBloc>()
-        .add(OrganizerContestEditPageInit(contestId: contestId));
+        .add(OrganizerContestEditPageFetch(contestId: contestId));
   }
 
   @override
@@ -141,7 +141,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: 'Edit contest',
+            title: 'Edit contest'
           ),
           body: Builder(
             builder: (context) {
@@ -149,17 +149,17 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is OrganizerContestEditPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is OrganizerContestEditPageInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async => context
                           .read<OrganizerContestEditPageBloc>()
-                          .add(OrganizerContestEditPageInit(contestId: contestId)),
+                          .add(OrganizerContestEditPageFetch(contestId: contestId)),
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
                   } else {

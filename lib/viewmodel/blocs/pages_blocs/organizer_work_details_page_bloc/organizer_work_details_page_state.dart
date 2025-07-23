@@ -4,12 +4,14 @@ part of 'organizer_work_details_page_bloc.dart';
 final class OrganizerWorkDetailsPageState extends Equatable {
   final BlocStatus status;
   final OrganizerWorkDetailsPageEvent? sourceEvent;
+  final bool isInitialized;
   final String? message;
   final ParticipationBundle? participationBundle;
 
   const OrganizerWorkDetailsPageState({
     required this.status,
     this.sourceEvent,
+    this.isInitialized = false,
     this.message,
     this.participationBundle,
   });
@@ -17,12 +19,14 @@ final class OrganizerWorkDetailsPageState extends Equatable {
   OrganizerWorkDetailsPageState copyWith({
     required BlocStatus status,
     OrganizerWorkDetailsPageEvent? sourceEvent,
+    bool? isInitialized,
     String? message,
     ParticipationBundle? participationBundle,
   }) {
     return OrganizerWorkDetailsPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
+      isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       participationBundle: participationBundle ?? this.participationBundle,
     );
@@ -32,6 +36,7 @@ final class OrganizerWorkDetailsPageState extends Equatable {
   List<Object?> get props => [
         status,
         sourceEvent,
+        isInitialized,
         message,
         participationBundle,
       ];

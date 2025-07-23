@@ -55,17 +55,17 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<OrganizerContestDetailsPageBloc>()
-                              .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                              .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
                       } else {
@@ -114,7 +114,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
-                                          OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                          OrganizerContestDetailsPageFetch(contestId: contestId)),
                                   child: (joinedParticipationsBundles.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No participant joined yet')
                                       : ListView.builder(
@@ -188,7 +188,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
-                                          OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                          OrganizerContestDetailsPageFetch(contestId: contestId)),
                                   child: (participantsInvitations.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No participant attended')
                                       : ListView.builder(
@@ -229,7 +229,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
-                                          OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                          OrganizerContestDetailsPageFetch(contestId: contestId)),
                                   child: (outParticipationsBundles.isEmpty)
                                       ? LayoutBuilder(
                                           builder: (context, constraints) {
@@ -340,7 +340,7 @@ void _showInviteDialog({required BuildContext context, required String contestId
               showSnackBar(context: context, text: 'Email sent successfully');
               context
                   .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
               context.router.pop();
             }
           },
@@ -413,7 +413,7 @@ void _showRemoveParticipantDialog({
               showSnackBar(context: context, text: 'Participant removed successfully');
               context
                   .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
             }
           },
           builder: (context, state) {
@@ -464,7 +464,7 @@ void _showDeleteInvitationDialog({
               showSnackBar(context: context, text: 'Invitation deleted successfully');
               context
                   .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageRefresh(contestId: contestId));
+                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
             }
           },
           builder: (context, state) {

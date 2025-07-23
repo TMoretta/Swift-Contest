@@ -22,7 +22,7 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthInit(delay: 0));
+    context.read<AuthBloc>().add(AuthFetch());
   }
 
   @override
@@ -61,7 +61,7 @@ class _RootPageState extends State<RootPage> {
                 switch (state.blocStatus) {
                   case BlocStatus.failure:
                     return RefreshIndicator(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                      onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return ListViewWithCentralWidget(

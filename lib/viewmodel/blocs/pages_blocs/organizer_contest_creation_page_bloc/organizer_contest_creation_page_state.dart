@@ -6,11 +6,16 @@ final class OrganizerContestCreationPageState extends Equatable {
   final OrganizerContestCreationPageEvent? sourceEvent;
   final String? message;
 
-  const OrganizerContestCreationPageState({required this.status, this.sourceEvent, this.message,});
+  const OrganizerContestCreationPageState({
+    required this.status,
+    this.sourceEvent,
+    this.message,
+  });
 
   OrganizerContestCreationPageState copyWith({
     required BlocStatus status,
     OrganizerContestCreationPageEvent? sourceEvent,
+    bool? isInitialized,
     String? message,
   }) {
     return OrganizerContestCreationPageState(
@@ -21,5 +26,9 @@ final class OrganizerContestCreationPageState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, message];
+  List<Object?> get props => [
+        status,
+        sourceEvent,
+        message,
+      ];
 }

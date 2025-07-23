@@ -4,6 +4,17 @@ sealed class OrganizerVotingProcedurePageEvent extends Equatable {
   const OrganizerVotingProcedurePageEvent();
 }
 
+final class OrganizerVotingProcedurePageFetch extends OrganizerVotingProcedurePageEvent {
+  final String votingSessionId;
+
+  const OrganizerVotingProcedurePageFetch({
+    required this.votingSessionId,
+  });
+
+  @override
+  List<Object?> get props => [votingSessionId];
+}
+
 final class OrganizerVotingProcedurePageStartVotingSessionProcedure extends OrganizerVotingProcedurePageEvent {
   final String votingSessionId;
 
@@ -13,27 +24,17 @@ final class OrganizerVotingProcedurePageStartVotingSessionProcedure extends Orga
   List<Object?> get props => [votingSessionId];
 }
 
-final class OrganizerVotingProcedurePageInit extends OrganizerVotingProcedurePageEvent {
-  final String votingSessionId;
+// final class OrganizerVotingProcedurePageInit extends OrganizerVotingProcedurePageEvent {
+//   final String votingSessionId;
+//
+//   const OrganizerVotingProcedurePageInit({
+//     required this.votingSessionId,
+//   });
+//
+//   @override
+//   List<Object?> get props => [votingSessionId];
+// }
 
-  const OrganizerVotingProcedurePageInit({
-    required this.votingSessionId,
-  });
-
-  @override
-  List<Object?> get props => [votingSessionId];
-}
-
-final class OrganizerVotingProcedurePageRefresh extends OrganizerVotingProcedurePageEvent {
-  final String votingSessionId;
-
-  const OrganizerVotingProcedurePageRefresh({
-    required this.votingSessionId,
-  });
-
-  @override
-  List<Object?> get props => [votingSessionId];
-}
 
 final class OrganizerVotingProcedurePageCancelVotingSessionProcedure
     extends OrganizerVotingProcedurePageEvent {

@@ -60,7 +60,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
     profileId = context.read<AuthBloc>().state.profile!.id;
     context
         .read<JurorVotingProcedurePageBloc>()
-        .add(JurorVotingProcedurePageInit(votingSessionId: votingSessionId));
+        .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId));
   }
 
   @override
@@ -108,7 +108,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Voting'),
+          appBar: CustomAppBar(title: 'Voting',onRefresh: () => context.read<JurorVotingProcedurePageBloc>().add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId),),),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -118,17 +118,17 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is JurorVotingProcedurePageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is JurorVotingProcedurePageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<JurorVotingProcedurePageBloc>()
-                              .add(JurorVotingProcedurePageInit(votingSessionId: votingSessionId)),
+                              .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
                       } else {
@@ -179,7 +179,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<JurorVotingProcedurePageBloc>()
-                            .add(JurorVotingProcedurePageRefresh(votingSessionId: votingSessionId)),
+                            .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
                         child: Builder(
                           builder: (context) {
                             switch (sessionStatus) {
@@ -259,7 +259,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case (BlocStatus.loading || BlocStatus.failure):
-                  if (state.sourceEvent is JurorVotingProcedurePageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;

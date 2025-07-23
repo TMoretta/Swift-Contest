@@ -47,17 +47,17 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                     case BlocStatus.initial:
                       return VoidWidget();
                     case BlocStatus.loading:
-                      if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return VoidWidget();
                       } else {
                         continue successCase;
                       }
                     case BlocStatus.failure:
-                      if (state.sourceEvent is OrganizerContestDetailsPageInit) {
+                      if (!state.isInitialized) {
                         return RefreshIndicator.adaptive(
                           onRefresh: () async => context
                               .read<OrganizerContestDetailsPageBloc>()
-                              .add(OrganizerContestDetailsPageInit(contestId: contestId)),
+                              .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                           child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                         );
                       } else {
@@ -103,7 +103,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
-                                      OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                      OrganizerContestDetailsPageFetch(contestId: contestId)),
                                   child: (participationsWithWorksBundles.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No work submitted yet')
                                       : ListView.builder(
@@ -183,7 +183,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
-                                      OrganizerContestDetailsPageRefresh(contestId: contestId)),
+                                      OrganizerContestDetailsPageFetch(contestId: contestId)),
                                   child: (participationsWithoutWorksBundles.isEmpty)
                                       ? ListViewWithCentralLabel(
                                       label: 'No work attended from joined participants')

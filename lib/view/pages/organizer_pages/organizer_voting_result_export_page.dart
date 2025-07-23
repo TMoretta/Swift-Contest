@@ -63,7 +63,7 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
     super.didChangeDependencies();
     context
         .read<OrganizerVotingResultExportPageBloc>()
-        .add(OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
+        .add(OrganizerVotingResultExportPageFetch(votingSessionId: votingSessionId));
   }
 
   @override
@@ -94,17 +94,17 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
                       onRefresh: () async {
                         context.read<OrganizerVotingResultExportPageBloc>().add(
-                            OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
+                            OrganizerVotingResultExportPageFetch(votingSessionId: votingSessionId));
                       },
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
@@ -233,19 +233,12 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
               switch (state.status) {
                 case BlocStatus.initial:
                   return VoidWidget();
-                case BlocStatus.loading:
-                  return VoidWidget();
-                case BlocStatus.failure:
-                  if (state.sourceEvent is OrganizerVotingResultExportPageInit) {
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async {
-                        context.read<OrganizerVotingResultExportPageBloc>().add(
-                            OrganizerVotingResultExportPageInit(votingSessionId: votingSessionId));
-                      },
-                      child: ListView(),
-                    );
+                case (BlocStatus.loading || BlocStatus.failure):
+                  if(!state.isInitialized) {
+                    return VoidWidget();
+                  } else {
+                    continue successCase;
                   }
-                  continue successCase;
                 successCase:
                 case BlocStatus.success:
                   final votingSessionResultBundle = state.votingSessionResultBundle!;

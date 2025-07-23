@@ -5,12 +5,14 @@ final class SimpleJurorVotingProcedurePageState extends Equatable {
   final BlocStatus status;
   final String? message;
   final SimpleJurorVotingProcedurePageEvent? sourceEvent;
+  final bool isInitialized;
   final VotingSessionProcedureBundle? votingSessionProcedureBundle;
 
   const SimpleJurorVotingProcedurePageState({
     required this.status,
     this.message,
     this.sourceEvent,
+    this.isInitialized = false,
     this.votingSessionProcedureBundle,
   });
 
@@ -18,12 +20,14 @@ final class SimpleJurorVotingProcedurePageState extends Equatable {
     required BlocStatus status,
     String? message,
     SimpleJurorVotingProcedurePageEvent? sourceEvent,
+    bool? isInitialized,
     VotingSessionProcedureBundle? votingSessionProcedureBundle,
   }) {
     return SimpleJurorVotingProcedurePageState(
       status: status,
       message: message,
       sourceEvent: sourceEvent ?? this.sourceEvent,
+      isInitialized: isInitialized ?? this.isInitialized,
       votingSessionProcedureBundle: votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
     );
   }
@@ -33,6 +37,7 @@ final class SimpleJurorVotingProcedurePageState extends Equatable {
         status,
         message,
         sourceEvent,
+        isInitialized,
         votingSessionProcedureBundle,
       ];
 }

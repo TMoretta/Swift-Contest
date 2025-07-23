@@ -4,6 +4,7 @@ part of 'organizer_voting_settings_page_bloc.dart';
 final class OrganizerVotingSettingsPageState extends Equatable {
   final BlocStatus status;
   final OrganizerVotingSettingsPageEvent? sourceEvent;
+  final bool isInitialized;
   final String? message;
   final ContestDetailsBundle? contestDetailsBundle;
   final String? votingSessionId;
@@ -11,6 +12,7 @@ final class OrganizerVotingSettingsPageState extends Equatable {
   const OrganizerVotingSettingsPageState({
     required this.status,
     this.sourceEvent,
+    this.isInitialized = false,
     this.message,
     this.contestDetailsBundle,
     this.votingSessionId,
@@ -19,6 +21,7 @@ final class OrganizerVotingSettingsPageState extends Equatable {
   OrganizerVotingSettingsPageState copyWith({
     required BlocStatus status,
     OrganizerVotingSettingsPageEvent? sourceEvent,
+    bool? isInitialized,
     String? message,
     ContestDetailsBundle? contestDetailsBundle,
     String? votingSessionId,
@@ -26,6 +29,7 @@ final class OrganizerVotingSettingsPageState extends Equatable {
     return OrganizerVotingSettingsPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
+      isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
       votingSessionId: votingSessionId ?? this.votingSessionId,
@@ -36,6 +40,7 @@ final class OrganizerVotingSettingsPageState extends Equatable {
   List<Object?> get props => [
         status,
         sourceEvent,
+        isInitialized,
         message,
         contestDetailsBundle,
         votingSessionId,

@@ -19,31 +19,31 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     required JurorRepository jurorRepository,
   })  : _jurorRepository = jurorRepository,
         super(JurorHomePageState(status: BlocStatus.initial)) {
-    on<JurorHomePageInit>(_init);
-    on<JurorHomePageRefresh>(_refresh);
+    // on<JurorHomePageInit>(_init);
+    on<JurorHomePageFetch>(_fetch);
     on<JurorHomePageFilterResults>(_filterResults);
     on<JurorHomePageJoinContest>(_joinContest);
     on<JurorHomePageVoteAsSimpleJuror>(_voteAsAuthenticatedSimpleJuror);
   }
 
-  FutureOr<void> _init(
-    JurorHomePageInit event,
-    Emitter<JurorHomePageState> emit,
-  ) async {
-    emit(JurorHomePageState(status: BlocStatus.loading, sourceEvent: event));
+  // FutureOr<void> _init(
+  //   JurorHomePageInit event,
+  //   Emitter<JurorHomePageState> emit,
+  // ) async {
+  //   emit(JurorHomePageState(status: BlocStatus.loading, sourceEvent: event));
+  //
+  //   final eitherContests = await _jurorRepository.getJoinedContests();
+  //   eitherContests.fold(
+  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+  //     (success) => emit(state.copyWith(
+  //         status: BlocStatus.success,
+  //         joinedContestsBundles: success,
+  //         filteredContestsBundles: success)),
+  //   );
+  // }
 
-    final eitherContests = await _jurorRepository.getJoinedContests();
-    eitherContests.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(
-          status: BlocStatus.success,
-          joinedContestsBundles: success,
-          filteredContestsBundles: success)),
-    );
-  }
-
-  FutureOr<void> _refresh(
-    JurorHomePageRefresh event,
+  FutureOr<void> _fetch(
+    JurorHomePageFetch event,
     Emitter<JurorHomePageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -53,6 +53,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(
           status: BlocStatus.success,
+          isInitialized: true,
           joinedContestsBundles: success,
           filteredContestsBundles: success)),
     );
@@ -65,8 +66,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherJoinContest =
-        await _jurorRepository.joinContest(token: event.token);
+    final eitherJoinContest = await _jurorRepository.joinContest(token: event.token);
     eitherJoinContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
@@ -97,7 +97,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
 
     final query = event.query.toLowerCase();
     final allContestsBundles = state.joinedContestsBundles;
-    if(allContestsBundles == null) {
+    if (allContestsBundles == null) {
       emit(state.copyWith(status: BlocStatus.failure, message: 'No contest to filter'));
       return;
     }

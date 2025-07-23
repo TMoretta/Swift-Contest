@@ -20,12 +20,12 @@ class OrganizerVotingFormEditPageBloc
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingFormEditPageState(status: BlocStatus.initial)) {
-    on<OrganizerVotingFormEditPageInit>(_getVotingForm);
+    on<OrganizerVotingFormEditPageFetch>(_fetch);
     on<OrganizerVotingFormEditPageUpdateVotingForm>(_updateVotingForm);
   }
 
-  FutureOr<void> _getVotingForm(
-    OrganizerVotingFormEditPageInit event,
+  FutureOr<void> _fetch(
+    OrganizerVotingFormEditPageFetch event,
     Emitter<OrganizerVotingFormEditPageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
@@ -34,7 +34,7 @@ class OrganizerVotingFormEditPageBloc
         await _organizerRepository.getContestVotingFormBundle(votingFormId: event.votingFormId);
     eitherVotingForm.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, votingFormBundle: success)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, isInitialized: true, votingFormBundle: success)),
     );
   }
 

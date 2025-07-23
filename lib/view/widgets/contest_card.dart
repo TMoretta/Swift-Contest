@@ -30,7 +30,7 @@ class _ContestCardState extends State<ContestCard> {
     final joinedJurations = contestCardBundle.joinedJurations;
 
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 500),
+      constraints: BoxConstraints(maxWidth: 600),
       child: Card(
         clipBehavior: Clip.antiAlias,
         child: InkWell(

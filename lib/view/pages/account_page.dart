@@ -47,22 +47,24 @@ class _AccountPageState extends State<AccountPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Account'),
+          appBar: CustomAppBar(title: 'Account',onRefresh: () {
+            context.read<AuthBloc>().add(AuthFetch());
+          },),
           body: Builder(
             builder: (context) {
               switch (state.blocStatus) {
                 case BlocStatus.initial:
                   return VoidWidget();
                 case BlocStatus.loading:
-                  if (state.sourceEvent is AuthInit) {
+                  if (!state.isInitialized) {
                     return VoidWidget();
                   } else {
                     continue successCase;
                   }
                 case BlocStatus.failure:
-                  if (state.sourceEvent is AuthInit) {
+                  if (!state.isInitialized) {
                     return RefreshIndicator.adaptive(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit(delay: 0)),
+                      onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
                       child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                     );
                   } else {
@@ -73,7 +75,7 @@ class _AccountPageState extends State<AccountPage> {
                   final user = state.user!;
                   final profile = state.profile!;
                   return RefreshIndicator.adaptive(
-                    onRefresh: () async => context.read<AuthBloc>().add(AuthRefresh()),
+                    onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
                     child: ListView(
                       children: [
                         ListTile(
