@@ -4,15 +4,6 @@ sealed class ParticipantHomePageEvent extends Equatable {
   const ParticipantHomePageEvent();
 }
 
-// final class ParticipantHomePageInit extends ParticipantHomePageEvent {
-//   final String participantId;
-//
-//   const ParticipantHomePageInit({required this.participantId});
-//
-//   @override
-//   List<Object?> get props => [participantId];
-// }
-
 final class ParticipantHomePageFetch extends ParticipantHomePageEvent {
   final String participantId;
 

@@ -4,19 +4,6 @@ sealed class ParticipantContestDetailsPageEvent extends Equatable {
   const ParticipantContestDetailsPageEvent();
 }
 
-// final class ParticipantContestDetailsPageInit extends ParticipantContestDetailsPageEvent {
-//   final String contestId;
-//   final String participantId;
-//
-//   const ParticipantContestDetailsPageInit({
-//     required this.contestId,
-//     required this.participantId,
-//   });
-//
-//   @override
-//   List<Object?> get props => [contestId, participantId];
-// }
-
 final class ParticipantContestDetailsPageFetch extends ParticipantContestDetailsPageEvent {
   final String contestId;
   final String participantId;
@@ -42,13 +29,3 @@ final class ParticipantContestDetailsPageLeaveContest extends ParticipantContest
   @override
   List<Object?> get props => [contestId, participantId];
 }
-
-// final class ParticipantContestDetailsPageGetRemainingInfo extends ParticipantContestDetailsPageEvent {
-//   final HomeContestBundle homeContestBundle;
-//   final String participantId;
-//
-//   const ParticipantContestDetailsPageGetRemainingInfo({required this.homeContestBundle, required this.participantId,});
-//
-//   @override
-//   List<Object?> get props => [homeContestBundle, participantId];
-// }

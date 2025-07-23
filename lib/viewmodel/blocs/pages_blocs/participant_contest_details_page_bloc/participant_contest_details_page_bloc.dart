@@ -26,34 +26,6 @@ class ParticipantContestDetailsPageBloc
     on<ParticipantContestDetailsPageLeaveContest>(_leaveContest);
   }
 
-  // FutureOr<void> _init(
-  //   ParticipantContestDetailsPageInit event,
-  //   Emitter<ParticipantContestDetailsPageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   late final ContestDetailsBundle contestDetailsBundle;
-  //   final eitherContestDetails =
-  //       await _participantRepository.getContestDetails(contestId: event.contestId);
-  //   eitherContestDetails.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => contestDetailsBundle = success,
-  //   );
-  //
-  //   late final Work? submittedWork;
-  //   final eitherSubmittedWork = await _participantRepository.getSubmittedWork(
-  //       contestId: event.contestId);
-  //   eitherSubmittedWork.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => submittedWork = success,
-  //   );
-  //
-  //   emit(state.copyWith(
-  //       status: BlocStatus.success,
-  //       contestDetailsBundle: contestDetailsBundle,
-  //       submittedWork: submittedWork));
-  // }
-
   FutureOr<void> _fetch(
     ParticipantContestDetailsPageFetch event,
     Emitter<ParticipantContestDetailsPageState> emit,

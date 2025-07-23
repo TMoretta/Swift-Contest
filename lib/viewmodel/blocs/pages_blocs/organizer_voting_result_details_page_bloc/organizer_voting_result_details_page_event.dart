@@ -4,17 +4,6 @@ sealed class OrganizerVotingResultDetailsPageEvent extends Equatable {
   const OrganizerVotingResultDetailsPageEvent();
 }
 
-// final class OrganizerVotingResultDetailsPageInit extends OrganizerVotingResultDetailsPageEvent {
-//   final String votingSessionId;
-//
-//   const OrganizerVotingResultDetailsPageInit({
-//     required this.votingSessionId,
-//   });
-//
-//   @override
-//   List<Object?> get props => [votingSessionId];
-// }
-
 final class OrganizerVotingResultDetailsPageFetch extends OrganizerVotingResultDetailsPageEvent {
   final String votingSessionId;
 

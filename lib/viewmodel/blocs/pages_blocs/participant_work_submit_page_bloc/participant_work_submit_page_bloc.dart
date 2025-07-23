@@ -64,55 +64,5 @@ class ParticipantWorkSubmitPageBloc
         (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
         (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
-
-    // late final Participation? participation;
-    // final eitherParticipation =
-    // await _participationRepository.getParticipationByContestIdAndParticipantId(
-    //   contestId: event.contestId,
-    //   participantId: event.participantId,
-    // );
-    // eitherParticipation.fold(
-    //       (failure) => emit(
-    //       ParticipantWorkSubmitPageState(status: BlocStatus.failure, message: failure.message)),
-    //       (success) => participation = success,
-    // );
-    // if (eitherParticipation.isLeft()) {
-    //   return;
-    // }
-    // if(participation == null) {
-    //   emit(state.copyWith(status: BlocStatus.failure, message: 'Participation not found'));
-    //   return;
-    // }
-    //
-    // late final Work work;
-    // final eitherWork = await _workRepository.createWork(
-    //   work: Work(
-    //     id: genUuid(),
-    //     createdAt: now(),
-    //     participationId: participation!.id,
-    //     name: event.name,
-    //     description: event.description,
-    //     imagesUrls: imagesUrls,
-    //   ),
-    // );
-    //
-    // eitherWork.fold(
-    //       (failure) => emit(
-    //       ParticipantWorkSubmitPageState(status: BlocStatus.failure, message: failure.message)),
-    //       (success) => work = success,
-    // );
-    // if (eitherWork.isLeft()) return;
-    //
-    // final eitherParticipationUpdate = await _participationRepository.updateParticipation(
-    //   participation: participation!.copyWith(hasSubmitted: true),
-    // );
-    // eitherParticipationUpdate.fold(
-    //       (failure) => emit(
-    //       ParticipantWorkSubmitPageState(status: BlocStatus.failure, message: failure.message)),
-    //       (success) => participation = success,
-    // );
-    // if (eitherParticipationUpdate.isLeft()) return;
-    //
-    // emit(ParticipantWorkSubmitPageState(status: BlocStatus.success, work: work));
   }
 }

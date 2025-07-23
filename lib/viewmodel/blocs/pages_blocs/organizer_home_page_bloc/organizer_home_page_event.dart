@@ -4,11 +4,6 @@ sealed class OrganizerHomePageEvent extends Equatable {
   const OrganizerHomePageEvent();
 }
 
-// final class OrganizerHomePageInit extends OrganizerHomePageEvent {
-//   @override
-//   List<Object?> get props => [];
-// }
-
 final class OrganizerHomePageFetch extends OrganizerHomePageEvent {
   @override
   List<Object?> get props => [];

@@ -4,15 +4,6 @@ sealed class AuthEvent extends Equatable {
   const AuthEvent();
 }
 
-// final class AuthInit extends AuthEvent {
-//   final int delay;
-//
-//   const AuthInit({required this.delay});
-//
-//   @override
-//   List<Object?> get props => [];
-// }
-
 final class AuthFetch extends AuthEvent {
   final int delay;
 

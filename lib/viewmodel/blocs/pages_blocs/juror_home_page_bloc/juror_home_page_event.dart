@@ -4,11 +4,6 @@ sealed class JurorHomePageEvent extends Equatable {
   const JurorHomePageEvent();
 }
 
-// final class JurorHomePageInit extends JurorHomePageEvent {
-//   @override
-//   List<Object?> get props => [];
-// }
-
 final class JurorHomePageFetch extends JurorHomePageEvent {
   @override
   List<Object?> get props => [];

@@ -18,30 +18,9 @@ class OrganizerVotingResultDetailsPageBloc
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingResultDetailsPageState(status: BlocStatus.initial)) {
-    // on<OrganizerVotingResultDetailsPageInit>(_init);
     on<OrganizerVotingResultDetailsPageFetch>(_fetch);
     on<OrganizerVotingResultDetailsPageEditVotingSessionName>(_editVotingSessionName);
   }
-
-  // FutureOr<void> _init(
-  //   OrganizerVotingResultDetailsPageInit event,
-  //   Emitter<OrganizerVotingResultDetailsPageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   late final VotingSessionResultBundle votingSessionBundle;
-  //   final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionResultBundle(
-  //       votingSessionId: event.votingSessionId);
-  //   eitherVotingSessionBundle.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => votingSessionBundle = success,
-  //   );
-  //
-  //   emit(state.copyWith(
-  //     status: BlocStatus.success,
-  //     votingSessionResultBundle: votingSessionBundle,
-  //   ));
-  // }
 
   FutureOr<void> _fetch(
     OrganizerVotingResultDetailsPageFetch event,

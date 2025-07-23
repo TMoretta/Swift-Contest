@@ -26,77 +26,9 @@ class JurorVotingProcedurePageBloc
     required JurorRepository jurorRepository,
   })  : _jurorRepository = jurorRepository,
         super(JurorVotingProcedurePageState(status: BlocStatus.initial)) {
-    // on<JurorVotingProcedurePageInit>(_init);
     on<JurorVotingProcedurePageFetch>(fetch);
     on<JurorVotingProcedurePageSubmitVotes>(_submitVotes);
   }
-
-  // FutureOr<void> _init(
-  //   JurorVotingProcedurePageInit event,
-  //   Emitter<JurorVotingProcedurePageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   //* Getting the voting session bundle
-  //   late final VotingSessionProcedureBundle votingSessionBundle;
-  //   final eitherVotingSessionBundle = await _jurorRepository.getVotingSessionProcedureBundle(
-  //       votingSessionId: event.votingSessionId);
-  //   eitherVotingSessionBundle.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => votingSessionBundle = success,
-  //   );
-  //
-  //   //* Getting the stream
-  //   late final Stream<Either<Failure, VotingSession?>> votingSessionStream;
-  //   final eitherVotingSessionStream =
-  //       await _jurorRepository.getVotingSessionStream(votingSessionId: event.votingSessionId);
-  //   eitherVotingSessionStream.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => votingSessionStream = success,
-  //   );
-  //   if (eitherVotingSessionStream.isLeft()) {
-  //     return;
-  //   }
-  //
-  //   //* Emit the initial voting session bundle
-  //   emit(state.copyWith(
-  //       status: BlocStatus.success, votingSessionProcedureBundle: votingSessionBundle));
-  //
-  //   //* Listen to procedure stream
-  //   await emit.forEach(
-  //     votingSessionStream,
-  //     onData: (eitherNewVotingSession) {
-  //       late VotingSession? newVotingSession;
-  //
-  //       eitherNewVotingSession.fold(
-  //         (failure) => null,
-  //         (success) => newVotingSession = success,
-  //       );
-  //       if (eitherNewVotingSession.isLeft()) {
-  //         return state.copyWith(status: BlocStatus.failure, message: 'No data received');
-  //       }
-  //
-  //       if (newVotingSession == null) {
-  //         return state;
-  //       }
-  //       final oldVotingSession =
-  //           state.votingSessionProcedureBundle!.votingSessionBundle.votingSession;
-  //       if (newVotingSession == oldVotingSession) {
-  //         return state;
-  //       }
-  //
-  //       return state.copyWith(
-  //         status: BlocStatus.success,
-  //         votingSessionProcedureBundle: state.votingSessionProcedureBundle!.copyWith(
-  //             votingSessionBundle: state.votingSessionProcedureBundle!.votingSessionBundle
-  //                 .copyWith(votingSession: newVotingSession)),
-  //       );
-  //     },
-  //     onError: (error, stackTrace) {
-  //       return state.copyWith(status: BlocStatus.failure, message: 'An error occurred');
-  //     },
-  //   );
-  // }
 
   FutureOr<void> fetch(
     JurorVotingProcedurePageFetch event,

@@ -26,22 +26,6 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     on<JurorHomePageVoteAsSimpleJuror>(_voteAsAuthenticatedSimpleJuror);
   }
 
-  // FutureOr<void> _init(
-  //   JurorHomePageInit event,
-  //   Emitter<JurorHomePageState> emit,
-  // ) async {
-  //   emit(JurorHomePageState(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   final eitherContests = await _jurorRepository.getJoinedContests();
-  //   eitherContests.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => emit(state.copyWith(
-  //         status: BlocStatus.success,
-  //         joinedContestsBundles: success,
-  //         filteredContestsBundles: success)),
-  //   );
-  // }
-
   FutureOr<void> _fetch(
     JurorHomePageFetch event,
     Emitter<JurorHomePageState> emit,

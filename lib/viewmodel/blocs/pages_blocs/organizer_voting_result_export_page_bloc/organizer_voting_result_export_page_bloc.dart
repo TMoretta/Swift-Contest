@@ -19,27 +19,8 @@ class OrganizerVotingResultExportPageBloc
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingResultExportPageState(status: BlocStatus.initial)) {
-    // on<OrganizerVotingResultExportPageInit>(_init);
     on<OrganizerVotingResultExportPageFetch>(_fetch);
   }
-
-  // FutureOr<void> _init(
-  //   OrganizerVotingResultExportPageInit event,
-  //   Emitter<OrganizerVotingResultExportPageState> emit,
-  // ) async {
-  //   late final VotingSessionResultBundle votingSessionBundle;
-  //   final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionResultBundle(
-  //       votingSessionId: event.votingSessionId);
-  //   eitherVotingSessionBundle.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => votingSessionBundle = success,
-  //   );
-  //
-  //   emit(state.copyWith(
-  //     status: BlocStatus.success,
-  //     votingSessionResultBundle: votingSessionBundle,
-  //   ));
-  // }
 
   FutureOr<void> _fetch(
     OrganizerVotingResultExportPageFetch event,

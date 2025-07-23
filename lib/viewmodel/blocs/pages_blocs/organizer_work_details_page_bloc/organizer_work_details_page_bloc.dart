@@ -19,23 +19,8 @@ class OrganizerWorkDetailsPageBloc
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
         super(OrganizerWorkDetailsPageState(status: BlocStatus.initial)) {
-    // on<OrganizerWorkDetailsPageInit>(_init);
     on<OrganizerWorkDetailsPageFetch>(_fetch);
   }
-
-  // FutureOr<void> _init(
-  //   OrganizerWorkDetailsPageInit event,
-  //   Emitter<OrganizerWorkDetailsPageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   final eitherParticipationBundle =
-  //       await _organizerRepository.getParticipationBundle(participationId: event.participationId);
-  //   eitherParticipationBundle.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => emit(state.copyWith(status: BlocStatus.success, participationBundle: success)),
-  //   );
-  // }
 
   FutureOr<void> _fetch(
     OrganizerWorkDetailsPageFetch event,

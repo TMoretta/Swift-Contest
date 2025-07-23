@@ -8,7 +8,6 @@ final class ParticipantContestDetailsPageState extends Equatable {
   final String? message;
   final ContestDetailsBundle? contestDetailsBundle;
   final Work? submittedWork;
-  // final Participation? ownParticipation;
 
   const ParticipantContestDetailsPageState({
     required this.status,
@@ -17,7 +16,6 @@ final class ParticipantContestDetailsPageState extends Equatable {
     this.message,
     this.contestDetailsBundle,
     this.submittedWork,
-    // this.ownParticipation,
   });
 
   ParticipantContestDetailsPageState copyWith({
@@ -36,7 +34,6 @@ final class ParticipantContestDetailsPageState extends Equatable {
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
       submittedWork: submittedWork ?? this.submittedWork,
-      // ownParticipation: ownParticipation ?? this.ownParticipation,
     );
   }
 
@@ -48,6 +45,5 @@ final class ParticipantContestDetailsPageState extends Equatable {
         message,
         contestDetailsBundle,
         submittedWork,
-        // ownParticipation,
       ];
 }

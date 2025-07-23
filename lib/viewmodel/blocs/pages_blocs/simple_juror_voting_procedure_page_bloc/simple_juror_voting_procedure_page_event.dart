@@ -4,18 +4,6 @@ sealed class SimpleJurorVotingProcedurePageEvent extends Equatable {
   const SimpleJurorVotingProcedurePageEvent();
 }
 
-// final class SimpleJurorVotingProcedurePageInit
-//     extends SimpleJurorVotingProcedurePageEvent {
-//   final String votingSessionId;
-//
-//   const SimpleJurorVotingProcedurePageInit({
-//     required this.votingSessionId,
-//   });
-//
-//   @override
-//   List<Object?> get props => [votingSessionId];
-// }
-
 final class SimpleJurorVotingProcedurePageFetch
     extends SimpleJurorVotingProcedurePageEvent {
   final String votingSessionId;

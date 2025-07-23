@@ -20,43 +20,9 @@ class JurorContestDetailsPageBloc
     required JurorRepository jurorRepository,
   })  : _jurorRepository = jurorRepository,
         super(JurorContestDetailsPageState(status: BlocStatus.initial)) {
-    // on<JurorContestDetailsPageInit>(_init);
     on<JurorContestDetailsPageFetch>(_fetch);
     on<JurorContestDetailsPageLeaveContest>(_leaveContest);
   }
-
-  // FutureOr<void> _init(
-  //   JurorContestDetailsPageInit event,
-  //   Emitter<JurorContestDetailsPageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   late final ContestDetailsBundle contestDetailsBundle;
-  //   final eitherContestDetails =
-  //       await _jurorRepository.getContestDetails(contestId: event.contestId);
-  //   eitherContestDetails.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => contestDetailsBundle = success,
-  //   );
-  //   if (eitherContestDetails.isLeft()) {
-  //     return;
-  //   }
-  //
-  //   if (contestDetailsBundle.liveVotingSession == null) {
-  //     emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: contestDetailsBundle));
-  //     return;
-  //   }
-  //
-  //   final eitherProcedureBundle = await _jurorRepository.getVotingSessionProcedureBundle(
-  //       votingSessionId: contestDetailsBundle.liveVotingSession!.id);
-  //   eitherProcedureBundle.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => emit(state.copyWith(
-  //         status: BlocStatus.success,
-  //         contestDetailsBundle: contestDetailsBundle,
-  //         votingSessionProcedureBundle: success)),
-  //   );
-  // }
 
   FutureOr<void> _fetch(
     JurorContestDetailsPageFetch event,

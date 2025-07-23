@@ -23,7 +23,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     required AuthRepository authRepository,
   })  : _authRepository = authRepository,
         super(AuthState(blocStatus: BlocStatus.initial, authStatus: AuthStatus.initial)) {
-    // on<AuthInit>(_init);
     on<AuthFetch>(_fetch);
     on<AuthFetchUser>(_fetchUser);
     on<AuthFetchProfile>(_fetchProfile);
@@ -85,54 +84,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       messages: authBundle.messages,
     ));
   }
-
-  // FutureOr<void> _fetch(
-  //   AuthFetch event,
-  //   Emitter<AuthState> emit,
-  // ) async {
-  //   emit(state.copyWith(
-  //       blocStatus: BlocStatus.loading, sourceEvent: event, authStatus: AuthStatus.initial));
-  //
-  //   late final bool userExists;
-  //   final eitherExists = await _authRepository.verifyCurrentUserExistence();
-  //   eitherExists.fold(
-  //     (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-  //     (success) => userExists = success,
-  //   );
-  //   if (eitherExists.isLeft()) {
-  //     return;
-  //   }
-  //
-  //   if (!userExists) {
-  //     emit(state.copyWith(
-  //         blocStatus: BlocStatus.success,
-  //         authStatus: AuthStatus.unauthenticated,
-  //         isInitialized: true));
-  //     return;
-  //   }
-  //
-  //   late final AuthBundle authBundle;
-  //   final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
-  //   eitherAuthBundle.fold(
-  //     (failure) => emit(state.copyWith(
-  //         blocStatus: BlocStatus.failure,
-  //         authStatus: AuthStatus.initial,
-  //         message: failure.message)),
-  //     (success) => authBundle = success,
-  //   );
-  //   if (eitherAuthBundle.isLeft()) {
-  //     return;
-  //   }
-  //
-  //   emit(state.copyWith(
-  //     blocStatus: BlocStatus.success,
-  //     authStatus: AuthStatus.authenticated,
-  //     isInitialized: true,
-  //     user: authBundle.user,
-  //     profile: authBundle.profile,
-  //     messages: authBundle.messages,
-  //   ));
-  // }
 
   FutureOr<void> _fetchUser(
     AuthFetchUser event,

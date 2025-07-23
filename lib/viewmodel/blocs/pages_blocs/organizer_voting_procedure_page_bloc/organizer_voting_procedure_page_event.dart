@@ -24,18 +24,6 @@ final class OrganizerVotingProcedurePageStartVotingSessionProcedure extends Orga
   List<Object?> get props => [votingSessionId];
 }
 
-// final class OrganizerVotingProcedurePageInit extends OrganizerVotingProcedurePageEvent {
-//   final String votingSessionId;
-//
-//   const OrganizerVotingProcedurePageInit({
-//     required this.votingSessionId,
-//   });
-//
-//   @override
-//   List<Object?> get props => [votingSessionId];
-// }
-
-
 final class OrganizerVotingProcedurePageCancelVotingSessionProcedure
     extends OrganizerVotingProcedurePageEvent {
   final String votingSessionId;

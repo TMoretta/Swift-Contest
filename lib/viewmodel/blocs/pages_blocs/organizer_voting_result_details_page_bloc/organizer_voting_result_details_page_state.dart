@@ -6,11 +6,6 @@ final class OrganizerVotingResultDetailsPageState extends Equatable {
   final bool isInitialized;
   final String? message;
   final VotingSessionResultBundle? votingSessionResultBundle;
-  // final Map<JurationBundle, Map<ParticipationBundle, List<JurorVoteBundle>?>>?
-  //     participantsVotingsPerJurorMap;
-  // final Map<ParticipationBundle, Map<JurationBundle, List<JurorVoteBundle>?>>?
-  //     jurorsVotingsPerParticipantMap;
-  // final List<JurationBundle>? jurorsWithoutSubmissionBundles;
 
   const OrganizerVotingResultDetailsPageState({
     required this.status,
@@ -18,9 +13,6 @@ final class OrganizerVotingResultDetailsPageState extends Equatable {
     this.isInitialized = false,
     this.message,
     this.votingSessionResultBundle,
-    // this.jurorsWithoutSubmissionBundles,
-    // this.participantsVotingsPerJurorMap,
-    // this.jurorsVotingsPerParticipantMap,
   });
 
   OrganizerVotingResultDetailsPageState copyWith({
@@ -29,11 +21,6 @@ final class OrganizerVotingResultDetailsPageState extends Equatable {
     bool? isInitialized,
     String? message,
     VotingSessionResultBundle? votingSessionResultBundle,
-    // Map<JurationBundle, Map<ParticipationBundle, List<JurorVoteBundle>?>>?
-    //     participantsVotingsPerJurorMap,
-    // Map<ParticipationBundle, Map<JurationBundle, List<JurorVoteBundle>?>>?
-    //     jurorsVotingsPerParticipantMap,
-    // List<JurationBundle>? jurorsWithoutSubmissionBundles,
   }) {
     return OrganizerVotingResultDetailsPageState(
       status: status,
@@ -41,12 +28,6 @@ final class OrganizerVotingResultDetailsPageState extends Equatable {
       isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       votingSessionResultBundle: votingSessionResultBundle ?? this.votingSessionResultBundle,
-      // participantsVotingsPerJurorMap:
-      //     participantsVotingsPerJurorMap ?? this.participantsVotingsPerJurorMap,
-      // jurorsVotingsPerParticipantMap:
-      //     jurorsVotingsPerParticipantMap ?? this.jurorsVotingsPerParticipantMap,
-      // jurorsWithoutSubmissionBundles:
-      //     jurorsWithoutSubmissionBundles ?? this.jurorsWithoutSubmissionBundles,
     );
   }
 
@@ -57,8 +38,5 @@ final class OrganizerVotingResultDetailsPageState extends Equatable {
         isInitialized,
         message,
         votingSessionResultBundle,
-        // participantsVotingsPerJurorMap,
-        // jurorsVotingsPerParticipantMap,
-        // jurorsWithoutSubmissionBundles,
       ];
 }

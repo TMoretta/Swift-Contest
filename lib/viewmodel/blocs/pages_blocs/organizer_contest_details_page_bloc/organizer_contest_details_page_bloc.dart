@@ -21,7 +21,6 @@ class OrganizerContestDetailsPageBloc
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
-    // on<OrganizerContestDetailsPageInit>(_init);
     on<OrganizerContestDetailsPageFetch>(_fetch);
     on<OrganizerContestDetailsPageSendParticipantInvite>(_sendParticipantInvite);
     on<OrganizerContestDetailsPageSendJurorInvite>(_sendJurorInvite);
@@ -33,21 +32,6 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageSetStatusAsActive>(_setStatusAsActive);
     on<OrganizerContestDetailsPageSetStatusAsTerminated>(_setStatusAsTerminated);
   }
-
-  // FutureOr<void> _init(
-  //   OrganizerContestDetailsPageInit event,
-  //   Emitter<OrganizerContestDetailsPageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   final eitherDetails = await _organizerRepository.getContestDetails(contestId: event.contestId);
-  //   eitherDetails.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) {
-  //       emit(state.copyWith(status: BlocStatus.success, contestDetailsBundle: success));
-  //     },
-  //   );
-  // }
 
   FutureOr<void> _fetch(
     OrganizerContestDetailsPageFetch event,

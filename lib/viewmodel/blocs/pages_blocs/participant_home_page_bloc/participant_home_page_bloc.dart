@@ -18,28 +18,10 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
     required ParticipantRepository participantRepository,
   })  : _participantRepository = participantRepository,
         super(ParticipantHomePageState(status: BlocStatus.initial)) {
-    // on<ParticipantHomePageInit>(_init);
     on<ParticipantHomePageFetch>(_fetch);
     on<ParticipantHomePageFilterResults>(_filterResults);
     on<ParticipantHomePageJoinContest>(_joinContest);
   }
-
-  // FutureOr<void> _init(
-  //   ParticipantHomePageInit event,
-  //   Emitter<ParticipantHomePageState> emit,
-  // ) async {
-  //   emit(ParticipantHomePageState(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   final eitherContests =
-  //       await _participantRepository.getJoinedContests();
-  //   eitherContests.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => emit(state.copyWith(
-  //         status: BlocStatus.success,
-  //         joinedContestsBundles: success,
-  //         filteredContestsBundles: success)),
-  //   );
-  // }
 
   FutureOr<void> _fetch(
     ParticipantHomePageFetch event,
