@@ -222,7 +222,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                     SizedBox(height: 16),
                                     Center(
                                       child: CustomTimerCountdown(
-                                        label: 'Reviewing',
+                                        label: 'Review',
                                         endTime: currentStepDeadline,
                                       ),
                                     ),

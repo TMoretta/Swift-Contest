@@ -5,6 +5,7 @@ import 'package:swift_contest/model/data_models/voting_form_field.dart';
 import 'package:swift_contest/model/data_models/voting_session_participation.dart';
 import 'package:swift_contest/model/enums/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_timer_countdown.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
@@ -95,20 +96,30 @@ class _SimpleJurorVotingProcedurePageState extends State<SimpleJurorVotingProced
             state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
                 VotingSessionStatus.ended) {
           showSnackBar(context: context, text: 'Voting session procedure is ended');
-          context.router.pop(true);
+          if(context.router.canPop()) {
+            context.router.pop(true);
+          } else {
+            context.router.replaceAll([RootRoute()]);
+          }
         }
         if (state.status.isSuccess &&
             state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
                 VotingSessionStatus.cancelled) {
-          showSnackBar(
-              context: context,
-              text: 'Voting session procedure has been cancelled by the organizer');
-          context.router.pop();
+          showSnackBar(context: context, text: 'Voting session procedure has been cancelled by the organizer');
+          if(context.router.canPop()) {
+            context.router.pop();
+          } else {
+            context.router.replaceAll([RootRoute()]);
+          }
         }
         if (state.status.isSuccess &&
             state.sourceEvent is SimpleJurorVotingProcedurePageSubmitVotes) {
           showSnackBar(context: context, text: 'Votes submitted successfully');
-          context.router.pop();
+          if(context.router.canPop()) {
+            context.router.pop();
+          } else {
+            context.router.replaceAll([RootRoute()]);
+          }
         }
       },
       builder: (context, state) {

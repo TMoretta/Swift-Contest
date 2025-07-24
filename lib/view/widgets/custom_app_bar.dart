@@ -18,7 +18,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leadingWidth: 112,
+      leadingWidth: (kIsWeb) ? 112 : null,
       automaticallyImplyLeading: (!kIsWeb),
       leading: (kIsWeb)
           ? Row(

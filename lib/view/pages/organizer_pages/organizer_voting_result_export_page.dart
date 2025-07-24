@@ -269,107 +269,112 @@ class _OrganizerVotingResultExportPageState extends State<OrganizerVotingResultE
                       final xlsio.Worksheet sheet = workbook.worksheets[0];
                       sheet.name = 'Results';
 
-                      // 3) Costruisci i dati di header
-                      // Riga 1: merged cell per i partecipanti
-                      sheet.getRangeByIndex(1, 1).setText('Jurors');
                       int rowIndex = 1;
-                      int colIndex = 2;
-                      for (var participationBundle in selectedParticipationsBundles) {
-                        int start = colIndex;
-                        int end = colIndex + selectedFields.length - 1;
-                        sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
-                        sheet
-                            .getRangeByIndex(rowIndex, start)
-                            .setText(participationBundle.participant.fullName);
-                        sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
-                            xlsio.HAlignType.center;
-                        colIndex = end + 1;
-                      }
+                      int colIndex = 1;
 
-                      ++rowIndex;
-                      // Riga 2: nomi dei campi
-                      colIndex = 2;
-                      for (int i = 0; i < selectedParticipationsBundles.length; i++) {
-                        for (var field in selectedFields) {
-                          sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
-                          sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
-                              xlsio.HAlignType.center;
-                          colIndex++;
-                        }
-                      }
-
-                      ++rowIndex;
-
-                      // 4) Scrivi il corpo dati
-                      for (var jurationBundle in selectedJurationsBundles) {
-                        sheet.getRangeByIndex(rowIndex, 1).setText(jurationBundle.juror.fullName);
-                        colIndex = 2;
+                      //* Jurors
+                      if(selectedJurationsBundles.isNotEmpty) {
+                        sheet.getRangeByIndex(rowIndex, colIndex).setText('Jurors');
+                        ++colIndex;
                         for (var participationBundle in selectedParticipationsBundles) {
-                          for (int i = 0; i < selectedFields.length; i++) {
-                            final jurorVoteBundle =
-                                jurorsVotingsPerParticipantMap[participationBundle]![jurationBundle]
-                                    ?[i];
-                            if (jurorVoteBundle != null) {
-                              sheet
-                                  .getRangeByIndex(rowIndex, colIndex)
-                                  .setText(jurorVoteBundle.jurorVote.value.toString());
-                              colIndex++;
-                            } else {
-                              sheet.getRangeByIndex(rowIndex, colIndex).setText('Excluded');
-                              colIndex++;
-                            }
-                          }
+                          int start = colIndex;
+                          int end = colIndex + selectedFields.length - 1;
+                          sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
+                          sheet
+                              .getRangeByIndex(rowIndex, start)
+                              .setText(participationBundle.participant.fullName);
+                          sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
+                              xlsio.HAlignType.center;
+                          colIndex = end + 1;
                         }
+
                         ++rowIndex;
-                      }
-
-                      ++rowIndex;
-                      ++rowIndex;
-
-                      //* Simple Jurors
-                      sheet.getRangeByIndex(rowIndex, 1).setText('Simple jurors');
-                      // headers
-                      colIndex = 2;
-                      for (var participationBundle in selectedParticipationsBundles) {
-                        int start = colIndex;
-                        int end = colIndex + selectedFields.length - 1;
-                        sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
-                        sheet
-                            .getRangeByIndex(rowIndex, start)
-                            .setText(participationBundle.participant.fullName);
-                        sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
-                            xlsio.HAlignType.center;
-                        colIndex = end + 1;
-                      }
-
-                      ++rowIndex;
-                      // Riga 2: nomi dei campi
-                      colIndex = 2;
-                      for (int i = 0; i < selectedParticipationsBundles.length; i++) {
-                        for (var field in selectedFields) {
-                          sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
-                          sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
-                              xlsio.HAlignType.center;
-                          colIndex++;
-                        }
-                      }
-
-                      ++rowIndex;
-
-                      for (var simpleJuror in selectedSimpleJurors) {
-                        sheet.getRangeByIndex(rowIndex, 1).setText(simpleJuror.fullName);
+                        // Riga 2: nomi dei campi
                         colIndex = 2;
-                        for (var participationBundle in selectedParticipationsBundles) {
-                          for (int i = 0; i < selectedFields.length; i++) {
-                            final simpleJurorVoteBundle = simpleJurorsVotingsPerParticipantMap[
-                                participationBundle]![simpleJuror]![i];
-                            sheet
-                                .getRangeByIndex(rowIndex, colIndex)
-                                .setText(simpleJurorVoteBundle.simpleJurorVote.value.toString());
+                        for (int i = 0; i < selectedParticipationsBundles.length; i++) {
+                          for (var field in selectedFields) {
+                            sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
+                            sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
+                                xlsio.HAlignType.center;
                             colIndex++;
                           }
                         }
+
                         ++rowIndex;
+
+                        // 4) Scrivi il corpo dati
+                        for (var jurationBundle in selectedJurationsBundles) {
+                          sheet.getRangeByIndex(rowIndex, 1).setText(jurationBundle.juror.fullName);
+                          colIndex = 2;
+                          for (var participationBundle in selectedParticipationsBundles) {
+                            for (int i = 0; i < selectedFields.length; i++) {
+                              final jurorVoteBundle =
+                              jurorsVotingsPerParticipantMap[participationBundle]![jurationBundle]
+                              ?[i];
+                              if (jurorVoteBundle != null) {
+                                sheet
+                                    .getRangeByIndex(rowIndex, colIndex)
+                                    .setText(jurorVoteBundle.jurorVote.value.toString());
+                                colIndex++;
+                              } else {
+                                sheet.getRangeByIndex(rowIndex, colIndex).setText('Excluded');
+                                colIndex++;
+                              }
+                            }
+                          }
+                          ++rowIndex;
+                        }
+
+                        ++rowIndex;
+                        ++rowIndex;
+                      }
+
+                      //* Simple Jurors
+                      if(selectedSimpleJurors.isNotEmpty) {
+                        sheet.getRangeByIndex(rowIndex, 1).setText('Simple jurors');
+                        // headers
+                        colIndex = 2;
+                        for (var participationBundle in selectedParticipationsBundles) {
+                          int start = colIndex;
+                          int end = colIndex + selectedFields.length - 1;
+                          sheet.getRangeByIndex(rowIndex, start, 1, end).merge();
+                          sheet
+                              .getRangeByIndex(rowIndex, start)
+                              .setText(participationBundle.participant.fullName);
+                          sheet.getRangeByIndex(rowIndex, start).cellStyle.hAlign =
+                              xlsio.HAlignType.center;
+                          colIndex = end + 1;
+                        }
+
+                        ++rowIndex;
+                        // Riga 2: nomi dei campi
+                        colIndex = 2;
+                        for (int i = 0; i < selectedParticipationsBundles.length; i++) {
+                          for (var field in selectedFields) {
+                            sheet.getRangeByIndex(rowIndex, colIndex).setText(field.name);
+                            sheet.getRangeByIndex(rowIndex, colIndex).cellStyle.hAlign =
+                                xlsio.HAlignType.center;
+                            colIndex++;
+                          }
+                        }
+
+                        ++rowIndex;
+
+                        for (var simpleJuror in selectedSimpleJurors) {
+                          sheet.getRangeByIndex(rowIndex, 1).setText(simpleJuror.fullName);
+                          colIndex = 2;
+                          for (var participationBundle in selectedParticipationsBundles) {
+                            for (int i = 0; i < selectedFields.length; i++) {
+                              final simpleJurorVoteBundle = simpleJurorsVotingsPerParticipantMap[
+                              participationBundle]![simpleJuror]![i];
+                              sheet
+                                  .getRangeByIndex(rowIndex, colIndex)
+                                  .setText(simpleJurorVoteBundle.simpleJurorVote.value.toString());
+                              colIndex++;
+                            }
+                          }
+                          ++rowIndex;
+                        }
                       }
 
                       try {

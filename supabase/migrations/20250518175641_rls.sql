@@ -10,7 +10,7 @@ end $$;
 CREATE POLICY "VotingSessions All"
 ON voting_sessions
 FOR ALL
-TO authenticated
+TO authenticated, anon
 USING (TRUE)
 WITH CHECK (TRUE);
 

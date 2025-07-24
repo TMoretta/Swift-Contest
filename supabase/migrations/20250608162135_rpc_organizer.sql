@@ -2059,7 +2059,54 @@ RETURNS TABLE (
   voting_session_jurations jsonb,
   voting_session_exclusions jsonb
 ) AS $$
+DECLARE
+  v_current_user_id uuid;
+  v_current_profile profiles;
+  v_contest_id uuid;
+  v_organizer_id uuid;
 BEGIN
+
+  v_current_user_id := auth.uid();
+
+  IF (v_current_user_id is null) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = v_current_user_id AND deleted_at is null
+  ) THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+
+  SELECT * INTO v_current_profile
+  FROM profiles
+  WHERE user_id = v_current_user_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT contest_id INTO v_contest_id
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  SELECT organizer_id INTO v_organizer_id
+  FROM contests
+  WHERE id = v_contest_id AND deleted_at is null;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found';
+  END IF;
+
+  IF(v_current_profile.id <> v_organizer_id) THEN
+    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+  END IF;
+
   RETURN QUERY
     SELECT
       -- all participations for the contest
