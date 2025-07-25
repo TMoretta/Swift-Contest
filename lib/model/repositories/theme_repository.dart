@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swift_contest/model/enums/app_theme.dart';
 import 'package:swift_contest/utils/failures/failures.dart';

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:swift_contest/model/google_place_models/google_place.dart';
 import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
