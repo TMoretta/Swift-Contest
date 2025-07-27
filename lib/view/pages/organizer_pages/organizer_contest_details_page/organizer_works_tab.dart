@@ -66,9 +66,9 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                     successCase:
                     case BlocStatus.success:
                       final participationsWithWorksBundles =
-                          state.contestDetailsBundle!.joinedParticipationsWithWorksBundles;
+                          state.contestDetailsBundle!.participationsBundles.where((e) => e.work !=null).toList(growable: false);
                       final participationsWithoutWorksBundles =
-                          state.contestDetailsBundle!.joinedParticipationsWithoutWorksBundles;
+                          state.contestDetailsBundle!.participationsBundles.where((e) => e.work == null).toList(growable: false);
                       return Column(
                         children: [
                           Card(
@@ -120,7 +120,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                           onTap: () {
                                             context.router.push(OrganizerWorkDetailsRoute(
                                                 participationId:
-                                                participationBundle.participation.id));
+                                                participationBundle.participation.id!));
                                           },
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,

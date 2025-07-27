@@ -7,8 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:pinput/pinput.dart';
-import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
+import 'package:swift_contest/model/db/entities/place.dart';
+import 'package:swift_contest/model/db/entities/profile.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -61,6 +61,8 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
 
   List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
+  final organizerFullNameController = TextEditingController();
+  final organizerFullNameFocusNode = FocusNode();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
   final dateController = TextEditingController();
@@ -169,22 +171,23 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                 case BlocStatus.success:
                   if (!isPageInitialized) {
                     final contestDetailsBundle = state.contestDetailsBundle!;
-                    nameController.setText(contestDetailsBundle.contest.name);
-                    descriptionController.setText(contestDetailsBundle.contest.description);
-                    date = contestDetailsBundle.contest.dateTime;
+                    organizerFullNameController.setText(contestDetailsBundle.contestBundle.contest.organizerFullName);
+                    nameController.setText(contestDetailsBundle.contestBundle.contest.name);
+                    descriptionController.setText(contestDetailsBundle.contestBundle.contest.description);
+                    date = contestDetailsBundle.contestBundle.contest.dateTime;
                     dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
-                    time = TimeOfDay.fromDateTime(contestDetailsBundle.contest.dateTime);
+                    time = TimeOfDay.fromDateTime(contestDetailsBundle.contestBundle.contest.dateTime);
                     timeController.setText(
                         '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
-                    place = contestDetailsBundle.place;
+                    place = contestDetailsBundle.contestBundle.place;
                     placeController.setText(place!.address);
-                    worksSubmissionStart = contestDetailsBundle.contest.worksSubmissionStart;
-                    worksSubmissionEnd = contestDetailsBundle.contest.worksSubmissionEnd;
+                    worksSubmissionStart = contestDetailsBundle.contestBundle.contest.worksSubmissionStart;
+                    worksSubmissionEnd = contestDetailsBundle.contestBundle.contest.worksSubmissionEnd;
                     worksSubmissionStartController
                         .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
                     worksSubmissionEndController
                         .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
-                    oldImagesUrls.addAll(contestDetailsBundle.contest.imagesUrls);
+                    oldImagesUrls.addAll(contestDetailsBundle.contestBundle.contest.imagesUrls);
                     isPageInitialized = true;
                   }
                   return Stepper(
@@ -196,21 +199,23 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                       final isLastStep = (currentStep == getSteps().length - 1);
                       if (formKeys[currentStep].currentState?.validate() ?? false) {
                         if (isLastStep) {
-                          final name = nameController.text;
-                          final description = descriptionController.text;
+                          final organizerFullName = organizerFullNameController.text.trim();
+                          final name = nameController.text.trim();
+                          final description = descriptionController.text.trim();
                           final dateTime = DateTime(
                               date!.year, date!.month, date!.day, time!.hour, time!.minute);
                           context.read<OrganizerContestEditPageBloc>().add(
                                 OrganizerContestEditPageEditContest(
-                                  contestId: contestId,
-                                  name: name,
-                                  description: description,
+                                  contest: state.contestDetailsBundle!.contestBundle.contest.copyWith(
+                                    organizerFullName: organizerFullName,
+                                    name: name,
+                                    description: description,
+                                    dateTime: dateTime,
+                                    worksSubmissionStart: worksSubmissionStart,
+                                    worksSubmissionEnd: worksSubmissionEnd,
+                                  ),
                                   place: place!,
-                                  dateTime: dateTime,
-                                  worksSubmissionStart: worksSubmissionStart!,
-                                  worksSubmissionEnd: worksSubmissionEnd!,
-                                  images: (images.isNotEmpty) ? images : null,
-                                  oldImagesUrls: oldImagesUrls,
+                                  images: images,
                                 ),
                               );
                         } else {
@@ -273,6 +278,13 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
               children: [
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
+                  controller: organizerFullNameController,
+                  focusNode: organizerFullNameFocusNode,
+                  label: 'Your full name',
+                  validator: (value) => nameValidator(value?.trim()),
+                ),
+                CustomTextFormField(
+                  borderType: InputBorderType.outlined,
                   controller: nameController,
                   focusNode: nameFocusNode,
                   label: 'Name',
@@ -323,14 +335,14 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   prefixIcon: Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
-                      final PlaceModel? placeNullable =
+                      final Place? placeRes =
                           await context.router.push(PlaceSearchRoute());
-                      if (placeNullable != null) {
-                        placeController.text = placeNullable.address!;
+                      if (placeRes != null) {
+                        placeController.text = placeRes.address;
                         place = place?.copyWith(
-                            address: placeNullable.address,
-                            lat: placeNullable.lat,
-                            lon: placeNullable.lon);
+                            address: placeRes.address,
+                            lat: placeRes.lat,
+                            lon: placeRes.lon);
                       }
                     },
                     child: Text('Select'),

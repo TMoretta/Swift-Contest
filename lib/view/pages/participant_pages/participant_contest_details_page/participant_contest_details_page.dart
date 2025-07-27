@@ -43,7 +43,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
   void initState() {
     super.initState();
     contestId = widget.contestId;
-    profileId = context.read<AuthBloc>().state.profile!.id;
+    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override

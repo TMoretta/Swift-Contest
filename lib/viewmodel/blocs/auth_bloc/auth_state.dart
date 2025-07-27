@@ -7,7 +7,7 @@ final class AuthState extends Equatable {
   final bool isInitialized;
   final AuthEvent? sourceEvent;
   final String? message;
-  final User? user;
+  final Account? account;
   final Profile? profile;
   final List<Message>? messages;
 
@@ -17,7 +17,7 @@ final class AuthState extends Equatable {
     this.isInitialized = false,
     this.sourceEvent,
     this.message,
-    this.user,
+    this.account,
     this.profile,
     this.messages,
   });
@@ -28,7 +28,7 @@ final class AuthState extends Equatable {
     bool? isInitialized,
     AuthEvent? sourceEvent,
     String? message,
-    User? user,
+    Account? account,
     Profile? profile,
     List<Message>? messages,
   }) {
@@ -38,7 +38,7 @@ final class AuthState extends Equatable {
       isInitialized: isInitialized ?? this.isInitialized,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      user: user ?? this.user,
+      account: account ?? this.account,
       profile: profile ?? this.profile,
       messages: messages ?? this.messages,
     );
@@ -49,7 +49,7 @@ final class AuthState extends Equatable {
       blocStatus: BlocStatus.values.byName(json['bloc_status']),
       authStatus: AuthStatus.values.byName(json['auth_status']),
       isInitialized: json['is_initialized'] as bool,
-      user: (json['user'] !=null) ? User.fromJson(json['user']) : null,
+      account: (json['account'] !=null) ? Account.fromJson(json['account']) : null,
       profile: (json['profile'] !=null) ? Profile.fromJson(json['profile']) : null,
       messages:(json['messages'] !=null) ? (json['messages'] as List<dynamic>).map((e) => Message.fromJson(e)).toList(growable: false) : null,
     );
@@ -60,7 +60,7 @@ final class AuthState extends Equatable {
       'bloc_status': blocStatus.name,
       'auth_status': authStatus.name,
       'is_initialized': isInitialized,
-      'user': user?.toJson(),
+      'account': account?.toJson(),
       'profile': profile?.toJson(),
       'messages': messages?.map((e) => e.toJson()).toList(growable: false),
     };
@@ -73,7 +73,7 @@ final class AuthState extends Equatable {
         isInitialized,
         sourceEvent,
         message,
-        user,
+        account,
         profile,
         messages,
       ];

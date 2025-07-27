@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_details_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_jurors_tab.dart';
@@ -14,6 +13,8 @@ import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+
+import 'organizer_juries_tab.dart';
 
 @RoutePage()
 class OrganizerContestDetailsPage extends StatefulWidget implements AutoRouteWrapper {
@@ -77,64 +78,31 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: 'Your contest',
+            title: state.contestDetailsBundle?.contestBundle.contest.name ?? '',
             onRefresh: () => context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageFetch(contestId: contestId)),
             actions: [
-              Builder(
-                builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case (BlocStatus.loading || BlocStatus.failure):
-                      if (!state.isInitialized) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      return _Menu(contestId: contestId);
-                  }
-                },
-              ),
+              if(state.isInitialized) _Menu(contestId: contestId),
             ],
           ),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: DefaultTabController(
-                length: 5,
+                length: 4,
                 child: Column(
                   children: [
-                    SizedBox(height: 16),
-                    Builder(
-                      builder: (context) {
-                        switch (state.status) {
-                          case BlocStatus.initial:
-                            return VoidWidget();
-                          case (BlocStatus.loading || BlocStatus.failure):
-                            if (!state.isInitialized) {
-                              return VoidWidget();
-                            } else {
-                              continue successCase;
-                            }
-                          successCase:
-                          case BlocStatus.success:
-                            return TabBar(
-                              isScrollable: true,
-                              tabAlignment: TabAlignment.center,
-                              indicatorSize: TabBarIndicatorSize.label,
-                              tabs: [
-                                Tab(text: 'Details'),
-                                Tab(text: 'Participants'),
-                                Tab(text: 'Jurors'),
-                                Tab(text: 'Works'),
-                                Tab(text: 'Voting'),
-                              ],
-                            );
-                        }
-                      },
-                    ),
+                    if(state.isInitialized)
+                      TabBar(
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.center,
+                        tabs: [
+                          Tab(text: 'Details'),
+                          Tab(text: 'Participants'),
+                          Tab(text: 'Works'),
+                          Tab(text: 'Juries'),
+                          // Tab(text: 'Voting'),
+                        ],
+                      ),
                     SizedBox(height: 16),
                     Expanded(
                       child: TabBarView(
@@ -142,9 +110,9 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                         children: [
                           OrganizerDetailsTab(contestId: contestId),
                           OrganizerParticipantsTab(contestId: contestId),
-                          OrganizerJurorsTab(contestId: contestId),
                           OrganizerWorksTab(contestId: contestId),
-                          OrganizerVotingTab(contestId: contestId),
+                          OrganizerJuriesTab(contestId: contestId),
+                          // OrganizerVotingTab(contestId: contestId),
                         ],
                       ),
                     ),
@@ -170,9 +138,6 @@ class _Menu extends StatelessWidget {
       icon: const Icon(Icons.more_vert),
       onSelected: (option) async {
         switch (option) {
-          case 'Switch status':
-            _showSwitchStatusDialog(context: context, contestId: contestId);
-            break;
           case 'Edit':
             final bool? res =
                 await context.router.push(OrganizerContestEditRoute(contestId: contestId));
@@ -191,17 +156,6 @@ class _Menu extends StatelessWidget {
       },
       itemBuilder: (context) {
         return [
-          const PopupMenuItem(
-            value: 'Switch status',
-            child: ListTile(
-              leading: Icon(Icons.circle),
-              title: Text(
-                'Switch status',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
           const PopupMenuItem(
             value: 'Edit',
             child: ListTile(
@@ -235,61 +189,6 @@ class _Menu extends StatelessWidget {
       },
     );
   }
-}
-
-void _showSwitchStatusDialog({required BuildContext context, required String contestId}) {
-  final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
-  showDialog(
-    context: context,
-    builder: (context) {
-      return BlocProvider.value(
-        value: organizerContestDetailsPageBloc,
-        child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-          listener: (context, state) {
-            if (state.status.isSuccess &&
-                (state.sourceEvent is OrganizerContestDetailsPageSetStatusAsActive ||
-                    state.sourceEvent is OrganizerContestDetailsPageSetStatusAsTerminated)) {
-              context.router.pop();
-              context
-                  .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
-            }
-          },
-          builder: (context, state) {
-            return AlertDialog(
-              title: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated)
-                  ? 'Set as active'
-                  : 'Set as terminated'),
-              content: Text((state.contestDetailsBundle!.contest.contestStatus.isTerminated)
-                  ? 'Are you sure you want to set this contest as active?'
-                  : 'Are you sure you want to set this contest as terminated?'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    context.router.pop();
-                  },
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (state.contestDetailsBundle!.contest.contestStatus.isTerminated) {
-                      context
-                          .read<OrganizerContestDetailsPageBloc>()
-                          .add(OrganizerContestDetailsPageSetStatusAsActive(contestId: contestId));
-                    } else {
-                      context.read<OrganizerContestDetailsPageBloc>().add(
-                          OrganizerContestDetailsPageSetStatusAsTerminated(contestId: contestId));
-                    }
-                  },
-                  child: Text('Proceed'),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-    },
-  );
 }
 
 void _showDeleteContestDialog({required BuildContext context, required String contestId}) {

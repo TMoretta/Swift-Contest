@@ -15,7 +15,7 @@ final class OrganizerVotingFormEditPageFetch extends OrganizerVotingFormEditPage
 
 final class OrganizerVotingFormEditPageUpdateVotingForm extends OrganizerVotingFormEditPageEvent {
   final String votingFormId;
-  final List<VotingFormFieldModel> votingFormFields;
+  final List<VotingFormField> votingFormFields;
 
   const OrganizerVotingFormEditPageUpdateVotingForm({
     required this.votingFormId,

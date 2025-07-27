@@ -4,9 +4,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/data_models/work.dart';
-import 'package:swift_contest/model/repositories/participant_repository.dart';
-import 'package:swift_contest/model/repositories/storage_repository.dart';
+import 'package:swift_contest/model/db/entities/work.dart';
+import 'package:swift_contest/model/db/repositories/participant_repository.dart';
+import 'package:swift_contest/model/db/repositories/storage_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'participant_work_submit_page_event.dart';
@@ -35,7 +35,7 @@ class ParticipantWorkSubmitPageBloc
 
     late final List<String> imagesUrls;
     final eitherImagesUrls = await _storageRepository.uploadImages(
-        bucket: StorageBucket.worksImages, images: event.images);
+        bucket: StorageBucket.worksImages, pathPrefix: '', images: event.images);
     eitherImagesUrls.fold(
       (failure) => emit(
           ParticipantWorkSubmitPageState(status: BlocStatus.failure, message: failure.message)),
@@ -46,7 +46,7 @@ class ParticipantWorkSubmitPageBloc
     }
 
     late final String fileUrl;
-    final eitherFileUrl = await _storageRepository.uploadFile(bucket: StorageBucket.worksFiles, file: event.file);
+    final eitherFileUrl = await _storageRepository.uploadFile(bucket: StorageBucket.worksFiles, pathPrefix: '', file: event.file);
     eitherFileUrl.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
         (success) => fileUrl = success,
@@ -55,10 +55,7 @@ class ParticipantWorkSubmitPageBloc
 
     final eitherWork = await _participantRepository.submitWork(
       contestId: event.contestId,
-      name: event.name,
-      description: event.description,
-      imagesUrls: imagesUrls,
-      fileUrl: fileUrl,
+      work: Work(id: null, createdAt: null, participationId: null, participantFullName: event.participantFullName, name: event.name, description: event.description, imagesUrls: imagesUrls, fileUrl: fileUrl)
     );
     eitherWork.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),

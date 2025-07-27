@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/place.dart';
+import 'package:swift_contest/model/db/entities/place.dart';
+import 'package:swift_contest/utils/functions/gen_uuid.dart';
+import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_search_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -59,8 +61,8 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
         }
         if (state.status.isSuccess && state.sourceEvent is PlaceSearchPageFetchPlace) {
           final googlePlace = state.googlePlace!;
-          final PlaceModel place =
-              PlaceModel(address: googlePlace.address, lat: googlePlace.lat, lon: googlePlace.lon);
+          final Place place =
+              Place(id: genUuid(), createdAt: now(), address: googlePlace.address, lat: googlePlace.lat, lon: googlePlace.lon);
           context.router.pop(place);
         }
       },

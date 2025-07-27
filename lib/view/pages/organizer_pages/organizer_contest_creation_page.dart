@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/data_models/place.dart';
+import 'package:swift_contest/model/db/entities/place.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -40,13 +40,15 @@ class OrganizerContestCreationPage extends StatefulWidget implements AutoRouteWr
 }
 
 class _OrganizerContestCreationPageState extends State<OrganizerContestCreationPage> {
-  late String profileId;
+  late String accountId;
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
 
   List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
+  final organizerFullNameController = TextEditingController();
+  final organizerFullNameFocusNode = FocusNode();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
   final dateController = TextEditingController();
@@ -54,7 +56,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   final timeController = TextEditingController();
   TimeOfDay? time;
   final placeController = TextEditingController();
-  PlaceModel? place;
+  Place? place;
   final worksSubmissionStartController = TextEditingController();
   DateTime? worksSubmissionStart;
   final worksSubmissionEndController = TextEditingController();
@@ -71,7 +73,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id;
+    accountId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -129,17 +131,19 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   final isLastStep = (currentStep == getSteps().length - 1);
                   if (formKeys[currentStep].currentState?.validate() ?? false) {
                     if (isLastStep) {
-                      final name = nameController.text;
-                      final description = descriptionController.text;
+                      final organizerFullName = organizerFullNameController.text.trim();
+                      final name = nameController.text.trim();
+                      final description = descriptionController.text.trim();
                       final dateTime =
                           DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
                       context.read<OrganizerContestCreationPageBloc>().add(
                             OrganizerContestCreationPageCreateContest(
+                              organizerFullName: organizerFullName,
                               name: name,
                               description: description,
-                              placeAddress: place!.address!,
-                              placeLat: place!.lat!,
-                              placeLon: place!.lon!,
+                              placeAddress: place!.address,
+                              placeLat: place!.lat,
+                              placeLon: place!.lon,
                               dateTime: dateTime,
                               worksSubmissionStart: worksSubmissionStart!,
                               worksSubmissionEnd: worksSubmissionEnd!,
@@ -201,6 +205,13 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
               children: [
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
+                  controller: organizerFullNameController,
+                  focusNode: organizerFullNameFocusNode,
+                  label: 'Your full name',
+                  validator: (value) => nameValidator(value?.trim()),
+                ),
+                CustomTextFormField(
+                  borderType: InputBorderType.outlined,
                   controller: nameController,
                   focusNode: nameFocusNode,
                   label: 'Name',
@@ -251,11 +262,10 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   prefixIcon: Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
-                      final PlaceModel? placeNullable =
-                          await context.router.push(PlaceSearchRoute());
-                      if (placeNullable != null) {
-                        placeController.text = placeNullable.address!;
-                        place = placeNullable;
+                      final Place? res = await context.router.push(PlaceSearchRoute());
+                      if (res != null) {
+                        placeController.text = res.address;
+                        place = res;
                       }
                     },
                     child: Text('Select'),

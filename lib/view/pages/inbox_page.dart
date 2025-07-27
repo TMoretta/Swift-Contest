@@ -25,7 +25,7 @@ class _InboxPageState extends State<InboxPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id;
+    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -88,7 +88,7 @@ class _InboxPageState extends State<InboxPage> {
                 successCase:
                 case BlocStatus.success:
                   return RefreshIndicator.adaptive(
-                    onRefresh: () async => context.read<AuthBloc>().add(AuthFetchProfileMessages()),
+                    onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
                     child: (state.messages!.isEmpty)
                         ? ListViewWithCentralLabel(label: 'No message')
                         : ListView.builder(
@@ -103,19 +103,19 @@ class _InboxPageState extends State<InboxPage> {
                                       return AlertDialog(
                                         title: Text(message.title),
                                         content: Text(
-                                            '${message.body}\n\n${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt)}'),
+                                            '${message.body}\n\n${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt!)}'),
                                       );
                                     },
                                   );
                                   if (context.mounted && !message.isRead) {
                                     context
                                         .read<AuthBloc>()
-                                        .add(AuthMarkMessageAsRead(messageId: message.id));
+                                        .add(AuthMarkMessageAsRead(messageId: message.id!));
                                   }
                                 },
                                 title: Text(message.title),
                                 subtitle: Text('${message.body}\n'
-                                    '${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt)}'),
+                                    '${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt!)}'),
                                 tileColor: (!message.isRead)
                                     ? Theme.of(context).colorScheme.primaryContainer
                                     : Theme.of(context).colorScheme.surfaceContainer,
@@ -143,7 +143,7 @@ class _InboxPageState extends State<InboxPage> {
                                         if (context.mounted) {
                                           context
                                               .read<AuthBloc>()
-                                              .add(AuthDeleteMessage(messageId: message.id));
+                                              .add(AuthDeleteMessage(messageId: message.id!));
                                         }
                                       }
                                     },

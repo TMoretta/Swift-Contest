@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/repositories/participant_repository.dart';
+import 'package:swift_contest/model/db/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/db/repositories/participant_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'participant_home_page_event.dart';
@@ -71,8 +71,8 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
         ? allContestsBundles
         : allContestsBundles
             .where((e) =>
-                e.contest.name.toLowerCase().contains(query) ||
-                e.contest.description.toLowerCase().contains(query))
+                e.contestBundle.contest.name.toLowerCase().contains(query) ||
+                e.contestBundle.contest.description.toLowerCase().contains(query))
             .toList();
 
     emit(state.copyWith(

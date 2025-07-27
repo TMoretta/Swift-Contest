@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/enums/contest_role.dart';
+import 'package:swift_contest/model/db/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/my_logo.dart';
@@ -22,7 +22,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthFetch(delay: 1));
+    context.read<AuthBloc>().add(AuthInit(delay: 1));
   }
 
   @override
@@ -44,7 +44,7 @@ class _SplashPageState extends State<SplashPage> {
                 context.router.replace(ParticipantHomeRoute());
                 break;
               case ContestRole.juror:
-                context.router.replace(JurorHomeRoute());
+                // context.router.replace(JurorHomeRoute());
                 break;
             }
           } else if (state.authStatus.isUnauthenticated) {
@@ -61,7 +61,7 @@ class _SplashPageState extends State<SplashPage> {
                 switch (state.blocStatus) {
                   case BlocStatus.failure:
                     return RefreshIndicator(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
+                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit()),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return ListViewWithCentralWidget(

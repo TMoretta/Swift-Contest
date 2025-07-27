@@ -4,14 +4,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/data_models/place.dart';
-import 'package:swift_contest/model/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/repositories/storage_repository.dart';
+import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/db/entities/contest.dart';
+import 'package:swift_contest/model/db/entities/place.dart';
+import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/db/repositories/storage_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_contest_edit_page_event.dart';
-
 part 'organizer_contest_edit_page_state.dart';
 
 class OrganizerContestEditPageBloc
@@ -40,7 +40,8 @@ class OrganizerContestEditPageBloc
     eitherContestDetails.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) {
-        emit(state.copyWith(status: BlocStatus.success, isInitialized: true, contestDetailsBundle: success));
+        emit(state.copyWith(
+            status: BlocStatus.success, isInitialized: true, contestDetailsBundle: success));
       },
     );
   }
@@ -52,9 +53,11 @@ class OrganizerContestEditPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     List<String>? newImagesUrls;
-    if (event.images != null) {
+    if (event.images.isNotEmpty) {
       final eitherImagesUrls = await _storageRepository.uploadImages(
-          bucket: StorageBucket.contestsImages, images: event.images!);
+          bucket: StorageBucket.contestsImages,
+          pathPrefix: event.contest.id!,
+          images: event.images);
       eitherImagesUrls.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
         (success) => newImagesUrls = success,
@@ -64,21 +67,13 @@ class OrganizerContestEditPageBloc
       }
     }
 
-    final eitherEditContest = await _organizerRepository.editContest(
-      contestId: event.contestId,
-      name: event.name,
-      description: event.description,
-      dateTime: event.dateTime,
+    final eitherEditContest = await _organizerRepository.updateContest(
+      contest: event.contest.copyWith(imagesUrls: newImagesUrls),
       place: event.place,
-      worksSubmissionStart: event.worksSubmissionStart,
-      worksSubmissionEnd: event.worksSubmissionEnd,
-      imagesUrls: (newImagesUrls != null && newImagesUrls!.isNotEmpty)
-          ? newImagesUrls!
-          : event.oldImagesUrls,
     );
     eitherEditContest.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success)),
-    );
+        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+        (success) => emit(state.copyWith(status: BlocStatus.success)),
+      );
   }
 }

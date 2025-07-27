@@ -1,20 +1,17 @@
 CREATE TABLE profiles (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE cascade,
   created_at timestamptz NOT NULL DEFAULT now(),
-  user_id uuid NOT NULL UNIQUE REFERENCES auth.users(id),
   full_name varchar NOT NULL,
-  pref_role contest_role NOT NULL DEFAULT 'organizer',
-  deleted_at timestamptz
+  pref_role contest_role NOT NULL DEFAULT 'organizer'
 );
 
 CREATE TABLE messages (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  profile_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
+  account_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
   title text NOT NULL,
   body text NOT NULL,
-  is_read bool NOT NULL DEFAULT false,
-  deleted_at timestamptz
+  is_read bool NOT NULL DEFAULT false
 );
 
 CREATE TABLE places (
@@ -33,44 +30,61 @@ CREATE TABLE voting_forms (
 CREATE TABLE contests (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  organizer_id uuid NOT NULL REFERENCES profiles (id),
+  organizer_id uuid NOT NULL REFERENCES profiles (id) ON DELETE CASCADE,
+  organizer_full_name varchar NOT NULL,
   name varchar NOT NULL,
   description varchar NOT NULL,
   date_time timestamptz NOT NULL,
   works_submission_start timestamptz NOT NULL,
   works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL UNIQUE REFERENCES places (id),
-  contest_status contest_status NOT NULL,
   images_urls text[] NOT NULL,
-  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('contests', 'token', 14),
-  voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
-  deleted_at timestamptz
+  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('contests', 'token', 14)
+--  deleted_at timestamptz
 );
 
-CREATE TABLE invitations (
+CREATE TABLE participant_invitations (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
-  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('invitations', 'token', 14),
-  email varchar NOT NULL,
-  member_role member_role NOT NULL
+  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('participant_invitations', 'token', 14),
+  email varchar NOT NULL
+);
+
+CREATE TABLE juries (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
+  voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
+  name varchar NOT NULL
+);
+
+CREATE TABLE juror_invitations (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
+  jury_id uuid NOT NULL REFERENCES juries (id) ON DELETE cascade,
+  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('juror_invitations', 'token', 14),
+  email varchar NOT NULL
 );
 
 CREATE TABLE participations (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
-  participant_id uuid NOT NULL REFERENCES profiles (id),
-  participant_status participant_status NOT NULL DEFAULT 'joined',
+  participant_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
+--  participant_status participant_status NOT NULL DEFAULT 'joined',
   invitation_email varchar NOT NULL,
-  has_submitted bool NOT NULL DEFAULT false,
-  UNIQUE (contest_id, participant_id)
+  has_submitted bool NOT NULL DEFAULT false
+--  deleted_at bool
+--  UNIQUE (contest_id, participant_id)
 );
 
 CREATE TABLE works (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   participation_id uuid NOT NULL UNIQUE REFERENCES participations (id) ON DELETE cascade,
+  participant_full_name varchar NOT NULL,
   name varchar NOT NULL,
   description varchar NOT NULL,
   images_urls text[] NOT NULL,
@@ -81,10 +95,12 @@ CREATE TABLE jurations (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
-  juror_id uuid NOT NULL REFERENCES profiles (id),
-  juror_status juror_status NOT NULL DEFAULT 'joined',
-  invitation_email varchar NOT NULL,
-  UNIQUE (contest_id, juror_id)
+  jury_id uuid NOT NULL REFERENCES juries (id) ON DELETE cascade,
+  juror_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
+--  juror_status juror_status NOT NULL DEFAULT 'joined',
+  invitation_email varchar NOT NULL
+--  deleted_at bool
+--  UNIQUE (jury_id, juror_id)
 );
 
 CREATE TABLE voting_form_fields (
@@ -120,20 +136,22 @@ CREATE TABLE voting_session_participations (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
-  participation_id uuid NOT NULL REFERENCES participations (id),
+  participation_snapshot_id uuid NOT NULL REFERENCES participations (id), --CREATE ALSO WORK TO LINK WITH THIS SNAPSHOT
+--  participation_id uuid REFERENCES participations (id),
   order_index int NOT NULL,
   is_excluded bool NOT NULL DEFAULT false,
-  UNIQUE (voting_session_id, participation_id)
+  UNIQUE (voting_session_id, participation_snapshot_id)
 );
 
 CREATE TABLE voting_session_jurations (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
-  juration_id uuid NOT NULL REFERENCES jurations (id),
+  juration_snapshot_id uuid NOT NULL REFERENCES jurations (id),
+--  juration_id uuid REFERENCES jurations (id),
   has_submitted bool NOT NULL DEFAULT false,
   is_excluded bool NOT NULL DEFAULT false,
-  UNIQUE (voting_session_id, juration_id)
+  UNIQUE (voting_session_id, juration_snapshot_id)
 );
 
 CREATE TABLE voting_session_exclusions (
@@ -148,6 +166,7 @@ CREATE TABLE voting_session_exclusions (
 CREATE TABLE juror_votings (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
+  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   voting_session_juration_id uuid NOT NULL REFERENCES voting_session_jurations (id),
   voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
   UNIQUE (voting_session_juration_id, voting_session_participation_id)
@@ -180,6 +199,7 @@ CREATE TABLE voting_session_simple_jurors (
 CREATE TABLE simple_juror_votings (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
+  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   voting_session_simple_juror_id uuid NOT NULL REFERENCES voting_session_simple_jurors (id),
   voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
   UNIQUE (voting_session_simple_juror_id, voting_session_participation_id)

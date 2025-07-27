@@ -96,29 +96,33 @@ class AppRouter extends RootStackRouter {
           page: OrganizerContestEditRoute.page,
         ),
         AutoRoute(
+          path: '/organizer-jury-details/:contestId/:juryId',
+          page: OrganizerJuryDetailsRoute.page,
+        ),
+        AutoRoute(
           path: '/organizer-voting-form/:votingFormId',
           page: OrganizerVotingFormEditRoute.page,
         ),
-        AutoRoute(
-          path: '/organizer-voting-result-details/:votingSessionId',
-          page: OrganizerVotingResultDetailsRoute.page,
-        ),
-        AutoRoute(
-          path: '/organizer-voting-result-export/:votingSessionId',
-          page: OrganizerVotingResultExportRoute.page,
-        ),
-        AutoRoute(
-          path: '/organizer-voting-procedure/:votingSessionId',
-          page: OrganizerVotingProcedureRoute.page,
-        ),
-        AutoRoute(
-          path: '/organizer-voting-settings/:contestId',
-          page: OrganizerVotingSettingsRoute.page,
-        ),
-        AutoRoute(
-          path: '/organizer-work-details/:participationId',
-          page: OrganizerWorkDetailsRoute.page,
-        ),
+        // AutoRoute(
+        //   path: '/organizer-voting-result-details/:votingSessionId',
+        //   page: OrganizerVotingResultDetailsRoute.page,
+        // ),
+        // AutoRoute(
+        //   path: '/organizer-voting-result-export/:votingSessionId',
+        //   page: OrganizerVotingResultExportRoute.page,
+        // ),
+        // AutoRoute(
+        //   path: '/organizer-voting-procedure/:votingSessionId',
+        //   page: OrganizerVotingProcedureRoute.page,
+        // ),
+        // AutoRoute(
+        //   path: '/organizer-voting-settings/:contestId',
+        //   page: OrganizerVotingSettingsRoute.page,
+        // ),
+        // AutoRoute(
+        //   path: '/organizer-work-details/:participationId',
+        //   page: OrganizerWorkDetailsRoute.page,
+        // ),
 
         // Participant
         AutoRoute(
@@ -134,22 +138,22 @@ class AppRouter extends RootStackRouter {
           page: ParticipantWorkSubmitRoute.page,
         ),
 
-        // Juror
-        AutoRoute(
-          path: '/juror-home',
-          page: JurorHomeRoute.page,
-        ),
-        AutoRoute(
-          path: '/juror-contest-details/:contestId',
-          page: JurorContestDetailsRoute.page,
-        ),
-        AutoRoute(
-          path: '/juror-voting-procedure/:votingSessionId',
-          page: JurorVotingProcedureRoute.page,
-        ),
-        AutoRoute(
-          path: '/simple-juror-voting-procedure/:votingSessionId/:simpleJurorId',
-          page: SimpleJurorVotingProcedureRoute.page,
-        ),
+        // // Juror
+        // AutoRoute(
+        //   path: '/juror-home',
+        //   page: JurorHomeRoute.page,
+        // ),
+        // AutoRoute(
+        //   path: '/juror-contest-details/:contestId',
+        //   page: JurorContestDetailsRoute.page,
+        // ),
+        // AutoRoute(
+        //   path: '/juror-voting-procedure/:votingSessionId',
+        //   page: JurorVotingProcedureRoute.page,
+        // ),
+        // AutoRoute(
+        //   path: '/simple-juror-voting-procedure/:votingSessionId/:simpleJurorId',
+        //   page: SimpleJurorVotingProcedureRoute.page,
+        // ),
       ];
 }

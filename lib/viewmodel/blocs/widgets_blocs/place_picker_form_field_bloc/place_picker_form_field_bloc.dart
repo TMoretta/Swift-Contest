@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/google_place_models/google_place.dart';
-import 'package:swift_contest/model/google_place_models/google_place_suggestion.dart';
-import 'package:swift_contest/model/repositories/google_place_repository.dart';
+import 'package:swift_contest/model/google_place/entities/google_place.dart';
+import 'package:swift_contest/model/google_place/entities/google_place_suggestion.dart';
+import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:rxdart/rxdart.dart';
 

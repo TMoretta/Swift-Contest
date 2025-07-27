@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/data_models/voting_form_field.dart';
+import 'package:swift_contest/model/db/entities/voting_form_field.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -40,7 +40,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   late final String votingFormId;
   bool isPageInitialized = false;
   bool isEdited = false;
-  final List<VotingFormFieldModel> updatedFields = [];
+  final List<VotingFormField> updatedFields = [];
 
   @override
   void initState() {
@@ -137,11 +137,14 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                     case BlocStatus.success:
                       if (!isPageInitialized) {
                         updatedFields.addAll(state.votingFormBundle!.votingFormFields
-                            .map((e) => VotingFormFieldModel(
+                            .map((e) => VotingFormField(
+                          id: null,
+                                  createdAt: null,
                                   name: e.name,
                                   minValue: e.minValue,
                                   maxValue: e.maxValue,
                                   orderIndex: e.orderIndex,
+                          votingFormId: null,
                                 )));
                         isPageInitialized = true;
                       }
@@ -185,7 +188,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              final VotingFormFieldModel? newField = await _showAddFieldDialog(
+              final VotingFormField? newField = await _showAddFieldDialog(
                   context: context, votingFormId: votingFormId, orderIndex: updatedFields.length);
               if (newField != null) {
                 setState(() {
@@ -203,7 +206,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   }
 }
 
-Future<VotingFormFieldModel?> _showAddFieldDialog({
+Future<VotingFormField?> _showAddFieldDialog({
   required BuildContext context,
   required String votingFormId,
   required int orderIndex,
@@ -216,7 +219,7 @@ Future<VotingFormFieldModel?> _showAddFieldDialog({
   final maxValueController = TextEditingController();
   final maxValueFocusNode = FocusNode();
 
-  return await showDialog<VotingFormFieldModel?>(
+  return await showDialog<VotingFormField?>(
     context: context,
     builder: (context) {
       return AlertDialog(
@@ -264,7 +267,10 @@ Future<VotingFormFieldModel?> _showAddFieldDialog({
               if (formKey.currentState?.validate() ?? false) {
                 final minValueDouble = double.parse(minValueController.text.trim());
                 final maxValueDouble = double.parse(maxValueController.text.trim());
-                final newField = VotingFormFieldModel(
+                final newField = VotingFormField(
+                  id: null,
+                  createdAt: null,
+                  votingFormId: null,
                   orderIndex: orderIndex,
                   name: nameController.text.trim(),
                   minValue: minValueDouble,

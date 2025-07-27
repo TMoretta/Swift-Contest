@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/enums/contest_role.dart';
+import 'package:swift_contest/model/db/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -205,10 +205,10 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                       context.router.replace(OrganizerHomeRoute());
                       break;
                     case ContestRole.participant:
-                      context.router.replace(ParticipantHomeRoute());
+                      // context.router.replace(ParticipantHomeRoute());
                       break;
                     case ContestRole.juror:
-                      context.router.replace(JurorHomeRoute());
+                      // context.router.replace(JurorHomeRoute());
                       break;
                   }
                   context.router.pop();

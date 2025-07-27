@@ -72,7 +72,7 @@ class _AccountPageState extends State<AccountPage> {
                   }
                 successCase:
                 case BlocStatus.success:
-                  final user = state.user!;
+                  final account = state.account!;
                   final profile = state.profile!;
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
@@ -84,7 +84,7 @@ class _AccountPageState extends State<AccountPage> {
                               .textTheme
                               .labelLarge
                               ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                          subtitle: Text(user.email),
+                          subtitle: Text(account.email),
                           subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
                         ),
                         ListTile(
@@ -168,7 +168,7 @@ void _showEditFullNameDialog({required BuildContext context}) {
           listener: (context, state) {
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditFullName) {
               showSnackBar(context: context, text: 'Full name updated successfully');
-              context.read<AuthBloc>().add(AuthFetchProfile());
+              context.read<AuthBloc>().add(AuthFetch());
               context.router.pop();
             }
           },

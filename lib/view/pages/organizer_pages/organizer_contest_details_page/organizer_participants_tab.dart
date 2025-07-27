@@ -1,9 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:swift_contest/model/bundles/participation_bundle.dart';
-import 'package:swift_contest/model/data_models/invitation.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -73,12 +70,8 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                       }
                     successCase:
                     case BlocStatus.success:
-                      final List<ParticipationBundle> joinedParticipationsBundles =
-                          state.contestDetailsBundle!.joinedParticipationsBundles;
-                      final List<Invitation> participantsInvitations =
-                          state.contestDetailsBundle!.participantsInvitations;
-                      final List<ParticipationBundle> outParticipationsBundles =
-                          state.contestDetailsBundle!.outParticipationsBundles;
+                      final participations = state.contestDetailsBundle!.participationsBundles;
+                      final invitations = state.contestDetailsBundle!.participantsInvitations;
                       return Column(
                         children: [
                           Card(
@@ -100,7 +93,6 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                 tabs: [
                                   Tab(text: 'Joined'),
                                   Tab(text: 'Attended'),
-                                  Tab(text: 'Out'),
                                 ],
                               ),
                             ),
@@ -115,13 +107,13 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
                                           OrganizerContestDetailsPageFetch(contestId: contestId)),
-                                  child: (joinedParticipationsBundles.isEmpty)
+                                  child: (participations.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No participant joined yet')
                                       : ListView.builder(
-                                          itemCount: joinedParticipationsBundles.length,
+                                          itemCount: participations.length,
                                           itemBuilder: (context, index) {
                                             final participationBundle =
-                                                joinedParticipationsBundles[index];
+                                                participations[index];
                                             return Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -134,7 +126,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                             context: context,
                                                             contestId: contestId,
                                                             participationId: participationBundle
-                                                                .participation.id);
+                                                                .participation.id!);
                                                       },
                                                       icon: Icon(
                                                         Icons.remove_circle_outline,
@@ -146,37 +138,16 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                       style:
                                                           Theme.of(context).textTheme.titleMedium,
                                                     ),
-                                                    subtitle: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                      spacing: 4,
-                                                      children: [
-                                                        Text(
-                                                          participationBundle
-                                                              .participation.invitationEmail,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .bodyMedium,
-                                                        ),
-                                                        if (participationBundle
-                                                                .participant.deletedAt !=
-                                                            null)
-                                                          Text(
-                                                            'Deleted account',
-                                                            style: Theme.of(context)
-                                                                .textTheme
-                                                                .labelLarge
-                                                                ?.copyWith(
-                                                                    color: Theme.of(context)
-                                                                        .colorScheme
-                                                                        .error),
-                                                          ),
-                                                      ],
+                                                    subtitle: Text(
+                                                      participationBundle
+                                                          .participation.invitationEmail,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium,
                                                     ),
                                                   ),
                                                 ),
-                                                if (index == joinedParticipationsBundles.length - 1)
+                                                if (index == participations.length - 1)
                                                   SizedBox(height: 72),
                                               ],
                                             );
@@ -189,12 +160,12 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                       .read<OrganizerContestDetailsPageBloc>()
                                       .add(
                                           OrganizerContestDetailsPageFetch(contestId: contestId)),
-                                  child: (participantsInvitations.isEmpty)
+                                  child: (invitations.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No participant attended')
                                       : ListView.builder(
-                                          itemCount: participantsInvitations.length,
+                                          itemCount: invitations.length,
                                           itemBuilder: (context, index) {
-                                            final invitation = participantsInvitations[index];
+                                            final invitation = invitations[index];
                                             return Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -208,7 +179,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                     ),
                                                     trailing: IconButton(
                                                       onPressed: () {
-                                                        _showDeleteInvitationDialog(context: context, contestId: contestId, invitationId: invitation.id);
+                                                        _showDeleteInvitationDialog(context: context, contestId: contestId, invitationId: invitation.id!);
                                                       },
                                                       icon: Icon(
                                                         Icons.remove,
@@ -217,83 +188,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                     ),
                                                   ),
                                                 ),
-                                                if (index == participantsInvitations.length - 1)
-                                                  SizedBox(height: 72),
-                                              ],
-                                            );
-                                          },
-                                        ),
-                                ),
-                                //* Out
-                                RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(
-                                          OrganizerContestDetailsPageFetch(contestId: contestId)),
-                                  child: (outParticipationsBundles.isEmpty)
-                                      ? LayoutBuilder(
-                                          builder: (context, constraints) {
-                                            return ListView(
-                                              children: [
-                                                SizedBox(
-                                                  height: constraints.maxHeight,
-                                                  child: Center(
-                                                    child: Text(
-                                                      'No participant out',
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            );
-                                          },
-                                        )
-                                      : ListView.builder(
-                                          itemCount: outParticipationsBundles.length,
-                                          itemBuilder: (context, index) {
-                                            final participationBundle =
-                                                outParticipationsBundles[index];
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Card(
-                                                  elevation: 0.2,
-                                                  child: ListTile(
-                                                    title: Text(
-                                                      participationBundle.participant.fullName,
-                                                      style:
-                                                          Theme.of(context).textTheme.titleMedium,
-                                                    ),
-                                                    subtitle: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                      spacing: 4,
-                                                      children: [
-                                                        Text(
-                                                          participationBundle
-                                                              .participation.invitationEmail,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .bodyMedium,
-                                                        ),
-                                                        if (participationBundle
-                                                                .participant.deletedAt !=
-                                                            null)
-                                                          Text(
-                                                            'Deleted account',
-                                                            style: Theme.of(context)
-                                                                .textTheme
-                                                                .labelLarge
-                                                                ?.copyWith(
-                                                                    color: Theme.of(context)
-                                                                        .colorScheme
-                                                                        .error),
-                                                          ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                if (index == outParticipationsBundles.length - 1)
+                                                if (index == invitations.length - 1)
                                                   SizedBox(height: 72),
                                               ],
                                             );
@@ -310,11 +205,12 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
               ),
             ),
           ),
-          floatingActionButton: FilledButton(
+          floatingActionButton: FilledButton.icon(
             onPressed: () async {
               _showInviteDialog(context: context, contestId: contestId);
             },
-            child: Text('Invite'),
+            icon: Icon(Icons.email),
+            label: Text('Invite'),
           ),
         );
       },
@@ -459,7 +355,7 @@ void _showDeleteInvitationDialog({
         child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
           listener: (context, state) {
             if (state.status.isSuccess &&
-                state.sourceEvent is OrganizerContestDetailsPageDeleteInvitation) {
+                state.sourceEvent is OrganizerContestDetailsPageDeleteParticipantInvitation) {
               context.router.pop();
               showSnackBar(context: context, text: 'Invitation deleted successfully');
               context
@@ -481,7 +377,7 @@ void _showDeleteInvitationDialog({
                 TextButton(
                   onPressed: () {
                     context.read<OrganizerContestDetailsPageBloc>().add(
-                        OrganizerContestDetailsPageDeleteInvitation(invitationId: invitationId));
+                        OrganizerContestDetailsPageDeleteParticipantInvitation(participantInvitationId: invitationId));
                   },
                   child: Text('Proceed'),
                 ),

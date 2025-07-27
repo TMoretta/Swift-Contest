@@ -3,17 +3,16 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:swift_contest/model/bundles/auth_bundle.dart';
-import 'package:swift_contest/model/data_models/message.dart';
-import 'package:swift_contest/model/data_models/profile.dart';
-import 'package:swift_contest/model/data_models/user.dart';
-import 'package:swift_contest/model/enums/contest_role.dart';
-import 'package:swift_contest/model/repositories/auth_repository.dart';
+import 'package:swift_contest/model/db/bundles/auth_bundle.dart';
+import 'package:swift_contest/model/db/entities/account.dart';
+import 'package:swift_contest/model/db/entities/message.dart';
+import 'package:swift_contest/model/db/entities/profile.dart';
+import 'package:swift_contest/model/db/repositories/auth_repository.dart';
+import 'package:swift_contest/model/db/types/contest_role.dart';
 import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'auth_event.dart';
-
 part 'auth_state.dart';
 
 class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
@@ -23,10 +22,8 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     required AuthRepository authRepository,
   })  : _authRepository = authRepository,
         super(AuthState(blocStatus: BlocStatus.initial, authStatus: AuthStatus.initial)) {
+    on<AuthInit>(_init);
     on<AuthFetch>(_fetch);
-    on<AuthFetchUser>(_fetchUser);
-    on<AuthFetchProfile>(_fetchProfile);
-    on<AuthFetchProfileMessages>(_fetchProfileMessages);
     on<AuthSignOut>(_signOut);
     on<AuthDeleteAccount>(_deleteAccount);
     on<AuthEditPrefRole>(_editPrefRole);
@@ -36,34 +33,64 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     on<AuthDeleteAllMessages>(_deleteAllMessages);
   }
 
-  //* Init the state
-  FutureOr<void> _fetch(
-    AuthFetch event,
-    Emitter<AuthState> emit,
-  ) async {
+  //* fetch
+  FutureOr<void> _init(
+      AuthInit event,
+      Emitter<AuthState> emit,
+      ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
     if (event.delay != 0) {
       await Future.delayed(Duration(seconds: event.delay));
     }
 
-    late final bool userExists;
-    final eitherExists = await _authRepository.verifyCurrentUserExistence();
+    late final bool isAuthenticated;
+    final eitherExists = await _authRepository.isCurrentUserAuthenticated();
     eitherExists.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => userExists = success,
+          (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+          (success) => isAuthenticated = success,
     );
     if (eitherExists.isLeft()) {
       return;
     }
 
-    if (!userExists) {
+    if (!isAuthenticated) {
       emit(state.copyWith(blocStatus: BlocStatus.success, isInitialized: true, authStatus: AuthStatus.unauthenticated));
       return;
     }
 
     late final AuthBundle authBundle;
-    final eitherAuthBundle = await _authRepository.getCurrentUserAuthBundle();
+    final eitherAuthBundle = await _authRepository.getCurrentAccountAuthBundle();
+    eitherAuthBundle.fold(
+          (failure) => emit(state.copyWith(
+          blocStatus: BlocStatus.failure,
+          authStatus: AuthStatus.initial,
+          message: failure.message)),
+          (success) => authBundle = success,
+    );
+    if (eitherAuthBundle.isLeft()) {
+      return;
+    }
+
+    emit(state.copyWith(
+      blocStatus: BlocStatus.success,
+      isInitialized: true,
+      authStatus: AuthStatus.authenticated,
+      account: authBundle.account,
+      profile: authBundle.profile,
+      messages: authBundle.messages,
+    ));
+  }
+
+  //* fetch
+  FutureOr<void> _fetch(
+    AuthFetch event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
+
+    late final AuthBundle authBundle;
+    final eitherAuthBundle = await _authRepository.getCurrentAccountAuthBundle();
     eitherAuthBundle.fold(
       (failure) => emit(state.copyWith(
           blocStatus: BlocStatus.failure,
@@ -79,49 +106,10 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       blocStatus: BlocStatus.success,
       isInitialized: true,
       authStatus: AuthStatus.authenticated,
-      user: authBundle.user,
+      account: authBundle.account,
       profile: authBundle.profile,
       messages: authBundle.messages,
     ));
-  }
-
-  FutureOr<void> _fetchUser(
-    AuthFetchUser event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherUser = await _authRepository.getCurrentUser();
-    eitherUser.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success, user: success)),
-    );
-  }
-
-  FutureOr<void> _fetchProfile(
-    AuthFetchProfile event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherProfile = await _authRepository.getCurrentProfile();
-    eitherProfile.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success, profile: success)),
-    );
-  }
-
-  FutureOr<void> _fetchProfileMessages(
-    AuthFetchProfileMessages event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherProfile = await _authRepository.getCurrentProfileMessages();
-    eitherProfile.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success, messages: success)),
-    );
   }
 
   FutureOr<void> _signOut(
@@ -178,7 +166,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) {
         final updatedMessages = state.messages!.map((e) {
-          if (e.id == success.id) {
+          if (e.id == event.messageId) {
             e = e.copyWith(isRead: true);
           }
           return e;
@@ -225,7 +213,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDeleteAllMessages = await _authRepository.deleteAllCurrentProfileMessages();
+    final eitherDeleteAllMessages = await _authRepository.deleteAllCurrentAccountMessages();
     eitherDeleteAllMessages.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success, messages: [])),

@@ -14,38 +14,20 @@ final class OrganizerContestEditPageFetch extends OrganizerContestEditPageEvent 
 }
 
 final class OrganizerContestEditPageEditContest extends OrganizerContestEditPageEvent {
-  final String contestId;
-  final String name;
-  final String description;
+  final Contest contest;
   final Place place;
-  final DateTime dateTime;
-  final DateTime worksSubmissionStart;
-  final DateTime worksSubmissionEnd;
-  final List<String> oldImagesUrls;
-  final List<XFile>? images;
+  final List<XFile> images;
 
   const OrganizerContestEditPageEditContest({
-    required this.contestId,
-    required this.name,
-    required this.description,
+    required this.contest,
     required this.place,
-    required this.dateTime,
-    required this.worksSubmissionStart,
-    required this.worksSubmissionEnd,
-    required this.oldImagesUrls,
-    this.images,
+    required this.images,
   });
 
   @override
   List<Object?> get props => [
-        contestId,
-        name,
-        description,
-        place,
-        dateTime,
-        worksSubmissionStart,
-        worksSubmissionEnd,
-        oldImagesUrls,
+        contest,
+    place,
         images,
       ];
 }

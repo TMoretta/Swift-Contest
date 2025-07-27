@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/enums/contest_status.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/model/db/bundles/home_contest_bundle.dart';
 
 class ContestCard extends StatefulWidget {
   final HomeContestBundle homeContestBundle;
@@ -22,12 +19,11 @@ class ContestCard extends StatefulWidget {
 class _ContestCardState extends State<ContestCard> {
   @override
   Widget build(BuildContext context) {
-    final contestCardBundle = widget.homeContestBundle;
-    final contest = contestCardBundle.contest;
-    final organizer = contestCardBundle.organizer;
-    final place = contestCardBundle.place;
-    final joinedParticipations = contestCardBundle.joinedParticipations;
-    final joinedJurations = contestCardBundle.joinedJurations;
+    final homeContestBundle = widget.homeContestBundle;
+    final contest = homeContestBundle.contestBundle.contest;
+    final place = homeContestBundle.contestBundle.place;
+    final participations = homeContestBundle.participations;
+    final jurations = homeContestBundle.jurations;
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 600),
@@ -100,21 +96,21 @@ class _ContestCardState extends State<ContestCard> {
                             ),
                           ),
                           //* Status circle
-                          Icon(
-                            Icons.circle,
-                            size: 20,
-                            color: switch (contest.contestStatus) {
-                              ContestStatus.preparationPhase =>
-                                Theme.of(context).colorScheme.statusPreparation,
-                              ContestStatus.participationPhase =>
-                                Theme.of(context).colorScheme.statusParticipation,
-                              ContestStatus.votingPhase =>
-                                Theme.of(context).colorScheme.statusVoting,
-                              ContestStatus.terminated =>
-                                Theme.of(context).colorScheme.statusTerminated,
-                              ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
-                            },
-                          ),
+                          // Icon(
+                          //   Icons.circle,
+                          //   size: 20,
+                          //   color: switch (contest.contestStatus) {
+                          //     ContestStatus.preparationPhase =>
+                          //       Theme.of(context).colorScheme.statusPreparation,
+                          //     ContestStatus.participationPhase =>
+                          //       Theme.of(context).colorScheme.statusParticipation,
+                          //     ContestStatus.votingPhase =>
+                          //       Theme.of(context).colorScheme.statusVoting,
+                          //     ContestStatus.terminated =>
+                          //       Theme.of(context).colorScheme.statusTerminated,
+                          //     ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
+                          //   },
+                          // ),
                         ],
                       ),
                       //* Organizer name
@@ -130,7 +126,7 @@ class _ContestCardState extends State<ContestCard> {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              organizer.fullName,
+                              contest.organizerFullName,
                               style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
                             ),
                           ),
@@ -187,34 +183,34 @@ class _ContestCardState extends State<ContestCard> {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              'Participants: ${joinedParticipations.length} | Jurors: ${joinedJurations.length}',
+                              'Participants: ${participations.length} | Jurors: ${jurations.length}',
                               style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
                             ),
                           ),
                         ],
                       ),
                       //* Status
-                      Text(
-                        switch (contest.contestStatus) {
-                          ContestStatus.preparationPhase => 'Preparation phase',
-                          ContestStatus.participationPhase => 'Participation phase',
-                          ContestStatus.votingPhase => 'Voting phase',
-                          ContestStatus.terminated => 'Terminated',
-                          ContestStatus.deleted => 'Deleted',
-                        },
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: switch(contest.contestStatus) {
-                            ContestStatus.preparationPhase =>
-                            Theme.of(context).colorScheme.statusPreparation,
-                            ContestStatus.participationPhase =>
-                            Theme.of(context).colorScheme.statusParticipation,
-                            ContestStatus.votingPhase => Theme.of(context).colorScheme.statusVoting,
-                            ContestStatus.terminated =>
-                            Theme.of(context).colorScheme.statusTerminated,
-                            ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
-                          }
-                        ),
-                      ),
+                      // Text(
+                      //   switch (contest.contestStatus) {
+                      //     ContestStatus.preparationPhase => 'Preparation phase',
+                      //     ContestStatus.participationPhase => 'Participation phase',
+                      //     ContestStatus.votingPhase => 'Voting phase',
+                      //     ContestStatus.terminated => 'Terminated',
+                      //     ContestStatus.deleted => 'Deleted',
+                      //   },
+                      //   style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      //     color: switch(contest.contestStatus) {
+                      //       ContestStatus.preparationPhase =>
+                      //       Theme.of(context).colorScheme.statusPreparation,
+                      //       ContestStatus.participationPhase =>
+                      //       Theme.of(context).colorScheme.statusParticipation,
+                      //       ContestStatus.votingPhase => Theme.of(context).colorScheme.statusVoting,
+                      //       ContestStatus.terminated =>
+                      //       Theme.of(context).colorScheme.statusTerminated,
+                      //       ContestStatus.deleted => Theme.of(context).colorScheme.statusDeleted,
+                      //     }
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

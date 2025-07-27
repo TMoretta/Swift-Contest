@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/enums/contest_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -74,7 +72,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                       children: [
                         //* Title
                         Text(
-                          state.contestDetailsBundle!.contest.name,
+                          state.contestDetailsBundle!.contestBundle.contest.name,
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -82,58 +80,58 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         ),
                         SizedBox(height: 6),
                         //* Status
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.circle,
-                              size: 18,
-                              color: switch (state.contestDetailsBundle!.contest.contestStatus) {
-                                ContestStatus.preparationPhase =>
-                                  Theme.of(context).colorScheme.statusPreparation,
-                                ContestStatus.participationPhase =>
-                                  Theme.of(context).colorScheme.statusParticipation,
-                                ContestStatus.votingPhase =>
-                                  Theme.of(context).colorScheme.statusVoting,
-                                ContestStatus.terminated =>
-                                  Theme.of(context).colorScheme.statusTerminated,
-                                ContestStatus.deleted =>
-                                  Theme.of(context).colorScheme.statusDeleted,
-                              },
-                            ),
-                            SizedBox(width: 2),
-                            Text(
-                              switch (state.contestDetailsBundle!.contest.contestStatus) {
-                                ContestStatus.preparationPhase => 'Preparation phase',
-                                ContestStatus.participationPhase => 'Participation phase',
-                                ContestStatus.votingPhase => 'Voting phase',
-                                ContestStatus.terminated => 'Terminated',
-                                ContestStatus.deleted => 'Deleted',
-                              },
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: switch (
-                                        state.contestDetailsBundle!.contest.contestStatus) {
-                                      ContestStatus.preparationPhase =>
-                                        Theme.of(context).colorScheme.statusPreparation,
-                                      ContestStatus.participationPhase =>
-                                        Theme.of(context).colorScheme.statusParticipation,
-                                      ContestStatus.votingPhase =>
-                                        Theme.of(context).colorScheme.statusVoting,
-                                      ContestStatus.terminated =>
-                                        Theme.of(context).colorScheme.statusTerminated,
-                                      ContestStatus.deleted =>
-                                        Theme.of(context).colorScheme.statusDeleted,
-                                    },
-                                  ),
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   mainAxisSize: MainAxisSize.min,
+                        //   mainAxisAlignment: MainAxisAlignment.start,
+                        //   children: [
+                        //     Icon(
+                        //       Icons.circle,
+                        //       size: 18,
+                        //       color: switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
+                        //         ContestStatus.preparationPhase =>
+                        //           Theme.of(context).colorScheme.statusPreparation,
+                        //         ContestStatus.participationPhase =>
+                        //           Theme.of(context).colorScheme.statusParticipation,
+                        //         ContestStatus.votingPhase =>
+                        //           Theme.of(context).colorScheme.statusVoting,
+                        //         ContestStatus.terminated =>
+                        //           Theme.of(context).colorScheme.statusTerminated,
+                        //         ContestStatus.deleted =>
+                        //           Theme.of(context).colorScheme.statusDeleted,
+                        //       },
+                        //     ),
+                        //     SizedBox(width: 2),
+                        //     Text(
+                        //       switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
+                        //         ContestStatus.preparationPhase => 'Preparation phase',
+                        //         ContestStatus.participationPhase => 'Participation phase',
+                        //         ContestStatus.votingPhase => 'Voting phase',
+                        //         ContestStatus.terminated => 'Terminated',
+                        //         ContestStatus.deleted => 'Deleted',
+                        //       },
+                        //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        //             color: switch (
+                        //                 state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
+                        //               ContestStatus.preparationPhase =>
+                        //                 Theme.of(context).colorScheme.statusPreparation,
+                        //               ContestStatus.participationPhase =>
+                        //                 Theme.of(context).colorScheme.statusParticipation,
+                        //               ContestStatus.votingPhase =>
+                        //                 Theme.of(context).colorScheme.statusVoting,
+                        //               ContestStatus.terminated =>
+                        //                 Theme.of(context).colorScheme.statusTerminated,
+                        //               ContestStatus.deleted =>
+                        //                 Theme.of(context).colorScheme.statusDeleted,
+                        //             },
+                        //           ),
+                        //     ),
+                        //   ],
+                        // ),
                         SizedBox(height: 12),
                         //* Images carousel
                         SizedBox(
                           height: 180,
-                          child: (state.contestDetailsBundle!.contest.imagesUrls.isEmpty)
+                          child: (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
                               ? ListView(
                                   scrollDirection: Axis.horizontal,
                                   children: [
@@ -143,12 +141,12 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                                 )
                               : ListView.builder(
                                   scrollDirection: Axis.horizontal,
-                                  itemCount: state.contestDetailsBundle!.contest.imagesUrls.length,
+                                  itemCount: state.contestDetailsBundle!.contestBundle.contest.imagesUrls.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
                                       padding: const EdgeInsets.only(right: 8),
                                       child: Image.network(
-                                        state.contestDetailsBundle!.contest.imagesUrls[index],
+                                        state.contestDetailsBundle!.contestBundle.contest.imagesUrls[index],
                                         fit: BoxFit.contain,
                                         frameBuilder:
                                             (context, child, frame, wasSynchronouslyLoaded) {
@@ -176,7 +174,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                               ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                         ),
                         Text(
-                          state.contestDetailsBundle!.contest.description,
+                          state.contestDetailsBundle!.contestBundle.contest.description,
                         ),
                         SizedBox(height: 20),
                         //* Info
@@ -200,8 +198,8 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                  'Participants: ${state.contestDetailsBundle!.joinedParticipationsBundles.length} | '
-                                  'Jurors: ${state.contestDetailsBundle!.joinedJurationsBundles.length}'),
+                                  'Participants: ${state.contestDetailsBundle!.participationsBundles.length} | '
+                                  'Jurors: ${state.contestDetailsBundle!.juriesBundles.map((e) => e.jurationsBundles).toList(growable: false).length}'),
                             ),
                           ],
                         ),
@@ -220,7 +218,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () async {
-                                  final address = state.contestDetailsBundle!.place.address;
+                                  final address = state.contestDetailsBundle!.contestBundle.place.address;
                                   final query = Uri.encodeComponent(address);
                                   final uri = Uri.parse(
                                       'https://www.google.com/maps/search/?api=1&query=$query');
@@ -236,7 +234,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                                   }
                                 },
                                 child: Text(
-                                  state.contestDetailsBundle!.place.address,
+                                  state.contestDetailsBundle!.contestBundle.place.address,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                         decoration: TextDecoration.underline,
                                       ),
@@ -260,7 +258,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             Expanded(
                               child: Text(
                                 DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contest.dateTime),
+                                    .format(state.contestDetailsBundle!.contestBundle.contest.dateTime),
                               ),
                             ),
                           ],
@@ -286,7 +284,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             Expanded(
                               child: Text(
                                 DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contest.worksSubmissionStart),
+                                    .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart),
                               ),
                             ),
                           ],
@@ -304,7 +302,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             Expanded(
                               child: Text(
                                 DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contest.worksSubmissionEnd),
+                                    .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd),
                               ),
                             ),
                           ],

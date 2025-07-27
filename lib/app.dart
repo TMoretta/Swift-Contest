@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:swift_contest/model/enums/app_theme.dart';
+import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';

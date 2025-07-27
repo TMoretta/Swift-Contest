@@ -25,7 +25,6 @@ final class ParticipantContestDetailsPageState extends Equatable {
     String? message,
     ContestDetailsBundle? contestDetailsBundle,
     Work? submittedWork,
-    Participation? ownParticipation,
   }) {
     return ParticipantContestDetailsPageState(
       status: status,

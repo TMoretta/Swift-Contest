@@ -29,20 +29,20 @@ VALUES
 	(uuid_generate_v4(), (SELECT id FROM auth.users WHERE email = 'user3@example.com'), '{"sub": "652e6a20-1122-4d0f-a8f6-696b018e972b", "email": "user3@example.com", "email_verified": false, "phone_verified": false}', 'email', now(), now(), now(), uuid_generate_v4());
 
 -- PROFILES
-INSERT INTO profiles (id,created_at,user_id,full_name,pref_role)
+INSERT INTO profiles (id,created_at,full_name,pref_role)
 VALUES
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),'Organizer1','organizer'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant1@example.com'),'Participant1','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant2@example.com'),'Participant2','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant3@example.com'),'Participant3','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'participant4@example.com'),'Participant4','participant'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror1@example.com'),'Juror1','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror2@example.com'),'Juror2','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror3@example.com'),'Juror3','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'juror4@example.com'),'Juror4','juror'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'user1@example.com'),'User1','organizer'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'user2@example.com'),'User2','organizer'),
-  (uuid_generate_v4(),now(),(SELECT id FROM auth.users WHERE email = 'user3@example.com'),'User3','organizer');
+  ((SELECT id FROM auth.users WHERE email = 'organizer1@example.com'),now(),'Organizer1','organizer'),
+  ((SELECT id FROM auth.users WHERE email = 'participant1@example.com'),now(),'Participant1','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'participant2@example.com'),now(),'Participant2','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'participant3@example.com'),now(),'Participant3','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'participant4@example.com'),now(),'Participant4','participant'),
+  ((SELECT id FROM auth.users WHERE email = 'juror1@example.com'),now(),'Juror1','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'juror2@example.com'),now(),'Juror2','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'juror3@example.com'),now(),'Juror3','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'juror4@example.com'),now(),'Juror4','juror'),
+  ((SELECT id FROM auth.users WHERE email = 'user1@example.com'),now(),'User1','organizer'),
+  ((SELECT id FROM auth.users WHERE email = 'user2@example.com'),now(),'User2','organizer'),
+  ((SELECT id FROM auth.users WHERE email = 'user3@example.com'),now(),'User3','organizer');
 
 -- todo: Remove
 ALTER TABLE auth.users

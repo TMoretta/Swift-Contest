@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/enums/contest_role.dart';
+import 'package:swift_contest/model/db/types/contest_role.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -50,7 +50,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id;
+    profileId = context.read<AuthBloc>().state.profile!.id!;
     context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch(participantId: profileId));
   }
 
@@ -128,7 +128,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                                 context
                                     .read<ParticipantHomePageBloc>()
                                     .add(ParticipantHomePageFetch(participantId: profileId));
-                                context.read<AuthBloc>().add(AuthFetchProfileMessages());
+                                context.read<AuthBloc>().add(AuthFetch());
                               },
                               child: (state.filteredContestsBundles!.isNotEmpty)
                                   ? ListView(
@@ -143,7 +143,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                                                 onTap: () async {
                                                   final bool? res = await context.router.push(
                                                       ParticipantContestDetailsRoute(
-                                                          contestId: homeContestBundle.contest.id));
+                                                          contestId: homeContestBundle.contestBundle.contest.id!));
                                                   if (res == true) {
                                                     if (context.mounted) {
                                                       context.read<ParticipantHomePageBloc>().add(

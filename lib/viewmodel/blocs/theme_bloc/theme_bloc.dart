@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:swift_contest/model/enums/app_theme.dart';
-import 'package:swift_contest/model/repositories/theme_repository.dart';
+import 'package:swift_contest/model/local/types/app_theme.dart';
+import 'package:swift_contest/model/local/repositories/theme_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'theme_event.dart';

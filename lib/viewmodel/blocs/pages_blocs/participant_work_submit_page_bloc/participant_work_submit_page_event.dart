@@ -5,7 +5,7 @@ sealed class ParticipantWorkSubmitPageEvent extends Equatable {}
 
 final class ParticipantWorkSubmitPageSubmitWork extends ParticipantWorkSubmitPageEvent {
   final String contestId;
-  final String participantId;
+  final String participantFullName;
   final String name;
   final String description;
   final List<XFile> images;
@@ -13,7 +13,7 @@ final class ParticipantWorkSubmitPageSubmitWork extends ParticipantWorkSubmitPag
 
   ParticipantWorkSubmitPageSubmitWork({
     required this.contestId,
-    required this.participantId,
+    required this.participantFullName,
     required this.name,
     required this.description,
     required this.images,
@@ -23,7 +23,7 @@ final class ParticipantWorkSubmitPageSubmitWork extends ParticipantWorkSubmitPag
   @override
   List<Object?> get props => [
         contestId,
-        participantId,
+        participantFullName,
         name,
         description,
         images,

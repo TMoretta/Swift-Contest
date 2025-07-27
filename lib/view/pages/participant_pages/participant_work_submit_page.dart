@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
@@ -51,8 +50,10 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey, fileFormKey];
 
   int currentStep = 0;
+  final participantFullNameController = TextEditingController();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
+  final participantFullNameFocusNode = FocusNode();
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
   final List<XFile> images = [];
@@ -67,7 +68,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id;
+    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -111,13 +112,14 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
               final isLastStep = (currentStep == getSteps().length - 1);
               if (formKeys[currentStep].currentState?.validate() ?? false) {
                 if (isLastStep) {
-                  final name = nameController.text;
-                  final description = descriptionController.text;
+                  final participantFullName = participantFullNameController.text.trim();
+                  final name = nameController.text.trim();
+                  final description = descriptionController.text.trim();
                   context
                       .read<ParticipantWorkSubmitPageBloc>()
                       .add(ParticipantWorkSubmitPageSubmitWork(
                         contestId: contestId,
-                        participantId: profileId,
+                        participantFullName: participantFullName,
                         name: name,
                         description: description,
                         images: images,
@@ -169,18 +171,16 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
           content: Form(
             key: detailsFormKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Details',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                  ),
+                CustomTextFormField(
+                  borderType: InputBorderType.outlined,
+                  controller: participantFullNameController,
+                  focusNode: participantFullNameFocusNode,
+                  label: 'Your full name',
+                  validator: (value) => nameValidator(value?.trim()),
                 ),
-                SizedBox(height: 20),
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: nameController,
@@ -190,7 +190,6 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                   minLines: 1,
                   maxLines: 2,
                 ),
-                SizedBox(height: 8),
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: descriptionController,
@@ -217,17 +216,6 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
               builder: (field) {
                 return Column(
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Images',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                      ),
-                    ),
-                    SizedBox(height: 20),
                     (images.isEmpty)
                         ? Center(child: Text('No image selected yet'))
                         : GridView.builder(

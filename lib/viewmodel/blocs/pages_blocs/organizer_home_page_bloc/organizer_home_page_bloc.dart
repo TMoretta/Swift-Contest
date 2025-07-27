@@ -3,13 +3,12 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/data_models/message.dart';
-import 'package:swift_contest/model/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/db/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/db/entities/message.dart';
+import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_home_page_event.dart';
-
 part 'organizer_home_page_state.dart';
 
 class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePageState> {
@@ -56,9 +55,8 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
     final List<HomeContestBundle> filteredContestsBundles = query.isEmpty
         ? allContestsBundles
         : allContestsBundles
-            .where((e) =>
-                e.contest.name.toLowerCase().contains(query) ||
-                e.contest.description.toLowerCase().contains(query))
+            .where((e) => e.contestBundle.contest.name.toLowerCase().contains(query) ||
+                e.contestBundle.contest.description.toLowerCase().contains(query))
             .toList();
 
     emit(state.copyWith(

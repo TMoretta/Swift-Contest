@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/enums/app_theme.dart';
-import 'package:swift_contest/model/enums/contest_role.dart';
+import 'package:swift_contest/model/local/types/app_theme.dart';
+import 'package:swift_contest/model/db/types/contest_role.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
@@ -303,7 +303,7 @@ void _showEditPrefRoleDialog({
               listener: (context, state) {
                 if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditPrefRole) {
                   showSnackBar(context: context, text: 'Preferred role changed successfully');
-                  context.read<AuthBloc>().add(AuthFetchProfile());
+                  context.read<AuthBloc>().add(AuthFetch());
                   context.router.pop();
                 }
               },

@@ -46,7 +46,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id;
+    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -240,12 +240,12 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                 ],
                               )
                             : ListViewWithCentralLabel(
-                                label: (state.contestDetailsBundle!.contest.worksSubmissionStart
+                                label: (state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart
                                             .isBefore(now()) &&
-                                        state.contestDetailsBundle!.contest.worksSubmissionEnd
+                                        state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd
                                             .isAfter(now()))
                                     ? 'No work submitted yet'
-                                    : 'No work submitted yet.\nAwait participation phase'),
+                                    : 'No work submitted.\n Period of participation is passed'),
                       );
                     },
                   );
@@ -255,8 +255,8 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
           floatingActionButton: Builder(
             builder: (context) {
               final bool isInParticipationPhase =
-                  state.contestDetailsBundle!.contest.worksSubmissionStart.isBefore(now()) &&
-                      state.contestDetailsBundle!.contest.worksSubmissionEnd.isAfter(now());
+                  state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart.isBefore(now()) &&
+                      state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd.isAfter(now());
               if (state.status.isSuccess && state.submittedWork == null && isInParticipationPhase) {
                 return FloatingActionButton.extended(
                   onPressed: () async {

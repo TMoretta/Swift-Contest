@@ -5,7 +5,6 @@ final class ParticipantWorkSubmitPageState extends Equatable {
   final BlocStatus status;
   final ParticipantWorkSubmitPageEvent? sourceEvent;
   final String? message;
-  // final Work? work;
 
   const ParticipantWorkSubmitPageState({
     required this.status,
@@ -17,7 +16,6 @@ final class ParticipantWorkSubmitPageState extends Equatable {
     required BlocStatus status,
     ParticipantWorkSubmitPageEvent? sourceEvent,
     String? message,
-    Work? work,
   }) {
     return ParticipantWorkSubmitPageState(
       status: status,

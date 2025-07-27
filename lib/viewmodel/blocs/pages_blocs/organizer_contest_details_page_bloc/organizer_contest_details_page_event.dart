@@ -29,21 +29,35 @@ final class OrganizerContestDetailsPageSendParticipantInvite
 
 final class OrganizerContestDetailsPageSendJurorInvite extends OrganizerContestDetailsPageEvent {
   final String contestId;
+  final String juryId;
   final String email;
 
-  const OrganizerContestDetailsPageSendJurorInvite({required this.contestId, required this.email});
+  const OrganizerContestDetailsPageSendJurorInvite({
+    required this.contestId,
+    required this.juryId,
+    required this.email,
+  });
 
   @override
   List<Object?> get props => [contestId, email];
 }
 
-final class OrganizerContestDetailsPageDeleteInvitation extends OrganizerContestDetailsPageEvent {
-  final String invitationId;
+final class OrganizerContestDetailsPageDeleteParticipantInvitation extends OrganizerContestDetailsPageEvent {
+  final String participantInvitationId;
 
-  const OrganizerContestDetailsPageDeleteInvitation({required this.invitationId});
+  const OrganizerContestDetailsPageDeleteParticipantInvitation({required this.participantInvitationId});
 
   @override
-  List<Object?> get props => [invitationId];
+  List<Object?> get props => [participantInvitationId];
+}
+
+final class OrganizerContestDetailsPageDeleteJurorInvitation extends OrganizerContestDetailsPageEvent {
+  final String jurorInvitationId;
+
+  const OrganizerContestDetailsPageDeleteJurorInvitation({required this.jurorInvitationId});
+
+  @override
+  List<Object?> get props => [jurorInvitationId];
 }
 
 final class OrganizerContestDetailsPageRemoveParticipant extends OrganizerContestDetailsPageEvent {
@@ -91,20 +105,12 @@ final class OrganizerContestDetailsPageDeleteContest extends OrganizerContestDet
   List<Object?> get props => [contestId];
 }
 
-final class OrganizerContestDetailsPageSetStatusAsActive extends OrganizerContestDetailsPageEvent {
+final class OrganizerContestDetailsPageCreateJury extends OrganizerContestDetailsPageEvent {
   final String contestId;
+  final String juryName;
 
-  const OrganizerContestDetailsPageSetStatusAsActive({required this.contestId});
+  const OrganizerContestDetailsPageCreateJury({required this.contestId, required this.juryName});
 
   @override
-  List<Object?> get props => [contestId];
-}
-
-final class OrganizerContestDetailsPageSetStatusAsTerminated extends OrganizerContestDetailsPageEvent {
-  final String contestId;
-
-  const OrganizerContestDetailsPageSetStatusAsTerminated({required this.contestId});
-
-  @override
-  List<Object?> get props => [contestId];
+  List<Object?> get props => [contestId, juryName];
 }

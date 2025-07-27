@@ -51,6 +51,7 @@ dependencies:
   dynamic_path_url_strategy: ^1.0.0
   numberpicker: ^2.1.2
   url_launcher: ^6.3.2
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:
