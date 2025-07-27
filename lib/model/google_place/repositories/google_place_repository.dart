@@ -34,16 +34,16 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
       http.StreamedResponse response = await request.send();
       String result = await response.stream.bytesToString();
       if (response.statusCode != 200) {
-        return left(Failure('Failed to fetch place'));
+        return Either.left(Failure('Failed to fetch place'));
       }
       final jsonData = json.decode(result);
       final place = GooglePlace.fromJson(jsonData);
 
-      return right(place);
+      return Either.right(place);
     } on SocketException {
-      return left(Failure('Network error'));
+      return Either.left(Failure('Network error'));
     } catch (e) {
-      return left(Failure());
+      return Either.left(Failure());
     }
 
   }
@@ -51,7 +51,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
   @override
   Future<Either<Failure,List<GooglePlaceSuggestion>>> searchPlaceSuggestions({required String query}) async {
     if(query.trim().isEmpty) {
-      return right([]);
+      return Either.right([]);
     }
     try {
       var headers = {
@@ -67,12 +67,12 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
       http.StreamedResponse response = await request.send();
       String result = await response.stream.bytesToString();
       if (response.statusCode != 200) {
-        return left(Failure('Failed to fetch suggestions'));
+        return Either.left(Failure('Failed to fetch suggestions'));
       }
 
       final jsonData = await json.decode(result)['suggestions'];
       if(jsonData == null) {
-        return left(Failure('Failed to fetch suggestions'));
+        return Either.left(Failure('Failed to fetch suggestions'));
       }
       final suggestionsList = (jsonData as List<dynamic>).map((suggestion) {
         final placePrediction = suggestion['placePrediction'] as Map<String, dynamic>;
@@ -82,11 +82,11 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
         return GooglePlaceSuggestion(placeId: placeId, address: address);
       }).toList(growable: false);
 
-      return right(suggestionsList);
+      return Either.right(suggestionsList);
     } on SocketException {
-      return left(Failure('Network error'));
+      return Either.left(Failure('Network error'));
     } catch (e) {
-      return left(Failure());
+      return Either.left(Failure());
     }
   }
 }

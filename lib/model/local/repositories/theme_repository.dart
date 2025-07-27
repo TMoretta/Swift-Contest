@@ -23,9 +23,9 @@ class ThemeRepositoryImpl implements ThemeRepository {
   Future<Either<Failure, Unit>> saveTheme(AppTheme theme) async {
     try {
       await _preferences.setString(_key, theme.name);
-      return right(unit);
+      return Either.right(unit);
     } catch (e) {
-      return left(Failure());
+      return Either.left(Failure());
     }
   }
 

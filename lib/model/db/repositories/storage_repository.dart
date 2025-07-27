@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 
@@ -21,14 +21,14 @@ abstract interface class StorageRepository {
   /// Carica più immagini e restituisce la lista dei loro path nel bucket.
   Future<Either<Failure, List<String>>> uploadImages({
     required String bucket,
-    required String pathPrefix, // Es: contest_id o participation_id
+    required String pathPrefix,
     required List<XFile> images,
   });
 
   /// Carica un singolo file e restituisce il suo path nel bucket.
   Future<Either<Failure, String>> uploadFile({
     required String bucket,
-    required String pathPrefix, // Es: contest_id o participation_id
+    required String pathPrefix,
     required File file,
   });
 
@@ -51,20 +51,18 @@ class StorageRepositoryImpl implements StorageRepository {
     required String pathPrefix,
     required List<XFile> images,
   }) async {
-    try {
+    return handleDatabaseCall(() async{
       final List<String> imagesUrls = [];
       final uploadTasks = images.map((image) async {
-        // final imageExtension = p.extension(image.name);
-        // final fileName = '${image.name}$imageExtension';
         final fileName = image.name;
         final uploadPath = '$pathPrefix/${genUuid()}/$fileName';
 
         final bytes = await image.readAsBytes();
         await _supabase.storage.from(bucket).uploadBinary(
-              uploadPath,
-              bytes,
-              fileOptions: FileOptions(contentType: image.mimeType),
-            );
+          uploadPath,
+          bytes,
+          fileOptions: FileOptions(contentType: image.mimeType),
+        );
         return uploadPath;
       }).toList();
 
@@ -73,14 +71,8 @@ class StorageRepositoryImpl implements StorageRepository {
         final url = _supabase.storage.from(bucket).getPublicUrl(path);
         imagesUrls.add(url);
       }
-      return right(imagesUrls);
-    } on StorageException catch (e) {
-      return left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } catch (e) {
-      return left(Failure('An unexpected error occurred during image upload.'));
-    }
+      return Either.right(imagesUrls);
+    },);
   }
 
   @override
@@ -89,29 +81,18 @@ class StorageRepositoryImpl implements StorageRepository {
     required String pathPrefix,
     required File file,
   }) async {
-    try {
-      // NOTA: kIsWeb non gestisce 'dart:io', questo metodo è solo per mobile.
-      // Per il web dovresti usare un approccio basato su Uint8List come in uploadImages.
-      if (kIsWeb) {
-        return left(Failure('File upload from path is not supported on web.'));
-      }
+    return handleDatabaseCall(() async{
       final fileName = p.basename(file.path);
       final uploadPath = '$pathPrefix/${genUuid()}/$fileName';
 
       await _supabase.storage.from(bucket).upload(
-            uploadPath,
-            file,
-            fileOptions: const FileOptions(upsert: true),
-          );
+        uploadPath,
+        file,
+        fileOptions: const FileOptions(upsert: true),
+      );
       final url = _supabase.storage.from(bucket).getPublicUrl(uploadPath);
-      return right(url);
-    } on StorageException catch (e) {
-      return left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } catch (e) {
-      return left(Failure('An unexpected error occurred during file upload.'));
-    }
+      return Either.right(url);
+    },);
   }
 
   @override
@@ -119,23 +100,19 @@ class StorageRepositoryImpl implements StorageRepository {
     required String bucket,
     required String path,
   }) async {
-    try {
+    return handleDatabaseCall(()async {
       // Controlla se il bucket è pubblico dalle policy (un modo euristico)
       // o mantieni una lista statica. Per semplicità, usiamo una lista.
       const publicBuckets = [StorageBucket.contestsImages];
 
       if (publicBuckets.contains(bucket)) {
         final url = _supabase.storage.from(bucket).getPublicUrl(path);
-        return right(url);
+        return Either.right(url);
       } else {
         // Per i bucket privati, genera un URL firmato valido per 1 ora.
         final url = await _supabase.storage.from(bucket).createSignedUrl(path, 3600);
-        return right(url);
+        return Either.right(url);
       }
-    } on StorageException catch (e) {
-      return left(Failure(e.message));
-    } catch (e) {
-      return left(Failure('Could not get download URL.'));
-    }
+    },);
   }
 }

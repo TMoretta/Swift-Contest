@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
@@ -24,8 +22,8 @@ import 'package:swift_contest/model/db/entities/juror_invitation.dart';
 import 'package:swift_contest/model/db/entities/jury.dart';
 import 'package:swift_contest/model/db/entities/participant_invitation.dart';
 import 'package:swift_contest/model/db/entities/place.dart';
-import 'package:swift_contest/model/db/entities/voting_form.dart';
 import 'package:swift_contest/model/db/entities/voting_form_field.dart';
+import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class OrganizerRepository {
@@ -181,33 +179,24 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
-    try {
-      final List<Map<String,dynamic>> res = await _supabase.rpc('get_created_contests');
-      return Either.right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
-    } on PostgrestException catch (e) {
-      return left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception catch (_) {
-      return left(Failure('An unexpected error occurred.'));
-    }
+    return handleDatabaseCall(
+      () async {
+        final List<Map<String, dynamic>> res = await _supabase.rpc('get_created_contests');
+        return Either.right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
+      },
+    );
   }
 
   @override
   Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
     required String contestId,
   }) async {
-    try {
-      final res =
-      await _supabase.rpc('get_contest_details', params: {'p_contest_id': contestId});
-      return Either.right(ContestDetailsBundle.fromJson(res.first));
-    } on PostgrestException catch (e) {
-      return left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception catch (_) {
-      return left(Failure('An unexpected error occurred.'));
-    }
+    return handleDatabaseCall(
+      () async {
+        final res = await _supabase.rpc('get_contest_details', params: {'p_contest_id': contestId});
+        return Either.right(ContestDetailsBundle.fromJson(res.first));
+      },
+    );
   }
 
   @override
@@ -215,197 +204,168 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required Contest contest,
     required Place place,
   }) async {
-    try {
-      await _supabase.rpc('create_contest', params: {'p_contest': contest.toJson(),'p_place': place.toJson()});
-      return Either.right(unit);
-    } on PostgrestException catch (e) {
-      return left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception catch (_) {
-      return left(Failure('An unexpected error occurred.'));
-    }
+    return handleDatabaseCall(
+      () async {
+        await _supabase.rpc('create_contest',
+            params: {'p_contest': contest.toJson(), 'p_place': place.toJson()});
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
-  Future<Either<Failure, Unit>> updateContest(
-      {required Contest contest, required Place place}) async {
-    try {
-      await _supabase.rpc('update_contest', params: {
-        'p_contest': contest.toJson(),
-        'p_place': place.toJson(),
-      });
-      return Either.right(unit);
-    } on PostgrestException catch (e) {
-      return left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure('An unexpected error occurred.'));
-    }
+  Future<Either<Failure, Unit>> updateContest({
+    required Contest contest,
+    required Place place,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        await _supabase.rpc('update_contest', params: {
+          'p_contest': contest.toJson(),
+          'p_place': place.toJson(),
+        });
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> deleteContest({required String contestId}) async {
-    try {
-      await _contestDao.deleteById(id: contestId);
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure('An unexpected error occurred.'));
-    }
+    return handleDatabaseCall(
+      () async {
+        await _contestDao.deleteById(id: contestId);
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Jury>> createJury({
     required Jury jury,
   }) async {
-    try {
-      final res = await _supabase
-          .rpc('create_jury', params: {'p_jury': jury.toJson()})
-          .single();
-      return Right(Jury.fromJson(res));
-    } on PostgrestException catch (e) {
-      return Left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception catch (_) {
-      return left(Failure('An unexpected error occurred.'));
-    }
+    return handleDatabaseCall(
+      () async {
+        final res = await _supabase.rpc('create_jury', params: {'p_jury': jury.toJson()}).single();
+        return Either.right(Jury.fromJson(res));
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> deleteJurorInvitation({required String jurorInvitationId}) async {
-    try {
-      await _jurorInvitationDao.deleteById(id: jurorInvitationId);
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure('An unexpected error occurred.'));
-    }
+    return handleDatabaseCall(
+      () async {
+        await _jurorInvitationDao.deleteById(id: jurorInvitationId);
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> deleteJury({required String juryId}) async {
-    try {
-      await _juryDao.deleteById(id: juryId);
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on PostgrestException {
-      return left(Failure('An unexpected error occurred.'));
-    }
-    on Exception {
-      return left(Failure('An unexpected error occurred.'));
-    }
+    return handleDatabaseCall(
+      () async {
+        await _juryDao.deleteById(id: juryId);
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
-  Future<Either<Failure, Unit>> deleteParticipantInvitation(
-      {required String participantInvitationId}) async {
-    try {
-      await _participantInvitationDao.deleteById(id: participantInvitationId);
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+  Future<Either<Failure, Unit>> deleteParticipantInvitation({
+    required String participantInvitationId,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        await _participantInvitationDao.deleteById(id: participantInvitationId);
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
-  Future<Either<Failure, ParticipationBundle>> getParticipationBundle(
-      {required String participationId}) async {
-    try {
-      final List<Map<String, dynamic>> res = await _supabase.rpc(
-          'get_participation_bundle',
-          params: {'p_participation_id': participationId});
-      return Either.right(ParticipationBundle.fromJson(res.first));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+  Future<Either<Failure, ParticipationBundle>> getParticipationBundle({
+    required String participationId,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        final List<Map<String, dynamic>> res = await _supabase
+            .rpc('get_participation_bundle', params: {'p_participation_id': participationId});
+        return Either.right(ParticipationBundle.fromJson(res.first));
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> inviteJuror({required JurorInvitation jurorInvitation}) async {
-    try {
-      final res = await _supabase.functions.invoke('invite-juror', body: jurorInvitation.toJson());
-      if(res.status!=201) {
-        return Either.left(Failure(res.data.toString()));
-      }
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+    return handleDatabaseCall(
+      () async {
+        final res =
+            await _supabase.functions.invoke('invite-juror', body: jurorInvitation.toJson());
+        if (res.status != 201) {
+          return Either.left(Failure(res.data.toString()));
+        }
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> inviteParticipant({
     required ParticipantInvitation participantInvitation,
   }) async {
-    try {
-      final res = await _supabase.functions.invoke('invite-participant', body: participantInvitation.toJson());
-      if(res.status!=201) {
-        return Either.left(Failure(res.data.toString()));
-      }
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+    return handleDatabaseCall(
+      () async {
+        final res = await _supabase.functions
+            .invoke('invite-participant', body: participantInvitation.toJson());
+        if (res.status != 201) {
+          return Either.left(Failure(res.data.toString()));
+        }
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> removeJuror({required String jurationId}) async {
-    try {
-      await _jurationDao.deleteById(id: jurationId);
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+    return handleDatabaseCall(
+      () async {
+        await _jurationDao.deleteById(id: jurationId);
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> removeParticipant({required String participationId}) async {
-    try {
-      await _participationDao.deleteById(id: participationId);
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+    return handleDatabaseCall(
+      () async {
+        await _participationDao.deleteById(id: participationId);
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
-  Future<Either<Failure, Jury>> updateJuryName(
-      {required String juryId, required String name}) async {
-    try {
-      final eitherOldJury = await _juryDao.getById(id: juryId);
-      if (eitherOldJury.isLeft()) {
-        return left(eitherOldJury.getLeft().toNullable()!);
-      }
-      final Jury oldJury = eitherOldJury.getRight().toNullable()!;
+  Future<Either<Failure, Jury>> updateJuryName({
+    required String juryId,
+    required String name,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        final eitherOldJury = await _juryDao.getById(id: juryId);
+        if (eitherOldJury.isLeft()) {
+          return left(eitherOldJury.getLeft().toNullable()!);
+        }
+        final Jury oldJury = eitherOldJury.getRight().toNullable()!;
 
-      final eitherNewJury = await _juryDao.update(entity: oldJury.copyWith(name: name));
-      if (eitherNewJury.isLeft()) {
-        return left(eitherNewJury.getLeft().toNullable()!);
-      }
-      return Either.right(eitherNewJury.getRight().toNullable()!);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+        final eitherNewJury = await _juryDao.update(entity: oldJury.copyWith(name: name));
+        if (eitherNewJury.isLeft()) {
+          return left(eitherNewJury.getLeft().toNullable()!);
+        }
+        return Either.right(eitherNewJury.getRight().toNullable()!);
+      },
+    );
   }
 
   @override
@@ -413,47 +373,41 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required String votingFormId,
     required List<VotingFormField> votingFormFields,
   }) async {
-    try {
-      final votingFormFieldsJson = votingFormFields.map((e) => e.toJson()).toList(growable: false);
-      await _supabase.rpc('update_voting_form',params: {'p_voting_form_id':votingFormId,'p_voting_form_fields': votingFormFieldsJson});
-      return Either.right(unit);
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+    return handleDatabaseCall(
+      () async {
+        final votingFormFieldsJson =
+            votingFormFields.map((e) => e.toJson()).toList(growable: false);
+        await _supabase.rpc('update_voting_form', params: {
+          'p_voting_form_id': votingFormId,
+          'p_voting_form_fields': votingFormFieldsJson
+        });
+        return Either.right(unit);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, JuryBundle>> getJuryBundle({required String juryId}) async {
-    try {
-      final res =
-      await _supabase.rpc('get_jury_bundle', params: {'p_jury_id': juryId}).single();
-      return Either.right(JuryBundle.fromJson(res));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception {
-      return left(Failure());
-    }
+    return handleDatabaseCall(
+      () async {
+        final res = await _supabase.rpc('get_jury_bundle', params: {'p_jury_id': juryId}).single();
+        return Either.right(JuryBundle.fromJson(res));
+      },
+    );
   }
 
   @override
   Future<Either<Failure, VotingFormBundle>> getVotingFormBundle({
     required String votingFormId,
   }) async {
-    try {
-      final res = await _supabase
-          .rpc('get_voting_form_bundle', params: {'p_voting_form_id': votingFormId})
-          .single();
+    return handleDatabaseCall(
+      () async {
+        final res = await _supabase
+            .rpc('get_voting_form_bundle', params: {'p_voting_form_id': votingFormId}).single();
 
-      return Right(VotingFormBundle.fromJson(res));
-    } on PostgrestException catch (e) {
-      return Left(Failure(e.message));
-    } on SocketException {
-      return left(Failure('Network error'));
-    } on Exception catch (e) {
-      return left(Failure('An unexpected error occurred: ${e.toString()}'));
-    }
+        return Either.right(VotingFormBundle.fromJson(res));
+      },
+    );
   }
 }
 

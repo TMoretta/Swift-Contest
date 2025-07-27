@@ -65,13 +65,13 @@
 //   Future<Either<Failure,bool>> verifyCurrentUserExistence() async {
 //     try {
 //       final bool exists = await _supabase.rpc('verify_current_user_existence');
-//       return right(exists);
+//       return Either.right(exists);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -80,13 +80,13 @@
 //     try {
 //       final List<Map<String, dynamic>> res = await _supabase
 //           .rpc('get_current_user_auth_bundle');
-//       return right(AuthBundle.fromJson(res.first));
+//       return Either.right(AuthBundle.fromJson(res.first));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -95,13 +95,13 @@
 //     try {
 //       final List<Map<String, dynamic>> res =
 //           await _supabase.rpc('get_current_user');
-//       return right(Account.fromJson(res.first));
+//       return Either.right(Account.fromJson(res.first));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -110,13 +110,13 @@
 //     try {
 //       final List<Map<String, dynamic>> res =
 //           await _supabase.rpc('get_current_profile');
-//       return right(Profile.fromJson(res.first));
+//       return Either.right(Profile.fromJson(res.first));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -125,13 +125,13 @@
 //     try {
 //       final List<Map<String, dynamic>> res = await _supabase
 //           .rpc('get_current_profile_messages');
-//       return right(res.map((e) => Message.fromJson(e)).toList(growable: false));
+//       return Either.right(res.map((e) => Message.fromJson(e)).toList(growable: false));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -139,13 +139,13 @@
 //   Future<Either<Failure, Message>> markMessageAsRead({required String messageId}) async {
 //     try {
 //       final Map<String,dynamic> res = await _supabase.rpc('mark_message_as_read', params: {'p_message_id': messageId});
-//       return right(Message.fromJson(res));
+//       return Either.right(Message.fromJson(res));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -153,13 +153,13 @@
 //   Future<Either<Failure, Unit>> deleteMessage({required String messageId}) async {
 //     try {
 //       await _supabase.rpc('delete_message', params: {'p_message_id': messageId});
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -167,13 +167,13 @@
 //   Future<Either<Failure, Unit>> deleteAllCurrentProfileMessages() async {
 //     try {
 //       await _supabase.rpc('delete_all_current_profile_messages');
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -183,13 +183,13 @@
 //       final Map<String, dynamic> res = await _supabase.rpc('update_current_profile_full_name', params: {
 //         'p_full_name': fullName,
 //       });
-//       return right(Profile.fromJson(res));
+//       return Either.right(Profile.fromJson(res));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -201,13 +201,13 @@
 //       final Map<String, dynamic> res = await _supabase.rpc('update_current_profile_pref_role', params: {
 //         'p_pref_role': prefRole.name,
 //       });
-//       return right(Profile.fromJson(res));
+//       return Either.right(Profile.fromJson(res));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -216,13 +216,13 @@
 //     try {
 //       await _supabase.rpc('delete_current_account');
 //       _supabase.auth.signOut(scope: SignOutScope.global);
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.left(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -230,13 +230,13 @@
 //   Future<Either<Failure, Unit>> signInWithEmail({required String email}) async {
 //     try {
 //       await _supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.left(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -249,7 +249,7 @@
 //       final bool res =
 //           await _supabase.rpc('verify_user_existence_by_email', params: {'p_email': email});
 //       if (res) {
-//         return left(Failure('An account with this email already exists. Sign in instead'));
+//         return Either.left(Failure('An account with this email already exists. Sign in instead'));
 //       }
 //       await _supabase.auth.signInWithOtp(
 //         shouldCreateUser: true,
@@ -258,13 +258,13 @@
 //           'full_name': fullName,
 //         },
 //       );
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.left(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -281,15 +281,15 @@
 //       );
 //       final session = response.session;
 //       if (session == null) {
-//         return left(Failure('No valid session found'));
+//         return Either.left(Failure('No valid session found'));
 //       }
-//       return right(Account.fromJson(session.user.toJson()));
+//       return Either.right(Account.fromJson(session.user.toJson()));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.left(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -306,15 +306,15 @@
 //       );
 //       final session = response.session;
 //       if (session == null) {
-//         return left(Failure('No valid session found'));
+//         return Either.left(Failure('No valid session found'));
 //       }
-//       return right(Account.fromJson(session.user.toJson()));
+//       return Either.right(Account.fromJson(session.user.toJson()));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.left(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -327,20 +327,20 @@
 //       final response = await _supabase.auth.signInWithPassword(email: email, password: password);
 //       final session = response.session;
 //       if (session == null) {
-//         return left(Failure('No valid session found'));
+//         return Either.left(Failure('No valid session found'));
 //       }
 //       final user = Account.fromJson(session.user.toJson());
 //       if(user.isAdmin) {
 //         await _supabase.auth.signOut();
-//         return left(Failure('Invalid credentials'));
+//         return Either.left(Failure('Invalid credentials'));
 //       }
-//       return right(user);
+//       return Either.right(user);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.right(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.right(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.right(Failure());
 //     }
 //   }
 //
@@ -360,15 +360,15 @@
 //       );
 //       final user = response.user;
 //       if (user == null) {
-//         return left(Failure('No valid session found'));
+//         return Either.right(Failure('No valid session found'));
 //       }
-//       return right(Account.fromJson(user.toJson()));
+//       return Either.right(Account.fromJson(user.toJson()));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.right(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.right(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.right(Failure());
 //     }
 //   }
 //
@@ -376,13 +376,13 @@
 //   Future<Either<Failure, Unit>> signOut() async {
 //     try {
 //       await _supabase.auth.signOut();
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.right(Failure('Network error'));
 //     } on AuthException catch (e) {
-//       return left(_authExceptionToRepositoryFailure(e));
+//       return Either.right(_authExceptionToRepositoryFailure(e));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.right(Failure());
 //     }
 //   }
 // }

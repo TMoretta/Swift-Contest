@@ -1,10 +1,10 @@
-import 'dart:io';
-
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/db/daos/dao.dart';
+import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/db/entities/voting_session.dart';
+import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
+
 
 abstract interface class VotingSessionDao implements Dao<VotingSession> {
 
@@ -18,99 +18,57 @@ class VotingSessionDaoImpl implements VotingSessionDao {
 
   @override
   Future<Either<Failure, VotingSession>> create({required VotingSession entity}) async {
-    try {
+    return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_sessions').insert(entity.toJson()).select().single();
-      return right(VotingSession.fromJson(res));
-    } on SocketException {
-      return left(Failure( 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure( e.message));
-    } catch (e) {
-      return left(Failure());
-    }
+      return Either.right(VotingSession.fromJson(res));
+    });
   }
 
   @override
   Future<Either<Failure, VotingSession>> update({required VotingSession entity}) async {
-    try {
+    return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_sessions').update(entity.toJson()).eq('id', entity.id!).select().single();
-      return right(VotingSession.fromJson(res));
-    } on SocketException {
-      return left(Failure( 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure( e.message));
-    } catch (e) {
-      return left(Failure());
-    }
+      return Either.right(VotingSession.fromJson(res));
+    });
   }
 
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) async {
-    try {
+    return handleDatabaseCall(() async {
       await _supabase.from('voting_sessions').delete().eq('id', id);
-      return right(unit);
-    } on SocketException {
-      return left(Failure( 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure( e.message));
-    } catch (e) {
-      return left(Failure());
-    }
+      return Either.right(unit);
+    });
   }
 
   @override
   Future<Either<Failure, VotingSession>> getById({required String id}) async {
-    try {
+    return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_sessions').select().eq('id', id).limit(1).single();
-      return right(VotingSession.fromJson(res));
-    } on SocketException {
-      return left(Failure( 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure( e.message));
-    } catch (e) {
-      return left(Failure());
-    }
+      return Either.right(VotingSession.fromJson(res));
+    });
   }
 
   @override
   Future<Either<Failure, VotingSession?>> getNullableById({required String id}) async {
-    try {
+    return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_sessions').select().eq('id', id).limit(1).maybeSingle();
-      return right(res != null ? VotingSession.fromJson(res) : null);
-    } on SocketException {
-      return left(Failure( 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure( e.message));
-    } catch (e) {
-      return left(Failure());
-    }
+      return Either.right(res != null ? VotingSession.fromJson(res) : null);
+    });
   }
 
   @override
   Future<Either<Failure, List<VotingSession>>> getAll() async {
-    try {
+    return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_sessions').select();
-      return right(res.map((e) => VotingSession.fromJson(e)).toList(growable: false));
-    } on SocketException {
-      return left(Failure( 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure( e.message));
-    } catch (e) {
-      return left(Failure());
-    }
+      return Either.right(res.map((e) => VotingSession.fromJson(e)).toList(growable: false));
+    });
   }
 
   @override
   Future<Either<Failure, List<VotingSession>>> getByContestId({required String contestId})async {
-    try {
+    return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_sessions').select().eq('contest_id', contestId);
-      return right(res.map((e) => VotingSession.fromJson(e)).toList(growable: false));
-    } on SocketException {
-      return left(Failure( 'Network error'));
-    } on PostgrestException catch (e) {
-      return left(Failure( e.message));
-    } catch (e) {
-      return left(Failure());
-    }
+      return Either.right(res.map((e) => VotingSession.fromJson(e)).toList(growable: false));
+    });
   }
 }

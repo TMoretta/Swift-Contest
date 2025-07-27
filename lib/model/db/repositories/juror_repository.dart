@@ -59,13 +59,13 @@
 //     try {
 //       final List<Map<String, dynamic>> res =
 //           await _supabase.rpc('juror_get_joined_contests');
-//       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
+//       return Either.right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -74,13 +74,13 @@
 //     try {
 //       final List<Map<String, dynamic>> res = await _supabase
 //           .rpc('juror_get_contest_details',params: {'p_contest_id':contestId});
-//       return right(ContestDetailsBundle.fromRpcJson(res.first));
+//       return Either.right(ContestDetailsBundle.fromRpcJson(res.first));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -92,13 +92,13 @@
 //       await _supabase.rpc('juror_join_contest', params: {
 //         'p_token': token,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -108,13 +108,13 @@
 //       await _supabase.rpc('juror_leave_contest', params: {
 //         'p_contest_id' : contestId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -133,13 +133,13 @@
 //         'p_contest_id': contestId,
 //         'p_votes_per_participant_map': votesPerParticipantMapWithIds,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -148,21 +148,21 @@
 //     required String votingSessionId,
 //   }) async {
 //     try {
-//       return right(_supabase
+//       return Either.right(_supabase
 //           .from('voting_sessions')
 //           .stream(primaryKey: ['id'])
 //           .eq('id', votingSessionId)
 //           .timeout(const Duration(hours: 24))
 //           .map((rows) {
 //             if (rows.isEmpty) {
-//               return right(null);
+//               return Either.right(null);
 //             }
-//             return right(VotingSession.fromJson(rows.first));
+//             return Either.right(VotingSession.fromJson(rows.first));
 //           }));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -175,13 +175,13 @@
 //       final List<Map<String, dynamic>> res = await _supabase.rpc(
 //           'juror_access_voting_as_simple_juror',
 //           params: {'p_full_name': fullName, 'p_token': token});
-//       return right(SimpleJurorAndVotingSessionBundle.fromJson(res.first));
+//       return Either.right(SimpleJurorAndVotingSessionBundle.fromJson(res.first));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -202,13 +202,13 @@
 //         'p_contest_id': contestId,
 //         'p_votes_per_participant_map': votesPerParticipantMapWithIds,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -221,15 +221,15 @@
 //           'juror_get_voting_session_procedure_bundle',
 //           params: {'p_voting_session_id': votingSessionId});
 //       if (res.isEmpty) {
-//         return left(Failure('Voting session not found'));
+//         return Either.left(Failure('Voting session not found'));
 //       }
-//       return right(VotingSessionProcedureBundle.fromRpcJson(res.first));
+//       return Either.right(VotingSessionProcedureBundle.fromRpcJson(res.first));
 //     } on SocketException {
-//       return left(Failure('Network error'));
+//       return Either.left(Failure('Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(e.message));
+//       return Either.left(Failure(e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 // }

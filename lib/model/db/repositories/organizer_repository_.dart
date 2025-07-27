@@ -110,13 +110,13 @@
 //   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
 //     try {
 //       final List<Map<String, dynamic>> res = await _supabase.rpc('organizer_get_created_contests');
-//       return right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
+//       return Either.right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -126,13 +126,13 @@
 //     try {
 //       final List<Map<String, dynamic>> res =
 //           await _supabase.rpc('organizer_get_contest_details', params: {'p_contest_id': contestId});
-//       return right(ContestDetailsBundle.fromRpcJson(res.first));
+//       return Either.right(ContestDetailsBundle.fromRpcJson(res.first));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -146,13 +146,13 @@
 //         'p_contest': contest.toJson(),
 //         'p_place': place.toJson(),
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -178,13 +178,13 @@
 //         'p_works_submission_end': worksSubmissionEnd.toUtc().toIso8601String(),
 //         'p_images_urls': imagesUrls,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -198,15 +198,15 @@
 //         'p_participation_id': participationId,
 //       });
 //       if (res.isEmpty) {
-//         return right(null);
+//         return Either.right(null);
 //       }
-//       return right(ParticipationBundle.fromJson(res.first));
+//       return Either.right(ParticipationBundle.fromJson(res.first));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -216,13 +216,13 @@
 //       await _supabase.rpc('organizer_set_contest_status_as_active', params: {
 //         'p_contest_id': contestId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -232,13 +232,13 @@
 //       await _supabase.rpc('organizer_set_contest_status_as_terminated', params: {
 //         'p_contest_id': contestId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -252,15 +252,15 @@
 //       if (res.status != 200) {
 //         final serverMessage = res.data is String ? res.data as String : 'Failed to send invite';
 //
-//         return left(Failure(message: serverMessage));
+//         return Either.left(Failure(message: serverMessage));
 //       }
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -270,13 +270,13 @@
 //       await _supabase.rpc('organizer_delete_invitation', params: {
 //         'p_invitation_id': invitationId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -288,13 +288,13 @@
 //       await _supabase.rpc('organizer_remove_participant', params: {
 //         'p_participation_id': participationId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -306,13 +306,13 @@
 //       await _supabase.rpc('organizer_remove_juror', params: {
 //         'p_juration_id': jurationId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -326,13 +326,13 @@
 //         'p_voting_form_id': votingFormId,
 //         'p_voting_form_fields': votingFormFields.map((e) => e.toJson()).toList(growable: false),
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -358,13 +358,13 @@
 //         'p_voting_session_exclusions':
 //             votingSessionExclusions.map((e) => e.toJson()).toList(growable: false),
 //       });
-//       return right(VotingSession.fromJson(res));
+//       return Either.right(VotingSession.fromJson(res));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -376,13 +376,13 @@
 //       await _supabase.rpc('organizer_start_voting_session', params: {
 //         'p_voting_session_id': votingSessionId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -394,13 +394,13 @@
 //       await _supabase.rpc('organizer_end_voting_session', params: {
 //         'p_voting_session_id': votingSessionId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -412,13 +412,13 @@
 //       await _supabase.rpc('organizer_cancel_voting_session', params: {
 //         'p_voting_session_id': votingSessionId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -432,13 +432,13 @@
 //         'p_voting_session_id': votingSessionId,
 //         'p_name': name,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -447,21 +447,21 @@
 //     required String votingSessionId,
 //   }) async {
 //     try {
-//       return right(_supabase
+//       return Either.right(_supabase
 //           .from('voting_sessions')
 //           .stream(primaryKey: ['id'])
 //           .eq('id', votingSessionId)
 //           .timeout(const Duration(hours: 24))
 //           .map((rows) {
 //             if (rows.isEmpty) {
-//               return right(null);
+//               return Either.right(null);
 //             }
-//             return right(VotingSession.fromJson(rows.first));
+//             return Either.right(VotingSession.fromJson(rows.first));
 //           }));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -471,13 +471,13 @@
 //       await _supabase.rpc('organizer_delete_contest', params: {
 //         'p_contest_id': contestId,
 //       });
-//       return right(unit);
+//       return Either.right(unit);
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -490,15 +490,15 @@
 //           'organizer_get_contest_voting_form_bundle',
 //           params: {'p_voting_form_id': votingFormId});
 //       if (res.isEmpty) {
-//         return left(Failure(message: 'Voting form not found'));
+//         return Either.left(Failure(message: 'Voting form not found'));
 //       }
-//       return right(VotingFormBundle.fromJson(res.first));
+//       return Either.right(VotingFormBundle.fromJson(res.first));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -511,15 +511,15 @@
 //           'organizer_get_voting_session_result_bundle',
 //           params: {'p_voting_session_id': votingSessionId});
 //       if (res.isEmpty) {
-//         return left(Failure(message: 'Voting session not found'));
+//         return Either.left(Failure(message: 'Voting session not found'));
 //       }
-//       return right(VotingSessionResultBundle.fromRpcJson(res.first));
+//       return Either.right(VotingSessionResultBundle.fromRpcJson(res.first));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 //
@@ -532,15 +532,15 @@
 //           'organizer_get_voting_session_procedure_bundle',
 //           params: {'p_voting_session_id': votingSessionId});
 //       if (res.isEmpty) {
-//         return left(Failure(message: 'Voting session not found'));
+//         return Either.left(Failure(message: 'Voting session not found'));
 //       }
-//       return right(VotingSessionProcedureBundle.fromRpcJson(res.first));
+//       return Either.right(VotingSessionProcedureBundle.fromRpcJson(res.first));
 //     } on SocketException {
-//       return left(Failure(message: 'Network error'));
+//       return Either.left(Failure(message: 'Network error'));
 //     } on PostgrestException catch (e) {
-//       return left(Failure(message: e.message));
+//       return Either.left(Failure(message: e.message));
 //     } catch (e) {
-//       return left(Failure());
+//       return Either.left(Failure());
 //     }
 //   }
 // }
