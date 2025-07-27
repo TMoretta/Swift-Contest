@@ -2,6 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/db/entities/voting_form_field.dart';
+import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
+import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -136,16 +138,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                     successCase:
                     case BlocStatus.success:
                       if (!isPageInitialized) {
-                        updatedFields.addAll(state.votingFormBundle!.votingFormFields
-                            .map((e) => VotingFormField(
-                          id: null,
-                                  createdAt: null,
-                                  name: e.name,
-                                  minValue: e.minValue,
-                                  maxValue: e.maxValue,
-                                  orderIndex: e.orderIndex,
-                          votingFormId: null,
-                                )));
+                        updatedFields.addAll(state.votingFormBundle!.votingFormFields);
                         isPageInitialized = true;
                       }
                       return (updatedFields.isEmpty)
@@ -162,8 +155,11 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                                       Card(
                                         elevation: 0,
                                         child: ListTile(
-                                          title: Text(field.name!),
-                                          subtitle: Text('${field.minValue} - ${field.maxValue}'),
+                                          leading: Icon((field.type.isTextual) ?Icons.text_fields : Icons.numbers),
+                                          title: Text(field.name),
+                                          subtitle: (field.type.isNumeric)
+                                              ? Text('${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                                              : null,
                                           trailing: IconButton(
                                             onPressed: () {
                                               setState(() {
@@ -186,27 +182,139 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
               ),
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              final VotingFormField? newField = await _showAddFieldDialog(
-                  context: context, votingFormId: votingFormId, orderIndex: updatedFields.length);
-              if (newField != null) {
-                setState(() {
-                  isEdited = true;
-                  updatedFields.add(newField);
-                });
-              }
-            },
-            elevation: 1,
-            child: Icon(Icons.add),
+          floatingActionButton: Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: PopupMenuButton<VotingFormFieldType>(
+              iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              surfaceTintColor: Theme.of(context).colorScheme.primaryContainer,
+              onSelected: (value) async {
+                switch (value) {
+                  case VotingFormFieldType.textual:
+                    final VotingFormField? newField = await _showAddTextualFieldDialog(
+                        context: context,
+                        votingFormId: votingFormId,
+                        orderIndex: updatedFields.length);
+                    if (newField != null) {
+                      setState(() {
+                        isEdited = true;
+                        updatedFields.add(newField);
+                      });
+                    }
+                  case VotingFormFieldType.numeric:
+                    final VotingFormField? newField = await _showAddNumericFieldDialog(
+                        context: context,
+                        votingFormId: votingFormId,
+                        orderIndex: updatedFields.length);
+                    if (newField != null) {
+                      setState(() {
+                        isEdited = true;
+                        updatedFields.add(newField);
+                      });
+                    }
+                }
+              },
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    value: VotingFormFieldType.textual,
+                    child: ListTile(
+                      leading: Icon(Icons.text_fields),
+                      title: Text('Textual'),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: VotingFormFieldType.numeric,
+                    child: ListTile(
+                      leading: Icon(Icons.numbers),
+                      title: Text('Numeric'),
+                    ),
+                  ),
+                ];
+              },
+              icon: Icon(Icons.add),
+            ),
           ),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: () async {
+          //     final VotingFormField? newField = await _showAddFieldDialog(
+          //         context: context, votingFormId: votingFormId, orderIndex: updatedFields.length);
+          //     if (newField != null) {
+          //       setState(() {
+          //         isEdited = true;
+          //         updatedFields.add(newField);
+          //       });
+          //     }
+          //   },
+          //   elevation: 1,
+          //   child: Icon(Icons.add),
+          // ),
         );
       },
     );
   }
 }
 
-Future<VotingFormField?> _showAddFieldDialog({
+Future<VotingFormField?> _showAddTextualFieldDialog({
+  required BuildContext context,
+  required String votingFormId,
+  required int orderIndex,
+}) async {
+  final formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
+  final nameFocusNode = FocusNode();
+
+  return await showDialog<VotingFormField?>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Add textual field'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTextFormField(
+                borderType: InputBorderType.underlined,
+                controller: nameController,
+                focusNode: nameFocusNode,
+                validator: noEmptyValidator,
+                label: 'Name',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.router.pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                final newField = VotingFormField(
+                  id: null,
+                  createdAt: null,
+                  votingFormId: null,
+                  orderIndex: orderIndex,
+                  name: nameController.text.trim(),
+                  type: VotingFormFieldType.textual,
+                  minValue: null,
+                  maxValue: null,
+                );
+                context.router.pop(newField);
+              }
+            },
+            child: Text('Add'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<VotingFormField?> _showAddNumericFieldDialog({
   required BuildContext context,
   required String votingFormId,
   required int orderIndex,
@@ -273,6 +381,7 @@ Future<VotingFormField?> _showAddFieldDialog({
                   votingFormId: null,
                   orderIndex: orderIndex,
                   name: nameController.text.trim(),
+                  type: VotingFormFieldType.numeric,
                   minValue: minValueDouble,
                   maxValue: maxValueDouble,
                 );

@@ -88,7 +88,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: DefaultTabController(
-                length: 4,
+                length: 5,
                 child: Column(
                   children: [
                     if(state.isInitialized)
@@ -100,7 +100,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                           Tab(text: 'Participants'),
                           Tab(text: 'Works'),
                           Tab(text: 'Juries'),
-                          // Tab(text: 'Voting'),
+                          Tab(text: 'Voting'),
                         ],
                       ),
                     SizedBox(height: 16),
@@ -112,7 +112,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                           OrganizerParticipantsTab(contestId: contestId),
                           OrganizerWorksTab(contestId: contestId),
                           OrganizerJuriesTab(contestId: contestId),
-                          // OrganizerVotingTab(contestId: contestId),
+                          OrganizerVotingTab(contestId: contestId),
                         ],
                       ),
                     ),

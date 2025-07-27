@@ -71,11 +71,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, bool>> isCurrentUserAuthenticated() async {
-    final eitherAccount = await _accountDao.getNullableCurrent();
-    return eitherAccount.fold(
-      (failure) => Either.left(failure),
-      (success) => Either.right((success != null) ? true : false),
-    );
+    return handleDatabaseCall(() async {
+      final eitherAccount = await _accountDao.getNullableCurrent();
+      return eitherAccount.fold(
+            (failure) => Either.left(failure),
+            (success) => Either.right((success != null) ? true : false),
+      );
+    },);
   }
 
   @override

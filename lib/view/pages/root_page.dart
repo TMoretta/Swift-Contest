@@ -44,7 +44,7 @@ class _RootPageState extends State<RootPage> {
                 context.router.replace(ParticipantHomeRoute());
                 break;
               case ContestRole.juror:
-                // context.router.replace(JurorHomeRoute());
+                context.router.replace(JurorHomeRoute());
                 break;
             }
           } else if (state.authStatus.isUnauthenticated) {

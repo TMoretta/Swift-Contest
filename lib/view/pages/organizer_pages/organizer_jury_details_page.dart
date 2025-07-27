@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
@@ -240,15 +241,13 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Card(
-                                                    elevation: 0.2,
+                                                    elevation: 0,
                                                     child: ListTile(
-                                                      title: Text(
-                                                        votingFormField.name,
-                                                        style:
-                                                            Theme.of(context).textTheme.titleMedium,
-                                                      ),
-                                                      subtitle: Text(
-                                                          '${prettyDouble(votingFormField.minValue)} - ${prettyDouble(votingFormField.maxValue)}'),
+                                                      leading: Icon((votingFormField.type.isTextual) ?Icons.text_fields : Icons.numbers),
+                                                      title: Text(votingFormField.name),
+                                                      subtitle: (votingFormField.type.isNumeric)
+                                                          ? Text('${prettyDouble(votingFormField.minValue!)} - ${prettyDouble(votingFormField.maxValue!)}')
+                                                          : null,
                                                     ),
                                                   ),
                                                   if (index == votingFormFields.length - 1)

@@ -7,7 +7,6 @@ class VotingSession extends Equatable {
   final String name;
   final String? contestId;
   final bool areSimpleJurorsAllowed;
-  final String? votingFormId;
   final Duration workTimer;
   final Duration intermissionTimer;
   final Duration reviewTimer;
@@ -27,7 +26,6 @@ class VotingSession extends Equatable {
     required this.name,
     required this.contestId,
     required this.areSimpleJurorsAllowed,
-    required this.votingFormId,
     required this.workTimer,
     required this.intermissionTimer,
     required this.reviewTimer,
@@ -47,7 +45,6 @@ class VotingSession extends Equatable {
       name: json['name'] as String,
       contestId: json['contest_id'] as String,
       areSimpleJurorsAllowed: json['are_simple_jurors_allowed'] as bool,
-      votingFormId: json['voting_form_id'] as String,
       workTimer: Duration(seconds: json['work_timer']),
       intermissionTimer: Duration(seconds: json['intermission_timer']),
       reviewTimer: Duration(seconds: json['review_timer']),
@@ -70,7 +67,6 @@ class VotingSession extends Equatable {
       'name': name,
       if(contestId!=null) 'contest_id': contestId,
       'are_simple_jurors_allowed': areSimpleJurorsAllowed,
-      if(votingFormId!=null) 'voting_form_id': votingFormId,
       'work_timer': workTimer.inSeconds,
       'intermission_timer': intermissionTimer.inSeconds,
       'review_timer': reviewTimer.inSeconds,
@@ -90,7 +86,6 @@ class VotingSession extends Equatable {
     String? name,
     String? contestId,
     bool? areSimpleJurorsAllowed,
-    String? votingFormId,
     Duration? workTimer,
     Duration? intermissionTimer,
     Duration? reviewTimer,
@@ -108,7 +103,6 @@ class VotingSession extends Equatable {
       name: name ?? this.name,
       contestId: contestId ?? this.contestId,
       areSimpleJurorsAllowed: areSimpleJurorsAllowed ?? this.areSimpleJurorsAllowed,
-      votingFormId: votingFormId ?? this.votingFormId,
       workTimer: workTimer ?? this.workTimer,
       intermissionTimer: intermissionTimer ?? this.intermissionTimer,
       reviewTimer: reviewTimer ?? this.reviewTimer,
@@ -129,7 +123,6 @@ class VotingSession extends Equatable {
         name,
         contestId,
         areSimpleJurorsAllowed,
-        votingFormId,
         workTimer,
         intermissionTimer,
         reviewTimer,

@@ -148,95 +148,95 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                   Text(state.submittedWork!.description),
                                   SizedBox(height: 16),
                                   //* File
-                                  Text(
-                                    'File',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                                  ),
-                                  Card(
-                                    elevation: 0.1,
-                                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                                    child: ListTile(
-                                      title: Text(
-                                        state.submittedWork!.fileUrl.split('/').last,
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            color:
-                                                Theme.of(context).colorScheme.onTertiaryContainer),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      trailing: IconButton(
-                                        onPressed: () async {
-                                          if (!await requestStoragePermission()) {
-                                            if (context.mounted) {
-                                              showSnackBar(
-                                                  context: context, text: 'Permission denied');
-                                            }
-                                            return;
-                                          }
-
-                                          final directory =
-                                              await ExternalPath.getExternalStoragePublicDirectory(
-                                                  ExternalPath.DIRECTORY_DOWNLOAD);
-
-                                          final originalFilename =
-                                              state.submittedWork!.fileUrl.split('/').last;
-                                          final baseName =
-                                              p.basenameWithoutExtension(originalFilename);
-                                          final extension = p.extension(originalFilename);
-
-                                          String safeFilename;
-                                          int count = 0;
-                                          do {
-                                            safeFilename = (count == 0)
-                                                ? originalFilename
-                                                : '$baseName ($count)$extension';
-                                            count++;
-                                          } while (await File('$directory/$safeFilename').exists());
-
-                                          final path = '$directory/$safeFilename';
-
-                                          try {
-                                            await Dio().download(
-                                              state.submittedWork!.fileUrl,
-                                              path,
-                                              onReceiveProgress: (received, total) {
-                                                if (total != -1) {
-                                                  // opzionale: mostra progress %
-                                                  final pct =
-                                                      (received / total * 100).toStringAsFixed(0);
-                                                  debugPrint('Download: $pct%');
-                                                }
-                                              },
-                                            );
-                                          } catch (e) {
-                                            debugPrint('Download error: $e');
-                                            if (context.mounted) {
-                                              showSnackBar(
-                                                  context: context, text: Labels.anErrorOccurred);
-                                            }
-                                            return;
-                                          }
-
-                                          if (context.mounted) {
-                                            showSnackBar(
-                                                context: context,
-                                                text:
-                                                    'File successfully downloaded in "Downloads" directory');
-                                          }
-
-                                          await OpenFile.open(path,
-                                              type: MediaTypes.mapExtension(extension));
-                                        },
-                                        icon: Icon(
-                                          Icons.download_rounded,
-                                          color: Theme.of(context).colorScheme.onTertiaryContainer,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  // Text(
+                                  //   'File',
+                                  //   style: Theme.of(context)
+                                  //       .textTheme
+                                  //       .titleMedium
+                                  //       ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                                  // ),
+                                  // Card(
+                                  //   elevation: 0.1,
+                                  //   color: Theme.of(context).colorScheme.tertiaryContainer,
+                                  //   child: ListTile(
+                                  //     title: Text(
+                                  //       state.submittedWork!.fileUrl.split('/').last,
+                                  //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  //           color:
+                                  //               Theme.of(context).colorScheme.onTertiaryContainer),
+                                  //       maxLines: 1,
+                                  //       overflow: TextOverflow.ellipsis,
+                                  //     ),
+                                  //     trailing: IconButton(
+                                  //       onPressed: () async {
+                                  //         if (!await requestStoragePermission()) {
+                                  //           if (context.mounted) {
+                                  //             showSnackBar(
+                                  //                 context: context, text: 'Permission denied');
+                                  //           }
+                                  //           return;
+                                  //         }
+                                  //
+                                  //         final directory =
+                                  //             await ExternalPath.getExternalStoragePublicDirectory(
+                                  //                 ExternalPath.DIRECTORY_DOWNLOAD);
+                                  //
+                                  //         final originalFilename =
+                                  //             state.submittedWork!.fileUrl.split('/').last;
+                                  //         final baseName =
+                                  //             p.basenameWithoutExtension(originalFilename);
+                                  //         final extension = p.extension(originalFilename);
+                                  //
+                                  //         String safeFilename;
+                                  //         int count = 0;
+                                  //         do {
+                                  //           safeFilename = (count == 0)
+                                  //               ? originalFilename
+                                  //               : '$baseName ($count)$extension';
+                                  //           count++;
+                                  //         } while (await File('$directory/$safeFilename').exists());
+                                  //
+                                  //         final path = '$directory/$safeFilename';
+                                  //
+                                  //         try {
+                                  //           await Dio().download(
+                                  //             state.submittedWork!.fileUrl,
+                                  //             path,
+                                  //             onReceiveProgress: (received, total) {
+                                  //               if (total != -1) {
+                                  //                 // opzionale: mostra progress %
+                                  //                 final pct =
+                                  //                     (received / total * 100).toStringAsFixed(0);
+                                  //                 debugPrint('Download: $pct%');
+                                  //               }
+                                  //             },
+                                  //           );
+                                  //         } catch (e) {
+                                  //           debugPrint('Download error: $e');
+                                  //           if (context.mounted) {
+                                  //             showSnackBar(
+                                  //                 context: context, text: Labels.anErrorOccurred);
+                                  //           }
+                                  //           return;
+                                  //         }
+                                  //
+                                  //         if (context.mounted) {
+                                  //           showSnackBar(
+                                  //               context: context,
+                                  //               text:
+                                  //                   'File successfully downloaded in "Downloads" directory');
+                                  //         }
+                                  //
+                                  //         await OpenFile.open(path,
+                                  //             type: MediaTypes.mapExtension(extension));
+                                  //       },
+                                  //       icon: Icon(
+                                  //         Icons.download_rounded,
+                                  //         color: Theme.of(context).colorScheme.onTertiaryContainer,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                 ],
                               )
                             : ListViewWithCentralLabel(

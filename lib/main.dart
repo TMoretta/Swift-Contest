@@ -32,6 +32,7 @@ import 'package:swift_contest/model/db/daos/voting_session_participation_dao.dar
 import 'package:swift_contest/model/db/daos/voting_session_simple_juror_dao.dart';
 import 'package:swift_contest/model/db/daos/work_dao.dart';
 import 'package:swift_contest/model/db/repositories/auth_repository.dart';
+import 'package:swift_contest/model/db/repositories/juror_repository.dart';
 import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/db/repositories/participant_repository.dart';
 import 'package:swift_contest/model/db/repositories/storage_repository.dart';
@@ -159,9 +160,13 @@ void main() async {
             workDao: workDao,
           ),
         ),
-        // RepositoryProvider<JurorRepository>(
-        //   create: (context) => JurorRepositoryImpl(supabaseClient: supabase),
-        // ),
+        RepositoryProvider<JurorRepository>(
+          create: (context) => JurorRepositoryImpl(
+            supabaseClient: supabase,
+            accountDao: accountDao,
+            jurationDao: jurationDao,
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [

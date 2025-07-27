@@ -46,8 +46,8 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   late final String contestId;
   final GlobalKey<FormState> detailsFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> imagesFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> fileFormKey = GlobalKey<FormState>();
-  List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey, fileFormKey];
+  // final GlobalKey<FormState> fileFormKey = GlobalKey<FormState>();
+  List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey];
 
   int currentStep = 0;
   final participantFullNameController = TextEditingController();
@@ -57,7 +57,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
   final List<XFile> images = [];
-  File? file;
+  // File? file;
 
   @override
   void initState() {
@@ -123,7 +123,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                         name: name,
                         description: description,
                         images: images,
-                        file: file!,
+                        // file: file!,
                       ));
                 } else {
                   setState(() => ++currentStep);
@@ -285,70 +285,70 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
           ),
         ),
         //* File
-        Step(
-          state: currentStep >= 3 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 2,
-          title: Text(''),
-          content: Form(
-            key: fileFormKey,
-            child: FormField(
-              validator: (value) => (file == null) ? '' : null,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              builder: (field) {
-                return Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'File',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    (file == null)
-                        ? Center(child: Text('No file selected yet'))
-                        : Card(
-                            elevation: 0.1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(path.basename(file!.path)),
-                            ),
-                          ),
-                    FilledButton(
-                      onPressed: () async {
-                        if (!await requestStoragePermission()) {
-                          if (mounted) {
-                            showSnackBar(context: context, text: 'Permission denied');
-                          }
-                          return;
-                        }
-                        final pickedFile = await _pickFile();
-                        if (pickedFile == null) {
-                          return;
-                        }
-                        setState(() {
-                          file = pickedFile;
-                        });
-                        field.didChange(file);
-                      },
-                      child: Text('Pick file'),
-                    ),
-                    if (field.hasError)
-                      Text(
-                        'Select a file',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                      ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
+        // Step(
+        //   state: currentStep >= 3 ? StepState.complete : StepState.indexed,
+        //   isActive: currentStep >= 2,
+        //   title: Text(''),
+        //   content: Form(
+        //     key: fileFormKey,
+        //     child: FormField(
+        //       validator: (value) => (file == null) ? '' : null,
+        //       autovalidateMode: AutovalidateMode.onUserInteraction,
+        //       builder: (field) {
+        //         return Column(
+        //           children: [
+        //             Align(
+        //               alignment: Alignment.centerLeft,
+        //               child: Text(
+        //                 'File',
+        //                 style: Theme.of(context)
+        //                     .textTheme
+        //                     .titleLarge
+        //                     ?.copyWith(color: Theme.of(context).colorScheme.primary),
+        //               ),
+        //             ),
+        //             SizedBox(height: 20),
+        //             (file == null)
+        //                 ? Center(child: Text('No file selected yet'))
+        //                 : Card(
+        //                     elevation: 0.1,
+        //                     child: Padding(
+        //                       padding: const EdgeInsets.all(12),
+        //                       child: Text(path.basename(file!.path)),
+        //                     ),
+        //                   ),
+        //             FilledButton(
+        //               onPressed: () async {
+        //                 if (!await requestStoragePermission()) {
+        //                   if (mounted) {
+        //                     showSnackBar(context: context, text: 'Permission denied');
+        //                   }
+        //                   return;
+        //                 }
+        //                 final pickedFile = await _pickFile();
+        //                 if (pickedFile == null) {
+        //                   return;
+        //                 }
+        //                 setState(() {
+        //                   file = pickedFile;
+        //                 });
+        //                 field.didChange(file);
+        //               },
+        //               child: Text('Pick file'),
+        //             ),
+        //             if (field.hasError)
+        //               Text(
+        //                 'Select a file',
+        //                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
+        //                       color: Theme.of(context).colorScheme.error,
+        //                     ),
+        //               ),
+        //           ],
+        //         );
+        //       },
+        //     ),
+        //   ),
+        // ),
       ];
 }
 

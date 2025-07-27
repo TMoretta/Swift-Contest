@@ -365,7 +365,10 @@ $$;
 
 --region UPDATE VOTING FORM
 -- Aggiorna i campi di un form di voto (operazione di delete-then-insert).
-CREATE OR REPLACE FUNCTION update_voting_form(p_voting_form_id uuid, p_voting_form_fields jsonb)
+CREATE OR REPLACE FUNCTION update_voting_form (
+  p_voting_form_id uuid,
+  p_voting_form_fields jsonb
+)
 RETURNS SETOF voting_form_fields
 LANGUAGE plpgsql
 SECURITY INVOKER
@@ -389,11 +392,12 @@ BEGIN
 
   -- 2. Inserisce i nuovi campi dal JSON.
   RETURN QUERY
-  INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, min_value, max_value)
+  INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value)
   SELECT
     p_voting_form_id,
     (f->>'name')::varchar,
     (f->>'order_index')::int,
+    (f->>'type')::voting_form_field_type,
     (f->>'min_value')::numeric,
     (f->>'max_value')::numeric
   FROM jsonb_array_elements(p_voting_form_fields) AS f
@@ -664,3 +668,246 @@ BEGIN
 
 END;
 $$;
+
+--region ORGANIZER INIT VOTING SESSION
+-- Crea una nuova sessione di voto e "congela" lo stato di partecipanti, giurie e form.
+-- Gestisce la creazione condizionale del luogo per la geo-restrizione.
+-- È transazionale: se un'operazione fallisce, tutte le modifiche vengono annullate.
+CREATE OR REPLACE FUNCTION organizer_init_voting_session(
+  p_voting_session jsonb,
+  p_participations_ids uuid[],
+  p_exclusions jsonb,
+  p_geo_res_place jsonb -- Può essere NULL
+)
+RETURNS voting_sessions -- Restituisce l'intera riga della sessione di voto creata.
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_contest_id uuid := (p_voting_session->>'contest_id')::uuid;
+  v_session_id uuid;
+  v_geo_res_place_id uuid;
+  v_jury_record record;
+  v_new_voting_form_id uuid;
+  v_session_jury_id uuid;
+  v_new_session voting_sessions;
+BEGIN
+  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
+  IF NOT EXISTS (
+    SELECT 1 FROM public.contests
+    WHERE id = v_contest_id AND organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
+  END IF;
+
+  -- 1. Crea il 'Place' per la geo-restrizione, SOLO SE necessario.
+  IF p_geo_res_place IS NOT NULL THEN
+    INSERT INTO public.places (address, lat, lon)
+    VALUES (
+      p_geo_res_place->>'address',
+      (p_geo_res_place->>'lat')::float,
+      (p_geo_res_place->>'lon')::float
+    )
+    RETURNING id INTO v_geo_res_place_id;
+  END IF;
+
+  -- 2. Crea la riga principale della sessione di voto.
+  INSERT INTO public.voting_sessions (
+    contest_id, name, work_timer, intermission_timer, review_timer,
+    are_simple_jurors_allowed, is_geo_restricted, session_status,
+    geo_res_place_id, geo_res_radius
+  ) VALUES (
+    v_contest_id,
+    p_voting_session->>'name',
+    (p_voting_session->>'work_timer')::int,
+    (p_voting_session->>'intermission_timer')::int,
+    (p_voting_session->>'review_timer')::int,
+    (p_voting_session->>'are_simple_jurors_allowed')::bool,
+    (p_voting_session->>'is_geo_restricted')::bool,
+    'initialized',
+    v_geo_res_place_id, -- Sarà NULL se non è stato creato
+    (p_voting_session->>'geo_res_radius')::int
+  )
+  RETURNING id INTO v_session_id;
+
+  -- 3. Crea gli SNAPSHOT dei PARTECIPANTI selezionati.
+  INSERT INTO public.voting_session_participations (
+    voting_session_id, participation_snapshot_id,
+    participant_full_name, work_name, work_description, work_images_urls, work_file_url,
+    order_index
+  )
+  SELECT
+    v_session_id, pa.id,
+    pr.full_name, w.name, w.description, w.images_urls, w.file_url,
+    row_number() OVER (ORDER BY pr.full_name) - 1
+  FROM
+    public.participations pa
+    JOIN public.profiles pr ON pa.participant_id = pr.id
+    JOIN public.works w ON pa.id = w.participation_id
+  WHERE
+    pa.id = ANY(p_participations_ids);
+
+  -- 4. Itera su ogni GIURIA del contest per creare gli snapshot.
+  FOR v_jury_record IN
+    SELECT * FROM public.juries WHERE contest_id = v_contest_id
+  LOOP
+    -- 4.a: Crea un NUOVO voting_form per lo snapshot.
+    INSERT INTO public.voting_forms DEFAULT VALUES
+    RETURNING id INTO v_new_voting_form_id;
+
+    -- 4.b: Copia i campi dal form originale al nuovo form.
+    INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value)
+    SELECT
+      v_new_voting_form_id,
+      vff.name, vff.order_index, vff.type, vff.min_value, vff.max_value
+    FROM public.voting_form_fields vff
+    WHERE vff.voting_form_id = v_jury_record.voting_form_id;
+
+    -- 4.c: Crea lo snapshot della giuria.
+    INSERT INTO public.voting_session_juries (
+      voting_session_id, jury_snapshot_id, jury_name, voting_form_id
+    ) VALUES (
+      v_session_id, v_jury_record.id, v_jury_record.name, v_new_voting_form_id
+    )
+    RETURNING id INTO v_session_jury_id;
+
+    -- 4.d: Crea gli snapshot dei singoli giurati.
+    INSERT INTO public.voting_session_jurations (
+      voting_session_id, juration_snapshot_id, voting_session_jury_id, juror_full_name
+    )
+    SELECT
+      v_session_id,
+      ju.id,
+      v_session_jury_id,
+      pr.full_name
+    FROM
+      public.jurations ju
+      JOIN public.profiles pr ON ju.juror_id = pr.id
+    WHERE
+      ju.jury_id = v_jury_record.id;
+  END LOOP;
+
+  -- 5. Crea le ESCLUSIONI specifiche.
+  INSERT INTO public.voting_session_exclusions (
+    voting_session_id,
+    voting_session_juration_id,
+    voting_session_participation_id
+  )
+  SELECT
+    v_session_id,
+    vsj.id,
+    vsp.id
+  FROM
+    jsonb_to_recordset(p_exclusions) AS x(juration_id uuid, participation_id uuid)
+    JOIN public.voting_session_jurations vsj ON vsj.juration_snapshot_id = x.juration_id AND vsj.voting_session_id = v_session_id
+    JOIN public.voting_session_participations vsp ON vsp.participation_snapshot_id = x.participation_id AND vsp.voting_session_id = v_session_id;
+
+  -- 6. Recupera e restituisce la riga completa della sessione appena creata.
+  SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
+  RETURN v_new_session;
+END;
+$$;
+--endregion
+
+--region JUROR GET JOINED CONTESTS
+-- Recupera una lista di contest a cui l'utente autenticato si è unito come giurato.
+CREATE OR REPLACE FUNCTION juror_get_joined_contests()
+RETURNS TABLE (
+  contest_bundle jsonb,
+  participations jsonb,
+  jurations jsonb
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER -- Eseguita con i permessi dell'utente chiamante.
+AS $$
+BEGIN
+  -- Verifica che il profilo del giurato esista.
+  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()) THEN
+    RAISE EXCEPTION 'Profilo utente con ID % non trovato.', auth.uid();
+  END IF;
+
+  -- Esegue la query e restituisce i risultati.
+  -- Un utente può essere in più giurie per lo stesso contest, quindi usiamo DISTINCT ON (c.id)
+  -- per assicurarci che ogni contest appaia una sola volta nella lista.
+  RETURN QUERY
+  SELECT DISTINCT ON (c.id)
+    -- 1. Costruisce l'oggetto JSON 'contest_bundle'.
+    jsonb_build_object(
+      'contest', to_jsonb(c),
+      'organizer', to_jsonb(p),
+      'place', to_jsonb(pl)
+    ) AS contest_bundle,
+
+    -- 2. Aggrega tutte le partecipazioni del contest.
+    COALESCE(
+      (SELECT jsonb_agg(to_jsonb(pa)) FROM public.participations AS pa WHERE pa.contest_id = c.id),
+      '[]'::jsonb
+    ) AS participations,
+
+    -- 3. Aggrega tutte le giurie del contest.
+    COALESCE(
+      (SELECT jsonb_agg(to_jsonb(ju)) FROM public.jurations AS ju WHERE ju.contest_id = c.id),
+      '[]'::jsonb
+    ) AS jurations
+  FROM
+    public.contests AS c
+    JOIN public.profiles AS p ON c.organizer_id = p.id
+    JOIN public.places AS pl ON c.place_id = pl.id
+    -- *** LOGICA CHIAVE ***
+    -- JOIN con la tabella jurations per trovare i contest in cui l'utente è giurato.
+    JOIN public.jurations user_juration ON c.id = user_juration.contest_id
+  WHERE
+    -- Filtra per l'ID del giurato che ha chiamato la funzione.
+    user_juration.juror_id = auth.uid()
+  ORDER BY
+      c.id, c.created_at DESC;
+END;
+$$;
+--endregion
+
+
+--region JUROR JOIN CONTEST
+-- Permette a un utente autenticato di unirsi a una giuria usando un token di invito.
+-- Se l'invito è valido, crea una nuova juration e cancella l'invito.
+CREATE OR REPLACE FUNCTION juror_join_contest(p_token text)
+RETURNS void -- Non restituisce dati, ma solleva un'eccezione in caso di errore.
+LANGUAGE plpgsql
+SECURITY INVOKER -- Eseguita con i permessi dell'utente, quindi auth.uid() è disponibile.
+AS $$
+DECLARE
+  v_invitation record; -- Conterrà la riga dell'invito.
+BEGIN
+  -- 1. Cerca l'invito per il giurato usando il token fornito.
+  SELECT *
+  INTO v_invitation
+  FROM public.juror_invitations
+  WHERE token = p_token;
+
+  -- 2. Se l'invito non esiste, solleva un'eccezione.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Invito non valido o già utilizzato.';
+  END IF;
+
+  -- 3. Controlla se l'utente è già membro di questa specifica giuria per evitare duplicati.
+  IF EXISTS (
+    SELECT 1
+    FROM public.jurations
+    WHERE jury_id = v_invitation.jury_id AND juror_id = auth.uid()
+  ) THEN
+    -- Se l'utente è già iscritto, l'operazione è idempotente.
+    -- Cancello comunque l'invito per pulizia e termino con successo.
+    DELETE FROM public.juror_invitations WHERE id = v_invitation.id;
+    RETURN;
+  END IF;
+
+  -- 4. Crea la nuova riga nella tabella 'jurations'.
+  INSERT INTO public.jurations (contest_id, jury_id, juror_id, invitation_email)
+  VALUES (v_invitation.contest_id, v_invitation.jury_id, auth.uid(), v_invitation.email);
+
+  -- 5. Elimina l'invito che è stato appena utilizzato, completando il processo.
+  DELETE FROM public.juror_invitations WHERE id = v_invitation.id;
+
+END;
+$$;
+--endregion

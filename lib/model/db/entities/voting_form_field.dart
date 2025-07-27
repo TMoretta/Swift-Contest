@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
 
 class VotingFormField extends Equatable {
   final String? id;
@@ -6,8 +7,9 @@ class VotingFormField extends Equatable {
   final String? votingFormId;
   final String name;
   final int orderIndex;
-  final double minValue;
-  final double maxValue;
+  final VotingFormFieldType type;
+  final double? minValue;
+  final double? maxValue;
 
   const VotingFormField({
     required this.id,
@@ -15,6 +17,7 @@ class VotingFormField extends Equatable {
     required this.votingFormId,
     required this.name,
     required this.orderIndex,
+    required this.type,
     required this.minValue,
     required this.maxValue,
   });
@@ -26,8 +29,9 @@ class VotingFormField extends Equatable {
       votingFormId: json['voting_form_id'] as String,
       name: json['name'] as String,
       orderIndex: json['order_index'] as int,
-      minValue: json['min_value'] as double,
-      maxValue: json['max_value'] as double,
+      type: VotingFormFieldType.values.byName(json['type'] as String),
+      minValue: json['min_value'] as double?,
+      maxValue: json['max_value'] as double?,
     );
   }
 
@@ -38,8 +42,9 @@ class VotingFormField extends Equatable {
       if(votingFormId!=null) 'voting_form_id': votingFormId,
       'name': name,
       'order_index': orderIndex,
-      'min_value': minValue,
-      'max_value': maxValue,
+      'type': type.name,
+      if(minValue!=null) 'min_value': minValue,
+      if(maxValue!=null) 'max_value': maxValue,
     };
   }
 
@@ -49,6 +54,7 @@ class VotingFormField extends Equatable {
     String? votingFormId,
     String? name,
     int? orderIndex,
+    VotingFormFieldType? type,
     double? minValue,
     double? maxValue,
   }) {
@@ -58,6 +64,7 @@ class VotingFormField extends Equatable {
       name: name ?? this.name,
       votingFormId: votingFormId ?? this.votingFormId,
       orderIndex: orderIndex ?? this.orderIndex,
+      type: type ?? this.type,
       minValue: minValue ?? this.minValue,
       maxValue: maxValue ?? this.maxValue,
     );
@@ -70,6 +77,7 @@ class VotingFormField extends Equatable {
         name,
         votingFormId,
         orderIndex,
+        type,
         minValue,
         maxValue,
       ];

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,8 +18,7 @@ class ParticipantWorkSubmitPageBloc
   ParticipantWorkSubmitPageBloc({
     required StorageRepository storageRepository,
     required ParticipantRepository participantRepository,
-  })  :
-        _storageRepository = storageRepository,
+  })  : _storageRepository = storageRepository,
         _participantRepository = participantRepository,
         super(ParticipantWorkSubmitPageState(status: BlocStatus.initial)) {
     on<ParticipantWorkSubmitPageSubmitWork>(_submitWork);
@@ -45,21 +42,28 @@ class ParticipantWorkSubmitPageBloc
       return;
     }
 
-    late final String fileUrl;
-    final eitherFileUrl = await _storageRepository.uploadFile(bucket: StorageBucket.worksFiles, pathPrefix: '', file: event.file);
-    eitherFileUrl.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => fileUrl = success,
-    );
-
+    // late final String fileUrl;
+    // final eitherFileUrl = await _storageRepository.uploadFile(bucket: StorageBucket.worksFiles, pathPrefix: '', file: event.file);
+    // eitherFileUrl.fold(
+    //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+    //     (success) => fileUrl = success,
+    // );
 
     final eitherWork = await _participantRepository.submitWork(
       contestId: event.contestId,
-      work: Work(id: null, createdAt: null, participationId: null, participantFullName: event.participantFullName, name: event.name, description: event.description, imagesUrls: imagesUrls, fileUrl: fileUrl)
+      work: Work(
+        id: null,
+        createdAt: null,
+        participationId: null,
+        participantFullName: event.participantFullName,
+        name: event.name,
+        description: event.description,
+        imagesUrls: imagesUrls,
+      ),
     );
     eitherWork.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 }

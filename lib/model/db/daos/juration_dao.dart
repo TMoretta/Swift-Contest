@@ -1,16 +1,15 @@
-import 'dart:io';
-
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/db/entities/juration.dart';
+import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
-import 'package:swift_contest/model/utils/postgrest_exception_to_failure.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 
 abstract interface class JurationDao implements Dao<Juration> {
   Future<Either<Failure, List<Juration>>> getByContestId({required String contestId});
+
+  Future<Either<Failure,Unit>> deleteByContestIdAndJurorId({required String contestId, required String jurorId});
 }
 
 class JurationDaoImpl implements JurationDao {
@@ -71,6 +70,14 @@ class JurationDaoImpl implements JurationDao {
     return handleDatabaseCall(() async {
       final res = await _supabase.from('jurations').select().eq('contest_id', contestId).order('created_at');
       return Either.right(res.map((e) => Juration.fromJson(e)).toList(growable: false));
+    });
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteByContestIdAndJurorId({required String contestId, required String jurorId,}) async{
+    return handleDatabaseCall(() async {
+      await _supabase.from('jurations').delete().eq('contest_id', contestId).eq('juror_id', jurorId);
+      return Either.right(unit);
     });
   }
 }

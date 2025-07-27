@@ -40,11 +40,29 @@ END;
 $$;
 
 -- 2. Crea il trigger che si attiva DOPO ogni operazione di DELETE sulla tabella 'contests'.
-CREATE TRIGGER on_contest_delete_cascade_place
--- Si attiva DOPO che la cancellazione del contest è avvenuta con successo.
-AFTER DELETE ON public.contests
--- Esegue la funzione per ogni singola riga cancellata.
-FOR EACH ROW
--- Specifica quale funzione eseguire.
-EXECUTE FUNCTION public.handle_contest_deletion();
+--CREATE TRIGGER on_contest_delete_cascade_place
+---- Si attiva DOPO che la cancellazione del contest è avvenuta con successo.
+--AFTER DELETE ON public.contests
+---- Esegue la funzione per ogni singola riga cancellata.
+--FOR EACH ROW
+---- Specifica quale funzione eseguire.
+--EXECUTE FUNCTION public.handle_contest_deletion();
+--
+--CREATE POLICY "Prevent deletion of referenced work files"
+--ON storage.objects FOR DELETE -- Si applica all'azione di CANCELLAZIONE
+--USING (
+--  -- La cancellazione è permessa SOLO SE NON ESISTE un riferimento a questo file
+--  -- nella tabella degli snapshot delle partecipazioni.
+--  NOT EXISTS (
+--    SELECT 1
+--    FROM public.voting_session_participations vs_pa
+--    WHERE
+--      -- Controlla se il file (identificato da bucket e percorso/nome)
+--      -- corrisponde a uno dei file referenziati.
+--      -- Usiamo UNION ALL per controllare sia il file singolo che l'array di immagini.
+--      (bucket_id = 'works' AND name = vs_pa.work_file_url)
+--      OR
+--      (bucket_id = 'works' AND name = ANY(vs_pa.work_images_urls))
+--  )
+--);
 

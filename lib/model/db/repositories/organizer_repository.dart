@@ -18,11 +18,15 @@ import 'package:swift_contest/model/db/daos/voting_form_dao.dart';
 import 'package:swift_contest/model/db/daos/voting_form_field_dao.dart';
 import 'package:swift_contest/model/db/daos/voting_session_dao.dart';
 import 'package:swift_contest/model/db/entities/contest.dart';
+import 'package:swift_contest/model/db/entities/juration.dart';
 import 'package:swift_contest/model/db/entities/juror_invitation.dart';
 import 'package:swift_contest/model/db/entities/jury.dart';
 import 'package:swift_contest/model/db/entities/participant_invitation.dart';
+import 'package:swift_contest/model/db/entities/participation.dart';
 import 'package:swift_contest/model/db/entities/place.dart';
 import 'package:swift_contest/model/db/entities/voting_form_field.dart';
+import 'package:swift_contest/model/db/entities/voting_session.dart';
+import 'package:swift_contest/model/db/entities/voting_session_participation.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
@@ -88,6 +92,17 @@ abstract interface class OrganizerRepository {
   Future<Either<Failure, JuryBundle>> getJuryBundle({required String juryId});
 
   Future<Either<Failure, VotingFormBundle>> getVotingFormBundle({required String votingFormId});
+
+  Future<Either<Failure, VotingSession>> initVotingSession({
+    // perchè dal client decido quali partecipanti includo
+    required List<Participation> participations,
+    //perchè posso aggiungere esclusioni per cui un certo giurato non può votare un certo partecipante,
+    //poi diventa una voting_session_exclusion
+    required List<({Juration juration, Participation participation})> exclusions,
+    // la voting session con alcuni dati come il place se non null
+    required VotingSession votingSession,
+    required Place? geoResPlace,
+  });
 
 // Future<Either<Failure, VotingSession>> initVotingSession({
 //   required List<VotingFormFieldModel> votingFormFields,
@@ -406,6 +421,43 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
             .rpc('get_voting_form_bundle', params: {'p_voting_form_id': votingFormId}).single();
 
         return Either.right(VotingFormBundle.fromJson(res));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, VotingSession>> initVotingSession({
+    required List<Participation> participations,
+    required List<({Juration juration, Participation participation})> exclusions,
+    required VotingSession votingSession,
+    required Place? geoResPlace,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        // Estrai solo gli ID dei partecipanti.
+        final participationsIds = participations.map((p) => p.id!).toList();
+
+        // Converti la lista di esclusioni in un formato JSON che la RPC può capire.
+        final exclusionsJson = exclusions
+            .map((e) => {
+                  'juration_id': e.juration.id,
+                  'participation_id': e.participation.id,
+                })
+            .toList();
+
+        final res = await _supabase.rpc(
+          'organizer_init_voting_session',
+          params: {
+            'p_contest_id': votingSession.contestId,
+            'p_voting_session': votingSession.toJson(),
+            'p_participations_ids': participationsIds,
+            'p_exclusions': exclusionsJson,
+            'p_geo_res_place' : geoResPlace?.toJson(),
+          },
+        ).single();
+
+        // 3. Deserializza la risposta e restituiscila.
+        return Either.right(VotingSession.fromJson(res));
       },
     );
   }

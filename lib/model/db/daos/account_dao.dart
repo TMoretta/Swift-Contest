@@ -34,11 +34,8 @@ class AccountDaoImpl implements AccountDao {
   Future<Either<Failure, Account>> getCurrent() async {
     return handleDatabaseCall(
       () async {
-        final User? user = _supabase.auth.currentSession?.user;
-        if (user == null) {
-          return Either.left(Failure());
-        }
-        return Either.right(Account.fromJson(user.toJson()));
+        final response = await _supabase.auth.getUser();
+        return Either.right(Account.fromJson(response.user!.toJson()));
       },
     );
   }
@@ -46,9 +43,13 @@ class AccountDaoImpl implements AccountDao {
   @override
   Future<Either<Failure, Account?>> getNullableCurrent() async {
     return handleDatabaseCall(
-          () async {
-            final User? user = _supabase.auth.currentSession?.user;
-            return Either.right((user != null) ? Account.fromJson(user.toJson()) : null);
+      () async {
+        try {
+          final response = await _supabase.auth.getUser();
+          return Either.right(Account.fromJson(response.user!.toJson()));
+        } on AuthException {
+          return Either.right(null);
+        }
       },
     );
   }

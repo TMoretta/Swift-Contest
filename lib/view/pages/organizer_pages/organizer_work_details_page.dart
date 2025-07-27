@@ -197,77 +197,77 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                             ),
                             SizedBox(height: 12),
                             //* File
-                            Text(
-                              'File',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                            ),
-                            Card(
-                              elevation: 0.1,
-                              color: Theme.of(context).colorScheme.tertiaryContainer,
-                              child: ListTile(
-                                title: Text(
-                                  work.fileUrl.split('/').last,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: Theme.of(context).colorScheme.onTertiaryContainer),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                trailing: IconButton(
-                                  onPressed: () async {
-                                    try {
-                                      if (!await requestStoragePermission()) {
-                                        if (context.mounted) {
-                                          showSnackBar(context: context, text: 'Permission denied');
-                                        }
-                                        return;
-                                      }
-
-                                      final directory =
-                                          await ExternalPath.getExternalStoragePublicDirectory(
-                                              ExternalPath.DIRECTORY_DOWNLOAD);
-
-                                      final originalFilename = work.fileUrl.split('/').last;
-                                      final baseName = p.basenameWithoutExtension(originalFilename);
-                                      final extension = p.extension(originalFilename);
-
-                                      String safeFilename;
-                                      int count = 0;
-                                      do {
-                                        safeFilename = (count == 0)
-                                            ? '$baseName$extension'
-                                            : '$baseName ($count)$extension';
-                                        count++;
-                                      } while (await File('$directory/$safeFilename').exists());
-
-                                      final path = '$directory/$safeFilename';
-
-                                      await Dio().download(
-                                        work.fileUrl,
-                                        path,
-                                        onReceiveProgress: (received, total) {
-                                          if (total != -1) {
-                                            // opzionale: mostra progress %
-                                            final pct = (received / total * 100).toStringAsFixed(0);
-                                            debugPrint('Download: $pct%');
-                                          }
-                                        },
-                                      );
-                                      await OpenFile.open(path,
-                                          type: MediaTypes.mapExtension(extension));
-                                    } catch (e) {
-                                      debugPrint('Download error: $e');
-                                    }
-                                  },
-                                  icon: Icon(
-                                    Icons.download_rounded,
-                                    color: Theme.of(context).colorScheme.onTertiaryContainer,
-                                  ),
-                                ),
-                              ),
-                            ),
+                            // Text(
+                            //   'File',
+                            //   style: Theme.of(context)
+                            //       .textTheme
+                            //       .titleMedium
+                            //       ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                            // ),
+                            // Card(
+                            //   elevation: 0.1,
+                            //   color: Theme.of(context).colorScheme.tertiaryContainer,
+                            //   child: ListTile(
+                            //     title: Text(
+                            //       work.fileUrl.split('/').last,
+                            //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            //           color: Theme.of(context).colorScheme.onTertiaryContainer),
+                            //       maxLines: 1,
+                            //       overflow: TextOverflow.ellipsis,
+                            //     ),
+                            //     trailing: IconButton(
+                            //       onPressed: () async {
+                            //         try {
+                            //           if (!await requestStoragePermission()) {
+                            //             if (context.mounted) {
+                            //               showSnackBar(context: context, text: 'Permission denied');
+                            //             }
+                            //             return;
+                            //           }
+                            //
+                            //           final directory =
+                            //               await ExternalPath.getExternalStoragePublicDirectory(
+                            //                   ExternalPath.DIRECTORY_DOWNLOAD);
+                            //
+                            //           final originalFilename = work.fileUrl.split('/').last;
+                            //           final baseName = p.basenameWithoutExtension(originalFilename);
+                            //           final extension = p.extension(originalFilename);
+                            //
+                            //           String safeFilename;
+                            //           int count = 0;
+                            //           do {
+                            //             safeFilename = (count == 0)
+                            //                 ? '$baseName$extension'
+                            //                 : '$baseName ($count)$extension';
+                            //             count++;
+                            //           } while (await File('$directory/$safeFilename').exists());
+                            //
+                            //           final path = '$directory/$safeFilename';
+                            //
+                            //           await Dio().download(
+                            //             work.fileUrl,
+                            //             path,
+                            //             onReceiveProgress: (received, total) {
+                            //               if (total != -1) {
+                            //                 // opzionale: mostra progress %
+                            //                 final pct = (received / total * 100).toStringAsFixed(0);
+                            //                 debugPrint('Download: $pct%');
+                            //               }
+                            //             },
+                            //           );
+                            //           await OpenFile.open(path,
+                            //               type: MediaTypes.mapExtension(extension));
+                            //         } catch (e) {
+                            //           debugPrint('Download error: $e');
+                            //         }
+                            //       },
+                            //       icon: Icon(
+                            //         Icons.download_rounded,
+                            //         color: Theme.of(context).colorScheme.onTertiaryContainer,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                       );

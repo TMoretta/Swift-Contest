@@ -73,11 +73,9 @@ CREATE TABLE participations (
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   participant_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
---  participant_status participant_status NOT NULL DEFAULT 'joined',
   invitation_email varchar NOT NULL,
-  has_submitted bool NOT NULL DEFAULT false
---  deleted_at bool
---  UNIQUE (contest_id, participant_id)
+  has_submitted bool NOT NULL DEFAULT false,
+  UNIQUE (contest_id, participant_id)
 );
 
 CREATE TABLE works (
@@ -87,8 +85,7 @@ CREATE TABLE works (
   participant_full_name varchar NOT NULL,
   name varchar NOT NULL,
   description varchar NOT NULL,
-  images_urls text[] NOT NULL,
-  file_url text NOT NULL
+  images_urls text[] NOT NULL
 );
 
 CREATE TABLE jurations (
@@ -97,10 +94,8 @@ CREATE TABLE jurations (
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   jury_id uuid NOT NULL REFERENCES juries (id) ON DELETE cascade,
   juror_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
---  juror_status juror_status NOT NULL DEFAULT 'joined',
-  invitation_email varchar NOT NULL
---  deleted_at bool
---  UNIQUE (jury_id, juror_id)
+  invitation_email varchar NOT NULL,
+  UNIQUE (jury_id, juror_id)
 );
 
 CREATE TABLE voting_form_fields (
@@ -109,8 +104,9 @@ CREATE TABLE voting_form_fields (
   voting_form_id uuid NOT NULL REFERENCES voting_forms (id) ON DELETE cascade,
   name varchar NOT NULL,
   order_index int NOT NULL,
-  min_value numeric(7,2) NOT NULL,
-  max_value numeric(7,2) NOT NULL
+  type voting_form_field_type NOT NULL,
+  min_value numeric(7,2),
+  max_value numeric(7,2)
 );
 
 CREATE TABLE voting_sessions (
@@ -119,7 +115,6 @@ CREATE TABLE voting_sessions (
   name varchar NOT NULL,
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   are_simple_jurors_allowed bool NOT NULL,
-  voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
   work_timer int NOT NULL,
   intermission_timer int NOT NULL,
   review_timer int NOT NULL,
@@ -136,22 +131,38 @@ CREATE TABLE voting_session_participations (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
-  participation_snapshot_id uuid NOT NULL REFERENCES participations (id), --CREATE ALSO WORK TO LINK WITH THIS SNAPSHOT
---  participation_id uuid REFERENCES participations (id),
+  participation_id uuid REFERENCES participations (id) ON DELETE SET NULL,
   order_index int NOT NULL,
-  is_excluded bool NOT NULL DEFAULT false,
-  UNIQUE (voting_session_id, participation_snapshot_id)
+--  is_excluded bool NOT NULL DEFAULT false,
+  UNIQUE (voting_session_id, participation_id),
+  -- snapshot data
+  participant_full_name varchar NOT NULL,
+  work_name varchar NOT NULL,
+  work_description varchar NOT NULL,
+  work_images_urls text[] NOT NULL
+);
+
+CREATE TABLE voting_session_juries (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
+  jury_id uuid REFERENCES juries (id) ON DELETE SET NULL,
+  -- snapshot data
+  jury_name varchar NOT NULL,
+  voting_form_id uuid NOT NULL
 );
 
 CREATE TABLE voting_session_jurations (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
-  juration_snapshot_id uuid NOT NULL REFERENCES jurations (id),
---  juration_id uuid REFERENCES jurations (id),
+  voting_session_jury_id uuid NOT NULL REFERENCES voting_session_juries (id) ON DELETE cascade,
+  juration_id uuid REFERENCES jurations (id) ON DELETE SET NULL,
   has_submitted bool NOT NULL DEFAULT false,
-  is_excluded bool NOT NULL DEFAULT false,
-  UNIQUE (voting_session_id, juration_snapshot_id)
+--  is_excluded bool NOT NULL DEFAULT false,
+  UNIQUE (voting_session_id, juration_id),
+  -- snapshot data
+  juror_full_name varchar NOT NULL
 );
 
 CREATE TABLE voting_session_exclusions (
@@ -177,7 +188,7 @@ CREATE TABLE juror_votes (
   created_at timestamptz NOT NULL DEFAULT now(),
   juror_voting_id uuid NOT NULL REFERENCES juror_votings (id) ON DELETE cascade,
   voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
-  value numeric(7,2) NOT NULL,
+  value varchar NOT NULL,
   UNIQUE (juror_voting_id, voting_form_field_id)
 );
 
@@ -210,6 +221,6 @@ CREATE TABLE simple_juror_votes (
   created_at timestamptz NOT NULL DEFAULT now(),
   simple_juror_voting_id uuid NOT NULL REFERENCES simple_juror_votings (id) ON DELETE cascade,
   voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
-  value numeric(7,2) NOT NULL,
+  value varchar NOT NULL,
   UNIQUE (simple_juror_voting_id, voting_form_field_id)
 );

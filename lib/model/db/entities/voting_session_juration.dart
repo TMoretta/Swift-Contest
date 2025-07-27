@@ -4,17 +4,20 @@ class VotingSessionJuration extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionId;
-  final String? jurationSnapshotId;
+  final String? votingSessionJuryId;
+  final String? jurationId;
   final bool hasSubmitted;
-  final bool isExcluded;
+  // Snapshot data
+  final String jurorFullName;
 
   const VotingSessionJuration({
     required this.id,
     required this.createdAt,
     required this.votingSessionId,
-    required this.jurationSnapshotId,
+    required this.votingSessionJuryId,
+    required this.jurationId,
     required this.hasSubmitted,
-    required this.isExcluded,
+    required this.jurorFullName,
   });
 
   factory VotingSessionJuration.fromJson(Map<String, dynamic> json) {
@@ -22,9 +25,10 @@ class VotingSessionJuration extends Equatable {
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       votingSessionId: json['voting_session_id'] as String,
-      jurationSnapshotId: json['juration_snapshot_id'] as String,
+      votingSessionJuryId: json['voting_session_jury_id'] as String,
+      jurationId: json['juration_id'] as String,
       hasSubmitted: json['has_submitted'] as bool,
-      isExcluded: json['is_excluded'] as bool,
+      jurorFullName: json['juror_full_name'] as String,
     );
   }
 
@@ -33,9 +37,10 @@ class VotingSessionJuration extends Equatable {
       if (id != null) 'id': id,
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if (votingSessionId!=null) 'voting_session_id': votingSessionId,
-      if (jurationSnapshotId!=null) 'juration_snapshot_id': jurationSnapshotId,
+      if (votingSessionJuryId!=null) 'voting_session_jury_id': votingSessionJuryId,
+      if (jurationId!=null) 'juration_id': jurationId,
       'has_submitted': hasSubmitted,
-      'is_excluded': isExcluded,
+      'juror_full_name': jurorFullName,
     };
   }
 
@@ -43,17 +48,20 @@ class VotingSessionJuration extends Equatable {
     String? id,
     DateTime? createdAt,
     String? votingSessionId,
-    String? jurationSnapshotId,
+    String? votingSessionJuryId,
+    String? jurationId,
     bool? hasSubmitted,
     bool? isExcluded,
+    String? jurorFullName,
   }) {
     return VotingSessionJuration(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       votingSessionId: votingSessionId ?? this.votingSessionId,
-      jurationSnapshotId: jurationSnapshotId ?? this.jurationSnapshotId,
+      votingSessionJuryId: votingSessionJuryId ?? this.votingSessionJuryId,
+      jurationId: jurationId ?? this.jurationId,
       hasSubmitted: hasSubmitted ?? this.hasSubmitted,
-      isExcluded: isExcluded ?? this.isExcluded,
+      jurorFullName: jurorFullName ?? this.jurorFullName,
     );
   }
 
@@ -62,8 +70,9 @@ class VotingSessionJuration extends Equatable {
         id,
         createdAt,
         votingSessionId,
-        jurationSnapshotId,
+        votingSessionJuryId,
+        jurationId,
         hasSubmitted,
-        isExcluded,
+        jurorFullName,
       ];
 }

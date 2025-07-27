@@ -24,3 +24,8 @@ CREATE TYPE voting_session_status AS enum(
   'ended',
   'cancelled'
 );
+
+CREATE TYPE voting_form_field_type AS enum(
+  'textual',
+  'numeric'
+)

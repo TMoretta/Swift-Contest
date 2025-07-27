@@ -5,7 +5,7 @@ class SimpleJurorVote extends Equatable {
   final DateTime? createdAt;
   final String? simpleJurorVotingId;
   final String? votingFormFieldId;
-  final double value;
+  final String value;
 
   const SimpleJurorVote({
     required this.id,
@@ -21,7 +21,7 @@ class SimpleJurorVote extends Equatable {
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       simpleJurorVotingId: json['simple_juror_voting_id'] as String,
       votingFormFieldId: json['voting_form_field_id'] as String,
-      value: json['value'] as double,
+      value: json['value'] as String,
     );
   }
 
@@ -40,7 +40,7 @@ class SimpleJurorVote extends Equatable {
     DateTime? createdAt,
     String? simpleJurorVotingId,
     String? votingFormFieldId,
-    double? value,
+    String? value,
   }) {
     return SimpleJurorVote(
       id: id ?? this.id,
