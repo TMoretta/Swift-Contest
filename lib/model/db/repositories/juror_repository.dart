@@ -2,8 +2,11 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/db/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/db/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/db/daos/account_dao.dart';
 import 'package:swift_contest/model/db/daos/juration_dao.dart';
+import 'package:swift_contest/model/db/entities/voting_session.dart';
+import 'package:swift_contest/model/db/entities/voting_session_juration.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
@@ -17,6 +20,16 @@ abstract interface class JurorRepository {
   });
 
   Future<Either<Failure, Unit>> leaveContest({required String contestId});
+
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure,VotingSessionJuration>> getOwnVotingSessionJuration({required String votingSessionId,});
 
 // Future<Either<Failure, Unit>> jurorSubmitVotes({
 //   required String votingSessionId,
@@ -99,6 +112,74 @@ class JurorRepositoryImpl implements JurorRepository {
     return eitherDelete.fold(
       (failure) => Either.left(failure),
       (success) => Either.right(unit),
+    );
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
+  }) async {
+    return handleDatabaseCall(
+          () async {
+        // 1. Chiama la funzione RPC.
+        //    La funzione restituisce un singolo oggetto JSON, quindi usiamo .single().
+        final res = await _supabase.rpc(
+          'get_voting_session_procedure_bundle',
+          params: {'p_voting_session_id': votingSessionId},
+        ).single();
+
+        // 2. Deserializza la mappa JSON ricevuta nel bundle corrispondente.
+        return Either.right(VotingSessionProcedureBundle.fromJson(res));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
+    required String votingSessionId,
+  }) async {
+    return handleDatabaseCall(
+          () async {
+        final Stream<Either<Failure, VotingSession?>> stream = _supabase
+            .from('voting_sessions')
+            .stream(primaryKey: ['id']) // Specifica la chiave primaria della tabella
+            .eq('id', votingSessionId) // Filtra per ricevere aggiornamenti solo per questa sessione
+            .timeout(Duration(days: 1))
+            .map((listOfMaps) {
+          // La stream emette una lista di mappe.
+          try {
+            if (listOfMaps.isEmpty) {
+              // Se la lista è vuota, la sessione è stata probabilmente cancellata.
+              return Either.right(null);
+            }
+            // Altrimenti, deserializza il primo (e unico) elemento.
+            return Either.right(VotingSession.fromJson(listOfMaps.first));
+          } catch (e) {
+            // In caso di errore di parsing, emetti un Failure.
+            return Either.left(Failure(e.toString()));
+          }
+        });
+        return Either.right(stream);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionJuration>> getOwnVotingSessionJuration({
+    required String votingSessionId,
+  }) {
+    return handleDatabaseCall(
+          () async {
+        // Chiama la nuova funzione RPC che abbiamo creato.
+        // Usiamo .single() perché ci aspettiamo esattamente un risultato.
+        final res = await _supabase.rpc(
+          'juror_get_own_voting_session_juration',
+          params: {'p_voting_session_id': votingSessionId},
+        ).single();
+
+        // Deserializza il JSON ricevuto nell'oggetto Dart corrispondente.
+        return Either.right(VotingSessionJuration.fromJson(res));
+      },
     );
   }
 

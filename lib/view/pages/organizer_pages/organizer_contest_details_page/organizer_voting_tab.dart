@@ -298,9 +298,8 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                   } else {
                     return FloatingActionButton.extended(
                       onPressed: () {
-                        //todo
-                        // context.router.push(OrganizerVotingProcedureRoute(
-                        //     votingSessionId: state.contestDetailsBundle!.liveVotingSession!.id));
+                        context.router.push(OrganizerVotingProcedureRoute(
+                            votingSessionId: liveVotingSession.id!));
                       },
                       elevation: 1,
                       label: Text('Continue voting'),

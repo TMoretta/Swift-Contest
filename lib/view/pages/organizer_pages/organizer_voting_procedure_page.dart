@@ -12,6 +12,7 @@ import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
+import 'package:swift_contest/view/widgets/voting_procedure_work_details_view.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_procedure_page_bloc/organizer_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -167,46 +168,39 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                   ),
                                 );
                               case VotingSessionStatus.work:
-                                return VoidWidget();
-                                // final currentStepDeadline =
-                                //     votingSessionBundle.votingSession.currentStepDeadline!;
-                                // final currentParticipantIndex =
-                                //     votingSessionBundle.votingSession.currentParticipantIndex!;
-                                // final currentParticipant = votingSessionProcedureBundle
-                                //     .includedVotingSessionParticipationsBundles[
-                                //         currentParticipantIndex]
-                                //     .participationBundle
-                                //     .participant;
-                                // final currentWork = votingSessionProcedureBundle
-                                //     .includedVotingSessionParticipationsBundles[
-                                //         currentParticipantIndex]
-                                //     .participationBundle
-                                //     .work!;
-                                // return ListView(
-                                //   children: [
-                                //     SizedBox(height: 16),
-                                //     if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                //       Text(
-                                //         'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
-                                //         textAlign: TextAlign.center,
-                                //         style: Theme.of(context).textTheme.titleMedium,
-                                //       ),
-                                //     if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                //       Divider(height: 16),
-                                //     Center(
-                                //       child: CustomTimerCountdown(
-                                //         label: 'Jurors are voting',
-                                //         endTime: currentStepDeadline,
-                                //       ),
-                                //     ),
-                                //     Divider(height: 24),
-                                //     VotingProcedureWorkDetailsView(
-                                //       work: currentWork,
-                                //       participant: currentParticipant,
-                                //     ),
-                                //     SizedBox(height: 72),
-                                //   ],
-                                // );
+                                final currentStepDeadline =
+                                    votingSessionBundle.votingSession.currentStepDeadline!;
+                                final currentParticipantIndex =
+                                    votingSessionBundle.votingSession.currentParticipantIndex!;
+                                final currentVotingSessionParticipation = votingSessionProcedureBundle
+                                    .votingSessionParticipations[currentParticipantIndex];
+                                return ListView(
+                                  children: [
+                                    SizedBox(height: 16),
+                                    if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                      Text(
+                                        'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context).textTheme.titleMedium,
+                                      ),
+                                    if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                                      Divider(height: 16),
+                                    Center(
+                                      child: CustomTimerCountdown(
+                                        label: 'Jurors are voting',
+                                        endTime: currentStepDeadline,
+                                      ),
+                                    ),
+                                    Divider(height: 24),
+                                    VotingProcedureWorkDetailsView(
+                                      workName: currentVotingSessionParticipation.workName,
+                                      workDescription: currentVotingSessionParticipation.workDescription,
+                                      participantFullName: currentVotingSessionParticipation.participantFullName,
+                                      workImagesUrls: currentVotingSessionParticipation.workImagesUrls,
+                                    ),
+                                    SizedBox(height: 72),
+                                  ],
+                                );
                               case VotingSessionStatus.intermission:
                                 final currentStepDeadline =
                                     votingSessionBundle.votingSession.currentStepDeadline!;

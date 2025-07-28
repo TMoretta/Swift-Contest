@@ -955,16 +955,18 @@ AS $$
 DECLARE
   result_bundle jsonb;
 BEGIN
-  -- SICUREZZA: Verifica che l'utente che chiama la funzione sia l'organizzatore
-  -- del contest a cui questa sessione di voto appartiene.
---  IF NOT EXISTS (
---    SELECT 1
---    FROM public.voting_sessions vs
---    JOIN public.contests c ON vs.contest_id = c.id
---    WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
---  ) THEN
---    RAISE EXCEPTION 'Voting session not found or access not authorized.';
---  END IF;
+  -- NOTA DI SICUREZZA: Il controllo di autorizzazione è commentato.
+  -- Assicurati che sia gestito correttamente dalle tue policy RLS o riabilitalo.
+  /*
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.voting_sessions vs
+    JOIN public.contests c ON vs.contest_id = c.id
+    WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Voting session not found or access not authorized.';
+  END IF;
+  */
 
   -- Costruisce l'oggetto JSON finale usando subquery per ogni campo del bundle.
   SELECT jsonb_build_object(
@@ -993,6 +995,19 @@ BEGIN
           -- Per ogni giuria della sessione, costruisce il suo bundle
           jsonb_build_object(
             'voting_session_jury', to_jsonb(vsj),
+            'voting_form_bundle', (
+                SELECT jsonb_build_object(
+                    'voting_form', to_jsonb(vf),
+                    'voting_form_fields', COALESCE(
+                        (SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+                         FROM public.voting_form_fields vff
+                         WHERE vff.voting_form_id = vf.id),
+                        '[]'::jsonb
+                    )
+                )
+                FROM public.voting_forms vf
+                WHERE vf.id = vsj.voting_form_id
+            ),
             'voting_session_jurations', (
               -- Subquery per trovare tutti i giurati di questa specifica giuria
               SELECT COALESCE(jsonb_agg(to_jsonb(vsju)), '[]'::jsonb)
@@ -1005,7 +1020,15 @@ BEGIN
       )
       FROM public.voting_session_juries vsj
       WHERE vsj.voting_session_id = p_voting_session_id
+    ),
+
+    -- 4. 'voting_session_exclusions' (MODIFICA: Aggiunto questo blocco)
+    'voting_session_exclusions', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vse)), '[]'::jsonb)
+      FROM public.voting_session_exclusions vse
+      WHERE vse.voting_session_id = p_voting_session_id
     )
+
   )
   INTO result_bundle;
 
@@ -1257,3 +1280,37 @@ EXCEPTION
     RAISE EXCEPTION 'An unexcepted error occurred';
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
+
+--region JUROR GET OWN VOTING SESSION JURATION
+-- Recupera la specifica riga 'voting_session_juration' per l'utente autenticato
+-- all'interno di una data sessione di voto.
+CREATE OR REPLACE FUNCTION juror_get_own_voting_session_juration(p_voting_session_id uuid)
+RETURNS voting_session_jurations -- Restituisce l'intera riga della tabella.
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER -- Eseguita con i permessi dell'utente, quindi auth.uid() è disponibile.
+AS $$
+DECLARE
+  v_result voting_session_jurations;
+BEGIN
+  -- 1. Esegue una query che collega la sessione di voto all'utente corrente.
+  --    La catena di join è: voting_session_jurations -> jurations -> profiles (implicito tramite auth.uid()).
+  SELECT vsju.*
+  INTO v_result
+  FROM public.voting_session_jurations AS vsju
+  JOIN public.jurations AS ju ON vsju.juration_id = ju.id
+  WHERE
+    vsju.voting_session_id = p_voting_session_id
+    AND ju.juror_id = auth.uid(); -- Filtra per l'utente che ha chiamato la funzione.
+
+  -- 2. Se non viene trovata nessuna riga, significa che l'utente non è un giurato
+  --    in questa sessione, quindi solleva un'eccezione.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Juration per l''utente corrente non trovata in questa sessione di voto.';
+  END IF;
+
+  -- 3. Restituisce la riga trovata.
+  RETURN v_result;
+END;
+$$;
+--endregion

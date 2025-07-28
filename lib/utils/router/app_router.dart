@@ -147,10 +147,10 @@ class AppRouter extends RootStackRouter {
           path: '/juror-contest-details/:contestId',
           page: JurorContestDetailsRoute.page,
         ),
-        // AutoRoute(
-        //   path: '/juror-voting-procedure/:votingSessionId',
-        //   page: JurorVotingProcedureRoute.page,
-        // ),
+        AutoRoute(
+          path: '/juror-voting-procedure/:votingSessionId',
+          page: JurorVotingProcedureRoute.page,
+        ),
         // AutoRoute(
         //   path: '/simple-juror-voting-procedure/:votingSessionId/:simpleJurorId',
         //   page: SimpleJurorVotingProcedureRoute.page,

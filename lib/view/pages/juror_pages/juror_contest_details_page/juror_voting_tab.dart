@@ -1,7 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/db/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -108,16 +110,15 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                   FilledButton(
                     onPressed: (liveVotingSession != null)
                         ? () async {
-                            //todo
-                            // final bool? res = await context.router.push(JurorVotingProcedureRoute(
-                            //     votingSessionId: liveVotingSession.id));
-                            // if (res == true) {
-                            //   if (context.mounted) {
-                            //     context
-                            //         .read<JurorContestDetailsPageBloc>()
-                            //         .add(JurorContestDetailsPageFetch(contestId: contestId));
-                            //   }
-                            // }
+                            final bool? res = await context.router.push(JurorVotingProcedureRoute(
+                                votingSessionId: liveVotingSession.id!));
+                            if (res == true) {
+                              if (context.mounted) {
+                                context
+                                    .read<JurorContestDetailsPageBloc>()
+                                    .add(JurorContestDetailsPageFetch(contestId: contestId));
+                              }
+                            }
                           }
                         : null,
                     child: Text('Vote'),

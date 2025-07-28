@@ -45,7 +45,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
         return Scaffold(
           body: SafeArea(
             child: DefaultTabController(
-              length: 3,
+              length: 2,
               child: Builder(
                 builder: (context) {
                   switch (state.status) {
