@@ -52,6 +52,7 @@ dependencies:
   numberpicker: ^2.1.2
   url_launcher: ^6.3.2
   rxdart: ^0.28.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

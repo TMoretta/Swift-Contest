@@ -5,6 +5,7 @@ import 'package:swift_contest/model/db/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/db/bundles/jury_bundle.dart';
 import 'package:swift_contest/model/db/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/db/bundles/voting_form_bundle.dart';
+import 'package:swift_contest/model/db/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/db/daos/account_dao.dart';
 import 'package:swift_contest/model/db/daos/contest_dao.dart';
 import 'package:swift_contest/model/db/daos/juration_dao.dart';
@@ -26,7 +27,6 @@ import 'package:swift_contest/model/db/entities/participation.dart';
 import 'package:swift_contest/model/db/entities/place.dart';
 import 'package:swift_contest/model/db/entities/voting_form_field.dart';
 import 'package:swift_contest/model/db/entities/voting_session.dart';
-import 'package:swift_contest/model/db/entities/voting_session_participation.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
@@ -104,45 +104,34 @@ abstract interface class OrganizerRepository {
     required Place? geoResPlace,
   });
 
-// Future<Either<Failure, VotingSession>> initVotingSession({
-//   required List<VotingFormFieldModel> votingFormFields,
-//   required PlaceModel? geoRestrictionPlace,
-//   required VotingSessionModel votingSession,
-//   required List<VotingSessionParticipationModel> votingSessionParticipations,
-//   required List<VotingSessionJurationModel> votingSessionJurations,
-//   required List<VotingSessionExclusionModel> votingSessionExclusions,
-// });
-//
-// Future<Either<Failure, Unit>> startVotingSession({
-//   required String votingSessionId,
-// });
-//
-// Future<Either<Failure, Unit>> endVotingSession({
-//   required String votingSessionId,
-// });
-//
-// Future<Either<Failure, Unit>> cancelVotingSession({
-//   required String votingSessionId,
-// });
-//
+  Future<Either<Failure, Unit>> regenerateContestToken({required String contestId});
+
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, Unit>> startVotingSession({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, Unit>> endVotingSession({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, Unit>> cancelVotingSession({
+    required String votingSessionId,
+  });
+
 // Future<Either<Failure, Unit>> updateVotingSessionName({
 //   required String votingSessionId,
 //   required String name,
 // });
-//
-// Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
-//   required String votingSessionId,
-// });
-//
-// Future<Either<Failure, VotingFormBundle>> getContestVotingFormBundle({
-//   required String votingFormId,
-// });
-//
+
 // Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultBundle({
-//   required String votingSessionId,
-// });
-//
-// Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
 //   required String votingSessionId,
 // });
 }
@@ -304,9 +293,9 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final List<Map<String, dynamic>> res = await _supabase
-            .rpc('get_participation_bundle', params: {'p_participation_id': participationId});
-        return Either.right(ParticipationBundle.fromJson(res.first));
+        final Map<String, dynamic> res = await _supabase
+            .rpc('get_participation_bundle', params: {'p_participation_id': participationId}).single();
+        return Either.right(ParticipationBundle.fromJson(res));
       },
     );
   }
@@ -448,16 +437,116 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
         final res = await _supabase.rpc(
           'organizer_init_voting_session',
           params: {
-            'p_contest_id': votingSession.contestId,
             'p_voting_session': votingSession.toJson(),
             'p_participations_ids': participationsIds,
             'p_exclusions': exclusionsJson,
-            'p_geo_res_place' : geoResPlace?.toJson(),
+            'p_geo_res_place': geoResPlace?.toJson(),
           },
         ).single();
 
         // 3. Deserializza la risposta e restituiscila.
         return Either.right(VotingSession.fromJson(res));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> regenerateContestToken({required String contestId}) async {
+    return handleDatabaseCall(
+      () async {
+        await _supabase
+            .rpc('organizer_regenerate_contest_token', params: {'p_contest_id': contestId});
+        return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+    required String votingSessionId,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        // 1. Chiama la funzione RPC.
+        //    La funzione restituisce un singolo oggetto JSON, quindi usiamo .single().
+        final res = await _supabase.rpc(
+          'get_voting_session_procedure_bundle',
+          params: {'p_voting_session_id': votingSessionId},
+        ).single();
+
+        // 2. Deserializza la mappa JSON ricevuta nel bundle corrispondente.
+        return Either.right(VotingSessionProcedureBundle.fromJson(res));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
+    required String votingSessionId,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        final Stream<Either<Failure, VotingSession?>> stream = _supabase
+            .from('voting_sessions')
+            .stream(primaryKey: ['id']) // Specifica la chiave primaria della tabella
+            .eq('id', votingSessionId) // Filtra per ricevere aggiornamenti solo per questa sessione
+            .timeout(Duration(days: 1))
+            .map((listOfMaps) {
+              // La stream emette una lista di mappe.
+              try {
+                if (listOfMaps.isEmpty) {
+                  // Se la lista è vuota, la sessione è stata probabilmente cancellata.
+                  return Either.right(null);
+                }
+                // Altrimenti, deserializza il primo (e unico) elemento.
+                return Either.right(VotingSession.fromJson(listOfMaps.first));
+              } catch (e) {
+                // In caso di errore di parsing, emetti un Failure.
+                return Either.left(Failure(e.toString()));
+              }
+            });
+        return Either.right(stream);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> startVotingSession({required String votingSessionId}) {
+    return handleDatabaseCall(
+          () async {
+        await _supabase.rpc(
+          'organizer_start_voting_session',
+          params: {'p_voting_session_id': votingSessionId},
+        );
+        return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> endVotingSession({required String votingSessionId}) {
+    // Implementazione simile per chiamare 'organizer_end_voting_session'
+    return handleDatabaseCall(
+          () async {
+        await _supabase.rpc(
+          'organizer_end_voting_session',
+          params: {'p_voting_session_id': votingSessionId},
+        );
+        return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> cancelVotingSession({required String votingSessionId}) {
+    // Implementazione simile per chiamare 'organizer_cancel_voting_session'
+    return handleDatabaseCall(
+          () async {
+        await _supabase.rpc(
+          'organizer_cancel_voting_session',
+          params: {'p_voting_session_id': votingSessionId},
+        );
+        return Either.right(unit);
       },
     );
   }

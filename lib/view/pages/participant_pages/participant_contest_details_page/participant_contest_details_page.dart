@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_details_tab.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_work_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -76,7 +75,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: 'Joined contest',
+            title: state.contestDetailsBundle?.contestBundle.contest.name ?? '',
             onRefresh: () => context.read<ParticipantContestDetailsPageBloc>().add(ParticipantContestDetailsPageFetch(contestId: contestId, participantId: profileId)),
             actions: [
               Builder(

@@ -389,204 +389,6 @@
 --END;
 --$$;
 --
---
---
---
---
-------region ORGANIZER GET CREATED CONTESTS
-----CREATE OR REPLACE FUNCTION organizer_get_created_contests ()
-----RETURNS TABLE (
-----  contest jsonb,
-----  organizer jsonb,
-----  place jsonb,
-----  participations jsonb,
-----  jurations jsonb
-----) AS $$
-----DECLARE
-----  v_current_user_id uuid;
-----  v_current_profile profiles;
-----BEGIN
-----
-----  v_current_user_id := auth.uid();
-----
-----  IF (v_current_user_id is null) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-----  END IF;
-----
-----  IF NOT EXISTS (
-----    SELECT 1 FROM auth.users
-----    WHERE id = v_current_user_id AND deleted_at is null
-----  ) THEN
-----    RAISE EXCEPTION 'User not found';
-----  END IF;
-----
-----  SELECT * INTO v_current_profile
-----  FROM profiles
-----  WHERE user_id = v_current_user_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Profile not found';
-----  END IF;
-----
-----  RETURN QUERY
-----    SELECT
-----      to_jsonb(cont) AS contest,
-----      to_jsonb(org) AS organizer,
-----      to_jsonb(pla) AS place,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(par) ORDER BY par.created_at DESC)
-----        FROM participations par
-----        WHERE par.contest_id = cont.id
-----      ), '[]'::jsonb) AS participations,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(jur) ORDER BY jur.created_at DESC)
-----        FROM jurations jur
-----        WHERE jur.contest_id = cont.id
-----      ), '[]'::jsonb) AS jurations
-----    FROM contests cont
-----    JOIN profiles org ON cont.organizer_id = org.id
-----    JOIN places pla ON cont.place_id = pla.id
-----    WHERE cont.organizer_id = v_current_profile.id AND cont.deleted_at is null
-----    ORDER BY cont.created_at DESC;
-----
-----EXCEPTION
-----  WHEN SQLSTATE 'P0001' THEN
-----    RAISE;
-----  WHEN OTHERS THEN
-----    RAISE EXCEPTION 'An unexcepted error occurred';
-----END;
-----$$ LANGUAGE plpgsql SECURITY definer;
-----
-------region ORGANIZER GET CONTEST DETAILS
-----CREATE OR REPLACE FUNCTION organizer_get_contest_details (
-----  p_contest_id uuid
-----)
-----RETURNS TABLE (
-----  contest jsonb,
-----  organizer jsonb,
-----  place jsonb,
-----  participations jsonb,
-----  participants jsonb,
-----  works jsonb,
-----  juries jsonb,
-----  jurations jsonb,
-----  jurors jsonb,
-----  invitations jsonb,
-----  voting_form jsonb,
-----  voting_form_fields jsonb,
-----  voting_sessions jsonb
-----) AS $$
-----DECLARE
-----  v_current_user_id uuid;
-----  v_current_profile profiles;
-----  v_organizer_id uuid;
-----BEGIN
-----
-----  v_current_user_id := auth.uid();
-----
-----  IF (v_current_user_id is null) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-----  END IF;
-----
-----  IF NOT EXISTS (
-----    SELECT 1 FROM auth.users
-----    WHERE id = v_current_user_id AND deleted_at is null
-----  ) THEN
-----    RAISE EXCEPTION 'User not found';
-----  END IF;
-----
-----  SELECT * INTO v_current_profile
-----  FROM profiles
-----  WHERE user_id = v_current_user_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Profile not found';
-----  END IF;
-----
-----  SELECT organizer_id INTO v_organizer_id
-----  FROM contests
-----  WHERE id = p_contest_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Contest not found';
-----  END IF;
-----
-----  IF (v_organizer_id <> v_current_profile.id) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
-----  END IF;
-----
-----  RETURN QUERY
-----    SELECT
-----      to_jsonb(cont) AS contest,
-----      to_jsonb(org) AS organizer,
-----      to_jsonb(pla) AS place,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(part) ORDER BY pro.full_name ASC)
-----         FROM participations part
-----         JOIN profiles pro ON pro.id = part.participant_id
-----         WHERE part.contest_id = cont.id
-----        ), '[]'::jsonb) AS participations,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(par))
-----         FROM profiles par
-----         JOIN participations part ON par.id = part.participant_id
-----         WHERE part.contest_id = cont.id
-----        ), '[]'::jsonb) AS participants,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(wor))
-----         FROM works wor
-----         JOIN participations part
-----          ON wor.participation_id = part.id
-----            AND part.has_submitted = true
-----            AND part.participant_status = 'joined'
-----         WHERE part.contest_id = cont.id
-----        ), '[]'::jsonb) AS works,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(jura) ORDER BY pro.full_name ASC)
-----         FROM jurations jura
-----         JOIN profiles pro ON pro.id = jura.juror_id
-----         WHERE jura.contest_id = cont.id
-----        ), '[]'::jsonb) AS jurations,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(juro))
-----         FROM profiles juro
-----         JOIN jurations jura ON juro.id = jura.juror_id
-----         WHERE jura.contest_id = cont.id
-----        ), '[]'::jsonb) AS jurors,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(inv) ORDER BY inv.created_at DESC)
-----         FROM invitations inv
-----         WHERE inv.contest_id = cont.id
-----        ), '[]'::jsonb) AS invitations,
-----      COALESCE(
-----        (SELECT to_jsonb(vf)
-----         FROM voting_forms vf
-----         WHERE vf.id = cont.voting_form_id
-----        ), 'null'::jsonb) AS voting_form,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(vf_field) ORDER BY vf_field.order_index ASC)
-----         FROM voting_form_fields vf_field
-----         WHERE vf_field.voting_form_id = cont.voting_form_id
-----        ), '[]'::jsonb) AS voting_form_fields,
-----      COALESCE(
-----        (SELECT jsonb_agg(to_jsonb(vs) ORDER BY vs.created_at DESC)
-----         FROM voting_sessions vs
-----         WHERE vs.contest_id = cont.id
-----        ), '[]'::jsonb) AS voting_sessions
-----    FROM contests cont
-----    JOIN profiles org ON cont.organizer_id = org.id
-----    JOIN places pla ON cont.place_id = pla.id
-----    WHERE cont.id = p_contest_id AND cont.deleted_at is null
-----    LIMIT 1;
-----
-----EXCEPTION
-----  WHEN SQLSTATE 'P0001' THEN
-----    RAISE;
-----  WHEN OTHERS THEN
-----    RAISE EXCEPTION 'An unexcepted error occurred';
-----END;
-----$$ LANGUAGE plpgsql SECURITY definer;
---
 ------region ORGANIZER CREATE CONTEST
 ----CREATE OR REPLACE FUNCTION organizer_create_contest (
 ----  p_contest contests,
@@ -1252,363 +1054,363 @@
 ----END;
 ----$$ LANGUAGE plpgsql SECURITY definer;
 ----
-------region ORGANIZER START VOTING SESSION
-----CREATE OR REPLACE FUNCTION organizer_start_voting_session (
-----  p_voting_session_id uuid
-----)
-----RETURNS void AS $$
-----DECLARE
-----  v_current_user_id uuid;
-----  v_current_profile profiles;
-----  v_organizer_id uuid;
-----  v_voting_session voting_sessions;
-----  v_work_timer interval;
-----  v_job_name text := 'voting_session_' || p_voting_session_id;
-----BEGIN
-----
-----  v_current_user_id := auth.uid();
-----
-----  IF (v_current_user_id is null) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-----  END IF;
-----
-----  IF NOT EXISTS (
-----    SELECT 1 FROM auth.users
-----    WHERE id = v_current_user_id AND deleted_at is null
-----  ) THEN
-----    RAISE EXCEPTION 'User not found';
-----  END IF;
-----
-----  SELECT * INTO v_current_profile
-----  FROM profiles
-----  WHERE user_id = v_current_user_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Profile not found';
-----  END IF;
-----
-----  SELECT * INTO v_voting_session
-----  FROM voting_sessions
-----  WHERE id = p_voting_session_id;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Voting session not found';
-----  END IF;
-----
-----  SELECT organizer_id INTO v_organizer_id
-----  FROM contests
-----  WHERE id = v_voting_session.contest_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Contest not found';
-----  END IF;
-----
-----  IF (v_current_profile.id <> v_organizer_id) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
-----  END IF;
-----
-----  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
-----    RAISE EXCEPTION 'Voting session already ended or cancelled';
-----  END IF;
-----
-----  SELECT work_timer * INTERVAL '1 seconds'
-----  INTO v_work_timer
-----  FROM voting_sessions
-----  WHERE id = p_voting_session_id;
-----
-----  UPDATE voting_sessions
-----  SET
-----    session_status = 'work'::voting_session_status,
-----    current_participant_index = 0,
-----    current_step_deadline = now() + v_work_timer
-----  WHERE id = p_voting_session_id;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'An error occurred while starting the voting session';
-----  END IF;
-----
-----  -- Schedule a cron job for this session
-----  PERFORM cron.schedule(
-----    v_job_name,
-----    '1 seconds',
-----    format($fmt$ SELECT organizer_advance_voting_session('%s'); $fmt$,
-----      p_voting_session_id
-----    )
-----  );
-----
-----EXCEPTION
-----  WHEN SQLSTATE 'P0001' THEN
-----    RAISE;
-----  WHEN OTHERS THEN
-----    RAISE EXCEPTION 'An unexcepted error occurred';
-----END;
-----$$ LANGUAGE plpgsql SECURITY definer;
-----
-------region ORGANIZER ADVANCE VOTING SESSION
-----CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
-----  p_voting_session_id uuid
-----)
-----RETURNS void AS $$
-----DECLARE
-----  v_session voting_sessions;
-----  v_next_index int;
-----  v_next_status text;
-----  v_delay interval;
-----  v_count int;
-----  v_job_name text;
-----  v_timers record;
-----BEGIN
-----
-----  SELECT *
-----  INTO v_session
-----  FROM voting_sessions
-----  WHERE id = p_voting_session_id;
-----
-----  RAISE NOTICE 'Current status: %', v_session.session_status;
-----
-----  IF v_session.session_status <> 'ended' AND v_session.session_status <> 'cancelled' AND v_session.current_step_deadline <= now() THEN
-----    -- Prendo i timer dalla tabella principale
-----    SELECT work_timer, intermission_timer, review_timer
-----    INTO v_timers
-----    FROM voting_sessions
-----    WHERE id = p_voting_session_id;
-----
-----    -- Numero di partecipanti
-----    SELECT COUNT(*) INTO v_count
-----    FROM voting_session_participations
-----    WHERE voting_session_id = v_session.id AND is_excluded = false;
-----
-----    -- Diversifico per step corrente
-----    IF v_session.session_status = 'work' THEN
-----      -- Work finito → intermission su *stesso* indice
-----      v_next_status := 'intermission';
-----      v_delay     := v_timers.intermission_timer  * INTERVAL '1 seconds';
-----      v_next_index  := v_session.current_participant_index;
-----
-----    ELSIF v_session.session_status = 'intermission' THEN
-----      -- Intermission finito → se ci sono altri partecipanti, vai a work+1,
-----      -- altrimenti entri in review
-----      IF (v_session.current_participant_index + 1) < v_count THEN
-----        v_next_status := 'work';
-----        v_delay     := v_timers.work_timer  * INTERVAL '1 seconds';
-----        v_next_index  := v_session.current_participant_index + 1;
-----      ELSE
-----        v_next_status := 'review';
-----        v_delay     := v_timers.review_timer * INTERVAL '1 seconds';
-----        v_next_index  := NULL;
-----      END IF;
-----
-----    ELSIF v_session.session_status = 'review' THEN
-----      -- Review finita → ended
-----      v_next_status := 'ended';
-----      v_delay     := NULL;
-----      v_next_index  := NULL;
-----
-----    ELSE
-----      -- (non dovrebbe capitare) fallback alla fine
-----      v_next_status := 'cancelled';
-----      v_delay     := NULL;
-----      v_next_index  := NULL;
-----    END IF;
-----
-----    -- Se passo a end o cancelled, unschedule + update
-----    IF v_next_status = 'cancelled' OR v_next_status = 'ended' THEN
-----      v_job_name := 'voting_session_' || v_session.id;
-----      PERFORM cron.unschedule(v_job_name);
-----      UPDATE voting_sessions
-----      SET
-----        session_status = v_next_status::voting_session_status,
-----        current_participant_index = NULL,
-----        current_step_deadline = NULL
-----      WHERE id = v_session.id;
-----    ELSE
-----      -- Altrimenti aggiorno lo stato
-----      UPDATE voting_sessions
-----      SET
-----        current_participant_index = v_next_index,
-----        session_status = v_next_status::voting_session_status,
-----        current_step_deadline = now() + v_delay
-----      WHERE id = v_session.id;
-----    END IF;
-----  END IF;
-----END;
-----$$ LANGUAGE plpgsql SECURITY definer;
-----
-------region ORGANIZER END VOTING SESSION
-----CREATE OR REPLACE FUNCTION organizer_end_voting_session(
-----  p_voting_session_id uuid
-----)
-----RETURNS void AS $$
-----DECLARE
-----  v_current_user_id uuid;
-----  v_current_profile profiles;
-----  v_organizer_id uuid;
-----  v_voting_session voting_sessions;
-----  v_job_name text := 'voting_session_' || p_voting_session_id;
-----  v_job_exists boolean;
-----BEGIN
-----
-----  v_current_user_id := auth.uid();
-----
-----  IF (v_current_user_id is null) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-----  END IF;
-----
-----  IF NOT EXISTS (
-----    SELECT 1 FROM auth.users
-----    WHERE id = v_current_user_id AND deleted_at is null
-----  ) THEN
-----    RAISE EXCEPTION 'User not found';
-----  END IF;
-----
-----  SELECT * INTO v_current_profile
-----  FROM profiles
-----  WHERE user_id = v_current_user_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Profile not found';
-----  END IF;
-----
-----  SELECT * INTO v_voting_session
-----  FROM voting_sessions
-----  WHERE id = p_voting_session_id;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Voting session not found';
-----  END IF;
-----
-----  SELECT organizer_id INTO v_organizer_id
-----  FROM contests
-----  WHERE id = v_voting_session.contest_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Contest not found';
-----  END IF;
-----
-----  IF (v_current_profile.id <> v_organizer_id) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
-----  END IF;
-----
-----  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
-----    RAISE EXCEPTION 'Voting session already ended or cancelled';
-----  END IF;
-----
-----  SELECT EXISTS(
-----    SELECT 1
-----    FROM cron.job
-----    WHERE jobname = v_job_name
-----  ) INTO v_job_exists;
-----
-----  IF v_job_exists THEN
-----    PERFORM cron.unschedule(v_job_name);
-----  END IF;
-----
-----  UPDATE voting_sessions
-----  SET
-----    session_status = 'ended',
-----    current_participant_index = NULL,
-----    current_step_deadline = NULL
-----  WHERE id = p_voting_session_id;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'An error occurred while ending the voting session';
-----  END IF;
-----
-----EXCEPTION
-----  WHEN SQLSTATE 'P0001' THEN
-----    RAISE;
-----  WHEN OTHERS THEN
-----    RAISE EXCEPTION 'An unexcepted error occurred';
-----END;
-----$$ LANGUAGE plpgsql SECURITY definer;
-----
-------region ORGANIZER CANCEL VOTING SESSION
-----CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (
-----  p_voting_session_id uuid
-----)
-----RETURNS void AS $$
-----DECLARE
-----  v_current_user_id uuid;
-----  v_current_profile profiles;
-----  v_organizer_id uuid;
-----  v_voting_session voting_sessions;
-----  v_job_name text := 'voting_session_' || p_voting_session_id;
-----  v_job_exists boolean;
-----BEGIN
-----
-----  v_current_user_id := auth.uid();
-----
-----  IF (v_current_user_id is null) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
-----  END IF;
-----
-----  IF NOT EXISTS (
-----    SELECT 1 FROM auth.users
-----    WHERE id = v_current_user_id AND deleted_at is null
-----  ) THEN
-----    RAISE EXCEPTION 'User not found';
-----  END IF;
-----
-----  SELECT * INTO v_current_profile
-----  FROM profiles
-----  WHERE user_id = v_current_user_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Profile not found';
-----  END IF;
-----
-----  SELECT * INTO v_voting_session
-----  FROM voting_sessions
-----  WHERE id = p_voting_session_id;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Voting session not found';
-----  END IF;
-----
-----  SELECT organizer_id INTO v_organizer_id
-----  FROM contests
-----  WHERE id = v_voting_session.contest_id AND deleted_at is null;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'Contest not found';
-----  END IF;
-----
-----  IF (v_current_profile.id <> v_organizer_id) THEN
-----    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
-----  END IF;
-----
-----  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
-----    RAISE EXCEPTION 'Voting session already ended or cancelled';
-----  END IF;
-----
-----  SELECT EXISTS(
-----    SELECT 1
-----    FROM cron.job
-----    WHERE jobname = v_job_name
-----  ) INTO v_job_exists;
-----
-----  IF v_job_exists THEN
-----    PERFORM cron.unschedule(v_job_name);
-----  END IF;
-----
-----  UPDATE voting_sessions
-----  SET
-----    session_status = 'cancelled',
-----    current_participant_index = NULL,
-----    current_step_deadline = NULL
-----  WHERE id = p_voting_session_id;
-----
-----  IF NOT FOUND THEN
-----    RAISE EXCEPTION 'An error occurred while cancelling the voting session';
-----  END IF;
-----
-----EXCEPTION
-----  WHEN SQLSTATE 'P0001' THEN
-----    RAISE;
-----  WHEN OTHERS THEN
-----    RAISE EXCEPTION 'An unexcepted error occurred';
-----END;
-----$$ LANGUAGE plpgsql SECURITY definer;
+----region ORGANIZER START VOTING SESSION
+--CREATE OR REPLACE FUNCTION organizer_start_voting_session (
+--  p_voting_session_id uuid
+--)
+--RETURNS void AS $$
+--DECLARE
+--  v_current_user_id uuid;
+--  v_current_profile profiles;
+--  v_organizer_id uuid;
+--  v_voting_session voting_sessions;
+--  v_work_timer interval;
+--  v_job_name text := 'voting_session_' || p_voting_session_id;
+--BEGIN
+--
+--  v_current_user_id := auth.uid();
+--
+--  IF (v_current_user_id is null) THEN
+--    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+--  END IF;
+--
+--  IF NOT EXISTS (
+--    SELECT 1 FROM auth.users
+--    WHERE id = v_current_user_id AND deleted_at is null
+--  ) THEN
+--    RAISE EXCEPTION 'User not found';
+--  END IF;
+--
+--  SELECT * INTO v_current_profile
+--  FROM profiles
+--  WHERE user_id = v_current_user_id AND deleted_at is null;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Profile not found';
+--  END IF;
+--
+--  SELECT * INTO v_voting_session
+--  FROM voting_sessions
+--  WHERE id = p_voting_session_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Voting session not found';
+--  END IF;
+--
+--  SELECT organizer_id INTO v_organizer_id
+--  FROM contests
+--  WHERE id = v_voting_session.contest_id AND deleted_at is null;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Contest not found';
+--  END IF;
+--
+--  IF (v_current_profile.id <> v_organizer_id) THEN
+--    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+--  END IF;
+--
+--  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+--    RAISE EXCEPTION 'Voting session already ended or cancelled';
+--  END IF;
+--
+--  SELECT work_timer * INTERVAL '1 seconds'
+--  INTO v_work_timer
+--  FROM voting_sessions
+--  WHERE id = p_voting_session_id;
+--
+--  UPDATE voting_sessions
+--  SET
+--    session_status = 'work'::voting_session_status,
+--    current_participant_index = 0,
+--    current_step_deadline = now() + v_work_timer
+--  WHERE id = p_voting_session_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'An error occurred while starting the voting session';
+--  END IF;
+--
+--  -- Schedule a cron job for this session
+--  PERFORM cron.schedule(
+--    v_job_name,
+--    '1 seconds',
+--    format($fmt$ SELECT organizer_advance_voting_session('%s'); $fmt$,
+--      p_voting_session_id
+--    )
+--  );
+--
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
+--END;
+--$$ LANGUAGE plpgsql SECURITY definer;
+--
+----region ORGANIZER ADVANCE VOTING SESSION
+--CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
+--  p_voting_session_id uuid
+--)
+--RETURNS void AS $$
+--DECLARE
+--  v_session voting_sessions;
+--  v_next_index int;
+--  v_next_status text;
+--  v_delay interval;
+--  v_count int;
+--  v_job_name text;
+--  v_timers record;
+--BEGIN
+--
+--  SELECT *
+--  INTO v_session
+--  FROM voting_sessions
+--  WHERE id = p_voting_session_id;
+--
+--  RAISE NOTICE 'Current status: %', v_session.session_status;
+--
+--  IF v_session.session_status <> 'ended' AND v_session.session_status <> 'cancelled' AND v_session.current_step_deadline <= now() THEN
+--    -- Prendo i timer dalla tabella principale
+--    SELECT work_timer, intermission_timer, review_timer
+--    INTO v_timers
+--    FROM voting_sessions
+--    WHERE id = p_voting_session_id;
+--
+--    -- Numero di partecipanti
+--    SELECT COUNT(*) INTO v_count
+--    FROM voting_session_participations
+--    WHERE voting_session_id = v_session.id AND is_excluded = false;
+--
+--    -- Diversifico per step corrente
+--    IF v_session.session_status = 'work' THEN
+--      -- Work finito → intermission su *stesso* indice
+--      v_next_status := 'intermission';
+--      v_delay     := v_timers.intermission_timer  * INTERVAL '1 seconds';
+--      v_next_index  := v_session.current_participant_index;
+--
+--    ELSIF v_session.session_status = 'intermission' THEN
+--      -- Intermission finito → se ci sono altri partecipanti, vai a work+1,
+--      -- altrimenti entri in review
+--      IF (v_session.current_participant_index + 1) < v_count THEN
+--        v_next_status := 'work';
+--        v_delay     := v_timers.work_timer  * INTERVAL '1 seconds';
+--        v_next_index  := v_session.current_participant_index + 1;
+--      ELSE
+--        v_next_status := 'review';
+--        v_delay     := v_timers.review_timer * INTERVAL '1 seconds';
+--        v_next_index  := NULL;
+--      END IF;
+--
+--    ELSIF v_session.session_status = 'review' THEN
+--      -- Review finita → ended
+--      v_next_status := 'ended';
+--      v_delay     := NULL;
+--      v_next_index  := NULL;
+--
+--    ELSE
+--      -- (non dovrebbe capitare) fallback alla fine
+--      v_next_status := 'cancelled';
+--      v_delay     := NULL;
+--      v_next_index  := NULL;
+--    END IF;
+--
+--    -- Se passo a end o cancelled, unschedule + update
+--    IF v_next_status = 'cancelled' OR v_next_status = 'ended' THEN
+--      v_job_name := 'voting_session_' || v_session.id;
+--      PERFORM cron.unschedule(v_job_name);
+--      UPDATE voting_sessions
+--      SET
+--        session_status = v_next_status::voting_session_status,
+--        current_participant_index = NULL,
+--        current_step_deadline = NULL
+--      WHERE id = v_session.id;
+--    ELSE
+--      -- Altrimenti aggiorno lo stato
+--      UPDATE voting_sessions
+--      SET
+--        current_participant_index = v_next_index,
+--        session_status = v_next_status::voting_session_status,
+--        current_step_deadline = now() + v_delay
+--      WHERE id = v_session.id;
+--    END IF;
+--  END IF;
+--END;
+--$$ LANGUAGE plpgsql SECURITY definer;
+--
+----region ORGANIZER END VOTING SESSION
+--CREATE OR REPLACE FUNCTION organizer_end_voting_session(
+--  p_voting_session_id uuid
+--)
+--RETURNS void AS $$
+--DECLARE
+--  v_current_user_id uuid;
+--  v_current_profile profiles;
+--  v_organizer_id uuid;
+--  v_voting_session voting_sessions;
+--  v_job_name text := 'voting_session_' || p_voting_session_id;
+--  v_job_exists boolean;
+--BEGIN
+--
+--  v_current_user_id := auth.uid();
+--
+--  IF (v_current_user_id is null) THEN
+--    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+--  END IF;
+--
+--  IF NOT EXISTS (
+--    SELECT 1 FROM auth.users
+--    WHERE id = v_current_user_id AND deleted_at is null
+--  ) THEN
+--    RAISE EXCEPTION 'User not found';
+--  END IF;
+--
+--  SELECT * INTO v_current_profile
+--  FROM profiles
+--  WHERE user_id = v_current_user_id AND deleted_at is null;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Profile not found';
+--  END IF;
+--
+--  SELECT * INTO v_voting_session
+--  FROM voting_sessions
+--  WHERE id = p_voting_session_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Voting session not found';
+--  END IF;
+--
+--  SELECT organizer_id INTO v_organizer_id
+--  FROM contests
+--  WHERE id = v_voting_session.contest_id AND deleted_at is null;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Contest not found';
+--  END IF;
+--
+--  IF (v_current_profile.id <> v_organizer_id) THEN
+--    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+--  END IF;
+--
+--  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+--    RAISE EXCEPTION 'Voting session already ended or cancelled';
+--  END IF;
+--
+--  SELECT EXISTS(
+--    SELECT 1
+--    FROM cron.job
+--    WHERE jobname = v_job_name
+--  ) INTO v_job_exists;
+--
+--  IF v_job_exists THEN
+--    PERFORM cron.unschedule(v_job_name);
+--  END IF;
+--
+--  UPDATE voting_sessions
+--  SET
+--    session_status = 'ended',
+--    current_participant_index = NULL,
+--    current_step_deadline = NULL
+--  WHERE id = p_voting_session_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'An error occurred while ending the voting session';
+--  END IF;
+--
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
+--END;
+--$$ LANGUAGE plpgsql SECURITY definer;
+--
+----region ORGANIZER CANCEL VOTING SESSION
+--CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (
+--  p_voting_session_id uuid
+--)
+--RETURNS void AS $$
+--DECLARE
+--  v_current_user_id uuid;
+--  v_current_profile profiles;
+--  v_organizer_id uuid;
+--  v_voting_session voting_sessions;
+--  v_job_name text := 'voting_session_' || p_voting_session_id;
+--  v_job_exists boolean;
+--BEGIN
+--
+--  v_current_user_id := auth.uid();
+--
+--  IF (v_current_user_id is null) THEN
+--    RAISE EXCEPTION 'Operation not allowed, you are not authenticated';
+--  END IF;
+--
+--  IF NOT EXISTS (
+--    SELECT 1 FROM auth.users
+--    WHERE id = v_current_user_id AND deleted_at is null
+--  ) THEN
+--    RAISE EXCEPTION 'User not found';
+--  END IF;
+--
+--  SELECT * INTO v_current_profile
+--  FROM profiles
+--  WHERE user_id = v_current_user_id AND deleted_at is null;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Profile not found';
+--  END IF;
+--
+--  SELECT * INTO v_voting_session
+--  FROM voting_sessions
+--  WHERE id = p_voting_session_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Voting session not found';
+--  END IF;
+--
+--  SELECT organizer_id INTO v_organizer_id
+--  FROM contests
+--  WHERE id = v_voting_session.contest_id AND deleted_at is null;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Contest not found';
+--  END IF;
+--
+--  IF (v_current_profile.id <> v_organizer_id) THEN
+--    RAISE EXCEPTION 'Operation not allowed, you are not the organizer of this contest';
+--  END IF;
+--
+--  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+--    RAISE EXCEPTION 'Voting session already ended or cancelled';
+--  END IF;
+--
+--  SELECT EXISTS(
+--    SELECT 1
+--    FROM cron.job
+--    WHERE jobname = v_job_name
+--  ) INTO v_job_exists;
+--
+--  IF v_job_exists THEN
+--    PERFORM cron.unschedule(v_job_name);
+--  END IF;
+--
+--  UPDATE voting_sessions
+--  SET
+--    session_status = 'cancelled',
+--    current_participant_index = NULL,
+--    current_step_deadline = NULL
+--  WHERE id = p_voting_session_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'An error occurred while cancelling the voting session';
+--  END IF;
+--
+--EXCEPTION
+--  WHEN SQLSTATE 'P0001' THEN
+--    RAISE;
+--  WHEN OTHERS THEN
+--    RAISE EXCEPTION 'An unexcepted error occurred';
+--END;
+--$$ LANGUAGE plpgsql SECURITY definer;
 ----
 ------region ORGANIZER DELETE INVITATION
 ----CREATE OR REPLACE FUNCTION organizer_delete_invitation (

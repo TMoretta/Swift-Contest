@@ -7,7 +7,6 @@ import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/db/entities/juror_invitation.dart';
 import 'package:swift_contest/model/db/entities/jury.dart';
 import 'package:swift_contest/model/db/entities/participant_invitation.dart';
-import 'package:swift_contest/model/db/entities/voting_form.dart';
 import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
@@ -35,6 +34,7 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageRemoveJuror>(_removeJuror);
     on<OrganizerContestDetailsPageDeleteContest>(_deleteContest);
     on<OrganizerContestDetailsPageCreateJury>(_createJury);
+    on<OrganizerContestDetailsPageRegenerateToken>(_regenerateToken);
   }
 
   FutureOr<void> _fetch(
@@ -193,6 +193,19 @@ class OrganizerContestDetailsPageBloc
           name: event.juryName),
     );
     eitherCreateJury.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _regenerateToken(
+    OrganizerContestDetailsPageRegenerateToken event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherUpdate = await _organizerRepository.regenerateContestToken(contestId: event.contestId);
+    eitherUpdate.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
         (success) => emit(state.copyWith(status: BlocStatus.success)),
     );

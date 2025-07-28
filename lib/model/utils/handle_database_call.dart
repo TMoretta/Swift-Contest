@@ -6,10 +6,9 @@ import 'package:swift_contest/model/utils/auth_exception_to_failure.dart';
 import 'package:swift_contest/model/utils/postgrest_exception_to_failure.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
-Future<Either<Failure, T>> handleDatabaseCall<T>(
-    Future<Either<Failure, T>> Function() function) async {
+Future<Either<Failure, T>> handleDatabaseCall<T>(Future<Either<Failure, T>> Function() function) async {
   try {
-    return function();
+    return await function();
   } on SocketException {
     return Either.left(Failure('Network error'));
   } on AuthException catch (e) {

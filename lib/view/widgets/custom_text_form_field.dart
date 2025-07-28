@@ -7,6 +7,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final String? label;
+  final bool? readOnly;
   final FloatingLabelBehavior? floatingLabelBehavior;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
@@ -35,6 +36,7 @@ class CustomTextFormField extends StatelessWidget {
     required this.borderType,
     this.controller,
     this.focusNode,
+    this.readOnly,
     this.label,
     this.floatingLabelBehavior,
     this.onChanged,
@@ -86,6 +88,7 @@ class CustomTextFormField extends StatelessWidget {
       focusNode: focusNode,
       validator: validator,
       initialValue: initialValue,
+      readOnly: readOnly ?? false,
       enabled: enabled,
       minLines: minLines ?? 1,
       maxLines: maxLines ?? 1,

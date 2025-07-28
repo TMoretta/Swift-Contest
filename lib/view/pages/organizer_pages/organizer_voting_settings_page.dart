@@ -112,6 +112,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
@@ -126,8 +128,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         }
         if (state.status.isSuccess &&
             state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
-          //todo
-          // context.router.replace(OrganizerVotingProcedureRoute(votingSessionId: state.votingSessionId!));
+          context.router.replace(OrganizerVotingProcedureRoute(votingSessionId: state.votingSessionId!));
         }
       },
       builder: (context, state) {
@@ -601,7 +602,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   },
                 ),
                 RadioListTile<bool>.adaptive(
-                  title: Text('Also simple jurors with the token showed during the voting'),
+                  title: Text('Also simple jurors with the contest token'),
                   value: true,
                   groupValue: areSimpleJurorsAllowed,
                   onChanged: (value) {
@@ -610,7 +611,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     });
                   },
                 ),
-                SizedBox(height: 64),
+                SizedBox(height: 56),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -642,8 +643,15 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                   .textTheme
                                   .labelLarge,
                             ),
-                            Text(votingExclusion.jurationBundle.juror.fullName +
-                                juries
+                            Text(votingExclusion.jurationBundle.juror.fullName),
+                            Text(
+                              ' | ',
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .labelLarge,
+                            ),
+                            Text(juries
                                     .where((e) =>
                                 votingExclusion.jurationBundle.juration.juryId ==
                                     e.id)
@@ -689,8 +697,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     final ({JurationBundle jurationBundle, ParticipationBundle participationBundle})? votingExclusion =
                     await _showAddVotingExclusionDialog(
                         context: context,
-                        participations: participationsBundles,
-                        jurations: jurationsBundles);
+                        participationsBundles: participationsBundles,
+                        jurationsBundles: jurationsBundles,
+                    juries: juries);
                     if (votingExclusion == null) {
                       return;
                     }
@@ -802,8 +811,9 @@ Future<
     ({JurationBundle jurationBundle, ParticipationBundle participationBundle})?> _showAddVotingExclusionDialog(
     {
       required BuildContext context,
-      required List<ParticipationBundle> participations,
-      required List<JurationBundle> jurations,
+      required List<ParticipationBundle> participationsBundles,
+      required List<JurationBundle> jurationsBundles,
+      required List<Jury> juries,
     }) async {
   return await showDialog(
     context: context,
@@ -818,28 +828,6 @@ Future<
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Participant',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
-                ),
-                DropdownMenu(
-                  enableSearch: false,
-                  onSelected: (value) {
-                    if (value != null) {
-                      setState(() {
-                        chosenParticipationBundle = value;
-                      });
-                    }
-                  },
-                  dropdownMenuEntries: [
-                    for (var element in participations)
-                      DropdownMenuEntry(value: element, label: element.participant.fullName),
-                  ],
-                ),
-                SizedBox(height: 8),
                 Text(
                   'Juror',
                   style: Theme
@@ -857,11 +845,33 @@ Future<
                     }
                   },
                   dropdownMenuEntries: [
-                    for (var element in jurations)
+                    for (var element in jurationsBundles)
                       DropdownMenuEntry(
                         value: element,
-                        label: element.juror.fullName,
+                        label: '${element.juror.fullName} | ${juries.where((e) => e.id == element.juration.juryId).first.name}'
                       ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Participant',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium,
+                ),
+                DropdownMenu(
+                  enableSearch: false,
+                  onSelected: (value) {
+                    if (value != null) {
+                      setState(() {
+                        chosenParticipationBundle = value;
+                      });
+                    }
+                  },
+                  dropdownMenuEntries: [
+                    for (var element in participationsBundles)
+                      DropdownMenuEntry(value: element, label: element.participant.fullName),
                   ],
                 ),
               ],

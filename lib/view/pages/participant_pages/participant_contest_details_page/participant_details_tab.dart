@@ -81,14 +81,6 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                             contestId: contestId, participantId: profileId)),
                     child: ListView(
                       children: [
-                        //* Title
-                        Text(
-                          state.contestDetailsBundle!.contestBundle.contest.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                        ),
                         // SizedBox(height: 6),
                         // //* Status
                         // Row(
@@ -138,11 +130,11 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         //     ),
                         //   ],
                         // ),
-                        SizedBox(height: 12),
                         //* Images carousel
                         SizedBox(
                           height: 180,
-                          child: (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
+                          child: (state
+                                  .contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
                               ? ListView(
                                   scrollDirection: Axis.horizontal,
                                   children: [
@@ -152,12 +144,14 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                                 )
                               : ListView.builder(
                                   scrollDirection: Axis.horizontal,
-                                  itemCount: state.contestDetailsBundle!.contestBundle.contest.imagesUrls.length,
+                                  itemCount: state.contestDetailsBundle!.contestBundle.contest
+                                      .imagesUrls.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
                                       padding: const EdgeInsets.only(right: 8),
                                       child: Image.network(
-                                        state.contestDetailsBundle!.contestBundle.contest.imagesUrls[index],
+                                        state.contestDetailsBundle!.contestBundle.contest
+                                            .imagesUrls[index],
                                         fit: BoxFit.contain,
                                         frameBuilder:
                                             (context, child, frame, wasSynchronouslyLoaded) {
@@ -209,7 +203,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                state.contestDetailsBundle!.contestBundle.organizer.fullName,
+                                state.contestDetailsBundle!.contestBundle.contest.organizerFullName,
                               ),
                             ),
                           ],
@@ -248,7 +242,8 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () async {
-                                  final address = state.contestDetailsBundle!.contestBundle.place.address;
+                                  final address =
+                                      state.contestDetailsBundle!.contestBundle.place.address;
                                   final query = Uri.encodeComponent(address);
                                   final uri = Uri.parse(
                                       'https://www.google.com/maps/search/?api=1&query=$query');
@@ -288,8 +283,8 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contestBundle.contest.dateTime),
+                                DateFormat('dd MMM, yyyy | HH:mm').format(
+                                    state.contestDetailsBundle!.contestBundle.contest.dateTime),
                               ),
                             ),
                           ],
@@ -314,8 +309,11 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart),
+                                DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                    .contestDetailsBundle!
+                                    .contestBundle
+                                    .contest
+                                    .worksSubmissionStart),
                               ),
                             ),
                           ],
@@ -332,8 +330,11 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd),
+                                DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                    .contestDetailsBundle!
+                                    .contestBundle
+                                    .contest
+                                    .worksSubmissionEnd),
                               ),
                             ),
                           ],

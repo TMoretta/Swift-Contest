@@ -70,15 +70,6 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         .add(JurorContestDetailsPageFetch(contestId: contestId)),
                     child: ListView(
                       children: [
-                        //* Title
-                        Text(
-                          state.contestDetailsBundle!.contestBundle.contest.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                        ),
-                        // SizedBox(height: 6),
                         //* Status
                         // Row(
                         //   mainAxisSize: MainAxisSize.min,
@@ -127,7 +118,6 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         //     ),
                         //   ],
                         // ),
-                        SizedBox(height: 12),
                         //* Images carousel
                         SizedBox(
                           height: 180,
@@ -198,7 +188,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                state.contestDetailsBundle!.contestBundle.organizer.fullName,
+                                state.contestDetailsBundle!.contestBundle.contest.organizerFullName,
                               ),
                             ),
                           ],

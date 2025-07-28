@@ -70,15 +70,6 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                     child: ListView(
                       children: [
-                        //* Title
-                        Text(
-                          state.contestDetailsBundle!.contestBundle.contest.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                        ),
-                        SizedBox(height: 6),
                         //* Status
                         // Row(
                         //   mainAxisSize: MainAxisSize.min,
@@ -127,7 +118,6 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         //     ),
                         //   ],
                         // ),
-                        SizedBox(height: 12),
                         //* Images carousel
                         SizedBox(
                           height: 180,

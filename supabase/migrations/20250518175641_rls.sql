@@ -166,6 +166,13 @@ TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
+CREATE POLICY "Voting Session Juries: allow all"
+ON public.voting_session_juries
+FOR ALL
+TO authenticated, anon
+USING (true)
+WITH CHECK (true);
+
 
 -- POLICIES FOR STORAGE
 -- 1. Enable RLS on storage tables

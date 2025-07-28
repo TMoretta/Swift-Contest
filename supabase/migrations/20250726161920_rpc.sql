@@ -649,16 +649,14 @@ BEGIN
     participant_full_name,
     name,
     description,
-    images_urls,
-    file_url
+    images_urls
   )
   VALUES (
     v_participation.id,
     p_work->>'participant_full_name',
     p_work->>'name',
     p_work->>'description',
-    (SELECT array_agg(value) FROM jsonb_array_elements_text(p_work->'images_urls')),
-    p_work->>'file_url'
+    (SELECT array_agg(value) FROM jsonb_array_elements_text(p_work->'images_urls'))
   );
 
   -- 6. Aggiorna la tabella 'participations' per segnare che l'opera è stata sottomessa.
@@ -732,20 +730,19 @@ BEGIN
 
   -- 3. Crea gli SNAPSHOT dei PARTECIPANTI selezionati.
   INSERT INTO public.voting_session_participations (
-    voting_session_id, participation_snapshot_id,
-    participant_full_name, work_name, work_description, work_images_urls, work_file_url,
+    voting_session_id, participation_id,
+    participant_full_name, work_name, work_description, work_images_urls,
     order_index
   )
   SELECT
     v_session_id, pa.id,
-    pr.full_name, w.name, w.description, w.images_urls, w.file_url,
-    row_number() OVER (ORDER BY pr.full_name) - 1
+    pr.full_name, w.name, w.description, w.images_urls,
+    u.ord - 1
   FROM
-    public.participations pa
+    unnest(p_participations_ids) WITH ORDINALITY AS u(id, ord) -- Espande l'array mantenendo l'ordine
+    JOIN public.participations pa ON pa.id = u.id
     JOIN public.profiles pr ON pa.participant_id = pr.id
-    JOIN public.works w ON pa.id = w.participation_id
-  WHERE
-    pa.id = ANY(p_participations_ids);
+    JOIN public.works w ON pa.id = w.participation_id;
 
   -- 4. Itera su ogni GIURIA del contest per creare gli snapshot.
   FOR v_jury_record IN
@@ -765,7 +762,7 @@ BEGIN
 
     -- 4.c: Crea lo snapshot della giuria.
     INSERT INTO public.voting_session_juries (
-      voting_session_id, jury_snapshot_id, jury_name, voting_form_id
+      voting_session_id, jury_id, jury_name, voting_form_id
     ) VALUES (
       v_session_id, v_jury_record.id, v_jury_record.name, v_new_voting_form_id
     )
@@ -773,7 +770,7 @@ BEGIN
 
     -- 4.d: Crea gli snapshot dei singoli giurati.
     INSERT INTO public.voting_session_jurations (
-      voting_session_id, juration_snapshot_id, voting_session_jury_id, juror_full_name
+      voting_session_id, juration_id, voting_session_jury_id, juror_full_name
     )
     SELECT
       v_session_id,
@@ -799,8 +796,8 @@ BEGIN
     vsp.id
   FROM
     jsonb_to_recordset(p_exclusions) AS x(juration_id uuid, participation_id uuid)
-    JOIN public.voting_session_jurations vsj ON vsj.juration_snapshot_id = x.juration_id AND vsj.voting_session_id = v_session_id
-    JOIN public.voting_session_participations vsp ON vsp.participation_snapshot_id = x.participation_id AND vsp.voting_session_id = v_session_id;
+    JOIN public.voting_session_jurations vsj ON vsj.juration_id = x.juration_id AND vsj.voting_session_id = v_session_id
+    JOIN public.voting_session_participations vsp ON vsp.participation_id = x.participation_id AND vsp.voting_session_id = v_session_id;
 
   -- 6. Recupera e restituisce la riga completa della sessione appena creata.
   SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
@@ -911,3 +908,352 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region ORGANIZER REGENERATE CONTEST TOKEN
+-- Rigenera il token di invito per un contest specifico.
+-- Esegue un controllo per assicurarsi che solo l'organizzatore possa eseguire questa azione.
+CREATE OR REPLACE FUNCTION organizer_regenerate_contest_token(p_contest_id uuid)
+RETURNS void -- Non restituisce dati, ma solleva un'eccezione in caso di errore.
+LANGUAGE plpgsql
+SECURITY INVOKER -- Eseguita con i permessi dell'utente, quindi auth.uid() è disponibile.
+AS $$
+DECLARE
+  v_new_token text;
+BEGIN
+  -- 1. SICUREZZA: Verifica che l'utente che chiama la funzione sia l'organizzatore del contest.
+  --    Questo è il passo più importante per prevenire accessi non autorizzati.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.contests
+    WHERE id = p_contest_id AND organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
+  END IF;
+
+  -- 2. Genera un nuovo token unico usando la tua funzione di utilità.
+  --    La lunghezza 14 è basata sulla definizione della tabella 'contests'.
+  v_new_token := gen_unique_token('contests', 'token', 14);
+
+  -- 3. Aggiorna il token del contest specificato con il nuovo valore.
+  UPDATE public.contests
+  SET token = v_new_token
+  WHERE id = p_contest_id;
+
+END;
+$$;
+--endregion
+
+--region GET VOTING SESSION PROCEDURE BUNDLE
+-- Recupera tutti i dati necessari per la conduzione di una sessione di voto.
+-- Restituisce un singolo oggetto JSON che mappa la classe Dart 'VotingSessionProcedureBundle'.
+CREATE OR REPLACE FUNCTION get_voting_session_procedure_bundle(p_voting_session_id uuid)
+RETURNS jsonb -- Restituisce un singolo oggetto JSONB, non una tabella.
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  result_bundle jsonb;
+BEGIN
+  -- SICUREZZA: Verifica che l'utente che chiama la funzione sia l'organizzatore
+  -- del contest a cui questa sessione di voto appartiene.
+--  IF NOT EXISTS (
+--    SELECT 1
+--    FROM public.voting_sessions vs
+--    JOIN public.contests c ON vs.contest_id = c.id
+--    WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
+--  ) THEN
+--    RAISE EXCEPTION 'Voting session not found or access not authorized.';
+--  END IF;
+
+  -- Costruisce l'oggetto JSON finale usando subquery per ogni campo del bundle.
+  SELECT jsonb_build_object(
+    -- 1. 'voting_session_bundle'
+    'voting_session_bundle', (
+      SELECT jsonb_build_object(
+        'voting_session', to_jsonb(vs),
+        'geo_res_place', to_jsonb(pl) -- Sarà 'null' se il LEFT JOIN non trova corrispondenze
+      )
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.id = p_voting_session_id
+    ),
+
+    -- 2. 'voting_session_participations'
+    'voting_session_participations', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index), '[]'::jsonb)
+      FROM public.voting_session_participations vsp
+      WHERE vsp.voting_session_id = p_voting_session_id
+    ),
+
+    -- 3. 'voting_session_juries_bundles'
+    'voting_session_juries_bundles', (
+      SELECT COALESCE(
+        jsonb_agg(
+          -- Per ogni giuria della sessione, costruisce il suo bundle
+          jsonb_build_object(
+            'voting_session_jury', to_jsonb(vsj),
+            'voting_session_jurations', (
+              -- Subquery per trovare tutti i giurati di questa specifica giuria
+              SELECT COALESCE(jsonb_agg(to_jsonb(vsju)), '[]'::jsonb)
+              FROM public.voting_session_jurations vsju
+              WHERE vsju.voting_session_jury_id = vsj.id
+            )
+          )
+        ),
+        '[]'::jsonb
+      )
+      FROM public.voting_session_juries vsj
+      WHERE vsj.voting_session_id = p_voting_session_id
+    )
+  )
+  INTO result_bundle;
+
+  RETURN result_bundle;
+END;
+$$;
+--endregion
+
+--region ORGANIZER START VOTING SESSION
+CREATE OR REPLACE FUNCTION organizer_start_voting_session (
+  p_voting_session_id uuid
+)
+RETURNS void AS $$
+DECLARE
+  v_organizer_id uuid;
+  v_voting_session voting_sessions;
+  v_work_timer interval;
+  v_job_name text := 'voting_session_' || p_voting_session_id;
+BEGIN
+
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+    RAISE EXCEPTION 'Voting session already ended or cancelled';
+  END IF;
+
+  SELECT work_timer * INTERVAL '1 seconds'
+  INTO v_work_timer
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  UPDATE voting_sessions
+  SET
+    session_status = 'work'::voting_session_status,
+    current_participant_index = 0,
+    current_step_deadline = now() + v_work_timer
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while starting the voting session';
+  END IF;
+
+  -- Schedule a cron job for this session
+  PERFORM cron.schedule(
+    v_job_name,
+    '2 seconds',
+    format($fmt$ SELECT public.organizer_advance_voting_session('%s'); $fmt$,
+      p_voting_session_id
+    )
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+--region ORGANIZER ADVANCE VOTING SESSION
+CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
+  p_voting_session_id uuid
+)
+RETURNS void AS $$
+DECLARE
+  v_session voting_sessions;
+  v_next_index int;
+  v_next_status text;
+  v_delay interval;
+  v_count int;
+  v_job_name text;
+  v_timers record;
+BEGIN
+
+  SELECT *
+  INTO v_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  RAISE NOTICE 'Current status: %', v_session.session_status;
+
+  IF v_session.session_status <> 'ended' AND v_session.session_status <> 'cancelled' AND v_session.current_step_deadline <= now() THEN
+    -- Prendo i timer dalla tabella principale
+    SELECT work_timer, intermission_timer, review_timer
+    INTO v_timers
+    FROM voting_sessions
+    WHERE id = p_voting_session_id;
+
+    -- Numero di partecipanti
+    SELECT COUNT(*) INTO v_count
+    FROM voting_session_participations
+    WHERE voting_session_id = v_session.id;
+
+    -- Diversifico per step corrente
+    IF v_session.session_status = 'work' THEN
+      -- Work finito → intermission su *stesso* indice
+      v_next_status := 'intermission';
+      v_delay     := v_timers.intermission_timer  * INTERVAL '1 seconds';
+      v_next_index  := v_session.current_participant_index;
+
+    ELSIF v_session.session_status = 'intermission' THEN
+      -- Intermission finito → se ci sono altri partecipanti, vai a work+1,
+      -- altrimenti entri in review
+      IF (v_session.current_participant_index + 1) < v_count THEN
+        v_next_status := 'work';
+        v_delay     := v_timers.work_timer  * INTERVAL '1 seconds';
+        v_next_index  := v_session.current_participant_index + 1;
+      ELSE
+        v_next_status := 'review';
+        v_delay     := v_timers.review_timer * INTERVAL '1 seconds';
+        v_next_index  := NULL;
+      END IF;
+
+    ELSIF v_session.session_status = 'review' THEN
+      -- Review finita → ended
+      v_next_status := 'ended';
+      v_delay     := NULL;
+      v_next_index  := NULL;
+
+    ELSE
+      -- (non dovrebbe capitare) fallback alla fine
+      v_next_status := 'cancelled';
+      v_delay     := NULL;
+      v_next_index  := NULL;
+    END IF;
+
+    -- Se passo a end o cancelled, unschedule + update
+    IF v_next_status = 'cancelled' OR v_next_status = 'ended' THEN
+      v_job_name := 'voting_session_' || v_session.id;
+      PERFORM cron.unschedule(v_job_name);
+      UPDATE voting_sessions
+      SET
+        session_status = v_next_status::voting_session_status,
+        current_participant_index = NULL,
+        current_step_deadline = NULL
+      WHERE id = v_session.id;
+    ELSE
+      -- Altrimenti aggiorno lo stato
+      UPDATE voting_sessions
+      SET
+        current_participant_index = v_next_index,
+        session_status = v_next_status::voting_session_status,
+        current_step_deadline = now() + v_delay
+      WHERE id = v_session.id;
+    END IF;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+--region ORGANIZER END VOTING SESSION
+CREATE OR REPLACE FUNCTION organizer_end_voting_session(
+  p_voting_session_id uuid
+)
+RETURNS void AS $$
+DECLARE
+  v_voting_session voting_sessions;
+  v_job_name text := 'voting_session_' || p_voting_session_id;
+  v_job_exists boolean;
+BEGIN
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+    RAISE EXCEPTION 'Voting session already ended or cancelled';
+  END IF;
+
+  SELECT EXISTS(
+    SELECT 1
+    FROM cron.job
+    WHERE jobname = v_job_name
+  ) INTO v_job_exists;
+
+  IF v_job_exists THEN
+    PERFORM cron.unschedule(v_job_name);
+  END IF;
+
+  UPDATE voting_sessions
+  SET
+    session_status = 'ended',
+    current_participant_index = NULL,
+    current_step_deadline = NULL
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while ending the voting session';
+  END IF;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;
+
+--region ORGANIZER CANCEL VOTING SESSION
+CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (
+  p_voting_session_id uuid
+)
+RETURNS void AS $$
+DECLARE
+  v_voting_session voting_sessions;
+  v_job_name text := 'voting_session_' || p_voting_session_id;
+  v_job_exists boolean;
+BEGIN
+
+  SELECT * INTO v_voting_session
+  FROM voting_sessions
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found';
+  END IF;
+
+  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
+    RAISE EXCEPTION 'Voting session already ended or cancelled';
+  END IF;
+
+  SELECT EXISTS(
+    SELECT 1
+    FROM cron.job
+    WHERE jobname = v_job_name
+  ) INTO v_job_exists;
+
+  IF v_job_exists THEN
+    PERFORM cron.unschedule(v_job_name);
+  END IF;
+
+  UPDATE voting_sessions
+  SET
+    session_status = 'cancelled',
+    current_participant_index = NULL,
+    current_step_deadline = NULL
+  WHERE id = p_voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while cancelling the voting session';
+  END IF;
+
+EXCEPTION
+  WHEN SQLSTATE 'P0001' THEN
+    RAISE;
+  WHEN OTHERS THEN
+    RAISE EXCEPTION 'An unexcepted error occurred';
+END;
+$$ LANGUAGE plpgsql SECURITY definer;

@@ -99,10 +99,10 @@ class AppRouter extends RootStackRouter {
           path: '/organizer-jury-details/:contestId/:juryId',
           page: OrganizerJuryDetailsRoute.page,
         ),
-        // AutoRoute(
-        //   path: '/organizer-work-details/:participationId',
-        //   page: OrganizerWorkDetailsRoute.page,
-        // ),
+        AutoRoute(
+          path: '/organizer-work-details/:participationId',
+          page: OrganizerWorkDetailsRoute.page,
+        ),
         AutoRoute(
           path: '/organizer-voting-form/:votingFormId',
           page: OrganizerVotingFormEditRoute.page,
@@ -111,6 +111,10 @@ class AppRouter extends RootStackRouter {
           path: '/organizer-voting-settings/:contestId',
           page: OrganizerVotingSettingsRoute.page,
         ),
+        AutoRoute(
+          path: '/organizer-voting-procedure/:votingSessionId',
+          page: OrganizerVotingProcedureRoute.page,
+        ),
         // AutoRoute(
         //   path: '/organizer-voting-result-details/:votingSessionId',
         //   page: OrganizerVotingResultDetailsRoute.page,
@@ -118,10 +122,6 @@ class AppRouter extends RootStackRouter {
         // AutoRoute(
         //   path: '/organizer-voting-result-export/:votingSessionId',
         //   page: OrganizerVotingResultExportRoute.page,
-        // ),
-        // AutoRoute(
-        //   path: '/organizer-voting-procedure/:votingSessionId',
-        //   page: OrganizerVotingProcedureRoute.page,
         // ),
 
         // Participant

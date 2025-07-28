@@ -114,3 +114,14 @@ final class OrganizerContestDetailsPageCreateJury extends OrganizerContestDetail
   @override
   List<Object?> get props => [contestId, juryName];
 }
+
+final class OrganizerContestDetailsPageRegenerateToken extends OrganizerContestDetailsPageEvent {
+  final String contestId;
+
+  const OrganizerContestDetailsPageRegenerateToken({required this.contestId});
+
+  @override
+  List<Object?> get props => [contestId];
+
+
+}

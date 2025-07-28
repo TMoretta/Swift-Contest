@@ -1,20 +1,11 @@
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:dio/dio.dart';
-import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path/path.dart' as p;
-import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/utils/media_types.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
-import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_work_details_page_bloc/organizer_work_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -78,14 +69,14 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: 'Work',
+            title: state.participationBundle?.work?.name ?? '',
             onRefresh: () => context
                 .read<OrganizerWorkDetailsPageBloc>()
                 .add(OrganizerWorkDetailsPageFetch(participationId: participationId)),
           ),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.only(left: 16, right: 16, top: 16),
               child: Builder(
                 builder: (context) {
                   switch (state.status) {
@@ -112,23 +103,12 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                     case BlocStatus.success:
                       final participationBundle = state.participationBundle!;
                       final work = participationBundle.work!;
-                      final participant = participationBundle.participant;
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<OrganizerWorkDetailsPageBloc>()
                             .add(OrganizerWorkDetailsPageFetch(participationId: participationId)),
                         child: ListView(
                           children: [
-                            SizedBox(height: 16),
-                            //* Title
-                            Text(
-                              work.name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                            ),
-                            SizedBox(height: 8),
                             //* Images carousel
                             SizedBox(
                               height: 180,
@@ -187,7 +167,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                                 SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    participant.fullName,
+                                    work.participantFullName,
                                     // style: Theme.of(context)
                                     //     .textTheme
                                     //     .titleMedium,
