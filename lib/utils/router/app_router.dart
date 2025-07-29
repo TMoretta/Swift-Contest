@@ -104,7 +104,7 @@ class AppRouter extends RootStackRouter {
           page: OrganizerWorkDetailsRoute.page,
         ),
         AutoRoute(
-          path: '/organizer-voting-form/:votingFormId',
+          path: '/organizer-voting-form-edit/:votingFormId',
           page: OrganizerVotingFormEditRoute.page,
         ),
         AutoRoute(

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/db/types/jury_type.dart';
 import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
@@ -117,14 +118,14 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                       final invitations = juryBundle.jurorsInvitations;
                       final votingFormFields = juryBundle.votingFormBundle.votingFormFields;
                       return DefaultTabController(
-                        length: 3,
+                        length: (juryBundle.jury.type.isAppointed) ? 3 : 1,
                         child: Column(
                           children: [
                             TabBar(
                               isScrollable: false,
                               tabs: [
-                                Tab(text: 'Joined'),
-                                Tab(text: 'Attended'),
+                                if (state.juryBundle!.jury.type.isAppointed) Tab(text: 'Joined'),
+                                if (state.juryBundle!.jury.type.isAppointed) Tab(text: 'Attended'),
                                 Tab(text: 'Form'),
                               ],
                             ),
@@ -133,164 +134,217 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                               child: TabBarView(
                                 children: [
                                   //* Joined
-                                  Scaffold(
-                                    body: RefreshIndicator.adaptive(
-                                      onRefresh: () async => context
-                                          .read<OrganizerJuryDetailsPageBloc>()
-                                          .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
-                                      child: (jurationsBundles.isEmpty)
-                                          ? ListViewWithCentralLabel(label: 'No juror joined yet')
-                                          : ListView.builder(
-                                              itemCount: jurationsBundles.length,
-                                              itemBuilder: (context, index) {
-                                                final jurationBundle = jurationsBundles[index];
-                                                return Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Card(
-                                                      elevation: 0.2,
-                                                      child: ListTile(
-                                                        trailing: IconButton(
-                                                          onPressed: () {
-                                                            _showRemoveJurorDialog(
-                                                                context: context,
-                                                                jurationId:
-                                                                    jurationBundle.juration.id!,
-                                                                juryId: juryId);
-                                                          },
-                                                          icon: Icon(
-                                                            Icons.remove_circle_outline,
-                                                            color:
-                                                                Theme.of(context).colorScheme.error,
+                                  if (state.juryBundle!.jury.type.isAppointed)
+                                    Scaffold(
+                                      body: RefreshIndicator.adaptive(
+                                        onRefresh: () async => context
+                                            .read<OrganizerJuryDetailsPageBloc>()
+                                            .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
+                                        child: (jurationsBundles.isEmpty)
+                                            ? ListViewWithCentralLabel(label: 'No juror joined yet')
+                                            : ListView.builder(
+                                                itemCount: jurationsBundles.length,
+                                                itemBuilder: (context, index) {
+                                                  final jurationBundle = jurationsBundles[index];
+                                                  return Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Card(
+                                                        elevation: 0.2,
+                                                        child: ListTile(
+                                                          trailing: IconButton(
+                                                            onPressed: () {
+                                                              _showRemoveJurorDialog(
+                                                                  context: context,
+                                                                  jurationId:
+                                                                      jurationBundle.juration.id!,
+                                                                  juryId: juryId);
+                                                            },
+                                                            icon: Icon(
+                                                              Icons.remove_circle_outline,
+                                                              color: Theme.of(context)
+                                                                  .colorScheme
+                                                                  .error,
+                                                            ),
+                                                          ),
+                                                          title: Text(
+                                                            jurationBundle.juror.fullName,
+                                                            style: Theme.of(context)
+                                                                .textTheme
+                                                                .titleMedium,
+                                                          ),
+                                                          subtitle: Text(
+                                                            jurationBundle.juration.invitationEmail,
+                                                            style: Theme.of(context)
+                                                                .textTheme
+                                                                .bodyMedium,
                                                           ),
                                                         ),
-                                                        title: Text(
-                                                          jurationBundle.juror.fullName,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .titleMedium,
-                                                        ),
-                                                        subtitle: Text(
-                                                          jurationBundle.juration.invitationEmail,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .bodyMedium,
+                                                      ),
+                                                      if (index == jurationsBundles.length - 1)
+                                                        SizedBox(height: 72),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                      ),
+                                      floatingActionButton: (state.isInitialized)
+                                          ? FloatingActionButton.extended(
+                                              onPressed: () {
+                                                _showInviteDialog(
+                                                    context: context,
+                                                    contestId: contestId,
+                                                    juryId: juryId);
+                                              },
+                                              icon: Icon(Icons.email),
+                                              label: Text('Invite'),
+                                            )
+                                          : null,
+                                    ),
+                                  //* Attended
+                                  if (state.juryBundle!.jury.type.isAppointed)
+                                    Scaffold(
+                                      body: RefreshIndicator.adaptive(
+                                        onRefresh: () async => context
+                                            .read<OrganizerJuryDetailsPageBloc>()
+                                            .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
+                                        child: (invitations.isEmpty)
+                                            ? ListViewWithCentralLabel(label: 'No juror attended')
+                                            : ListView.builder(
+                                                itemCount: invitations.length,
+                                                itemBuilder: (context, index) {
+                                                  final invitation = invitations[index];
+                                                  return Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Card(
+                                                        elevation: 0.2,
+                                                        child: ListTile(
+                                                          title: Text(
+                                                            invitation.email,
+                                                            style: Theme.of(context)
+                                                                .textTheme
+                                                                .titleMedium,
+                                                          ),
+                                                          trailing: IconButton(
+                                                            onPressed: () {
+                                                              _showDeleteInvitationDialog(
+                                                                  context: context,
+                                                                  juryId: juryId,
+                                                                  jurorInvitationId:
+                                                                      invitation.id!);
+                                                            },
+                                                            icon: Icon(
+                                                              Icons.remove,
+                                                              color: Theme.of(context)
+                                                                  .colorScheme
+                                                                  .error,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    if (index == jurationsBundles.length - 1)
-                                                      SizedBox(height: 72),
-                                                  ],
-                                                );
-                                              },
-                                            ),
-                                    ),
-                                    floatingActionButton: (state.isInitialized)
-                                        ? FloatingActionButton.extended(
-                                            onPressed: () {
-                                              _showInviteDialog(
+                                                      if (index == invitations.length - 1)
+                                                        SizedBox(height: 72),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                      ),
+                                      floatingActionButton: (state.isInitialized)
+                                          ? FloatingActionButton.extended(
+                                              onPressed: () => _showInviteDialog(
                                                   context: context,
                                                   contestId: contestId,
-                                                  juryId: juryId);
-                                            },
-                                            icon: Icon(Icons.email),
-                                            label: Text('Invite'),
-                                          )
-                                        : null,
-                                  ),
-                                  //* Attended
-                                  Scaffold(
-                                    body: RefreshIndicator.adaptive(
-                                      onRefresh: () async => context
-                                          .read<OrganizerJuryDetailsPageBloc>()
-                                          .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
-                                      child: (invitations.isEmpty)
-                                          ? ListViewWithCentralLabel(
-                                              label: 'No participant attended')
-                                          : ListView.builder(
-                                              itemCount: invitations.length,
-                                              itemBuilder: (context, index) {
-                                                final invitation = invitations[index];
-                                                return Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Card(
-                                                      elevation: 0.2,
-                                                      child: ListTile(
-                                                        title: Text(
-                                                          invitation.email,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .titleMedium,
-                                                        ),
-                                                        trailing: IconButton(
-                                                          onPressed: () {
-                                                            _showDeleteInvitationDialog(
-                                                                context: context,
-                                                                juryId: juryId,
-                                                                jurorInvitationId: invitation.id!);
-                                                          },
-                                                          icon: Icon(
-                                                            Icons.remove,
-                                                            color:
-                                                                Theme.of(context).colorScheme.error,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    if (index == invitations.length - 1)
-                                                      SizedBox(height: 72),
-                                                  ],
-                                                );
-                                              },
-                                            ),
+                                                  juryId: juryId),
+                                              icon: Icon(Icons.email),
+                                              label: Text('Invite'),
+                                            )
+                                          : null,
                                     ),
-                                    floatingActionButton: (state.isInitialized)
-                                        ? FloatingActionButton.extended(
-                                            onPressed: () => _showInviteDialog(
-                                                context: context,
-                                                contestId: contestId,
-                                                juryId: juryId),
-                                            icon: Icon(Icons.email),
-                                            label: Text('Invite'),
-                                          )
-                                        : null,
-                                  ),
                                   //* Form
                                   Scaffold(
                                     body: RefreshIndicator.adaptive(
                                       onRefresh: () async => context
                                           .read<OrganizerJuryDetailsPageBloc>()
                                           .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
-                                      child: (votingFormFields.isEmpty)
-                                          ? ListViewWithCentralLabel(label: 'No field added')
-                                          : ListView.builder(
-                                              itemCount: votingFormFields.length,
-                                              itemBuilder: (context, index) {
-                                                final votingFormField = votingFormFields[index];
-                                                return Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Card(
-                                                      elevation: 0,
-                                                      child: ListTile(
-                                                        leading: Icon(
-                                                            (votingFormField.type.isTextual)
-                                                                ? Icons.text_fields
-                                                                : Icons.numbers),
-                                                        title: Text(votingFormField.name),
-                                                        subtitle: (votingFormField.type.isNumeric)
-                                                            ? Text(
-                                                                '${prettyDouble(votingFormField.minValue!)} - ${prettyDouble(votingFormField.maxValue!)}')
-                                                            : null,
-                                                      ),
-                                                    ),
-                                                    if (index == votingFormFields.length - 1)
-                                                      SizedBox(height: 72),
-                                                  ],
-                                                );
-                                              },
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Card(
+                                            elevation: 0,
+                                            child: ListTile(
+                                              title: Text('Header',style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),),
+                                              subtitle: Text(juryBundle.votingFormBundle.votingForm.header ?? ''),
                                             ),
+                                          ),
+                                          Card(
+                                            elevation: 0,
+                                            child: ListTile(
+                                              title: Text('Footer',style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),),
+                                              subtitle: Text(juryBundle.votingFormBundle.votingForm.footer ?? ''),
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          (votingFormFields.isEmpty)
+                                          ? Text('No field added') :
+                                          Expanded(child: ListView.builder(
+                                            itemCount: votingFormFields.length,
+                                            itemBuilder: (context, index) {
+                                              final field = votingFormFields[index];
+                                              return Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Card(
+                                                    elevation: 0,
+                                                    child: ListTile(
+                                                      leading: Icon(
+                                                          (field.type.isTextual)
+                                                              ? Icons.text_fields
+                                                              : Icons.numbers),
+                                                      title: (field.isRequired) ? Text('${field.name} *') : Text(field.name),
+                                                      subtitle: (field.type.isNumeric)
+                                                          ? Text(
+                                                          '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                                                          : null,
+                                                    ),
+                                                  ),
+                                                  if (index == votingFormFields.length - 1)
+                                                    SizedBox(height: 72),
+                                                ],
+                                              );
+                                            },
+                                          ),),
+                                        ],
+                                      ),
+                                      // child: (votingFormFields.isEmpty)
+                                      //     ? ListViewWithCentralLabel(label: 'No field added')
+                                      //     : ListView.builder(
+                                      //         itemCount: votingFormFields.length,
+                                      //         itemBuilder: (context, index) {
+                                      //           final field = votingFormFields[index];
+                                      //           return Column(
+                                      //             mainAxisSize: MainAxisSize.min,
+                                      //             children: [
+                                      //               Card(
+                                      //                 elevation: 0,
+                                      //                 child: ListTile(
+                                      //                   leading: Icon(
+                                      //                       (field.type.isTextual)
+                                      //                           ? Icons.text_fields
+                                      //                           : Icons.numbers),
+                                      //                   title: (field.isRequired) ? Text('${field.name} *') : Text(field.name),
+                                      //                   subtitle: (field.type.isNumeric)
+                                      //                       ? Text(
+                                      //                           '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                                      //                       : null,
+                                      //                 ),
+                                      //               ),
+                                      //               if (index == votingFormFields.length - 1)
+                                      //                 SizedBox(height: 72),
+                                      //             ],
+                                      //           );
+                                      //         },
+                                      //       ),
                                     ),
                                     floatingActionButton: (state.isInitialized)
                                         ? FloatingActionButton.extended(
@@ -330,8 +384,11 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
   }
 }
 
-void _showInviteDialog(
-    {required BuildContext context, required String contestId, required String juryId}) {
+void _showInviteDialog({
+  required BuildContext context,
+  required String contestId,
+  required String juryId,
+}) {
   final organizerJuryDetailsPageBloc = context.read<OrganizerJuryDetailsPageBloc>();
   final invitationFormKey = GlobalKey<FormState>();
   final emailController = TextEditingController();

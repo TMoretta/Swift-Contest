@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/db/types/jury_type.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -89,9 +90,10 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
                                             OrganizerContestDetailsPageFetch(contestId: contestId));
                                       }
                                     },
+                                    trailing: (juryBundle.jury.type.isAppointed) ? Icon(Icons.star) : Icon(Icons.star_border),
                                     title: Text(juryBundle.jury.name),
-                                    subtitle: Text(
-                                        'Joined: ${juryBundle.jurationsBundles.length}, Attended: ${juryBundle.jurorsInvitations.length}'),
+                                    subtitle: (juryBundle.jury.type.isAppointed) ? Text(
+                                        'Joined: ${juryBundle.jurationsBundles.length}, Attended: ${juryBundle.jurorsInvitations.length}') : null,
                                   ),
                                 );
                               },
@@ -103,10 +105,10 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
-              _showAddJuryDialog(context: context, contestId: contestId);
+              _showCreateJuryDialog(context: context, contestId: contestId);
             },
-            icon: Icon(Icons.add),
-            label: Text('Add jury'),
+            icon: Icon(Icons.create),
+            label: Text('Create jury'),
           ),
         );
       },
@@ -114,70 +116,96 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
   }
 }
 
-void _showAddJuryDialog({required BuildContext context, required String contestId}) {
+void _showCreateJuryDialog({required BuildContext context, required String contestId}) {
   final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
   final juryFormKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final nameFocusNode = FocusNode();
+  JuryType chosenJuryType = JuryType.appointed;
 
   showDialog(
     context: context,
     builder: (context) {
-      return BlocProvider.value(
-        value: organizerContestDetailsPageBloc,
-        child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-          listener: (context, state) {
-            if (state.status.isSuccess &&
-                state.sourceEvent is OrganizerContestDetailsPageCreateJury) {
-              showSnackBar(context: context, text: 'Jury created successfully');
-              context
-                  .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
-              context.router.pop();
-            }
-          },
-          builder: (context, state) {
-            return AlertDialog(
-              title: Text(
-                'New jury',
-              ),
-              content: Form(
-                key: juryFormKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomTextFormField(
-                      borderType: InputBorderType.underlined,
-                      controller: nameController,
-                      focusNode: nameFocusNode,
-                      label: 'Name',
-                      validator: noEmptyValidator,
-                    ),
-                  ],
+      return StatefulBuilder(builder: (context, setState) {
+        return BlocProvider.value(
+          value: organizerContestDetailsPageBloc,
+          child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
+            listener: (context, state) {
+              if (state.status.isSuccess &&
+                  state.sourceEvent is OrganizerContestDetailsPageCreateJury) {
+                showSnackBar(context: context, text: 'Jury created successfully');
+                context
+                    .read<OrganizerContestDetailsPageBloc>()
+                    .add(OrganizerContestDetailsPageFetch(contestId: contestId));
+                context.router.pop();
+              }
+            },
+            builder: (context, state) {
+              return AlertDialog(
+                title: Text(
+                  'New jury',
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    context.router.pop();
-                  },
-                  child: const Text('Cancel'),
+                content: Form(
+                  key: juryFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomTextFormField(
+                        borderType: InputBorderType.outlined,
+                        controller: nameController,
+                        focusNode: nameFocusNode,
+                        label: 'Name',
+                        validator: noEmptyValidator,
+                      ),
+                      Text('Jury type'),
+                      SizedBox(height: 2),
+                      RadioMenuButton<JuryType>(
+                        value: JuryType.appointed,
+                        groupValue: chosenJuryType,
+                        onChanged: (value) => setState(() => chosenJuryType = value!),
+                        child: Text(
+                          'Appointed',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      RadioMenuButton<JuryType>(
+                        value: JuryType.simple,
+                        groupValue: chosenJuryType,
+                        onChanged: (value) => setState(() => chosenJuryType = value!),
+                        child: Text(
+                          'Simple',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    if (juryFormKey.currentState?.validate() ?? false) {
-                      context.read<OrganizerContestDetailsPageBloc>().add(
-                          OrganizerContestDetailsPageCreateJury(
-                              contestId: contestId, juryName: nameController.text.trim()));
-                    }
-                  },
-                  child: const Text('Proceed'),
-                ),
-              ],
-            );
-          },
-        ),
-      );
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      context.router.pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      if (juryFormKey.currentState?.validate() ?? false) {
+                        context.read<OrganizerContestDetailsPageBloc>().add(
+                            OrganizerContestDetailsPageCreateJury(
+                                contestId: contestId,
+                                juryName: nameController.text.trim(),
+                                juryType: chosenJuryType));
+                      }
+                    },
+                    child: const Text('Proceed'),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      });
     },
   );
 }

@@ -13,18 +13,20 @@ final class OrganizerVotingSettingsPageFetch extends OrganizerVotingSettingsPage
   List<Object?> get props => [contestId];
 }
 
-final class OrganizerVotingSettingsPageInitVotingProcedure
+final class OrganizerVotingSettingsPageStartVotingSession
     extends OrganizerVotingSettingsPageEvent {
   final VotingSession votingSession;
   final Place? geoResPlace;
   final List<ParticipationBundle> participationsBundles;
+  final List<JuryBundle> juriesBundles;
   final List<({JurationBundle jurationBundle, ParticipationBundle participationBundle})>
       votingExclusions;
 
-  const OrganizerVotingSettingsPageInitVotingProcedure({
+  const OrganizerVotingSettingsPageStartVotingSession({
     required this.votingSession,
     required this.geoResPlace,
     required this.participationsBundles,
+    required this.juriesBundles,
     required this.votingExclusions,
   });
 
@@ -33,6 +35,7 @@ final class OrganizerVotingSettingsPageInitVotingProcedure
         votingSession,
         geoResPlace,
         participationsBundles,
+        juriesBundles,
         votingExclusions,
       ];
 }

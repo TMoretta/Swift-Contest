@@ -87,13 +87,15 @@ abstract interface class OrganizerRepository {
   Future<Either<Failure, Unit>> updateVotingForm({
     required String votingFormId,
     required List<VotingFormField> votingFormFields,
+    required String? header,
+    required String? footer,
   });
 
   Future<Either<Failure, JuryBundle>> getJuryBundle({required String juryId});
 
   Future<Either<Failure, VotingFormBundle>> getVotingFormBundle({required String votingFormId});
 
-  Future<Either<Failure, VotingSession>> initVotingSession({
+  Future<Either<Failure, VotingSession>> startVotingSession({
     // perchè dal client decido quali partecipanti includo
     required List<Participation> participations,
     //perchè posso aggiungere esclusioni per cui un certo giurato non può votare un certo partecipante,
@@ -114,11 +116,11 @@ abstract interface class OrganizerRepository {
     required String votingSessionId,
   });
 
-  Future<Either<Failure, Unit>> startVotingSession({
-    required String votingSessionId
-  });
+  // Future<Either<Failure, Unit>> startVotingSession({
+  //   required String votingSessionId
+  // });
 
-  Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId});
+  // Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId});
 
   Future<Either<Failure, Unit>> endVotingSession({
     required String votingSessionId
@@ -378,6 +380,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> updateVotingForm({
     required String votingFormId,
     required List<VotingFormField> votingFormFields,
+    required String? header,
+    required String? footer,
   }) async {
     return handleDatabaseCall(
       () async {
@@ -385,6 +389,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
             votingFormFields.map((e) => e.toJson()).toList(growable: false);
         await _supabase.rpc('update_voting_form', params: {
           'p_voting_form_id': votingFormId,
+          'p_header' : header,
+          'p_footer' : footer,
           'p_voting_form_fields': votingFormFieldsJson
         });
         return Either.right(unit);
@@ -417,7 +423,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure, VotingSession>> initVotingSession({
+  Future<Either<Failure, VotingSession>> startVotingSession({
     required List<Participation> participations,
     required List<({Juration juration, Participation participation})> exclusions,
     required VotingSession votingSession,
@@ -437,7 +443,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
             .toList();
 
         final res = await _supabase.rpc(
-          'organizer_init_voting_session',
+          'organizer_start_voting_session',
           params: {
             'p_voting_session': votingSession.toJson(),
             'p_participations_ids': participationsIds,
@@ -512,32 +518,32 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     );
   }
 
-  @override
-  Future<Either<Failure, Unit>> startVotingSession({required String votingSessionId}) {
-    return handleDatabaseCall(
-          () async {
-        await _supabase.rpc(
-          'organizer_start_voting_session',
-          params: {'p_voting_session_id': votingSessionId},
-        );
-        return Either.right(unit);
-      },
-    );
-  }
-
-  @override
-  Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId}) {
-    return handleDatabaseCall(
-          () async {
-        // Chiama la funzione RPC senza aspettarsi un ritorno.
-        await _supabase.rpc(
-          'organizer_advance_voting_session',
-          params: {'p_voting_session_id': votingSessionId},
-        );
-        return Either.right(unit);
-      },
-    );
-  }
+  // @override
+  // Future<Either<Failure, Unit>> startVotingSession({required String votingSessionId}) {
+  //   return handleDatabaseCall(
+  //         () async {
+  //       await _supabase.rpc(
+  //         'organizer_start_voting_session',
+  //         params: {'p_voting_session_id': votingSessionId},
+  //       );
+  //       return Either.right(unit);
+  //     },
+  //   );
+  // }
+  //
+  // @override
+  // Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId}) {
+  //   return handleDatabaseCall(
+  //         () async {
+  //       // Chiama la funzione RPC senza aspettarsi un ritorno.
+  //       await _supabase.rpc(
+  //         'organizer_advance_voting_session',
+  //         params: {'p_voting_session_id': votingSessionId},
+  //       );
+  //       return Either.right(unit);
+  //     },
+  //   );
+  // }
 
   @override
   Future<Either<Failure, Unit>> endVotingSession({required String votingSessionId}) {

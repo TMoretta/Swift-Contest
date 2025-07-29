@@ -1,31 +1,33 @@
-CREATE TYPE app_theme AS enum('system', 'light', 'dark');
+CREATE TYPE app_theme AS enum ('system', 'light', 'dark');
 
-CREATE TYPE contest_role AS enum('organizer', 'participant', 'juror');
+CREATE TYPE contest_role AS enum ('organizer', 'participant', 'juror');
 
-CREATE TYPE member_role AS enum('participant', 'juror');
+--CREATE TYPE member_role AS enum ('participant', 'juror');
 
---CREATE TYPE participant_status AS enum('joined', 'out');
+--CREATE TYPE participant_status AS enum ('joined', 'out');
 
---CREATE TYPE juror_status AS enum('joined', 'out');
+--CREATE TYPE juror_status AS enum ('joined', 'out');
 
-CREATE TYPE contest_status AS enum(
-  'preparationPhase',
-  'participationPhase',
-  'votingPhase',
-  'terminated',
-  'deleted'
-);
+--CREATE TYPE contest_status AS enum (
+--  'preparationPhase',
+--  'participationPhase',
+--  'votingPhase',
+--  'terminated',
+--  'deleted'
+--);
 
-CREATE TYPE voting_session_status AS enum(
-  'initialized',
-  'work',
-  'intermission',
-  'review',
+CREATE TYPE voting_session_status AS enum (
+  'live',
   'ended',
   'cancelled'
 );
 
-CREATE TYPE voting_form_field_type AS enum(
+CREATE TYPE voting_form_field_type AS enum (
   'textual',
   'numeric'
 );
+
+CREATE TYPE jury_type AS enum (
+  'appointed',
+  'simple'
+)

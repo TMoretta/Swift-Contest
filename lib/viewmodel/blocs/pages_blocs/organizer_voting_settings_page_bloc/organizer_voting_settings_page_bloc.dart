@@ -5,19 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/db/bundles/juration_bundle.dart';
+import 'package:swift_contest/model/db/bundles/jury_bundle.dart';
 import 'package:swift_contest/model/db/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/db/entities/place.dart';
-import 'package:swift_contest/model/db/entities/voting_form_field.dart';
 import 'package:swift_contest/model/db/entities/voting_session.dart';
 import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/db/types/voting_session_status.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository_.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
-import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_voting_settings_page_event.dart';
-
 part 'organizer_voting_settings_page_state.dart';
 
 class OrganizerVotingSettingsPageBloc
@@ -29,7 +24,7 @@ class OrganizerVotingSettingsPageBloc
   })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingSettingsPageFetch>(_fetch);
-    on<OrganizerVotingSettingsPageInitVotingProcedure>(_initVotingProcedure);
+    on<OrganizerVotingSettingsPageStartVotingSession>(_startVotingSession);
   }
 
   FutureOr<void> _fetch(
@@ -47,20 +42,20 @@ class OrganizerVotingSettingsPageBloc
     );
   }
 
-  FutureOr<void> _initVotingProcedure(
-    OrganizerVotingSettingsPageInitVotingProcedure event,
+  FutureOr<void> _startVotingSession(
+    OrganizerVotingSettingsPageStartVotingSession event,
     Emitter<OrganizerVotingSettingsPageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherInitVotingSession = await _organizerRepository.initVotingSession(
+    final eitherStartVotingSession = await _organizerRepository.startVotingSession(
       participations: event.participationsBundles.map((e) => e.participation).toList(growable: false),
       exclusions: event.votingExclusions.map((e) => (juration: e.jurationBundle.juration , participation: e.participationBundle.participation)).toList(growable: false),
       votingSession: event.votingSession,
       geoResPlace: event.geoResPlace,
     );
 
-    eitherInitVotingSession.fold(
+    eitherStartVotingSession.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, votingSessionId: success.id)),
     );

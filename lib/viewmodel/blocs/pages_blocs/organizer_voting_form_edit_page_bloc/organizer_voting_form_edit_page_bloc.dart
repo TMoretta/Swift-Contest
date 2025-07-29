@@ -44,8 +44,13 @@ class OrganizerVotingFormEditPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
+    final updatedFields = event.votingFormFields;
+    for(int i=0; i<updatedFields.length; i++) {
+      updatedFields[i] = updatedFields[i].copyWith(orderIndex: i);
+    }
+
     final eitherUpdateFields = await _organizerRepository.updateVotingForm(
-        votingFormId: event.votingFormId, votingFormFields: event.votingFormFields);
+        votingFormId: event.votingFormId, votingFormFields: updatedFields, header: event.header, footer: event.footer);
     eitherUpdateFields.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

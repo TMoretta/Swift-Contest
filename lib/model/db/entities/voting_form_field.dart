@@ -10,6 +10,7 @@ class VotingFormField extends Equatable {
   final VotingFormFieldType type;
   final double? minValue;
   final double? maxValue;
+  final bool isRequired;
 
   const VotingFormField({
     required this.id,
@@ -20,6 +21,7 @@ class VotingFormField extends Equatable {
     required this.type,
     required this.minValue,
     required this.maxValue,
+    required this.isRequired,
   });
 
   factory VotingFormField.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class VotingFormField extends Equatable {
       type: VotingFormFieldType.values.byName(json['type'] as String),
       minValue: json['min_value'] as double?,
       maxValue: json['max_value'] as double?,
+      isRequired: json['is_required'] as bool,
     );
   }
 
@@ -45,6 +48,7 @@ class VotingFormField extends Equatable {
       'type': type.name,
       if(minValue!=null) 'min_value': minValue,
       if(maxValue!=null) 'max_value': maxValue,
+      'is_required': isRequired,
     };
   }
 
@@ -57,6 +61,7 @@ class VotingFormField extends Equatable {
     VotingFormFieldType? type,
     double? minValue,
     double? maxValue,
+    bool? isRequired,
   }) {
     return VotingFormField(
       id: id ?? this.id,
@@ -67,6 +72,7 @@ class VotingFormField extends Equatable {
       type: type ?? this.type,
       minValue: minValue ?? this.minValue,
       maxValue: maxValue ?? this.maxValue,
+      isRequired: isRequired ?? this.isRequired,
     );
   }
 
@@ -80,5 +86,6 @@ class VotingFormField extends Equatable {
         type,
         minValue,
         maxValue,
+        isRequired,
       ];
 }

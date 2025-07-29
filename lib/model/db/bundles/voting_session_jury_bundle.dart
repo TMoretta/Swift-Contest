@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:swift_contest/model/db/bundles/voting_form_bundle.dart';
+import 'package:swift_contest/model/db/entities/jury.dart';
 import 'package:swift_contest/model/db/entities/voting_session_juration.dart';
 import 'package:swift_contest/model/db/entities/voting_session_jury.dart';
 

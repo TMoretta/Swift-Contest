@@ -22,8 +22,6 @@ service_role;
 grant usage on schema cron to postgres, anon, authenticated, service_role;
 grant all privileges on all tables in schema cron to postgres, anon, authenticated, service_role;
 
-
-
 -- Grant usage on cron schema
 GRANT USAGE ON SCHEMA cron TO postgres, anon, authenticated, service_role;
 

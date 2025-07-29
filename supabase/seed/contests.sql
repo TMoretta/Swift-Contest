@@ -10,8 +10,8 @@ INSERT INTO "public"."voting_forms" ("id", "created_at") VALUES
 	('ef93f2a8-8d62-4985-832c-4f7f2258f20d', '2025-07-28 10:27:10.440467+00'),
 	('82cf81c5-dde7-4fca-86de-ba38488baa84', '2025-07-28 10:28:00.659581+00');
 
-INSERT INTO "public"."juries" ("id", "created_at", "contest_id", "voting_form_id", "name") VALUES
-	('6464a88c-1d1b-4c60-ac0e-af01e7a57ee8', '2025-07-28 10:01:58.569697+00', '941534fc-f2a1-493c-96db-2768cf5fcba2', '31c0babf-8c01-408a-a8b6-11e4d953a791', 'Giuria Tecnica');
+INSERT INTO "public"."juries" ("id", "created_at", "contest_id", "voting_form_id", "name", "type") VALUES
+	('6464a88c-1d1b-4c60-ac0e-af01e7a57ee8', '2025-07-28 10:01:58.569697+00', '941534fc-f2a1-493c-96db-2768cf5fcba2', '31c0babf-8c01-408a-a8b6-11e4d953a791', 'Giuria Tecnica', 'appointed');
 
 INSERT INTO "public"."jurations" ("id", "created_at", "contest_id", "jury_id", "juror_id", "invitation_email") VALUES
 	('8b21ca4a-6b85-41b8-b280-b466359bf525', '2025-07-28 10:08:27.611575+00', '941534fc-f2a1-493c-96db-2768cf5fcba2', '6464a88c-1d1b-4c60-ac0e-af01e7a57ee8', (select id from auth.users where email = 'organizer1@example.com'), 'tmoretta2001@gmail.com');
@@ -21,6 +21,13 @@ INSERT INTO "public"."participations" ("id", "created_at", "contest_id", "partic
 
 INSERT INTO "public"."works" ("id", "created_at", "participation_id", "participant_full_name", "name", "description", "images_urls") VALUES
 	('3ca1ef0c-c0b8-4495-a154-5b11bb0c5d82', '2025-07-28 10:09:32.17718+00', 'ea5d1d6d-425d-4dfb-ac60-4e23ff2eefa7', 'Tommaso Participant', 'Work di tesi', 'Lavoro per la tesi, :Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', '{https://sioggqbxhxbnpsahtpkr.supabase.co/storage/v1/object/public/works-images//8bed861c-ac01-4cc8-aebc-e74a3f46a3bd/scaled_35.jpg}');
+
+
+
+
+
+
+
 
 
 

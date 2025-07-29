@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/db/bundles/juration_bundle.dart';
+import 'package:swift_contest/model/db/bundles/jury_bundle.dart';
 import 'package:swift_contest/model/db/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/db/entities/jury.dart';
 import 'package:swift_contest/model/db/entities/place.dart';
@@ -17,7 +18,6 @@ import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/view/widgets/timer_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
@@ -53,18 +53,14 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   final firstFormKey = GlobalKey<FormState>();
   final secondFormKey = GlobalKey<FormState>();
   final thirdFormKey = GlobalKey<FormState>();
-  final fourthFormKey = GlobalKey<FormState>();
+  // final fourthFormKey = GlobalKey<FormState>();
 
   List<GlobalKey<FormState>> get formKeys =>
-      [firstFormKey, secondFormKey, thirdFormKey, fourthFormKey];
+      [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
 
-  bool areSimpleJurorsAllowed = false;
   final List<({JurationBundle jurationBundle, ParticipationBundle participationBundle})>
       votingExclusions = [];
-  Duration workTimer = Duration(minutes: 5, seconds: 0);
-  Duration intermissionTimer = Duration(minutes: 1, seconds: 0);
-  Duration reviewTimer = Duration(minutes: 5, seconds: 0);
   bool isGeoRestricted = false;
   final geoRestrictionPlaceController = TextEditingController();
   final geoRestrictionPlaceFocusNode = FocusNode();
@@ -73,8 +69,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   final geoRestrictionRadiusFocusNode = FocusNode();
   final List<ParticipationBundle> participationsBundles = [];
   final List<ParticipationBundle> excludedParticipationsBundles = [];
+  final List<JuryBundle> juriesBundles = [];
+  // final List<JuryBundle> excludedJuriesBundles = [];
   final List<JurationBundle> jurationsBundles = [];
-  final List<Jury> juries = [];
 
   // final List<JurationBundle> excludedJurationsBundles = [];
   bool isPageInitialized = false;
@@ -120,7 +117,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           context.hideLoader();
         }
         if (state.status.isSuccess &&
-            state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
+            state.sourceEvent is OrganizerVotingSettingsPageStartVotingSession) {
           context.router
               .replace(OrganizerVotingProcedureRoute(votingSessionId: state.votingSessionId!));
         }
@@ -163,7 +160,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                       participationsBundles.addAll(contestDetailsBundle.participationsBundles
                           .where((e) => e.participation.hasSubmitted)
                           .toList());
-                      juries.addAll(contestDetailsBundle.juriesBundles.map((e) => e.jury).toList());
+                      juriesBundles.addAll(contestDetailsBundle.juriesBundles);
                       jurationsBundles.addAll(contestDetailsBundle.juriesBundles
                           .expand((e) => e.jurationsBundles)
                           .toList());
@@ -181,26 +178,23 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                             final createdAt = now();
                             context
                                 .read<OrganizerVotingSettingsPageBloc>()
-                                .add(OrganizerVotingSettingsPageInitVotingProcedure(
+                                .add(OrganizerVotingSettingsPageStartVotingSession(
                                   votingSession: VotingSession(
                                     id: null,
                                     createdAt: null,
                                     name:
                                         'Voting ${createdAt.day.toString().padLeft(2, '0')}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.year}',
                                     contestId: contestId,
-                                    areSimpleJurorsAllowed: areSimpleJurorsAllowed,
-                                    workTimer: workTimer,
-                                    intermissionTimer: intermissionTimer,
-                                    reviewTimer: reviewTimer,
                                     isGeoRestricted: isGeoRestricted,
                                     geoResPlaceId: null,
                                     geoResRadius: (geoRestrictionRadiusController.text.isNotEmpty)
                                         ? int.tryParse(geoRestrictionRadiusController.text)
                                         : null,
-                                    sessionStatus: VotingSessionStatus.initialized,
+                                    sessionStatus: VotingSessionStatus.live,
                                   ),
                                   geoResPlace: geoRestrictionPlace,
                                   participationsBundles: participationsBundles,
+                                  juriesBundles: juriesBundles,
                                   votingExclusions: votingExclusions,
                                 ));
                           } else {
@@ -371,35 +365,35 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         //   content: Form(
         //     key: secondFormKey,
         //     child: FormField(
-        //       validator: (value) => (jurationsBundles.isEmpty) ? '' : null,
+        //       validator: (value) => (juriesBundles.isEmpty) ? '' : null,
         //       builder: (field) {
         //         return Column(
         //           crossAxisAlignment: CrossAxisAlignment.start,
         //           children: [
-        //             //* Included jurors
+        //             //* Included juries
         //             Text(
-        //               'Jurors',
+        //               'Juries',
         //               style: Theme.of(context)
         //                   .textTheme
         //                   .titleMedium
         //                   ?.copyWith(color: Theme.of(context).colorScheme.secondary),
         //             ),
-        //             (jurationsBundles.isNotEmpty)
+        //             (juriesBundles.isNotEmpty)
         //                 ? ListView.builder(
         //                     shrinkWrap: true,
-        //                     itemCount: jurationsBundles.length,
+        //                     itemCount: juriesBundles.length,
         //                     itemBuilder: (context, index) {
-        //                       final votingJurationBundle = jurationsBundles[index];
+        //                       final juryBundle = juriesBundles[index];
         //                       return Card(
         //                         elevation: 0.05,
         //                         child: ListTile(
-        //                           key: ValueKey(votingJurationBundle.juration.id),
-        //                           title: Text(votingJurationBundle.juror.fullName),
+        //                           key: ValueKey(juryBundle.jury.id),
+        //                           title: Text(juryBundle.jury.name),
         //                           trailing: IconButton(
         //                             onPressed: () {
         //                               setState(() {
-        //                                 excludedJurationsBundles.add(votingJurationBundle);
-        //                                 jurationsBundles.removeAt(index);
+        //                                 excludedJuriesBundles.add(juryBundle);
+        //                                 juriesBundles.removeAt(index);
         //                               });
         //                             },
         //                             icon: Icon(Icons.remove),
@@ -411,10 +405,10 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         //                     mainAxisSize: MainAxisSize.min,
         //                     crossAxisAlignment: CrossAxisAlignment.start,
         //                     children: [
-        //                       Text('No juror included'),
+        //                       Text('No jury included'),
         //                       if (field.hasError)
         //                         Text(
-        //                           'Select at least one juror',
+        //                           'Select at least one jury',
         //                           style: Theme.of(context)
         //                               .textTheme
         //                               .labelMedium
@@ -423,29 +417,29 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         //                     ],
         //                   ),
         //             SizedBox(height: 64),
-        //             //* Excluded jurors
+        //             //* Excluded juries
         //             Text(
-        //               'Excluded jurors',
+        //               'Excluded juries',
         //               style: Theme.of(context)
         //                   .textTheme
         //                   .titleMedium
         //                   ?.copyWith(color: Theme.of(context).colorScheme.secondary),
         //             ),
-        //             (excludedJurationsBundles.isNotEmpty)
+        //             (excludedJuriesBundles.isNotEmpty)
         //                 ? ListView.builder(
         //                     shrinkWrap: true,
-        //                     itemCount: excludedJurationsBundles.length,
+        //                     itemCount: excludedJuriesBundles.length,
         //                     itemBuilder: (context, index) {
-        //                       final excludedJurationBundle = excludedJurationsBundles[index];
+        //                       final excludedJuryBundle = excludedJuriesBundles[index];
         //                       return Card(
         //                         elevation: 0.05,
         //                         child: ListTile(
-        //                           title: Text(excludedJurationBundle.juror.fullName),
+        //                           title: Text(excludedJuryBundle.jury.name),
         //                           trailing: IconButton(
         //                             onPressed: () {
         //                               setState(() {
-        //                                 jurationsBundles.add(excludedJurationBundle);
-        //                                 excludedJurationsBundles.removeAt(index);
+        //                                 juriesBundles.add(excludedJuryBundle);
+        //                                 excludedJuriesBundles.removeAt(index);
         //                               });
         //                             },
         //                             icon: Icon(Icons.add),
@@ -546,38 +540,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Who can vote?',
+                  'Voting exclusions',
                   style: Theme.of(context).textTheme.titleMedium,
-                ),
-                RadioListTile<bool>.adaptive(
-                  title: Text('Only invited jurors'),
-                  value: false,
-                  groupValue: areSimpleJurorsAllowed,
-                  onChanged: (value) {
-                    setState(() {
-                      areSimpleJurorsAllowed = value!;
-                    });
-                  },
-                ),
-                RadioListTile<bool>.adaptive(
-                  title: Text('Also simple jurors with the contest token'),
-                  value: true,
-                  groupValue: areSimpleJurorsAllowed,
-                  onChanged: (value) {
-                    setState(() {
-                      areSimpleJurorsAllowed = value!;
-                    });
-                  },
-                ),
-                SizedBox(height: 56),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Voting exclusions',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ],
                 ),
                 SizedBox(height: 4),
                 (votingExclusions.isNotEmpty)
@@ -600,7 +564,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                     ' | ',
                                     style: Theme.of(context).textTheme.labelLarge,
                                   ),
-                                  Text(juries
+                                  Text(juriesBundles.map((e) => e.jury)
                                       .where((e) =>
                                           votingExclusion.jurationBundle.juration.juryId == e.id)
                                       .first
@@ -640,7 +604,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                         context: context,
                         participationsBundles: participationsBundles,
                         jurationsBundles: jurationsBundles,
-                        juries: juries);
+                        juries: juriesBundles.map((e) => e.jury).toList(growable: false));
                     if (votingExclusion == null) {
                       return;
                     }
@@ -677,58 +641,58 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
             ),
           ),
         ),
-        //* Fifth step
-        Step(
-          state: currentStep >= 4 ? StepState.complete : StepState.indexed,
-          isActive: currentStep >= 3,
-          title: Text(''),
-          content: Form(
-            key: fourthFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Work timer',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                SizedBox(height: 6),
-                TimerPickerFormField(
-                  minutes: 5,
-                  seconds: 0,
-                  onChanged: (minutes, seconds) =>
-                      workTimer = Duration(minutes: minutes, seconds: seconds),
-                  validator: (_) => _timersValidator(workTimer),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Intermission timer',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                SizedBox(height: 6),
-                TimerPickerFormField(
-                  minutes: 1,
-                  seconds: 0,
-                  onChanged: (minutes, seconds) =>
-                      intermissionTimer = Duration(minutes: minutes, seconds: seconds),
-                  validator: (_) => _timersValidator(intermissionTimer),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Review timer',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                SizedBox(height: 6),
-                TimerPickerFormField(
-                  minutes: 5,
-                  seconds: 0,
-                  onChanged: (minutes, seconds) =>
-                      reviewTimer = Duration(minutes: minutes, seconds: seconds),
-                  validator: (_) => _timersValidator(reviewTimer),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // //* Fifth step
+        // Step(
+        //   state: currentStep >= 4 ? StepState.complete : StepState.indexed,
+        //   isActive: currentStep >= 3,
+        //   title: Text(''),
+        //   content: Form(
+        //     key: fourthFormKey,
+        //     child: Column(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         Text(
+        //           'Work timer',
+        //           style: Theme.of(context).textTheme.titleMedium,
+        //         ),
+        //         SizedBox(height: 6),
+        //         TimerPickerFormField(
+        //           minutes: 5,
+        //           seconds: 0,
+        //           onChanged: (minutes, seconds) =>
+        //               workTimer = Duration(minutes: minutes, seconds: seconds),
+        //           validator: (_) => _timersValidator(workTimer),
+        //         ),
+        //         SizedBox(height: 20),
+        //         Text(
+        //           'Intermission timer',
+        //           style: Theme.of(context).textTheme.titleMedium,
+        //         ),
+        //         SizedBox(height: 6),
+        //         TimerPickerFormField(
+        //           minutes: 1,
+        //           seconds: 0,
+        //           onChanged: (minutes, seconds) =>
+        //               intermissionTimer = Duration(minutes: minutes, seconds: seconds),
+        //           validator: (_) => _timersValidator(intermissionTimer),
+        //         ),
+        //         SizedBox(height: 20),
+        //         Text(
+        //           'Review timer',
+        //           style: Theme.of(context).textTheme.titleMedium,
+        //         ),
+        //         SizedBox(height: 6),
+        //         TimerPickerFormField(
+        //           minutes: 5,
+        //           seconds: 0,
+        //           onChanged: (minutes, seconds) =>
+        //               reviewTimer = Duration(minutes: minutes, seconds: seconds),
+        //           validator: (_) => _timersValidator(reviewTimer),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ];
 }
 

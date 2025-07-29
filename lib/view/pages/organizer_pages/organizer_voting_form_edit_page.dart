@@ -1,8 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pinput/pinput.dart';
 import 'package:swift_contest/model/db/entities/voting_form_field.dart';
 import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
+import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -43,6 +45,10 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
   bool isPageInitialized = false;
   bool isEdited = false;
   final List<VotingFormField> updatedFields = [];
+  final headerController = TextEditingController();
+  final footerController = TextEditingController();
+  final headerFocusNode = FocusNode();
+  final footerFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -96,7 +102,10 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                             onPressed: () {
                               context.read<OrganizerVotingFormEditPageBloc>().add(
                                   OrganizerVotingFormEditPageUpdateVotingForm(
-                                      votingFormId: votingFormId, votingFormFields: updatedFields));
+                                      votingFormId: votingFormId,
+                                      votingFormFields: updatedFields,
+                                      header: headerController.text,
+                                      footer: footerController.text));
                             },
                             style: FilledButton.styleFrom(
                               shape:
@@ -112,7 +121,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
           ),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: Builder(
                 builder: (context) {
                   switch (state.status) {
@@ -139,44 +148,111 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                     case BlocStatus.success:
                       if (!isPageInitialized) {
                         updatedFields.addAll(state.votingFormBundle!.votingFormFields);
+                        headerController.text = state.votingFormBundle!.votingForm.header ?? '';
+                        footerController.text = state.votingFormBundle!.votingForm.footer ?? '';
                         isPageInitialized = true;
                       }
-                      return (updatedFields.isEmpty)
-                          ? ListViewWithCentralLabel(label: 'No field added yet')
-                          : Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: ListView.builder(
-                                itemCount: updatedFields.length,
-                                itemBuilder: (context, index) {
-                                  final field = updatedFields[index];
-                                  return Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Card(
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CustomTextFormField(
+                            borderType: InputBorderType.outlined,
+                            minLines: 2,
+                            maxLines: 6,
+                            label: 'Header',
+                            controller: headerController,
+                            focusNode: headerFocusNode,
+                            onChanged: (_) => setState(() => isEdited = true),
+                          ),
+                          CustomTextFormField(
+                            borderType: InputBorderType.outlined,
+                            minLines: 2,
+                            maxLines: 6,
+                            label: 'Footer',
+                            controller: footerController,
+                            focusNode: footerFocusNode,
+                            onChanged: (_) => setState(() => isEdited = true),
+                          ),
+                          (updatedFields.isEmpty)
+                              ? Center(child: Text('No field added yet'))
+                              : Expanded(
+                                  child: ReorderableListView.builder(
+                                    itemCount: updatedFields.length,
+                                    onReorder: (oldIndex, newIndex) {
+                                      setState(() {
+                                        if (oldIndex < newIndex) {
+                                          newIndex -= 1;
+                                        }
+                                        final VotingFormField field =
+                                            updatedFields.removeAt(oldIndex);
+                                        updatedFields.insert(newIndex, field);
+                                        isEdited = true;
+                                      });
+                                    },
+                                    itemBuilder: (context, index) {
+                                      final field = updatedFields[index];
+                                      return Card(
+                                        key: ValueKey(field.id),
                                         elevation: 0,
                                         child: ListTile(
-                                          leading: Icon((field.type.isTextual) ?Icons.text_fields : Icons.numbers),
-                                          title: Text(field.name),
-                                          subtitle: (field.type.isNumeric)
-                                              ? Text('${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
-                                              : null,
                                           trailing: IconButton(
                                             onPressed: () {
                                               setState(() {
-                                                isEdited = true;
                                                 updatedFields.remove(field);
+                                                isEdited = true;
                                               });
                                             },
                                             icon: Icon(Icons.remove),
                                           ),
+                                          leading: Icon((field.type.isTextual)
+                                              ? Icons.text_fields
+                                              : Icons.numbers),
+                                          title: (field.isRequired)
+                                              ? Text('${field.name} *')
+                                              : Text(field.name),
+                                          subtitle: (field.type.isNumeric)
+                                              ? Text(
+                                                  '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                                              : null,
                                         ),
-                                      ),
-                                      if (index == updatedFields.length - 1) SizedBox(height: 72),
-                                    ],
-                                  );
-                                },
-                              ),
-                            );
+                                      );
+                                    },
+                                  ),
+                                ),
+                          SizedBox(height: 72),
+                        ],
+                      );
+                    // child: ListView.builder(
+                    //   itemCount: updatedFields.length,
+                    //   itemBuilder: (context, index) {
+                    //     final field = updatedFields[index];
+                    //     return Column(
+                    //       mainAxisSize: MainAxisSize.min,
+                    //       children: [
+                    //         Card(
+                    //           elevation: 0,
+                    //           child: ListTile(
+                    //             leading: Icon((field.type.isTextual) ?Icons.text_fields : Icons.numbers),
+                    //             title: (field.isRequired) ? Text('${field.name} *') : Text(field.name),
+                    //             subtitle: (field.type.isNumeric)
+                    //                 ? Text('${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                    //                 : null,
+                    //             trailing: IconButton(
+                    //               onPressed: () {
+                    //                 setState(() {
+                    //                   isEdited = true;
+                    //                   updatedFields.remove(field);
+                    //                 });
+                    //               },
+                    //               icon: Icon(Icons.remove),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //         if (index == updatedFields.length - 1) SizedBox(height: 72),
+                    //       ],
+                    //     );
+                    //   },
+                    // ),
                   }
                 },
               ),
@@ -191,9 +267,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                 switch (value) {
                   case VotingFormFieldType.textual:
                     final VotingFormField? newField = await _showAddTextualFieldDialog(
-                        context: context,
-                        votingFormId: votingFormId,
-                        orderIndex: updatedFields.length);
+                        context: context, votingFormId: votingFormId);
                     if (newField != null) {
                       setState(() {
                         isEdited = true;
@@ -257,59 +331,89 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
 Future<VotingFormField?> _showAddTextualFieldDialog({
   required BuildContext context,
   required String votingFormId,
-  required int orderIndex,
 }) async {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final nameFocusNode = FocusNode();
+  bool isRequired = true;
 
   return await showDialog<VotingFormField?>(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: Text('Add textual field'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextFormField(
-                borderType: InputBorderType.underlined,
-                controller: nameController,
-                focusNode: nameFocusNode,
-                validator: noEmptyValidator,
-                label: 'Name',
+      return StatefulBuilder(builder: (context, setState) {
+        return AlertDialog(
+          title: Text('Add textual field'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Required'),
+                  SizedBox(height: 2),
+                  RadioMenuButton<bool>(
+                    value: true,
+                    groupValue: isRequired,
+                    onChanged: (value) {
+                      setState(() => isRequired = value!);
+                    },
+                    child: Text(
+                      'True',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  RadioMenuButton<bool>(
+                    value: false,
+                    groupValue: isRequired,
+                    onChanged: (value) {
+                      setState(() => isRequired = value!);
+                    },
+                    child: Text(
+                      'False',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  CustomTextFormField(
+                    borderType: InputBorderType.underlined,
+                    controller: nameController,
+                    focusNode: nameFocusNode,
+                    validator: noEmptyValidator,
+                    label: 'Name',
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.router.pop();
-            },
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                final newField = VotingFormField(
-                  id: null,
-                  createdAt: null,
-                  votingFormId: null,
-                  orderIndex: orderIndex,
-                  name: nameController.text.trim(),
-                  type: VotingFormFieldType.textual,
-                  minValue: null,
-                  maxValue: null,
-                );
-                context.router.pop(newField);
-              }
-            },
-            child: Text('Add'),
-          ),
-        ],
-      );
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.router.pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  final newField = VotingFormField(
+                    id: genUuid(),
+                    createdAt: null,
+                    votingFormId: null,
+                    orderIndex: 0,
+                    name: nameController.text.trim(),
+                    type: VotingFormFieldType.textual,
+                    minValue: null,
+                    maxValue: null,
+                    isRequired: isRequired,
+                  );
+                  context.router.pop(newField);
+                }
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      });
     },
   );
 }
@@ -326,72 +430,103 @@ Future<VotingFormField?> _showAddNumericFieldDialog({
   final minValueFocusNode = FocusNode();
   final maxValueController = TextEditingController();
   final maxValueFocusNode = FocusNode();
+  bool isRequired = true;
 
   return await showDialog<VotingFormField?>(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: Text('Add field'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextFormField(
-                borderType: InputBorderType.underlined,
-                controller: nameController,
-                focusNode: nameFocusNode,
-                validator: noEmptyValidator,
-                label: 'Name',
+      return StatefulBuilder(builder: (context, setState) {
+        return AlertDialog(
+          title: Text('Add field'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Required'),
+                  SizedBox(height: 2),
+                  RadioMenuButton<bool>(
+                    value: true,
+                    groupValue: isRequired,
+                    onChanged: (value) {
+                      setState(() => isRequired = value!);
+                    },
+                    child: Text(
+                      'True',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  RadioMenuButton<bool>(
+                    value: false,
+                    groupValue: isRequired,
+                    onChanged: (value) {
+                      setState(() => isRequired = value!);
+                    },
+                    child: Text(
+                      'False',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  CustomTextFormField(
+                    borderType: InputBorderType.underlined,
+                    controller: nameController,
+                    focusNode: nameFocusNode,
+                    validator: noEmptyValidator,
+                    label: 'Name',
+                  ),
+                  CustomTextFormField(
+                    borderType: InputBorderType.underlined,
+                    controller: minValueController,
+                    focusNode: minValueFocusNode,
+                    label: 'Min value',
+                    keyboardType: TextInputType.number,
+                    validator: (value) => _minValueValidator(value, maxValueController.text),
+                  ),
+                  CustomTextFormField(
+                    borderType: InputBorderType.underlined,
+                    controller: maxValueController,
+                    focusNode: maxValueFocusNode,
+                    label: 'Max value',
+                    keyboardType: TextInputType.number,
+                    validator: (value) => _maxValueValidator(value, minValueController.text),
+                  ),
+                ],
               ),
-              CustomTextFormField(
-                borderType: InputBorderType.underlined,
-                controller: minValueController,
-                focusNode: minValueFocusNode,
-                label: 'Min value',
-                keyboardType: TextInputType.number,
-                validator: (value) => _minValueValidator(value, maxValueController.text),
-              ),
-              CustomTextFormField(
-                borderType: InputBorderType.underlined,
-                controller: maxValueController,
-                focusNode: maxValueFocusNode,
-                label: 'Max value',
-                keyboardType: TextInputType.number,
-                validator: (value) => _maxValueValidator(value, minValueController.text),
-              ),
-            ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.router.pop();
-            },
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                final minValueDouble = double.parse(minValueController.text.trim());
-                final maxValueDouble = double.parse(maxValueController.text.trim());
-                final newField = VotingFormField(
-                  id: null,
-                  createdAt: null,
-                  votingFormId: null,
-                  orderIndex: orderIndex,
-                  name: nameController.text.trim(),
-                  type: VotingFormFieldType.numeric,
-                  minValue: minValueDouble,
-                  maxValue: maxValueDouble,
-                );
-                context.router.pop(newField);
-              }
-            },
-            child: Text('Add'),
-          ),
-        ],
-      );
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.router.pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  final minValueDouble = double.parse(minValueController.text.trim());
+                  final maxValueDouble = double.parse(maxValueController.text.trim());
+                  final newField = VotingFormField(
+                    id: null,
+                    createdAt: null,
+                    votingFormId: null,
+                    orderIndex: orderIndex,
+                    name: nameController.text.trim(),
+                    type: VotingFormFieldType.numeric,
+                    minValue: minValueDouble,
+                    maxValue: maxValueDouble,
+                    isRequired: isRequired,
+                  );
+                  context.router.pop(newField);
+                }
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      });
     },
   );
 }

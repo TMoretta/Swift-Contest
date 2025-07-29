@@ -8,6 +8,7 @@ import 'package:swift_contest/model/db/entities/juror_invitation.dart';
 import 'package:swift_contest/model/db/entities/jury.dart';
 import 'package:swift_contest/model/db/entities/participant_invitation.dart';
 import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/db/types/jury_type.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -186,11 +187,14 @@ class OrganizerContestDetailsPageBloc
 
     final eitherCreateJury = await _organizerRepository.createJury(
       jury: Jury(
-          id: null,
-          createdAt: null,
-          contestId: event.contestId,
-          votingFormId: null,
-          name: event.juryName),
+        id: null,
+        createdAt: null,
+        contestId: event.contestId,
+        votingFormId: null,
+        name: event.juryName,
+        token: null,
+        type: event.juryType,
+      ),
     );
     eitherCreateJury.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
@@ -204,10 +208,11 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherUpdate = await _organizerRepository.regenerateContestToken(contestId: event.contestId);
+    final eitherUpdate =
+        await _organizerRepository.regenerateContestToken(contestId: event.contestId);
     eitherUpdate.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-        (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 }

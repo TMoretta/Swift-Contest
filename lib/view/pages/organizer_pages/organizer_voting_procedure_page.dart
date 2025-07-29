@@ -6,13 +6,10 @@ import 'package:swift_contest/model/db/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/view/widgets/custom_timer_countdown.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/view/widgets/voting_procedure_work_details_view.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_procedure_page_bloc/organizer_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -107,7 +104,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
           ),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: Builder(
                 builder: (context) {
                   switch (state.status) {
@@ -138,138 +135,151 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                             OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId)),
                         child: Builder(
                           builder: (context) {
-                            final votingSessionProcedureBundle =
-                                state.votingSessionProcedureBundle!;
-                            final votingSessionBundle =
-                                votingSessionProcedureBundle.votingSessionBundle;
-                            final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
+                            final votingSessionJuriesBundles = state.votingSessionProcedureBundle!.votingSessionJuriesBundles;
+                            return ListView(
+                              children: [
+                                // ...votingSessionJuriesBundles.map((votingSessionJuryBundle) {
+                                //   return QrImageView(
+                                //     data: votingSessionJuryBundle.votingSessionJury.token!,
+                                //     backgroundColor: Theme.of(context).colorScheme.white,
+                                //   );
+                                // }),
+                                Center(child: Text('Jurors are voting', style: Theme.of(context).textTheme.titleMedium,)),
+                              ],
+                            );
 
-                            switch (sessionStatus) {
-                              case VotingSessionStatus.initialized:
-                                return ListViewWithCentralWidget(
-                                  centralWidget: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                        Text(
-                                          'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                        ),
-                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                        SizedBox(height: 16),
-                                      FilledButton(
-                                        onPressed: () {
-                                          context.read<OrganizerVotingProcedurePageBloc>().add(
-                                              OrganizerVotingProcedurePageStartVotingSessionProcedure(
-                                                  votingSessionId: votingSessionProcedureBundle
-                                                      .votingSessionBundle.votingSession.id!));
-                                        },
-                                        child: Text('Start'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              case VotingSessionStatus.work:
-                                final currentStepDeadline =
-                                    votingSessionBundle.votingSession.currentStepDeadline!;
-                                final currentParticipantIndex =
-                                    votingSessionBundle.votingSession.currentParticipantIndex!;
-                                final currentVotingSessionParticipation =
-                                    votingSessionProcedureBundle
-                                        .votingSessionParticipations[currentParticipantIndex];
-                                return ListView(
-                                  children: [
-                                    SizedBox(height: 16),
-                                    if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                      Text(
-                                        'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(context).textTheme.titleMedium,
-                                      ),
-                                    if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                      Divider(height: 16),
-                                    Center(
-                                      child: CustomTimerCountdown(
-                                        label: 'Jurors are voting',
-                                        endTime: currentStepDeadline,
-                                        onEnd: () => context
-                                            .read<OrganizerVotingProcedurePageBloc>()
-                                            .add(
-                                                const OrganizerVotingProcedurePageAdvanceSession()),
-                                      ),
-                                    ),
-                                    Divider(height: 24),
-                                    VotingProcedureWorkDetailsView(
-                                      workName: currentVotingSessionParticipation.workName,
-                                      workDescription:
-                                          currentVotingSessionParticipation.workDescription,
-                                      participantFullName:
-                                          currentVotingSessionParticipation.participantFullName,
-                                      workImagesUrls:
-                                          currentVotingSessionParticipation.workImagesUrls,
-                                    ),
-                                    SizedBox(height: 72),
-                                  ],
-                                );
-                              case VotingSessionStatus.intermission:
-                                final currentStepDeadline =
-                                    votingSessionBundle.votingSession.currentStepDeadline!;
-                                return ListViewWithCentralWidget(
-                                  centralWidget: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                        Text(
-                                          'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                        SizedBox(height: 16),
-                                      CustomTimerCountdown(
-                                        key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
-                                        label: 'Intermission',
-                                        onEnd: () => context
-                                            .read<OrganizerVotingProcedurePageBloc>()
-                                            .add(
-                                                const OrganizerVotingProcedurePageAdvanceSession()),
-                                        endTime: currentStepDeadline,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              case VotingSessionStatus.review:
-                                final currentStepDeadline =
-                                    votingSessionBundle.votingSession.currentStepDeadline!;
-                                return ListViewWithCentralWidget(
-                                  centralWidget: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                        Text(
-                                          'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
-                                        SizedBox(height: 16),
-                                      CustomTimerCountdown(
-                                        key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
-                                        label: 'Jurors are reviewing',
-                                        onEnd: () => context
-                                            .read<OrganizerVotingProcedurePageBloc>()
-                                            .add(
-                                                const OrganizerVotingProcedurePageAdvanceSession()),
-                                        endTime: currentStepDeadline,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              case VotingSessionStatus.ended:
-                              case VotingSessionStatus.cancelled:
-                                return VoidWidget();
-                            }
+                            // final votingSessionProcedureBundle =
+                            //     state.votingSessionProcedureBundle!;
+                            // final votingSessionBundle =
+                            //     votingSessionProcedureBundle.votingSessionBundle;
+                            // final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
+                            //
+                            // switch (sessionStatus) {
+                            //   case VotingSessionStatus.initialized:
+                            //     return ListViewWithCentralWidget(
+                            //       centralWidget: Column(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //             Text(
+                            //               'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
+                            //               textAlign: TextAlign.center,
+                            //               style: Theme.of(context).textTheme.titleMedium,
+                            //             ),
+                            //           if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //             SizedBox(height: 16),
+                            //           FilledButton(
+                            //             onPressed: () {
+                            //               context.read<OrganizerVotingProcedurePageBloc>().add(
+                            //                   OrganizerVotingProcedurePageStartVotingSessionProcedure(
+                            //                       votingSessionId: votingSessionProcedureBundle
+                            //                           .votingSessionBundle.votingSession.id!));
+                            //             },
+                            //             child: Text('Start'),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     );
+                            //   case VotingSessionStatus.work:
+                            //     final currentStepDeadline =
+                            //         votingSessionBundle.votingSession.currentStepDeadline!;
+                            //     final currentParticipantIndex =
+                            //         votingSessionBundle.votingSession.currentParticipantIndex!;
+                            //     final currentVotingSessionParticipation =
+                            //         votingSessionProcedureBundle
+                            //             .votingSessionParticipations[currentParticipantIndex];
+                            //     return ListView(
+                            //       children: [
+                            //         SizedBox(height: 16),
+                            //         if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //           Text(
+                            //             'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
+                            //             textAlign: TextAlign.center,
+                            //             style: Theme.of(context).textTheme.titleMedium,
+                            //           ),
+                            //         if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //           Divider(height: 16),
+                            //         Center(
+                            //           child: CustomTimerCountdown(
+                            //             label: 'Jurors are voting',
+                            //             endTime: currentStepDeadline,
+                            //             onEnd: () => context
+                            //                 .read<OrganizerVotingProcedurePageBloc>()
+                            //                 .add(
+                            //                     const OrganizerVotingProcedurePageAdvanceSession()),
+                            //           ),
+                            //         ),
+                            //         Divider(height: 24),
+                            //         VotingProcedureWorkDetailsView(
+                            //           workName: currentVotingSessionParticipation.workName,
+                            //           workDescription:
+                            //               currentVotingSessionParticipation.workDescription,
+                            //           participantFullName:
+                            //               currentVotingSessionParticipation.participantFullName,
+                            //           workImagesUrls:
+                            //               currentVotingSessionParticipation.workImagesUrls,
+                            //         ),
+                            //         SizedBox(height: 72),
+                            //       ],
+                            //     );
+                            //   case VotingSessionStatus.intermission:
+                            //     final currentStepDeadline =
+                            //         votingSessionBundle.votingSession.currentStepDeadline!;
+                            //     return ListViewWithCentralWidget(
+                            //       centralWidget: Column(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //             Text(
+                            //               'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
+                            //               style: Theme.of(context).textTheme.titleMedium,
+                            //               textAlign: TextAlign.center,
+                            //             ),
+                            //           if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //             SizedBox(height: 16),
+                            //           CustomTimerCountdown(
+                            //             key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
+                            //             label: 'Intermission',
+                            //             onEnd: () => context
+                            //                 .read<OrganizerVotingProcedurePageBloc>()
+                            //                 .add(
+                            //                     const OrganizerVotingProcedurePageAdvanceSession()),
+                            //             endTime: currentStepDeadline,
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     );
+                            //   case VotingSessionStatus.review:
+                            //     final currentStepDeadline =
+                            //         votingSessionBundle.votingSession.currentStepDeadline!;
+                            //     return ListViewWithCentralWidget(
+                            //       centralWidget: Column(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //             Text(
+                            //               'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
+                            //               style: Theme.of(context).textTheme.titleMedium,
+                            //               textAlign: TextAlign.center,
+                            //             ),
+                            //           if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
+                            //             SizedBox(height: 16),
+                            //           CustomTimerCountdown(
+                            //             key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
+                            //             label: 'Jurors are reviewing',
+                            //             onEnd: () => context
+                            //                 .read<OrganizerVotingProcedurePageBloc>()
+                            //                 .add(
+                            //                     const OrganizerVotingProcedurePageAdvanceSession()),
+                            //             endTime: currentStepDeadline,
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     );
+                            //   case VotingSessionStatus.ended:
+                            //   case VotingSessionStatus.cancelled:
+                            //     return VoidWidget();
+                            // }
                           },
                         ),
                       );
@@ -278,75 +288,128 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
               ),
             ),
           ),
-          floatingActionButton: Builder(
-            builder: (context) {
-              switch (state.status) {
-                case BlocStatus.initial:
-                  return VoidWidget();
-                case (BlocStatus.loading || BlocStatus.failure):
-                  if (!state.isInitialized) {
-                    return VoidWidget();
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  final votingSessionBundle =
-                      state.votingSessionProcedureBundle!.votingSessionBundle;
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      FilledButton(
-                        onPressed: () {
-                          context.read<OrganizerVotingProcedurePageBloc>().add(
-                                OrganizerVotingProcedurePageCancelVotingSessionProcedure(
-                                  votingSessionId: votingSessionBundle.votingSession.id!,
-                                ),
-                              );
-                        },
-                        style: ButtonStyle(
-                          backgroundColor:
-                              WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.error),
+          floatingActionButton: (state.isInitialized) ?
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8,
+                children: [
+                  FilledButton(
+                    onPressed: () {
+                      context.read<OrganizerVotingProcedurePageBloc>().add(
+                        OrganizerVotingProcedurePageCancelVotingSessionProcedure(
+                          votingSessionId: state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.id!,
                         ),
-                        child: Text(
-                          'Cancel procedure',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: Theme.of(context).colorScheme.onError),
+                      );
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                      WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.error),
+                    ),
+                    child: Text(
+                      'Cancel procedure',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.onError),
+                    ),
+                  ),
+                  FilledButton(
+                    onPressed: () {
+                      context.read<OrganizerVotingProcedurePageBloc>().add(
+                        OrganizerVotingProcedurePageEndVotingSessionProcedure(
+                          votingSessionId: state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.id!,
                         ),
-                      ),
-                      if (votingSessionBundle.votingSession.sessionStatus.isReview)
-                        const SizedBox(width: 8),
-                      if (votingSessionBundle.votingSession.sessionStatus.isReview)
-                        FilledButton(
-                          onPressed: () {
-                            context.read<OrganizerVotingProcedurePageBloc>().add(
-                                  OrganizerVotingProcedurePageEndVotingSessionProcedure(
-                                    votingSessionId: votingSessionBundle.votingSession.id!,
-                                  ),
-                                );
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.green),
-                          ),
-                          child: Text(
-                            'End procedure',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(color: Theme.of(context).colorScheme.onGreen),
-                          ),
-                        ),
-                    ],
-                  );
-              }
-            },
-          ),
+                      );
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                      WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.green),
+                    ),
+                    child: Text(
+                      'End procedure',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.onGreen),
+                    ),
+                  ),
+
+                ],
+              )
+
+              : VoidWidget(),
+
+          // Builder(
+          //   builder: (context) {
+          //     switch (state.status) {
+          //       case BlocStatus.initial:
+          //         return VoidWidget();
+          //       case (BlocStatus.loading || BlocStatus.failure):
+          //         if (!state.isInitialized) {
+          //           return VoidWidget();
+          //         } else {
+          //           continue successCase;
+          //         }
+          //       successCase:
+          //       case BlocStatus.success:
+          //         final votingSessionBundle =
+          //             state.votingSessionProcedureBundle!.votingSessionBundle;
+          //         return Column(
+          //           mainAxisSize: MainAxisSize.min,
+          //           crossAxisAlignment: CrossAxisAlignment.end,
+          //           children: [
+          //             FilledButton(
+          //               onPressed: () {
+          //                 context.read<OrganizerVotingProcedurePageBloc>().add(
+          //                       OrganizerVotingProcedurePageCancelVotingSessionProcedure(
+          //                         votingSessionId: votingSessionBundle.votingSession.id!,
+          //                       ),
+          //                     );
+          //               },
+          //               style: ButtonStyle(
+          //                 backgroundColor:
+          //                     WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.error),
+          //               ),
+          //               child: Text(
+          //                 'Cancel procedure',
+          //                 textAlign: TextAlign.center,
+          //                 style: Theme.of(context)
+          //                     .textTheme
+          //                     .bodyMedium
+          //                     ?.copyWith(color: Theme.of(context).colorScheme.onError),
+          //               ),
+          //             ),
+          //             if (votingSessionBundle.votingSession.sessionStatus.isReview)
+          //               const SizedBox(width: 8),
+          //             if (votingSessionBundle.votingSession.sessionStatus.isReview)
+          //               FilledButton(
+          //                 onPressed: () {
+          //                   context.read<OrganizerVotingProcedurePageBloc>().add(
+          //                         OrganizerVotingProcedurePageEndVotingSessionProcedure(
+          //                           votingSessionId: votingSessionBundle.votingSession.id!,
+          //                         ),
+          //                       );
+          //                 },
+          //                 style: ButtonStyle(
+          //                   backgroundColor:
+          //                       WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.green),
+          //                 ),
+          //                 child: Text(
+          //                   'End procedure',
+          //                   textAlign: TextAlign.center,
+          //                   style: Theme.of(context)
+          //                       .textTheme
+          //                       .bodyMedium
+          //                       ?.copyWith(color: Theme.of(context).colorScheme.onGreen),
+          //                 ),
+          //               ),
+          //           ],
+          //         );
+          //     }
+          //   },
+          // ),
         );
       },
     );

@@ -85,7 +85,7 @@ RETURNS TABLE (
   participations_bundles jsonb,
   participants_invitations jsonb,
   juries_bundles jsonb,
-  voting_sessions_bundles jsonb -- MODIFICATO: Il nome della colonna ora corrisponde al JSON
+  voting_sessions_bundles jsonb
 )
 LANGUAGE plpgsql
 STABLE
@@ -361,12 +361,12 @@ BEGIN
   END IF;
 
   -- 1. Crea un nuovo voting_form.
-  INSERT INTO public.voting_forms (created_at) VALUES (now())
+  INSERT INTO public.voting_forms DEFAULT VALUES
   RETURNING id INTO v_voting_form_id;
 
   -- 2. Crea la nuova giuria.
-  INSERT INTO public.juries (contest_id, name, voting_form_id)
-  VALUES (v_contest_id, p_jury->>'name', v_voting_form_id)
+  INSERT INTO public.juries (contest_id, name, voting_form_id, type)
+  VALUES (v_contest_id, p_jury->>'name', v_voting_form_id, (p_jury->>'type')::jury_type)
   RETURNING * INTO new_jury_row;
 
   RETURN new_jury_row;
@@ -378,6 +378,8 @@ $$;
 -- Aggiorna i campi di un form di voto (operazione di delete-then-insert).
 CREATE OR REPLACE FUNCTION update_voting_form (
   p_voting_form_id uuid,
+  p_header varchar,
+  p_footer varchar,
   p_voting_form_fields jsonb
 )
 RETURNS SETOF voting_form_fields
@@ -398,19 +400,26 @@ BEGIN
     RAISE EXCEPTION 'Form di voto non trovato o accesso non autorizzato.';
   END IF;
 
+  UPDATE voting_forms
+  SET
+    header = p_header,
+    footer = p_footer
+  WHERE id = p_voting_form_id;
+
   -- 1. Cancella tutti i campi esistenti per questo form.
   DELETE FROM public.voting_form_fields WHERE voting_form_id = p_voting_form_id;
 
   -- 2. Inserisce i nuovi campi dal JSON.
   RETURN QUERY
-  INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value)
+  INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value, is_required)
   SELECT
     p_voting_form_id,
     (f->>'name')::varchar,
     (f->>'order_index')::int,
     (f->>'type')::voting_form_field_type,
     (f->>'min_value')::numeric,
-    (f->>'max_value')::numeric
+    (f->>'max_value')::numeric,
+    (f->>'is_required')::bool
   FROM jsonb_array_elements(p_voting_form_fields) AS f
   RETURNING *;
 END;
@@ -678,144 +687,144 @@ BEGIN
 END;
 $$;
 
---region ORGANIZER INIT VOTING SESSION
--- Crea una nuova sessione di voto e "congela" lo stato di partecipanti, giurie e form.
--- Gestisce la creazione condizionale del luogo per la geo-restrizione.
--- È transazionale: se un'operazione fallisce, tutte le modifiche vengono annullate.
-CREATE OR REPLACE FUNCTION organizer_init_voting_session(
-  p_voting_session jsonb,
-  p_participations_ids uuid[],
-  p_exclusions jsonb,
-  p_geo_res_place jsonb -- Può essere NULL
-)
-RETURNS voting_sessions -- Restituisce l'intera riga della sessione di voto creata.
-LANGUAGE plpgsql
-SECURITY INVOKER
-AS $$
-DECLARE
-  v_contest_id uuid := (p_voting_session->>'contest_id')::uuid;
-  v_session_id uuid;
-  v_geo_res_place_id uuid;
-  v_jury_record record;
-  v_new_voting_form_id uuid;
-  v_session_jury_id uuid;
-  v_new_session voting_sessions;
-BEGIN
-  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
-  IF NOT EXISTS (
-    SELECT 1 FROM public.contests
-    WHERE id = v_contest_id AND organizer_id = auth.uid()
-  ) THEN
-    RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
-  END IF;
-
-  -- 1. Crea il 'Place' per la geo-restrizione, SOLO SE necessario.
-  IF p_geo_res_place IS NOT NULL THEN
-    INSERT INTO public.places (address, lat, lon)
-    VALUES (
-      p_geo_res_place->>'address',
-      (p_geo_res_place->>'lat')::float,
-      (p_geo_res_place->>'lon')::float
-    )
-    RETURNING id INTO v_geo_res_place_id;
-  END IF;
-
-  -- 2. Crea la riga principale della sessione di voto.
-  INSERT INTO public.voting_sessions (
-    contest_id, name, work_timer, intermission_timer, review_timer,
-    are_simple_jurors_allowed, is_geo_restricted, session_status,
-    geo_res_place_id, geo_res_radius
-  ) VALUES (
-    v_contest_id,
-    p_voting_session->>'name',
-    (p_voting_session->>'work_timer')::int,
-    (p_voting_session->>'intermission_timer')::int,
-    (p_voting_session->>'review_timer')::int,
-    (p_voting_session->>'are_simple_jurors_allowed')::bool,
-    (p_voting_session->>'is_geo_restricted')::bool,
-    'initialized',
-    v_geo_res_place_id, -- Sarà NULL se non è stato creato
-    (p_voting_session->>'geo_res_radius')::int
-  )
-  RETURNING id INTO v_session_id;
-
-  -- 3. Crea gli SNAPSHOT dei PARTECIPANTI selezionati.
-  INSERT INTO public.voting_session_participations (
-    voting_session_id, participation_id,
-    participant_full_name, work_name, work_description, work_images_urls,
-    order_index
-  )
-  SELECT
-    v_session_id, pa.id,
-    pr.full_name, w.name, w.description, w.images_urls,
-    u.ord - 1
-  FROM
-    unnest(p_participations_ids) WITH ORDINALITY AS u(id, ord) -- Espande l'array mantenendo l'ordine
-    JOIN public.participations pa ON pa.id = u.id
-    JOIN public.profiles pr ON pa.participant_id = pr.id
-    JOIN public.works w ON pa.id = w.participation_id;
-
-  -- 4. Itera su ogni GIURIA del contest per creare gli snapshot.
-  FOR v_jury_record IN
-    SELECT * FROM public.juries WHERE contest_id = v_contest_id
-  LOOP
-    -- 4.a: Crea un NUOVO voting_form per lo snapshot.
-    INSERT INTO public.voting_forms DEFAULT VALUES
-    RETURNING id INTO v_new_voting_form_id;
-
-    -- 4.b: Copia i campi dal form originale al nuovo form.
-    INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value)
-    SELECT
-      v_new_voting_form_id,
-      vff.name, vff.order_index, vff.type, vff.min_value, vff.max_value
-    FROM public.voting_form_fields vff
-    WHERE vff.voting_form_id = v_jury_record.voting_form_id;
-
-    -- 4.c: Crea lo snapshot della giuria.
-    INSERT INTO public.voting_session_juries (
-      voting_session_id, jury_id, jury_name, voting_form_id
-    ) VALUES (
-      v_session_id, v_jury_record.id, v_jury_record.name, v_new_voting_form_id
-    )
-    RETURNING id INTO v_session_jury_id;
-
-    -- 4.d: Crea gli snapshot dei singoli giurati.
-    INSERT INTO public.voting_session_jurations (
-      voting_session_id, juration_id, voting_session_jury_id, juror_full_name
-    )
-    SELECT
-      v_session_id,
-      ju.id,
-      v_session_jury_id,
-      pr.full_name
-    FROM
-      public.jurations ju
-      JOIN public.profiles pr ON ju.juror_id = pr.id
-    WHERE
-      ju.jury_id = v_jury_record.id;
-  END LOOP;
-
-  -- 5. Crea le ESCLUSIONI specifiche.
-  INSERT INTO public.voting_session_exclusions (
-    voting_session_id,
-    voting_session_juration_id,
-    voting_session_participation_id
-  )
-  SELECT
-    v_session_id,
-    vsj.id,
-    vsp.id
-  FROM
-    jsonb_to_recordset(p_exclusions) AS x(juration_id uuid, participation_id uuid)
-    JOIN public.voting_session_jurations vsj ON vsj.juration_id = x.juration_id AND vsj.voting_session_id = v_session_id
-    JOIN public.voting_session_participations vsp ON vsp.participation_id = x.participation_id AND vsp.voting_session_id = v_session_id;
-
-  -- 6. Recupera e restituisce la riga completa della sessione appena creata.
-  SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
-  RETURN v_new_session;
-END;
-$$;
---endregion
+----region ORGANIZER INIT VOTING SESSION
+---- Crea una nuova sessione di voto e "congela" lo stato di partecipanti, giurie e form.
+---- Gestisce la creazione condizionale del luogo per la geo-restrizione.
+---- È transazionale: se un'operazione fallisce, tutte le modifiche vengono annullate.
+--CREATE OR REPLACE FUNCTION organizer_init_voting_session(
+--  p_voting_session jsonb,
+--  p_participations_ids uuid[],
+--  p_exclusions jsonb,
+--  p_geo_res_place jsonb -- Può essere NULL
+--)
+--RETURNS voting_sessions -- Restituisce l'intera riga della sessione di voto creata.
+--LANGUAGE plpgsql
+--SECURITY INVOKER
+--AS $$
+--DECLARE
+--  v_contest_id uuid := (p_voting_session->>'contest_id')::uuid;
+--  v_session_id uuid;
+--  v_geo_res_place_id uuid;
+--  v_jury_record record;
+--  v_new_voting_form_id uuid;
+--  v_session_jury_id uuid;
+--  v_new_session voting_sessions;
+--BEGIN
+--  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
+--  IF NOT EXISTS (
+--    SELECT 1 FROM public.contests
+--    WHERE id = v_contest_id AND organizer_id = auth.uid()
+--  ) THEN
+--    RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
+--  END IF;
+--
+--  -- 1. Crea il 'Place' per la geo-restrizione, SOLO SE necessario.
+--  IF p_geo_res_place IS NOT NULL THEN
+--    INSERT INTO public.places (address, lat, lon)
+--    VALUES (
+--      p_geo_res_place->>'address',
+--      (p_geo_res_place->>'lat')::float,
+--      (p_geo_res_place->>'lon')::float
+--    )
+--    RETURNING id INTO v_geo_res_place_id;
+--  END IF;
+--
+--  -- 2. Crea la riga principale della sessione di voto.
+--  INSERT INTO public.voting_sessions (
+--    contest_id, name, work_timer, intermission_timer, review_timer,
+--    are_simple_jurors_allowed, is_geo_restricted, session_status,
+--    geo_res_place_id, geo_res_radius
+--  ) VALUES (
+--    v_contest_id,
+--    p_voting_session->>'name',
+--    (p_voting_session->>'work_timer')::int,
+--    (p_voting_session->>'intermission_timer')::int,
+--    (p_voting_session->>'review_timer')::int,
+--    (p_voting_session->>'are_simple_jurors_allowed')::bool,
+--    (p_voting_session->>'is_geo_restricted')::bool,
+--    'initialized',
+--    v_geo_res_place_id, -- Sarà NULL se non è stato creato
+--    (p_voting_session->>'geo_res_radius')::int
+--  )
+--  RETURNING id INTO v_session_id;
+--
+--  -- 3. Crea gli SNAPSHOT dei PARTECIPANTI selezionati.
+--  INSERT INTO public.voting_session_participations (
+--    voting_session_id, participation_id,
+--    participant_full_name, work_name, work_description, work_images_urls,
+--    order_index
+--  )
+--  SELECT
+--    v_session_id, pa.id,
+--    pr.full_name, w.name, w.description, w.images_urls,
+--    u.ord - 1
+--  FROM
+--    unnest(p_participations_ids) WITH ORDINALITY AS u(id, ord) -- Espande l'array mantenendo l'ordine
+--    JOIN public.participations pa ON pa.id = u.id
+--    JOIN public.profiles pr ON pa.participant_id = pr.id
+--    JOIN public.works w ON pa.id = w.participation_id;
+--
+--  -- 4. Itera su ogni GIURIA del contest per creare gli snapshot.
+--  FOR v_jury_record IN
+--    SELECT * FROM public.juries WHERE contest_id = v_contest_id
+--  LOOP
+--    -- 4.a: Crea un NUOVO voting_form per lo snapshot.
+--    INSERT INTO public.voting_forms DEFAULT VALUES
+--    RETURNING id INTO v_new_voting_form_id;
+--
+--    -- 4.b: Copia i campi dal form originale al nuovo form.
+--    INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value)
+--    SELECT
+--      v_new_voting_form_id,
+--      vff.name, vff.order_index, vff.type, vff.min_value, vff.max_value
+--    FROM public.voting_form_fields vff
+--    WHERE vff.voting_form_id = v_jury_record.voting_form_id;
+--
+--    -- 4.c: Crea lo snapshot della giuria.
+--    INSERT INTO public.voting_session_juries (
+--      voting_session_id, jury_id, jury_name, voting_form_id
+--    ) VALUES (
+--      v_session_id, v_jury_record.id, v_jury_record.name, v_new_voting_form_id
+--    )
+--    RETURNING id INTO v_session_jury_id;
+--
+--    -- 4.d: Crea gli snapshot dei singoli giurati.
+--    INSERT INTO public.voting_session_jurations (
+--      voting_session_id, juration_id, voting_session_jury_id, juror_full_name
+--    )
+--    SELECT
+--      v_session_id,
+--      ju.id,
+--      v_session_jury_id,
+--      pr.full_name
+--    FROM
+--      public.jurations ju
+--      JOIN public.profiles pr ON ju.juror_id = pr.id
+--    WHERE
+--      ju.jury_id = v_jury_record.id;
+--  END LOOP;
+--
+--  -- 5. Crea le ESCLUSIONI specifiche.
+--  INSERT INTO public.voting_session_exclusions (
+--    voting_session_id,
+--    voting_session_juration_id,
+--    voting_session_participation_id
+--  )
+--  SELECT
+--    v_session_id,
+--    vsj.id,
+--    vsp.id
+--  FROM
+--    jsonb_to_recordset(p_exclusions) AS x(juration_id uuid, participation_id uuid)
+--    JOIN public.voting_session_jurations vsj ON vsj.juration_id = x.juration_id AND vsj.voting_session_id = v_session_id
+--    JOIN public.voting_session_participations vsp ON vsp.participation_id = x.participation_id AND vsp.voting_session_id = v_session_id;
+--
+--  -- 6. Recupera e restituisce la riga completa della sessione appena creata.
+--  SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
+--  RETURN v_new_session;
+--END;
+--$$;
+----endregion
 
 --region JUROR GET JOINED CONTESTS
 -- Recupera una lista di contest a cui l'utente autenticato si è unito come giurato.
@@ -1056,122 +1065,122 @@ END;
 $$;
 --endregion
 
---region ORGANIZER START VOTING SESSION (CLIENT-TRIGGERED)
-CREATE OR REPLACE FUNCTION organizer_start_voting_session (
-  p_voting_session_id uuid
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER -- Permette di modificare lo stato indipendentemente da chi la chiama.
-AS $$
-DECLARE
-  v_voting_session voting_sessions;
-  v_work_timer interval;
-BEGIN
-  SELECT * INTO v_voting_session
-  FROM public.voting_sessions
-  WHERE id = p_voting_session_id;
+----region ORGANIZER START VOTING SESSION (CLIENT-TRIGGERED)
+--CREATE OR REPLACE FUNCTION organizer_start_voting_session (
+--  p_voting_session_id uuid
+--)
+--RETURNS void
+--LANGUAGE plpgsql
+--SECURITY DEFINER -- Permette di modificare lo stato indipendentemente da chi la chiama.
+--AS $$
+--DECLARE
+--  v_voting_session voting_sessions;
+--  v_work_timer interval;
+--BEGIN
+--  SELECT * INTO v_voting_session
+--  FROM public.voting_sessions
+--  WHERE id = p_voting_session_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Voting session not found';
+--  END IF;
+--
+--  IF v_voting_session.session_status <> 'initialized' THEN
+--    RAISE EXCEPTION 'La sessione può essere avviata solo se è in stato "initialized".';
+--  END IF;
+--
+--  -- Calcola il primo timer
+--  v_work_timer := v_voting_session.work_timer * interval '1 second';
+--
+--  -- Imposta lo stato iniziale della procedura
+--  UPDATE public.voting_sessions
+--  SET
+--    session_status = 'work',
+--    current_participant_index = 0,
+--    current_step_deadline = now() + v_work_timer
+--  WHERE id = p_voting_session_id;
+--END;
+--$$;
+----endregion
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Voting session not found';
-  END IF;
-
-  IF v_voting_session.session_status <> 'initialized' THEN
-    RAISE EXCEPTION 'La sessione può essere avviata solo se è in stato "initialized".';
-  END IF;
-
-  -- Calcola il primo timer
-  v_work_timer := v_voting_session.work_timer * interval '1 second';
-
-  -- Imposta lo stato iniziale della procedura
-  UPDATE public.voting_sessions
-  SET
-    session_status = 'work',
-    current_participant_index = 0,
-    current_step_deadline = now() + v_work_timer
-  WHERE id = p_voting_session_id;
-END;
-$$;
---endregion
-
---region ORGANIZER ADVANCE VOTING SESSION (CLIENT-TRIGGERED)
--- Avanza lo stato di una sessione di voto.
--- Progettata per essere chiamata dal client quando un timer scade.
--- È sicura contro chiamate multiple (race conditions).
-CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
-  p_voting_session_id uuid
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-  v_session voting_sessions;
-  v_next_index int;
-  v_next_status text;
-  v_delay interval;
-  v_participants_count int;
-  v_timers record;
-BEGIN
-  -- Recupera lo stato attuale della sessione per evitare race condition.
-  -- FOR UPDATE blocca la riga per prevenire modifiche concorrenti.
-  SELECT *
-  INTO v_session
-  FROM public.voting_sessions
-  WHERE id = p_voting_session_id
-  FOR UPDATE;
-
-  -- Se la sessione non esiste o è già finita, non fare nulla.
-  IF NOT FOUND OR v_session.session_status = 'ended' THEN
-    RETURN;
-  END IF;
-
-  -- CONTROLLO CHIAVE: Esegui la logica solo se il timer è effettivamente scaduto.
-  IF v_session.current_step_deadline <= now() THEN
-    -- Prendi i timer e il numero di partecipanti
-    SELECT work_timer, intermission_timer, review_timer INTO v_timers FROM public.voting_sessions WHERE id = p_voting_session_id;
-    SELECT COUNT(*) INTO v_participants_count FROM public.voting_session_participations WHERE voting_session_id = v_session.id;
-
-    -- Calcola il prossimo stato in base a quello attuale.
-    IF v_session.session_status = 'work' THEN
-      v_next_status := 'intermission';
-      v_delay       := v_timers.intermission_timer * interval '1 second';
-      v_next_index  := v_session.current_participant_index;
-
-    ELSIF v_session.session_status = 'intermission' THEN
-      IF (v_session.current_participant_index + 1) < v_participants_count THEN
-        v_next_status := 'work';
-        v_delay       := v_timers.work_timer * interval '1 second';
-        v_next_index  := v_session.current_participant_index + 1;
-      ELSE
-        v_next_status := 'review';
-        v_delay       := v_timers.review_timer * interval '1 second';
-        v_next_index  := NULL;
-      END IF;
-
-    ELSIF v_session.session_status = 'review' THEN
-      v_next_status := 'ended';
-      v_delay       := NULL;
-      v_next_index  := NULL;
-    END IF;
-
-    -- Aggiorna lo stato della sessione.
-    IF v_next_status = 'ended' THEN
-      UPDATE public.voting_sessions
-      SET session_status = 'ended', current_participant_index = NULL, current_step_deadline = NULL
-      WHERE id = v_session.id;
-    ELSE
-      UPDATE public.voting_sessions
-      SET
-        current_participant_index = v_next_index,
-        session_status = v_next_status::voting_session_status,
-        current_step_deadline = now() + v_delay
-      WHERE id = v_session.id;
-    END IF;
-  END IF;
-END;
-$$;
---endregion
+----region ORGANIZER ADVANCE VOTING SESSION (CLIENT-TRIGGERED)
+---- Avanza lo stato di una sessione di voto.
+---- Progettata per essere chiamata dal client quando un timer scade.
+---- È sicura contro chiamate multiple (race conditions).
+--CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
+--  p_voting_session_id uuid
+--)
+--RETURNS void
+--LANGUAGE plpgsql
+--SECURITY DEFINER
+--AS $$
+--DECLARE
+--  v_session voting_sessions;
+--  v_next_index int;
+--  v_next_status text;
+--  v_delay interval;
+--  v_participants_count int;
+--  v_timers record;
+--BEGIN
+--  -- Recupera lo stato attuale della sessione per evitare race condition.
+--  -- FOR UPDATE blocca la riga per prevenire modifiche concorrenti.
+--  SELECT *
+--  INTO v_session
+--  FROM public.voting_sessions
+--  WHERE id = p_voting_session_id
+--  FOR UPDATE;
+--
+--  -- Se la sessione non esiste o è già finita, non fare nulla.
+--  IF NOT FOUND OR v_session.session_status = 'ended' THEN
+--    RETURN;
+--  END IF;
+--
+--  -- CONTROLLO CHIAVE: Esegui la logica solo se il timer è effettivamente scaduto.
+--  IF v_session.current_step_deadline <= now() THEN
+--    -- Prendi i timer e il numero di partecipanti
+--    SELECT work_timer, intermission_timer, review_timer INTO v_timers FROM public.voting_sessions WHERE id = p_voting_session_id;
+--    SELECT COUNT(*) INTO v_participants_count FROM public.voting_session_participations WHERE voting_session_id = v_session.id;
+--
+--    -- Calcola il prossimo stato in base a quello attuale.
+--    IF v_session.session_status = 'work' THEN
+--      v_next_status := 'intermission';
+--      v_delay       := v_timers.intermission_timer * interval '1 second';
+--      v_next_index  := v_session.current_participant_index;
+--
+--    ELSIF v_session.session_status = 'intermission' THEN
+--      IF (v_session.current_participant_index + 1) < v_participants_count THEN
+--        v_next_status := 'work';
+--        v_delay       := v_timers.work_timer * interval '1 second';
+--        v_next_index  := v_session.current_participant_index + 1;
+--      ELSE
+--        v_next_status := 'review';
+--        v_delay       := v_timers.review_timer * interval '1 second';
+--        v_next_index  := NULL;
+--      END IF;
+--
+--    ELSIF v_session.session_status = 'review' THEN
+--      v_next_status := 'ended';
+--      v_delay       := NULL;
+--      v_next_index  := NULL;
+--    END IF;
+--
+--    -- Aggiorna lo stato della sessione.
+--    IF v_next_status = 'ended' THEN
+--      UPDATE public.voting_sessions
+--      SET session_status = 'ended', current_participant_index = NULL, current_step_deadline = NULL
+--      WHERE id = v_session.id;
+--    ELSE
+--      UPDATE public.voting_sessions
+--      SET
+--        current_participant_index = v_next_index,
+--        session_status = v_next_status::voting_session_status,
+--        current_step_deadline = now() + v_delay
+--      WHERE id = v_session.id;
+--    END IF;
+--  END IF;
+--END;
+--$$;
+----endregion
 
 --region ORGANIZER END VOTING SESSION (CLIENT-TRIGGERED)
 CREATE OR REPLACE FUNCTION organizer_end_voting_session(p_voting_session_id uuid)
@@ -1182,9 +1191,7 @@ AS $$
 BEGIN
   UPDATE public.voting_sessions
   SET
-    session_status = 'ended',
-    current_participant_index = NULL,
-    current_step_deadline = NULL
+    session_status = 'ended'
   WHERE id = p_voting_session_id;
 
   IF NOT FOUND THEN
@@ -1203,9 +1210,7 @@ AS $$
 BEGIN
   UPDATE public.voting_sessions
   SET
-    session_status = 'cancelled',
-    current_participant_index = NULL,
-    current_step_deadline = NULL
+    session_status = 'cancelled'
   WHERE id = p_voting_session_id;
 
   IF NOT FOUND THEN
@@ -1334,6 +1339,144 @@ BEGIN
   SET has_submitted = true
   WHERE id = v_juration.id;
 
+END;
+$$;
+--endregion
+
+--region ORGANIZER START VOTING SESSION
+CREATE OR REPLACE FUNCTION organizer_start_voting_session(
+  p_voting_session jsonb,
+  p_participations_ids uuid[],
+  p_exclusions jsonb,
+  p_geo_res_place jsonb -- Può essere NULL
+)
+RETURNS voting_sessions -- Restituisce l'intera riga della sessione di voto creata.
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_contest_id uuid := (p_voting_session->>'contest_id')::uuid;
+  v_session_id uuid;
+  v_geo_res_place_id uuid;
+  v_jury_record record;
+  v_new_voting_form_id uuid;
+  v_session_jury_id uuid;
+  v_new_session voting_sessions;
+  v_original_form_header text;
+  v_original_form_footer text;
+BEGIN
+  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
+  IF NOT EXISTS (
+    SELECT 1 FROM public.contests
+    WHERE id = v_contest_id AND organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
+  END IF;
+
+  -- 1. Crea il 'Place' per la geo-restrizione, SOLO SE necessario.
+  IF p_geo_res_place IS NOT NULL THEN
+    INSERT INTO public.places (address, lat, lon)
+    VALUES (
+      p_geo_res_place->>'address',
+      (p_geo_res_place->>'lat')::float,
+      (p_geo_res_place->>'lon')::float
+    )
+    RETURNING id INTO v_geo_res_place_id;
+  END IF;
+
+  -- 2. Crea la riga principale della sessione di voto.
+  INSERT INTO public.voting_sessions (
+    contest_id, name, is_geo_restricted, session_status,
+    geo_res_place_id, geo_res_radius
+  ) VALUES (
+    v_contest_id,
+    p_voting_session->>'name',
+    (p_voting_session->>'is_geo_restricted')::bool,
+    'live',
+    v_geo_res_place_id, -- Sarà NULL se non è stato creato
+    (p_voting_session->>'geo_res_radius')::int
+  )
+  RETURNING id INTO v_session_id;
+
+  -- 3. Crea gli SNAPSHOT dei PARTECIPANTI selezionati.
+  INSERT INTO public.voting_session_participations (
+    voting_session_id, participation_id,
+    participant_full_name, work_name, work_description, work_images_urls,
+    order_index
+  )
+  SELECT
+    v_session_id, pa.id,
+    pr.full_name, w.name, w.description, w.images_urls,
+    u.ord - 1
+  FROM
+    unnest(p_participations_ids) WITH ORDINALITY AS u(id, ord) -- Espande l'array mantenendo l'ordine
+    JOIN public.participations pa ON pa.id = u.id
+    JOIN public.profiles pr ON pa.participant_id = pr.id
+    JOIN public.works w ON pa.id = w.participation_id;
+
+  -- 4. Itera su ogni GIURIA del contest per creare gli snapshot.
+  FOR v_jury_record IN
+    SELECT * FROM public.juries WHERE contest_id = v_contest_id
+  LOOP
+    -- 4.a: Get the header from the original voting form.
+    SELECT header, footer INTO v_original_form_header, v_original_form_footer
+    FROM public.voting_forms
+    WHERE id = v_jury_record.voting_form_id;
+
+    -- 4.b: Crea un NUOVO voting_form per lo snapshot, copying the header and footer.
+    INSERT INTO public.voting_forms (header, footer) VALUES (v_original_form_header, v_original_form_footer)
+    RETURNING id INTO v_new_voting_form_id;
+
+    -- 4.c: Copia i campi dal form originale al nuovo form.
+    INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value, is_required)
+    SELECT
+      v_new_voting_form_id,
+      vff.name, vff.order_index, vff.type, vff.min_value, vff.max_value, vff.is_required
+    FROM public.voting_form_fields vff
+    WHERE vff.voting_form_id = v_jury_record.voting_form_id;
+
+    -- 4.d: Crea lo snapshot della giuria.
+    INSERT INTO public.voting_session_juries (
+      voting_session_id, jury_id, jury_name, voting_form_id, token
+    ) VALUES (
+      v_session_id, v_jury_record.id, v_jury_record.name, v_new_voting_form_id, v_jury_record.token
+    )
+    RETURNING id INTO v_session_jury_id;
+
+    -- 4.e: Crea gli snapshot dei singoli giurati.
+    INSERT INTO public.voting_session_jurations (
+      voting_session_id, juration_id, voting_session_jury_id, juror_full_name
+    )
+    SELECT
+      v_session_id,
+      ju.id,
+      v_session_jury_id,
+      pr.full_name
+    FROM
+      public.jurations ju
+      JOIN public.profiles pr ON ju.juror_id = pr.id
+    WHERE
+      ju.jury_id = v_jury_record.id;
+  END LOOP;
+
+  -- 5. Crea le ESCLUSIONI specifiche.
+  INSERT INTO public.voting_session_exclusions (
+    voting_session_id,
+    voting_session_juration_id,
+    voting_session_participation_id
+  )
+  SELECT
+    v_session_id,
+    vsj.id,
+    vsp.id
+  FROM
+    jsonb_to_recordset(p_exclusions) AS x(juration_id uuid, participation_id uuid)
+    JOIN public.voting_session_jurations vsj ON vsj.juration_id = x.juration_id AND vsj.voting_session_id = v_session_id
+    JOIN public.voting_session_participations vsp ON vsp.participation_id = x.participation_id AND vsp.voting_session_id = v_session_id;
+
+  -- 6. Recupera e restituisce la riga completa della sessione appena creata.
+  SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
+  RETURN v_new_session;
 END;
 $$;
 --endregion

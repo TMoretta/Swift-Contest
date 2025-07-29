@@ -82,7 +82,6 @@ class CustomTextFormField extends StatelessWidget {
           );
       }
     }
-
     return TextFormField(
       controller: controller,
       focusNode: focusNode,

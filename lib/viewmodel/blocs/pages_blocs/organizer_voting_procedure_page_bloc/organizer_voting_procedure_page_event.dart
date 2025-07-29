@@ -15,10 +15,10 @@ final class OrganizerVotingProcedurePageFetch extends OrganizerVotingProcedurePa
   List<Object?> get props => [votingSessionId];
 }
 
-final class OrganizerVotingProcedurePageStartVotingSessionProcedure extends OrganizerVotingProcedurePageEvent {
+final class OrganizerVotingProcedurePageStartVotingSession extends OrganizerVotingProcedurePageEvent {
   final String votingSessionId;
 
-  const OrganizerVotingProcedurePageStartVotingSessionProcedure({required this.votingSessionId});
+  const OrganizerVotingProcedurePageStartVotingSession({required this.votingSessionId});
 
   @override
   List<Object?> get props => [votingSessionId];
@@ -47,9 +47,9 @@ final class OrganizerVotingProcedurePageEndVotingSessionProcedure extends Organi
   List<Object?> get props => [votingSessionId];
 }
 
-final class OrganizerVotingProcedurePageAdvanceSession extends OrganizerVotingProcedurePageEvent {
-  const OrganizerVotingProcedurePageAdvanceSession();
-
-  @override
-  List<Object?> get props => [];
-}
+// final class OrganizerVotingProcedurePageAdvanceSession extends OrganizerVotingProcedurePageEvent {
+//   const OrganizerVotingProcedurePageAdvanceSession();
+//
+//   @override
+//   List<Object?> get props => [];
+// }

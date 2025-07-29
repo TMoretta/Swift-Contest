@@ -9,6 +9,7 @@ class VotingSessionJury extends Equatable {
   // Snapshot data
   final String juryName;
   final String? votingFormId;
+  final String? token;
 
   const VotingSessionJury({
     required this.id,
@@ -17,6 +18,7 @@ class VotingSessionJury extends Equatable {
     required this.juryId,
     required this.juryName,
     required this.votingFormId,
+    required this.token,
   });
 
   factory VotingSessionJury.fromJson(Map<String, dynamic> json) {
@@ -27,6 +29,7 @@ class VotingSessionJury extends Equatable {
       juryId: json['jury_id'] as String,
       juryName: json['jury_name'] as String,
       votingFormId: json['voting_form_id'] as String,
+      token: json['token'] as String,
     );
   }
 
@@ -38,6 +41,7 @@ class VotingSessionJury extends Equatable {
       if (juryId != null) 'jury_id': juryId,
       'jury_name': juryName,
       if (votingFormId != null) 'voting_form_id': votingFormId,
+      if (token != null) 'token': token,
     };
   }
 
@@ -48,6 +52,7 @@ class VotingSessionJury extends Equatable {
     String? juryId,
     String? juryName,
     String? votingFormId,
+    String? token,
   }) {
     return VotingSessionJury(
       id: id ?? this.id,
@@ -56,6 +61,7 @@ class VotingSessionJury extends Equatable {
       juryId: juryId ?? this.juryId,
       juryName: juryName ?? this.juryName,
       votingFormId: votingFormId ?? this.votingFormId,
+      token: token ?? this.token,
     );
   }
 
@@ -67,5 +73,6 @@ class VotingSessionJury extends Equatable {
         juryId,
         juryName,
         votingFormId,
+        token,
       ];
 }

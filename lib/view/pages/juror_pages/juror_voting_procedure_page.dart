@@ -6,9 +6,7 @@ import 'package:swift_contest/model/db/entities/voting_session_participation.dar
 import 'package:swift_contest/model/db/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/view/widgets/custom_timer_countdown.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -87,11 +85,13 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         } else {
           context.hideLoader();
         }
-        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isEnded) {
+        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus
+            .isEnded) {
           showSnackBar(context: context, text: 'Voting session procedure is ended');
           context.router.pop(true);
         }
-        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isCancelled) {
+        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus
+            .isCancelled) {
           showSnackBar(context: context, text: 'Voting session procedure has been cancelled');
           context.router.pop(true);
         }
@@ -110,7 +110,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           ),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: Builder(
                 builder: (context) {
                   switch (state.status) {
@@ -138,7 +138,6 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
                       final votingSessionBundle = votingSessionProcedureBundle.votingSessionBundle;
                       final votingSession = votingSessionBundle.votingSession;
-                      final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
                       final ownVotingSessionJuration = state.ownVotingSessionJuration!;
                       final ownVotingSessionJuryBundle =
                           votingSessionProcedureBundle.votingSessionJuriesBundles.firstWhere(
@@ -146,12 +145,12 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                             juryBundle.votingSessionJury.id ==
                             ownVotingSessionJuration.votingSessionJuryId,
                       );
+                      final votingSessionParticipations =
+                          votingSessionProcedureBundle.votingSessionParticipations;
                       final votingFormFields =
                           ownVotingSessionJuryBundle.votingFormBundle.votingFormFields;
 
                       if (!isPageInitialized) {
-                        final votingSessionParticipations =
-                            votingSessionProcedureBundle.votingSessionParticipations;
                         for (var votingSessionParticipation in votingSessionParticipations) {
                           final Map<VotingFormField, TextEditingController> fieldsControllers = {};
                           for (var votingFormField in votingFormFields) {
@@ -163,11 +162,10 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                   e.votingSessionJurationId == ownVotingSessionJuration.id &&
                                   e.votingSessionParticipationId == votingSessionParticipation.id);
                           votingFormAndWorkViews.add(VotingProcedureFormAndWorkView(
-                            isExcludedFromParticipant: isExcludedFromParticipant,
-                            votingSessionParticipation: votingSessionParticipation,
-                            votingFormFields: votingFormFields,
-                            votesMap: votesMap,
-                          ));
+                              isExcludedFromParticipant: isExcludedFromParticipant,
+                              votingSessionParticipation: votingSessionParticipation,
+                              votingFormFields: votingFormFields,
+                              votesMap: votesMap));
                         }
                         isPageInitialized = true;
                       }
@@ -176,81 +174,127 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                         onRefresh: () async => context
                             .read<JurorVotingProcedurePageBloc>()
                             .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
-                        child: Builder(
-                          builder: (context) {
-                            switch (sessionStatus) {
-                              case VotingSessionStatus.initialized:
-                                return ListViewWithCentralLabel(
-                                  label: 'Await here the beginning of the voting session',
-                                );
-                              case VotingSessionStatus.work:
-                                final currentStepDeadline = votingSession.currentStepDeadline!;
-                                final currentParticipantIndex =
-                                    votingSession.currentParticipantIndex!;
-
-                                return ListView(
-                                  children: [
-                                    SizedBox(height: 16),
-                                    Center(
-                                      child: CustomTimerCountdown(
-                                        label: 'Voting phase',
-                                        endTime: currentStepDeadline,
-                                      ),
-                                    ),
-                                    Divider(height: 24),
-                                    votingFormAndWorkViews[currentParticipantIndex],
-                                    SizedBox(height: 72),
-                                  ],
-                                );
-                              case VotingSessionStatus.intermission:
-                                final currentStepDeadline = votingSession.currentStepDeadline!;
-                                return ListViewWithCentralWidget(
-                                  centralWidget: CustomTimerCountdown(
-                                    label: 'Intermission',
-                                    endTime: currentStepDeadline,
-                                  ),
-                                );
-                              case VotingSessionStatus.review:
-                                final currentStepDeadline = votingSession.currentStepDeadline!;
-
-                                return ListView(
-                                  children: [
-                                    SizedBox(height: 16),
-                                    Center(
-                                      child: CustomTimerCountdown(
-                                        label: 'Review',
-                                        endTime: currentStepDeadline,
-                                      ),
-                                    ),
-                                    Divider(height: 24),
-                                    Form(
-                                      key: reviewFormKey,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ...votingFormAndWorkViews,
-                                          SizedBox(height: 72),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              case VotingSessionStatus.ended:
-                              case VotingSessionStatus.cancelled:
-                                return VoidWidget();
-                            }
+                        child: ListView.builder(
+                          itemCount: votingFormAndWorkViews.length,
+                          itemBuilder: (context, index) {
+                            return votingFormAndWorkViews[index];
                           },
                         ),
                       );
+
+                    // final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
+                    // final votingSessionBundle = votingSessionProcedureBundle.votingSessionBundle;
+                    // final votingSession = votingSessionBundle.votingSession;
+                    // final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
+                    // final ownVotingSessionJuration = state.ownVotingSessionJuration!;
+                    // final ownVotingSessionJuryBundle =
+                    //     votingSessionProcedureBundle.votingSessionJuriesBundles.firstWhere(
+                    //   (juryBundle) =>
+                    //       juryBundle.votingSessionJury.id ==
+                    //       ownVotingSessionJuration.votingSessionJuryId,
+                    // );
+                    // final votingFormFields =
+                    //     ownVotingSessionJuryBundle.votingFormBundle.votingFormFields;
+                    //
+                    // if (!isPageInitialized) {
+                    //   final votingSessionParticipations =
+                    //       votingSessionProcedureBundle.votingSessionParticipations;
+                    //   for (var votingSessionParticipation in votingSessionParticipations) {
+                    //     final Map<VotingFormField, TextEditingController> fieldsControllers = {};
+                    //     for (var votingFormField in votingFormFields) {
+                    //       fieldsControllers.addAll({votingFormField: TextEditingController()});
+                    //     }
+                    //     votesMap.addAll({votingSessionParticipation: fieldsControllers});
+                    //     final isExcludedFromParticipant =
+                    //         votingSessionProcedureBundle.votingSessionExclusions.any((e) =>
+                    //             e.votingSessionJurationId == ownVotingSessionJuration.id &&
+                    //             e.votingSessionParticipationId == votingSessionParticipation.id);
+                    //     votingFormAndWorkViews.add(VotingProcedureFormAndWorkView(
+                    //       isExcludedFromParticipant: isExcludedFromParticipant,
+                    //       votingSessionParticipation: votingSessionParticipation,
+                    //       votingFormFields: votingFormFields,
+                    //       votesMap: votesMap,
+                    //     ));
+                    //   }
+                    //   isPageInitialized = true;
+                    // }
+                    //
+                    // return RefreshIndicator.adaptive(
+                    //   onRefresh: () async => context
+                    //       .read<JurorVotingProcedurePageBloc>()
+                    //       .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
+                    //   child: Builder(
+                    //     builder: (context) {
+                    //       switch (sessionStatus) {
+                    //         case VotingSessionStatus.initialized:
+                    //           return ListViewWithCentralLabel(
+                    //             label: 'Await here the beginning of the voting session',
+                    //           );
+                    //         case VotingSessionStatus.work:
+                    //           final currentStepDeadline = votingSession.currentStepDeadline!;
+                    //           final currentParticipantIndex =
+                    //               votingSession.currentParticipantIndex!;
+                    //
+                    //           return ListView(
+                    //             children: [
+                    //               SizedBox(height: 16),
+                    //               Center(
+                    //                 child: CustomTimerCountdown(
+                    //                   label: 'Voting phase',
+                    //                   endTime: currentStepDeadline,
+                    //                 ),
+                    //               ),
+                    //               Divider(height: 24),
+                    //               votingFormAndWorkViews[currentParticipantIndex],
+                    //               SizedBox(height: 72),
+                    //             ],
+                    //           );
+                    //         case VotingSessionStatus.intermission:
+                    //           final currentStepDeadline = votingSession.currentStepDeadline!;
+                    //           return ListViewWithCentralWidget(
+                    //             centralWidget: CustomTimerCountdown(
+                    //               label: 'Intermission',
+                    //               endTime: currentStepDeadline,
+                    //             ),
+                    //           );
+                    //         case VotingSessionStatus.review:
+                    //           final currentStepDeadline = votingSession.currentStepDeadline!;
+                    //
+                    //           return ListView(
+                    //             children: [
+                    //               SizedBox(height: 16),
+                    //               Center(
+                    //                 child: CustomTimerCountdown(
+                    //                   label: 'Review',
+                    //                   endTime: currentStepDeadline,
+                    //                 ),
+                    //               ),
+                    //               Divider(height: 24),
+                    //               Form(
+                    //                 key: reviewFormKey,
+                    //                 child: Column(
+                    //                   mainAxisSize: MainAxisSize.min,
+                    //                   children: [
+                    //                     ...votingFormAndWorkViews,
+                    //                     SizedBox(height: 72),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           );
+                    //         case VotingSessionStatus.ended:
+                    //         case VotingSessionStatus.cancelled:
+                    //           return VoidWidget();
+                    //       }
+                    //     },
+                    //   ),
+                    // );
                   }
                 },
               ),
             ),
           ),
-          floatingActionButton: (state.isInitialized &&
-                  (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession
-                          .sessionStatus.isReview ??
-                      false))
+          floatingActionButton: (state.isInitialized)
               ? FilledButton(
                   onPressed: () {
                     if (reviewFormKey.currentState?.validate() ?? false) {

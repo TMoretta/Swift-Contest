@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/db/types/jury_type.dart';
 
 class Jury extends Equatable {
   final String? id;
@@ -6,6 +7,8 @@ class Jury extends Equatable {
   final String? contestId;
   final String? votingFormId;
   final String name;
+  final String? token;
+  final JuryType type;
 
   const Jury({
     required this.id,
@@ -13,6 +16,8 @@ class Jury extends Equatable {
     required this.contestId,
     required this.votingFormId,
     required this.name,
+    required this.token,
+    required this.type,
   });
 
   factory Jury.fromJson(Map<String, dynamic> json) {
@@ -22,6 +27,8 @@ class Jury extends Equatable {
       contestId: json['contest_id'] as String,
       votingFormId: json['voting_form_id'] as String,
       name: json['name'] as String,
+      token: json['token'] as String,
+      type: JuryType.values.byName(json['type'] as String),
     );
   }
 
@@ -32,6 +39,8 @@ class Jury extends Equatable {
       if(contestId!=null) 'contest_id': contestId,
       if(votingFormId!=null) 'voting_form_id': votingFormId,
       'name': name,
+      if(token!=null) 'token': token,
+      'type': type.name,
       };
   }
 
@@ -41,6 +50,8 @@ class Jury extends Equatable {
     String? contestId,
     String? votingFormId,
     String? name,
+    String? token,
+    JuryType? type,
   }) {
     return Jury(
       id: id ?? this.id,
@@ -48,6 +59,8 @@ class Jury extends Equatable {
       contestId: contestId ?? this.contestId,
       votingFormId: votingFormId ?? this.votingFormId,
       name: name ?? this.name,
+      token: token ?? this.token,
+      type: type ?? this.type,
     );
   }
 
@@ -58,5 +71,7 @@ class Jury extends Equatable {
     contestId,
     votingFormId,
     name,
+    token,
+    type,
   ];
 }
