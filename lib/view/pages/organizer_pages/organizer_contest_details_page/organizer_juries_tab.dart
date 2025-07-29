@@ -101,7 +101,7 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
               },
             ),
           ),
-          floatingActionButton: FilledButton.icon(
+          floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
               _showAddJuryDialog(context: context, contestId: contestId);
             },

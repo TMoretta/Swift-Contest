@@ -170,11 +170,12 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
               ),
             ),
           ),
-          floatingActionButton: FilledButton(
+          floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
               _showJoinContestDialog(context: context, profileId: profileId);
             },
-            child: Text('Join a contest'),
+            icon: Icon(Icons.login),
+            label: Text('Join a contest'),
           ),
         );
       },

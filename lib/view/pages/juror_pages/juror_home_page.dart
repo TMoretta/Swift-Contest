@@ -167,28 +167,34 @@ class _JurorHomePageState extends State<JurorHomePage> {
               ),
             ),
           ),
-          floatingActionButton: Column(
+          floatingActionButton: (state.isInitialized) ? Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 8,
             children: [
-              FilledButton(
+              FloatingActionButton.extended(
+                heroTag: 'voteAsSimpleJuror',
                 onPressed: () {
                   //todo _showVoteAsSimpleJurorDialog(context: context, profileId: profileId);
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-                  foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                ),
-                child: Text('Vote as simple juror'),
+                backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                // style: FilledButton.styleFrom(
+                //   backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                //   foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                // ),
+                label: Text('Vote as simple juror'),
               ),
-              FilledButton(
+              FloatingActionButton.extended(
+                heroTag: 'joinContest',
                 onPressed: () {
                   _showJoinContestDialog(context: context, profileId: profileId);
                 },
-                child: Text('Join contest'),
+                icon: Icon(Icons.login),
+                label: Text('Join contest'),
               ),
             ],
-          ),
+          ) : VoidWidget(),
         );
       },
     );

@@ -1,11 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:swift_contest/model/db/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
@@ -71,8 +73,7 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                   }
                 successCase:
                 case BlocStatus.success:
-                  final liveVotingSession = state.contestDetailsBundle!.votingSessions
-                      .where((e) => !e.sessionStatus.isCancelled && !e.sessionStatus.isEnded)
+                  final liveVotingSessionBundle = state.contestDetailsBundle!.votingSessionsBundles.where((e) => !e.votingSession.sessionStatus.isEnded && !e.votingSession.sessionStatus.isCancelled)
                       .firstOrNull;
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
@@ -80,7 +81,7 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                         .add(JurorContestDetailsPageFetch(contestId: contestId)),
                     child: Builder(
                       builder: (context) {
-                        if (liveVotingSession != null) {
+                        if (liveVotingSessionBundle != null) {
                           return ListViewWithCentralLabel(label: 'Voting session is live');
                         } else {
                           return ListViewWithCentralLabel(label: 'No voting session live');
@@ -91,27 +92,92 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
               }
             },
           ),
-          floatingActionButton: Builder(
+          floatingActionButton: (state.isInitialized) ? Builder(
             builder: (
               context,
             ) {
-              final liveVotingSession = state.contestDetailsBundle!.votingSessions
-                  .where((e) => !e.sessionStatus.isCancelled && !e.sessionStatus.isEnded)
+              final liveVotingSessionBundle = state.contestDetailsBundle!.votingSessionsBundles.where((e) => !e.votingSession.sessionStatus.isEnded && !e.votingSession.sessionStatus.isCancelled)
                   .firstOrNull;
               return Column(
                 mainAxisSize: MainAxisSize.min,
+                spacing: 8,
                 children: [
                   Text(
-                    (liveVotingSession != null)
+                    (liveVotingSessionBundle != null)
                         ? 'Voting session is live'
                         : 'No voting session live',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
-                  FilledButton(
-                    onPressed: (liveVotingSession != null)
+                  FloatingActionButton.extended(
+                    onPressed: (liveVotingSessionBundle != null)
                         ? () async {
-                            final bool? res = await context.router.push(JurorVotingProcedureRoute(
-                                votingSessionId: liveVotingSession.id!));
+                            if (liveVotingSessionBundle.votingSession.isGeoRestricted) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text('Geo locate'),
+                                    content: Text(
+                                        'This voting session is restricted to a specific geographic area. '
+                                        'It is recommended to verify location before proceed.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => context.pop(),
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          try {
+                                            final status = await Geolocator.checkPermission();
+                                            if (status == LocationPermission.denied) {
+                                              final newStatus =
+                                                  await Geolocator.requestPermission();
+                                              if (newStatus == LocationPermission.denied ||
+                                                  newStatus == LocationPermission.deniedForever) {
+                                                if (context.mounted) {
+                                                  showSnackBar(
+                                                      context: context,
+                                                      text: 'Location permission denied.');
+                                                }
+                                                return;
+                                              }
+                                            }
+                                            final currentPosition = await Geolocator.getCurrentPosition();
+                                            final geoResPlace = liveVotingSessionBundle.geoResPlace;
+                                            final distance = Geolocator.distanceBetween(
+                                              geoResPlace!.lat,
+                                              geoResPlace.lon,
+                                              currentPosition.latitude,
+                                              currentPosition.longitude,
+                                            );
+
+                                            if (distance > liveVotingSessionBundle.votingSession.geoResRadius!) {
+                                              if(context.mounted) {
+                                                showSnackBar(context: context, text: 'You are not inside the area of voting:\n${geoResPlace.address}');
+                                              }
+                                              return;
+                                            }
+                                          } catch (e) {
+                                            if(context.mounted) {
+                                              showSnackBar(context: context, text: 'Could not get location');
+                                            }
+                                            return;
+                                          }
+                                        },
+                                        child: Text('Verify'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => context.pop(),
+                                        child: Text('Proceed'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+
+                            final bool? res = await context.router.push(
+                                JurorVotingProcedureRoute(votingSessionId: liveVotingSessionBundle.votingSession.id!));
                             if (res == true) {
                               if (context.mounted) {
                                 context
@@ -121,12 +187,13 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
                             }
                           }
                         : null,
-                    child: Text('Vote'),
+                    icon: Icon(Icons.text_snippet),
+                    label: Text('Vote'),
                   ),
                 ],
               );
             },
-          ),
+          ) : VoidWidget(),
         );
       },
     );

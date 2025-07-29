@@ -87,19 +87,13 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         } else {
           context.hideLoader();
         }
-        if (state.status.isSuccess &&
-            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
-                VotingSessionStatus.ended) {
+        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isEnded) {
           showSnackBar(context: context, text: 'Voting session procedure is ended');
           context.router.pop(true);
         }
-        if (state.status.isSuccess &&
-            state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus ==
-                VotingSessionStatus.cancelled) {
-          showSnackBar(
-              context: context,
-              text: 'Voting session procedure has been cancelled by the organizer');
-          context.router.pop();
+        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isCancelled) {
+          showSnackBar(context: context, text: 'Voting session procedure has been cancelled');
+          context.router.pop(true);
         }
         if (state.status.isSuccess && state.sourceEvent is JurorVotingProcedurePageSubmitVotes) {
           showSnackBar(context: context, text: 'Votes submitted successfully');
@@ -108,7 +102,12 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Voting',onRefresh: () => context.read<JurorVotingProcedurePageBloc>().add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId),),),
+          appBar: CustomAppBar(
+            title: 'Voting',
+            onRefresh: () => context.read<JurorVotingProcedurePageBloc>().add(
+                  JurorVotingProcedurePageFetch(votingSessionId: votingSessionId),
+                ),
+          ),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -141,20 +140,19 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       final votingSession = votingSessionBundle.votingSession;
                       final sessionStatus = votingSessionBundle.votingSession.sessionStatus;
                       final ownVotingSessionJuration = state.ownVotingSessionJuration!;
-                      final ownVotingSessionJuryBundle = votingSessionProcedureBundle
-                          .votingSessionJuriesBundles
-                          .firstWhere(
-                            (juryBundle) =>
-                        juryBundle.votingSessionJury.id ==
+                      final ownVotingSessionJuryBundle =
+                          votingSessionProcedureBundle.votingSessionJuriesBundles.firstWhere(
+                        (juryBundle) =>
+                            juryBundle.votingSessionJury.id ==
                             ownVotingSessionJuration.votingSessionJuryId,
                       );
-                      final votingFormFields = ownVotingSessionJuryBundle.votingFormBundle.votingFormFields;
+                      final votingFormFields =
+                          ownVotingSessionJuryBundle.votingFormBundle.votingFormFields;
 
                       if (!isPageInitialized) {
                         final votingSessionParticipations =
                             votingSessionProcedureBundle.votingSessionParticipations;
-                        for (var votingSessionParticipation
-                            in votingSessionParticipations) {
+                        for (var votingSessionParticipation in votingSessionParticipations) {
                           final Map<VotingFormField, TextEditingController> fieldsControllers = {};
                           for (var votingFormField in votingFormFields) {
                             fieldsControllers.addAll({votingFormField: TextEditingController()});
@@ -163,8 +161,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                           final isExcludedFromParticipant =
                               votingSessionProcedureBundle.votingSessionExclusions.any((e) =>
                                   e.votingSessionJurationId == ownVotingSessionJuration.id &&
-                                  e.votingSessionParticipationId ==
-                                      votingSessionParticipation.id);
+                                  e.votingSessionParticipationId == votingSessionParticipation.id);
                           votingFormAndWorkViews.add(VotingProcedureFormAndWorkView(
                             isExcludedFromParticipant: isExcludedFromParticipant,
                             votingSessionParticipation: votingSessionParticipation,
@@ -250,66 +247,123 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
               ),
             ),
           ),
-          floatingActionButton: Builder(
-            builder: (
-              context,
-            ) {
-              switch (state.status) {
-                case BlocStatus.initial:
-                  return VoidWidget();
-                case (BlocStatus.loading || BlocStatus.failure):
-                  if (!state.isInitialized) {
-                    return VoidWidget();
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  final votingSessionBundle =
-                      state.votingSessionProcedureBundle!.votingSessionBundle;
-                  final votingSession = votingSessionBundle.votingSession;
-                  if (!votingSession.sessionStatus.isReview) {
-                    return VoidWidget();
-                  }
-                  return FilledButton(
-                    onPressed: () {
-                      if (reviewFormKey.currentState?.validate() ?? false) {
-                        final Map<VotingSessionParticipation, Map<VotingFormField, double>>
-                            votesPerParticipantMap = {};
-                        for (var entry in votesMap.entries) {
-                          final votingSessionParticipation = entry.key;
-                          final votingFormFieldAndController = entry.value;
-                          final Map<VotingFormField, double> votes = {};
-                          for (var votingFormFieldAndControllerEntry
-                              in votingFormFieldAndController.entries) {
-                            final votingFormField = votingFormFieldAndControllerEntry.key;
-                            final controller = votingFormFieldAndControllerEntry.value;
-                            if (controller.text.isNotEmpty) {
-                              votes.addAll({votingFormField: double.parse(controller.text)});
-                            } else {
+          floatingActionButton: (state.isInitialized &&
+                  (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession
+                          .sessionStatus.isReview ??
+                      false))
+              ? FilledButton(
+                  onPressed: () {
+                    if (reviewFormKey.currentState?.validate() ?? false) {
+                      // MODIFICATO: La mappa ora contiene String come valore.
+                      final Map<VotingSessionParticipation, Map<VotingFormField, String>>
+                          votesPerParticipantMap = {};
+                      for (var entry in votesMap.entries) {
+                        final votingSessionParticipation = entry.key;
+                        final votingFormFieldAndController = entry.value;
+                        final Map<VotingFormField, String> votes = {};
+                        for (var votingFormFieldAndControllerEntry
+                            in votingFormFieldAndController.entries) {
+                          final votingFormField = votingFormFieldAndControllerEntry.key;
+                          final controller = votingFormFieldAndControllerEntry.value;
+                          if (controller.text.isNotEmpty) {
+                            // MODIFICATO: Non si fa più il parse a double, si prende il testo.
+                            votes.addAll({votingFormField: controller.text});
+                          } else {
+                            // Se anche un solo campo non è compilato per un partecipante,
+                            // non includiamo i voti per quel partecipante (a meno che non sia escluso).
+                            final isExcluded = votingFormAndWorkViews
+                                .firstWhere((v) =>
+                                    v.votingSessionParticipation == votingSessionParticipation)
+                                .isExcludedFromParticipant;
+                            if (!isExcluded) {
+                              votes.clear(); // Pulisce i voti parziali per questo partecipante
                               break;
                             }
                           }
-                          if (votes.isNotEmpty) {
-                            votesPerParticipantMap.addAll({votingSessionParticipation: votes});
-                          }
                         }
-                        context
-                            .read<JurorVotingProcedurePageBloc>()
-                            .add(JurorVotingProcedurePageSubmitVotes(
-                              votingSession: votingSession,
-                              geoResPlace: votingSessionBundle.geoResPlace,
-                              votesPerParticipantMap: votesPerParticipantMap,
-                            ));
-                      } else {
-                        showSnackBar(context: context, text: 'Fill all the fields');
+                        if (votes.isNotEmpty) {
+                          votesPerParticipantMap.addAll({votingSessionParticipation: votes});
+                        }
                       }
-                    },
-                    child: Text('Submit'),
-                  );
-              }
-            },
-          ),
+
+                      // Invia il nuovo evento semplificato.
+                      context
+                          .read<JurorVotingProcedurePageBloc>()
+                          .add(JurorVotingProcedurePageSubmitVotes(
+                            votesPerParticipantMap: votesPerParticipantMap,
+                          ));
+                    } else {
+                      showSnackBar(context: context, text: 'Fill all the fields');
+                    }
+                  },
+                  child: Text('Submit'),
+                )
+              : null,
+
+          // Builder(
+          //   builder: (
+          //     context,
+          //   ) {
+          //     if(state.isInitialized && (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus.isReview ?? false)) {
+          //       return FilledButton(onPressed: (){}, child: Text('Submit'),);
+          //     }
+          //
+          //     // switch (state.status) {
+          //     //   case BlocStatus.initial:
+          //     //     return VoidWidget();
+          //     //   case (BlocStatus.loading || BlocStatus.failure):
+          //     //     if (!state.isInitialized) {
+          //     //       return VoidWidget();
+          //     //     } else {
+          //     //       continue successCase;
+          //     //     }
+          //     //   successCase:
+          //     //   case BlocStatus.success:
+          //     //     final votingSessionBundle =
+          //     //         state.votingSessionProcedureBundle!.votingSessionBundle;
+          //     //     final votingSession = votingSessionBundle.votingSession;
+          //     //     if (!votingSession.sessionStatus.isReview) {
+          //     //       return VoidWidget();
+          //     //     }
+          //     //     return FilledButton(
+          //     //       onPressed: () {
+          //     //         if (reviewFormKey.currentState?.validate() ?? false) {
+          //     //           final Map<VotingSessionParticipation, Map<VotingFormField, double>>
+          //     //               votesPerParticipantMap = {};
+          //     //           for (var entry in votesMap.entries) {
+          //     //             final votingSessionParticipation = entry.key;
+          //     //             final votingFormFieldAndController = entry.value;
+          //     //             final Map<VotingFormField, double> votes = {};
+          //     //             for (var votingFormFieldAndControllerEntry
+          //     //                 in votingFormFieldAndController.entries) {
+          //     //               final votingFormField = votingFormFieldAndControllerEntry.key;
+          //     //               final controller = votingFormFieldAndControllerEntry.value;
+          //     //               if (controller.text.isNotEmpty) {
+          //     //                 votes.addAll({votingFormField: double.parse(controller.text)});
+          //     //               } else {
+          //     //                 break;
+          //     //               }
+          //     //             }
+          //     //             if (votes.isNotEmpty) {
+          //     //               votesPerParticipantMap.addAll({votingSessionParticipation: votes});
+          //     //             }
+          //     //           }
+          //     //           context
+          //     //               .read<JurorVotingProcedurePageBloc>()
+          //     //               .add(JurorVotingProcedurePageSubmitVotes(
+          //     //                 votingSession: votingSession,
+          //     //                 geoResPlace: votingSessionBundle.geoResPlace,
+          //     //                 votesPerParticipantMap: votesPerParticipantMap,
+          //     //               ));
+          //     //         } else {
+          //     //           showSnackBar(context: context, text: 'Fill all the fields');
+          //     //         }
+          //     //       },
+          //     //       child: Text('Submit'),
+          //     //     );
+          //     // }
+          //   },
+          // ),
         );
       },
     );

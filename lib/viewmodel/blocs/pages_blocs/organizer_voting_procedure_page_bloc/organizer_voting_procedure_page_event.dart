@@ -46,3 +46,10 @@ final class OrganizerVotingProcedurePageEndVotingSessionProcedure extends Organi
   @override
   List<Object?> get props => [votingSessionId];
 }
+
+final class OrganizerVotingProcedurePageAdvanceSession extends OrganizerVotingProcedurePageEvent {
+  const OrganizerVotingProcedurePageAdvanceSession();
+
+  @override
+  List<Object?> get props => [];
+}

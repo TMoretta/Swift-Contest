@@ -71,7 +71,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                     }
                   successCase:
                   case BlocStatus.success:
-                    final endedVotingSessions = state.contestDetailsBundle!.votingSessions
+                    final endedVotingSessions = state.contestDetailsBundle!.votingSessionsBundles.map((e) => e.votingSession)
                         .where((e) => e.sessionStatus.isEnded)
                         .toList(growable: false);
                     return Column(
@@ -263,12 +263,19 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                   }
                 successCase:
                 case BlocStatus.success:
-                  final liveVotingSession = state.contestDetailsBundle!.votingSessions
+                  final liveVotingSession = state.contestDetailsBundle!.votingSessionsBundles.map((e) => e.votingSession)
                       .where((e) => !e.sessionStatus.isEnded && !e.sessionStatus.isCancelled)
                       .singleOrNull;
                   if (liveVotingSession == null) {
                     return FloatingActionButton.extended(
                       onPressed: () async {
+                        for(var juryBundle in state.contestDetailsBundle!.juriesBundles) {
+                          if(juryBundle.votingFormBundle.votingFormFields.isEmpty) {
+                            showSnackBar(context: context, text: "Voting form of '${juryBundle.jury.name}' is empty. Add at least one field");
+                            return;
+                          }
+                        }
+
                         if (state.contestDetailsBundle!.juriesBundles
                             .map((e) => e.jurationsBundles)
                             .toList(growable: false)

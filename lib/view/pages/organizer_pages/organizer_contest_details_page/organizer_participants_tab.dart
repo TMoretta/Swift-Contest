@@ -105,15 +105,13 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                 RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(
-                                          OrganizerContestDetailsPageFetch(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                                   child: (participations.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No participant joined yet')
                                       : ListView.builder(
                                           itemCount: participations.length,
                                           itemBuilder: (context, index) {
-                                            final participationBundle =
-                                                participations[index];
+                                            final participationBundle = participations[index];
                                             return Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -141,9 +139,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                     subtitle: Text(
                                                       participationBundle
                                                           .participation.invitationEmail,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyMedium,
+                                                      style: Theme.of(context).textTheme.bodyMedium,
                                                     ),
                                                   ),
                                                 ),
@@ -158,8 +154,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                 RefreshIndicator.adaptive(
                                   onRefresh: () async => context
                                       .read<OrganizerContestDetailsPageBloc>()
-                                      .add(
-                                          OrganizerContestDetailsPageFetch(contestId: contestId)),
+                                      .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                                   child: (invitations.isEmpty)
                                       ? ListViewWithCentralLabel(label: 'No participant attended')
                                       : ListView.builder(
@@ -179,7 +174,10 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                     ),
                                                     trailing: IconButton(
                                                       onPressed: () {
-                                                        _showDeleteInvitationDialog(context: context, contestId: contestId, invitationId: invitation.id!);
+                                                        _showDeleteInvitationDialog(
+                                                            context: context,
+                                                            contestId: contestId,
+                                                            invitationId: invitation.id!);
                                                       },
                                                       icon: Icon(
                                                         Icons.remove,
@@ -205,7 +203,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
               ),
             ),
           ),
-          floatingActionButton: FilledButton.icon(
+          floatingActionButton: FloatingActionButton.extended(
             onPressed: () async {
               _showInviteDialog(context: context, contestId: contestId);
             },
@@ -377,7 +375,8 @@ void _showDeleteInvitationDialog({
                 TextButton(
                   onPressed: () {
                     context.read<OrganizerContestDetailsPageBloc>().add(
-                        OrganizerContestDetailsPageDeleteParticipantInvitation(participantInvitationId: invitationId));
+                        OrganizerContestDetailsPageDeleteParticipantInvitation(
+                            participantInvitationId: invitationId));
                   },
                   child: Text('Proceed'),
                 ),

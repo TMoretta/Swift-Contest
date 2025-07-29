@@ -29,18 +29,19 @@ abstract interface class JurorRepository {
     required String votingSessionId,
   });
 
-  Future<Either<Failure,VotingSessionJuration>> getOwnVotingSessionJuration({required String votingSessionId,});
+  Future<Either<Failure, VotingSessionJuration>> getOwnVotingSessionJuration({
+    required String votingSessionId,
+  });
 
-// Future<Either<Failure, Unit>> jurorSubmitVotes({
-//   required String votingSessionId,
-//   required String contestId,
-//   required Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap,
-// });
-//
-// Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
-//   required String votingSessionId,
-// });
-//
+  Future<Either<Failure, Unit>> submitVotes({
+    required String votingSessionId,
+    required List<Map<String,dynamic>> votesPayload,
+    required double? jurorLat,
+    required double? jurorLon,
+  });
+
+  Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId});
+
 // Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsSimpleJuror({
 //   required String fullName,
 //   required String token,
@@ -51,10 +52,6 @@ abstract interface class JurorRepository {
 //   required String votingSessionId,
 //   required String contestId,
 //   required Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap,
-// });
-//
-// Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
-//   required String votingSessionId,
 // });
 }
 
@@ -82,11 +79,13 @@ class JurorRepositoryImpl implements JurorRepository {
   }
 
   @override
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails(
-      {required String contestId,}) async {
+  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
+    required String contestId,
+  }) async {
     return handleDatabaseCall(
       () async {
-        final Map<String, dynamic> res = await _supabase.rpc('get_contest_details', params: {'p_contest_id': contestId}).single();
+        final Map<String, dynamic> res = await _supabase
+            .rpc('get_contest_details', params: {'p_contest_id': contestId}).single();
         return Either.right(ContestDetailsBundle.fromJson(res));
       },
     );
@@ -107,8 +106,8 @@ class JurorRepositoryImpl implements JurorRepository {
       return Either.left(eitherAccount.getLeft().toNullable()!);
     }
     final accountId = eitherAccount.getRight().toNullable()!.id;
-    final eitherDelete = await _jurationDao.deleteByContestIdAndJurorId(
-        contestId: contestId, jurorId: accountId);
+    final eitherDelete =
+        await _jurationDao.deleteByContestIdAndJurorId(contestId: contestId, jurorId: accountId);
     return eitherDelete.fold(
       (failure) => Either.left(failure),
       (success) => Either.right(unit),
@@ -120,7 +119,7 @@ class JurorRepositoryImpl implements JurorRepository {
     required String votingSessionId,
   }) async {
     return handleDatabaseCall(
-          () async {
+      () async {
         // 1. Chiama la funzione RPC.
         //    La funzione restituisce un singolo oggetto JSON, quindi usiamo .single().
         final res = await _supabase.rpc(
@@ -139,26 +138,26 @@ class JurorRepositoryImpl implements JurorRepository {
     required String votingSessionId,
   }) async {
     return handleDatabaseCall(
-          () async {
+      () async {
         final Stream<Either<Failure, VotingSession?>> stream = _supabase
             .from('voting_sessions')
             .stream(primaryKey: ['id']) // Specifica la chiave primaria della tabella
             .eq('id', votingSessionId) // Filtra per ricevere aggiornamenti solo per questa sessione
             .timeout(Duration(days: 1))
             .map((listOfMaps) {
-          // La stream emette una lista di mappe.
-          try {
-            if (listOfMaps.isEmpty) {
-              // Se la lista è vuota, la sessione è stata probabilmente cancellata.
-              return Either.right(null);
-            }
-            // Altrimenti, deserializza il primo (e unico) elemento.
-            return Either.right(VotingSession.fromJson(listOfMaps.first));
-          } catch (e) {
-            // In caso di errore di parsing, emetti un Failure.
-            return Either.left(Failure(e.toString()));
-          }
-        });
+              // La stream emette una lista di mappe.
+              try {
+                if (listOfMaps.isEmpty) {
+                  // Se la lista è vuota, la sessione è stata probabilmente cancellata.
+                  return Either.right(null);
+                }
+                // Altrimenti, deserializza il primo (e unico) elemento.
+                return Either.right(VotingSession.fromJson(listOfMaps.first));
+              } catch (e) {
+                // In caso di errore di parsing, emetti un Failure.
+                return Either.left(Failure(e.toString()));
+              }
+            });
         return Either.right(stream);
       },
     );
@@ -169,7 +168,7 @@ class JurorRepositoryImpl implements JurorRepository {
     required String votingSessionId,
   }) {
     return handleDatabaseCall(
-          () async {
+      () async {
         // Chiama la nuova funzione RPC che abbiamo creato.
         // Usiamo .single() perché ci aspettiamo esattamente un risultato.
         final res = await _supabase.rpc(
@@ -179,6 +178,40 @@ class JurorRepositoryImpl implements JurorRepository {
 
         // Deserializza il JSON ricevuto nell'oggetto Dart corrispondente.
         return Either.right(VotingSessionJuration.fromJson(res));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> submitVotes({
+    required String votingSessionId,
+    required List<Map<String,dynamic>> votesPayload,
+    required double? jurorLat,
+    required double? jurorLon,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        await _supabase.rpc('juror_submit_votes', params: {
+          'p_voting_session_id': votingSessionId,
+          'p_votes_payload': votesPayload,
+          'p_juror_lat': jurorLat,
+          'p_juror_lon': jurorLon,
+        });
+        return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId}) {
+    return handleDatabaseCall(
+          () async {
+        // Chiama la funzione RPC senza aspettarsi un ritorno.
+        await _supabase.rpc(
+          'organizer_advance_voting_session',
+          params: {'p_voting_session_id': votingSessionId},
+        );
+        return Either.right(unit);
       },
     );
   }

@@ -115,15 +115,17 @@ abstract interface class OrganizerRepository {
   });
 
   Future<Either<Failure, Unit>> startVotingSession({
-    required String votingSessionId,
+    required String votingSessionId
   });
 
+  Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId});
+
   Future<Either<Failure, Unit>> endVotingSession({
-    required String votingSessionId,
+    required String votingSessionId
   });
 
   Future<Either<Failure, Unit>> cancelVotingSession({
-    required String votingSessionId,
+    required String votingSessionId
   });
 
 // Future<Either<Failure, Unit>> updateVotingSessionName({
@@ -516,6 +518,20 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
           () async {
         await _supabase.rpc(
           'organizer_start_voting_session',
+          params: {'p_voting_session_id': votingSessionId},
+        );
+        return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId}) {
+    return handleDatabaseCall(
+          () async {
+        // Chiama la funzione RPC senza aspettarsi un ritorno.
+        await _supabase.rpc(
+          'organizer_advance_voting_session',
           params: {'p_voting_session_id': votingSessionId},
         );
         return Either.right(unit);

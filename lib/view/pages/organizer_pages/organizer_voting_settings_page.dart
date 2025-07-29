@@ -38,10 +38,9 @@ class OrganizerVotingSettingsPage extends StatefulWidget implements AutoRouteWra
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<OrganizerVotingSettingsPageBloc>(
-      create: (context) =>
-          OrganizerVotingSettingsPageBloc(
-            organizerRepository: context.read(),
-          ),
+      create: (context) => OrganizerVotingSettingsPageBloc(
+        organizerRepository: context.read(),
+      ),
       child: this,
     );
   }
@@ -62,7 +61,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
 
   bool areSimpleJurorsAllowed = false;
   final List<({JurationBundle jurationBundle, ParticipationBundle participationBundle})>
-  votingExclusions = [];
+      votingExclusions = [];
   Duration workTimer = Duration(minutes: 5, seconds: 0);
   Duration intermissionTimer = Duration(minutes: 1, seconds: 0);
   Duration reviewTimer = Duration(minutes: 5, seconds: 0);
@@ -89,14 +88,10 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context
-        .read<AuthBloc>()
-        .state
-        .profile!
-        .id!;
+    profileId = context.read<AuthBloc>().state.profile!.id!;
     context.read<OrganizerVotingSettingsPageBloc>().add(OrganizerVotingSettingsPageFetch(
-      contestId: contestId,
-    ));
+          contestId: contestId,
+        ));
   }
 
   @override
@@ -112,8 +107,6 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrganizerVotingSettingsPageBloc, OrganizerVotingSettingsPageState>(
@@ -128,17 +121,17 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         }
         if (state.status.isSuccess &&
             state.sourceEvent is OrganizerVotingSettingsPageInitVotingProcedure) {
-          context.router.replace(OrganizerVotingProcedureRoute(votingSessionId: state.votingSessionId!));
+          context.router
+              .replace(OrganizerVotingProcedureRoute(votingSessionId: state.votingSessionId!));
         }
       },
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
             title: 'Voting settings',
-            onRefresh: () =>
-                context
-                    .read<OrganizerVotingSettingsPageBloc>()
-                    .add(OrganizerVotingSettingsPageFetch(contestId: contestId)),
+            onRefresh: () => context
+                .read<OrganizerVotingSettingsPageBloc>()
+                .add(OrganizerVotingSettingsPageFetch(contestId: contestId)),
           ),
           body: SafeArea(
             child: Builder(
@@ -155,10 +148,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   case BlocStatus.failure:
                     if (!state.isInitialized) {
                       return RefreshIndicator.adaptive(
-                        onRefresh: () async =>
-                            context
-                                .read<OrganizerVotingSettingsPageBloc>()
-                                .add(OrganizerVotingSettingsPageFetch(contestId: contestId)),
+                        onRefresh: () async => context
+                            .read<OrganizerVotingSettingsPageBloc>()
+                            .add(OrganizerVotingSettingsPageFetch(contestId: contestId)),
                         child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
                       );
                     } else {
@@ -190,42 +182,27 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                             context
                                 .read<OrganizerVotingSettingsPageBloc>()
                                 .add(OrganizerVotingSettingsPageInitVotingProcedure(
-                              votingSession: VotingSession(id: null,
-                                createdAt: null,
-                                name: 'Voting ${createdAt.day.toString().padLeft(2, '0')}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.year}',
-                                contestId: contestId,
-                                areSimpleJurorsAllowed: areSimpleJurorsAllowed,
-                                workTimer: workTimer,
-                                intermissionTimer: intermissionTimer,
-                                reviewTimer: reviewTimer,
-                                token: null,
-                                isGeoRestricted: isGeoRestricted,
-                                geoResPlaceId: null,
-                                geoResRadius: (geoRestrictionRadiusController.text.isNotEmpty)
-                                    ? int.tryParse(geoRestrictionRadiusController.text)
-                                    : null,
-                                sessionStatus: VotingSessionStatus.initialized,
-                              ),
-                              geoResPlace: geoRestrictionPlace,
-                              participationsBundles: participationsBundles,
-                              votingExclusions: votingExclusions,
-                              // contestId: contestDetailsBundle.contestBundle.contest.id!,
-                              // areSimpleJurorsAllowed: areSimpleJurorsAllowed,
-                              // votingExclusions: votingExclusions,
-                              // participationsBundles: participationsBundles,
-                              // excludedParticipationsBundles: excludedParticipationsBundles,
-                              // workTimer: workTimer,
-                              // intermissionTimer: intermissionTimer,
-                              // reviewTimer: reviewTimer,
-                              // isGeoRestricted: isGeoRestricted,
-                              // geoRestrictionPlaceAddress: geoRestrictionPlace?.address,
-                              // geoRestrictionPlaceLat: geoRestrictionPlace?.lat,
-                              // geoRestrictionPlaceLon: geoRestrictionPlace?.lon,
-                              // geoRestrictionRadius:
-                              // (geoRestrictionRadiusController.text.isNotEmpty)
-                              //     ? int.tryParse(geoRestrictionRadiusController.text)
-                              //     : null,
-                            ));
+                                  votingSession: VotingSession(
+                                    id: null,
+                                    createdAt: null,
+                                    name:
+                                        'Voting ${createdAt.day.toString().padLeft(2, '0')}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.year}',
+                                    contestId: contestId,
+                                    areSimpleJurorsAllowed: areSimpleJurorsAllowed,
+                                    workTimer: workTimer,
+                                    intermissionTimer: intermissionTimer,
+                                    reviewTimer: reviewTimer,
+                                    isGeoRestricted: isGeoRestricted,
+                                    geoResPlaceId: null,
+                                    geoResRadius: (geoRestrictionRadiusController.text.isNotEmpty)
+                                        ? int.tryParse(geoRestrictionRadiusController.text)
+                                        : null,
+                                    sessionStatus: VotingSessionStatus.initialized,
+                                  ),
+                                  geoResPlace: geoRestrictionPlace,
+                                  participationsBundles: participationsBundles,
+                                  votingExclusions: votingExclusions,
+                                ));
                           } else {
                             setState(() => ++currentStep);
                           }
@@ -270,8 +247,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   }
 
   //* Steps
-  List<Step> getSteps() =>
-      [
+  List<Step> getSteps() => [
         //* First step
         Step(
           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
@@ -289,109 +265,97 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     //* Included participants
                     Text(
                       'Participants',
-                      style: Theme
-                          .of(context)
+                      style: Theme.of(context)
                           .textTheme
                           .titleMedium
-                          ?.copyWith(color: Theme
-                          .of(context)
-                          .colorScheme
-                          .secondary),
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                     ),
                     (participationsBundles.isNotEmpty)
                         ? ReorderableListView(
-                      shrinkWrap: true,
-                      onReorder: (oldIndex, newIndex) {
-                        setState(() {
-                          if (oldIndex < newIndex) {
-                            newIndex -= 1;
-                          }
-                          final ParticipationBundle ppw =
-                          participationsBundles.removeAt(oldIndex);
-                          participationsBundles.insert(newIndex, ppw);
-                        });
-                      },
-                      children: [
-                        for (var i = 0; i < participationsBundles.length; i++)
-                          Card(
-                            key: ValueKey(participationsBundles[i].participation.id),
-                            elevation: 0.05,
-                            child: ListTile(
-                              onTap: () {},
-                              title: Text(participationsBundles[i].participant.fullName),
-                              subtitle: Text(participationsBundles[i].work!.name),
-                              leading: Icon(Icons.swap_vert),
-                              trailing: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    excludedParticipationsBundles
-                                        .add(participationsBundles[i]);
-                                    participationsBundles.removeAt(i);
-                                  });
-                                },
-                                icon: Icon(Icons.remove),
-                              ),
-                            ),
-                          ),
-                      ],
-                    )
+                            shrinkWrap: true,
+                            onReorder: (oldIndex, newIndex) {
+                              setState(() {
+                                if (oldIndex < newIndex) {
+                                  newIndex -= 1;
+                                }
+                                final ParticipationBundle ppw =
+                                    participationsBundles.removeAt(oldIndex);
+                                participationsBundles.insert(newIndex, ppw);
+                              });
+                            },
+                            children: [
+                              for (var i = 0; i < participationsBundles.length; i++)
+                                Card(
+                                  key: ValueKey(participationsBundles[i].participation.id),
+                                  elevation: 0.05,
+                                  child: ListTile(
+                                    onTap: () {},
+                                    title: Text(participationsBundles[i].participant.fullName),
+                                    subtitle: Text(participationsBundles[i].work!.name),
+                                    leading: Icon(Icons.swap_vert),
+                                    trailing: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          excludedParticipationsBundles
+                                              .add(participationsBundles[i]);
+                                          participationsBundles.removeAt(i);
+                                        });
+                                      },
+                                      icon: Icon(Icons.remove),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          )
                         : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('No participant included'),
-                        if (field.hasError)
-                          Text(
-                            'Select at least one participant',
-                            style: Theme
-                                .of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: Theme
-                                .of(context)
-                                .colorScheme
-                                .error),
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('No participant included'),
+                              if (field.hasError)
+                                Text(
+                                  'Select at least one participant',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(color: Theme.of(context).colorScheme.error),
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
                     SizedBox(height: 64),
                     //* Excluded participants
                     Text(
                       'Excluded participants',
-                      style: Theme
-                          .of(context)
+                      style: Theme.of(context)
                           .textTheme
                           .titleMedium
-                          ?.copyWith(color: Theme
-                          .of(context)
-                          .colorScheme
-                          .secondary),
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                     ),
                     (excludedParticipationsBundles.isNotEmpty)
                         ? ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: excludedParticipationsBundles.length,
-                      itemBuilder: (context, index) {
-                        final excludedParticipationBundle =
-                        excludedParticipationsBundles[index];
-                        return Card(
-                          elevation: 0.05,
-                          child: ListTile(
-                            title: Text(excludedParticipationBundle.participant.fullName),
-                            subtitle: Text(excludedParticipationBundle.work!.name),
-                            trailing: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  participationsBundles.add(excludedParticipationBundle);
-                                  excludedParticipationsBundles.removeAt(index);
-                                });
-                              },
-                              icon: Icon(Icons.add),
-                            ),
-                          ),
-                        );
-                      },
-                    )
+                            shrinkWrap: true,
+                            itemCount: excludedParticipationsBundles.length,
+                            itemBuilder: (context, index) {
+                              final excludedParticipationBundle =
+                                  excludedParticipationsBundles[index];
+                              return Card(
+                                elevation: 0.05,
+                                child: ListTile(
+                                  title: Text(excludedParticipationBundle.participant.fullName),
+                                  subtitle: Text(excludedParticipationBundle.work!.name),
+                                  trailing: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        participationsBundles.add(excludedParticipationBundle);
+                                        excludedParticipationsBundles.removeAt(index);
+                                      });
+                                    },
+                                    icon: Icon(Icons.add),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
                         : Text('No participant excluded'),
                   ],
                 );
@@ -510,14 +474,11 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
               children: [
                 Text(
                   'Geo restricted',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 RadioListTile<bool>(
-                  title: Text('True'),
-                  value: true,
+                  title: Text('False'),
+                  value: false,
                   groupValue: isGeoRestricted,
                   onChanged: (value) {
                     if (value != null) {
@@ -528,8 +489,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   },
                 ),
                 RadioListTile<bool>(
-                  title: Text('False'),
-                  value: false,
+                  title: Text('True'),
+                  value: true,
                   groupValue: isGeoRestricted,
                   onChanged: (value) {
                     if (value != null) {
@@ -550,12 +511,12 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   suffixIcon: TextButton(
                     onPressed: (isGeoRestricted)
                         ? () async {
-                      final Place? place = await context.router.push(PlaceSearchRoute());
-                      if (place != null) {
-                        geoRestrictionPlaceController.text = place.address;
-                        geoRestrictionPlace = place;
-                      }
-                    }
+                            final Place? place = await context.router.push(PlaceSearchRoute());
+                            if (place != null) {
+                              geoRestrictionPlaceController.text = place.address;
+                              geoRestrictionPlace = place;
+                            }
+                          }
                         : null,
                     child: Text('Select'),
                   ),
@@ -566,7 +527,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   enabled: isGeoRestricted,
                   controller: geoRestrictionRadiusController,
                   focusNode: geoRestrictionRadiusFocusNode,
-                  label: 'Restriction radius',
+                  label: 'Restriction radius (mt)',
                   validator: (isGeoRestricted) ? integerValidator : null,
                 ),
               ],
@@ -586,10 +547,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
               children: [
                 Text(
                   'Who can vote?',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 RadioListTile<bool>.adaptive(
                   title: Text('Only invited jurors'),
@@ -617,89 +575,72 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   children: [
                     Text(
                       'Voting exclusions',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],
                 ),
                 SizedBox(height: 4),
                 (votingExclusions.isNotEmpty)
                     ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: votingExclusions.length,
-                  itemBuilder: (context, index) {
-                    final votingExclusion = votingExclusions[index];
-                    return Card(
-                      elevation: 0,
-                      child: ListTile(
-                        title: Row(
-                          children: [
-                            Text(
-                              'Juror: ',
-                              style: Theme
-                                  .of(context)
-                                  .textTheme
-                                  .labelLarge,
+                        shrinkWrap: true,
+                        itemCount: votingExclusions.length,
+                        itemBuilder: (context, index) {
+                          final votingExclusion = votingExclusions[index];
+                          return Card(
+                            elevation: 0,
+                            child: ListTile(
+                              title: Row(
+                                children: [
+                                  Text(
+                                    'Juror: ',
+                                    style: Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  Text(votingExclusion.jurationBundle.juror.fullName),
+                                  Text(
+                                    ' | ',
+                                    style: Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  Text(juries
+                                      .where((e) =>
+                                          votingExclusion.jurationBundle.juration.juryId == e.id)
+                                      .first
+                                      .name),
+                                ],
+                              ),
+                              subtitle: Row(
+                                children: [
+                                  Text(
+                                    'Participant: ',
+                                    style: Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  Text(votingExclusion.participationBundle.participant.fullName),
+                                ],
+                              ),
+                              titleTextStyle: Theme.of(context).textTheme.bodyMedium,
+                              subtitleTextStyle: Theme.of(context).textTheme.bodyMedium,
+                              trailing: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      votingExclusions.removeAt(index);
+                                    });
+                                  },
+                                  icon: Icon(Icons.remove)),
                             ),
-                            Text(votingExclusion.jurationBundle.juror.fullName),
-                            Text(
-                              ' | ',
-                              style: Theme
-                                  .of(context)
-                                  .textTheme
-                                  .labelLarge,
-                            ),
-                            Text(juries
-                                    .where((e) =>
-                                votingExclusion.jurationBundle.juration.juryId ==
-                                    e.id)
-                                    .first
-                                    .name),
-                          ],
-                        ),
-                        subtitle: Row(
-                          children: [
-                            Text(
-                              'Participant: ',
-                              style: Theme
-                                  .of(context)
-                                  .textTheme
-                                  .labelLarge,
-                            ),
-                            Text(votingExclusion.participationBundle.participant.fullName),
-                          ],
-                        ),
-                        titleTextStyle: Theme
-                            .of(context)
-                            .textTheme
-                            .bodyMedium,
-                        subtitleTextStyle: Theme
-                            .of(context)
-                            .textTheme
-                            .bodyMedium,
-                        trailing: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                votingExclusions.removeAt(index);
-                              });
-                            },
-                            icon: Icon(Icons.remove)),
-                      ),
-                    );
-                  },
-                )
+                          );
+                        },
+                      )
                     : Text('No exclusion added'),
                 SizedBox(height: 12),
                 FilledButton(
                   onPressed: () async {
-                    final ({JurationBundle jurationBundle, ParticipationBundle participationBundle})? votingExclusion =
-                    await _showAddVotingExclusionDialog(
+                    final ({
+                      JurationBundle jurationBundle,
+                      ParticipationBundle participationBundle
+                    })? votingExclusion = await _showAddVotingExclusionDialog(
                         context: context,
                         participationsBundles: participationsBundles,
                         jurationsBundles: jurationsBundles,
-                    juries: juries);
+                        juries: juries);
                     if (votingExclusion == null) {
                       return;
                     }
@@ -723,20 +664,13 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     });
                   },
                   style: FilledButton.styleFrom(
-                      backgroundColor: Theme
-                          .of(context)
-                          .colorScheme
-                          .tertiary),
+                      backgroundColor: Theme.of(context).colorScheme.tertiary),
                   child: Text(
                     'Add',
-                    style: Theme
-                        .of(context)
+                    style: Theme.of(context)
                         .textTheme
                         .bodyMedium
-                        ?.copyWith(color: Theme
-                        .of(context)
-                        .colorScheme
-                        .onTertiary),
+                        ?.copyWith(color: Theme.of(context).colorScheme.onTertiary),
                   ),
                 ),
               ],
@@ -755,49 +689,40 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
               children: [
                 Text(
                   'Work timer',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 SizedBox(height: 6),
                 TimerPickerFormField(
                   minutes: 5,
                   seconds: 0,
                   onChanged: (minutes, seconds) =>
-                  workTimer = Duration(minutes: minutes, seconds: seconds),
+                      workTimer = Duration(minutes: minutes, seconds: seconds),
                   validator: (_) => _timersValidator(workTimer),
                 ),
                 SizedBox(height: 20),
                 Text(
                   'Intermission timer',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 SizedBox(height: 6),
                 TimerPickerFormField(
                   minutes: 1,
                   seconds: 0,
                   onChanged: (minutes, seconds) =>
-                  intermissionTimer = Duration(minutes: minutes, seconds: seconds),
+                      intermissionTimer = Duration(minutes: minutes, seconds: seconds),
                   validator: (_) => _timersValidator(intermissionTimer),
                 ),
                 SizedBox(height: 20),
                 Text(
                   'Review timer',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 SizedBox(height: 6),
                 TimerPickerFormField(
                   minutes: 5,
                   seconds: 0,
                   onChanged: (minutes, seconds) =>
-                  reviewTimer = Duration(minutes: minutes, seconds: seconds),
+                      reviewTimer = Duration(minutes: minutes, seconds: seconds),
                   validator: (_) => _timersValidator(reviewTimer),
                 ),
               ],
@@ -807,14 +732,13 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
       ];
 }
 
-Future<
-    ({JurationBundle jurationBundle, ParticipationBundle participationBundle})?> _showAddVotingExclusionDialog(
-    {
-      required BuildContext context,
-      required List<ParticipationBundle> participationsBundles,
-      required List<JurationBundle> jurationsBundles,
-      required List<Jury> juries,
-    }) async {
+Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle})?>
+    _showAddVotingExclusionDialog({
+  required BuildContext context,
+  required List<ParticipationBundle> participationsBundles,
+  required List<JurationBundle> jurationsBundles,
+  required List<Jury> juries,
+}) async {
   return await showDialog(
     context: context,
     builder: (context) {
@@ -830,10 +754,7 @@ Future<
               children: [
                 Text(
                   'Juror',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 DropdownMenu(
                   enableSearch: false,
@@ -847,18 +768,15 @@ Future<
                   dropdownMenuEntries: [
                     for (var element in jurationsBundles)
                       DropdownMenuEntry(
-                        value: element,
-                        label: '${element.juror.fullName} | ${juries.where((e) => e.id == element.juration.juryId).first.name}'
-                      ),
+                          value: element,
+                          label:
+                              '${element.juror.fullName} | ${juries.where((e) => e.id == element.juration.juryId).first.name}'),
                   ],
                 ),
                 SizedBox(height: 8),
                 Text(
                   'Participant',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 DropdownMenu(
                   enableSearch: false,
@@ -889,8 +807,10 @@ Future<
                     showSnackBar(context: context, text: 'Fill all the fields');
                     return;
                   }
-                  context.router.pop(
-                      (jurationBundle: chosenJurationBundle, participationBundle: chosenParticipationBundle));
+                  context.router.pop((
+                    jurationBundle: chosenJurationBundle,
+                    participationBundle: chosenParticipationBundle
+                  ));
                 },
                 child: Text('Add'),
               ),

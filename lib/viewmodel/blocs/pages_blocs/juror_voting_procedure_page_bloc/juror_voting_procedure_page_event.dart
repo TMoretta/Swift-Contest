@@ -17,20 +17,19 @@ final class JurorVotingProcedurePageFetch
 }
 
 final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {
-  final VotingSession votingSession;
-  final Place? geoResPlace;
-  final Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap;
+  final Map<VotingSessionParticipation, Map<VotingFormField, String>> votesPerParticipantMap;
 
   const JurorVotingProcedurePageSubmitVotes({
-    required this.votingSession,
-    this.geoResPlace,
     required this.votesPerParticipantMap,
   });
 
   @override
-  List<Object?> get props => [
-        votingSession,
-        geoResPlace,
-        votesPerParticipantMap,
-      ];
+  List<Object?> get props => [votesPerParticipantMap];
+}
+
+final class JurorVotingProcedurePageAdvanceSession extends JurorVotingProcedurePageEvent {
+  const JurorVotingProcedurePageAdvanceSession();
+
+  @override
+  List<Object?> get props => [];
 }

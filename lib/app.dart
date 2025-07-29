@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -43,7 +42,7 @@ class _AppState extends State<App> {
       labelMedium: bodyTextTheme.labelMedium,
       labelSmall: bodyTextTheme.labelSmall,
     );
-    textTheme.apply(fontSizeDelta: 1.2, fontFamilyFallback: ['sans-serif']);
+    textTheme = textTheme.apply(fontSizeDelta: 1.2, fontFamilyFallback: ['sans-serif']);
     _materialTheme = MaterialTheme(textTheme: textTheme);
   }
 

@@ -77,31 +77,34 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
         } else {
           context.hideLoader();
         }
-        if(state.status.isSuccess && state.sourceEvent is OrganizerVotingProcedurePageEndVotingSessionProcedure) {
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerVotingProcedurePageEndVotingSessionProcedure) {
           showSnackBar(context: context, text: 'Voting session ended successfully');
           context.router.pop();
           return;
         }
-        if(state.status.isSuccess && state.sourceEvent is OrganizerVotingProcedurePageCancelVotingSessionProcedure) {
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerVotingProcedurePageCancelVotingSessionProcedure) {
           showSnackBar(context: context, text: 'Voting session cancelled successfully');
           context.router.pop();
           return;
         }
-        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isEnded) {
+        if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus
+                .isEnded ??
+            false) {
           showSnackBar(context: context, text: 'Voting session ended successfully');
-          context.router.pop();
-          return;
-        }
-        if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isCancelled) {
-          showSnackBar(context: context, text: 'Voting session cancelled successfully');
           context.router.pop();
           return;
         }
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Voting',
-          onRefresh: () => context.read<OrganizerVotingProcedurePageBloc>().add(OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId)),),
+          appBar: CustomAppBar(
+            title: 'Voting',
+            onRefresh: () => context
+                .read<OrganizerVotingProcedurePageBloc>()
+                .add(OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId)),
+          ),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -149,7 +152,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                     children: [
                                       if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
                                         Text(
-                                          'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                          'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
                                           textAlign: TextAlign.center,
                                           style: Theme.of(context).textTheme.titleMedium,
                                         ),
@@ -172,14 +175,15 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                     votingSessionBundle.votingSession.currentStepDeadline!;
                                 final currentParticipantIndex =
                                     votingSessionBundle.votingSession.currentParticipantIndex!;
-                                final currentVotingSessionParticipation = votingSessionProcedureBundle
-                                    .votingSessionParticipations[currentParticipantIndex];
+                                final currentVotingSessionParticipation =
+                                    votingSessionProcedureBundle
+                                        .votingSessionParticipations[currentParticipantIndex];
                                 return ListView(
                                   children: [
                                     SizedBox(height: 16),
                                     if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
                                       Text(
-                                        'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                        'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
                                         textAlign: TextAlign.center,
                                         style: Theme.of(context).textTheme.titleMedium,
                                       ),
@@ -189,14 +193,21 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                       child: CustomTimerCountdown(
                                         label: 'Jurors are voting',
                                         endTime: currentStepDeadline,
+                                        onEnd: () => context
+                                            .read<OrganizerVotingProcedurePageBloc>()
+                                            .add(
+                                                const OrganizerVotingProcedurePageAdvanceSession()),
                                       ),
                                     ),
                                     Divider(height: 24),
                                     VotingProcedureWorkDetailsView(
                                       workName: currentVotingSessionParticipation.workName,
-                                      workDescription: currentVotingSessionParticipation.workDescription,
-                                      participantFullName: currentVotingSessionParticipation.participantFullName,
-                                      workImagesUrls: currentVotingSessionParticipation.workImagesUrls,
+                                      workDescription:
+                                          currentVotingSessionParticipation.workDescription,
+                                      participantFullName:
+                                          currentVotingSessionParticipation.participantFullName,
+                                      workImagesUrls:
+                                          currentVotingSessionParticipation.workImagesUrls,
                                     ),
                                     SizedBox(height: 72),
                                   ],
@@ -210,16 +221,21 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                     children: [
                                       if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
                                         Text(
-                                          'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                          'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
                                           style: Theme.of(context).textTheme.titleMedium,
                                           textAlign: TextAlign.center,
                                         ),
                                       if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
                                         SizedBox(height: 16),
                                       CustomTimerCountdown(
-                                          key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
-                                          label: 'Intermission',
-                                          endTime: currentStepDeadline),
+                                        key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
+                                        label: 'Intermission',
+                                        onEnd: () => context
+                                            .read<OrganizerVotingProcedurePageBloc>()
+                                            .add(
+                                                const OrganizerVotingProcedurePageAdvanceSession()),
+                                        endTime: currentStepDeadline,
+                                      ),
                                     ],
                                   ),
                                 );
@@ -232,16 +248,21 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                     children: [
                                       if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
                                         Text(
-                                          'Simple juror access token:\n${votingSessionProcedureBundle.votingSessionBundle.votingSession.token}',
+                                          'Simple juror access token:\n${votingSessionProcedureBundle.contestToken}',
                                           style: Theme.of(context).textTheme.titleMedium,
                                           textAlign: TextAlign.center,
                                         ),
                                       if (votingSessionBundle.votingSession.areSimpleJurorsAllowed)
                                         SizedBox(height: 16),
                                       CustomTimerCountdown(
-                                          key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
-                                          label: 'Jurors are reviewing',
-                                          endTime: currentStepDeadline),
+                                        key: ValueKey(currentStepDeadline.millisecondsSinceEpoch),
+                                        label: 'Jurors are reviewing',
+                                        onEnd: () => context
+                                            .read<OrganizerVotingProcedurePageBloc>()
+                                            .add(
+                                                const OrganizerVotingProcedurePageAdvanceSession()),
+                                        endTime: currentStepDeadline,
+                                      ),
                                     ],
                                   ),
                                 );

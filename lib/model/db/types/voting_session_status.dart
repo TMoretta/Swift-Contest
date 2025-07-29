@@ -4,7 +4,7 @@ enum VotingSessionStatus {
   intermission,
   review,
   ended,
-  cancelled,
+  cancelled
 }
 
 extension VotingSessionStatusX on VotingSessionStatus {

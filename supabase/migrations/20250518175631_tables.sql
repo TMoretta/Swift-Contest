@@ -118,7 +118,6 @@ CREATE TABLE voting_sessions (
   work_timer int NOT NULL,
   intermission_timer int NOT NULL,
   review_timer int NOT NULL,
-  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('voting_sessions', 'token', 14),
   is_geo_restricted bool NOT NULL,
   geo_res_place_id uuid UNIQUE REFERENCES places (id),
   geo_res_radius int,

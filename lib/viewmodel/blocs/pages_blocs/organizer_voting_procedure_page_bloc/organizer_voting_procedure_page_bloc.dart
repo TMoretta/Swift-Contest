@@ -24,6 +24,7 @@ class OrganizerVotingProcedurePageBloc
         super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
     on<OrganizerVotingProcedurePageFetch>(_fetch);
     on<OrganizerVotingProcedurePageStartVotingSessionProcedure>(_startVotingProcedure);
+    on<OrganizerVotingProcedurePageAdvanceSession>(_advanceSession);
     on<OrganizerVotingProcedurePageCancelVotingSessionProcedure>(_cancelVotingSessionProcedure);
     on<OrganizerVotingProcedurePageEndVotingSessionProcedure>(_endVotingSessionProcedure);
   }
@@ -136,6 +137,19 @@ class OrganizerVotingProcedurePageBloc
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
+  }
+
+  FutureOr<void> _advanceSession(
+      OrganizerVotingProcedurePageAdvanceSession event,
+      Emitter<OrganizerVotingProcedurePageState> emit,
+      ) async {
+    // Non è necessario emettere uno stato di loading,
+    // perché la chiamata è "fire-and-forget".
+    // La UI si aggiornerà da sola grazie allo stream realtime.
+    await _organizerRepository.advanceVotingSession(
+      votingSessionId: state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.id!,
+    );
+    // Non facciamo nulla dopo la chiamata. Lo stream farà il suo lavoro.
   }
 
   FutureOr<void> _cancelVotingSessionProcedure(

@@ -4,8 +4,9 @@ import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 class CustomTimerCountdown extends StatelessWidget {
   final String label;
   final DateTime endTime;
+  final VoidCallback? onEnd;
 
-  const CustomTimerCountdown({required this.label, required this.endTime, super.key});
+  const CustomTimerCountdown({required this.label, required this.endTime, this.onEnd, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +26,7 @@ class CustomTimerCountdown extends StatelessWidget {
               ),
               SizedBox(height: 8),
               TimerCountdown(
+                onEnd: onEnd,
                 endTime: endTime,
                 format: CountDownTimerFormat.hoursMinutesSeconds,
                 timeTextStyle: Theme.of(context)

@@ -28,4 +28,4 @@ CREATE TYPE voting_session_status AS enum(
 CREATE TYPE voting_form_field_type AS enum(
   'textual',
   'numeric'
-)
+);

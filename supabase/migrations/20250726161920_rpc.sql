@@ -85,7 +85,7 @@ RETURNS TABLE (
   participations_bundles jsonb,
   participants_invitations jsonb,
   juries_bundles jsonb,
-  voting_sessions jsonb
+  voting_sessions_bundles jsonb -- MODIFICATO: Il nome della colonna ora corrisponde al JSON
 )
 LANGUAGE plpgsql
 STABLE
@@ -132,10 +132,21 @@ BEGIN
       )
       FROM public.juries j WHERE j.contest_id = p_contest_id
     ), '[]'::jsonb),
-    -- 5. voting_sessions
-    COALESCE((SELECT jsonb_agg(to_jsonb(vs)) FROM public.voting_sessions vs WHERE vs.contest_id = p_contest_id), '[]'::jsonb);
+    -- 5. voting_sessions_bundles -- MODIFICATO: Ora costruisce il bundle corretto
+    COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'voting_session', to_jsonb(vs),
+          'geo_res_place', to_jsonb(pl)
+        ) ORDER BY vs.created_at DESC
+      )
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.contest_id = p_contest_id
+    ), '[]'::jsonb);
 END;
 $$;
+--endregion
 
 
 --region CREATE CONTEST
@@ -586,7 +597,7 @@ BEGIN
     -- Se l'utente è già iscritto, l'operazione è idempotente.
     -- Cancello comunque l'invito per pulizia e termino con successo.
     DELETE FROM public.participant_invitations WHERE id = v_invitation.id;
-    RETURN;
+    RAISE EXCEPTION 'You are already a participant in this contest. Invitation token deleted';
   END IF;
 
   -- 4. Crea la nuova riga nella tabella 'participations'.
@@ -895,7 +906,7 @@ BEGIN
     -- Se l'utente è già iscritto, l'operazione è idempotente.
     -- Cancello comunque l'invito per pulizia e termino con successo.
     DELETE FROM public.juror_invitations WHERE id = v_invitation.id;
-    RETURN;
+    RAISE EXCEPTION 'You are already a juror in this contest. Invitation token deleted';
   END IF;
 
   -- 4. Crea la nuova riga nella tabella 'jurations'.
@@ -1027,6 +1038,14 @@ BEGIN
       SELECT COALESCE(jsonb_agg(to_jsonb(vse)), '[]'::jsonb)
       FROM public.voting_session_exclusions vse
       WHERE vse.voting_session_id = p_voting_session_id
+    ),
+
+    -- 5. 'contest_token'
+    'contest_token', (
+      SELECT c.token
+      FROM public.voting_sessions vs
+      JOIN public.contests c ON vs.contest_id = c.id
+      WHERE vs.id = p_voting_session_id
     )
 
   )
@@ -1037,137 +1056,112 @@ END;
 $$;
 --endregion
 
---region ORGANIZER START VOTING SESSION
+--region ORGANIZER START VOTING SESSION (CLIENT-TRIGGERED)
 CREATE OR REPLACE FUNCTION organizer_start_voting_session (
   p_voting_session_id uuid
 )
-RETURNS void AS $$
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER -- Permette di modificare lo stato indipendentemente da chi la chiama.
+AS $$
 DECLARE
-  v_organizer_id uuid;
   v_voting_session voting_sessions;
   v_work_timer interval;
-  v_job_name text := 'voting_session_' || p_voting_session_id;
 BEGIN
-
   SELECT * INTO v_voting_session
-  FROM voting_sessions
+  FROM public.voting_sessions
   WHERE id = p_voting_session_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Voting session not found';
   END IF;
 
-  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
-    RAISE EXCEPTION 'Voting session already ended or cancelled';
+  IF v_voting_session.session_status <> 'initialized' THEN
+    RAISE EXCEPTION 'La sessione può essere avviata solo se è in stato "initialized".';
   END IF;
 
-  SELECT work_timer * INTERVAL '1 seconds'
-  INTO v_work_timer
-  FROM voting_sessions
-  WHERE id = p_voting_session_id;
+  -- Calcola il primo timer
+  v_work_timer := v_voting_session.work_timer * interval '1 second';
 
-  UPDATE voting_sessions
+  -- Imposta lo stato iniziale della procedura
+  UPDATE public.voting_sessions
   SET
-    session_status = 'work'::voting_session_status,
+    session_status = 'work',
     current_participant_index = 0,
     current_step_deadline = now() + v_work_timer
   WHERE id = p_voting_session_id;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while starting the voting session';
-  END IF;
-
-  -- Schedule a cron job for this session
-  PERFORM cron.schedule(
-    v_job_name,
-    '2 seconds',
-    format($fmt$ SELECT public.organizer_advance_voting_session('%s'); $fmt$,
-      p_voting_session_id
-    )
-  );
 END;
-$$ LANGUAGE plpgsql SECURITY definer;
+$$;
+--endregion
 
---region ORGANIZER ADVANCE VOTING SESSION
+--region ORGANIZER ADVANCE VOTING SESSION (CLIENT-TRIGGERED)
+-- Avanza lo stato di una sessione di voto.
+-- Progettata per essere chiamata dal client quando un timer scade.
+-- È sicura contro chiamate multiple (race conditions).
 CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
   p_voting_session_id uuid
 )
-RETURNS void AS $$
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 DECLARE
   v_session voting_sessions;
   v_next_index int;
   v_next_status text;
   v_delay interval;
-  v_count int;
-  v_job_name text;
+  v_participants_count int;
   v_timers record;
 BEGIN
-
+  -- Recupera lo stato attuale della sessione per evitare race condition.
+  -- FOR UPDATE blocca la riga per prevenire modifiche concorrenti.
   SELECT *
   INTO v_session
-  FROM voting_sessions
-  WHERE id = p_voting_session_id;
+  FROM public.voting_sessions
+  WHERE id = p_voting_session_id
+  FOR UPDATE;
 
-  RAISE NOTICE 'Current status: %', v_session.session_status;
+  -- Se la sessione non esiste o è già finita, non fare nulla.
+  IF NOT FOUND OR v_session.session_status = 'ended' THEN
+    RETURN;
+  END IF;
 
-  IF v_session.session_status <> 'ended' AND v_session.session_status <> 'cancelled' AND v_session.current_step_deadline <= now() THEN
-    -- Prendo i timer dalla tabella principale
-    SELECT work_timer, intermission_timer, review_timer
-    INTO v_timers
-    FROM voting_sessions
-    WHERE id = p_voting_session_id;
+  -- CONTROLLO CHIAVE: Esegui la logica solo se il timer è effettivamente scaduto.
+  IF v_session.current_step_deadline <= now() THEN
+    -- Prendi i timer e il numero di partecipanti
+    SELECT work_timer, intermission_timer, review_timer INTO v_timers FROM public.voting_sessions WHERE id = p_voting_session_id;
+    SELECT COUNT(*) INTO v_participants_count FROM public.voting_session_participations WHERE voting_session_id = v_session.id;
 
-    -- Numero di partecipanti
-    SELECT COUNT(*) INTO v_count
-    FROM voting_session_participations
-    WHERE voting_session_id = v_session.id;
-
-    -- Diversifico per step corrente
+    -- Calcola il prossimo stato in base a quello attuale.
     IF v_session.session_status = 'work' THEN
-      -- Work finito → intermission su *stesso* indice
       v_next_status := 'intermission';
-      v_delay     := v_timers.intermission_timer  * INTERVAL '1 seconds';
+      v_delay       := v_timers.intermission_timer * interval '1 second';
       v_next_index  := v_session.current_participant_index;
 
     ELSIF v_session.session_status = 'intermission' THEN
-      -- Intermission finito → se ci sono altri partecipanti, vai a work+1,
-      -- altrimenti entri in review
-      IF (v_session.current_participant_index + 1) < v_count THEN
+      IF (v_session.current_participant_index + 1) < v_participants_count THEN
         v_next_status := 'work';
-        v_delay     := v_timers.work_timer  * INTERVAL '1 seconds';
+        v_delay       := v_timers.work_timer * interval '1 second';
         v_next_index  := v_session.current_participant_index + 1;
       ELSE
         v_next_status := 'review';
-        v_delay     := v_timers.review_timer * INTERVAL '1 seconds';
+        v_delay       := v_timers.review_timer * interval '1 second';
         v_next_index  := NULL;
       END IF;
 
     ELSIF v_session.session_status = 'review' THEN
-      -- Review finita → ended
       v_next_status := 'ended';
-      v_delay     := NULL;
-      v_next_index  := NULL;
-
-    ELSE
-      -- (non dovrebbe capitare) fallback alla fine
-      v_next_status := 'cancelled';
-      v_delay     := NULL;
+      v_delay       := NULL;
       v_next_index  := NULL;
     END IF;
 
-    -- Se passo a end o cancelled, unschedule + update
-    IF v_next_status = 'cancelled' OR v_next_status = 'ended' THEN
-      v_job_name := 'voting_session_' || v_session.id;
-      PERFORM cron.unschedule(v_job_name);
-      UPDATE voting_sessions
-      SET
-        session_status = v_next_status::voting_session_status,
-        current_participant_index = NULL,
-        current_step_deadline = NULL
+    -- Aggiorna lo stato della sessione.
+    IF v_next_status = 'ended' THEN
+      UPDATE public.voting_sessions
+      SET session_status = 'ended', current_participant_index = NULL, current_step_deadline = NULL
       WHERE id = v_session.id;
     ELSE
-      -- Altrimenti aggiorno lo stato
-      UPDATE voting_sessions
+      UPDATE public.voting_sessions
       SET
         current_participant_index = v_next_index,
         session_status = v_next_status::voting_session_status,
@@ -1176,41 +1170,17 @@ BEGIN
     END IF;
   END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY definer;
+$$;
+--endregion
 
---region ORGANIZER END VOTING SESSION
-CREATE OR REPLACE FUNCTION organizer_end_voting_session(
-  p_voting_session_id uuid
-)
-RETURNS void AS $$
-DECLARE
-  v_voting_session voting_sessions;
-  v_job_name text := 'voting_session_' || p_voting_session_id;
-  v_job_exists boolean;
+--region ORGANIZER END VOTING SESSION (CLIENT-TRIGGERED)
+CREATE OR REPLACE FUNCTION organizer_end_voting_session(p_voting_session_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 BEGIN
-  SELECT * INTO v_voting_session
-  FROM voting_sessions
-  WHERE id = p_voting_session_id;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Voting session not found';
-  END IF;
-
-  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
-    RAISE EXCEPTION 'Voting session already ended or cancelled';
-  END IF;
-
-  SELECT EXISTS(
-    SELECT 1
-    FROM cron.job
-    WHERE jobname = v_job_name
-  ) INTO v_job_exists;
-
-  IF v_job_exists THEN
-    PERFORM cron.unschedule(v_job_name);
-  END IF;
-
-  UPDATE voting_sessions
+  UPDATE public.voting_sessions
   SET
     session_status = 'ended',
     current_participant_index = NULL,
@@ -1218,51 +1188,20 @@ BEGIN
   WHERE id = p_voting_session_id;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while ending the voting session';
+    RAISE EXCEPTION 'Voting session not found or already ended.';
   END IF;
-
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
-$$ LANGUAGE plpgsql SECURITY definer;
+$$;
+--endregion
 
---region ORGANIZER CANCEL VOTING SESSION
-CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (
-  p_voting_session_id uuid
-)
-RETURNS void AS $$
-DECLARE
-  v_voting_session voting_sessions;
-  v_job_name text := 'voting_session_' || p_voting_session_id;
-  v_job_exists boolean;
+--region ORGANIZER CANCEL VOTING SESSION (CLIENT-TRIGGERED)
+CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (p_voting_session_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 BEGIN
-
-  SELECT * INTO v_voting_session
-  FROM voting_sessions
-  WHERE id = p_voting_session_id;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Voting session not found';
-  END IF;
-
-  IF (v_voting_session.session_status = 'ended' OR v_voting_session.session_status = 'cancelled') THEN
-    RAISE EXCEPTION 'Voting session already ended or cancelled';
-  END IF;
-
-  SELECT EXISTS(
-    SELECT 1
-    FROM cron.job
-    WHERE jobname = v_job_name
-  ) INTO v_job_exists;
-
-  IF v_job_exists THEN
-    PERFORM cron.unschedule(v_job_name);
-  END IF;
-
-  UPDATE voting_sessions
+  UPDATE public.voting_sessions
   SET
     session_status = 'cancelled',
     current_participant_index = NULL,
@@ -1270,16 +1209,11 @@ BEGIN
   WHERE id = p_voting_session_id;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'An error occurred while cancelling the voting session';
+    RAISE EXCEPTION 'Voting session not found.';
   END IF;
-
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE EXCEPTION 'An unexcepted error occurred';
 END;
-$$ LANGUAGE plpgsql SECURITY definer;
+$$;
+--endregion
 
 --region JUROR GET OWN VOTING SESSION JURATION
 -- Recupera la specifica riga 'voting_session_juration' per l'utente autenticato
@@ -1311,6 +1245,95 @@ BEGIN
 
   -- 3. Restituisce la riga trovata.
   RETURN v_result;
+END;
+$$;
+--endregion
+
+--region JUROR SUBMIT VOTES (JSON PAYLOAD)
+-- Permette a un giurato di inviare i suoi voti per una sessione.
+-- L'operazione è transazionale e più sicura perché il DB genera gli ID.
+CREATE OR REPLACE FUNCTION juror_submit_votes(
+  p_voting_session_id uuid,
+  p_votes_payload jsonb, -- Es: '[{"voting_session_participation_id": "...", "votes": [{"voting_form_field_id": "...", "value": "..."}]}]'
+  p_juror_lat float DEFAULT NULL,
+  p_juror_lon float DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_session record;
+  v_juration voting_session_jurations;
+  v_geo_res_place record;
+  v_voting_record jsonb;
+  v_vote_record jsonb;
+  v_new_juror_voting_id uuid;
+BEGIN
+  -- PASSO 1: CONTROLLI DI SICUREZZA
+  SELECT * INTO v_juration
+  FROM public.juror_get_own_voting_session_juration(p_voting_session_id);
+
+  IF v_juration.has_submitted THEN
+    RAISE EXCEPTION 'I voti per questa sessione sono già stati inviati.';
+  END IF;
+
+  SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
+
+  IF v_session.session_status <> 'review' THEN
+    RAISE EXCEPTION 'I voti possono essere inviati solo durante la fase di revisione (review).';
+  END IF;
+
+  -- PASSO 2: CONTROLLO GEO-RESTRIZIONE
+  IF v_session.is_geo_restricted THEN
+    IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
+      RAISE EXCEPTION 'Dati di localizzazione richiesti per questa sessione di voto.';
+    END IF;
+    SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
+    IF NOT ST_DWithin(
+      ST_MakePoint(v_geo_res_place.lon, v_geo_res_place.lat)::geography,
+      ST_MakePoint(p_juror_lon, p_juror_lat)::geography,
+      v_session.geo_res_radius
+    ) THEN
+      RAISE EXCEPTION 'Non ti trovi all''interno dell''area geografica consentita per la votazione.';
+    END IF;
+  END IF;
+
+  -- PASSO 3: SALVATAGGIO DEI VOTI
+  FOR v_voting_record IN SELECT * FROM jsonb_array_elements(p_votes_payload)
+  LOOP
+    -- 3a. Crea la riga in 'juror_votings', il DB genera l'ID.
+    INSERT INTO public.juror_votings (
+      voting_session_id,
+      voting_session_juration_id,
+      voting_session_participation_id
+    ) VALUES (
+      p_voting_session_id,
+      v_juration.id,
+      (v_voting_record->>'voting_session_participation_id')::uuid
+    )
+    RETURNING id INTO v_new_juror_voting_id; -- Cattura l'ID appena creato.
+
+    -- 3b. Inserisce i voti associati usando l'ID catturato.
+    FOR v_vote_record IN SELECT * FROM jsonb_array_elements(v_voting_record->'votes')
+    LOOP
+      INSERT INTO public.juror_votes (
+        juror_voting_id,
+        voting_form_field_id,
+        value
+      ) VALUES (
+        v_new_juror_voting_id,
+        (v_vote_record->>'voting_form_field_id')::uuid,
+        (v_vote_record->>'value')::varchar
+      );
+    END LOOP;
+  END LOOP;
+
+  -- PASSO 4: AGGIORNA LO STATO DEL GIURATO
+  UPDATE public.voting_session_jurations
+  SET has_submitted = true
+  WHERE id = v_juration.id;
+
 END;
 $$;
 --endregion

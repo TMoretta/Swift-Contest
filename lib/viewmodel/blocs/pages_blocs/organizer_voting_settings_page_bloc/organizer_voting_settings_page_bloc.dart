@@ -65,7 +65,6 @@ class OrganizerVotingSettingsPageBloc
       (success) => emit(state.copyWith(status: BlocStatus.success, votingSessionId: success.id)),
     );
 
-
     // final List<VotingFormField> votingFormFields = event.votingFormFields
     //
     // //* Create a new place for the session only if georestricted

@@ -10,7 +10,6 @@ class VotingSession extends Equatable {
   final Duration workTimer;
   final Duration intermissionTimer;
   final Duration reviewTimer;
-  final String? token;
   final bool isGeoRestricted;
   final String? geoResPlaceId;
   final int? geoResRadius;
@@ -29,7 +28,6 @@ class VotingSession extends Equatable {
     required this.workTimer,
     required this.intermissionTimer,
     required this.reviewTimer,
-    required this.token,
     required this.isGeoRestricted,
     required this.geoResPlaceId,
     required this.geoResRadius,
@@ -48,7 +46,6 @@ class VotingSession extends Equatable {
       workTimer: Duration(seconds: json['work_timer']),
       intermissionTimer: Duration(seconds: json['intermission_timer']),
       reviewTimer: Duration(seconds: json['review_timer']),
-      token: json['token'] as String,
       isGeoRestricted: json['is_geo_restricted'] as bool,
       geoResPlaceId: json['geo_res_place_id'] as String?,
       geoResRadius: json['geo_res_radius'] as int?,
@@ -70,7 +67,6 @@ class VotingSession extends Equatable {
       'work_timer': workTimer.inSeconds,
       'intermission_timer': intermissionTimer.inSeconds,
       'review_timer': reviewTimer.inSeconds,
-      if(token!=null) 'token': token,
       'is_geo_restricted': isGeoRestricted,
       if (geoResPlaceId != null) 'geo_res_place_id': geoResPlaceId,
       if (geoResRadius != null) 'geo_res_radius': geoResRadius,
@@ -89,7 +85,6 @@ class VotingSession extends Equatable {
     Duration? workTimer,
     Duration? intermissionTimer,
     Duration? reviewTimer,
-    String? token,
     bool? isGeoRestricted,
     String? geoResPlaceId,
     int? geoResRadius,
@@ -106,7 +101,6 @@ class VotingSession extends Equatable {
       workTimer: workTimer ?? this.workTimer,
       intermissionTimer: intermissionTimer ?? this.intermissionTimer,
       reviewTimer: reviewTimer ?? this.reviewTimer,
-      token: token ?? this.token,
       isGeoRestricted: isGeoRestricted ?? this.isGeoRestricted,
       geoResPlaceId: geoResPlaceId ?? this.geoResPlaceId,
       geoResRadius: geoResRadius ?? this.geoResRadius,
@@ -126,7 +120,6 @@ class VotingSession extends Equatable {
         workTimer,
         intermissionTimer,
         reviewTimer,
-        token,
         isGeoRestricted,
         geoResPlaceId,
         geoResRadius,

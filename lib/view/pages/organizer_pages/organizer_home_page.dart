@@ -131,7 +131,8 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                                   ? ListView.builder(
                                       itemCount: state.filteredContestsBundles!.length,
                                       itemBuilder: (context, index) {
-                                        final homeContestBundle = state.filteredContestsBundles![index];
+                                        final homeContestBundle =
+                                            state.filteredContestsBundles![index];
                                         return Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -169,7 +170,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
             ),
           ),
           floatingActionButton: (state.isInitialized)
-              ? FilledButton(
+              ? FloatingActionButton.extended(
                   onPressed: () async {
                     final bool? res = await context.router.push(OrganizerContestCreationRoute());
                     if (res == true) {
@@ -178,7 +179,8 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                       }
                     }
                   },
-                  child: Text('Create contest'),
+                  icon: Icon(Icons.create),
+                  label: Text('Create contest'),
                 )
               : VoidWidget(),
         );
