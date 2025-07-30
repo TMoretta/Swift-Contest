@@ -41,7 +41,7 @@ class JurorVotingProcedurePage extends StatefulWidget implements AutoRouteWrappe
 class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   late String profileId;
   late final String votingSessionId;
-  final reviewFormKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   final List<VotingProcedureFormAndWorkView> votingFormAndWorkViews = [];
   final Map<VotingSessionParticipation, Map<VotingFormField, TextEditingController>> votesMap = {};
   bool isPageInitialized = false;
@@ -69,7 +69,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         value.dispose();
       });
     });
-    reviewFormKey.currentState?.dispose();
+    formKey.currentState?.dispose();
     super.dispose();
   }
 
@@ -174,11 +174,21 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                         onRefresh: () async => context
                             .read<JurorVotingProcedurePageBloc>()
                             .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
-                        child: ListView.builder(
-                          itemCount: votingFormAndWorkViews.length,
-                          itemBuilder: (context, index) {
-                            return votingFormAndWorkViews[index];
-                          },
+                        child: Form(
+                          key: formKey,
+                          child: ListView.builder(
+                            itemCount: votingFormAndWorkViews.length,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  votingFormAndWorkViews[index],
+                                  if (index == votingFormAndWorkViews.length - 1)
+                                    SizedBox(height: 100),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       );
 
@@ -297,32 +307,19 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           floatingActionButton: (state.isInitialized)
               ? FilledButton(
                   onPressed: () {
-                    if (reviewFormKey.currentState?.validate() ?? false) {
-                      // MODIFICATO: La mappa ora contiene String come valore.
+                    if (formKey.currentState?.validate() ?? false) {
                       final Map<VotingSessionParticipation, Map<VotingFormField, String>>
-                          votesPerParticipantMap = {};
+                      votesPerParticipantMap = {};
                       for (var entry in votesMap.entries) {
                         final votingSessionParticipation = entry.key;
                         final votingFormFieldAndController = entry.value;
                         final Map<VotingFormField, String> votes = {};
                         for (var votingFormFieldAndControllerEntry
-                            in votingFormFieldAndController.entries) {
+                        in votingFormFieldAndController.entries) {
                           final votingFormField = votingFormFieldAndControllerEntry.key;
                           final controller = votingFormFieldAndControllerEntry.value;
-                          if (controller.text.isNotEmpty) {
-                            // MODIFICATO: Non si fa più il parse a double, si prende il testo.
-                            votes.addAll({votingFormField: controller.text});
-                          } else {
-                            // Se anche un solo campo non è compilato per un partecipante,
-                            // non includiamo i voti per quel partecipante (a meno che non sia escluso).
-                            final isExcluded = votingFormAndWorkViews
-                                .firstWhere((v) =>
-                                    v.votingSessionParticipation == votingSessionParticipation)
-                                .isExcludedFromParticipant;
-                            if (!isExcluded) {
-                              votes.clear(); // Pulisce i voti parziali per questo partecipante
-                              break;
-                            }
+                          if (controller.text.trim().isNotEmpty) {
+                            votes.addAll({votingFormField: controller.text.trim()});
                           }
                         }
                         if (votes.isNotEmpty) {

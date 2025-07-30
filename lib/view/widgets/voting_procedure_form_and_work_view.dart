@@ -3,7 +3,6 @@ import 'package:swift_contest/model/db/entities/voting_form_field.dart';
 import 'package:swift_contest/model/db/entities/voting_session_participation.dart';
 import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
-import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/voting_procedure_work_details_view.dart';
 
@@ -88,7 +87,7 @@ class _VotingProcedureFormAndWorkViewState extends State<VotingProcedureFormAndW
                         autovalidateMode: AutovalidateMode.onUnfocus,
                         minLines: (votingFormField.type.isTextual) ? 2 : 1,
                         maxLines: (votingFormField.type.isTextual) ? 4 : 1,
-                        label: votingFormField.name,
+                        label: '${votingFormField.name} ${(votingFormField.isRequired) ? '*' : ''}',
                         keyboardType: (votingFormField.type.isTextual)
                             ? TextInputType.text
                             : TextInputType.number,
@@ -112,9 +111,9 @@ class _VotingProcedureFormAndWorkViewState extends State<VotingProcedureFormAndW
                             ? null
                             : (value) {
                                 return (votingFormField.type.isTextual)
-                                    ? noEmptyValidator(value)
+                                    ? _validateTextualField(value, votingFormField.isRequired)
                                     : _validateNumericField(value, votingFormField.minValue!,
-                                        votingFormField.maxValue!);
+                                        votingFormField.maxValue!,  votingFormField.isRequired);
                               },
                       ),
                       SizedBox(height: 12),
@@ -129,9 +128,17 @@ class _VotingProcedureFormAndWorkViewState extends State<VotingProcedureFormAndW
   }
 }
 
-String? _validateNumericField(String? value, double minValue, double maxValue) {
+String? _validateTextualField(String? value, bool isRequired) {
   if (value == null || value.trim().isEmpty) {
-    return 'Required';
+    return (isRequired) ? 'Required' : null;
+  }
+  return null;
+}
+
+
+String? _validateNumericField(String? value, double minValue, double maxValue, bool isRequired) {
+  if (value == null || value.trim().isEmpty) {
+    return (isRequired) ? 'Required' : null;
   }
   if (double.tryParse(value) == null) {
     return 'Must be a number';

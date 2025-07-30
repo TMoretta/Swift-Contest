@@ -155,70 +155,142 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          CustomTextFormField(
-                            borderType: InputBorderType.outlined,
-                            minLines: 2,
-                            maxLines: 6,
-                            label: 'Header',
-                            controller: headerController,
-                            focusNode: headerFocusNode,
-                            onChanged: (_) => setState(() => isEdited = true),
-                          ),
-                          CustomTextFormField(
-                            borderType: InputBorderType.outlined,
-                            minLines: 2,
-                            maxLines: 6,
-                            label: 'Footer',
-                            controller: footerController,
-                            focusNode: footerFocusNode,
-                            onChanged: (_) => setState(() => isEdited = true),
-                          ),
-                          (updatedFields.isEmpty)
-                              ? Center(child: Text('No field added yet'))
-                              : Expanded(
-                                  child: ReorderableListView.builder(
-                                    itemCount: updatedFields.length,
-                                    onReorder: (oldIndex, newIndex) {
-                                      setState(() {
-                                        if (oldIndex < newIndex) {
-                                          newIndex -= 1;
-                                        }
-                                        final VotingFormField field =
-                                            updatedFields.removeAt(oldIndex);
-                                        updatedFields.insert(newIndex, field);
-                                        isEdited = true;
-                                      });
-                                    },
-                                    itemBuilder: (context, index) {
-                                      final field = updatedFields[index];
-                                      return Card(
-                                        key: ValueKey(field.id),
-                                        elevation: 0,
-                                        child: ListTile(
-                                          trailing: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                updatedFields.remove(field);
-                                                isEdited = true;
-                                              });
-                                            },
-                                            icon: Icon(Icons.remove),
-                                          ),
-                                          leading: Icon((field.type.isTextual)
-                                              ? Icons.text_fields
-                                              : Icons.numbers),
-                                          title: (field.isRequired)
-                                              ? Text('${field.name} *')
-                                              : Text(field.name),
-                                          subtitle: (field.type.isNumeric)
-                                              ? Text(
-                                                  '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
-                                              : null,
-                                        ),
-                                      );
-                                    },
-                                  ),
+                          // CustomTextFormField(
+                          //   borderType: InputBorderType.outlined,
+                          //   minLines: 2,
+                          //   maxLines: 4,
+                          //   label: 'Header',
+                          //   controller: headerController,
+                          //   focusNode: headerFocusNode,
+                          //   onChanged: (_) => setState(() => isEdited = true),
+                          // ),
+                          // CustomTextFormField(
+                          //   borderType: InputBorderType.outlined,
+                          //   minLines: 2,
+                          //   maxLines: 4,
+                          //   label: 'Footer',
+                          //   controller: footerController,
+                          //   focusNode: footerFocusNode,
+                          //   onChanged: (_) => setState(() => isEdited = true),
+                          // ),
+                          Expanded(
+                            child: ReorderableListView(
+                              onReorder: (oldIndex, newIndex) {
+                                  if(oldIndex<2 || newIndex<2) {
+                                    return;
+                                  }
+                                setState(() {
+                                  if (oldIndex < newIndex) {
+                                    newIndex -= 1;
+                                  }
+                                  // che ha 2 elementi in meno rispetto alla lista dei children.
+                                  final int listIndex = oldIndex - 2;
+                                  final int newListIndex = newIndex - 2;
+
+                                  // Ora eseguiamo il riordino sulla lista `updatedFields`
+                                  // usando gli indici corretti.
+                                  final VotingFormField field = updatedFields.removeAt(listIndex);
+                                  updatedFields.insert(newListIndex, field);
+                                  isEdited = true;
+                                });
+                              },
+                              children: [
+                                CustomTextFormField(
+                                  key: ValueKey('header'),
+                                  borderType: InputBorderType.outlined,
+                                  minLines: 2,
+                                  maxLines: 5,
+                                  label: 'Header',
+                                  controller: headerController,
+                                  focusNode: headerFocusNode,
+                                  onChanged: (_) => setState(() => isEdited = true),
                                 ),
+                                CustomTextFormField(
+                                  key: ValueKey('footer'),
+                                  borderType: InputBorderType.outlined,
+                                  minLines: 2,
+                                  maxLines: 5,
+                                  label: 'Footer',
+                                  controller: footerController,
+                                  focusNode: footerFocusNode,
+                                  onChanged: (_) => setState(() => isEdited = true),
+                                ),
+                                ...updatedFields.map((field) {
+                                  return Card(
+                                    key: ValueKey(field.id),
+                                    elevation: 0,
+                                    child: ListTile(
+                                      trailing: IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            updatedFields.remove(field);
+                                            isEdited = true;
+                                          });
+                                        },
+                                        icon: Icon(Icons.remove),
+                                      ),
+                                      leading: Icon((field.type.isTextual)
+                                          ? Icons.text_fields
+                                          : Icons.numbers),
+                                      title: (field.isRequired)
+                                          ? Text('${field.name} *')
+                                          : Text(field.name),
+                                      subtitle: (field.type.isNumeric)
+                                          ? Text(
+                                          '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                                          : null,
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          // (updatedFields.isEmpty)
+                          //     ? Center(child: Text('No field added yet'))
+                          //     : Expanded(
+                          //         child: ReorderableListView.builder(
+                          //           itemCount: updatedFields.length,
+                          //           onReorder: (oldIndex, newIndex) {
+                          //             setState(() {
+                          //               if (oldIndex < newIndex) {
+                          //                 newIndex -= 1;
+                          //               }
+                          //               final VotingFormField field =
+                          //                   updatedFields.removeAt(oldIndex);
+                          //               updatedFields.insert(newIndex, field);
+                          //               isEdited = true;
+                          //             });
+                          //           },
+                          //           itemBuilder: (context, index) {
+                          //             final field = updatedFields[index];
+                          //             return Card(
+                          //               key: ValueKey(field.id),
+                          //               elevation: 0,
+                          //               child: ListTile(
+                          //                 trailing: IconButton(
+                          //                   onPressed: () {
+                          //                     setState(() {
+                          //                       updatedFields.remove(field);
+                          //                       isEdited = true;
+                          //                     });
+                          //                   },
+                          //                   icon: Icon(Icons.remove),
+                          //                 ),
+                          //                 leading: Icon((field.type.isTextual)
+                          //                     ? Icons.text_fields
+                          //                     : Icons.numbers),
+                          //                 title: (field.isRequired)
+                          //                     ? Text('${field.name} *')
+                          //                     : Text(field.name),
+                          //                 subtitle: (field.type.isNumeric)
+                          //                     ? Text(
+                          //                         '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                          //                     : null,
+                          //               ),
+                          //             );
+                          //           },
+                          //         ),
+                          //       ),
                           SizedBox(height: 72),
                         ],
                       );

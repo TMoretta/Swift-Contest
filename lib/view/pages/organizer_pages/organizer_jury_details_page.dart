@@ -267,8 +267,8 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                       onRefresh: () async => context
                                           .read<OrganizerJuryDetailsPageBloc>()
                                           .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
+                                      child: ListView(
+                                        shrinkWrap: true,
                                         children: [
                                           Card(
                                             elevation: 0,
@@ -285,35 +285,29 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                             ),
                                           ),
                                           SizedBox(height: 8),
-                                          (votingFormFields.isEmpty)
-                                          ? Text('No field added') :
-                                          Expanded(child: ListView.builder(
-                                            itemCount: votingFormFields.length,
-                                            itemBuilder: (context, index) {
-                                              final field = votingFormFields[index];
-                                              return Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Card(
-                                                    elevation: 0,
-                                                    child: ListTile(
-                                                      leading: Icon(
-                                                          (field.type.isTextual)
-                                                              ? Icons.text_fields
-                                                              : Icons.numbers),
-                                                      title: (field.isRequired) ? Text('${field.name} *') : Text(field.name),
-                                                      subtitle: (field.type.isNumeric)
-                                                          ? Text(
-                                                          '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
-                                                          : null,
-                                                    ),
+                                          ...votingFormFields.map((field) {
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Card(
+                                                  elevation: 0,
+                                                  child: ListTile(
+                                                    leading: Icon(
+                                                        (field.type.isTextual)
+                                                            ? Icons.text_fields
+                                                            : Icons.numbers),
+                                                    title: (field.isRequired) ? Text('${field.name} *') : Text(field.name),
+                                                    subtitle: (field.type.isNumeric)
+                                                        ? Text(
+                                                        '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
+                                                        : null,
                                                   ),
-                                                  if (index == votingFormFields.length - 1)
-                                                    SizedBox(height: 72),
-                                                ],
-                                              );
-                                            },
-                                          ),),
+                                                ),
+
+                                              ],
+                                            );
+                                          },),
+                                          SizedBox(height: 72),
                                         ],
                                       ),
                                       // child: (votingFormFields.isEmpty)

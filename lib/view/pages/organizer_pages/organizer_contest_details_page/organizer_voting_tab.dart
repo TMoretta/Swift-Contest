@@ -179,10 +179,9 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                             elevation: 0.05,
                                             child: ListTile(
                                               onTap: () {
-                                                //todo
-                                                // context.router.push(
-                                                //     OrganizerVotingResultDetailsRoute(
-                                                //         votingSessionId: votingSession.id));
+                                                context.router.push(
+                                                    OrganizerVotingResultDetailsRoute(
+                                                        votingSessionId: votingSession.id));
                                               },
                                               title: Text(
                                                 votingSession.name,
@@ -193,17 +192,17 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                                 DateFormat('dd MMM, yyyy | HH:mm')
                                                     .format(votingSession.createdAt!),
                                               ),
-                                              trailing: IconButton(
-                                                onPressed: () async {
-                                                  _showEditVotingSessionNameDialog(
-                                                      context: context,
-                                                      votingSessionId: votingSession.id!,
-                                                      contestId: contestId);
-                                                },
-                                                icon: Icon(
-                                                  Icons.edit,
-                                                ),
-                                              ),
+                                              // trailing: IconButton(
+                                              //   onPressed: () async {
+                                              //     _showEditVotingSessionNameDialog(
+                                              //         context: context,
+                                              //         votingSessionId: votingSession.id!,
+                                              //         contestId: contestId);
+                                              //   },
+                                              //   icon: Icon(
+                                              //     Icons.edit,
+                                              //   ),
+                                              // ),
                                             ),
                                           ),
                                           if (index == endedVotingSessions.length - 1)

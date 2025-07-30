@@ -1285,8 +1285,8 @@ BEGIN
 
   SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
 
-  IF v_session.session_status <> 'review' THEN
-    RAISE EXCEPTION 'I voti possono essere inviati solo durante la fase di revisione (review).';
+  IF v_session.session_status <> 'live' THEN
+    RAISE EXCEPTION 'La sessione è conclusa';
   END IF;
 
   -- PASSO 2: CONTROLLO GEO-RESTRIZIONE

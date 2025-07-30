@@ -128,7 +128,19 @@ FutureOr<void> _submitVotes(
 
   // 1. Trasforma la mappa in un payload JSON con solo gli ID.
   final List<Map<String, dynamic>> votesPayload = [];
+  final ownVotingSessionJuration = state.ownVotingSessionJuration!;
+  final votingSessionExclusions = state.votingSessionProcedureBundle!.votingSessionExclusions;
+
   event.votesPerParticipantMap.forEach((participation, votes) {
+    final isExcluded = votingSessionExclusions.any(
+          (exclusion) =>
+      exclusion.votingSessionJurationId == ownVotingSessionJuration.id &&
+          exclusion.votingSessionParticipationId == participation.id,
+    );
+
+    // Se è escluso, salta questo partecipante e non includerlo nel payload.
+    if (isExcluded) return;
+
     final List<Map<String, String>> votesList = [];
     votes.forEach((formField, value) {
       votesList.add({
