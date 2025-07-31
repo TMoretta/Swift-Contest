@@ -116,8 +116,12 @@ class AppRouter extends RootStackRouter {
           page: OrganizerVotingProcedureRoute.page,
         ),
         AutoRoute(
-          path: '/organizer-voting-result-details/:votingSessionId',
-          page: OrganizerVotingResultDetailsRoute.page,
+          path: '/organizer-voting-results/:votingSessionId',
+          page: OrganizerVotingResultsRoute.page,
+        ),
+        AutoRoute(
+          path: '/organizer-jury-voting-results/:votingSessionJuryId',
+          page: OrganizerJuryVotingResultsRoute.page,
         ),
         // AutoRoute(
         //   path: '/organizer-voting-result-export/:votingSessionId',

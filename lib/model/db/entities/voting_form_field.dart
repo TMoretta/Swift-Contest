@@ -1,27 +1,30 @@
 import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/db/types/voting_form_field_scope.dart';
 import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
 
 class VotingFormField extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingFormId;
-  final String name;
+  final String question;
   final int orderIndex;
   final VotingFormFieldType type;
-  final double? minValue;
-  final double? maxValue;
+  final int? sliderMinValue;
+  final int? sliderMaxValue;
   final bool isRequired;
+  final VotingFormFieldScope scope;
 
   const VotingFormField({
     required this.id,
     required this.createdAt,
     required this.votingFormId,
-    required this.name,
+    required this.question,
     required this.orderIndex,
     required this.type,
-    required this.minValue,
-    required this.maxValue,
+    required this.sliderMinValue,
+    required this.sliderMaxValue,
     required this.isRequired,
+    required this.scope,
   });
 
   factory VotingFormField.fromJson(Map<String, dynamic> json) {
@@ -29,12 +32,13 @@ class VotingFormField extends Equatable {
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       votingFormId: json['voting_form_id'] as String,
-      name: json['name'] as String,
+      question: json['question'] as String,
       orderIndex: json['order_index'] as int,
       type: VotingFormFieldType.values.byName(json['type'] as String),
-      minValue: json['min_value'] as double?,
-      maxValue: json['max_value'] as double?,
+      sliderMinValue: json['slider_min_value'] as int?,
+      sliderMaxValue: json['slider_max_value'] as int?,
       isRequired: json['is_required'] as bool,
+      scope: VotingFormFieldScope.values.byName(json['scope'] as String),
     );
   }
 
@@ -42,13 +46,14 @@ class VotingFormField extends Equatable {
     return {
       if (id != null) 'id': id,
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
-      if(votingFormId!=null) 'voting_form_id': votingFormId,
-      'name': name,
+      if (votingFormId != null) 'voting_form_id': votingFormId,
+      'question': question,
       'order_index': orderIndex,
       'type': type.name,
-      if(minValue!=null) 'min_value': minValue,
-      if(maxValue!=null) 'max_value': maxValue,
+      if(sliderMinValue!=null) 'slider_min_value': sliderMinValue,
+      if(sliderMaxValue!=null) 'slider_max_value': sliderMaxValue,
       'is_required': isRequired,
+      'scope': scope.name,
     };
   }
 
@@ -56,36 +61,39 @@ class VotingFormField extends Equatable {
     String? id,
     DateTime? createdAt,
     String? votingFormId,
-    String? name,
+    String? question,
     int? orderIndex,
     VotingFormFieldType? type,
-    double? minValue,
-    double? maxValue,
+    int? sliderMinValue,
+    int? sliderMaxValue,
     bool? isRequired,
+    VotingFormFieldScope? scope,
   }) {
     return VotingFormField(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
-      name: name ?? this.name,
+      question: question ?? this.question,
       votingFormId: votingFormId ?? this.votingFormId,
       orderIndex: orderIndex ?? this.orderIndex,
       type: type ?? this.type,
-      minValue: minValue ?? this.minValue,
-      maxValue: maxValue ?? this.maxValue,
+      sliderMinValue: sliderMinValue ?? this.sliderMinValue,
+      sliderMaxValue: sliderMaxValue ?? this.sliderMaxValue,
       isRequired: isRequired ?? this.isRequired,
+      scope: scope ?? this.scope,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        createdAt,
-        name,
-        votingFormId,
-        orderIndex,
-        type,
-        minValue,
-        maxValue,
-        isRequired,
-      ];
+    id,
+    createdAt,
+    question,
+    votingFormId,
+    orderIndex,
+    type,
+    sliderMinValue,
+    sliderMaxValue,
+    isRequired,
+    scope,
+  ];
 }

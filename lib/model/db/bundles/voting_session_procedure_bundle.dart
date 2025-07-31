@@ -9,14 +9,12 @@ class VotingSessionProcedureBundle extends Equatable {
   final List<VotingSessionParticipation> votingSessionParticipations;
   final List<VotingSessionJuryBundle> votingSessionJuriesBundles;
   final List<VotingSessionExclusion> votingSessionExclusions;
-  final String contestToken;
 
   const VotingSessionProcedureBundle({
     required this.votingSessionBundle,
     required this.votingSessionParticipations,
     required this.votingSessionJuriesBundles,
     required this.votingSessionExclusions,
-    required this.contestToken,
   });
 
   factory VotingSessionProcedureBundle.fromJson(Map<String, dynamic> json) {
@@ -31,7 +29,6 @@ class VotingSessionProcedureBundle extends Equatable {
       votingSessionExclusions: (json['voting_session_exclusions'] as List<dynamic>)
           .map((e) => VotingSessionExclusion.fromJson(e))
           .toList(growable: false),
-      contestToken: json['contest_token'],
     );
   }
 
@@ -44,7 +41,6 @@ class VotingSessionProcedureBundle extends Equatable {
           votingSessionJuriesBundles.map((e) => e.toJson()).toList(growable: false),
       'voting_session_exclusions':
           votingSessionExclusions.map((e) => e.toJson()).toList(growable: false),
-      'contest_token': contestToken,
     };
   }
 
@@ -60,7 +56,6 @@ class VotingSessionProcedureBundle extends Equatable {
       votingSessionParticipations: votingSessionParticipations ?? this.votingSessionParticipations,
       votingSessionJuriesBundles: votingSessionJuriesBundles ?? this.votingSessionJuriesBundles,
       votingSessionExclusions: votingSessionExclusions ?? this.votingSessionExclusions,
-      contestToken: contestToken ?? this.contestToken,
     );
   }
 
@@ -70,6 +65,5 @@ class VotingSessionProcedureBundle extends Equatable {
         votingSessionParticipations,
         votingSessionJuriesBundles,
         votingSessionExclusions,
-        contestToken,
       ];
 }

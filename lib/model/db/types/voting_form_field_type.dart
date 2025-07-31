@@ -1,9 +1,9 @@
 enum VotingFormFieldType {
   textual,
-  numeric,
+  slider,
 }
 
 extension VotingFormFieldTypeX on VotingFormFieldType {
   bool get isTextual => this == VotingFormFieldType.textual;
-  bool get isNumeric => this == VotingFormFieldType.numeric;
+  bool get isSlider => this == VotingFormFieldType.slider;
 }

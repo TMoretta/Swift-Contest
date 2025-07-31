@@ -1,30 +1,8 @@
 // import 'package:equatable/equatable.dart';
 // import 'package:swift_contest/model/db/bundles/juration_bundle.dart';
 // import 'package:swift_contest/model/db/bundles/juror_vote_bundle.dart';
-// import 'package:swift_contest/model/db/bundles/simple_juror_vote_bundle.dart';
-// import 'package:swift_contest/model/bundles/voting_form_bundle.dart';
 // import 'package:swift_contest/model/db/bundles/voting_session_bundle.dart';
 // import 'package:swift_contest/model/db/bundles/voting_session_juration_bundle.dart';
-// import 'package:swift_contest/model/db/bundles/voting_session_participation_bundle.dart';
-// import 'package:swift_contest/model/db/bundles/voting_session_simple_juror_bundle.dart';
-// import 'package:swift_contest/model/data_models/juration.dart';
-// import 'package:swift_contest/model/data_models/juror_vote.dart';
-// import 'package:swift_contest/model/data_models/juror_voting.dart';
-// import 'package:swift_contest/model/data_models/participation.dart';
-// import 'package:swift_contest/model/data_models/place.dart';
-// import 'package:swift_contest/model/data_models/profile.dart';
-// import 'package:swift_contest/model/data_models/simple_juror.dart';
-// import 'package:swift_contest/model/data_models/simple_juror_vote.dart';
-// import 'package:swift_contest/model/data_models/simple_juror_voting.dart';
-// import 'package:swift_contest/model/data_models/voting_form.dart';
-// import 'package:swift_contest/model/data_models/voting_session.dart';
-// import 'package:swift_contest/model/data_models/voting_session_exclusion.dart';
-// import 'package:swift_contest/model/data_models/voting_session_juration.dart';
-// import 'package:swift_contest/model/data_models/voting_session_participation.dart';
-// import 'package:swift_contest/model/data_models/voting_session_simple_juror.dart';
-// import 'package:swift_contest/model/data_models/work.dart';
-//
-// import '../../data_models/voting_form_field.dart';
 // import '../bundles/participation_bundle.dart';
 //
 // class VotingSessionResultBundle extends Equatable {

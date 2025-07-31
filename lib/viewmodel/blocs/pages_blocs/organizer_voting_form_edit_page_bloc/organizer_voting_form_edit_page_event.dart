@@ -15,18 +15,22 @@ final class OrganizerVotingFormEditPageFetch extends OrganizerVotingFormEditPage
 
 final class OrganizerVotingFormEditPageUpdateVotingForm extends OrganizerVotingFormEditPageEvent {
   final String votingFormId;
-  final List<VotingFormField> votingFormFields;
-  final String? header;
-  final String? footer;
+  final List<VotingFormField> headerFormFields;
+  final List<VotingFormField> participantFormFields;
+  final List<VotingFormField> footerFormFields;
+  final String? name;
+  final String? description;
 
 
   const OrganizerVotingFormEditPageUpdateVotingForm({
     required this.votingFormId,
-    required this.votingFormFields,
-    required this.header,
-    required this.footer,
+    required this.headerFormFields,
+    required this.participantFormFields,
+    required this.footerFormFields,
+    required this.name,
+    required this.description,
   });
 
   @override
-  List<Object?> get props => [votingFormId, votingFormFields, header, footer];
+  List<Object?> get props => [votingFormId, headerFormFields, participantFormFields, footerFormFields, name, description,];
 }

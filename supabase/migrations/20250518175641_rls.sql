@@ -124,15 +124,15 @@ TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
-CREATE POLICY "Juror Votings: allow all"
-ON public.juror_votings
+CREATE POLICY "Voting Form Submissions: allow all"
+ON public.voting_form_submissions
 FOR ALL
 TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
-CREATE POLICY "Juror Votes: allow all"
-ON public.juror_votes
+CREATE POLICY "Voting Form Submission Values: allow all"
+ON public.voting_form_submission_values
 FOR ALL
 TO authenticated, anon
 USING (true)
@@ -147,20 +147,6 @@ WITH CHECK (true);
 
 CREATE POLICY "Voting Session Simple Jurors: allow all"
 ON public.voting_session_simple_jurors
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Simple Juror Votings: allow all"
-ON public.simple_juror_votings
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Simple Juror Votes: allow all"
-ON public.simple_juror_votes
 FOR ALL
 TO authenticated, anon
 USING (true)

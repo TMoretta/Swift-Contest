@@ -1,27 +1,27 @@
 import 'package:equatable/equatable.dart';
 
-class JurorVoting extends Equatable {
+class VotingFormSubmission extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionId;
   final String? votingSessionJurationId;
-  final String? votingSessionParticipationId;
+  final String? votingSessionSimpleJurorId;
 
-  const JurorVoting({
+  const VotingFormSubmission({
     required this.id,
     required this.createdAt,
     required this.votingSessionId,
-    required this.votingSessionJurationId,
-    required this.votingSessionParticipationId,
+    this.votingSessionJurationId,
+    this.votingSessionSimpleJurorId,
   });
 
-  factory JurorVoting.fromJson(Map<String, dynamic> json) {
-    return JurorVoting(
+  factory VotingFormSubmission.fromJson(Map<String, dynamic> json) {
+    return VotingFormSubmission(
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       votingSessionId: json['voting_session_id'] as String,
-      votingSessionJurationId: json['voting_session_juration_id'] as String,
-      votingSessionParticipationId: json['voting_session_participation_id'] as String,
+      votingSessionJurationId: json['voting_session_juration_id'] as String?,
+      votingSessionSimpleJurorId: json['voting_session_simple_juror_id'] as String?,
     );
   }
 
@@ -29,26 +29,26 @@ class JurorVoting extends Equatable {
     return {
       if (id != null) 'id': id,
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
-      if(votingSessionId!=null) 'voting_session_id': votingSessionId,
-      if(votingSessionJurationId!=null) 'voting_session_juration_id': votingSessionJurationId,
-      if(votingSessionParticipationId!=null) 'voting_session_participation_id': votingSessionParticipationId,
+      if (votingSessionId != null) 'voting_session_id': votingSessionId,
+      if (votingSessionJurationId != null) 'voting_session_juration_id': votingSessionJurationId,
+      if (votingSessionSimpleJurorId != null)
+        'voting_session_simple_juror_id': votingSessionSimpleJurorId,
     };
   }
 
-  JurorVoting copyWith({
+  VotingFormSubmission copyWith({
     String? id,
     DateTime? createdAt,
     String? votingSessionId,
     String? votingSessionJurationId,
-    String? votingSessionParticipationId,
+    String? votingSessionSimpleJurorId,
   }) {
-    return JurorVoting(
+    return VotingFormSubmission(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       votingSessionId: votingSessionId ?? this.votingSessionId,
       votingSessionJurationId: votingSessionJurationId ?? this.votingSessionJurationId,
-      votingSessionParticipationId:
-          votingSessionParticipationId ?? this.votingSessionParticipationId,
+      votingSessionSimpleJurorId: votingSessionSimpleJurorId ?? this.votingSessionSimpleJurorId,
     );
   }
 
@@ -58,6 +58,6 @@ class JurorVoting extends Equatable {
         createdAt,
         votingSessionId,
         votingSessionJurationId,
-        votingSessionParticipationId,
+        votingSessionSimpleJurorId,
       ];
 }

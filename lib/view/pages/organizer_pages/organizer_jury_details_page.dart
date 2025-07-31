@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/db/types/jury_type.dart';
 import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
-import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -116,7 +115,10 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                       final juryBundle = state.juryBundle!;
                       final jurationsBundles = juryBundle.jurationsBundles;
                       final invitations = juryBundle.jurorsInvitations;
-                      final votingFormFields = juryBundle.votingFormBundle.votingFormFields;
+                      final headerVotingFormFields = juryBundle.votingFormBundle.headerVotingFormFields;
+                      final participantVotingFormFields = juryBundle.votingFormBundle.participantVotingFormFields;
+                      final footerVotingFormFields = juryBundle.votingFormBundle.footerVotingFormFields;
+
                       return DefaultTabController(
                         length: (juryBundle.jury.type.isAppointed) ? 3 : 1,
                         child: Column(
@@ -273,40 +275,71 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                           Card(
                                             elevation: 0,
                                             child: ListTile(
-                                              title: Text('Header',style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),),
-                                              subtitle: Text(juryBundle.votingFormBundle.votingForm.header ?? ''),
+                                              title: Text('Name',style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),),
+                                              subtitle: Text(juryBundle.votingFormBundle.votingForm.name),
                                             ),
                                           ),
                                           Card(
                                             elevation: 0,
                                             child: ListTile(
-                                              title: Text('Footer',style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),),
-                                              subtitle: Text(juryBundle.votingFormBundle.votingForm.footer ?? ''),
+                                              title: Text('Description',style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),),
+                                              subtitle: Text(juryBundle.votingFormBundle.votingForm.description),
                                             ),
                                           ),
                                           SizedBox(height: 8),
-                                          ...votingFormFields.map((field) {
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Card(
-                                                  elevation: 0,
-                                                  child: ListTile(
-                                                    leading: Icon(
-                                                        (field.type.isTextual)
-                                                            ? Icons.text_fields
-                                                            : Icons.numbers),
-                                                    title: (field.isRequired) ? Text('${field.name} *') : Text(field.name),
-                                                    subtitle: (field.type.isNumeric)
-                                                        ? Text(
-                                                        '${prettyDouble(field.minValue!)} - ${prettyDouble(field.maxValue!)}')
-                                                        : null,
-                                                  ),
-                                                ),
-
-                                              ],
+                                          Text('Header form'),
+                                          ...headerVotingFormFields.map((field) {
+                                            return Card(
+                                              elevation: 0,
+                                              child: ListTile(
+                                                leading: switch(field.type) {
+                                                  VotingFormFieldType.textual => Icon(Icons.text_fields),
+                                                VotingFormFieldType.slider => Icon(Icons.horizontal_distribute),
+                                                },
+                                                title: (field.isRequired) ? Text('${field.question} *') : Text(field.question),
+                                                subtitle: switch(field.type) {
+                                                  VotingFormFieldType.slider => Text('${field.sliderMinValue!} - ${field.sliderMaxValue}'),
+                                                  _ => null,
+                                                },
+                                              ),
                                             );
-                                          },),
+                                          }),
+                                          SizedBox(height: 8),
+                                          Text('Form for each participant'),
+                                          ...participantVotingFormFields.map((field) {
+                                            return Card(
+                                              elevation: 0,
+                                              child: ListTile(
+                                                leading: switch(field.type) {
+                                                  VotingFormFieldType.textual => Icon(Icons.text_fields),
+                                                  VotingFormFieldType.slider => Icon(Icons.horizontal_distribute),
+                                                },
+                                                title: (field.isRequired) ? Text('${field.question} *') : Text(field.question),
+                                                subtitle: switch(field.type) {
+                                                  VotingFormFieldType.slider => Text('${field.sliderMinValue!} - ${field.sliderMaxValue}'),
+                                                  _ => null,
+                                                },
+                                              ),
+                                            );
+                                          }),
+                                          SizedBox(height: 8),
+                                          Text('Footer form'),
+                                          ...footerVotingFormFields.map((field) {
+                                            return Card(
+                                              elevation: 0,
+                                              child: ListTile(
+                                                leading: switch(field.type) {
+                                                  VotingFormFieldType.textual => Icon(Icons.text_fields),
+                                                  VotingFormFieldType.slider => Icon(Icons.horizontal_distribute),
+                                                },
+                                                title: (field.isRequired) ? Text('${field.question} *') : Text(field.question),
+                                                subtitle: switch(field.type) {
+                                                  VotingFormFieldType.slider => Text('${field.sliderMinValue!} - ${field.sliderMaxValue}'),
+                                                  _ => null,
+                                                },
+                                              ),
+                                            );
+                                          }),
                                           SizedBox(height: 72),
                                         ],
                                       ),

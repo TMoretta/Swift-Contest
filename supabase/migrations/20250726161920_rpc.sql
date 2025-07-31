@@ -350,6 +350,7 @@ AS $$
 DECLARE
   v_contest_id uuid := (p_jury->>'contest_id')::uuid;
   v_voting_form_id uuid;
+  v_jury_name text := p_jury->>'name'; -- Estraiamo il nome della giuria
   new_jury_row juries;
 BEGIN
   -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
@@ -360,13 +361,17 @@ BEGIN
     RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
   END IF;
 
-  -- 1. Crea un nuovo voting_form.
-  INSERT INTO public.voting_forms DEFAULT VALUES
+  -- 1. Crea un nuovo voting_form, usando il nome della giuria per i campi obbligatori.
+  INSERT INTO public.voting_forms (name, description)
+  VALUES (
+    v_jury_name, -- Usa il nome della giuria come nome del form
+    'Voting form for jury: ' || v_jury_name -- Usa una descrizione di default
+  )
   RETURNING id INTO v_voting_form_id;
 
-  -- 2. Crea la nuova giuria.
+  -- 2. Crea la nuova giuria, collegandola al form appena creato.
   INSERT INTO public.juries (contest_id, name, voting_form_id, type)
-  VALUES (v_contest_id, p_jury->>'name', v_voting_form_id, (p_jury->>'type')::jury_type)
+  VALUES (v_contest_id, v_jury_name, v_voting_form_id, (p_jury->>'type')::jury_type)
   RETURNING * INTO new_jury_row;
 
   RETURN new_jury_row;
@@ -374,64 +379,52 @@ END;
 $$;
 
 
---region UPDATE VOTING FORM
--- Aggiorna i campi di un form di voto (operazione di delete-then-insert).
-CREATE OR REPLACE FUNCTION update_voting_form (
-  p_voting_form_id uuid,
-  p_header varchar,
-  p_footer varchar,
-  p_voting_form_fields jsonb
-)
-RETURNS SETOF voting_form_fields
-LANGUAGE plpgsql
-SECURITY INVOKER
-AS $$
-DECLARE
-  field_record record;
-BEGIN
-  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest associato.
-  IF NOT EXISTS (
-    SELECT 1
-    FROM public.voting_forms vf
-    JOIN public.juries j ON vf.id = j.voting_form_id
-    JOIN public.contests c ON j.contest_id = c.id
-    WHERE vf.id = p_voting_form_id AND c.organizer_id = auth.uid()
-  ) THEN
-    RAISE EXCEPTION 'Form di voto non trovato o accesso non autorizzato.';
-  END IF;
+ --region UPDATE VOTING FORM
+ -- Aggiorna i campi di un form di voto (operazione di delete-then-insert).
+ CREATE OR REPLACE FUNCTION update_voting_form (
+   p_voting_form_id uuid, -- ID del form da aggiornare
+   p_name varchar, -- Nuovo nome per il form
+   p_description varchar, -- Nuova descrizione per il form
+   p_voting_form_fields jsonb
+ )
+ RETURNS SETOF voting_form_fields
+ LANGUAGE plpgsql
+ SECURITY INVOKER
+ AS $$
+ BEGIN
 
-  UPDATE voting_forms
-  SET
-    header = p_header,
-    footer = p_footer
-  WHERE id = p_voting_form_id;
+   -- Aggiorna nome e descrizione del form
+   UPDATE public.voting_forms
+   SET
+     name = p_name,
+     description = p_description
+   WHERE id = p_voting_form_id;
 
-  -- 1. Cancella tutti i campi esistenti per questo form.
-  DELETE FROM public.voting_form_fields WHERE voting_form_id = p_voting_form_id;
+   -- 1. Cancella tutti i campi esistenti per questo form.
+   DELETE FROM public.voting_form_fields WHERE voting_form_id = p_voting_form_id;
 
-  -- 2. Inserisce i nuovi campi dal JSON.
-  RETURN QUERY
-  INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value, is_required)
-  SELECT
-    p_voting_form_id,
-    (f->>'name')::varchar,
-    (f->>'order_index')::int,
-    (f->>'type')::voting_form_field_type,
-    (f->>'min_value')::numeric,
-    (f->>'max_value')::numeric,
-    (f->>'is_required')::bool
-  FROM jsonb_array_elements(p_voting_form_fields) AS f
-  RETURNING *;
-END;
-$$;
-
+   -- 2. Inserisce i nuovi campi dal JSON, allineati alla nuova struttura.
+   RETURN QUERY
+   INSERT INTO public.voting_form_fields (voting_form_id, question, order_index, type, is_required, scope, slider_min_value, slider_max_value)
+   SELECT
+     p_voting_form_id,
+     (f->>'question')::varchar,
+     (f->>'order_index')::int,
+     (f->>'type')::voting_form_field_type,
+     (f->>'is_required')::bool,
+     (f->>'scope')::voting_form_field_scope,
+     (f->>'slider_min_value')::int,
+     (f->>'slider_max_value')::int
+   FROM jsonb_array_elements(p_voting_form_fields) AS f
+   RETURNING *;
+ END;
+ $$;
 
 --region GET JURY BUNDLE
 -- Recupera i dettagli completi di una singola giuria.
 CREATE OR REPLACE FUNCTION get_jury_bundle(p_jury_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
-STABLE
 SECURITY INVOKER
 AS $$
 DECLARE
@@ -447,32 +440,46 @@ BEGIN
     RAISE EXCEPTION 'Giuria non trovata o accesso non autorizzato.';
   END IF;
 
-  SELECT jsonb_build_object(
-    'jury', (SELECT to_jsonb(j) FROM public.juries j WHERE j.id = p_jury_id),
-    'jurations_bundles', COALESCE((SELECT jsonb_agg(jsonb_build_object('juration', to_jsonb(ju), 'juror', to_jsonb(p_juror))) FROM public.jurations ju JOIN public.profiles p_juror ON ju.juror_id = p_juror.id WHERE ju.jury_id = p_jury_id), '[]'::jsonb),
-    'jurors_invitations', COALESCE((SELECT jsonb_agg(to_jsonb(ji)) FROM public.juror_invitations ji WHERE ji.jury_id = p_jury_id), '[]'::jsonb),
-    'voting_form_bundle', (SELECT jsonb_build_object('voting_form', to_jsonb(vf), 'voting_form_fields', COALESCE((SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index) FROM public.voting_form_fields vff WHERE vff.voting_form_id = vf.id), '[]'::jsonb)) FROM public.voting_forms vf WHERE vf.id = (SELECT voting_form_id FROM public.juries WHERE id = p_jury_id))
-  ) INTO result_bundle;
+  SELECT
+       jsonb_build_object(
+         'jury', to_jsonb(j),
+         'jurations_bundles', COALESCE((SELECT jsonb_agg(jsonb_build_object('juration', to_jsonb(ju), 'juror', to_jsonb(p_juror))) FROM public.jurations ju JOIN public.profiles p_juror ON ju.juror_id = p_juror.id WHERE ju.jury_id = j.id), '[]'::jsonb),
+         'jurors_invitations', COALESCE((SELECT jsonb_agg(to_jsonb(ji)) FROM public.juror_invitations ji WHERE ji.jury_id = j.id), '[]'::jsonb),
+         'voting_form_bundle', (
+           SELECT jsonb_build_object(
+             'voting_form', to_jsonb(vf),
+             'voting_form_fields', COALESCE(
+               (
+                 SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+                 FROM public.voting_form_fields vff
+                 WHERE vff.voting_form_id = vf.id
+               ),
+               '[]'::jsonb
+             )
+           )
+           FROM public.voting_forms vf
+           WHERE vf.id = j.voting_form_id
+         )
+       )
+     INTO result_bundle
+     FROM public.juries j
+     WHERE j.id = p_jury_id;
 
-  RETURN result_bundle;
+     RETURN result_bundle;
 END;
 $$;
-
-
--- Aggiungi questo blocco alla fine del tuo file rpc_organizer.sql
 
 --region GET VOTING FORM BUNDLE
 -- Recupera un form di voto e tutti i suoi campi associati.
 -- Utile per la pagina di modifica del form.
 CREATE OR REPLACE FUNCTION get_voting_form_bundle(p_voting_form_id uuid)
-RETURNS TABLE (
-  voting_form jsonb,
-  voting_form_fields jsonb
-)
+RETURNS jsonb -- MODIFICA: Restituisce un singolo oggetto JSONB che mappa direttamente a VotingFormBundle.
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER -- Eseguita con i permessi dell'utente, rispetta le RLS.
+SECURITY INVOKER
 AS $$
+DECLARE
+  result_bundle jsonb;
 BEGIN
   -- SICUREZZA: Verifica che l'utente che chiama la funzione sia l'organizzatore
   -- del contest a cui questo form di voto appartiene.
@@ -488,21 +495,23 @@ BEGIN
   END IF;
 
   -- Esegue la query per costruire il bundle
-  RETURN QUERY
   SELECT
-    -- 1. L'oggetto JSON del form di voto.
-    (SELECT to_jsonb(vf) FROM public.voting_forms vf WHERE vf.id = p_voting_form_id) AS voting_form,
+    jsonb_build_object(
+      'voting_form', to_jsonb(vf),
+      'voting_form_fields', COALESCE(
+        (
+          SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+          FROM public.voting_form_fields vff
+          WHERE vff.voting_form_id = vf.id
+        ),
+        '[]'::jsonb
+      )
+    )
+  INTO result_bundle
+  FROM public.voting_forms vf
+  WHERE vf.id = p_voting_form_id;
 
-    -- 2. Un array JSON dei campi del form, ordinati per 'order_index'.
-    --    COALESCE gestisce il caso in cui non ci siano campi, restituendo un array vuoto '[]'.
-    COALESCE(
-      (
-        SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
-        FROM public.voting_form_fields vff
-        WHERE vff.voting_form_id = p_voting_form_id
-      ),
-      '[]'::jsonb
-    ) AS voting_form_fields;
+  RETURN result_bundle;
 END;
 $$;
 
@@ -687,145 +696,6 @@ BEGIN
 END;
 $$;
 
-----region ORGANIZER INIT VOTING SESSION
----- Crea una nuova sessione di voto e "congela" lo stato di partecipanti, giurie e form.
----- Gestisce la creazione condizionale del luogo per la geo-restrizione.
----- È transazionale: se un'operazione fallisce, tutte le modifiche vengono annullate.
---CREATE OR REPLACE FUNCTION organizer_init_voting_session(
---  p_voting_session jsonb,
---  p_participations_ids uuid[],
---  p_exclusions jsonb,
---  p_geo_res_place jsonb -- Può essere NULL
---)
---RETURNS voting_sessions -- Restituisce l'intera riga della sessione di voto creata.
---LANGUAGE plpgsql
---SECURITY INVOKER
---AS $$
---DECLARE
---  v_contest_id uuid := (p_voting_session->>'contest_id')::uuid;
---  v_session_id uuid;
---  v_geo_res_place_id uuid;
---  v_jury_record record;
---  v_new_voting_form_id uuid;
---  v_session_jury_id uuid;
---  v_new_session voting_sessions;
---BEGIN
---  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
---  IF NOT EXISTS (
---    SELECT 1 FROM public.contests
---    WHERE id = v_contest_id AND organizer_id = auth.uid()
---  ) THEN
---    RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
---  END IF;
---
---  -- 1. Crea il 'Place' per la geo-restrizione, SOLO SE necessario.
---  IF p_geo_res_place IS NOT NULL THEN
---    INSERT INTO public.places (address, lat, lon)
---    VALUES (
---      p_geo_res_place->>'address',
---      (p_geo_res_place->>'lat')::float,
---      (p_geo_res_place->>'lon')::float
---    )
---    RETURNING id INTO v_geo_res_place_id;
---  END IF;
---
---  -- 2. Crea la riga principale della sessione di voto.
---  INSERT INTO public.voting_sessions (
---    contest_id, name, work_timer, intermission_timer, review_timer,
---    are_simple_jurors_allowed, is_geo_restricted, session_status,
---    geo_res_place_id, geo_res_radius
---  ) VALUES (
---    v_contest_id,
---    p_voting_session->>'name',
---    (p_voting_session->>'work_timer')::int,
---    (p_voting_session->>'intermission_timer')::int,
---    (p_voting_session->>'review_timer')::int,
---    (p_voting_session->>'are_simple_jurors_allowed')::bool,
---    (p_voting_session->>'is_geo_restricted')::bool,
---    'initialized',
---    v_geo_res_place_id, -- Sarà NULL se non è stato creato
---    (p_voting_session->>'geo_res_radius')::int
---  )
---  RETURNING id INTO v_session_id;
---
---  -- 3. Crea gli SNAPSHOT dei PARTECIPANTI selezionati.
---  INSERT INTO public.voting_session_participations (
---    voting_session_id, participation_id,
---    participant_full_name, work_name, work_description, work_images_urls,
---    order_index
---  )
---  SELECT
---    v_session_id, pa.id,
---    pr.full_name, w.name, w.description, w.images_urls,
---    u.ord - 1
---  FROM
---    unnest(p_participations_ids) WITH ORDINALITY AS u(id, ord) -- Espande l'array mantenendo l'ordine
---    JOIN public.participations pa ON pa.id = u.id
---    JOIN public.profiles pr ON pa.participant_id = pr.id
---    JOIN public.works w ON pa.id = w.participation_id;
---
---  -- 4. Itera su ogni GIURIA del contest per creare gli snapshot.
---  FOR v_jury_record IN
---    SELECT * FROM public.juries WHERE contest_id = v_contest_id
---  LOOP
---    -- 4.a: Crea un NUOVO voting_form per lo snapshot.
---    INSERT INTO public.voting_forms DEFAULT VALUES
---    RETURNING id INTO v_new_voting_form_id;
---
---    -- 4.b: Copia i campi dal form originale al nuovo form.
---    INSERT INTO public.voting_form_fields (voting_form_id, name, order_index, type, min_value, max_value)
---    SELECT
---      v_new_voting_form_id,
---      vff.name, vff.order_index, vff.type, vff.min_value, vff.max_value
---    FROM public.voting_form_fields vff
---    WHERE vff.voting_form_id = v_jury_record.voting_form_id;
---
---    -- 4.c: Crea lo snapshot della giuria.
---    INSERT INTO public.voting_session_juries (
---      voting_session_id, jury_id, jury_name, voting_form_id
---    ) VALUES (
---      v_session_id, v_jury_record.id, v_jury_record.name, v_new_voting_form_id
---    )
---    RETURNING id INTO v_session_jury_id;
---
---    -- 4.d: Crea gli snapshot dei singoli giurati.
---    INSERT INTO public.voting_session_jurations (
---      voting_session_id, juration_id, voting_session_jury_id, juror_full_name
---    )
---    SELECT
---      v_session_id,
---      ju.id,
---      v_session_jury_id,
---      pr.full_name
---    FROM
---      public.jurations ju
---      JOIN public.profiles pr ON ju.juror_id = pr.id
---    WHERE
---      ju.jury_id = v_jury_record.id;
---  END LOOP;
---
---  -- 5. Crea le ESCLUSIONI specifiche.
---  INSERT INTO public.voting_session_exclusions (
---    voting_session_id,
---    voting_session_juration_id,
---    voting_session_participation_id
---  )
---  SELECT
---    v_session_id,
---    vsj.id,
---    vsp.id
---  FROM
---    jsonb_to_recordset(p_exclusions) AS x(juration_id uuid, participation_id uuid)
---    JOIN public.voting_session_jurations vsj ON vsj.juration_id = x.juration_id AND vsj.voting_session_id = v_session_id
---    JOIN public.voting_session_participations vsp ON vsp.participation_id = x.participation_id AND vsp.voting_session_id = v_session_id;
---
---  -- 6. Recupera e restituisce la riga completa della sessione appena creata.
---  SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
---  RETURN v_new_session;
---END;
---$$;
-----endregion
-
 --region JUROR GET JOINED CONTESTS
 -- Recupera una lista di contest a cui l'utente autenticato si è unito come giurato.
 CREATE OR REPLACE FUNCTION juror_get_joined_contests()
@@ -977,16 +847,14 @@ DECLARE
 BEGIN
   -- NOTA DI SICUREZZA: Il controllo di autorizzazione è commentato.
   -- Assicurati che sia gestito correttamente dalle tue policy RLS o riabilitalo.
-  /*
-  IF NOT EXISTS (
-    SELECT 1
-    FROM public.voting_sessions vs
-    JOIN public.contests c ON vs.contest_id = c.id
-    WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
-  ) THEN
-    RAISE EXCEPTION 'Voting session not found or access not authorized.';
-  END IF;
-  */
+--  IF NOT EXISTS (
+--    SELECT 1
+--    FROM public.voting_sessions vs
+--    JOIN public.contests c ON vs.contest_id = c.id
+--    WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
+--  ) THEN
+--    RAISE EXCEPTION 'Voting session not found or access not authorized.';
+--  END IF;
 
   -- Costruisce l'oggetto JSON finale usando subquery per ogni campo del bundle.
   SELECT jsonb_build_object(
@@ -1047,14 +915,6 @@ BEGIN
       SELECT COALESCE(jsonb_agg(to_jsonb(vse)), '[]'::jsonb)
       FROM public.voting_session_exclusions vse
       WHERE vse.voting_session_id = p_voting_session_id
-    ),
-
-    -- 5. 'contest_token'
-    'contest_token', (
-      SELECT c.token
-      FROM public.voting_sessions vs
-      JOIN public.contests c ON vs.contest_id = c.id
-      WHERE vs.id = p_voting_session_id
     )
 
   )
@@ -1065,124 +925,7 @@ END;
 $$;
 --endregion
 
-----region ORGANIZER START VOTING SESSION (CLIENT-TRIGGERED)
---CREATE OR REPLACE FUNCTION organizer_start_voting_session (
---  p_voting_session_id uuid
---)
---RETURNS void
---LANGUAGE plpgsql
---SECURITY DEFINER -- Permette di modificare lo stato indipendentemente da chi la chiama.
---AS $$
---DECLARE
---  v_voting_session voting_sessions;
---  v_work_timer interval;
---BEGIN
---  SELECT * INTO v_voting_session
---  FROM public.voting_sessions
---  WHERE id = p_voting_session_id;
---
---  IF NOT FOUND THEN
---    RAISE EXCEPTION 'Voting session not found';
---  END IF;
---
---  IF v_voting_session.session_status <> 'initialized' THEN
---    RAISE EXCEPTION 'La sessione può essere avviata solo se è in stato "initialized".';
---  END IF;
---
---  -- Calcola il primo timer
---  v_work_timer := v_voting_session.work_timer * interval '1 second';
---
---  -- Imposta lo stato iniziale della procedura
---  UPDATE public.voting_sessions
---  SET
---    session_status = 'work',
---    current_participant_index = 0,
---    current_step_deadline = now() + v_work_timer
---  WHERE id = p_voting_session_id;
---END;
---$$;
-----endregion
-
-----region ORGANIZER ADVANCE VOTING SESSION (CLIENT-TRIGGERED)
----- Avanza lo stato di una sessione di voto.
----- Progettata per essere chiamata dal client quando un timer scade.
----- È sicura contro chiamate multiple (race conditions).
---CREATE OR REPLACE FUNCTION organizer_advance_voting_session (
---  p_voting_session_id uuid
---)
---RETURNS void
---LANGUAGE plpgsql
---SECURITY DEFINER
---AS $$
---DECLARE
---  v_session voting_sessions;
---  v_next_index int;
---  v_next_status text;
---  v_delay interval;
---  v_participants_count int;
---  v_timers record;
---BEGIN
---  -- Recupera lo stato attuale della sessione per evitare race condition.
---  -- FOR UPDATE blocca la riga per prevenire modifiche concorrenti.
---  SELECT *
---  INTO v_session
---  FROM public.voting_sessions
---  WHERE id = p_voting_session_id
---  FOR UPDATE;
---
---  -- Se la sessione non esiste o è già finita, non fare nulla.
---  IF NOT FOUND OR v_session.session_status = 'ended' THEN
---    RETURN;
---  END IF;
---
---  -- CONTROLLO CHIAVE: Esegui la logica solo se il timer è effettivamente scaduto.
---  IF v_session.current_step_deadline <= now() THEN
---    -- Prendi i timer e il numero di partecipanti
---    SELECT work_timer, intermission_timer, review_timer INTO v_timers FROM public.voting_sessions WHERE id = p_voting_session_id;
---    SELECT COUNT(*) INTO v_participants_count FROM public.voting_session_participations WHERE voting_session_id = v_session.id;
---
---    -- Calcola il prossimo stato in base a quello attuale.
---    IF v_session.session_status = 'work' THEN
---      v_next_status := 'intermission';
---      v_delay       := v_timers.intermission_timer * interval '1 second';
---      v_next_index  := v_session.current_participant_index;
---
---    ELSIF v_session.session_status = 'intermission' THEN
---      IF (v_session.current_participant_index + 1) < v_participants_count THEN
---        v_next_status := 'work';
---        v_delay       := v_timers.work_timer * interval '1 second';
---        v_next_index  := v_session.current_participant_index + 1;
---      ELSE
---        v_next_status := 'review';
---        v_delay       := v_timers.review_timer * interval '1 second';
---        v_next_index  := NULL;
---      END IF;
---
---    ELSIF v_session.session_status = 'review' THEN
---      v_next_status := 'ended';
---      v_delay       := NULL;
---      v_next_index  := NULL;
---    END IF;
---
---    -- Aggiorna lo stato della sessione.
---    IF v_next_status = 'ended' THEN
---      UPDATE public.voting_sessions
---      SET session_status = 'ended', current_participant_index = NULL, current_step_deadline = NULL
---      WHERE id = v_session.id;
---    ELSE
---      UPDATE public.voting_sessions
---      SET
---        current_participant_index = v_next_index,
---        session_status = v_next_status::voting_session_status,
---        current_step_deadline = now() + v_delay
---      WHERE id = v_session.id;
---    END IF;
---  END IF;
---END;
---$$;
-----endregion
-
---region ORGANIZER END VOTING SESSION (CLIENT-TRIGGERED)
+--region ORGANIZER END VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_end_voting_session(p_voting_session_id uuid)
 RETURNS void
 LANGUAGE plpgsql
@@ -1201,7 +944,7 @@ END;
 $$;
 --endregion
 
---region ORGANIZER CANCEL VOTING SESSION (CLIENT-TRIGGERED)
+--region ORGANIZER CANCEL VOTING SESSION
 CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (p_voting_session_id uuid)
 RETURNS void
 LANGUAGE plpgsql
@@ -1250,95 +993,6 @@ BEGIN
 
   -- 3. Restituisce la riga trovata.
   RETURN v_result;
-END;
-$$;
---endregion
-
---region JUROR SUBMIT VOTES (JSON PAYLOAD)
--- Permette a un giurato di inviare i suoi voti per una sessione.
--- L'operazione è transazionale e più sicura perché il DB genera gli ID.
-CREATE OR REPLACE FUNCTION juror_submit_votes(
-  p_voting_session_id uuid,
-  p_votes_payload jsonb, -- Es: '[{"voting_session_participation_id": "...", "votes": [{"voting_form_field_id": "...", "value": "..."}]}]'
-  p_juror_lat float DEFAULT NULL,
-  p_juror_lon float DEFAULT NULL
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY INVOKER
-AS $$
-DECLARE
-  v_session record;
-  v_juration voting_session_jurations;
-  v_geo_res_place record;
-  v_voting_record jsonb;
-  v_vote_record jsonb;
-  v_new_juror_voting_id uuid;
-BEGIN
-  -- PASSO 1: CONTROLLI DI SICUREZZA
-  SELECT * INTO v_juration
-  FROM public.juror_get_own_voting_session_juration(p_voting_session_id);
-
-  IF v_juration.has_submitted THEN
-    RAISE EXCEPTION 'I voti per questa sessione sono già stati inviati.';
-  END IF;
-
-  SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
-
-  IF v_session.session_status <> 'live' THEN
-    RAISE EXCEPTION 'La sessione è conclusa';
-  END IF;
-
-  -- PASSO 2: CONTROLLO GEO-RESTRIZIONE
-  IF v_session.is_geo_restricted THEN
-    IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
-      RAISE EXCEPTION 'Dati di localizzazione richiesti per questa sessione di voto.';
-    END IF;
-    SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
-    IF NOT ST_DWithin(
-      ST_MakePoint(v_geo_res_place.lon, v_geo_res_place.lat)::geography,
-      ST_MakePoint(p_juror_lon, p_juror_lat)::geography,
-      v_session.geo_res_radius
-    ) THEN
-      RAISE EXCEPTION 'Non ti trovi all''interno dell''area geografica consentita per la votazione.';
-    END IF;
-  END IF;
-
-  -- PASSO 3: SALVATAGGIO DEI VOTI
-  FOR v_voting_record IN SELECT * FROM jsonb_array_elements(p_votes_payload)
-  LOOP
-    -- 3a. Crea la riga in 'juror_votings', il DB genera l'ID.
-    INSERT INTO public.juror_votings (
-      voting_session_id,
-      voting_session_juration_id,
-      voting_session_participation_id
-    ) VALUES (
-      p_voting_session_id,
-      v_juration.id,
-      (v_voting_record->>'voting_session_participation_id')::uuid
-    )
-    RETURNING id INTO v_new_juror_voting_id; -- Cattura l'ID appena creato.
-
-    -- 3b. Inserisce i voti associati usando l'ID catturato.
-    FOR v_vote_record IN SELECT * FROM jsonb_array_elements(v_voting_record->'votes')
-    LOOP
-      INSERT INTO public.juror_votes (
-        juror_voting_id,
-        voting_form_field_id,
-        value
-      ) VALUES (
-        v_new_juror_voting_id,
-        (v_vote_record->>'voting_form_field_id')::uuid,
-        (v_vote_record->>'value')::varchar
-      );
-    END LOOP;
-  END LOOP;
-
-  -- PASSO 4: AGGIORNA LO STATO DEL GIURATO
-  UPDATE public.voting_session_jurations
-  SET has_submitted = true
-  WHERE id = v_juration.id;
-
 END;
 $$;
 --endregion
@@ -1477,6 +1131,296 @@ BEGIN
   -- 6. Recupera e restituisce la riga completa della sessione appena creata.
   SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
   RETURN v_new_session;
+END;
+$$;
+--endregion
+
+--region JUROR SUBMIT VOTES (REFACTORED FOR NEW SCHEMA)
+-- Permette a un giurato di inviare i suoi voti per una sessione.
+-- L'operazione è transazionale e usa il nuovo schema flessibile.
+CREATE OR REPLACE FUNCTION juror_submit_votes(
+  p_voting_session_id uuid,
+  -- MODIFICA: Il payload è ora una lista piatta di tutti i valori.
+  -- Esempio: '[{"form_field_id": "...", "value": "...", "voting_session_participation_id": "..."}, ...]'
+  -- 'voting_session_participation_id' è NULL per i campi di scope 'header' o 'footer'.
+  p_votes_payload jsonb,
+  p_juror_lat float DEFAULT NULL,
+  p_juror_lon float DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_session record;
+  v_juration voting_session_jurations;
+  v_geo_res_place record;
+  v_submission_id uuid; -- ID della nuova riga in form_submissions
+BEGIN
+  -- PASSO 1: CONTROLLI DI SICUREZZA (Invariati)
+  -- Recupera la juration dell'utente per questa sessione.
+  SELECT * INTO v_juration
+  FROM public.juror_get_own_voting_session_juration(p_voting_session_id);
+
+  -- Controlla se ha già sottomesso i voti.
+  IF v_juration.has_submitted THEN
+    RAISE EXCEPTION 'I voti per questa sessione sono già stati inviati.';
+  END IF;
+
+  -- Controlla lo stato della sessione.
+  SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
+  IF v_session.session_status <> 'live' THEN
+    RAISE EXCEPTION 'La sessione di voto non è attiva.';
+  END IF;
+
+  -- PASSO 2: CONTROLLO GEO-RESTRIZIONE (Invariato)
+  IF v_session.is_geo_restricted THEN
+    IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
+      RAISE EXCEPTION 'Dati di localizzazione richiesti per questa sessione di voto.';
+    END IF;
+    SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
+    -- Usa PostGIS per verificare la distanza.
+    IF NOT ST_DWithin(
+      ST_MakePoint(v_geo_res_place.lon, v_geo_res_place.lat)::geography,
+      ST_MakePoint(p_juror_lon, p_juror_lat)::geography,
+      v_session.geo_res_radius
+    ) THEN
+      RAISE EXCEPTION 'Non ti trovi all''interno dell''area geografica consentita per la votazione.';
+    END IF;
+  END IF;
+
+  -- PASSO 3: SALVATAGGIO DEI VOTI (Logica completamente nuova)
+  -- 3a. Crea una singola riga in 'form_submissions' per rappresentare questo invio.
+  INSERT INTO public.voting_form_submissions (
+    voting_session_id,
+    voting_session_juration_id
+  ) VALUES (
+    p_voting_session_id,
+    v_juration.id
+  )
+  RETURNING id INTO v_submission_id; -- Cattura l'ID della sottomissione.
+
+  -- 3b. Inserisce tutti i valori dei voti in 'form_submission_values' con un'unica operazione.
+  --      Questo è molto più efficiente di un loop.
+  INSERT INTO public.voting_form_submission_values (
+    voting_form_submission_id,
+    voting_form_field_id,
+    value,
+    voting_session_participation_id
+  )
+  SELECT
+    v_submission_id, -- Usa l'ID della sottomissione appena creato per tutti i valori.
+    (value->>'voting_form_field_id')::uuid,
+    (value->>'value')::text,
+    (value->>'voting_session_participation_id')::uuid -- Sarà NULL se la chiave non è presente nel JSON.
+  FROM jsonb_array_elements(p_votes_payload) AS value;
+
+  -- PASSO 4: AGGIORNA LO STATO DEL GIURATO (Invariato)
+  UPDATE public.voting_session_jurations
+  SET has_submitted = true
+  WHERE id = v_juration.id;
+
+END;
+$$;
+--endregion
+
+--region GET VOTING SESSION RESULT DETAILS (REFACTORED)
+-- Recupera tutti i dati necessari per visualizzare i risultati di una sessione di voto.
+-- Restituisce un singolo oggetto JSON con dati già aggregati per semplificare il client.
+CREATE OR REPLACE FUNCTION get_voting_session_result_details(p_voting_session_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  result_bundle jsonb;
+  v_contest_id uuid;
+BEGIN
+  -- Controllo di sicurezza per verificare che l'utente sia l'organizzatore.
+  SELECT contest_id INTO v_contest_id FROM public.voting_sessions WHERE id = p_voting_session_id;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.contests WHERE id = v_contest_id AND organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Sessione di voto non trovata o accesso non autorizzato.';
+  END IF;
+
+  -- Costruisce l'oggetto JSON finale.
+  SELECT jsonb_build_object(
+    -- 1. 'voting_session_bundle': Contiene la sessione e il suo place.
+    'voting_session_bundle', (
+      SELECT jsonb_build_object(
+        'voting_session', to_jsonb(vs),
+        'geo_res_place', to_jsonb(pl)
+      )
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.id = p_voting_session_id
+    ),
+
+    -- 2. 'voting_session_participations': Snapshot dei partecipanti (già pulito).
+    'voting_session_participations', COALESCE((
+      SELECT jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index)
+      FROM public.voting_session_participations vsp
+      WHERE vsp.voting_session_id = p_voting_session_id
+    ), '[]'::jsonb),
+
+    -- 3. 'voting_session_juries_bundles': Struttura complessa già costruita.
+    'voting_session_juries_bundles', (
+      SELECT COALESCE(jsonb_agg(
+        jsonb_build_object(
+          'voting_session_jury', to_jsonb(vsj),
+          'voting_form_bundle', (
+            SELECT jsonb_build_object(
+              'voting_form', to_jsonb(vf),
+              'voting_form_fields', COALESCE((
+                SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+                FROM public.voting_form_fields vff
+                WHERE vff.voting_form_id = vf.id
+              ), '[]'::jsonb)
+            )
+            FROM public.voting_forms vf
+            WHERE vf.id = vsj.voting_form_id
+          ),
+          'voting_session_jurations', (
+            SELECT COALESCE(jsonb_agg(to_jsonb(vsju)), '[]'::jsonb)
+            FROM public.voting_session_jurations vsju
+            WHERE vsju.voting_session_jury_id = vsj.id
+          )
+        )
+      ), '[]'::jsonb)
+      FROM public.voting_session_juries vsj
+      WHERE vsj.voting_session_id = p_voting_session_id
+    ),
+
+    -- 4. 'voting_session_exclusions': Lista delle esclusioni.
+    'voting_session_exclusions', COALESCE((
+      SELECT jsonb_agg(to_jsonb(vse))
+      FROM public.voting_session_exclusions vse
+      WHERE vse.voting_session_id = p_voting_session_id
+    ), '[]'::jsonb),
+
+    -- 5. Dati grezzi dei voti (che verranno mappati dal client).
+    'raw_jurors_votings', COALESCE((
+      SELECT jsonb_agg(to_jsonb(jv))
+      FROM public.juror_votings jv
+      WHERE jv.voting_session_id = p_voting_session_id
+    ), '[]'::jsonb),
+    'raw_jurors_votes', COALESCE((
+      SELECT jsonb_agg(to_jsonb(jvv))
+      FROM public.juror_votes jvv
+      JOIN public.juror_votings jv ON jvv.juror_voting_id = jv.id
+      WHERE jv.voting_session_id = p_voting_session_id
+    ), '[]'::jsonb)
+
+  )
+  INTO result_bundle;
+
+  RETURN result_bundle;
+END;
+$$;
+--endregion
+
+--region GET VOTING SESSION JURY RESULT DETAILS (BY SINGLE ID)
+-- Recupera i risultati di una sessione di voto, ma filtrati per una singola giuria della sessione.
+-- Usa un singolo ID (p_voting_session_jury_id) per una maggiore specificità e semplicità.
+CREATE OR REPLACE FUNCTION organizer_get_voting_session_jury_result_details(
+  p_voting_session_jury_id uuid
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  result_bundle jsonb;
+  v_voting_session_id uuid;
+  v_jury_id uuid;
+BEGIN
+  -- LOGICA CHIAVE: Recupera gli ID necessari dalla tabella voting_session_juries
+  SELECT voting_session_id, jury_id
+  INTO v_voting_session_id, v_jury_id
+  FROM public.voting_session_juries
+  WHERE id = p_voting_session_jury_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Sessione di giuria non trovata con ID %', p_voting_session_jury_id;
+  END IF;
+
+  -- SICUREZZA: Verifica che l'utente che chiama la funzione sia un membro della giuria originale.
+  -- Questo permette a un giurato di vedere i risultati della propria giuria.
+  IF NOT EXISTS (
+    SELECT 1 FROM public.jurations
+    WHERE jury_id = v_jury_id AND juror_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Accesso non autorizzato o giuria non trovata.';
+  END IF;
+
+  -- Costruisce l'oggetto JSON finale, filtrando i dati per la giuria specificata.
+  SELECT jsonb_build_object(
+    -- 'voting_session_bundle' e 'voting_session_participations' usano v_voting_session_id
+    'voting_session_bundle', (
+      SELECT jsonb_build_object('voting_session', to_jsonb(vs), 'geo_res_place', to_jsonb(pl))
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.id = v_voting_session_id
+    ),
+
+    'voting_session_participations', COALESCE((
+      SELECT jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index)
+      FROM public.voting_session_participations vsp
+      WHERE vsp.voting_session_id = v_voting_session_id
+    ), '[]'::jsonb),
+
+    -- MODIFICA CHIAVE: Restituisce un singolo oggetto 'voting_session_jury_bundle' usando p_voting_session_jury_id
+    'voting_session_jury_bundle', (
+      SELECT
+        jsonb_build_object(
+          'voting_session_jury', to_jsonb(vsj),
+          'voting_form_bundle', (
+            SELECT jsonb_build_object(
+              'voting_form', to_jsonb(vf),
+              'voting_form_fields', COALESCE((SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index) FROM public.voting_form_fields vff WHERE vff.voting_form_id = vf.id), '[]'::jsonb)
+            )
+            FROM public.voting_forms vf WHERE vf.id = vsj.voting_form_id
+          ),
+          'voting_session_jurations', (
+            SELECT COALESCE(jsonb_agg(to_jsonb(vsju)), '[]'::jsonb)
+            FROM public.voting_session_jurations vsju
+            WHERE vsju.voting_session_jury_id = vsj.id
+          )
+        )
+      FROM public.voting_session_juries vsj
+      WHERE vsj.id = p_voting_session_jury_id -- <-- FILTRO DIRETTO
+    ),
+
+    -- 'voting_session_exclusions' viene filtrato per i giurati della giuria specificata.
+    'voting_session_exclusions', COALESCE((
+      SELECT jsonb_agg(to_jsonb(vse))
+      FROM public.voting_session_exclusions vse
+      JOIN public.voting_session_jurations vsju ON vse.voting_session_juration_id = vsju.id
+      WHERE vsju.voting_session_jury_id = p_voting_session_jury_id
+    ), '[]'::jsonb),
+
+    -- 'raw_jurors_votings' e 'raw_jurors_votes' vengono filtrati allo stesso modo.
+    'raw_jurors_votings', COALESCE((
+      SELECT jsonb_agg(to_jsonb(jv))
+      FROM public.juror_votings jv
+      JOIN public.voting_session_jurations vsju ON jv.voting_session_juration_id = vsju.id
+      WHERE vsju.voting_session_jury_id = p_voting_session_jury_id
+    ), '[]'::jsonb),
+    'raw_jurors_votes', COALESCE((
+      SELECT jsonb_agg(to_jsonb(jvv))
+      FROM public.juror_votes jvv
+      JOIN public.juror_votings jv ON jvv.juror_voting_id = jv.id
+      JOIN public.voting_session_jurations vsju ON jv.voting_session_juration_id = vsju.id
+      WHERE vsju.voting_session_jury_id = p_voting_session_jury_id
+    ), '[]'::jsonb)
+
+  )
+  INTO result_bundle;
+
+  RETURN result_bundle;
 END;
 $$;
 --endregion

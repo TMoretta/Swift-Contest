@@ -1,13 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:swift_contest/model/db/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
@@ -180,8 +177,8 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                                             child: ListTile(
                                               onTap: () {
                                                 context.router.push(
-                                                    OrganizerVotingResultDetailsRoute(
-                                                        votingSessionId: votingSession.id));
+                                                    OrganizerVotingResultsRoute(
+                                                        votingSessionId: votingSession.id!));
                                               },
                                               title: Text(
                                                 votingSession.name,
