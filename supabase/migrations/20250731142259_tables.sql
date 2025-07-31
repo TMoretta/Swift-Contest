@@ -53,15 +53,15 @@ CREATE TABLE contests (
   works_submission_start timestamptz NOT NULL,
   works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL UNIQUE REFERENCES places (id),
-  images_urls text[] NOT NULL,
-  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('contests', 'token', 14)
+  images_urls text[] NOT NULL
+--  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('contests', 'token', 14)
 );
 
 CREATE TABLE participant_invitations (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
-  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('participant_invitations', 'token', 14),
+  token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
   email varchar NOT NULL
 );
 
@@ -70,7 +70,7 @@ CREATE TABLE juries (
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
-  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('juries', 'token', 14),
+  token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
   name varchar NOT NULL,
   type jury_type NOT NULL,
   UNIQUE (contest_id, name)
@@ -81,7 +81,7 @@ CREATE TABLE juror_invitations (
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   jury_id uuid NOT NULL REFERENCES juries (id) ON DELETE cascade,
-  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('juror_invitations', 'token', 14),
+  token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
   email varchar NOT NULL
 );
 
@@ -126,7 +126,7 @@ CREATE TABLE voting_sessions (
   session_status voting_session_status NOT NULL
 );
 
-CREATE TABLE voting_session_participations (
+CREATE TABLE voting_session_participants (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
@@ -147,85 +147,51 @@ CREATE TABLE voting_session_juries (
   jury_id uuid REFERENCES juries (id) ON DELETE SET NULL,
   -- snapshot data
   jury_name varchar NOT NULL,
+  jury_type jury_type NOT NULL,
   voting_form_id uuid NOT NULL,
-  token varchar(14) NOT NULL
+  token uuid NOT NULL,
+  UNIQUE (voting_session_id, token)
 );
 
-CREATE TABLE voting_session_jurations (
+CREATE TABLE voting_session_jurors (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   voting_session_jury_id uuid NOT NULL REFERENCES voting_session_juries (id) ON DELETE cascade,
   juration_id uuid REFERENCES jurations (id) ON DELETE SET NULL,
+  juror_id uuid REFERENCES profiles (id) ON DELETE SET NULL,
   has_submitted bool NOT NULL DEFAULT false,
-  UNIQUE (voting_session_id, juration_id),
   -- snapshot data
-  juror_full_name varchar NOT NULL
+  juror_full_name varchar NOT NULL,
+  UNIQUE (voting_session_jury_id, juror_id)
 );
 
 CREATE TABLE voting_session_exclusions (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
-  voting_session_juration_id uuid NOT NULL REFERENCES voting_session_jurations (id),
-  voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
-  UNIQUE (voting_session_juration_id, voting_session_participation_id)
+  voting_session_juror_id uuid NOT NULL REFERENCES voting_session_jurors (id) ON DELETE cascade,
+  voting_session_participant_id uuid NOT NULL REFERENCES voting_session_participants (id) ON DELETE cascade,
+  UNIQUE (voting_session_juror_id, voting_session_participant_id)
 );
 
-CREATE TABLE simple_jurors (
-  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-  created_at timestamptz NOT NULL DEFAULT now(),
-  full_name varchar NOT NULL
-);
-
-CREATE TABLE voting_session_simple_jurors (
-  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-  created_at timestamptz NOT NULL DEFAULT now(),
-  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
-  voting_session_jury_id uuid NOT NULL REFERENCES voting_session_juries (id) ON DELETE cascade,
-  simple_juror_id uuid NOT NULL REFERENCES simple_jurors (id),
-  has_submitted bool NOT NULL DEFAULT false,
-  UNIQUE (voting_session_id, simple_juror_id)
-);
-
--- NUOVA TABELLA: Rappresenta l'evento di sottomissione di un form da parte di un giurato.
--- MODIFICATA per essere flessibile e accettare sia giurati nominati che semplici.
 CREATE TABLE voting_form_submissions (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  -- A quale sessione di voto appartiene questa sottomissione.
   voting_session_id uuid NOT NULL REFERENCES voting_sessions(id) ON DELETE CASCADE,
-
-  -- Chi ha sottomesso il form? Solo una di queste due colonne sarà valorizzata.
-  voting_session_juration_id uuid REFERENCES voting_session_jurations(id) ON DELETE CASCADE,
-  voting_session_simple_juror_id uuid REFERENCES voting_session_simple_jurors(id) ON DELETE CASCADE,
-
-  -- Vincolo per assicurare che solo una delle due colonne FK sia popolata.
-  CONSTRAINT chk_one_juror_type CHECK (
-    (voting_session_juration_id IS NOT NULL AND voting_session_simple_juror_id IS NULL) OR
-    (voting_session_juration_id IS NULL AND voting_session_simple_juror_id IS NOT NULL)
-  ),
-
-  -- Vincolo di unicità per evitare sottomissioni multiple.
-  UNIQUE(voting_session_id, voting_session_juration_id),
-  UNIQUE(voting_session_id, voting_session_simple_juror_id)
+  voting_session_juror_id uuid UNIQUE REFERENCES voting_session_jurors(id) ON DELETE CASCADE
 );
 
--- NUOVA TABELLA: Contiene i valori effettivi per ogni campo della sottomissione.
--- QUESTA TABELLA NON CAMBIA, il che dimostra la potenza di questo design.
 CREATE TABLE voting_form_submission_values (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-  -- A quale sottomissione appartiene questo valore.
-  form_submission_id uuid NOT NULL REFERENCES voting_form_submissions(id) ON DELETE CASCADE,
-  -- A quale campo del form si riferisce questo valore.
-  form_field_id uuid NOT NULL REFERENCES voting_form_fields(id) ON DELETE CASCADE,
-  -- Il valore inserito dall'utente.
+  voting_form_submission_id uuid NOT NULL REFERENCES voting_form_submissions(id) ON DELETE CASCADE,
+  voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields(id) ON DELETE CASCADE,
   value text NOT NULL,
   -- Se il campo è di scope 'participant', a quale partecipante si riferisce?
   -- Se lo scope è 'header' o 'footer', questo campo sarà NULL.
-  voting_session_participation_id uuid REFERENCES voting_session_participations(id) ON DELETE CASCADE,
+  voting_session_participant_id uuid REFERENCES voting_session_participants(id) ON DELETE CASCADE,
   -- Evita che un giurato possa dare due voti per lo stesso campo e lo stesso partecipante.
-  UNIQUE(form_submission_id, form_field_id, voting_session_participation_id)
+  UNIQUE(voting_form_submission_id, voting_form_field_id, voting_session_participant_id)
 );
 
 --CREATE TABLE juror_votings (

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/db/entities/voting_form_field.dart';
 import 'package:swift_contest/model/db/entities/voting_session_participation.dart';
+import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
 import 'package:swift_contest/model/db/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -42,7 +43,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   late String profileId;
   late final String votingSessionId;
   final formKey = GlobalKey<FormState>();
-  // final List<VotingProcedureFormAndWorkView> votingFormAndWorkViews = [];
+  final List<VotingFormAndWorkView> votingFormAndWorkViews = [];
   final Map<VotingSessionParticipation, Map<VotingFormField, TextEditingController>> votesMap = {};
   bool isPageInitialized = false;
 
@@ -101,139 +102,145 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         }
       },
       builder: (context, state) {
-        return Placeholder();
-        // return Scaffold(
-        //   appBar: CustomAppBar(
-        //     title: 'Voting',
-        //     onRefresh: () => context.read<JurorVotingProcedurePageBloc>().add(
-        //           JurorVotingProcedurePageFetch(votingSessionId: votingSessionId),
-        //         ),
-        //   ),
-        //   body: SafeArea(
-        //     child: Padding(
-        //       padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-        //       child: Builder(
-        //         builder: (context) {
-        //           switch (state.status) {
-        //             case BlocStatus.initial:
-        //               return VoidWidget();
-        //             case BlocStatus.loading:
-        //               if (!state.isInitialized) {
-        //                 return VoidWidget();
-        //               } else {
-        //                 continue successCase;
-        //               }
-        //             case BlocStatus.failure:
-        //               if (!state.isInitialized) {
-        //                 return RefreshIndicator.adaptive(
-        //                   onRefresh: () async => context
-        //                       .read<JurorVotingProcedurePageBloc>()
-        //                       .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
-        //                   child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-        //                 );
-        //               } else {
-        //                 continue successCase;
-        //               }
-        //             successCase:
-        //             case BlocStatus.success:
-        //               final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
-        //               final votingSessionBundle = votingSessionProcedureBundle.votingSessionBundle;
-        //               final votingSession = votingSessionBundle.votingSession;
-        //               final ownVotingSessionJuration = state.ownVotingSessionJuration!;
-        //               final ownVotingSessionJuryBundle =
-        //                   votingSessionProcedureBundle.votingSessionJuriesBundles.firstWhere(
-        //                 (juryBundle) =>
-        //                     juryBundle.votingSessionJury.id ==
-        //                     ownVotingSessionJuration.votingSessionJuryId,
-        //               );
-        //               final votingSessionParticipations =
-        //                   votingSessionProcedureBundle.votingSessionParticipations;
-        //               final votingFormFields =
-        //                   ownVotingSessionJuryBundle.votingFormBundle.votingFormFields;
-        //
-        //               if (!isPageInitialized) {
-        //                 for (var votingSessionParticipation in votingSessionParticipations) {
-        //                   final Map<VotingFormField, TextEditingController> fieldsControllers = {};
-        //                   for (var votingFormField in votingFormFields) {
-        //                     fieldsControllers.addAll({votingFormField: TextEditingController()});
-        //                   }
-        //                   votesMap.addAll({votingSessionParticipation: fieldsControllers});
-        //                   final isExcludedFromParticipant =
-        //                       votingSessionProcedureBundle.votingSessionExclusions.any((e) =>
-        //                           e.votingSessionJurationId == ownVotingSessionJuration.id &&
-        //                           e.votingSessionParticipationId == votingSessionParticipation.id);
-        //                   votingFormAndWorkViews.add(VotingProcedureFormAndWorkView(
-        //                       isExcludedFromParticipant: isExcludedFromParticipant,
-        //                       votingSessionParticipation: votingSessionParticipation,
-        //                       votingFormFields: votingFormFields,
-        //                       votesMap: votesMap));
-        //                 }
-        //                 isPageInitialized = true;
-        //               }
-        //
-        //               return RefreshIndicator.adaptive(
-        //                 onRefresh: () async => context
-        //                     .read<JurorVotingProcedurePageBloc>()
-        //                     .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
-        //                 child: Form(
-        //                   key: formKey,
-        //                   child: ListView.builder(
-        //                     itemCount: votingFormAndWorkViews.length,
-        //                     itemBuilder: (context, index) {
-        //                       return Column(
-        //                         mainAxisSize: MainAxisSize.min,
-        //                         children: [
-        //                           votingFormAndWorkViews[index],
-        //                           if (index == votingFormAndWorkViews.length - 1)
-        //                             SizedBox(height: 100),
-        //                         ],
-        //                       );
-        //                     },
-        //                   ),
-        //                 ),
-        //               );
-        //           }
-        //         },
-        //       ),
-        //     ),
-        //   ),
-        //   floatingActionButton: (state.isInitialized)
-        //       ? FilledButton(
-        //           onPressed: () {
-        //             if (formKey.currentState?.validate() ?? false) {
-        //               final Map<VotingSessionParticipation, Map<VotingFormField, String>>
-        //               votesPerParticipantMap = {};
-        //               for (var entry in votesMap.entries) {
-        //                 final votingSessionParticipation = entry.key;
-        //                 final votingFormFieldAndController = entry.value;
-        //                 final Map<VotingFormField, String> votes = {};
-        //                 for (var votingFormFieldAndControllerEntry
-        //                 in votingFormFieldAndController.entries) {
-        //                   final votingFormField = votingFormFieldAndControllerEntry.key;
-        //                   final controller = votingFormFieldAndControllerEntry.value;
-        //                   if (controller.text.trim().isNotEmpty) {
-        //                     votes.addAll({votingFormField: controller.text.trim()});
-        //                   }
-        //                 }
-        //                 if (votes.isNotEmpty) {
-        //                   votesPerParticipantMap.addAll({votingSessionParticipation: votes});
-        //                 }
-        //               }
-        //
-        //               // Invia il nuovo evento semplificato.
-        //               context
-        //                   .read<JurorVotingProcedurePageBloc>()
-        //                   .add(JurorVotingProcedurePageSubmitVotes(
-        //                     votesPerParticipantMap: votesPerParticipantMap,
-        //                   ));
-        //             } else {
-        //               showSnackBar(context: context, text: 'Fill all the fields');
-        //             }
-        //           },
-        //           child: Text('Submit'),
-        //         )
-        //       : null,
-        // );
+        return Scaffold(
+          appBar: CustomAppBar(
+            title: 'Voting',
+            onRefresh: () => context.read<JurorVotingProcedurePageBloc>().add(
+                  JurorVotingProcedurePageFetch(votingSessionId: votingSessionId),
+                ),
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+              child: Builder(
+                builder: (context) {
+                  switch (state.status) {
+                    case BlocStatus.initial:
+                      return VoidWidget();
+                    case BlocStatus.loading:
+                      if (!state.isInitialized) {
+                        return VoidWidget();
+                      } else {
+                        continue successCase;
+                      }
+                    case BlocStatus.failure:
+                      if (!state.isInitialized) {
+                        return RefreshIndicator.adaptive(
+                          onRefresh: () async => context
+                              .read<JurorVotingProcedurePageBloc>()
+                              .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
+                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
+                        );
+                      } else {
+                        continue successCase;
+                      }
+                    successCase:
+                    case BlocStatus.success:
+                      final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
+                      final votingSessionBundle = votingSessionProcedureBundle.votingSessionBundle;
+                      final votingSession = votingSessionBundle.votingSession;
+                      final ownVotingSessionJuration = state.ownVotingSessionJuration!;
+                      final ownVotingSessionJuryBundle =
+                          votingSessionProcedureBundle.votingSessionJuriesBundles.firstWhere(
+                        (juryBundle) =>
+                            juryBundle.votingSessionJury.id ==
+                            ownVotingSessionJuration.votingSessionJuryId,
+                      );
+                      final votingSessionParticipations =
+                          votingSessionProcedureBundle.votingSessionParticipations;
+                      final votingFormFields =
+                          ownVotingSessionJuryBundle.votingFormBundle.votingFormFields;
+
+                      if (!isPageInitialized) {
+                        for (var votingSessionParticipation in votingSessionParticipations) {
+                          final Map<VotingFormField, TextEditingController> fieldsControllers = {};
+                          for (var votingFormField in votingFormFields) {
+                            switch(votingFormField.type) {
+                              case VotingFormFieldType.textual:
+                                fieldsControllers.addAll({votingFormField: TextEditingController()});
+                                break;
+                              case VotingFormFieldType.slider:
+                                fieldsControllers.addAll({votingFormField: TextEditingController(text: votingFormField.sliderMinValue!.toString())});
+                                break;
+                            }
+                          }
+                          votesMap.addAll({votingSessionParticipation: fieldsControllers});
+                          final isExcludedFromParticipant =
+                              votingSessionProcedureBundle.votingSessionExclusions.any((e) =>
+                                  e.votingSessionJurationId == ownVotingSessionJuration.id &&
+                                  e.votingSessionParticipationId == votingSessionParticipation.id);
+                          votingFormAndWorkViews.add(VotingFormAndWorkView(
+                              isExcludedFromParticipant: isExcludedFromParticipant,
+                              votingSessionParticipation: votingSessionParticipation,
+                              votingFormFields: votingFormFields,
+                              votesMap: votesMap));
+                        }
+                        isPageInitialized = true;
+                      }
+
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async => context
+                            .read<JurorVotingProcedurePageBloc>()
+                            .add(JurorVotingProcedurePageFetch(votingSessionId: votingSessionId)),
+                        child: Form(
+                          key: formKey,
+                          child: ListView.builder(
+                            itemCount: votingFormAndWorkViews.length,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  votingFormAndWorkViews[index],
+                                  if (index == votingFormAndWorkViews.length - 1)
+                                    SizedBox(height: 100),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                  }
+                },
+              ),
+            ),
+          ),
+          floatingActionButton: (state.isInitialized)
+              ? FilledButton(
+                  onPressed: () {
+                    if (formKey.currentState?.validate() ?? false) {
+                      final Map<VotingSessionParticipation, Map<VotingFormField, String>>
+                      votesPerParticipantMap = {};
+                      for (var entry in votesMap.entries) {
+                        final votingSessionParticipation = entry.key;
+                        final votingFormFieldAndController = entry.value;
+                        final Map<VotingFormField, String> votes = {};
+                        for (var votingFormFieldAndControllerEntry
+                        in votingFormFieldAndController.entries) {
+                          final votingFormField = votingFormFieldAndControllerEntry.key;
+                          final controller = votingFormFieldAndControllerEntry.value;
+                          if (controller.text.trim().isNotEmpty) {
+                            votes.addAll({votingFormField: controller.text.trim()});
+                          }
+                        }
+                        if (votes.isNotEmpty) {
+                          votesPerParticipantMap.addAll({votingSessionParticipation: votes});
+                        }
+                      }
+
+                      // Invia il nuovo evento semplificato.
+                      context
+                          .read<JurorVotingProcedurePageBloc>()
+                          .add(JurorVotingProcedurePageSubmitVotes(
+                            votesPerParticipantMap: votesPerParticipantMap,
+                          ));
+                    } else {
+                      showSnackBar(context: context, text: 'Fill all the fields');
+                    }
+                  },
+                  child: Text('Submit'),
+                )
+              : null,
+        );
       },
     );
   }

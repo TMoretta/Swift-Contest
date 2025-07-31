@@ -103,15 +103,15 @@ TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
-CREATE POLICY "Voting Session Participations: allow all"
-ON public.voting_session_participations
+CREATE POLICY "Voting Session Participants: allow all"
+ON public.voting_session_participants
 FOR ALL
 TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
-CREATE POLICY "Voting Session Jurations: allow all"
-ON public.voting_session_jurations
+CREATE POLICY "Voting Session Jurors: allow all"
+ON public.voting_session_jurors
 FOR ALL
 TO authenticated, anon
 USING (true)
@@ -138,20 +138,6 @@ TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
-CREATE POLICY "Simple Jurors: allow all"
-ON public.simple_jurors
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Session Simple Jurors: allow all"
-ON public.voting_session_simple_jurors
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
 CREATE POLICY "Voting Session Juries: allow all"
 ON public.voting_session_juries
 FOR ALL
@@ -162,23 +148,23 @@ WITH CHECK (true);
 
 -- POLICIES FOR STORAGE
 -- 1. Enable RLS on storage tables
-ALTER TABLE storage.buckets
-  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE storage.objects
-  ENABLE ROW LEVEL SECURITY;
-
--- 2. Policy for full access on storage.buckets
-CREATE POLICY "Buckets: allow all"
-  ON storage.buckets
-  FOR ALL
-  TO public
-  USING (true)
-  WITH CHECK (true);
-
--- 3. Policy for full access on storage.objects
-CREATE POLICY "Objects: allow all"
-  ON storage.objects
-  FOR ALL
-  TO public
-  USING (true)
-  WITH CHECK (true);
+--ALTER TABLE storage.buckets
+--  ENABLE ROW LEVEL SECURITY;
+--ALTER TABLE storage.objects
+--  ENABLE ROW LEVEL SECURITY;
+--
+---- 2. Policy for full access on storage.buckets
+--CREATE POLICY "Buckets: allow all"
+--  ON storage.buckets
+--  FOR ALL
+--  TO public
+--  USING (true)
+--  WITH CHECK (true);
+--
+---- 3. Policy for full access on storage.objects
+--CREATE POLICY "Objects: allow all"
+--  ON storage.objects
+--  FOR ALL
+--  TO public
+--  USING (true)
+--  WITH CHECK (true);

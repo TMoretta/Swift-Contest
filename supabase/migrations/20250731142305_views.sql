@@ -1,0 +1,82 @@
+--CREATE OR REPLACE VIEW contest_bundles
+--WITH (security_invoker = true) AS
+--  SELECT
+--    to_jsonb(c) AS contest,
+--    to_jsonb(organizer) AS organizer,
+--    to_jsonb(p) AS place
+--  FROM contests c
+--  JOIN places p ON c.place_id = p.id;
+--
+--CREATE OR REPLACE VIEW participation_bundles
+--WITH (security_invoker = true) AS
+--  SELECT
+--    to_jsonb(p1) AS participation,
+--    to_jsonb(p2) AS participant,
+--    to_jsonb(w) AS "work"
+--  FROM participations p1
+--  JOIN profiles p2 ON p2.id = p1.participant_id
+--  LEFT JOIN works w ON w.participation_id = p1.id;
+--
+--CREATE OR REPLACE VIEW juration_bundles
+--WITH (security_invoker = true) AS
+--  SELECT
+--    to_jsonb(j1) AS juration,
+--    to_jsonb(j2) AS juror
+--  FROM jurations j1
+--  JOIN profiles j2 ON j2.id = j1.juror_id;
+--
+--CREATE OR REPLACE VIEW public.voting_form_bundles
+--WITH (security_invoker = true) AS
+--  SELECT
+--    to_jsonb(form) AS voting_form,
+--    (
+--      SELECT
+--        COALESCE(
+--          jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index),
+--          '[]'::jsonb
+--        )
+--      FROM public.voting_form_fields vff
+--      WHERE vff.voting_form_id = form.id
+--    ) AS voting_form_fields
+--  FROM
+--    public.voting_forms form;
+--
+---- VIEW: voting_session_bundles
+---- Descrizione: Unisce ogni sessione di voto con il suo luogo di geo-restrizione (se presente).
+---- Corrisponde alla classe Dart: VotingSessionBundle
+--CREATE OR REPLACE VIEW public.voting_session_bundles
+--WITH (security_invoker = true) AS
+--  SELECT
+--    -- Converte la riga della sessione in un oggetto JSON.
+--    to_jsonb(vs) AS voting_session,
+--    -- Converte la riga del luogo in un oggetto JSON.
+--    -- Sarà NULL se non c'è un luogo associato, grazie al LEFT JOIN.
+--    to_jsonb(p) AS geo_res_place
+--  FROM
+--    public.voting_sessions vs
+--  -- Usa LEFT JOIN perché un luogo di geo-restrizione è opzionale.
+--  LEFT JOIN
+--    public.places p ON vs.geo_res_place_id = p.id;
+--
+---- VIEW: jury_bundles
+---- Descrizione: Unisce ogni giuria con la lista dei suoi membri (jurors).
+---- Corrisponde alla classe Dart: JuryBundle
+--CREATE OR REPLACE VIEW public.jury_bundles
+--WITH (security_invoker = true) AS
+--  SELECT
+--    -- Converte la riga della giuria in un oggetto JSON.
+--    to_jsonb(j) AS jury,
+--    -- Usa una subquery per aggregare tutti i giurati associati in un array JSON.
+--    (
+--      SELECT
+--        -- COALESCE gestisce il caso di giurie senza membri, restituendo '[]'.
+--        COALESCE(
+--          -- jsonb_agg crea l'array, ORDER BY mantiene un ordine consistente.
+--          jsonb_agg(to_jsonb(jr) ORDER BY jr.created_at),
+--          '[]'::jsonb
+--        )
+--      FROM public.jurors jr
+--      WHERE jr.jury_id = j.id -- Collega i membri alla giuria corrente.
+--    ) AS jurors
+--  FROM
+--    public.juries j;
