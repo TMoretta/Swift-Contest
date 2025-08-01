@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/types/contest_role.dart';
+import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -78,10 +78,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
       builder: (context, state) {
         return Scaffold(
           appBar: HomePageAppBar(
-            contestRole: ContestRole.participant,
-              onRefresh: () async {
-                  context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch(participantId: profileId));
-              }
+            contestRole: ContestRole.participant
           ),
           body: SafeArea(
             child: Padding(

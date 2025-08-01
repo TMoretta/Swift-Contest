@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/types/contest_role.dart';
+import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/my_logo.dart';

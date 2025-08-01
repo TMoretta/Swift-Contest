@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/db/entities/juror_invitation.dart';
-import 'package:swift_contest/model/db/entities/jury.dart';
-import 'package:swift_contest/model/db/entities/participant_invitation.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/db/types/jury_type.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/database/entities/juror_invitation.dart';
+import 'package:swift_contest/model/database/entities/jury.dart';
+import 'package:swift_contest/model/database/entities/participant_invitation.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/database/types/jury_type.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_contest_details_page_event.dart';
@@ -18,7 +20,7 @@ part 'organizer_contest_details_page_event.dart';
 part 'organizer_contest_details_page_state.dart';
 
 class OrganizerContestDetailsPageBloc
-    extends Bloc<OrganizerContestDetailsPageEvent, OrganizerContestDetailsPageState> {
+    extends HydratedBloc<OrganizerContestDetailsPageEvent, OrganizerContestDetailsPageState> {
   final OrganizerRepository _organizerRepository;
 
   OrganizerContestDetailsPageBloc({
@@ -30,12 +32,30 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageSendJurorInvite>(_sendJurorInvite);
     on<OrganizerContestDetailsPageDeleteParticipantInvitation>(_deleteParticipantInvitation);
     on<OrganizerContestDetailsPageDeleteJurorInvitation>(_deleteJurorInvitation);
-    // on<OrganizerContestDetailsPageEditVotingSessionName>(_editVotingSessionName);
     on<OrganizerContestDetailsPageRemoveParticipant>(_removeParticipant);
     on<OrganizerContestDetailsPageRemoveJuror>(_removeJuror);
     on<OrganizerContestDetailsPageDeleteContest>(_deleteContest);
     on<OrganizerContestDetailsPageCreateJury>(_createJury);
-    on<OrganizerContestDetailsPageRegenerateToken>(_regenerateToken);
+  }
+
+  @override
+  OrganizerContestDetailsPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return OrganizerContestDetailsPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(OrganizerContestDetailsPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(
@@ -197,20 +217,6 @@ class OrganizerContestDetailsPageBloc
       ),
     );
     eitherCreateJury.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success)),
-    );
-  }
-
-  FutureOr<void> _regenerateToken(
-    OrganizerContestDetailsPageRegenerateToken event,
-    Emitter<OrganizerContestDetailsPageState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-
-    final eitherUpdate =
-        await _organizerRepository.regenerateContestToken(contestId: event.contestId);
-    eitherUpdate.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
     );

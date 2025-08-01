@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:swift_contest/model/db/bundles/participation_bundle.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository_.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository_.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_work_details_page_event.dart';
@@ -13,7 +15,7 @@ part 'organizer_work_details_page_event.dart';
 part 'organizer_work_details_page_state.dart';
 
 class OrganizerWorkDetailsPageBloc
-    extends Bloc<OrganizerWorkDetailsPageEvent, OrganizerWorkDetailsPageState> {
+    extends HydratedBloc<OrganizerWorkDetailsPageEvent, OrganizerWorkDetailsPageState> {
   final OrganizerRepository _organizerRepository;
 
   OrganizerWorkDetailsPageBloc({
@@ -21,6 +23,26 @@ class OrganizerWorkDetailsPageBloc
   })  : _organizerRepository = organizerRepository,
         super(OrganizerWorkDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerWorkDetailsPageFetch>(_fetch);
+  }
+
+  @override
+  OrganizerWorkDetailsPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return OrganizerWorkDetailsPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(OrganizerWorkDetailsPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(

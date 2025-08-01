@@ -2,11 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/db/types/voting_session_status.dart';
+import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/utils/validators/validators.dart';
-import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -292,120 +290,4 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
       },
     );
   }
-}
-
-void _showRegenerateTokenDialog({
-  required BuildContext context,
-  required String contestId,
-}) {
-  final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return BlocProvider.value(
-        value: organizerContestDetailsPageBloc,
-        child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-          listener: (context, state) {
-            if (state.status.isSuccess &&
-                state.sourceEvent is OrganizerContestDetailsPageRegenerateToken) {
-              context
-                  .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
-              context.router.pop();
-              showSnackBar(context: context, text: 'Token regenerated successfully');
-            }
-          },
-          builder: (context, state) {
-            return AlertDialog(
-              title: Text('Regenerate token'),
-              content: Text(
-                  'Are you sure you want to regenerate the token associated with the contest? Only the new token will allow simple jurors to vote'),
-              actions: [
-                TextButton(
-                  onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    context
-                        .read<OrganizerContestDetailsPageBloc>()
-                        .add(OrganizerContestDetailsPageRegenerateToken(contestId: contestId));
-                  },
-                  child: Text('Proceed'),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-    },
-  );
-}
-
-void _showEditVotingSessionNameDialog({
-  required BuildContext context,
-  required String votingSessionId,
-  required String contestId,
-}) {
-  final organizerContestDetailsPageBloc = context.read<OrganizerContestDetailsPageBloc>();
-  final formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController();
-  final nameFocusNode = FocusNode();
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return BlocProvider.value(
-        value: organizerContestDetailsPageBloc,
-        child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
-          listener: (context, state) {
-            if (state.status.isSuccess &&
-                state.sourceEvent is OrganizerContestDetailsPageEditVotingSessionName) {
-              context
-                  .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
-              context.router.pop();
-            }
-          },
-          builder: (context, state) {
-            return AlertDialog(
-              title: Text('Edit name'),
-              content: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomTextFormField(
-                      borderType: InputBorderType.underlined,
-                      controller: nameController,
-                      focusNode: nameFocusNode,
-                      label: 'Name',
-                      validator: noEmptyValidator,
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      context.read<OrganizerContestDetailsPageBloc>().add(
-                          OrganizerContestDetailsPageEditVotingSessionName(
-                              votingSessionId: votingSessionId, name: nameController.text.trim()));
-                    }
-                  },
-                  child: Text('Edit'),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-    },
-  );
 }

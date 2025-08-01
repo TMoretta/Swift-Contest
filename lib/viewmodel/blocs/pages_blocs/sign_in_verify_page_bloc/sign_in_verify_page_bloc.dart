@@ -1,23 +1,44 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:swift_contest/model/db/repositories/auth_repository.dart';
-import 'package:swift_contest/model/db/repositories/auth_repository_.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/repositories/auth_repository.dart';
+import 'package:swift_contest/model/database/repositories/auth_repository_.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'sign_in_verify_page_event.dart';
 
 part 'sign_in_verify_page_state.dart';
 
-class SignInVerifyPageBloc extends Bloc<SignInVerifyPageEvent, SignInVerifyPageState> {
+class SignInVerifyPageBloc extends HydratedBloc<SignInVerifyPageEvent, SignInVerifyPageState> {
   final AuthRepository _authRepository;
 
   SignInVerifyPageBloc({required AuthRepository authRepository})
       : _authRepository = authRepository,
         super(SignInVerifyPageState(status: BlocStatus.initial)) {
     on<SignInVerifyOtp>(_verifyOtp);
+  }
+
+  @override
+  SignInVerifyPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return SignInVerifyPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(SignInVerifyPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _verifyOtp(

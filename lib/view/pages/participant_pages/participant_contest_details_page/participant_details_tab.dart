@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:swift_contest/model/utils/storage_bucket.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
@@ -147,23 +149,14 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                                   itemCount: state.contestDetailsBundle!.contestBundle.contest
                                       .imagesUrls.length,
                                   itemBuilder: (context, index) {
+                                    final imageUrl = state.contestDetailsBundle!.contestBundle
+                                        .contest.imagesUrls[index];
                                     return Padding(
                                       padding: const EdgeInsets.only(right: 8),
-                                      child: Image.network(
-                                        state.contestDetailsBundle!.contestBundle.contest
-                                            .imagesUrls[index],
+                                      child: StorageImage(
+                                        bucket: StorageBucket.contestsImages,
+                                        path: imageUrl,
                                         fit: BoxFit.contain,
-                                        frameBuilder:
-                                            (context, child, frame, wasSynchronouslyLoaded) {
-                                          if (wasSynchronouslyLoaded || frame != null) return child;
-                                          return const Loader();
-                                        },
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Image.asset(
-                                            'assets/images/image_not_found.jpg',
-                                            fit: BoxFit.cover,
-                                          );
-                                        },
                                       ),
                                     );
                                   },

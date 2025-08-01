@@ -7,8 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:pinput/pinput.dart';
-import 'package:swift_contest/model/db/entities/place.dart';
-import 'package:swift_contest/model/db/entities/profile.dart';
+import 'package:swift_contest/model/database/entities/place.dart';
+import 'package:swift_contest/model/database/entities/profile.dart';
+import 'package:swift_contest/model/utils/storage_bucket.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -20,6 +21,7 @@ import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -380,23 +382,10 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                         itemBuilder: (context, index) {
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              oldImagesUrls[index],
+                            child: StorageImage(
+                              bucket: StorageBucket.contestsImages,
+                              path: oldImagesUrls[index],
                               fit: BoxFit.cover,
-                              width: 5,
-                              filterQuality: FilterQuality.medium,
-                              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                                if (wasSynchronouslyLoaded || frame != null) {
-                                  return child;
-                                }
-                                return const Loader();
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/image_not_found.jpg',
-                                  fit: BoxFit.cover,
-                                );
-                              },
                             ),
                           );
                         },

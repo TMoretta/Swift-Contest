@@ -2,20 +2,22 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/db/entities/contest.dart';
-import 'package:swift_contest/model/db/entities/place.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/db/repositories/storage_repository.dart';
+import 'package:swift_contest/model/database/entities/contest.dart';
+import 'package:swift_contest/model/database/entities/place.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/model/utils/storage_bucket.dart';
 
 part 'organizer_contest_creation_page_event.dart';
 part 'organizer_contest_creation_page_state.dart';
 
 class OrganizerContestCreationPageBloc
-    extends Bloc<OrganizerContestCreationPageEvent, OrganizerContestCreationPageState> {
+    extends HydratedBloc<OrganizerContestCreationPageEvent, OrganizerContestCreationPageState> {
   final StorageRepository _storageRepository;
   final OrganizerRepository _organizerRepository;
 
@@ -27,6 +29,26 @@ class OrganizerContestCreationPageBloc
         _organizerRepository = organizerRepository,
         super(OrganizerContestCreationPageState(status: BlocStatus.initial)) {
     on<OrganizerContestCreationPageCreateContest>(_createContest);
+  }
+
+  @override
+  OrganizerContestCreationPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return OrganizerContestCreationPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(OrganizerContestCreationPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _createContest(
@@ -68,7 +90,6 @@ class OrganizerContestCreationPageBloc
       worksSubmissionStart: event.worksSubmissionStart,
       worksSubmissionEnd: event.worksSubmissionEnd,
       imagesUrls: imagesUrls,
-      token: null,
     );
 
     final eitherCreateContest = await _organizerRepository.createContest(

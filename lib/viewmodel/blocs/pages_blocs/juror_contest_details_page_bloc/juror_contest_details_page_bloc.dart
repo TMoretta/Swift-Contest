@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/db/repositories/juror_repository.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/database/repositories/juror_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'juror_contest_details_page_event.dart';
@@ -12,7 +13,7 @@ part 'juror_contest_details_page_event.dart';
 part 'juror_contest_details_page_state.dart';
 
 class JurorContestDetailsPageBloc
-    extends Bloc<JurorContestDetailsPageEvent, JurorContestDetailsPageState> {
+    extends HydratedBloc<JurorContestDetailsPageEvent, JurorContestDetailsPageState> {
   final JurorRepository _jurorRepository;
 
   JurorContestDetailsPageBloc({
@@ -21,6 +22,26 @@ class JurorContestDetailsPageBloc
         super(JurorContestDetailsPageState(status: BlocStatus.initial)) {
     on<JurorContestDetailsPageFetch>(_fetch);
     on<JurorContestDetailsPageLeaveContest>(_leaveContest);
+  }
+
+  @override
+  JurorContestDetailsPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return JurorContestDetailsPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(JurorContestDetailsPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(
@@ -40,7 +61,10 @@ class JurorContestDetailsPageBloc
       return;
     }
 
-    emit(state.copyWith(status: BlocStatus.success, isInitialized: true,contestDetailsBundle: contestDetailsBundle)); //todo remove
+    emit(state.copyWith(
+        status: BlocStatus.success,
+        isInitialized: true,
+        contestDetailsBundle: contestDetailsBundle)); //todo remove
 
     //TODO add
     // if (contestDetailsBundle.liveVotingSession == null) {

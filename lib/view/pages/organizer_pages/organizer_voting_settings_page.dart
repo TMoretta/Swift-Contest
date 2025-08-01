@@ -1,13 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/juration_bundle.dart';
-import 'package:swift_contest/model/db/bundles/jury_bundle.dart';
-import 'package:swift_contest/model/db/bundles/participation_bundle.dart';
-import 'package:swift_contest/model/db/entities/jury.dart';
-import 'package:swift_contest/model/db/entities/place.dart';
-import 'package:swift_contest/model/db/entities/voting_session.dart';
-import 'package:swift_contest/model/db/types/voting_session_status.dart';
+import 'package:swift_contest/model/database/bundles/juration_bundle.dart';
+import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
+import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
+import 'package:swift_contest/model/database/entities/jury.dart';
+import 'package:swift_contest/model/database/entities/place.dart';
+import 'package:swift_contest/model/database/entities/voting_session.dart';
+import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
@@ -125,10 +125,8 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: 'Voting settings',
-            onRefresh: () => context
-                .read<OrganizerVotingSettingsPageBloc>()
-                .add(OrganizerVotingSettingsPageFetch(contestId: contestId)),
+            title: 'Voting settings'
+
           ),
           body: SafeArea(
             child: Builder(

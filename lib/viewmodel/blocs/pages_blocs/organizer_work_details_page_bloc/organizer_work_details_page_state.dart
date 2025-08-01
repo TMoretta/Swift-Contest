@@ -16,6 +16,24 @@ final class OrganizerWorkDetailsPageState extends Equatable {
     this.participationBundle,
   });
 
+  factory OrganizerWorkDetailsPageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerWorkDetailsPageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      participationBundle: (json['participation_bundle'] != null)
+          ? ParticipationBundle.fromJson(json['participation_bundle'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'participation_bundle': participationBundle?.toJson(),
+    };
+  }
+
   OrganizerWorkDetailsPageState copyWith({
     required BlocStatus status,
     OrganizerWorkDetailsPageEvent? sourceEvent,

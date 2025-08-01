@@ -16,6 +16,25 @@ final class OrganizerContestDetailsPageState extends Equatable {
     this.contestDetailsBundle,
   });
 
+
+factory OrganizerContestDetailsPageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerContestDetailsPageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['isInitialized'] as bool,
+      contestDetailsBundle: json['contestDetailsBundle'] != null
+          ? ContestDetailsBundle.fromJson(json['contestDetailsBundle'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'isInitialized': isInitialized,
+      'contestDetailsBundle': contestDetailsBundle?.toJson(),
+    };
+  }
+
   OrganizerContestDetailsPageState copyWith({
     required BlocStatus status,
     OrganizerContestDetailsPageEvent? sourceEvent,

@@ -76,9 +76,8 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
         return Scaffold(
           appBar: CustomAppBar(
             title: state.contestDetailsBundle?.contestBundle.contest.name ?? '',
-            onRefresh: () => context.read<JurorContestDetailsPageBloc>().add(JurorContestDetailsPageFetch(contestId: contestId)),
             actions: [
-              if(state.isInitialized)
+              if (state.isInitialized)
                 _Menu(
                   contestId: contestId,
                   profileId: profileId,
@@ -92,7 +91,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                 length: 2,
                 child: Column(
                   children: [
-                    if(state.isInitialized)
+                    if (state.isInitialized)
                       TabBar(
                         isScrollable: true,
                         tabAlignment: TabAlignment.center,

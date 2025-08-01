@@ -12,6 +12,18 @@ final class OrganizerContestCreationPageState extends Equatable {
     this.message,
   });
 
+  factory OrganizerContestCreationPageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerContestCreationPageState(
+      status: BlocStatus.values.byName(json['status']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+    };
+  }
+
   OrganizerContestCreationPageState copyWith({
     required BlocStatus status,
     OrganizerContestCreationPageEvent? sourceEvent,

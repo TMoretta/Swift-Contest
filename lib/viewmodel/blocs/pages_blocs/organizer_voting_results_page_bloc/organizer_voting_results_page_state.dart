@@ -5,6 +5,7 @@ final class OrganizerVotingResultsPageState extends Equatable {
   final OrganizerVotingResultsPageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
+
   // final VotingSessionResultBundle? votingSessionResultBundle;
 
   const OrganizerVotingResultsPageState({
@@ -14,6 +15,24 @@ final class OrganizerVotingResultsPageState extends Equatable {
     this.message,
     // this.votingSessionResultBundle,
   });
+
+  factory OrganizerVotingResultsPageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerVotingResultsPageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      // votingSessionResultBundle: (json['voting_session_result_bundle'] != null)
+      //     ? VotingSessionResultBundle.fromJson(json['voting_session_result_bundle'])
+      //     : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      // 'voting_session_result_bundle': votingSessionResultBundle?.toJson(),
+    };
+  }
 
   OrganizerVotingResultsPageState copyWith({
     required BlocStatus status,

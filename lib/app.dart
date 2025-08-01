@@ -66,7 +66,7 @@ class _AppState extends State<App> {
               constraints: BoxConstraints(maxWidth: 1000),
               child: MaterialApp.router(
                 routerConfig: _appRouter.config(
-                  neglectWhen: (location) => true,
+                  // neglectWhen: (location) => true,
                 ),
                 themeMode: ThemeMode.values.byName(appTheme.name),
                 theme: _materialTheme.light(),

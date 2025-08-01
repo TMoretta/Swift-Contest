@@ -51,9 +51,6 @@ class _InboxPageState extends State<InboxPage> {
         return Scaffold(
           appBar: CustomAppBar(
             title: 'Inbox',
-            onRefresh: () {
-              context.read<AuthBloc>().add(AuthFetch());
-            },
             actions: [
               (state.messages != null && state.messages!.isNotEmpty)
                   ? TextButton(

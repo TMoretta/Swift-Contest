@@ -8,6 +8,18 @@ final class SignInVerifyPageState extends Equatable {
 
   const SignInVerifyPageState({required this.status, this.sourceEvent, this.message,});
 
+  factory SignInVerifyPageState.fromJson(Map<String, dynamic> json) {
+    return SignInVerifyPageState(
+      status: BlocStatus.values.byName(json['status']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+    };
+  }
+
   SignInVerifyPageState copyWith({
     required BlocStatus status,
     SignInVerifyPageEvent? sourceEvent,

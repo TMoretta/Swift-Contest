@@ -47,9 +47,7 @@ class _AccountPageState extends State<AccountPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Account',onRefresh: () {
-            context.read<AuthBloc>().add(AuthFetch());
-          },),
+          appBar: CustomAppBar(title: 'Account'),
           body: Builder(
             builder: (context) {
               switch (state.blocStatus) {

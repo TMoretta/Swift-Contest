@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION public.handle_user_create ()
 RETURNS trigger AS $$
 BEGIN
   INSERT INTO public.profiles (
-    user_id,
+    id,
     full_name
   )
   VALUES (

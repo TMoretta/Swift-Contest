@@ -1,18 +1,21 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:swift_contest/model/db/bundles/auth_bundle.dart';
-import 'package:swift_contest/model/db/entities/account.dart';
-import 'package:swift_contest/model/db/entities/message.dart';
-import 'package:swift_contest/model/db/entities/profile.dart';
-import 'package:swift_contest/model/db/repositories/auth_repository.dart';
-import 'package:swift_contest/model/db/types/contest_role.dart';
+import 'package:swift_contest/model/database/bundles/auth_bundle.dart';
+import 'package:swift_contest/model/database/entities/account.dart';
+import 'package:swift_contest/model/database/entities/message.dart';
+import 'package:swift_contest/model/database/entities/profile.dart';
+import 'package:swift_contest/model/database/repositories/auth_repository.dart';
+import 'package:swift_contest/model/database/types/contest_role.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'auth_event.dart';
+
 part 'auth_state.dart';
 
 class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
@@ -35,9 +38,9 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
 
   //* fetch
   FutureOr<void> _init(
-      AuthInit event,
-      Emitter<AuthState> emit,
-      ) async {
+    AuthInit event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
     if (event.delay != 0) {
@@ -47,26 +50,29 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     late final bool isAuthenticated;
     final eitherExists = await _authRepository.isCurrentUserAuthenticated();
     eitherExists.fold(
-          (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-          (success) => isAuthenticated = success,
+      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+      (success) => isAuthenticated = success,
     );
     if (eitherExists.isLeft()) {
       return;
     }
 
     if (!isAuthenticated) {
-      emit(state.copyWith(blocStatus: BlocStatus.success, isInitialized: true, authStatus: AuthStatus.unauthenticated));
+      emit(state.copyWith(
+          blocStatus: BlocStatus.success,
+          isInitialized: true,
+          authStatus: AuthStatus.unauthenticated));
       return;
     }
 
     late final AuthBundle authBundle;
     final eitherAuthBundle = await _authRepository.getCurrentAccountAuthBundle();
     eitherAuthBundle.fold(
-          (failure) => emit(state.copyWith(
+      (failure) => emit(state.copyWith(
           blocStatus: BlocStatus.failure,
           authStatus: AuthStatus.initial,
           message: failure.message)),
-          (success) => authBundle = success,
+      (success) => authBundle = success,
     );
     if (eitherAuthBundle.isLeft()) {
       return;
@@ -224,7 +230,8 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   AuthState? fromJson(Map<String, dynamic> json) {
     try {
       return AuthState.fromJson(json);
-    } catch (_) {
+    } catch (e) {
+      Logger.error(e);
       return null;
     }
   }
@@ -233,7 +240,8 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   Map<String, dynamic>? toJson(AuthState state) {
     try {
       return state.toJson();
-    } catch (_) {
+    } catch (e) {
+      Logger.error(e);
       return null;
     }
   }

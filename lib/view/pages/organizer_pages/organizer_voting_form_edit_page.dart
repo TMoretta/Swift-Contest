@@ -1,9 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/entities/voting_form_field.dart';
-import 'package:swift_contest/model/db/types/voting_form_field_scope.dart';
-import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
+import 'package:swift_contest/model/database/entities/voting_form_field.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
@@ -179,6 +179,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                                 children: [
                                   //* Info
                                   ListView(
+                                    padding: EdgeInsets.only(top: 8),
                                     children: [
                                       CustomTextFormField(
                                         borderType: InputBorderType.outlined,

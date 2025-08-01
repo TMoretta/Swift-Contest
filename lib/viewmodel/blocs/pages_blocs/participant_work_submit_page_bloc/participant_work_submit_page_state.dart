@@ -12,6 +12,18 @@ final class ParticipantWorkSubmitPageState extends Equatable {
     this.message,
   });
 
+  factory ParticipantWorkSubmitPageState.fromJson(Map<String, dynamic> json) {
+    return ParticipantWorkSubmitPageState(
+      status: BlocStatus.values.byName(json['status']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+    };
+  }
+
   ParticipantWorkSubmitPageState copyWith({
     required BlocStatus status,
     ParticipantWorkSubmitPageEvent? sourceEvent,

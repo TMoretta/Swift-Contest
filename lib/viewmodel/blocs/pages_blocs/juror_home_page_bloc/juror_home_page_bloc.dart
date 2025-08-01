@@ -2,16 +2,17 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/db/repositories/juror_repository.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/database/repositories/juror_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'juror_home_page_event.dart';
 
 part 'juror_home_page_state.dart';
 
-class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
+class JurorHomePageBloc extends HydratedBloc<JurorHomePageEvent, JurorHomePageState> {
   final JurorRepository _jurorRepository;
 
   JurorHomePageBloc({
@@ -23,6 +24,26 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     on<JurorHomePageFilterResults>(_filterResults);
     on<JurorHomePageJoinContest>(_joinContest);
     on<JurorHomePageVoteAsSimpleJuror>(_voteAsAuthenticatedSimpleJuror);
+  }
+
+  @override
+  JurorHomePageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return JurorHomePageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(JurorHomePageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(
@@ -43,9 +64,9 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
   }
 
   FutureOr<void> _filterResults(
-      JurorHomePageFilterResults event,
-      Emitter<JurorHomePageState> emit,
-      ) async {
+    JurorHomePageFilterResults event,
+    Emitter<JurorHomePageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final query = event.query.toLowerCase();
@@ -57,10 +78,10 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     final List<HomeContestBundle> filteredContestsBundles = query.isEmpty
         ? allContestsBundles
         : allContestsBundles
-        .where((e) =>
-    e.contestBundle.contest.name.toLowerCase().contains(query) ||
-        e.contestBundle.contest.description.toLowerCase().contains(query))
-        .toList();
+            .where((e) =>
+                e.contestBundle.contest.name.toLowerCase().contains(query) ||
+                e.contestBundle.contest.description.toLowerCase().contains(query))
+            .toList();
 
     emit(state.copyWith(
         status: BlocStatus.success, filteredContestsBundles: filteredContestsBundles));
@@ -95,6 +116,4 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     //       state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),
     // );
   }
-
-
 }

@@ -5,7 +5,6 @@ final class SignInPageState extends Equatable {
   final BlocStatus status;
   final SignInPageEvent? sourceEvent;
   final String? message;
-
   // final SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle;
 
   const SignInPageState({
@@ -14,6 +13,23 @@ final class SignInPageState extends Equatable {
     this.message,
     // this.simpleJurorAndVotingSessionBundle,
   });
+
+
+factory SignInPageState.fromJson(Map<String, dynamic> json) {
+    return SignInPageState(
+      status: BlocStatus.values.byName(json['status']),
+      // simpleJurorAndVotingSessionBundle: json['simple_juror_and_voting_session_bundle'] != null
+      //     ? SimpleJurorAndVotingSessionBundle.fromJson(json['simple_juror_and_voting_session_bundle'] as Map<String, dynamic>)
+      //     : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      // 'simple_juror_and_voting_session_bundle': simpleJurorAndVotingSessionBundle?.toJson(),
+    };
+  }
 
   SignInPageState copyWith({
     required BlocStatus status,

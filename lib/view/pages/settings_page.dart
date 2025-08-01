@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/local/types/app_theme.dart';
-import 'package:swift_contest/model/db/types/contest_role.dart';
+import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
@@ -65,9 +65,7 @@ class _AuthState extends State<SettingsPage> {
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           return Scaffold(
-            appBar: CustomAppBar(title: 'Settings',onRefresh: () {
-              context.read<AuthBloc>().add(AuthFetch());
-            },),
+            appBar: CustomAppBar(title: 'Settings'),
             body: Builder(
               builder: (context) {
                 switch (state.blocStatus) {

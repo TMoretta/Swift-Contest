@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/entities/profile.dart';
-import 'package:swift_contest/model/db/types/voting_session_status.dart';
+import 'package:swift_contest/model/database/entities/profile.dart';
+import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -97,10 +97,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: 'Voting',
-            onRefresh: () => context
-                .read<OrganizerVotingProcedurePageBloc>()
-                .add(OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId)),
+            title: 'Voting'
           ),
           body: SafeArea(
             child: Padding(

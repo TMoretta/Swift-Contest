@@ -18,6 +18,28 @@ final class ParticipantContestDetailsPageState extends Equatable {
     this.submittedWork,
   });
 
+  factory ParticipantContestDetailsPageState.fromJson(Map<String, dynamic> json) {
+    return ParticipantContestDetailsPageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      contestDetailsBundle: (json['contest_details_bundle'] != null)
+          ? ContestDetailsBundle.fromJson(json['contest_details_bundle'])
+          : null,
+      submittedWork:
+          (json['submitted_work'] != null) ? Work.fromJson(json['submitted_work']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'contest_details_bundle': contestDetailsBundle?.toJson(),
+      'submitted_work': submittedWork?.toJson(),
+    };
+  }
+
+
   ParticipantContestDetailsPageState copyWith({
     required BlocStatus status,
     ParticipantContestDetailsPageEvent? sourceEvent,

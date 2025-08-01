@@ -18,6 +18,26 @@ final class OrganizerVotingSettingsPageState extends Equatable {
     this.votingSessionId,
   });
 
+  factory OrganizerVotingSettingsPageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerVotingSettingsPageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      contestDetailsBundle: (json['contest_details_bundle'] != null)
+          ? ContestDetailsBundle.fromJson(json['contest_details_bundle'])
+          : null,
+      votingSessionId: json['voting_session_id'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'contest_details_bundle': contestDetailsBundle?.toJson(),
+      'voting_session_id': votingSessionId,
+    };
+  }
+
   OrganizerVotingSettingsPageState copyWith({
     required BlocStatus status,
     OrganizerVotingSettingsPageEvent? sourceEvent,

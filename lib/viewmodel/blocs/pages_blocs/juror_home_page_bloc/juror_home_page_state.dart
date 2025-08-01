@@ -20,6 +20,33 @@ final class JurorHomePageState extends Equatable {
     // this.simpleJurorAndVotingSessionBundle,
   });
 
+  factory JurorHomePageState.fromJson(Map<String, dynamic> json) {
+    return JurorHomePageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      joinedContestsBundles: (json['joined_contests_bundles'] as List?)
+          ?.map((e) => HomeContestBundle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      filteredContestsBundles: (json['filtered_contests_bundles'] as List?)
+          ?.map((e) => HomeContestBundle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      // simpleJurorAndVotingSessionBundle: (json['simple_juror_and_voting_session_bundle'] != null)
+      //     ? SimpleJurorAndVotingSessionBundle.fromJson(json['simple_juror_and_voting_session_bundle'])
+      //     : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'joined_contests_bundles': joinedContestsBundles?.map((e) => e.toJson()).toList(),
+      'filtered_contests_bundles': filteredContestsBundles?.map((e) => e.toJson()).toList(),
+      // 'simple_juror_and_voting_session_bundle': simpleJurorAndVotingSessionBundle?.toJson(),
+    };
+  }
+
+
   JurorHomePageState copyWith({
     required BlocStatus status,
     JurorHomePageEvent? sourceEvent,

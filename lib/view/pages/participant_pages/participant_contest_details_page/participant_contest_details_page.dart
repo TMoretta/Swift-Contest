@@ -76,7 +76,6 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
         return Scaffold(
           appBar: CustomAppBar(
             title: state.contestDetailsBundle?.contestBundle.contest.name ?? '',
-            onRefresh: () => context.read<ParticipantContestDetailsPageBloc>().add(ParticipantContestDetailsPageFetch(contestId: contestId, participantId: profileId)),
             actions: [
               Builder(
                 builder: (context) {

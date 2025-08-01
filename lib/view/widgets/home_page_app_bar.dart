@@ -2,16 +2,15 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/types/contest_role.dart';
+import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ContestRole contestRole;
-  final void Function() onRefresh;
 
-  const HomePageAppBar({required this.contestRole, required this.onRefresh, super.key});
+  const HomePageAppBar({required this.contestRole, super.key});
 
   @override
   State<HomePageAppBar> createState() => _HomePageAppBarState();
@@ -28,19 +27,18 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
   void initState() {
     super.initState();
     contestRole = widget.contestRole;
-    onRefresh = widget.onRefresh;
   }
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: (!kIsWeb),
-      leading: (kIsWeb)
-          ? IconButton(
-              onPressed: onRefresh,
-              icon: Icon(Icons.refresh),
-            )
-          : null,
+      // leading: (kIsWeb)
+      //     ? IconButton(
+      //         onPressed: onRefresh,
+      //         icon: Icon(Icons.refresh),
+      //       )
+      //     : null,
       title: FittedBox(
         fit: BoxFit.scaleDown,
         child: Row(
@@ -159,8 +157,7 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RadioListTile<ContestRole>(
-                  title: const Text('Organizer'),
+                RadioMenuButton<ContestRole>(
                   value: ContestRole.organizer,
                   groupValue: selectedRole,
                   onChanged: (value) {
@@ -168,9 +165,9 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                       () => selectedRole = value!,
                     );
                   },
+                  child: const Text('Organizer'),
                 ),
-                RadioListTile<ContestRole>(
-                  title: const Text('Participant'),
+                RadioMenuButton<ContestRole>(
                   value: ContestRole.participant,
                   groupValue: selectedRole,
                   onChanged: (value) {
@@ -178,9 +175,9 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                       () => selectedRole = value!,
                     );
                   },
+                  child: const Text('Participant'),
                 ),
-                RadioListTile<ContestRole>(
-                  title: const Text('Juror'),
+                RadioMenuButton<ContestRole>(
                   value: ContestRole.juror,
                   groupValue: selectedRole,
                   onChanged: (value) {
@@ -188,6 +185,7 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                       () => selectedRole = value!,
                     );
                   },
+                  child: const Text('Juror'),
                 ),
               ],
             ),

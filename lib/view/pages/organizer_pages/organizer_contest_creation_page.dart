@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/db/entities/place.dart';
+import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';

@@ -6,13 +6,13 @@
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:multi_select_flutter/multi_select_flutter.dart';
 // import 'package:open_file/open_file.dart';
-// import 'package:swift_contest/model/db/bundles/juration_bundle.dart';
-// import 'package:swift_contest/model/db/bundles/participation_bundle.dart';
+// import 'package:swift_contest/model/database/bundles/juration_bundle.dart';
+// import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 // import 'package:swift_contest/model/data_models/simple_juror.dart';
 // import 'package:swift_contest/model/data_models/voting_form_field.dart';
 // import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
 // import 'package:swift_contest/utils/labels/labels.dart';
-// import 'package:swift_contest/utils/media_types.dart';
+// import 'package:swift_contest/utils/media_type.dart';
 // import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 // import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 // import 'package:swift_contest/view/widgets/overlay_loader.dart';

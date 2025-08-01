@@ -2,20 +2,22 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/db/entities/contest.dart';
-import 'package:swift_contest/model/db/entities/place.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/db/repositories/storage_repository.dart';
+import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/database/entities/contest.dart';
+import 'package:swift_contest/model/database/entities/place.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/database/repositories/storage_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/model/utils/storage_bucket.dart';
 
 part 'organizer_contest_edit_page_event.dart';
 part 'organizer_contest_edit_page_state.dart';
 
 class OrganizerContestEditPageBloc
-    extends Bloc<OrganizerContestEditPageEvent, OrganizerContestEditPageState> {
+    extends HydratedBloc<OrganizerContestEditPageEvent, OrganizerContestEditPageState> {
   final OrganizerRepository _organizerRepository;
   final StorageRepository _storageRepository;
 
@@ -27,6 +29,26 @@ class OrganizerContestEditPageBloc
         super(OrganizerContestEditPageState(status: BlocStatus.initial)) {
     on<OrganizerContestEditPageFetch>(_fetch);
     on<OrganizerContestEditPageEditContest>(_edit);
+  }
+
+  @override
+  OrganizerContestEditPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return OrganizerContestEditPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(OrganizerContestEditPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(

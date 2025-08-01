@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/voting_form_bundle.dart';
-import 'package:swift_contest/model/db/entities/voting_form_field.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/voting_form_bundle.dart';
+import 'package:swift_contest/model/database/entities/voting_form_field.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_voting_form_edit_page_event.dart';
@@ -13,7 +15,7 @@ part 'organizer_voting_form_edit_page_event.dart';
 part 'organizer_voting_form_edit_page_state.dart';
 
 class OrganizerVotingFormEditPageBloc
-    extends Bloc<OrganizerVotingFormEditPageEvent, OrganizerVotingFormEditPageState> {
+    extends HydratedBloc<OrganizerVotingFormEditPageEvent, OrganizerVotingFormEditPageState> {
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingFormEditPageBloc({
@@ -22,6 +24,26 @@ class OrganizerVotingFormEditPageBloc
         super(OrganizerVotingFormEditPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingFormEditPageFetch>(_fetch);
     on<OrganizerVotingFormEditPageUpdateVotingForm>(_updateVotingForm);
+  }
+
+  @override
+  OrganizerVotingFormEditPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return OrganizerVotingFormEditPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(OrganizerVotingFormEditPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(

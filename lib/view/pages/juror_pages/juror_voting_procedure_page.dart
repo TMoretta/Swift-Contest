@@ -1,10 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/entities/voting_form_field.dart';
-import 'package:swift_contest/model/db/entities/voting_session_participation.dart';
-import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
-import 'package:swift_contest/model/db/types/voting_session_status.dart';
+import 'package:swift_contest/model/database/entities/voting_form_field.dart';
+import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
+import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
@@ -44,7 +44,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   late final String votingSessionId;
   final formKey = GlobalKey<FormState>();
   final List<VotingFormAndWorkView> votingFormAndWorkViews = [];
-  final Map<VotingSessionParticipation, Map<VotingFormField, TextEditingController>> votesMap = {};
+  final Map<VotingSessionParticipant, Map<VotingFormField, TextEditingController>> votesMap = {};
   bool isPageInitialized = false;
 
   @override
@@ -104,10 +104,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBar(
-            title: 'Voting',
-            onRefresh: () => context.read<JurorVotingProcedurePageBloc>().add(
-                  JurorVotingProcedurePageFetch(votingSessionId: votingSessionId),
-                ),
+            title: 'Voting'
           ),
           body: SafeArea(
             child: Padding(
@@ -167,8 +164,8 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                           votesMap.addAll({votingSessionParticipation: fieldsControllers});
                           final isExcludedFromParticipant =
                               votingSessionProcedureBundle.votingSessionExclusions.any((e) =>
-                                  e.votingSessionJurationId == ownVotingSessionJuration.id &&
-                                  e.votingSessionParticipationId == votingSessionParticipation.id);
+                                  e.votingSessionJurorId == ownVotingSessionJuration.id &&
+                                  e.votingSessionParticipantId == votingSessionParticipation.id);
                           votingFormAndWorkViews.add(VotingFormAndWorkView(
                               isExcludedFromParticipant: isExcludedFromParticipant,
                               votingSessionParticipation: votingSessionParticipation,
@@ -208,7 +205,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
               ? FilledButton(
                   onPressed: () {
                     if (formKey.currentState?.validate() ?? false) {
-                      final Map<VotingSessionParticipation, Map<VotingFormField, String>>
+                      final Map<VotingSessionParticipant, Map<VotingFormField, String>>
                       votesPerParticipantMap = {};
                       for (var entry in votesMap.entries) {
                         final votingSessionParticipation = entry.key;

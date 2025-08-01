@@ -6,7 +6,20 @@ final class SignUpPageState extends Equatable {
   final SignUpPageEvent? sourceEvent;
   final String? message;
 
-  const SignUpPageState({required this.status, this.sourceEvent, this.message});
+  const SignUpPageState({required this.status, this.sourceEvent, this.message,});
+
+  factory SignUpPageState.fromJson(Map<String, dynamic> json) {
+    return SignUpPageState(
+      status: BlocStatus.values.byName(json['status']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+    };
+  }
+
 
   SignUpPageState copyWith({
     required BlocStatus status,
@@ -21,5 +34,5 @@ final class SignUpPageState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, message];
+  List<Object?> get props => [status, sourceEvent, message,];
 }

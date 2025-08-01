@@ -79,7 +79,6 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
         return Scaffold(
           appBar: CustomAppBar(
             title: state.contestDetailsBundle?.contestBundle.contest.name ?? '',
-            onRefresh: () => context.read<OrganizerContestDetailsPageBloc>().add(OrganizerContestDetailsPageFetch(contestId: contestId)),
             actions: [
               if(state.isInitialized) _Menu(contestId: contestId),
             ],
@@ -98,8 +97,8 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                         tabs: [
                           Tab(text: 'Details'),
                           Tab(text: 'Participants'),
-                          Tab(text: 'Works'),
                           Tab(text: 'Juries'),
+                          Tab(text: 'Works'),
                           Tab(text: 'Voting'),
                         ],
                       ),
@@ -110,8 +109,8 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                         children: [
                           OrganizerDetailsTab(contestId: contestId),
                           OrganizerParticipantsTab(contestId: contestId),
-                          OrganizerWorksTab(contestId: contestId),
                           OrganizerJuriesTab(contestId: contestId),
+                          OrganizerWorksTab(contestId: contestId),
                           OrganizerVotingTab(contestId: contestId),
                         ],
                       ),

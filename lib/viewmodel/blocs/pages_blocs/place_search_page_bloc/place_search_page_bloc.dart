@@ -1,19 +1,20 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:swift_contest/model/google_place/entities/google_place.dart';
 import 'package:swift_contest/model/google_place/entities/google_place_suggestion.dart';
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'place_search_page_event.dart';
 
 part 'place_search_page_state.dart';
 
-class PlaceSearchPageBloc extends Bloc<PlaceSearchPageEvent, PlaceSearchPageState> {
+class PlaceSearchPageBloc extends HydratedBloc<PlaceSearchPageEvent, PlaceSearchPageState> {
   final GooglePlaceRepository _googlePlaceRepository;
 
   PlaceSearchPageBloc({
@@ -25,6 +26,26 @@ class PlaceSearchPageBloc extends Bloc<PlaceSearchPageEvent, PlaceSearchPageStat
       transformer: debounce(const Duration(milliseconds: 500)),
     );
     on<PlaceSearchPageFetchPlace>(_fetchPlace);
+  }
+
+  @override
+  PlaceSearchPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return PlaceSearchPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(PlaceSearchPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _searchPlaceSuggestion(

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:swift_contest/model/utils/storage_bucket.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -121,38 +123,48 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         //* Images carousel
                         SizedBox(
                           height: 180,
-                          child: (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
-                              ? ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: [
-                                    Image.asset('assets/images/image_not_found.jpg',
-                                        fit: BoxFit.contain),
-                                  ],
-                                )
-                              : ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: state.contestDetailsBundle!.contestBundle.contest.imagesUrls.length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(right: 8),
-                                      child: Image.network(
-                                        state.contestDetailsBundle!.contestBundle.contest.imagesUrls[index],
-                                        fit: BoxFit.contain,
-                                        frameBuilder:
-                                            (context, child, frame, wasSynchronouslyLoaded) {
-                                          if (wasSynchronouslyLoaded || frame != null) return child;
-                                          return const Loader();
-                                        },
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Image.asset(
-                                            'assets/images/image_not_found.jpg',
-                                            fit: BoxFit.cover,
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
+                          child:
+                              (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
+                                  ? ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      children: [
+                                        Image.asset('assets/images/image_not_found.jpg',
+                                            fit: BoxFit.contain),
+                                      ],
+                                    )
+                                  : ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: state.contestDetailsBundle!.contestBundle.contest
+                                          .imagesUrls.length,
+                                      itemBuilder: (context, index) {
+                                        final imageUrl = state.contestDetailsBundle!.contestBundle
+                                            .contest.imagesUrls[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(right: 8),
+                                          child: StorageImage(
+                                            bucket: StorageBucket.contestsImages,
+                                            path: imageUrl,
+                                            fit: BoxFit.contain,
+                                          ),
+                                          // Image.network(
+                                          //   state.contestDetailsBundle!.contestBundle.contest
+                                          //       .imagesUrls[index],
+                                          //   fit: BoxFit.contain,
+                                          //   frameBuilder:
+                                          //       (context, child, frame, wasSynchronouslyLoaded) {
+                                          //     if (wasSynchronouslyLoaded || frame != null) return child;
+                                          //     return const Loader();
+                                          //   },
+                                          //   errorBuilder: (context, error, stackTrace) {
+                                          //     return Image.asset(
+                                          //       'assets/images/image_not_found.jpg',
+                                          //       fit: BoxFit.cover,
+                                          //     );
+                                          //   },
+                                          // ),
+                                        );
+                                      },
+                                    ),
                         ),
                         SizedBox(height: 8),
                         //* Description
@@ -208,7 +220,8 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () async {
-                                  final address = state.contestDetailsBundle!.contestBundle.place.address;
+                                  final address =
+                                      state.contestDetailsBundle!.contestBundle.place.address;
                                   final query = Uri.encodeComponent(address);
                                   final uri = Uri.parse(
                                       'https://www.google.com/maps/search/?api=1&query=$query');
@@ -247,8 +260,8 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contestBundle.contest.dateTime),
+                                DateFormat('dd MMM, yyyy | HH:mm').format(
+                                    state.contestDetailsBundle!.contestBundle.contest.dateTime),
                               ),
                             ),
                           ],
@@ -273,8 +286,11 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart),
+                                DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                    .contestDetailsBundle!
+                                    .contestBundle
+                                    .contest
+                                    .worksSubmissionStart),
                               ),
                             ),
                           ],
@@ -291,8 +307,11 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm')
-                                    .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd),
+                                DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                    .contestDetailsBundle!
+                                    .contestBundle
+                                    .contest
+                                    .worksSubmissionEnd),
                               ),
                             ),
                           ],

@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/entities/voting_session_juration.dart';
-import 'package:swift_contest/model/db/entities/voting_session_participation.dart';
+import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
+import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
@@ -38,7 +38,7 @@ class OrganizerJuryVotingResultsPage extends StatefulWidget implements AutoRoute
 class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResultsPage> {
   late String votingSessionJuryId;
   VotingSessionJuration? chosenVotingSessionJuration;
-  VotingSessionParticipation? chosenVotingSessionParticipation;
+  VotingSessionParticipant? chosenVotingSessionParticipation;
   static const double maxCellWidth = 80;
 
   @override

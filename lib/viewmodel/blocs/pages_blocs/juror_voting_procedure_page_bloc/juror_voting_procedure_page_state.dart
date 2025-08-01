@@ -18,6 +18,28 @@ final class JurorVotingProcedurePageState extends Equatable {
     this.ownVotingSessionJuration,
   });
 
+  factory JurorVotingProcedurePageState.fromJson(Map<String, dynamic> json) {
+    return JurorVotingProcedurePageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      votingSessionProcedureBundle: (json['voting_session_procedure_bundle'] != null)
+          ? VotingSessionProcedureBundle.fromJson(json['voting_session_procedure_bundle'])
+          : null,
+      ownVotingSessionJuration: (json['own_voting_session_juration'] != null)
+          ? VotingSessionJuration.fromJson(json['own_voting_session_juration'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'voting_session_procedure_bundle': votingSessionProcedureBundle?.toJson(),
+      'own_voting_session_juration': ownVotingSessionJuration?.toJson(),
+    };
+  }
+
   JurorVotingProcedurePageState copyWith({
     required BlocStatus status,
     JurorVotingProcedurePageEvent? sourceEvent,

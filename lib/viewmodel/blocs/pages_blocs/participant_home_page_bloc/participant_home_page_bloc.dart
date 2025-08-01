@@ -2,16 +2,17 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/db/repositories/participant_repository.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/database/repositories/participant_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'participant_home_page_event.dart';
 
 part 'participant_home_page_state.dart';
 
-class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, ParticipantHomePageState> {
+class ParticipantHomePageBloc extends HydratedBloc<ParticipantHomePageEvent, ParticipantHomePageState> {
   final ParticipantRepository _participantRepository;
 
   ParticipantHomePageBloc({
@@ -21,6 +22,26 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
     on<ParticipantHomePageFetch>(_fetch);
     on<ParticipantHomePageFilterResults>(_filterResults);
     on<ParticipantHomePageJoinContest>(_joinContest);
+  }
+
+  @override
+  ParticipantHomePageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return ParticipantHomePageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(ParticipantHomePageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(

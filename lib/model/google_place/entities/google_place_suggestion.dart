@@ -16,6 +16,13 @@ class GooglePlaceSuggestion extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'place_id': placeId,
+      'description': address,
+    };
+  }
+
   GooglePlaceSuggestion copyWith({
     String? placeId,
     String? address,

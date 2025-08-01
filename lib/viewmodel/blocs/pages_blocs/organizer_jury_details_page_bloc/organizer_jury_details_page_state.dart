@@ -16,6 +16,24 @@ final class OrganizerJuryDetailsPageState extends Equatable {
     this.juryBundle,
   });
 
+  factory OrganizerJuryDetailsPageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerJuryDetailsPageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      juryBundle: (json['jury_bundle'] != null)
+          ? JuryBundle.fromJson(json['jury_bundle'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'jury_bundle': juryBundle?.toJson(),
+    };
+  }
+
   OrganizerJuryDetailsPageState copyWith({
     required BlocStatus status,
     OrganizerJuryDetailsPageEvent? sourceEvent,

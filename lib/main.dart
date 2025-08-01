@@ -8,32 +8,30 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/app.dart';
-import 'package:swift_contest/model/db/daos/account_dao.dart';
-import 'package:swift_contest/model/db/daos/contest_dao.dart';
-import 'package:swift_contest/model/db/daos/juration_dao.dart';
-import 'package:swift_contest/model/db/daos/juror_invitation_dao.dart';
-import 'package:swift_contest/model/db/daos/jury_dao.dart';
-import 'package:swift_contest/model/db/daos/message_dao.dart';
-import 'package:swift_contest/model/db/daos/participant_invitation_dao.dart';
-import 'package:swift_contest/model/db/daos/participation_dao.dart';
-import 'package:swift_contest/model/db/daos/place_dao.dart';
-import 'package:swift_contest/model/db/daos/profile_dao.dart';
-import 'package:swift_contest/model/db/daos/simple_juror_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_form_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_form_field_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_form_submission_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_form_submission_value_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_session_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_session_exclusion_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_session_juration_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_session_participation_dao.dart';
-import 'package:swift_contest/model/db/daos/voting_session_simple_juror_dao.dart';
-import 'package:swift_contest/model/db/daos/work_dao.dart';
-import 'package:swift_contest/model/db/repositories/auth_repository.dart';
-import 'package:swift_contest/model/db/repositories/juror_repository.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/db/repositories/participant_repository.dart';
-import 'package:swift_contest/model/db/repositories/storage_repository.dart';
+import 'package:swift_contest/model/database/daos/account_dao.dart';
+import 'package:swift_contest/model/database/daos/contest_dao.dart';
+import 'package:swift_contest/model/database/daos/juration_dao.dart';
+import 'package:swift_contest/model/database/daos/juror_invitation_dao.dart';
+import 'package:swift_contest/model/database/daos/jury_dao.dart';
+import 'package:swift_contest/model/database/daos/message_dao.dart';
+import 'package:swift_contest/model/database/daos/participant_invitation_dao.dart';
+import 'package:swift_contest/model/database/daos/participation_dao.dart';
+import 'package:swift_contest/model/database/daos/place_dao.dart';
+import 'package:swift_contest/model/database/daos/profile_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_form_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_form_field_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_form_submission_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_form_submission_value_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_exclusion_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_juration_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_participation_dao.dart';
+import 'package:swift_contest/model/database/daos/work_dao.dart';
+import 'package:swift_contest/model/database/repositories/auth_repository.dart';
+import 'package:swift_contest/model/database/repositories/juror_repository.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/database/repositories/participant_repository.dart';
+import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/model/local/repositories/theme_repository.dart';
 import 'package:swift_contest/utils/functions/configure_url_strategy_mobile.dart'
@@ -50,7 +48,7 @@ void main() async {
   // );
   WidgetsFlutterBinding.ensureInitialized();
 
-  configureUrlStrategy();
+  // configureUrlStrategy();
 
   //* Force vertical orientation
   await SystemChrome.setPreferredOrientations([
@@ -91,7 +89,6 @@ void main() async {
   final ParticipationDao participationDao = ParticipationDaoImpl(supabase: supabase);
   final PlaceDao placeDao = PlaceDaoImpl(supabase: supabase);
   final ProfileDao profileDao = ProfileDaoImpl(supabase: supabase);
-  final SimpleJurorDao simpleJurorDao = SimpleJurorDaoImpl(supabase: supabase);
   final VotingFormDao votingFormDao = VotingFormDaoImpl(supabase: supabase);
   final VotingFormFieldDao votingFormFieldDao = VotingFormFieldDaoImpl(supabase: supabase);
   final VotingSessionDao votingSessionDao = VotingSessionDaoImpl(supabase: supabase);
@@ -101,8 +98,6 @@ void main() async {
       VotingSessionJurationDaoImpl(supabase: supabase);
   final VotingSessionParticipationDao votingSessionParticipationDao =
       VotingSessionParticipationDaoImpl(supabase: supabase);
-  final VotingSessionSimpleJurorDao votingSessionSimpleJurorDao =
-      VotingSessionSimpleJurorDaoImpl(supabase: supabase);
   final WorkDao workDao = WorkDaoImpl(supabase: supabase);
   final sharedPreferencesInstance = await SharedPreferences.getInstance();
 

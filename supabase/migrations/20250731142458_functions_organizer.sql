@@ -149,7 +149,7 @@ BEGIN
 
   -- Se la riga non è stata aggiornata (perché l'utente non è l'organizzatore), solleva un errore.
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Contest non trovato o accesso non autorizzato.';
+    RAISE EXCEPTION 'Contest not found or access denied.';
   END IF;
 
   RETURN updated_contest_row;

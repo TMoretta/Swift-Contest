@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/entities/place.dart';
+import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';

@@ -70,9 +70,6 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
         return Scaffold(
           appBar: CustomAppBar(
             title: state.participationBundle?.work?.name ?? '',
-            onRefresh: () => context
-                .read<OrganizerWorkDetailsPageBloc>()
-                .add(OrganizerWorkDetailsPageFetch(participationId: participationId)),
           ),
           body: SafeArea(
             child: Padding(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/model/local/repositories/theme_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'theme_event.dart';
@@ -22,6 +23,26 @@ class ThemeBloc extends HydratedBloc<ThemeEvent, ThemeState> {
     on<SaveTheme>(_saveTheme);
 
     add(LoadTheme());
+  }
+
+  @override
+  ThemeState? fromJson(Map<String, dynamic> json) {
+    try {
+      return ThemeState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(ThemeState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _loadTheme(
@@ -45,23 +66,5 @@ class ThemeBloc extends HydratedBloc<ThemeEvent, ThemeState> {
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, theme: event.theme)),
     );
-  }
-
-  @override
-  ThemeState? fromJson(Map<String, dynamic> json) {
-    try {
-      return ThemeState.fromJson(json);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(ThemeState state) {
-    try {
-      return state.toJson();
-    } catch (_) {
-      return null;
-    }
   }
 }

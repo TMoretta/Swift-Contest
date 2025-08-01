@@ -16,6 +16,26 @@ final class PlaceSearchPageState extends Equatable {
     this.googlePlace,
   });
 
+  factory PlaceSearchPageState.fromJson(Map<String, dynamic> json) {
+    return PlaceSearchPageState(
+      status: BlocStatus.values.byName(json['status']),
+      googlePlaceSuggestions: (json['google_place_suggestions'] as List<dynamic>?)
+          ?.map((e) => GooglePlaceSuggestion.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      googlePlace: json['google_place'] != null
+          ? GooglePlace.fromJson(json['google_place'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'google_place_suggestions': googlePlaceSuggestions?.map((e) => e.toJson()).toList(),
+      'google_place': googlePlace?.toJson(),
+    };
+  }
+
   PlaceSearchPageState copyWith({
     required BlocStatus status,
     PlaceSearchPageEvent? sourceEvent,

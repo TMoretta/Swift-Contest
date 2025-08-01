@@ -146,8 +146,67 @@ USING (true)
 WITH CHECK (true);
 
 
--- POLICIES FOR STORAGE
--- 1. Enable RLS on storage tables
+
+
+
+-- Rimuove le policy esistenti per evitare conflitti durante le riesecuzioni.
+DROP POLICY IF EXISTS "Allow public read access on buckets" ON storage.buckets;
+DROP POLICY IF EXISTS "Allow authenticated uploads" ON storage.objects;
+-- DROP per le nuove policy separate per la gestione dei file
+DROP POLICY IF EXISTS "Owners can read their own files" ON storage.objects;
+DROP POLICY IF EXISTS "Owners can update their own files" ON storage.objects;
+DROP POLICY IF EXISTS "Owners can delete their own files" ON storage.objects;
+
+
+-- POLICY DI SICUREZZA PER LO STORAGE
+
+-- Politica sui Buckets
+-- 1. Permetti a chiunque (anonimo e autenticato) di VEDERE la lista dei bucket.
+--    Questo è generalmente sicuro e non espone dati sensibili.
+CREATE POLICY "Allow public read access on buckets"
+  ON storage.buckets
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+
+-- Politiche sugli Oggetti (i file)
+-- 2. Permetti agli utenti AUTENTICATI di CARICARE file.
+--    La clausola WITH CHECK è una regola di sicurezza che viene applicata PRIMA dell'inserimento.
+CREATE POLICY "Allow authenticated uploads"
+  ON storage.objects
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    -- L'utente può caricare file solo nei bucket specificati.
+    -- Aggiorna questa lista se aggiungi nuovi bucket.
+    bucket_id IN ('contests-images', 'works-images')
+  );
+
+-- 3. Permetti agli utenti di LEGGERE i propri file.
+CREATE POLICY "Owners can read their own files"
+  ON storage.objects
+  FOR SELECT
+  TO authenticated
+  USING ( auth.uid() = owner );
+
+-- 4. Permetti agli utenti di AGGIORNARE i propri file.
+CREATE POLICY "Owners can update their own files"
+  ON storage.objects
+  FOR UPDATE
+  TO authenticated
+  USING ( auth.uid() = owner ); -- Per UPDATE, USING agisce anche come WITH CHECK per prevenire cambi di proprietà
+
+-- 5. Permetti agli utenti di CANCELLARE i propri file.
+CREATE POLICY "Owners can delete their own files"
+  ON storage.objects
+  FOR DELETE
+  TO authenticated
+  USING ( auth.uid() = owner );
+
+
+---- POLICIES FOR STORAGE
+---- 1. Enable RLS on storage tables
 --ALTER TABLE storage.buckets
 --  ENABLE ROW LEVEL SECURITY;
 --ALTER TABLE storage.objects

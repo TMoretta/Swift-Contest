@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
-import 'package:swift_contest/model/db/entities/voting_form_field.dart';
-import 'package:swift_contest/model/db/entities/voting_session_participation.dart';
-import 'package:swift_contest/model/db/types/voting_form_field_type.dart';
+import 'package:swift_contest/model/database/entities/voting_form_field.dart';
+import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/voting_procedure_work_details_view.dart';
 
 class VotingFormAndWorkView extends StatefulWidget {
   final bool isExcludedFromParticipant;
-  final VotingSessionParticipation votingSessionParticipation;
+  final VotingSessionParticipant votingSessionParticipation;
   final List<VotingFormField> votingFormFields;
-  final Map<VotingSessionParticipation, Map<VotingFormField, TextEditingController>> votesMap;
+  final Map<VotingSessionParticipant, Map<VotingFormField, TextEditingController>> votesMap;
 
   const VotingFormAndWorkView({
     required this.isExcludedFromParticipant,
@@ -27,9 +27,9 @@ class VotingFormAndWorkView extends StatefulWidget {
 
 class _VotingFormAndWorkViewState extends State<VotingFormAndWorkView> {
   late final bool isExcludedFromParticipant;
-  late final VotingSessionParticipation votingSessionParticipation;
+  late final VotingSessionParticipant votingSessionParticipation;
   late final List<VotingFormField> votingFormFields;
-  late final Map<VotingSessionParticipation, Map<VotingFormField, TextEditingController>> votesMap;
+  late final Map<VotingSessionParticipant, Map<VotingFormField, TextEditingController>> votesMap;
 
   @override
   void initState() {

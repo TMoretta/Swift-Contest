@@ -16,6 +16,24 @@ final class OrganizerVotingProcedurePageState extends Equatable {
     this.votingSessionProcedureBundle,
   });
 
+  factory OrganizerVotingProcedurePageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerVotingProcedurePageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      votingSessionProcedureBundle: (json['voting_session_procedure_bundle'] != null)
+          ? VotingSessionProcedureBundle.fromJson(json['voting_session_procedure_bundle'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'voting_session_procedure_bundle': votingSessionProcedureBundle?.toJson(),
+    };
+  }
+
   OrganizerVotingProcedurePageState copyWith({
     required BlocStatus status,
     OrganizerVotingProcedurePageEvent? sourceEvent,

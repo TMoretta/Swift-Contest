@@ -2,18 +2,19 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/db/entities/participation.dart';
-import 'package:swift_contest/model/db/entities/work.dart';
-import 'package:swift_contest/model/db/repositories/participant_repository.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/database/entities/participation.dart';
+import 'package:swift_contest/model/database/entities/work.dart';
+import 'package:swift_contest/model/database/repositories/participant_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'participant_contest_details_page_event.dart';
 part 'participant_contest_details_page_state.dart';
 
 class ParticipantContestDetailsPageBloc
-    extends Bloc<ParticipantContestDetailsPageEvent, ParticipantContestDetailsPageState> {
+    extends HydratedBloc<ParticipantContestDetailsPageEvent, ParticipantContestDetailsPageState> {
   final ParticipantRepository _participantRepository;
 
   ParticipantContestDetailsPageBloc({
@@ -24,6 +25,26 @@ class ParticipantContestDetailsPageBloc
     // on<ParticipantContestDetailsPageInit>(_init);
     on<ParticipantContestDetailsPageFetch>(_fetch);
     on<ParticipantContestDetailsPageLeaveContest>(_leaveContest);
+  }
+
+  @override
+  ParticipantContestDetailsPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return ParticipantContestDetailsPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(ParticipantContestDetailsPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(

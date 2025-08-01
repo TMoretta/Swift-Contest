@@ -18,6 +18,28 @@ final class ParticipantHomePageState extends Equatable {
     this.filteredContestsBundles,
   });
 
+  factory ParticipantHomePageState.fromJson(Map<String, dynamic> json) {
+    return ParticipantHomePageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      joinedContestsBundles: (json['joined_contests_bundles'] as List<dynamic>?)
+          ?.map((e) => HomeContestBundle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      filteredContestsBundles: (json['filtered_contests_bundles'] as List<dynamic>?)
+          ?.map((e) => HomeContestBundle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      'joined_contests_bundles': joinedContestsBundles?.map((e) => e.toJson()).toList(),
+      'filtered_contests_bundles': filteredContestsBundles?.map((e) => e.toJson()).toList(),
+    };
+  }
+
   ParticipantHomePageState copyWith({
     required BlocStatus status,
     ParticipantHomePageEvent? sourceEvent,

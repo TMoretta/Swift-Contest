@@ -16,6 +16,24 @@ final class PlacePickerFormFieldState extends Equatable {
     this.googlePlaceSuggestions,
   });
 
+  factory PlacePickerFormFieldState.fromJson(Map<String, dynamic> json) {
+    return PlacePickerFormFieldState(
+      status: BlocStatus.values.byName(json['status']),
+      googlePlace: json['google_place'] != null ? GooglePlace.fromJson(json['google_place']) : null,
+      googlePlaceSuggestions: (json['google_place_suggestions'] as List<dynamic>?)
+          ?.map((e) => GooglePlaceSuggestion.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'google_place': googlePlace?.toJson(),
+      'google_place_suggestions': googlePlaceSuggestions?.map((e) => e.toJson()).toList(),
+    };
+  }
+
   PlacePickerFormFieldState copyWith({
     required BlocStatus status,
     PlacePickerFormFieldEvent? sourceEvent,

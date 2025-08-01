@@ -18,6 +18,28 @@ final class OrganizerHomePageState extends Equatable {
     this.filteredContestsBundles,
   });
 
+  factory OrganizerHomePageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerHomePageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['isInitialized'] as bool,
+      createdContestsBundles: (json['createdContestsBundles'] as List<dynamic>?)
+          ?.map((e) => HomeContestBundle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      filteredContestsBundles: (json['filteredContestsBundles'] as List<dynamic>?)
+          ?.map((e) => HomeContestBundle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'isInitialized': isInitialized,
+      'createdContestsBundles': createdContestsBundles?.map((e) => e.toJson()).toList(),
+      'filteredContestsBundles': filteredContestsBundles?.map((e) => e.toJson()).toList(),
+    };
+  }
+
   OrganizerHomePageState copyWith({
     required BlocStatus status,
     OrganizerHomePageEvent? sourceEvent,
@@ -34,7 +56,6 @@ final class OrganizerHomePageState extends Equatable {
       message: message,
       createdContestsBundles: createdContestsBundles ?? this.createdContestsBundles,
       filteredContestsBundles: filteredContestsBundles ?? this.filteredContestsBundles,
-
     );
   }
 

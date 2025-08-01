@@ -16,6 +16,24 @@ final class OrganizerJuryVotingResultsPageState extends Equatable {
     // this.votingSessionJuryResultBundle,
   });
 
+  factory OrganizerJuryVotingResultsPageState.fromJson(Map<String, dynamic> json) {
+    return OrganizerJuryVotingResultsPageState(
+      status: BlocStatus.values.byName(json['status']),
+      isInitialized: json['is_initialized'] as bool,
+      // votingSessionJuryResultBundle: (json['voting_session_jury_result_bundle'] != null)
+      //     ? VotingSessionJuryResultBundle.fromJson(json['voting_session_jury_result_bundle'])
+      //     : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'is_initialized': isInitialized,
+      // 'voting_session_jury_result_bundle': votingSessionJuryResultBundle?.toJson(),
+    };
+  }
+
   OrganizerJuryVotingResultsPageState copyWith({
     required BlocStatus status,
     bool? isInitialized,

@@ -2,8 +2,8 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:swift_contest/model/data_models/voting_form_field.dart';
-// import 'package:swift_contest/model/data_models/voting_session_participation.dart';
-// import 'package:swift_contest/model/db/types/voting_session_status.dart';
+// import 'package:swift_contest/model/data_models/voting_session_participant.dart';
+// import 'package:swift_contest/model/database/types/voting_session_status.dart';
 // import 'package:swift_contest/utils/labels/labels.dart';
 // import 'package:swift_contest/utils/router/app_router.gr.dart';
 // import 'package:swift_contest/view/widgets/custom_app_bar.dart';

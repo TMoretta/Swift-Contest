@@ -85,20 +85,6 @@ final class OrganizerContestDetailsPageRemoveJuror extends OrganizerContestDetai
   List<Object?> get props => [jurationId];
 }
 
-final class OrganizerContestDetailsPageEditVotingSessionName
-    extends OrganizerContestDetailsPageEvent {
-  final String votingSessionId;
-  final String name;
-
-  const OrganizerContestDetailsPageEditVotingSessionName({
-    required this.votingSessionId,
-    required this.name,
-  });
-
-  @override
-  List<Object?> get props => [votingSessionId, name];
-}
-
 final class OrganizerContestDetailsPageDeleteContest extends OrganizerContestDetailsPageEvent {
   final String contestId;
 
@@ -126,13 +112,4 @@ final class OrganizerContestDetailsPageCreateJury extends OrganizerContestDetail
         juryName,
         juryType,
       ];
-}
-
-final class OrganizerContestDetailsPageRegenerateToken extends OrganizerContestDetailsPageEvent {
-  final String contestId;
-
-  const OrganizerContestDetailsPageRegenerateToken({required this.contestId});
-
-  @override
-  List<Object?> get props => [contestId];
 }

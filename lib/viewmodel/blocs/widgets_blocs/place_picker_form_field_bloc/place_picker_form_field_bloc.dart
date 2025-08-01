@@ -1,9 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:swift_contest/model/google_place/entities/google_place.dart';
 import 'package:swift_contest/model/google_place/entities/google_place_suggestion.dart';
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -11,7 +13,7 @@ part 'place_picker_form_field_event.dart';
 
 part 'place_picker_form_field_state.dart';
 
-class PlacePickerFormFieldBloc extends Bloc<PlacePickerFormFieldEvent, PlacePickerFormFieldState> {
+class PlacePickerFormFieldBloc extends HydratedBloc<PlacePickerFormFieldEvent, PlacePickerFormFieldState> {
   final GooglePlaceRepository _googlePlaceRepository;
 
   PlacePickerFormFieldBloc({required GooglePlaceRepository googlePlaceRepository})
@@ -22,6 +24,26 @@ class PlacePickerFormFieldBloc extends Bloc<PlacePickerFormFieldEvent, PlacePick
       _searchPlaceSuggestions,
       transformer: debounce(const Duration(milliseconds: 500)),
     );
+  }
+
+  @override
+  PlacePickerFormFieldState? fromJson(Map<String, dynamic> json) {
+    try {
+      return PlacePickerFormFieldState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(PlacePickerFormFieldState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   Future<void> _fetchPlace(

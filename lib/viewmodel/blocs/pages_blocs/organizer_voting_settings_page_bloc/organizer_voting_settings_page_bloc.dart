@@ -2,21 +2,22 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/db/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/db/bundles/juration_bundle.dart';
-import 'package:swift_contest/model/db/bundles/jury_bundle.dart';
-import 'package:swift_contest/model/db/bundles/participation_bundle.dart';
-import 'package:swift_contest/model/db/entities/place.dart';
-import 'package:swift_contest/model/db/entities/voting_session.dart';
-import 'package:swift_contest/model/db/repositories/organizer_repository.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/database/bundles/juration_bundle.dart';
+import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
+import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
+import 'package:swift_contest/model/database/entities/place.dart';
+import 'package:swift_contest/model/database/entities/voting_session.dart';
+import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_voting_settings_page_event.dart';
 part 'organizer_voting_settings_page_state.dart';
 
 class OrganizerVotingSettingsPageBloc
-    extends Bloc<OrganizerVotingSettingsPageEvent, OrganizerVotingSettingsPageState> {
+    extends HydratedBloc<OrganizerVotingSettingsPageEvent, OrganizerVotingSettingsPageState> {
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingSettingsPageBloc({
@@ -25,6 +26,26 @@ class OrganizerVotingSettingsPageBloc
         super(OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingSettingsPageFetch>(_fetch);
     on<OrganizerVotingSettingsPageStartVotingSession>(_startVotingSession);
+  }
+
+  @override
+  OrganizerVotingSettingsPageState? fromJson(Map<String, dynamic> json) {
+    try {
+      return OrganizerVotingSettingsPageState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(OrganizerVotingSettingsPageState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   FutureOr<void> _fetch(

@@ -1,6 +1,7 @@
 --region USER GET CONTEST DETAILS BUNDLE
 -- Retrieves all nested data for a contest's detail page.
 -- The data returned is tailored to the role of the calling user (organizer, participant, or juror).
+-- This version builds all JSON bundles directly from base tables without using VIEWS.
 CREATE OR REPLACE FUNCTION user_get_contest_details(p_contest_id uuid)
 RETURNS jsonb -- Returns a single, complex JSONB object.
 LANGUAGE plpgsql
@@ -26,21 +27,35 @@ BEGIN
 
   -- Step 3: Build the JSON response, conditionally including data based on the user's role.
   SELECT jsonb_build_object(
-    -- 'contest_bundle' is visible to everyone with access.
+    -- 'contest_bundle': Costruito direttamente con JOINs.
     'contest_bundle', (
-      SELECT row_to_json(cb)
-      FROM public.contest_bundles cb
-      WHERE (cb.contest->>'id')::uuid = p_contest_id
+      SELECT jsonb_build_object(
+               'contest', to_jsonb(c),
+               'organizer', to_jsonb(p),
+               'place', to_jsonb(pl)
+             )
+      FROM public.contests c
+      JOIN public.profiles p ON c.organizer_id = p.id
+      JOIN public.places pl ON c.place_id = pl.id
+      WHERE c.id = p_contest_id
     ),
 
-    -- 'participations_bundles' are visible to everyone with access.
+    -- 'participations_bundles': Costruito direttamente con JOINs.
     'participations_bundles', (
-      SELECT COALESCE(jsonb_agg(row_to_json(pb)), '[]'::jsonb)
-      FROM public.participation_bundles pb
-      WHERE (pb.participation->>'contest_id')::uuid = p_contest_id
+      SELECT COALESCE(jsonb_agg(
+        jsonb_build_object(
+          'participation', to_jsonb(pa),
+          'participant', to_jsonb(p),
+          'work', to_jsonb(w)
+        )
+      ), '[]'::jsonb)
+      FROM public.participations pa
+      JOIN public.profiles p ON pa.participant_id = p.id
+      LEFT JOIN public.works w ON pa.id = w.participation_id -- LEFT JOIN perché un'opera potrebbe non essere stata ancora sottomessa.
+      WHERE pa.contest_id = p_contest_id
     ),
 
-    -- 'participants_invitations' are visible ONLY to the organizer.
+    -- 'participants_invitations': Già usava la tabella base, rimane invariato.
     'participants_invitations', CASE
       WHEN is_organizer THEN (
         SELECT COALESCE(jsonb_agg(to_jsonb(pi)), '[]'::jsonb)
@@ -50,22 +65,55 @@ BEGIN
       ELSE '[]'::jsonb
     END,
 
-    -- 'juries_bundles' are visible ONLY to the organizer.
+    -- 'juries_bundles': Costruito direttamente con subquery nidificate.
     'juries_bundles', CASE
       WHEN is_organizer THEN (
-        SELECT COALESCE(jsonb_agg(row_to_json(jb)), '[]'::jsonb)
-        FROM public.jury_bundles jb
-        WHERE (jb.jury->>'contest_id')::uuid = p_contest_id
+        SELECT COALESCE(jsonb_agg(
+          jsonb_build_object(
+            'jury', to_jsonb(j),
+            'jurations_bundles', (
+              SELECT COALESCE(jsonb_agg(jsonb_build_object('juration', to_jsonb(ju), 'juror', to_jsonb(p_juror))), '[]'::jsonb)
+              FROM public.jurations ju
+              JOIN public.profiles p_juror ON ju.juror_id = p_juror.id
+              WHERE ju.jury_id = j.id
+            ),
+            'jurors_invitations', (
+              SELECT COALESCE(jsonb_agg(to_jsonb(ji)), '[]'::jsonb)
+              FROM public.juror_invitations ji
+              WHERE ji.jury_id = j.id
+            ),
+            'voting_form_bundle', (
+              SELECT jsonb_build_object(
+                'voting_form', to_jsonb(vf),
+                'voting_form_fields', (
+                  SELECT COALESCE(jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index), '[]'::jsonb)
+                  FROM public.voting_form_fields vff
+                  WHERE vff.voting_form_id = vf.id
+                )
+              )
+              FROM public.voting_forms vf
+              WHERE vf.id = j.voting_form_id
+            )
+          )
+        ), '[]'::jsonb)
+        FROM public.juries j
+        WHERE j.contest_id = p_contest_id
       )
       ELSE '[]'::jsonb
     END,
 
-    -- 'voting_sessions_bundles' are visible to organizers and jurors.
+    -- 'voting_sessions_bundles': Costruito direttamente con JOIN.
     'voting_sessions_bundles', CASE
       WHEN is_organizer OR is_juror THEN (
-        SELECT COALESCE(jsonb_agg(row_to_json(vsb)), '[]'::jsonb)
-        FROM public.voting_session_bundles vsb
-        WHERE (vsb.voting_session->>'contest_id')::uuid = p_contest_id
+        SELECT COALESCE(jsonb_agg(
+          jsonb_build_object(
+            'voting_session', to_jsonb(vs),
+            'place', to_jsonb(pl) -- Il luogo per la geo-restrizione
+          )
+        ), '[]'::jsonb)
+        FROM public.voting_sessions vs
+        LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id -- LEFT JOIN perché la geo-restrizione è opzionale.
+        WHERE vs.contest_id = p_contest_id
       )
       ELSE '[]'::jsonb
     END

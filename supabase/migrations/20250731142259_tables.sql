@@ -54,7 +54,6 @@ CREATE TABLE contests (
   works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL UNIQUE REFERENCES places (id),
   images_urls text[] NOT NULL
---  token varchar(14) NOT NULL UNIQUE DEFAULT gen_unique_token('contests', 'token', 14)
 );
 
 CREATE TABLE participant_invitations (
@@ -149,8 +148,8 @@ CREATE TABLE voting_session_juries (
   jury_name varchar NOT NULL,
   jury_type jury_type NOT NULL,
   voting_form_id uuid NOT NULL,
-  token uuid NOT NULL,
-  UNIQUE (voting_session_id, token)
+  jury_token uuid NOT NULL,
+  UNIQUE (voting_session_id, jury_token)
 );
 
 CREATE TABLE voting_session_jurors (
