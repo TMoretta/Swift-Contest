@@ -7,7 +7,8 @@ final class ParticipantContestDetailsPageState extends Equatable {
   final bool isInitialized;
   final String? message;
   final ContestDetailsBundle? contestDetailsBundle;
-  final Work? submittedWork;
+  final ParticipationBundle? ownParticipationBundle;
+  // final Work? submittedWork;
 
   const ParticipantContestDetailsPageState({
     required this.status,
@@ -15,7 +16,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
     this.isInitialized = false,
     this.message,
     this.contestDetailsBundle,
-    this.submittedWork,
+    this.ownParticipationBundle,
   });
 
   factory ParticipantContestDetailsPageState.fromJson(Map<String, dynamic> json) {
@@ -25,8 +26,9 @@ final class ParticipantContestDetailsPageState extends Equatable {
       contestDetailsBundle: (json['contest_details_bundle'] != null)
           ? ContestDetailsBundle.fromJson(json['contest_details_bundle'])
           : null,
-      submittedWork:
-          (json['submitted_work'] != null) ? Work.fromJson(json['submitted_work']) : null,
+      ownParticipationBundle: (json['own_participation_bundle'] != null)
+          ? ParticipationBundle.fromJson(json['own_participation_bundle'])
+          : null,
     );
   }
 
@@ -35,7 +37,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
       'status': status.name,
       'is_initialized': isInitialized,
       'contest_details_bundle': contestDetailsBundle?.toJson(),
-      'submitted_work': submittedWork?.toJson(),
+      'own_participation_bundle': ownParticipationBundle?.toJson(),
     };
   }
 
@@ -46,7 +48,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
     bool? isInitialized,
     String? message,
     ContestDetailsBundle? contestDetailsBundle,
-    Work? submittedWork,
+    ParticipationBundle? ownParticipationBundle,
   }) {
     return ParticipantContestDetailsPageState(
       status: status,
@@ -54,7 +56,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
       isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
-      submittedWork: submittedWork ?? this.submittedWork,
+      ownParticipationBundle: ownParticipationBundle ?? this.ownParticipationBundle,
     );
   }
 
@@ -65,6 +67,6 @@ final class ParticipantContestDetailsPageState extends Equatable {
         isInitialized,
         message,
         contestDetailsBundle,
-        submittedWork,
+        ownParticipationBundle,
       ];
 }

@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -12,7 +13,7 @@ part 'participant_home_page_event.dart';
 
 part 'participant_home_page_state.dart';
 
-class ParticipantHomePageBloc extends HydratedBloc<ParticipantHomePageEvent, ParticipantHomePageState> {
+class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, ParticipantHomePageState> {
   final ParticipantRepository _participantRepository;
 
   ParticipantHomePageBloc({

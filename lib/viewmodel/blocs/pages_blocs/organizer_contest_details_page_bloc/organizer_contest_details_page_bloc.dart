@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/database/entities/juror_invitation.dart';
 import 'package:swift_contest/model/database/entities/jury.dart';
@@ -20,7 +20,7 @@ part 'organizer_contest_details_page_event.dart';
 part 'organizer_contest_details_page_state.dart';
 
 class OrganizerContestDetailsPageBloc
-    extends HydratedBloc<OrganizerContestDetailsPageEvent, OrganizerContestDetailsPageState> {
+    extends Bloc<OrganizerContestDetailsPageEvent, OrganizerContestDetailsPageState> {
   final OrganizerRepository _organizerRepository;
 
   OrganizerContestDetailsPageBloc({

@@ -77,17 +77,18 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                 case BlocStatus.success:
                   return LayoutBuilder(
                     builder: (context, constraints) {
+                      final work = state.ownParticipationBundle!.work;
                       return RefreshIndicator.adaptive(
                         onRefresh: () async => context
                             .read<ParticipantContestDetailsPageBloc>()
                             .add(ParticipantContestDetailsPageFetch(
                                 contestId: contestId, participantId: profileId)),
-                        child: (state.submittedWork != null)
+                        child: (work != null)
                             ? ListView(
                                 children: [
                                   //* Title
                                   Text(
-                                    state.submittedWork!.name,
+                                    work.name,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge
@@ -99,13 +100,13 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                     height: 180,
                                     child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
-                                      itemCount: state.submittedWork!.imagesUrls.length,
+                                      itemCount: work.imagesUrls.length,
                                       itemBuilder: (context, index) {
                                         return Padding(
                                           padding: const EdgeInsets.only(right: 8),
-                                          child: (state.submittedWork!.imagesUrls.isNotEmpty)
+                                          child: (work.imagesUrls.isNotEmpty)
                                               ? Image.network(
-                                                  state.submittedWork!.imagesUrls[index],
+                                                  work.imagesUrls[index],
                                                   fit: BoxFit.contain,
                                                   errorBuilder: (context, error, stackTrace) {
                                                     return Image.asset(
@@ -136,7 +137,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                         .titleMedium
                                         ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                                   ),
-                                  Text(state.submittedWork!.description),
+                                  Text(work.description),
                                   SizedBox(height: 16),
                                   //* File
                                   // Text(
@@ -151,7 +152,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                   //   color: Theme.of(context).colorScheme.tertiaryContainer,
                                   //   child: ListTile(
                                   //     title: Text(
-                                  //       state.submittedWork!.fileUrl.split('/').last,
+                                  //       work!.fileUrl.split('/').last,
                                   //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   //           color:
                                   //               Theme.of(context).colorScheme.onTertiaryContainer),
@@ -173,7 +174,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                   //                 ExternalPath.DIRECTORY_DOWNLOAD);
                                   //
                                   //         final originalFilename =
-                                  //             state.submittedWork!.fileUrl.split('/').last;
+                                  //             work!.fileUrl.split('/').last;
                                   //         final baseName =
                                   //             p.basenameWithoutExtension(originalFilename);
                                   //         final extension = p.extension(originalFilename);
@@ -191,7 +192,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                   //
                                   //         try {
                                   //           await Dio().download(
-                                  //             state.submittedWork!.fileUrl,
+                                  //             work!.fileUrl,
                                   //             path,
                                   //             onReceiveProgress: (received, total) {
                                   //               if (total != -1) {
@@ -248,7 +249,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
               final bool isInParticipationPhase =
                   state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart.isBefore(now()) &&
                       state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd.isAfter(now());
-              if (state.status.isSuccess && state.submittedWork == null && isInParticipationPhase) {
+              if (state.status.isSuccess && state.ownParticipationBundle!.work == null && isInParticipationPhase) {
                 return FloatingActionButton.extended(
                   onPressed: () async {
                     final bool? res =

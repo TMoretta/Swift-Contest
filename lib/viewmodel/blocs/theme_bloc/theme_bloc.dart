@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+
 import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/model/local/repositories/theme_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -12,7 +13,7 @@ part 'theme_event.dart';
 
 part 'theme_state.dart';
 
-class ThemeBloc extends HydratedBloc<ThemeEvent, ThemeState> {
+class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   final ThemeRepository _themeRepository;
 
   ThemeBloc({

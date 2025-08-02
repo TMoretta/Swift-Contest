@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository_.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -12,7 +13,7 @@ part 'sign_in_verify_page_event.dart';
 
 part 'sign_in_verify_page_state.dart';
 
-class SignInVerifyPageBloc extends HydratedBloc<SignInVerifyPageEvent, SignInVerifyPageState> {
+class SignInVerifyPageBloc extends Bloc<SignInVerifyPageEvent, SignInVerifyPageState> {
   final AuthRepository _authRepository;
 
   SignInVerifyPageBloc({required AuthRepository authRepository})

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -55,10 +57,10 @@ class _AppState extends State<App> {
           decoration: BoxDecoration(
             color: switch (appTheme) {
               AppTheme.system => (MediaQuery.of(context).platformBrightness == Brightness.light)
-                  ? const Color(0xFFECECF2)  // light background
+                  ? const Color(0xFFECECF2) // light background
                   : const Color(0xFF1F2128), // dark background
-              AppTheme.light  => const Color(0xFFECECF2),
-              AppTheme.dark   => const Color(0xFF1F2128),
+              AppTheme.light => const Color(0xFFECECF2),
+              AppTheme.dark => const Color(0xFF1F2128),
             },
           ),
           child: Center(
@@ -68,6 +70,7 @@ class _AppState extends State<App> {
                 routerConfig: _appRouter.config(
                   // neglectWhen: (location) => true,
                 ),
+                scrollBehavior: CustomScrollBehavior(),
                 themeMode: ThemeMode.values.byName(appTheme.name),
                 theme: _materialTheme.light(),
                 darkTheme: _materialTheme.dark(),
@@ -88,5 +91,15 @@ class _AppState extends State<App> {
         );
       },
     );
+  }
+}
+
+class CustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices {
+    return {
+      PointerDeviceKind.touch,
+      PointerDeviceKind.mouse,
+    };
   }
 }

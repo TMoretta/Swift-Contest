@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:swift_contest/model/database/bundles/voting_session_result_bundle.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -11,7 +12,7 @@ part 'organizer_voting_results_page_event.dart';
 part 'organizer_voting_results_page_state.dart';
 
 class OrganizerVotingResultsPageBloc
-    extends HydratedBloc<OrganizerVotingResultsPageEvent, OrganizerVotingResultsPageState> {
+    extends Bloc<OrganizerVotingResultsPageEvent, OrganizerVotingResultsPageState> {
   final OrganizerRepository _organizerRepository;
 
   OrganizerVotingResultsPageBloc({

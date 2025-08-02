@@ -6,8 +6,7 @@ final class JurorVotingProcedurePageState extends Equatable {
   final JurorVotingProcedurePageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
-  final VotingSessionProcedureBundle? votingSessionProcedureBundle;
-  final VotingSessionJuration? ownVotingSessionJuration;
+  final JurorVotingSessionProcedureBundle? votingSessionProcedureBundle;
 
   const JurorVotingProcedurePageState({
     required this.status,
@@ -15,7 +14,6 @@ final class JurorVotingProcedurePageState extends Equatable {
     this.isInitialized = false,
     this.message,
     this.votingSessionProcedureBundle,
-    this.ownVotingSessionJuration,
   });
 
   factory JurorVotingProcedurePageState.fromJson(Map<String, dynamic> json) {
@@ -23,10 +21,7 @@ final class JurorVotingProcedurePageState extends Equatable {
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['is_initialized'] as bool,
       votingSessionProcedureBundle: (json['voting_session_procedure_bundle'] != null)
-          ? VotingSessionProcedureBundle.fromJson(json['voting_session_procedure_bundle'])
-          : null,
-      ownVotingSessionJuration: (json['own_voting_session_juration'] != null)
-          ? VotingSessionJuration.fromJson(json['own_voting_session_juration'])
+          ? JurorVotingSessionProcedureBundle.fromJson(json['voting_session_procedure_bundle'])
           : null,
     );
   }
@@ -36,7 +31,6 @@ final class JurorVotingProcedurePageState extends Equatable {
       'status': status.name,
       'is_initialized': isInitialized,
       'voting_session_procedure_bundle': votingSessionProcedureBundle?.toJson(),
-      'own_voting_session_juration': ownVotingSessionJuration?.toJson(),
     };
   }
 
@@ -45,8 +39,8 @@ final class JurorVotingProcedurePageState extends Equatable {
     JurorVotingProcedurePageEvent? sourceEvent,
     bool? isInitialized,
     String? message,
-    VotingSessionProcedureBundle? votingSessionProcedureBundle,
-    VotingSessionJuration? ownVotingSessionJuration,
+    JurorVotingSessionProcedureBundle? votingSessionProcedureBundle,
+    VotingSessionJuror? ownVotingSessionJuration,
   }) {
     return JurorVotingProcedurePageState(
       status: status,
@@ -55,7 +49,6 @@ final class JurorVotingProcedurePageState extends Equatable {
       message: message,
       votingSessionProcedureBundle:
           votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
-      ownVotingSessionJuration: ownVotingSessionJuration ?? this.ownVotingSessionJuration,
     );
   }
 
@@ -66,6 +59,5 @@ final class JurorVotingProcedurePageState extends Equatable {
         isInitialized,
         message,
         votingSessionProcedureBundle,
-        ownVotingSessionJuration,
       ];
 }

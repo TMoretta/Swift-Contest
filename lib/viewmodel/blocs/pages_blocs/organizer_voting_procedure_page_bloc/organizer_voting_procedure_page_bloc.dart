@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+
 import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
@@ -15,7 +16,7 @@ part 'organizer_voting_procedure_page_event.dart';
 part 'organizer_voting_procedure_page_state.dart';
 
 class OrganizerVotingProcedurePageBloc
-    extends HydratedBloc<OrganizerVotingProcedurePageEvent, OrganizerVotingProcedurePageState> {
+    extends Bloc<OrganizerVotingProcedurePageEvent, OrganizerVotingProcedurePageState> {
   final OrganizerRepository _organizerRepository;
   StreamSubscription<Either<Failure, VotingSession?>>? _votingSessionSubscription;
 

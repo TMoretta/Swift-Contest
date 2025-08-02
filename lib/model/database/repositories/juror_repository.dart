@@ -2,6 +2,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/database/bundles/juror_voting_session_procedure_bundle.dart';
+import 'package:swift_contest/model/database/bundles/juror_voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/daos/account_dao.dart';
 import 'package:swift_contest/model/database/daos/juration_dao.dart';
@@ -21,7 +23,7 @@ abstract interface class JurorRepository {
 
   Future<Either<Failure, Unit>> leaveContest({required String contestId});
 
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+  Future<Either<Failure, JurorVotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   });
 
@@ -29,7 +31,7 @@ abstract interface class JurorRepository {
     required String votingSessionId,
   });
 
-  Future<Either<Failure, VotingSessionJuration>> getOwnVotingSessionJuration({
+  Future<Either<Failure, VotingSessionJuror>> getOwnVotingSessionJuration({
     required String votingSessionId,
   });
 
@@ -113,7 +115,7 @@ class JurorRepositoryImpl implements JurorRepository {
   }
 
   @override
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+  Future<Either<Failure, JurorVotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   }) async {
     return handleDatabaseCall(
@@ -121,12 +123,12 @@ class JurorRepositoryImpl implements JurorRepository {
         // 1. Chiama la funzione RPC.
         //    La funzione restituisce un singolo oggetto JSON, quindi usiamo .single().
         final res = await _supabase.rpc(
-          'get_voting_session_procedure_bundle',
+          'juror_get_voting_session_procedure_bundle',
           params: {'p_voting_session_id': votingSessionId},
         ).single();
 
         // 2. Deserializza la mappa JSON ricevuta nel bundle corrispondente.
-        return Either.right(VotingSessionProcedureBundle.fromJson(res));
+        return Either.right(JurorVotingSessionProcedureBundle.fromJson(res));
       },
     );
   }
@@ -162,7 +164,7 @@ class JurorRepositoryImpl implements JurorRepository {
   }
 
   @override
-  Future<Either<Failure, VotingSessionJuration>> getOwnVotingSessionJuration({
+  Future<Either<Failure, VotingSessionJuror>> getOwnVotingSessionJuration({
     required String votingSessionId,
   }) {
     return handleDatabaseCall(
@@ -170,12 +172,12 @@ class JurorRepositoryImpl implements JurorRepository {
         // Chiama la nuova funzione RPC che abbiamo creato.
         // Usiamo .single() perché ci aspettiamo esattamente un risultato.
         final res = await _supabase.rpc(
-          'juror_get_own_voting_session_juration',
+          'juror_get_own_voting_session_juror',
           params: {'p_voting_session_id': votingSessionId},
         ).single();
 
         // Deserializza il JSON ricevuto nell'oggetto Dart corrispondente.
-        return Either.right(VotingSessionJuration.fromJson(res));
+        return Either.right(VotingSessionJuror.fromJson(res));
       },
     );
   }

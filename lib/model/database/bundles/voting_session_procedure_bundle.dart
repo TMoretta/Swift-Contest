@@ -6,13 +6,13 @@ import 'package:swift_contest/model/database/entities/voting_session_participant
 
 class VotingSessionProcedureBundle extends Equatable {
   final VotingSessionBundle votingSessionBundle;
-  final List<VotingSessionParticipant> votingSessionParticipations;
+  final List<VotingSessionParticipant> votingSessionParticipants;
   final List<VotingSessionJuryBundle> votingSessionJuriesBundles;
   final List<VotingSessionExclusion> votingSessionExclusions;
 
   const VotingSessionProcedureBundle({
     required this.votingSessionBundle,
-    required this.votingSessionParticipations,
+    required this.votingSessionParticipants,
     required this.votingSessionJuriesBundles,
     required this.votingSessionExclusions,
   });
@@ -20,7 +20,7 @@ class VotingSessionProcedureBundle extends Equatable {
   factory VotingSessionProcedureBundle.fromJson(Map<String, dynamic> json) {
     return VotingSessionProcedureBundle(
       votingSessionBundle: VotingSessionBundle.fromJson(json['voting_session_bundle']),
-      votingSessionParticipations: (json['voting_session_participations'] as List<dynamic>)
+      votingSessionParticipants: (json['voting_session_participants'] as List<dynamic>)
           .map((e) => VotingSessionParticipant.fromJson(e))
           .toList(growable: false),
       votingSessionJuriesBundles: (json['voting_session_juries_bundles'] as List<dynamic>)
@@ -35,8 +35,8 @@ class VotingSessionProcedureBundle extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'voting_session_bundle': votingSessionBundle.toJson(),
-      'voting_session_participations':
-          votingSessionParticipations.map((e) => e.toJson()).toList(growable: false),
+      'voting_session_participants':
+          votingSessionParticipants.map((e) => e.toJson()).toList(growable: false),
       'voting_session_juries_bundles':
           votingSessionJuriesBundles.map((e) => e.toJson()).toList(growable: false),
       'voting_session_exclusions':
@@ -53,7 +53,7 @@ class VotingSessionProcedureBundle extends Equatable {
   }) {
     return VotingSessionProcedureBundle(
       votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
-      votingSessionParticipations: votingSessionParticipations ?? this.votingSessionParticipations,
+      votingSessionParticipants: votingSessionParticipations ?? this.votingSessionParticipants,
       votingSessionJuriesBundles: votingSessionJuriesBundles ?? this.votingSessionJuriesBundles,
       votingSessionExclusions: votingSessionExclusions ?? this.votingSessionExclusions,
     );
@@ -62,7 +62,7 @@ class VotingSessionProcedureBundle extends Equatable {
   @override
   List<Object?> get props => [
         votingSessionBundle,
-        votingSessionParticipations,
+        votingSessionParticipants,
         votingSessionJuriesBundles,
         votingSessionExclusions,
       ];

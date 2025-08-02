@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+
 import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository_.dart';
@@ -15,7 +15,7 @@ part 'organizer_work_details_page_event.dart';
 part 'organizer_work_details_page_state.dart';
 
 class OrganizerWorkDetailsPageBloc
-    extends HydratedBloc<OrganizerWorkDetailsPageEvent, OrganizerWorkDetailsPageState> {
+    extends Bloc<OrganizerWorkDetailsPageEvent, OrganizerWorkDetailsPageState> {
   final OrganizerRepository _organizerRepository;
 
   OrganizerWorkDetailsPageBloc({

@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/database/entities/participation.dart';
-import 'package:swift_contest/model/database/entities/work.dart';
+import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -14,7 +14,7 @@ part 'participant_contest_details_page_event.dart';
 part 'participant_contest_details_page_state.dart';
 
 class ParticipantContestDetailsPageBloc
-    extends HydratedBloc<ParticipantContestDetailsPageEvent, ParticipantContestDetailsPageState> {
+    extends Bloc<ParticipantContestDetailsPageEvent, ParticipantContestDetailsPageState> {
   final ParticipantRepository _participantRepository;
 
   ParticipantContestDetailsPageBloc({
@@ -61,19 +61,26 @@ class ParticipantContestDetailsPageBloc
       (success) => contestDetailsBundle = success,
     );
 
-    late final Work? submittedWork;
-    final eitherSubmittedWork = await _participantRepository.getSubmittedWork(
-        contestId: event.contestId);
-    eitherSubmittedWork.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => submittedWork = success,
-    );
+    final eitherParticipation = await _participantRepository.getParticipationBundle(contestId: event.contestId, participantId: event.participantId);
+    if(eitherParticipation.isLeft()) {
+      emit(state.copyWith(status: BlocStatus.failure, message: eitherParticipation.getLeft().toNullable()!.message));
+      return;
+    }
+    final participationBundle = eitherParticipation.getRight().toNullable()!;
+
+    // late final Work? submittedWork;
+    // final eitherSubmittedWork = await _participantRepository.getSubmittedWork(
+    //     contestId: event.contestId);
+    // eitherSubmittedWork.fold(
+    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+    //   (success) => submittedWork = success,
+    // );
 
     emit(state.copyWith(
         status: BlocStatus.success,
         isInitialized: true,
         contestDetailsBundle: contestDetailsBundle,
-        submittedWork: submittedWork));
+        ownParticipationBundle: participationBundle));
   }
 
   FutureOr<void> _leaveContest(

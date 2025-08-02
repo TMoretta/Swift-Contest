@@ -200,13 +200,13 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                 onPressed: () {
                   switch (selectedRole) {
                     case ContestRole.organizer:
-                      context.router.replace(OrganizerHomeRoute());
+                      context.router.replaceAll([OrganizerHomeRoute()]);
                       break;
                     case ContestRole.participant:
-                      context.router.replace(ParticipantHomeRoute());
+                      context.router.replaceAll([ParticipantHomeRoute()]);
                       break;
                     case ContestRole.juror:
-                      context.router.replace(JurorHomeRoute());
+                      context.router.replaceAll([JurorHomeRoute()]);
                       break;
                   }
                   context.router.pop();

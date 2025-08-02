@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,8 +35,6 @@ import 'package:swift_contest/model/database/repositories/participant_repository
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/model/local/repositories/theme_repository.dart';
-import 'package:swift_contest/utils/functions/configure_url_strategy_mobile.dart'
-    if (dart.library.html) 'package:swift_contest/utils/functions/configure_url_strategy_web.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
@@ -74,6 +73,11 @@ void main() async {
         ? HydratedStorageDirectory.web
         : HydratedStorageDirectory((await getTemporaryDirectory()).path),
   );
+
+  if(!kIsWeb) {
+    await HydratedBloc.storage.clear();
+  }
+
 
   final SupabaseClient supabase = Supabase.instance.client;
   final AccountDao accountDao = AccountDaoImpl(supabase: supabase);
@@ -148,7 +152,6 @@ void main() async {
             supabaseClient: supabase,
             participationDao: participationDao,
             accountDao: accountDao,
-            workDao: workDao,
           ),
         ),
         RepositoryProvider<JurorRepository>(

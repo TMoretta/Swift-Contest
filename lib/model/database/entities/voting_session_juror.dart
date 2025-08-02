@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class VotingSessionJuration extends Equatable {
+class VotingSessionJuror extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? votingSessionId;
@@ -11,7 +11,7 @@ class VotingSessionJuration extends Equatable {
   // Snapshot data
   final String jurorFullName;
 
-  const VotingSessionJuration({
+  const VotingSessionJuror({
     required this.id,
     required this.createdAt,
     required this.votingSessionId,
@@ -22,8 +22,8 @@ class VotingSessionJuration extends Equatable {
     required this.jurorFullName,
   });
 
-  factory VotingSessionJuration.fromJson(Map<String, dynamic> json) {
-    return VotingSessionJuration(
+  factory VotingSessionJuror.fromJson(Map<String, dynamic> json) {
+    return VotingSessionJuror(
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       votingSessionId: json['voting_session_id'] as String,
@@ -48,7 +48,7 @@ class VotingSessionJuration extends Equatable {
     };
   }
 
-  VotingSessionJuration copyWith({
+  VotingSessionJuror copyWith({
     String? id,
     DateTime? createdAt,
     String? votingSessionId,
@@ -59,7 +59,7 @@ class VotingSessionJuration extends Equatable {
     bool? isExcluded,
     String? jurorFullName,
   }) {
-    return VotingSessionJuration(
+    return VotingSessionJuror(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       votingSessionId: votingSessionId ?? this.votingSessionId,

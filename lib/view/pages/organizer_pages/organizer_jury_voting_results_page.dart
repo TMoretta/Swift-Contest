@@ -37,7 +37,7 @@ class OrganizerJuryVotingResultsPage extends StatefulWidget implements AutoRoute
 
 class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResultsPage> {
   late String votingSessionJuryId;
-  VotingSessionJuration? chosenVotingSessionJuration;
+  VotingSessionJuror? chosenVotingSessionJuration;
   VotingSessionParticipant? chosenVotingSessionParticipation;
   static const double maxCellWidth = 80;
 

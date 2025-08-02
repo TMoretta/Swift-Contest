@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/auth_exception_to_failure.dart';
-import 'package:swift_contest/model/utils/edge_function_exception_to_failure.dart'; // <-- Aggiungi questa importazione
+import 'package:swift_contest/model/utils/edge_function_exception_to_failure.dart';
 import 'package:swift_contest/model/utils/postgrest_exception_to_failure.dart';
 import 'package:swift_contest/model/utils/storage_exception_to_failure.dart';
 import 'package:swift_contest/utils/failures/failures.dart';

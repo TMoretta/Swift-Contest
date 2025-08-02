@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/database/entities/work.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
@@ -13,7 +14,7 @@ part 'participant_work_submit_page_event.dart';
 part 'participant_work_submit_page_state.dart';
 
 class ParticipantWorkSubmitPageBloc
-    extends HydratedBloc<ParticipantWorkSubmitPageEvent, ParticipantWorkSubmitPageState> {
+    extends Bloc<ParticipantWorkSubmitPageEvent, ParticipantWorkSubmitPageState> {
   final StorageRepository _storageRepository;
   final ParticipantRepository _participantRepository;
 

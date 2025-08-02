@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/auth_bundle.dart';
 import 'package:swift_contest/model/database/entities/account.dart';
 import 'package:swift_contest/model/database/entities/message.dart';
@@ -18,7 +18,7 @@ part 'auth_event.dart';
 
 part 'auth_state.dart';
 
-class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
 
   AuthBloc({
@@ -34,6 +34,26 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     on<AuthMarkMessageAsRead>(_markMessageAsRead);
     on<AuthDeleteMessage>(_deleteMessage);
     on<AuthDeleteAllMessages>(_deleteAllMessages);
+  }
+
+  @override
+  AuthState? fromJson(Map<String, dynamic> json) {
+    try {
+      return AuthState.fromJson(json);
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
+  }
+
+  @override
+  Map<String, dynamic>? toJson(AuthState state) {
+    try {
+      return state.toJson();
+    } catch (e) {
+      Logger.error(e);
+      return null;
+    }
   }
 
   //* fetch
@@ -126,9 +146,11 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
 
     final eitherSignOut = await _authRepository.signOut();
     eitherSignOut.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) =>
-          emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.initial)),
+      (failure) async => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
+      (success) async {
+        emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.initial));
+        // await HydratedBloc.storage.clear();
+      }
     );
   }
 
@@ -224,25 +246,5 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success, messages: [])),
     );
-  }
-
-  @override
-  AuthState? fromJson(Map<String, dynamic> json) {
-    try {
-      return AuthState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(AuthState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 }

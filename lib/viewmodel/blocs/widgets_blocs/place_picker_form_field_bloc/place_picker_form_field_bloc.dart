@@ -1,19 +1,17 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:swift_contest/model/google_place/entities/google_place.dart';
 import 'package:swift_contest/model/google_place/entities/google_place_suggestion.dart';
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:rxdart/rxdart.dart';
 
 part 'place_picker_form_field_event.dart';
-
 part 'place_picker_form_field_state.dart';
 
-class PlacePickerFormFieldBloc extends HydratedBloc<PlacePickerFormFieldEvent, PlacePickerFormFieldState> {
+class PlacePickerFormFieldBloc extends Bloc<PlacePickerFormFieldEvent, PlacePickerFormFieldState> {
   final GooglePlaceRepository _googlePlaceRepository;
 
   PlacePickerFormFieldBloc({required GooglePlaceRepository googlePlaceRepository})

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
@@ -103,9 +104,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(
-            title: 'Voting'
-          ),
+          appBar: CustomAppBar(title: 'Voting'),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
@@ -136,40 +135,46 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                       final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
                       final votingSessionBundle = votingSessionProcedureBundle.votingSessionBundle;
                       final votingSession = votingSessionBundle.votingSession;
-                      final ownVotingSessionJuration = state.ownVotingSessionJuration!;
-                      final ownVotingSessionJuryBundle =
-                          votingSessionProcedureBundle.votingSessionJuriesBundles.firstWhere(
-                        (juryBundle) =>
-                            juryBundle.votingSessionJury.id ==
-                            ownVotingSessionJuration.votingSessionJuryId,
-                      );
-                      final votingSessionParticipations =
-                          votingSessionProcedureBundle.votingSessionParticipations;
-                      final votingFormFields =
-                          ownVotingSessionJuryBundle.votingFormBundle.votingFormFields;
+                      final votingSessionParticipants =
+                          votingSessionProcedureBundle.votingSessionParticipants;
+                      final headerVotingFormFields = votingSessionProcedureBundle
+                          .votingFormBundle.votingFormFields
+                          .where((e) => e.scope.isHeader)
+                          .toList(growable: false);
+                      final participantVotingFormFields = votingSessionProcedureBundle
+                          .votingFormBundle.votingFormFields
+                          .where((e) => e.scope.isParticipant)
+                          .toList(growable: false);
+                      final footerVotingFormFields = votingSessionProcedureBundle
+                          .votingFormBundle.votingFormFields
+                          .where((e) => e.scope.isFooter)
+                          .toList(growable: false);
 
                       if (!isPageInitialized) {
-                        for (var votingSessionParticipation in votingSessionParticipations) {
+                        for (var votingSessionParticipants in votingSessionParticipants) {
                           final Map<VotingFormField, TextEditingController> fieldsControllers = {};
-                          for (var votingFormField in votingFormFields) {
-                            switch(votingFormField.type) {
+                          for (var votingFormField in participantVotingFormFields) {
+                            switch (votingFormField.type) {
                               case VotingFormFieldType.textual:
-                                fieldsControllers.addAll({votingFormField: TextEditingController()});
+                                fieldsControllers
+                                    .addAll({votingFormField: TextEditingController()});
                                 break;
                               case VotingFormFieldType.slider:
-                                fieldsControllers.addAll({votingFormField: TextEditingController(text: votingFormField.sliderMinValue!.toString())});
+                                fieldsControllers.addAll({
+                                  votingFormField: TextEditingController(
+                                      text: votingFormField.sliderMinValue!.toString())
+                                });
                                 break;
                             }
                           }
-                          votesMap.addAll({votingSessionParticipation: fieldsControllers});
-                          final isExcludedFromParticipant =
-                              votingSessionProcedureBundle.votingSessionExclusions.any((e) =>
-                                  e.votingSessionJurorId == ownVotingSessionJuration.id &&
-                                  e.votingSessionParticipantId == votingSessionParticipation.id);
+                          votesMap.addAll({votingSessionParticipants: fieldsControllers});
+                          final isExcludedFromParticipant = votingSessionProcedureBundle
+                              .votingSessionParticipantsExclusionsIds
+                              .contains(votingSessionParticipants.id);
                           votingFormAndWorkViews.add(VotingFormAndWorkView(
                               isExcludedFromParticipant: isExcludedFromParticipant,
-                              votingSessionParticipation: votingSessionParticipation,
-                              votingFormFields: votingFormFields,
+                              votingSessionParticipation: votingSessionParticipants,
+                              votingFormFields: participantVotingFormFields,
                               votesMap: votesMap));
                         }
                         isPageInitialized = true;
@@ -206,13 +211,13 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                   onPressed: () {
                     if (formKey.currentState?.validate() ?? false) {
                       final Map<VotingSessionParticipant, Map<VotingFormField, String>>
-                      votesPerParticipantMap = {};
+                          votesPerParticipantMap = {};
                       for (var entry in votesMap.entries) {
                         final votingSessionParticipation = entry.key;
                         final votingFormFieldAndController = entry.value;
                         final Map<VotingFormField, String> votes = {};
                         for (var votingFormFieldAndControllerEntry
-                        in votingFormFieldAndController.entries) {
+                            in votingFormFieldAndController.entries) {
                           final votingFormField = votingFormFieldAndControllerEntry.key;
                           final controller = votingFormFieldAndControllerEntry.value;
                           if (controller.text.trim().isNotEmpty) {

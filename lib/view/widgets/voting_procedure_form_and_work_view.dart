@@ -119,10 +119,14 @@ class _VotingFormAndWorkViewState extends State<VotingFormAndWorkView> {
                             min: votingFormField.sliderMinValue!.toDouble(),
                             max: votingFormField.sliderMaxValue!.toDouble(),
                             divisions: votingFormField.sliderMaxValue! - votingFormField.sliderMinValue!,
-                            value: 0,
+                            value: double.parse(votesMap[votingSessionParticipation]![votingFormField]!.text),
                             onChanged: (value) {
+                              setState(() {
                               votesMap[votingSessionParticipation]![votingFormField]!.setText(value.toString());
+
+                              });
                             },
+                          label: votesMap[votingSessionParticipation]![votingFormField]!.text,
                         ),
                       },
                       SizedBox(height: 12),

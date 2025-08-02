@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository_.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -12,7 +12,7 @@ import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 part 'sign_up_page_event.dart';
 part 'sign_up_page_state.dart';
 
-class SignUpPageBloc extends HydratedBloc<SignUpPageEvent, SignUpPageState> {
+class SignUpPageBloc extends Bloc<SignUpPageEvent, SignUpPageState> {
   final AuthRepository _authRepository;
   SignUpPageBloc({
     required AuthRepository authRepository,

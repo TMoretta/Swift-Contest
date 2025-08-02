@@ -6,7 +6,7 @@ import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 
-abstract interface class VotingSessionJurationDao implements Dao<VotingSessionJuration> {}
+abstract interface class VotingSessionJurationDao implements Dao<VotingSessionJuror> {}
 
 class VotingSessionJurationDaoImpl implements VotingSessionJurationDao {
   final SupabaseClient _supabase;
@@ -14,18 +14,18 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurationDao {
   VotingSessionJurationDaoImpl({required SupabaseClient supabase}) : _supabase = supabase;
 
   @override
-  Future<Either<Failure, VotingSessionJuration>> create({required VotingSessionJuration entity}) {
+  Future<Either<Failure, VotingSessionJuror>> create({required VotingSessionJuror entity}) {
     return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_session_jurations').insert(entity.toJson()).select().single();
-      return Either.right(VotingSessionJuration.fromJson(res));
+      return Either.right(VotingSessionJuror.fromJson(res));
     });
   }
 
   @override
-  Future<Either<Failure, VotingSessionJuration>> update({required VotingSessionJuration entity}) {
+  Future<Either<Failure, VotingSessionJuror>> update({required VotingSessionJuror entity}) {
     return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_session_jurations').update(entity.toJson()).eq('id', entity.id!).select().single();
-      return Either.right(VotingSessionJuration.fromJson(res));
+      return Either.right(VotingSessionJuror.fromJson(res));
     });
   }
 
@@ -38,26 +38,26 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurationDao {
   }
 
   @override
-  Future<Either<Failure, VotingSessionJuration>> getById({required String id}) {
+  Future<Either<Failure, VotingSessionJuror>> getById({required String id}) {
     return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_session_jurations').select().eq('id', id).limit(1).single();
-      return Either.right(VotingSessionJuration.fromJson(res));
+      return Either.right(VotingSessionJuror.fromJson(res));
     });
   }
 
   @override
-  Future<Either<Failure, VotingSessionJuration?>> getNullableById({required String id}) {
+  Future<Either<Failure, VotingSessionJuror?>> getNullableById({required String id}) {
     return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_session_jurations').select().eq('id', id).limit(1).maybeSingle();
-      return Either.right(res != null ? VotingSessionJuration.fromJson(res) : null);
+      return Either.right(res != null ? VotingSessionJuror.fromJson(res) : null);
     });
   }
 
   @override
-  Future<Either<Failure, List<VotingSessionJuration>>> getAll() {
+  Future<Either<Failure, List<VotingSessionJuror>>> getAll() {
     return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_session_jurations').select();
-      return Either.right(res.map((e) => VotingSessionJuration.fromJson(e)).toList(growable: false));
+      return Either.right(res.map((e) => VotingSessionJuror.fromJson(e)).toList(growable: false));
     });
   }
 }

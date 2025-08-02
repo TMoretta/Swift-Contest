@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
+import 'package:swift_contest/model/database/bundles/juror_voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
@@ -16,11 +16,10 @@ import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'juror_voting_procedure_page_event.dart';
-
 part 'juror_voting_procedure_page_state.dart';
 
 class JurorVotingProcedurePageBloc
-    extends HydratedBloc<JurorVotingProcedurePageEvent, JurorVotingProcedurePageState> {
+    extends Bloc<JurorVotingProcedurePageEvent, JurorVotingProcedurePageState> {
   final JurorRepository _jurorRepository;
 
   JurorVotingProcedurePageBloc({
@@ -58,7 +57,7 @@ class JurorVotingProcedurePageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     //* Getting the voting session procedure bundle
-    late final VotingSessionProcedureBundle votingSessionProcedureBundle;
+    late final JurorVotingSessionProcedureBundle votingSessionProcedureBundle;
     final eitherVotingSessionBundle = await _jurorRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(
@@ -66,20 +65,19 @@ class JurorVotingProcedurePageBloc
       (success) => votingSessionProcedureBundle = success,
     );
 
-    //* Get own voting session juration
-    late final VotingSessionJuration ownVotingSessionJuration;
-    final eitherVSJ =
-        await _jurorRepository.getOwnVotingSessionJuration(votingSessionId: event.votingSessionId);
-    eitherVSJ.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => ownVotingSessionJuration = success,
-    );
+    // //* Get own voting session juration
+    // late final VotingSessionJuror ownVotingSessionJuration;
+    // final eitherVSJ =
+    //     await _jurorRepository.getOwnVotingSessionJuration(votingSessionId: event.votingSessionId);
+    // eitherVSJ.fold(
+    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+    //   (success) => ownVotingSessionJuration = success,
+    // );
 
     emit(state.copyWith(
       status: BlocStatus.success,
       isInitialized: true,
       votingSessionProcedureBundle: votingSessionProcedureBundle,
-      ownVotingSessionJuration: ownVotingSessionJuration,
     ));
 
     final eitherStream =
@@ -136,15 +134,10 @@ class JurorVotingProcedurePageBloc
 
     // 1. Trasforma la mappa in un payload JSON con solo gli ID.
     final List<Map<String, dynamic>> votesPayload = [];
-    final ownVotingSessionJuration = state.ownVotingSessionJuration!;
-    final votingSessionExclusions = state.votingSessionProcedureBundle!.votingSessionExclusions;
+    final votingSessionParticipantsExclusionsIds = state.votingSessionProcedureBundle!.votingSessionParticipantsExclusionsIds;
 
-    event.votesPerParticipantMap.forEach((participation, votes) {
-      final isExcluded = votingSessionExclusions.any(
-        (exclusion) =>
-            exclusion.votingSessionJurorId == ownVotingSessionJuration.id &&
-            exclusion.votingSessionParticipantId == participation.id,
-      );
+    event.votesPerParticipantMap.forEach((votingSessionParticipant, votes) {
+      final isExcluded = votingSessionParticipantsExclusionsIds.contains(votingSessionParticipant.id);
 
       // Se è escluso, salta questo partecipante e non includerlo nel payload.
       if (isExcluded) return;
@@ -158,7 +151,7 @@ class JurorVotingProcedurePageBloc
       });
 
       votesPayload.add({
-        'voting_session_participation_id': participation.id!,
+        'voting_session_participation_id': votingSessionParticipant.id!,
         'votes': votesList,
       });
     });

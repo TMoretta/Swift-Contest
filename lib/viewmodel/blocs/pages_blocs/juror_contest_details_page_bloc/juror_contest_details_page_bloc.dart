@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -13,7 +14,7 @@ part 'juror_contest_details_page_event.dart';
 part 'juror_contest_details_page_state.dart';
 
 class JurorContestDetailsPageBloc
-    extends HydratedBloc<JurorContestDetailsPageEvent, JurorContestDetailsPageState> {
+    extends Bloc<JurorContestDetailsPageEvent, JurorContestDetailsPageState> {
   final JurorRepository _jurorRepository;
 
   JurorContestDetailsPageBloc({

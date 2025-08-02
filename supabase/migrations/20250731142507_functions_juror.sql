@@ -100,3 +100,83 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region JUROR GET VOTING SESSION PROCEDURE BUNDLE
+-- Retrieves the data needed for a juror's voting page, tailored to the calling juror.
+-- Returns a single JSON object mapping to the Dart class 'JurorVotingSessionProcedureBundle'.
+CREATE OR REPLACE FUNCTION juror_get_voting_session_procedure_bundle(p_voting_session_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  result_bundle jsonb;
+  v_current_user_id uuid := auth.uid();
+  v_current_vs_juror_record public.voting_session_jurors; -- Store the whole record
+BEGIN
+  -- SECURITY: Find the juror's record for this session to verify access and get their specific IDs.
+  -- If no record is found, the user is not a juror for this session, and an exception is raised.
+  SELECT *
+  INTO v_current_vs_juror_record
+  FROM public.voting_session_jurors
+  WHERE voting_session_id = p_voting_session_id AND juror_id = v_current_user_id;
+
+  IF v_current_vs_juror_record.id IS NULL THEN
+    RAISE EXCEPTION 'Access denied or voting session not found for this juror.';
+  END IF;
+
+  -- Build the final JSON object, filtering data based on the juror's specific context.
+  SELECT jsonb_build_object(
+    -- 1. 'voting_session_bundle' (common for all in the session)
+    'voting_session_bundle', (
+      SELECT jsonb_build_object(
+        'voting_session', to_jsonb(vs),
+        'geo_res_place', to_jsonb(pl)
+      )
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.id = p_voting_session_id
+    ),
+
+    -- 2. 'voting_session_participants' (common for all in the session)
+    'voting_session_participants', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index), '[]'::jsonb)
+      FROM public.voting_session_participants vsp
+      WHERE vsp.voting_session_id = p_voting_session_id
+    ),
+
+    -- 3. 'voting_session_jury' (the specific jury the juror belongs to)
+    'voting_session_jury', (
+      SELECT to_jsonb(vsj)
+      FROM public.voting_session_juries vsj
+      WHERE vsj.id = v_current_vs_juror_record.voting_session_jury_id
+    ),
+
+    -- 4. 'voting_form_bundle' (the form associated with that specific jury)
+    'voting_form_bundle', (
+      SELECT jsonb_build_object(
+        'voting_form', to_jsonb(vf),
+        'voting_form_fields', COALESCE((SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index) FROM public.voting_form_fields vff WHERE vff.voting_form_id = vsj.voting_form_id), '[]'::jsonb)
+      )
+      FROM public.voting_session_juries vsj
+      JOIN public.voting_forms vf ON vsj.voting_form_id = vf.id
+      WHERE vsj.id = v_current_vs_juror_record.voting_session_jury_id
+    ),
+
+    -- 5. 'voting_session_juror' (the specific record for the calling juror)
+    'voting_session_juror', to_jsonb(v_current_vs_juror_record),
+
+    -- 6. 'voting_session_participants_exclusions_ids' (only the participant IDs the juror is excluded from)
+    'voting_session_participants_exclusions_ids', (
+      SELECT COALESCE(jsonb_agg(vse.voting_session_participant_id), '[]'::jsonb)
+      FROM public.voting_session_exclusions vse
+      WHERE vse.voting_session_juror_id = v_current_vs_juror_record.id
+    )
+  )
+  INTO result_bundle;
+
+  RETURN result_bundle;
+END;
+$$;
+--endregion

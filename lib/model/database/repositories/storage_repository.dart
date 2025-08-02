@@ -26,7 +26,7 @@ abstract interface class StorageRepository {
   });
 
   /// Genera una URL firmata e temporanea per un dato path.
-  Future<Either<Failure, String>> getDownloadUrl({
+  Future<Either<Failure, String>> getSignedUrl({
     required String bucket,
     required String path,
   });
@@ -93,7 +93,7 @@ class StorageRepositoryImpl implements StorageRepository {
   }
 
   @override
-  Future<Either<Failure, String>> getDownloadUrl({
+  Future<Either<Failure, String>> getSignedUrl({
     required String bucket,
     required String path,
   }) async {

@@ -478,7 +478,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
         // 1. Chiama la funzione RPC.
         //    La funzione restituisce un singolo oggetto JSON, quindi usiamo .single().
         final res = await _supabase.rpc(
-          'get_voting_session_procedure_bundle',
+          'organizer_get_voting_session_procedure_bundle',
           params: {'p_voting_session_id': votingSessionId},
         ).single();
 
