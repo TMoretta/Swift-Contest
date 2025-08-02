@@ -86,81 +86,66 @@ class _JurorHomePageState extends State<JurorHomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Builder(
                 builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case BlocStatus.loading:
-                      if (!state.isInitialized) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    case BlocStatus.failure:
-                      if (!state.isInitialized) {
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async =>
-                              context.read<JurorHomePageBloc>().add(JurorHomePageFetch()),
-                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                        );
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      return Column(
-                        children: [
-                          SizedBox(height: 16),
-                          CustomSearchBar(
-                            controller: _searchController,
-                            focusNode: _searchFocusNode,
-                            onChanged: (value) {
-                              context
-                                  .read<JurorHomePageBloc>()
-                                  .add(JurorHomePageFilterResults(query: value));
-                            },
-                          ),
-                          Expanded(
-                            child: RefreshIndicator.adaptive(
-                              onRefresh: () async {
-                                context.read<JurorHomePageBloc>().add(JurorHomePageFetch());
-                                context.read<AuthBloc>().add(AuthFetch());
-                              },
-                              child: (state.filteredContestsBundles!.isNotEmpty)
-                                  ? ListView(
-                                      children: [
-                                        SizedBox(height: 16),
-                                        ...state.filteredContestsBundles!.map((homeContestBundle) {
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ContestCard(
-                                                homeContestBundle: homeContestBundle,
-                                                onTap: () async {
-                                                  final bool? res = await context.router.push(
-                                                      JurorContestDetailsRoute(
-                                                          contestId: homeContestBundle.contestBundle.contest.id!));
-                                                  if (res == true) {
-                                                    if (context.mounted) {
-                                                      context
-                                                          .read<JurorHomePageBloc>()
-                                                          .add(JurorHomePageFetch());
-                                                    }
-                                                  }
-                                                },
-                                              ),
-                                              SizedBox(height: 8),
-                                            ],
-                                          );
-                                        }),
-                                        SizedBox(height: 64),
-                                      ],
-                                    )
-                                  : ListViewWithCentralLabel(label: 'No contest'),
-                            ),
-                          ),
-                        ],
-                      );
+                  if(!state.isInitialized) {
+                    if(state.status.isFailure) {
+                      return Center(child: FilledButton(onPressed: () async =>
+                          context.read<JurorHomePageBloc>().add(JurorHomePageFetch()), child: Text('Retry'),),);
+                    }
+                    return VoidWidget();
                   }
+                  return Column(
+                    children: [
+                      SizedBox(height: 16),
+                      CustomSearchBar(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onChanged: (value) {
+                          context
+                              .read<JurorHomePageBloc>()
+                              .add(JurorHomePageFilterResults(query: value));
+                        },
+                      ),
+                      Expanded(
+                        child: RefreshIndicator.adaptive(
+                          onRefresh: () async {
+                            context.read<JurorHomePageBloc>().add(JurorHomePageFetch());
+                            context.read<AuthBloc>().add(AuthFetch());
+                          },
+                          child: (state.filteredContestsBundles!.isNotEmpty)
+                              ? ListView(
+                            children: [
+                              SizedBox(height: 16),
+                              ...state.filteredContestsBundles!.map((homeContestBundle) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ContestCard(
+                                      homeContestBundle: homeContestBundle,
+                                      onTap: () async {
+                                        final bool? res = await context.router.push(
+                                            JurorContestDetailsRoute(
+                                                contestId: homeContestBundle.contestBundle.contest.id!));
+                                        if (res == true) {
+                                          if (context.mounted) {
+                                            context
+                                                .read<JurorHomePageBloc>()
+                                                .add(JurorHomePageFetch());
+                                          }
+                                        }
+                                      },
+                                    ),
+                                    SizedBox(height: 8),
+                                  ],
+                                );
+                              }),
+                              SizedBox(height: 64),
+                            ],
+                          )
+                              : ListViewWithCentralLabel(label: 'No contest'),
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),

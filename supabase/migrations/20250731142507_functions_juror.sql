@@ -180,3 +180,181 @@ BEGIN
 END;
 $$;
 --endregion
+
+ --region JUROR SUBMIT VOTES
+ -- Allows a juror to submit their votes for a session.
+ -- The operation is transactional and uses the new flexible schema.
+ CREATE OR REPLACE FUNCTION juror_submit_votes(
+   p_voting_session_id uuid,
+   -- The payload is a flat list of all values.
+   -- Example: '[{"voting_form_field_id": "...", "value": "...", "voting_session_participant_id": "..."}, ...]'
+   -- 'voting_session_participant_id' is NULL for 'header' or 'footer' scope fields.
+   p_votes_payload jsonb,
+   p_juror_lat float DEFAULT NULL,
+   p_juror_lon float DEFAULT NULL
+ )
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY INVOKER
+ AS $$
+ DECLARE
+   v_session record;
+   v_juror_record public.voting_session_jurors;
+   v_geo_res_place record;
+   v_submission_id uuid; -- ID of the new row in form_submissions
+ BEGIN
+   -- STEP 1: SECURITY AND PRE-CHECKS
+   -- Retrieve the juror's record for this session using the caller's ID.
+   SELECT * INTO v_juror_record
+   FROM public.voting_session_jurors
+   WHERE voting_session_id = p_voting_session_id AND juror_id = auth.uid();
+
+   -- If no record is found, the user is not a juror for this session.
+   IF NOT FOUND THEN
+     RAISE EXCEPTION 'Access denied or not a juror in this voting session.';
+   END IF;
+
+   -- Check if votes have already been submitted.
+   IF v_juror_record.has_submitted THEN
+     RAISE EXCEPTION 'Votes for this session have already been submitted.';
+   END IF;
+
+   -- Check the session status.
+   SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
+   IF v_session.session_status <> 'live' THEN
+     RAISE EXCEPTION 'The voting session is not currently live.';
+   END IF;
+
+   -- STEP 2: GEO-RESTRICTION CHECK
+   IF v_session.is_geo_restricted THEN
+     IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
+       RAISE EXCEPTION 'Location data is required for this voting session.';
+     END IF;
+     SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
+     -- Use PostGIS to verify the distance.
+     IF NOT ST_DWithin(
+       ST_MakePoint(v_geo_res_place.lon, v_geo_res_place.lat)::geography,
+       ST_MakePoint(p_juror_lon, p_juror_lat)::geography,
+       v_session.geo_res_radius
+     ) THEN
+       RAISE EXCEPTION 'You are not within the allowed geographical area for voting.';
+     END IF;
+   END IF;
+
+   -- STEP 3: SAVE VOTES
+   -- 3a. Create a single submission record.
+   INSERT INTO public.voting_form_submissions (voting_session_id, voting_session_juror_id)
+   VALUES (p_voting_session_id, v_juror_record.id)
+   RETURNING id INTO v_submission_id;
+
+   -- 3b. Insert all vote values from the payload in a single, efficient operation.
+   INSERT INTO public.voting_form_submission_values (
+     voting_form_submission_id,
+     voting_form_field_id,
+     value,
+     voting_session_participant_id
+   )
+   SELECT
+     v_submission_id,
+     (value->>'voting_form_field_id')::uuid,
+     (value->>'value')::text,
+     (value->>'voting_session_participant_id')::uuid -- Will be NULL if the key is not in the JSON object.
+   FROM jsonb_array_elements(p_votes_payload) AS value;
+
+   -- STEP 4: UPDATE JUROR STATUS
+   UPDATE public.voting_session_jurors
+   SET has_submitted = true
+   WHERE id = v_juror_record.id;
+
+ END;
+ $$;
+ --endregion
+
+--region JUROR SUBMIT VOTES
+-- Allows a juror to submit their votes for a session.
+-- The operation is transactional and uses the new flexible schema.
+CREATE OR REPLACE FUNCTION juror_submit_votes(
+  p_voting_session_id uuid,
+  -- The payload is a flat list of all values.
+  -- Example: '[{"voting_form_field_id": "...", "value": "...", "voting_session_participant_id": "..."}, ...]'
+  -- 'voting_session_participant_id' is NULL for 'header' or 'footer' scope fields.
+  p_votes_payload jsonb,
+  p_juror_lat float DEFAULT NULL,
+  p_juror_lon float DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_session record;
+  v_juror_record public.voting_session_jurors;
+  v_geo_res_place record;
+  v_submission_id uuid; -- ID of the new row in form_submissions
+BEGIN
+  -- STEP 1: SECURITY AND PRE-CHECKS
+  -- Retrieve the juror's record for this session using the caller's ID.
+  SELECT * INTO v_juror_record
+  FROM public.voting_session_jurors
+  WHERE voting_session_id = p_voting_session_id AND juror_id = auth.uid();
+
+  -- If no record is found, the user is not a juror for this session.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Access denied or not a juror in this voting session.';
+  END IF;
+
+  -- Check if votes have already been submitted.
+  IF v_juror_record.has_submitted THEN
+    RAISE EXCEPTION 'Votes for this session have already been submitted.';
+  END IF;
+
+  -- Check the session status.
+  SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
+  IF v_session.session_status <> 'live' THEN
+    RAISE EXCEPTION 'The voting session is not currently live.';
+  END IF;
+
+  -- STEP 2: GEO-RESTRICTION CHECK
+  IF v_session.is_geo_restricted THEN
+    IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
+      RAISE EXCEPTION 'Location data is required for this voting session.';
+    END IF;
+    SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
+    -- Use PostGIS to verify the distance.
+    IF NOT ST_DWithin(
+      ST_MakePoint(v_geo_res_place.lon, v_geo_res_place.lat)::geography,
+      ST_MakePoint(p_juror_lon, p_juror_lat)::geography,
+      v_session.geo_res_radius
+    ) THEN
+      RAISE EXCEPTION 'You are not within the allowed geographical area for voting.';
+    END IF;
+  END IF;
+
+  -- STEP 3: SAVE VOTES
+  -- 3a. Create a single submission record.
+  INSERT INTO public.voting_form_submissions (voting_session_id, voting_session_juror_id)
+  VALUES (p_voting_session_id, v_juror_record.id)
+  RETURNING id INTO v_submission_id;
+
+  -- 3b. Insert all vote values from the payload in a single, efficient operation.
+  INSERT INTO public.voting_form_submission_values (
+    voting_form_submission_id,
+    voting_form_field_id,
+    value,
+    voting_session_participant_id
+  )
+  SELECT
+    v_submission_id,
+    (value->>'voting_form_field_id')::uuid,
+    (value->>'value')::text,
+    (value->>'voting_session_participant_id')::uuid -- Will be NULL if the key is not in the JSON object.
+  FROM jsonb_array_elements(p_votes_payload) AS value;
+
+  -- STEP 4: UPDATE JUROR STATUS
+  UPDATE public.voting_session_jurors
+  SET has_submitted = true
+  WHERE id = v_juror_record.id;
+
+END;
+$$;
+--endregion

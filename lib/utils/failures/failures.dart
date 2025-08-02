@@ -29,8 +29,12 @@ class CustomServerFailure extends Failure {
 }
 
 // General Failures
+class ClientFailure extends Failure {
+  const ClientFailure([super.message = 'An unexpected error occurred. Please try again.']);
+}
+
 class ServerFailure extends Failure {
-  const ServerFailure([super.message = 'An unexpected server error occurred. Please try again.']);
+  const ServerFailure([super.message = 'An unexpected error occurred. Please try again.']);
 }
 
 class NetworkFailure extends Failure {
@@ -39,7 +43,7 @@ class NetworkFailure extends Failure {
 
 // Auth/Permission Failures
 class AuthenticationFailure extends Failure {
-  const AuthenticationFailure([super.message = 'Authentication failed. Please log in again.']);
+  const AuthenticationFailure([super.message = 'An unexpected error occurred. Please try again.']);
 }
 
 class PermissionDeniedFailure extends Failure {

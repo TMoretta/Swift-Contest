@@ -11,8 +11,6 @@ import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, bool>> isCurrentUserAuthenticated();
-
   Future<Either<Failure, AuthBundle>> getCurrentAccountAuthBundle();
 
   Future<Either<Failure, Account>> updateCurrentAccountEmail({required String email});
@@ -70,19 +68,6 @@ class AuthRepositoryImpl implements AuthRepository {
         _accountDao = accountDao,
         _profileDao = profileDao,
         _messageDao = messageDao;
-
-  @override
-  Future<Either<Failure, bool>> isCurrentUserAuthenticated() async {
-    return handleDatabaseCall(
-      () async {
-        final eitherAccount = await _accountDao.getNullableCurrent();
-        return eitherAccount.fold(
-          (failure) => Either.left(failure),
-          (success) => Either.right((success != null) ? true : false),
-        );
-      },
-    );
-  }
 
   @override
   Future<Either<Failure, AuthBundle>> getCurrentAccountAuthBundle() async {

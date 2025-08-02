@@ -45,61 +45,46 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
           body: SafeArea(
             child: Builder(
               builder: (context) {
-                switch (state.status) {
-                  case BlocStatus.initial:
-                    return VoidWidget();
-                  case BlocStatus.loading:
-                    if (!state.isInitialized) {
-                      return VoidWidget();
-                    } else {
-                      continue successCase;
-                    }
-                  case BlocStatus.failure:
-                    if (!state.isInitialized) {
-                      return RefreshIndicator.adaptive(
-                        onRefresh: () async => context
-                            .read<OrganizerContestDetailsPageBloc>()
-                            .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                      );
-                    } else {
-                      continue successCase;
-                    }
-                  successCase:
-                  case BlocStatus.success:
-                    final juriesBundles = state.contestDetailsBundle!.juriesBundles;
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async => context
-                          .read<OrganizerContestDetailsPageBloc>()
-                          .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                      child: (juriesBundles.isEmpty)
-                          ? ListViewWithCentralLabel(label: 'No jury added yet')
-                          : ListView.builder(
-                              itemCount: juriesBundles.length,
-                              itemBuilder: (context, index) {
-                                final juryBundle = juriesBundles[index];
-                                return Card(
-                                  elevation: 0.1,
-                                  child: ListTile(
-                                    onTap: () async {
-                                      final bool? res = await context.router.push(
-                                          OrganizerJuryDetailsRoute(
-                                              contestId: contestId, juryId: juryBundle.jury.id!));
-                                      if (res == true && context.mounted) {
-                                        context.read<OrganizerContestDetailsPageBloc>().add(
-                                            OrganizerContestDetailsPageFetch(contestId: contestId));
-                                      }
-                                    },
-                                    trailing: (juryBundle.jury.type.isAppointed) ? Icon(Icons.star) : Icon(Icons.star_border),
-                                    title: Text(juryBundle.jury.name),
-                                    subtitle: (juryBundle.jury.type.isAppointed) ? Text(
-                                        'Joined: ${juryBundle.jurationsBundles.length}, Attended: ${juryBundle.jurorsInvitations.length}') : null,
-                                  ),
-                                );
-                              },
-                            ),
-                    );
+                if(!state.isInitialized) {
+                  if(state.status.isFailure) {
+                    return Center(child: FilledButton(onPressed: ()async => context
+                        .read<OrganizerContestDetailsPageBloc>()
+                        .add(OrganizerContestDetailsPageFetch(contestId: contestId)), child: Text('Retry'),),);
+                  }
+                  return VoidWidget();
                 }
+                final juriesBundles = state.contestDetailsBundle!.juriesBundles;
+                return RefreshIndicator.adaptive(
+                  onRefresh: () async => context
+                      .read<OrganizerContestDetailsPageBloc>()
+                      .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
+                  child: (juriesBundles.isEmpty)
+                      ? ListViewWithCentralLabel(label: 'No jury added yet')
+                      : ListView.builder(
+                    itemCount: juriesBundles.length,
+                    itemBuilder: (context, index) {
+                      final juryBundle = juriesBundles[index];
+                      return Card(
+                        elevation: 0.1,
+                        child: ListTile(
+                          onTap: () async {
+                            final bool? res = await context.router.push(
+                                OrganizerJuryDetailsRoute(
+                                    contestId: contestId, juryId: juryBundle.jury.id!));
+                            if (res == true && context.mounted) {
+                              context.read<OrganizerContestDetailsPageBloc>().add(
+                                  OrganizerContestDetailsPageFetch(contestId: contestId));
+                            }
+                          },
+                          trailing: (juryBundle.jury.type.isAppointed) ? Icon(Icons.star) : Icon(Icons.star_border),
+                          title: Text(juryBundle.jury.name),
+                          subtitle: (juryBundle.jury.type.isAppointed) ? Text(
+                              'Joined: ${juryBundle.jurationsBundles.length}, Attended: ${juryBundle.jurorsInvitations.length}') : null,
+                        ),
+                      );
+                    },
+                  ),
+                );
               },
             ),
           ),

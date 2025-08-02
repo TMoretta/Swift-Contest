@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:swift_contest/model/database/types/voting_session_status.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -51,45 +50,30 @@ class _JurorVotingTabState extends State<JurorVotingTab> {
         return Scaffold(
           body: Builder(
             builder: (context) {
-              switch (state.status) {
-                case BlocStatus.initial:
-                  return VoidWidget();
-                case BlocStatus.loading:
-                  if (!state.isInitialized) {
-                    return VoidWidget();
-                  } else {
-                    continue successCase;
-                  }
-                case BlocStatus.failure:
-                  if (!state.isInitialized) {
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async => context
-                          .read<JurorContestDetailsPageBloc>()
-                          .add(JurorContestDetailsPageFetch(contestId: contestId)),
-                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                    );
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  final liveVotingSessionBundle = state.contestDetailsBundle!.votingSessionsBundles.where((e) => !e.votingSession.sessionStatus.isEnded && !e.votingSession.sessionStatus.isCancelled)
-                      .firstOrNull;
-                  return RefreshIndicator.adaptive(
-                    onRefresh: () async => context
-                        .read<JurorContestDetailsPageBloc>()
-                        .add(JurorContestDetailsPageFetch(contestId: contestId)),
-                    child: Builder(
-                      builder: (context) {
-                        if (liveVotingSessionBundle != null) {
-                          return ListViewWithCentralLabel(label: 'Voting session is live');
-                        } else {
-                          return ListViewWithCentralLabel(label: 'No voting session live');
-                        }
-                      },
-                    ),
-                  );
+              if(!state.isInitialized) {
+                if(state.status.isFailure) {
+                  return Center(child: FilledButton(onPressed: () async => context
+                      .read<JurorContestDetailsPageBloc>()
+                      .add(JurorContestDetailsPageFetch(contestId: contestId)), child: Text('Retry'),),);
+                }
+                return VoidWidget();
               }
+              final liveVotingSessionBundle = state.contestDetailsBundle!.votingSessionsBundles.where((e) => !e.votingSession.sessionStatus.isEnded && !e.votingSession.sessionStatus.isCancelled)
+                  .firstOrNull;
+              return RefreshIndicator.adaptive(
+                onRefresh: () async => context
+                    .read<JurorContestDetailsPageBloc>()
+                    .add(JurorContestDetailsPageFetch(contestId: contestId)),
+                child: Builder(
+                  builder: (context) {
+                    if (liveVotingSessionBundle != null) {
+                      return ListViewWithCentralLabel(label: 'Voting session is live');
+                    } else {
+                      return ListViewWithCentralLabel(label: 'No voting session live');
+                    }
+                  },
+                ),
+              );
             },
           ),
           floatingActionButton: (state.isInitialized) ? Builder(

@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
 import 'package:swift_contest/view/widgets/custom_search_bar.dart';
@@ -82,87 +81,72 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: Builder(
                 builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case BlocStatus.loading:
-                      if (!state.isInitialized) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    case BlocStatus.failure:
-                      if (!state.isInitialized) {
-                        return RefreshIndicator.adaptive(
+                  if(!state.isInitialized) {
+                    if(state.status.isFailure) {
+                      return Center(child: FilledButton(onPressed: () async {
+                        _searchController.clear();
+                        _searchFocusNode.unfocus();
+                        context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
+                      }, child: Text('Retry'),),);
+                    }
+                    return VoidWidget();
+                  }
+                  return Column(
+                    children: [
+                      CustomSearchBar(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onChanged: (value) {
+                          context
+                              .read<OrganizerHomePageBloc>()
+                              .add(OrganizerHomePageFilterResults(query: value));
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: RefreshIndicator.adaptive(
                           onRefresh: () async {
                             _searchController.clear();
                             _searchFocusNode.unfocus();
                             context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
                           },
-                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                        );
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      return Column(
-                        children: [
-                          CustomSearchBar(
-                            controller: _searchController,
-                            focusNode: _searchFocusNode,
-                            onChanged: (value) {
-                              context
-                                  .read<OrganizerHomePageBloc>()
-                                  .add(OrganizerHomePageFilterResults(query: value));
+                          child: (state.filteredContestsBundles!.isNotEmpty)
+                              ? ListView.builder(
+                            itemCount: state.filteredContestsBundles!.length,
+                            itemBuilder: (context, index) {
+                              final homeContestBundle =
+                              state.filteredContestsBundles![index];
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ContestCard(
+                                    homeContestBundle: homeContestBundle,
+                                    onTap: () async {
+                                      final bool? res = await context.router.push(
+                                          OrganizerContestDetailsRoute(
+                                              contestId: homeContestBundle
+                                                  .contestBundle.contest.id!));
+                                      if (res == true) {
+                                        if (context.mounted) {
+                                          context
+                                              .read<OrganizerHomePageBloc>()
+                                              .add(OrganizerHomePageFetch());
+                                        }
+                                      }
+                                    },
+                                  ),
+                                  (index == state.filteredContestsBundles!.length - 1)
+                                      ? SizedBox(height: 72)
+                                      : SizedBox(height: 8),
+                                ],
+                              );
                             },
-                          ),
-                          SizedBox(height: 16),
-                          Expanded(
-                            child: RefreshIndicator.adaptive(
-                              onRefresh: () async {
-                                _searchController.clear();
-                                _searchFocusNode.unfocus();
-                                context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
-                              },
-                              child: (state.filteredContestsBundles!.isNotEmpty)
-                                  ? ListView.builder(
-                                      itemCount: state.filteredContestsBundles!.length,
-                                      itemBuilder: (context, index) {
-                                        final homeContestBundle =
-                                            state.filteredContestsBundles![index];
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ContestCard(
-                                              homeContestBundle: homeContestBundle,
-                                              onTap: () async {
-                                                final bool? res = await context.router.push(
-                                                    OrganizerContestDetailsRoute(
-                                                        contestId: homeContestBundle
-                                                            .contestBundle.contest.id!));
-                                                if (res == true) {
-                                                  if (context.mounted) {
-                                                    context
-                                                        .read<OrganizerHomePageBloc>()
-                                                        .add(OrganizerHomePageFetch());
-                                                  }
-                                                }
-                                              },
-                                            ),
-                                            (index == state.filteredContestsBundles!.length - 1)
-                                                ? SizedBox(height: 72)
-                                                : SizedBox(height: 8),
-                                          ],
-                                        );
-                                      },
-                                    )
-                                  : ListViewWithCentralLabel(label: 'No contest'),
-                            ),
-                          ),
-                        ],
-                      );
-                  }
+                          )
+                              : ListViewWithCentralLabel(label: 'No contest'),
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),

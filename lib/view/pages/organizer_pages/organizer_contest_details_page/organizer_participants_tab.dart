@@ -48,157 +48,144 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
               length: 2,
               child: Builder(
                 builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case BlocStatus.loading:
-                      if (!state.isInitialized) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    case BlocStatus.failure:
-                      if (!state.isInitialized) {
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async => context
+                  if (!state.isInitialized) {
+                    if (state.status.isFailure) {
+                      return Center(
+                        child: FilledButton(
+                          onPressed: () async => context
                               .read<OrganizerContestDetailsPageBloc>()
                               .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                        );
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      final participations = state.contestDetailsBundle!.participationsBundles;
-                      final invitations = state.contestDetailsBundle!.participantsInvitations;
-                      return Column(
-                        children: [
-                          Card(
-                            elevation: 0.4,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            child: SizedBox(
-                              height: 30,
-                              child: TabBar(
-                                labelColor: Theme.of(context).colorScheme.onTertiary,
-                                isScrollable: false,
-                                dividerColor: Colors.transparent,
-                                tabAlignment: TabAlignment.center,
-                                splashBorderRadius: BorderRadius.circular(16),
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicator: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
-                                tabs: [
-                                  Tab(text: 'Joined'),
-                                  Tab(text: 'Attended'),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Expanded(
-                            child: TabBarView(
-                              children: [
-                                //* Joined
-                                RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                                  child: (participations.isEmpty)
-                                      ? ListViewWithCentralLabel(label: 'No participant joined yet')
-                                      : ListView.builder(
-                                          itemCount: participations.length,
-                                          itemBuilder: (context, index) {
-                                            final participationBundle = participations[index];
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Card(
-                                                  elevation: 0.2,
-                                                  child: ListTile(
-                                                    trailing: IconButton(
-                                                      onPressed: () {
-                                                        _showRemoveParticipantDialog(
-                                                            context: context,
-                                                            contestId: contestId,
-                                                            participationId: participationBundle
-                                                                .participation.id!);
-                                                      },
-                                                      icon: Icon(
-                                                        Icons.remove_circle_outline,
-                                                        color: Theme.of(context).colorScheme.error,
-                                                      ),
-                                                    ),
-                                                    title: Text(
-                                                      participationBundle.participant.fullName,
-                                                      style:
-                                                          Theme.of(context).textTheme.titleMedium,
-                                                    ),
-                                                    subtitle: Text(
-                                                      participationBundle
-                                                          .participation.invitationEmail,
-                                                      style: Theme.of(context).textTheme.bodyMedium,
-                                                    ),
-                                                  ),
-                                                ),
-                                                if (index == participations.length - 1)
-                                                  SizedBox(height: 72),
-                                              ],
-                                            );
-                                          },
-                                        ),
-                                ),
-                                //* Attended
-                                RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                                  child: (invitations.isEmpty)
-                                      ? ListViewWithCentralLabel(label: 'No participant attended')
-                                      : ListView.builder(
-                                          itemCount: invitations.length,
-                                          itemBuilder: (context, index) {
-                                            final invitation = invitations[index];
-                                            return Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Card(
-                                                  elevation: 0.2,
-                                                  child: ListTile(
-                                                    title: Text(
-                                                      invitation.email,
-                                                      style:
-                                                          Theme.of(context).textTheme.titleMedium,
-                                                    ),
-                                                    trailing: IconButton(
-                                                      onPressed: () {
-                                                        _showDeleteInvitationDialog(
-                                                            context: context,
-                                                            contestId: contestId,
-                                                            invitationId: invitation.id!);
-                                                      },
-                                                      icon: Icon(
-                                                        Icons.remove,
-                                                        color: Theme.of(context).colorScheme.error,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                if (index == invitations.length - 1)
-                                                  SizedBox(height: 72),
-                                              ],
-                                            );
-                                          },
-                                        ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          child: Text('Retry'),
+                        ),
                       );
+                    }
+                    return VoidWidget();
                   }
+                  final participations = state.contestDetailsBundle!.participationsBundles;
+                  final invitations = state.contestDetailsBundle!.participantsInvitations;
+                  return Column(
+                    children: [
+                      Card(
+                        elevation: 0.4,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        child: SizedBox(
+                          height: 30,
+                          child: TabBar(
+                            labelColor: Theme.of(context).colorScheme.onTertiary,
+                            isScrollable: false,
+                            dividerColor: Colors.transparent,
+                            tabAlignment: TabAlignment.center,
+                            splashBorderRadius: BorderRadius.circular(16),
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            indicator: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                            tabs: [
+                              Tab(text: 'Joined'),
+                              Tab(text: 'Attended'),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            //* Joined
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
+                              child: (participations.isEmpty)
+                                  ? ListViewWithCentralLabel(label: 'No participant joined yet')
+                                  : ListView.builder(
+                                      itemCount: participations.length,
+                                      itemBuilder: (context, index) {
+                                        final participationBundle = participations[index];
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Card(
+                                              elevation: 0.2,
+                                              child: ListTile(
+                                                trailing: IconButton(
+                                                  onPressed: () {
+                                                    _showRemoveParticipantDialog(
+                                                        context: context,
+                                                        contestId: contestId,
+                                                        participationId:
+                                                            participationBundle.participation.id!);
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.remove_circle_outline,
+                                                    color: Theme.of(context).colorScheme.error,
+                                                  ),
+                                                ),
+                                                title: Text(
+                                                  participationBundle.participant.fullName,
+                                                  style: Theme.of(context).textTheme.titleMedium,
+                                                ),
+                                                subtitle: Text(
+                                                  participationBundle.participation.invitationEmail,
+                                                  style: Theme.of(context).textTheme.bodyMedium,
+                                                ),
+                                              ),
+                                            ),
+                                            if (index == participations.length - 1)
+                                              SizedBox(height: 72),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                            ),
+                            //* Attended
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
+                              child: (invitations.isEmpty)
+                                  ? ListViewWithCentralLabel(label: 'No participant attended')
+                                  : ListView.builder(
+                                      itemCount: invitations.length,
+                                      itemBuilder: (context, index) {
+                                        final invitation = invitations[index];
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Card(
+                                              elevation: 0.2,
+                                              child: ListTile(
+                                                title: Text(
+                                                  invitation.email,
+                                                  style: Theme.of(context).textTheme.titleMedium,
+                                                ),
+                                                trailing: IconButton(
+                                                  onPressed: () {
+                                                    _showDeleteInvitationDialog(
+                                                        context: context,
+                                                        contestId: contestId,
+                                                        invitationId: invitation.id!);
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.remove,
+                                                    color: Theme.of(context).colorScheme.error,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            if (index == invitations.length - 1)
+                                              SizedBox(height: 72),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),

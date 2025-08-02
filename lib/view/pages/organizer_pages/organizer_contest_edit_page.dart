@@ -10,20 +10,17 @@ import 'package:pinput/pinput.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
 import 'package:swift_contest/model/utils/storage_bucket.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_edit_page_bloc/organizer_contest_edit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
@@ -149,114 +146,99 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
           ),
           body: Builder(
             builder: (context) {
-              switch (state.status) {
-                case BlocStatus.initial:
-                  return VoidWidget();
-                case BlocStatus.loading:
-                  if (!state.isInitialized) {
-                    return VoidWidget();
-                  } else {
-                    continue successCase;
-                  }
-                case BlocStatus.failure:
-                  if (!state.isInitialized) {
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async => context
-                          .read<OrganizerContestEditPageBloc>()
-                          .add(OrganizerContestEditPageFetch(contestId: contestId)),
-                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                    );
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  if (!isPageInitialized) {
-                    final contestDetailsBundle = state.contestDetailsBundle!;
-                    organizerFullNameController.setText(contestDetailsBundle.contestBundle.contest.organizerFullName);
-                    nameController.setText(contestDetailsBundle.contestBundle.contest.name);
-                    descriptionController.setText(contestDetailsBundle.contestBundle.contest.description);
-                    date = contestDetailsBundle.contestBundle.contest.dateTime;
-                    dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
-                    time = TimeOfDay.fromDateTime(contestDetailsBundle.contestBundle.contest.dateTime);
-                    timeController.setText(
-                        '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
-                    place = contestDetailsBundle.contestBundle.place;
-                    placeController.setText(place!.address);
-                    worksSubmissionStart = contestDetailsBundle.contestBundle.contest.worksSubmissionStart;
-                    worksSubmissionEnd = contestDetailsBundle.contestBundle.contest.worksSubmissionEnd;
-                    worksSubmissionStartController
-                        .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
-                    worksSubmissionEndController
-                        .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
-                    oldImagesUrls.addAll(contestDetailsBundle.contestBundle.contest.imagesUrls);
-                    isPageInitialized = true;
-                  }
-                  return Stepper(
-                    type: StepperType.horizontal,
-                    elevation: 0,
-                    steps: getSteps(),
-                    currentStep: currentStep,
-                    onStepContinue: () {
-                      final isLastStep = (currentStep == getSteps().length - 1);
-                      if (formKeys[currentStep].currentState?.validate() ?? false) {
-                        if (isLastStep) {
-                          final organizerFullName = organizerFullNameController.text.trim();
-                          final name = nameController.text.trim();
-                          final description = descriptionController.text.trim();
-                          final dateTime = DateTime(
-                              date!.year, date!.month, date!.day, time!.hour, time!.minute);
-                          context.read<OrganizerContestEditPageBloc>().add(
-                                OrganizerContestEditPageEditContest(
-                                  contest: state.contestDetailsBundle!.contestBundle.contest.copyWith(
-                                    organizerFullName: organizerFullName,
-                                    name: name,
-                                    description: description,
-                                    dateTime: dateTime,
-                                    worksSubmissionStart: worksSubmissionStart,
-                                    worksSubmissionEnd: worksSubmissionEnd,
-                                  ),
-                                  place: place!,
-                                  images: images,
-                                ),
-                              );
-                        } else {
-                          setState(() => ++currentStep);
-                        }
-                      }
-                    },
-                    onStepCancel: () {
-                      (currentStep == 0) ? null : setState(() => --currentStep);
-                    },
-                    controlsBuilder: (context, details) {
-                      final isLastStep = details.currentStep == getSteps().length - 1;
-                      return Container(
-                        margin: EdgeInsets.only(top: 20),
-                        child: Row(
-                          mainAxisAlignment: (currentStep == 0)
-                              ? MainAxisAlignment.end
-                              : MainAxisAlignment.spaceBetween,
-                          spacing: 12,
-                          children: [
-                            if (details.currentStep != 0)
-                              ElevatedButton(
-                                onPressed: () {
-                                  details.onStepCancel!();
-                                },
-                                child: Text('Back'),
-                              ),
-                            ElevatedButton(
-                              onPressed: () {
-                                details.onStepContinue!();
-                              },
-                              child: isLastStep ? Text('Edit') : Text('Next'),
-                            ),
-                          ],
+              if(!state.isInitialized) {
+                if(state.status.isFailure) {
+                  return Center(child: FilledButton(onPressed: () async => context
+                      .read<OrganizerContestEditPageBloc>()
+                      .add(OrganizerContestEditPageFetch(contestId: contestId)), child: Text('Retry'),),);
+                }
+                return SizedBox();
+              }
+              if (!isPageInitialized) {
+                final contestDetailsBundle = state.contestDetailsBundle!;
+                organizerFullNameController.setText(contestDetailsBundle.contestBundle.contest.organizerFullName);
+                nameController.setText(contestDetailsBundle.contestBundle.contest.name);
+                descriptionController.setText(contestDetailsBundle.contestBundle.contest.description);
+                date = contestDetailsBundle.contestBundle.contest.dateTime;
+                dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
+                time = TimeOfDay.fromDateTime(contestDetailsBundle.contestBundle.contest.dateTime);
+                timeController.setText(
+                    '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
+                place = contestDetailsBundle.contestBundle.place;
+                placeController.setText(place!.address);
+                worksSubmissionStart = contestDetailsBundle.contestBundle.contest.worksSubmissionStart;
+                worksSubmissionEnd = contestDetailsBundle.contestBundle.contest.worksSubmissionEnd;
+                worksSubmissionStartController
+                    .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
+                worksSubmissionEndController
+                    .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
+                oldImagesUrls.addAll(contestDetailsBundle.contestBundle.contest.imagesUrls);
+                isPageInitialized = true;
+              }
+              return Stepper(
+                type: StepperType.horizontal,
+                elevation: 0,
+                steps: getSteps(),
+                currentStep: currentStep,
+                onStepContinue: () {
+                  final isLastStep = (currentStep == getSteps().length - 1);
+                  if (formKeys[currentStep].currentState?.validate() ?? false) {
+                    if (isLastStep) {
+                      final organizerFullName = organizerFullNameController.text.trim();
+                      final name = nameController.text.trim();
+                      final description = descriptionController.text.trim();
+                      final dateTime = DateTime(
+                          date!.year, date!.month, date!.day, time!.hour, time!.minute);
+                      context.read<OrganizerContestEditPageBloc>().add(
+                        OrganizerContestEditPageEditContest(
+                          contest: state.contestDetailsBundle!.contestBundle.contest.copyWith(
+                            organizerFullName: organizerFullName,
+                            name: name,
+                            description: description,
+                            dateTime: dateTime,
+                            worksSubmissionStart: worksSubmissionStart,
+                            worksSubmissionEnd: worksSubmissionEnd,
+                          ),
+                          place: place!,
+                          images: images,
                         ),
                       );
-                    },
+                    } else {
+                      setState(() => ++currentStep);
+                    }
+                  }
+                },
+                onStepCancel: () {
+                  (currentStep == 0) ? null : setState(() => --currentStep);
+                },
+                controlsBuilder: (context, details) {
+                  final isLastStep = details.currentStep == getSteps().length - 1;
+                  return Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: (currentStep == 0)
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.spaceBetween,
+                      spacing: 12,
+                      children: [
+                        if (details.currentStep != 0)
+                          ElevatedButton(
+                            onPressed: () {
+                              details.onStepCancel!();
+                            },
+                            child: Text('Back'),
+                          ),
+                        ElevatedButton(
+                          onPressed: () {
+                            details.onStepContinue!();
+                          },
+                          child: isLastStep ? Text('Edit') : Text('Next'),
+                        ),
+                      ],
+                    ),
                   );
-              }
+                },
+              );
             },
           ),
         );

@@ -5,9 +5,9 @@ class OverlayLoader {
   OverlayEntry? _entry;
 
   // Singleton pattern
-  OverlayLoader._privateConstructor();
+  OverlayLoader._();
 
-  static final OverlayLoader _instance = OverlayLoader._privateConstructor();
+  static final OverlayLoader _instance = OverlayLoader._();
 
   factory OverlayLoader() => _instance;
 

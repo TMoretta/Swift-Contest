@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/my_logo.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -22,7 +21,7 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthInit());
+    context.read<AuthBloc>().add(AuthFetch());
   }
 
   @override
@@ -58,35 +57,24 @@ class _RootPageState extends State<RootPage> {
           body: SafeArea(
             child: Builder(
               builder: (context) {
-                switch (state.blocStatus) {
-                  case BlocStatus.failure:
-                    return RefreshIndicator(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit()),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return ListViewWithCentralWidget(
-                            centralWidget: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                MyLogo(),
-                                SizedBox(height: 32),
-                                Text(
-                                  'An error occurred',
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                )
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  case BlocStatus.initial:
-                  case BlocStatus.loading:
-                  case BlocStatus.success:
-                    return Center(
-                      child: MyLogo(),
-                    );
+                if (state.blocStatus.isFailure) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MyLogo(),
+                        SizedBox(height: 32),
+                        FilledButton(
+                          onPressed: () async => context.read<AuthBloc>().add(AuthInit()),
+                          child: Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
                 }
+                return Center(
+                  child: MyLogo(),
+                );
               },
             ),
           ),

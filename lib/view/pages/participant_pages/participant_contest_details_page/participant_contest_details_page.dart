@@ -79,59 +79,35 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
             actions: [
               Builder(
                 builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case (BlocStatus.loading || BlocStatus.failure):
-                      if (!state.isInitialized) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      return _Menu(
-                        contestId: contestId,
-                        profileId: profileId,
-                      );
+                  if (!state.isInitialized) {
+                    return VoidWidget();
                   }
+                  return _Menu(
+                    contestId: contestId,
+                    profileId: profileId,
+                  );
                 },
               ),
             ],
           ),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(top: 16,left: 16,right: 16),
               child: DefaultTabController(
                 length: 2,
                 child: Column(
                   children: [
                     SizedBox(height: 16),
-                    Builder(
-                      builder: (context) {
-                        switch (state.status) {
-                          case BlocStatus.initial:
-                            return VoidWidget();
-                          case (BlocStatus.loading || BlocStatus.failure):
-                            if (!state.isInitialized) {
-                              return VoidWidget();
-                            } else {
-                              continue successCase;
-                            }
-                          successCase:
-                          case BlocStatus.success:
-                            return TabBar(
-                              isScrollable: true,
-                              tabAlignment: TabAlignment.center,
-                              indicatorSize: TabBarIndicatorSize.label,
-                              tabs: [
-                                Tab(text: 'Details'),
-                                Tab(text: 'Work'),
-                              ],
-                            );
-                        }
-                      },
-                    ),
+                    if (state.isInitialized)
+                      TabBar(
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.center,
+                        indicatorSize: TabBarIndicatorSize.label,
+                        tabs: [
+                          Tab(text: 'Details'),
+                          Tab(text: 'Work'),
+                        ],
+                      ),
                     SizedBox(height: 16),
                     Expanded(
                       child: TabBarView(

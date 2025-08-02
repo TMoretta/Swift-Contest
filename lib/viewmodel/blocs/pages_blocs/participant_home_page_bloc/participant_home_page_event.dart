@@ -5,12 +5,8 @@ sealed class ParticipantHomePageEvent extends Equatable {
 }
 
 final class ParticipantHomePageFetch extends ParticipantHomePageEvent {
-  final String participantId;
-
-  const ParticipantHomePageFetch({required this.participantId});
-
   @override
-  List<Object?> get props => [participantId];
+  List<Object?> get props => [];
 }
 
 final class ParticipantHomePageFilterResults extends ParticipantHomePageEvent {
@@ -25,14 +21,12 @@ final class ParticipantHomePageFilterResults extends ParticipantHomePageEvent {
 }
 
 final class ParticipantHomePageJoinContest extends ParticipantHomePageEvent {
-  final String participantId;
   final String token;
 
   const ParticipantHomePageJoinContest({
-    required this.participantId,
     required this.token,
   });
 
   @override
-  List<Object?> get props => [participantId, token];
+  List<Object?> get props => [token];
 }

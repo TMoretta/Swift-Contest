@@ -8,8 +8,6 @@ abstract interface class AccountDao {
   Future<Either<Failure, Account>> updateCurrent({required UserAttributes userAttributes});
 
   Future<Either<Failure, Account>> getCurrent();
-
-  Future<Either<Failure, Account?>> getNullableCurrent();
 }
 
 class AccountDaoImpl implements AccountDao {
@@ -33,20 +31,6 @@ class AccountDaoImpl implements AccountDao {
       () async {
         final response = await _supabase.auth.getUser();
         return Either.right(Account.fromJson(response.user!.toJson()));
-      },
-    );
-  }
-
-  @override
-  Future<Either<Failure, Account?>> getNullableCurrent() async {
-    return handleDatabaseCall(
-      () async {
-        try {
-          final response = await _supabase.auth.getUser();
-          return Either.right(Account.fromJson(response.user!.toJson()));
-        } on AuthException {
-          return Either.right(null);
-        }
       },
     );
   }

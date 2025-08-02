@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -43,173 +42,163 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
               length: 2,
               child: Builder(
                 builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case BlocStatus.loading:
-                      if (!state.isInitialized) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    case BlocStatus.failure:
-                      if (!state.isInitialized) {
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async => context
+                  if (!state.isInitialized) {
+                    if (state.status.isFailure) {
+                      return Center(
+                        child: FilledButton(
+                          onPressed: () async => context
                               .read<OrganizerContestDetailsPageBloc>()
                               .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                        );
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      final participationsWithWorksBundles =
-                          state.contestDetailsBundle!.participationsBundles.where((e) => e.work !=null).toList(growable: false);
-                      final participationsWithoutWorksBundles =
-                          state.contestDetailsBundle!.participationsBundles.where((e) => e.work == null).toList(growable: false);
-                      return Column(
-                        children: [
-                          Card(
-                            elevation: 0.4,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            child: SizedBox(
-                              height: 30,
-                              child: TabBar(
-                                labelColor: Theme.of(context).colorScheme.onTertiary,
-                                isScrollable: false,
-                                dividerColor: Colors.transparent,
-                                tabAlignment: TabAlignment.center,
-                                splashBorderRadius: BorderRadius.circular(16),
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicator: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
-                                tabs: [
-                                  Tab(text: 'Submitted'),
-                                  Tab(text: 'Attended'),
-                                ],
-                              ),
+                          child: Text('Retry'),
+                        ),
+                      );
+                    }
+                    return VoidWidget();
+                  }
+                  final participationsWithWorksBundles =
+                  state.contestDetailsBundle!.participationsBundles.where((e) => e.work !=null).toList(growable: false);
+                  final participationsWithoutWorksBundles =
+                  state.contestDetailsBundle!.participationsBundles.where((e) => e.work == null).toList(growable: false);
+                  return Column(
+                    children: [
+                      Card(
+                        elevation: 0.4,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        child: SizedBox(
+                          height: 30,
+                          child: TabBar(
+                            labelColor: Theme.of(context).colorScheme.onTertiary,
+                            isScrollable: false,
+                            dividerColor: Colors.transparent,
+                            tabAlignment: TabAlignment.center,
+                            splashBorderRadius: BorderRadius.circular(16),
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            indicator: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
+                            tabs: [
+                              Tab(text: 'Submitted'),
+                              Tab(text: 'Attended'),
+                            ],
                           ),
-                          SizedBox(height: 8),
-                          Expanded(
-                            child: TabBarView(
-                              children: [
-                                //* Submitted works
-                                RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(
-                                      OrganizerContestDetailsPageFetch(contestId: contestId)),
-                                  child: (participationsWithWorksBundles.isEmpty)
-                                      ? ListViewWithCentralLabel(label: 'No work submitted yet')
-                                      : ListView.builder(
-                                    itemCount: participationsWithWorksBundles.length,
-                                    itemBuilder: (context, index) {
-                                      final participationBundle =
-                                      participationsWithWorksBundles[index];
-                                      return Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        elevation: 0.2,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12)),
-                                        child: InkWell(
-                                          onTap: () {
-                                            context.router.push(OrganizerWorkDetailsRoute(
-                                                participationId:
-                                                participationBundle.participation.id!));
-                                          },
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            spacing: 16,
-                                            children: [
-                                              SizedBox(
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            //* Submitted works
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(
+                                  OrganizerContestDetailsPageFetch(contestId: contestId)),
+                              child: (participationsWithWorksBundles.isEmpty)
+                                  ? ListViewWithCentralLabel(label: 'No work submitted yet')
+                                  : ListView.builder(
+                                itemCount: participationsWithWorksBundles.length,
+                                itemBuilder: (context, index) {
+                                  final participationBundle =
+                                  participationsWithWorksBundles[index];
+                                  return Card(
+                                    clipBehavior: Clip.hardEdge,
+                                    elevation: 0.2,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12)),
+                                    child: InkWell(
+                                      onTap: () {
+                                        context.router.push(OrganizerWorkDetailsRoute(
+                                            participationId:
+                                            participationBundle.participation.id!));
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        spacing: 16,
+                                        children: [
+                                          SizedBox(
+                                            width: 65,
+                                            height: 65,
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(12),
+                                              ),
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Image.network(
+                                                participationBundle.work!.imagesUrls[0],
                                                 width: 65,
-                                                height: 65,
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.all(
-                                                    Radius.circular(12),
-                                                  ),
-                                                  clipBehavior: Clip.hardEdge,
-                                                  child: Image.network(
-                                                    participationBundle.work!.imagesUrls[0],
+                                                fit: BoxFit.cover,
+                                                errorBuilder:
+                                                    (context, error, stackTrace) {
+                                                  return Image.asset(
+                                                    'assets/images/image_not_found.jpg',
                                                     width: 65,
                                                     fit: BoxFit.cover,
-                                                    errorBuilder:
-                                                        (context, error, stackTrace) {
-                                                      return Image.asset(
-                                                        'assets/images/image_not_found.jpg',
-                                                        width: 65,
-                                                        fit: BoxFit.cover,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
+                                                  );
+                                                },
                                               ),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                  const EdgeInsets.symmetric(vertical: 8),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                    spacing: 4,
-                                                    children: [
-                                                      Text(
-                                                        participationBundle.work!.name,
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.w500),
-                                                      ),
-                                                      Text(participationBundle
-                                                          .participant.fullName),
-                                                    ],
-                                                  ),
-                                                ),
-                                              )
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                //* Attended
-                                RefreshIndicator.adaptive(
-                                  onRefresh: () async => context
-                                      .read<OrganizerContestDetailsPageBloc>()
-                                      .add(
-                                      OrganizerContestDetailsPageFetch(contestId: contestId)),
-                                  child: (participationsWithoutWorksBundles.isEmpty)
-                                      ? ListViewWithCentralLabel(
-                                      label: 'No work attended from joined participants')
-                                      : ListView.builder(
-                                    itemCount: participationsWithWorksBundles.length,
-                                    itemBuilder: (context, index) {
-                                      final participationBundle =
-                                      participationsWithoutWorksBundles[index];
-                                      return Card(
-                                        elevation: 0.2,
-                                        child: ListTile(
-                                          title:
-                                          Text(participationBundle.participant.fullName),
-                                          subtitle: Text(participationBundle
-                                              .participation.invitationEmail),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                              const EdgeInsets.symmetric(vertical: 8),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                                spacing: 4,
+                                                children: [
+                                                  Text(
+                                                    participationBundle.work!.name,
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w500),
+                                                  ),
+                                                  Text(participationBundle
+                                                      .participant.fullName),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                  }
+                            //* Attended
+                            RefreshIndicator.adaptive(
+                              onRefresh: () async => context
+                                  .read<OrganizerContestDetailsPageBloc>()
+                                  .add(
+                                  OrganizerContestDetailsPageFetch(contestId: contestId)),
+                              child: (participationsWithoutWorksBundles.isEmpty)
+                                  ? ListViewWithCentralLabel(
+                                  label: 'No work attended from joined participants')
+                                  : ListView.builder(
+                                itemCount: participationsWithWorksBundles.length,
+                                itemBuilder: (context, index) {
+                                  final participationBundle =
+                                  participationsWithoutWorksBundles[index];
+                                  return Card(
+                                    elevation: 0.2,
+                                    child: ListTile(
+                                      title:
+                                      Text(participationBundle.participant.fullName),
+                                      subtitle: Text(participationBundle
+                                          .participation.invitationEmail),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),

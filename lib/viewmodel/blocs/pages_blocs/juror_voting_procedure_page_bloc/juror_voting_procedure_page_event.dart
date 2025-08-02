@@ -16,13 +16,17 @@ final class JurorVotingProcedurePageFetch
   List<Object?> get props => [votingSessionId];
 }
 
-final class JurorVotingProcedurePageSubmitVotes extends JurorVotingProcedurePageEvent {
-  final Map<VotingSessionParticipant, Map<VotingFormField, String>> votesPerParticipantMap;
+final class JurorVotingProcedurePageSubmit extends JurorVotingProcedurePageEvent {
+  final Map<VotingFormField, String> headerFieldsValues;
+  final Map<VotingSessionParticipant, Map<VotingFormField, String>> participantFieldsValues;
+  final Map<VotingFormField, String> footerFieldsValues;
 
-  const JurorVotingProcedurePageSubmitVotes({
-    required this.votesPerParticipantMap,
+  const JurorVotingProcedurePageSubmit({
+    required this.headerFieldsValues,
+    required this.participantFieldsValues,
+    required this.footerFieldsValues,
   });
 
   @override
-  List<Object?> get props => [votesPerParticipantMap];
+  List<Object?> get props => [headerFieldsValues, participantFieldsValues, footerFieldsValues];
 }

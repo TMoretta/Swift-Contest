@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
@@ -36,7 +35,6 @@ class ParticipantHomePage extends StatefulWidget implements AutoRouteWrapper {
 }
 
 class _ParticipantHomePageState extends State<ParticipantHomePage> {
-  late String profileId;
   late final FocusNode _searchFocusNode;
   late final TextEditingController _searchController;
 
@@ -50,8 +48,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
-    context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch(participantId: profileId));
+    context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch());
   }
 
   @override
@@ -85,91 +82,79 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Builder(
                 builder: (context) {
-                  switch (state.status) {
-                    case BlocStatus.initial:
-                      return VoidWidget();
-                    case BlocStatus.loading:
-                      if (!state.isInitialized) {
-                        return VoidWidget();
-                      } else {
-                        continue successCase;
-                      }
-                    case BlocStatus.failure:
-                      if (!state.isInitialized) {
-                        return RefreshIndicator.adaptive(
-                          onRefresh: () async => context
-                              .read<ParticipantHomePageBloc>()
-                              .add(ParticipantHomePageFetch(participantId: profileId)),
-                          child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                        );
-                      } else {
-                        continue successCase;
-                      }
-                    successCase:
-                    case BlocStatus.success:
-                      return Column(
-                        children: [
-                          SizedBox(height: 16),
-                          CustomSearchBar(
-                            controller: _searchController,
-                            focusNode: _searchFocusNode,
-                            onChanged: (value) {
-                              context
-                                  .read<ParticipantHomePageBloc>()
-                                  .add(ParticipantHomePageFilterResults(query: value));
-                            },
-                          ),
-                          Expanded(
-                            child: RefreshIndicator.adaptive(
-                              onRefresh: () async {
-                                context
-                                    .read<ParticipantHomePageBloc>()
-                                    .add(ParticipantHomePageFetch(participantId: profileId));
-                                context.read<AuthBloc>().add(AuthFetch());
-                              },
-                              child: (state.filteredContestsBundles!.isNotEmpty)
-                                  ? ListView(
-                                      children: [
-                                        SizedBox(height: 16),
-                                        ...state.filteredContestsBundles!.map((homeContestBundle) {
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ContestCard(
-                                                homeContestBundle: homeContestBundle,
-                                                onTap: () async {
-                                                  final bool? res = await context.router.push(
-                                                      ParticipantContestDetailsRoute(
-                                                          contestId: homeContestBundle.contestBundle.contest.id!));
-                                                  if (res == true) {
-                                                    if (context.mounted) {
-                                                      context.read<ParticipantHomePageBloc>().add(
-                                                          ParticipantHomePageFetch(
-                                                              participantId: profileId));
-                                                    }
-                                                  }
-                                                },
-                                              ),
-                                              SizedBox(height: 8),
-                                            ],
-                                          );
-                                        }),
-                                        SizedBox(height: 64),
-                                      ],
-                                    )
-                                  : ListViewWithCentralLabel(label: 'No contest'),
-                            ),
-                          ),
-                        ],
+                  if (!state.isInitialized) {
+                    if (state.status.isFailure) {
+                      return Center(
+                        child: FilledButton(
+                          onPressed: () async => context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch()),
+                          child: Text('Retry'),
+                        ),
                       );
+                    }
+                    return VoidWidget();
                   }
+                  return Column(
+                    children: [
+                      SizedBox(height: 16),
+                      CustomSearchBar(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onChanged: (value) {
+                          context
+                              .read<ParticipantHomePageBloc>()
+                              .add(ParticipantHomePageFilterResults(query: value));
+                        },
+                      ),
+                      Expanded(
+                        child: RefreshIndicator.adaptive(
+                          onRefresh: () async {
+                            context
+                                .read<ParticipantHomePageBloc>()
+                                .add(ParticipantHomePageFetch());
+                            context.read<AuthBloc>().add(AuthFetch());
+                          },
+                          child: (state.filteredContestsBundles!.isNotEmpty)
+                              ? ListView(
+                            children: [
+                              SizedBox(height: 16),
+                              ...state.filteredContestsBundles!.map((homeContestBundle) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ContestCard(
+                                      homeContestBundle: homeContestBundle,
+                                      onTap: () async {
+                                        final bool? res = await context.router.push(
+                                            ParticipantContestDetailsRoute(
+                                                contestId: homeContestBundle.contestBundle.contest.id!));
+                                        if (res == true) {
+                                          if (context.mounted) {
+                                            context.read<ParticipantHomePageBloc>().add(
+                                                ParticipantHomePageFetch(
+                                                ));
+                                          }
+                                        }
+                                      },
+                                    ),
+                                    SizedBox(height: 8),
+                                  ],
+                                );
+                              }),
+                              SizedBox(height: 64),
+                            ],
+                          )
+                              : ListViewWithCentralLabel(label: 'No contest'),
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
-              _showJoinContestDialog(context: context, profileId: profileId);
+              _showJoinContestDialog(context: context);
             },
             icon: Icon(Icons.login),
             label: Text('Join a contest'),
@@ -181,8 +166,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
 }
 
 void _showJoinContestDialog({
-  required BuildContext context,
-  required String profileId,
+  required BuildContext context
 }) {
   final participantHomePageBloc = context.read<ParticipantHomePageBloc>();
   final joinContestFormKey = GlobalKey<FormState>();
@@ -200,7 +184,7 @@ void _showJoinContestDialog({
               showSnackBar(context: context, text: 'Joined contest successfully');
               context
                   .read<ParticipantHomePageBloc>()
-                  .add(ParticipantHomePageFetch(participantId: profileId));
+                  .add(ParticipantHomePageFetch());
               context.router.pop();
             }
           },
@@ -235,7 +219,6 @@ void _showJoinContestDialog({
                     if (joinContestFormKey.currentState?.validate() ?? false) {
                       context.read<ParticipantHomePageBloc>().add(
                             ParticipantHomePageJoinContest(
-                              participantId: profileId,
                               token: tokenController.text.trim(),
                             ),
                           );

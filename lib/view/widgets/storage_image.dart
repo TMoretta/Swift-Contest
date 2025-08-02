@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
-import 'package:swift_contest/model/utils/storage_bucket.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 
 /// Un widget che recupera e visualizza un'immagine da Supabase Storage.

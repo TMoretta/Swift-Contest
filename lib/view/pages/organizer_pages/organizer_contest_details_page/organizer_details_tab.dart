@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/utils/storage_bucket.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
@@ -44,283 +41,273 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
         return Scaffold(
           body: Builder(
             builder: (context) {
-              switch (state.status) {
-                case BlocStatus.initial:
-                  return VoidWidget();
-                case BlocStatus.loading:
-                  if (!state.isInitialized) {
-                    return VoidWidget();
-                  } else {
-                    continue successCase;
-                  }
-                case BlocStatus.failure:
-                  if (!state.isInitialized) {
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async => context
+              if (!state.isInitialized) {
+                if (state.status.isFailure) {
+                  return Center(
+                    child: FilledButton(
+                      onPressed: () async => context
                           .read<OrganizerContestDetailsPageBloc>()
                           .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                    );
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  return RefreshIndicator.adaptive(
-                    onRefresh: () async => context
-                        .read<OrganizerContestDetailsPageBloc>()
-                        .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                    child: ListView(
-                      children: [
-                        //* Status
-                        // Row(
-                        //   mainAxisSize: MainAxisSize.min,
-                        //   mainAxisAlignment: MainAxisAlignment.start,
-                        //   children: [
-                        //     Icon(
-                        //       Icons.circle,
-                        //       size: 18,
-                        //       color: switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
-                        //         ContestStatus.preparationPhase =>
-                        //           Theme.of(context).colorScheme.statusPreparation,
-                        //         ContestStatus.participationPhase =>
-                        //           Theme.of(context).colorScheme.statusParticipation,
-                        //         ContestStatus.votingPhase =>
-                        //           Theme.of(context).colorScheme.statusVoting,
-                        //         ContestStatus.terminated =>
-                        //           Theme.of(context).colorScheme.statusTerminated,
-                        //         ContestStatus.deleted =>
-                        //           Theme.of(context).colorScheme.statusDeleted,
-                        //       },
-                        //     ),
-                        //     SizedBox(width: 2),
-                        //     Text(
-                        //       switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
-                        //         ContestStatus.preparationPhase => 'Preparation phase',
-                        //         ContestStatus.participationPhase => 'Participation phase',
-                        //         ContestStatus.votingPhase => 'Voting phase',
-                        //         ContestStatus.terminated => 'Terminated',
-                        //         ContestStatus.deleted => 'Deleted',
-                        //       },
-                        //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        //             color: switch (
-                        //                 state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
-                        //               ContestStatus.preparationPhase =>
-                        //                 Theme.of(context).colorScheme.statusPreparation,
-                        //               ContestStatus.participationPhase =>
-                        //                 Theme.of(context).colorScheme.statusParticipation,
-                        //               ContestStatus.votingPhase =>
-                        //                 Theme.of(context).colorScheme.statusVoting,
-                        //               ContestStatus.terminated =>
-                        //                 Theme.of(context).colorScheme.statusTerminated,
-                        //               ContestStatus.deleted =>
-                        //                 Theme.of(context).colorScheme.statusDeleted,
-                        //             },
-                        //           ),
-                        //     ),
-                        //   ],
-                        // ),
-                        //* Images carousel
-                        SizedBox(
-                          height: 180,
-                          child:
-                              (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
-                                  ? ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: [
-                                        Image.asset('assets/images/image_not_found.jpg',
-                                            fit: BoxFit.contain),
-                                      ],
-                                    )
-                                  : ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: state.contestDetailsBundle!.contestBundle.contest
-                                          .imagesUrls.length,
-                                      itemBuilder: (context, index) {
-                                        final imageUrl = state.contestDetailsBundle!.contestBundle
-                                            .contest.imagesUrls[index];
-                                        return Padding(
-                                          padding: const EdgeInsets.only(right: 8),
-                                          child: StorageImage(
-                                            bucket: StorageBucket.contestsImages,
-                                            path: imageUrl,
-                                            fit: BoxFit.contain,
-                                          ),
-                                          // Image.network(
-                                          //   state.contestDetailsBundle!.contestBundle.contest
-                                          //       .imagesUrls[index],
-                                          //   fit: BoxFit.contain,
-                                          //   frameBuilder:
-                                          //       (context, child, frame, wasSynchronouslyLoaded) {
-                                          //     if (wasSynchronouslyLoaded || frame != null) return child;
-                                          //     return const Loader();
-                                          //   },
-                                          //   errorBuilder: (context, error, stackTrace) {
-                                          //     return Image.asset(
-                                          //       'assets/images/image_not_found.jpg',
-                                          //       fit: BoxFit.cover,
-                                          //     );
-                                          //   },
-                                          // ),
-                                        );
-                                      },
-                                    ),
-                        ),
-                        SizedBox(height: 8),
-                        //* Description
-                        Text(
-                          'Description',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                        ),
-                        Text(
-                          state.contestDetailsBundle!.contestBundle.contest.description,
-                        ),
-                        SizedBox(height: 20),
-                        //* Info
-                        Text(
-                          'Info',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                        ),
-                        //* Members
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.people,
-                              size: 24,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                  'Participants: ${state.contestDetailsBundle!.participationsBundles.length} | '
-                                  'Jurors: ${state.contestDetailsBundle!.juriesBundles.map((e) => e.jurationsBundles).toList(growable: false).length}'),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        //* Place
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.location_on_rounded,
-                              size: 24,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            SizedBox(width: 4),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  final address =
-                                      state.contestDetailsBundle!.contestBundle.place.address;
-                                  final query = Uri.encodeComponent(address);
-                                  final uri = Uri.parse(
-                                      'https://www.google.com/maps/search/?api=1&query=$query');
-
-                                  if (await canLaunchUrl(uri)) {
-                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                  } else {
-                                    if (context.mounted) {
-                                      showSnackBar(
-                                          context: context,
-                                          text: 'It has not been possible to open the map');
-                                    }
-                                  }
-                                },
-                                child: Text(
-                                  state.contestDetailsBundle!.contestBundle.place.address,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        //* DateTime
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.calendar_month_rounded,
-                              size: 24,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm').format(
-                                    state.contestDetailsBundle!.contestBundle.contest.dateTime),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        //* Participations
-                        Text(
-                          'Participation',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Start:',
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                            SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm').format(state
-                                    .contestDetailsBundle!
-                                    .contestBundle
-                                    .contest
-                                    .worksSubmissionStart),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'End:',
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                            SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                DateFormat('dd MMM, yyyy | HH:mm').format(state
-                                    .contestDetailsBundle!
-                                    .contestBundle
-                                    .contest
-                                    .worksSubmissionEnd),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 72),
-                      ],
+                      child: Text('Retry'),
                     ),
                   );
+                }
+                return VoidWidget();
               }
+              return RefreshIndicator.adaptive(
+                onRefresh: () async => context
+                    .read<OrganizerContestDetailsPageBloc>()
+                    .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
+                child: ListView(
+                  children: [
+                    //* Status
+                    // Row(
+                    //   mainAxisSize: MainAxisSize.min,
+                    //   mainAxisAlignment: MainAxisAlignment.start,
+                    //   children: [
+                    //     Icon(
+                    //       Icons.circle,
+                    //       size: 18,
+                    //       color: switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
+                    //         ContestStatus.preparationPhase =>
+                    //           Theme.of(context).colorScheme.statusPreparation,
+                    //         ContestStatus.participationPhase =>
+                    //           Theme.of(context).colorScheme.statusParticipation,
+                    //         ContestStatus.votingPhase =>
+                    //           Theme.of(context).colorScheme.statusVoting,
+                    //         ContestStatus.terminated =>
+                    //           Theme.of(context).colorScheme.statusTerminated,
+                    //         ContestStatus.deleted =>
+                    //           Theme.of(context).colorScheme.statusDeleted,
+                    //       },
+                    //     ),
+                    //     SizedBox(width: 2),
+                    //     Text(
+                    //       switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
+                    //         ContestStatus.preparationPhase => 'Preparation phase',
+                    //         ContestStatus.participationPhase => 'Participation phase',
+                    //         ContestStatus.votingPhase => 'Voting phase',
+                    //         ContestStatus.terminated => 'Terminated',
+                    //         ContestStatus.deleted => 'Deleted',
+                    //       },
+                    //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    //             color: switch (
+                    //                 state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
+                    //               ContestStatus.preparationPhase =>
+                    //                 Theme.of(context).colorScheme.statusPreparation,
+                    //               ContestStatus.participationPhase =>
+                    //                 Theme.of(context).colorScheme.statusParticipation,
+                    //               ContestStatus.votingPhase =>
+                    //                 Theme.of(context).colorScheme.statusVoting,
+                    //               ContestStatus.terminated =>
+                    //                 Theme.of(context).colorScheme.statusTerminated,
+                    //               ContestStatus.deleted =>
+                    //                 Theme.of(context).colorScheme.statusDeleted,
+                    //             },
+                    //           ),
+                    //     ),
+                    //   ],
+                    // ),
+                    //* Images carousel
+                    SizedBox(
+                      height: 180,
+                      child:
+                      (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
+                          ? ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          Image.asset('assets/images/image_not_found.jpg',
+                              fit: BoxFit.contain),
+                        ],
+                      )
+                          : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: state.contestDetailsBundle!.contestBundle.contest
+                            .imagesUrls.length,
+                        itemBuilder: (context, index) {
+                          final imageUrl = state.contestDetailsBundle!.contestBundle
+                              .contest.imagesUrls[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: StorageImage(
+                              bucket: StorageBucket.contestsImages,
+                              path: imageUrl,
+                              fit: BoxFit.contain,
+                            ),
+                            // Image.network(
+                            //   state.contestDetailsBundle!.contestBundle.contest
+                            //       .imagesUrls[index],
+                            //   fit: BoxFit.contain,
+                            //   frameBuilder:
+                            //       (context, child, frame, wasSynchronouslyLoaded) {
+                            //     if (wasSynchronouslyLoaded || frame != null) return child;
+                            //     return const Loader();
+                            //   },
+                            //   errorBuilder: (context, error, stackTrace) {
+                            //     return Image.asset(
+                            //       'assets/images/image_not_found.jpg',
+                            //       fit: BoxFit.cover,
+                            //     );
+                            //   },
+                            // ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    //* Description
+                    Text(
+                      'Description',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                    ),
+                    Text(
+                      state.contestDetailsBundle!.contestBundle.contest.description,
+                    ),
+                    SizedBox(height: 20),
+                    //* Info
+                    Text(
+                      'Info',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                    ),
+                    //* Members
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.people,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                              'Participants: ${state.contestDetailsBundle!.participationsBundles.length} | '
+                                  'Jurors: ${state.contestDetailsBundle!.juriesBundles.map((e) => e.jurationsBundles).toList(growable: false).length}'),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    //* Place
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.location_on_rounded,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final address =
+                                  state.contestDetailsBundle!.contestBundle.place.address;
+                              final query = Uri.encodeComponent(address);
+                              final uri = Uri.parse(
+                                  'https://www.google.com/maps/search/?api=1&query=$query');
+
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                              } else {
+                                if (context.mounted) {
+                                  showSnackBar(
+                                      context: context,
+                                      text: 'It has not been possible to open the map');
+                                }
+                              }
+                            },
+                            child: Text(
+                              state.contestDetailsBundle!.contestBundle.place.address,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    //* DateTime
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.calendar_month_rounded,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            DateFormat('dd MMM, yyyy | HH:mm').format(
+                                state.contestDetailsBundle!.contestBundle.contest.dateTime),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    //* Participations
+                    Text(
+                      'Participation',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Start:',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                .contestDetailsBundle!
+                                .contestBundle
+                                .contest
+                                .worksSubmissionStart),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'End:',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                .contestDetailsBundle!
+                                .contestBundle
+                                .contest
+                                .worksSubmissionEnd),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 72),
+                  ],
+                ),
+              );
             },
           ),
         );

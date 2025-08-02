@@ -1,13 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
+import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -45,7 +43,7 @@ class _AuthState extends State<SettingsPage> {
               context.hideLoader();
             }
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
-              context.router.replaceAll([RootRoute()]);
+              context.router.replaceAll([SplashRoute()]);
             }
           },
         ),
@@ -68,130 +66,113 @@ class _AuthState extends State<SettingsPage> {
             appBar: CustomAppBar(title: 'Settings'),
             body: Builder(
               builder: (context) {
-                switch (state.blocStatus) {
-                  case BlocStatus.initial:
-                    return VoidWidget();
-                  case BlocStatus.loading:
-                    if (!state.isInitialized) {
-                      return VoidWidget();
-                    } else {
-                      continue successCase;
-                    }
-                  case BlocStatus.failure:
-                    if (!state.isInitialized) {
-                      return RefreshIndicator.adaptive(
-                        onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
-                        child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                      );
-                    } else {
-                      continue successCase;
-                    }
-                  successCase:
-                  case BlocStatus.success:
-                    final profile = state.profile!;
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
-                      child: ListView(
-                        children: [
-                          //* Account option
-                          InkWell(
-                            onTap: () {
-                              context.router.push(AccountRoute());
-                            },
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.person,
-                                size: 28,
-                              ),
-                              title: Text(
-                                'Account',
-                              ),
-                              titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                              subtitle: Text(
-                                'Full name',
-                              ),
-                              subtitleTextStyle: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                            ),
-                          ),
-                          //* Theme option
-                          BlocBuilder<ThemeBloc, ThemeState>(
-                            builder: (context, state) {
-                              final theme = state.theme!;
-                              return InkWell(
-                                onTap: () {
-                                  _showEditThemeDialog(context: context, currentTheme: theme);
-                                },
-                                child: ListTile(
-                                  leading: Icon(
-                                    Icons.contrast,
-                                    size: 28,
-                                  ),
-                                  title: Text('Theme'),
-                                  titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                                  subtitle: Text(
-                                    '${theme.name[0].toUpperCase()}${theme.name.substring(1).toLowerCase()}',
-                                  ),
-                                  subtitleTextStyle: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
-                                      ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                                ),
-                              );
-                            },
-                          ),
-                          //* Preferred role option
-                          InkWell(
-                            onTap: () {
-                              _showEditPrefRoleDialog(
-                                  context: context, currentPrefRole: profile.prefRole);
-                            },
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.face,
-                                size: 28,
-                              ),
-                              title: Text(
-                                'Preferred role',
-                              ),
-                              titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                              subtitle: Text(
-                                '${profile.prefRole.name[0].toUpperCase()}'
-                                '${profile.prefRole.name.substring(1).toLowerCase()}',
-                              ),
-                              subtitleTextStyle: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                            ),
-                          ),
-                          //* Logout option
-                          InkWell(
-                            onTap: () {
-                              context.read<AuthBloc>().add(AuthSignOut());
-                            },
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.logout,
-                                size: 28,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                              iconColor: Theme.of(context).colorScheme.error,
-                              title: Text(
-                                'Logout',
-                              ),
-                              titleTextStyle: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(color: Theme.of(context).colorScheme.error),
-                            ),
-                          ),
-                        ],
+                if (!state.isInitialized) {
+                  if (state.blocStatus.isFailure) {
+                    return Center(
+                      child: FilledButton(
+                        onPressed: () => context.read<AuthBloc>().add(AuthFetch()),
+                        child: Text('Retry'),
                       ),
                     );
+                  }
+                  return VoidWidget();
                 }
+
+                final profile = state.profile!;
+                return RefreshIndicator.adaptive(
+                  onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
+                  child: ListView(
+                    children: [
+                      //* Account option
+                      ListTile(
+                        onTap: () {
+                          context.router.push(AccountRoute());
+                        },
+                        leading: Icon(
+                          Icons.person,
+                          size: 28,
+                        ),
+                        title: Text(
+                          'Account',
+                        ),
+                        titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                        subtitle: Text(
+                          'Full name',
+                        ),
+                        subtitleTextStyle: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                      ),
+                      //* Theme option
+                      BlocBuilder<ThemeBloc, ThemeState>(
+                        builder: (context, state) {
+                          final theme = state.theme!;
+                          return InkWell(
+                            onTap: () {
+                              _showEditThemeDialog(context: context, currentTheme: theme);
+                            },
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.contrast,
+                                size: 28,
+                              ),
+                              title: Text('Theme'),
+                              titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                              subtitle: Text(
+                                '${theme.name[0].toUpperCase()}${theme.name.substring(1).toLowerCase()}',
+                              ),
+                              subtitleTextStyle: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                            ),
+                          );
+                        },
+                      ),
+                      //* Preferred role option
+                      ListTile(
+                        onTap: () {
+                          _showEditPrefRoleDialog(
+                              context: context, currentPrefRole: profile.prefRole);
+                        },
+                        leading: Icon(
+                          Icons.face,
+                          size: 28,
+                        ),
+                        title: Text(
+                          'Preferred role',
+                        ),
+                        titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                        subtitle: Text(
+                          '${profile.prefRole.name[0].toUpperCase()}'
+                          '${profile.prefRole.name.substring(1).toLowerCase()}',
+                        ),
+                        subtitleTextStyle: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                      ),
+                      //* Logout option
+                      ListTile(
+                        onTap: () => context.read<AuthBloc>().add(AuthSignOut()),
+                        leading: Icon(
+                          Icons.logout,
+                          size: 28,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        iconColor: Theme.of(context).colorScheme.error,
+                        title: Text(
+                          'Logout',
+                        ),
+                        titleTextStyle: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Theme.of(context).colorScheme.error),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           );
@@ -229,8 +210,7 @@ void _showEditThemeDialog({
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RadioListTile<AppTheme>(
-                        title: Text('System'),
+                      RadioMenuButton<AppTheme>(
                         groupValue: selectedTheme,
                         value: AppTheme.system,
                         onChanged: (value) {
@@ -238,9 +218,9 @@ void _showEditThemeDialog({
                             () => selectedTheme = value!,
                           );
                         },
+                        child: Text('System'),
                       ),
-                      RadioListTile<AppTheme>(
-                        title: Text('Light'),
+                      RadioMenuButton<AppTheme>(
                         groupValue: selectedTheme,
                         value: AppTheme.light,
                         onChanged: (value) {
@@ -248,9 +228,9 @@ void _showEditThemeDialog({
                             () => selectedTheme = value!,
                           );
                         },
+                        child: Text('Light'),
                       ),
-                      RadioListTile<AppTheme>(
-                        title: Text('Dark'),
+                      RadioMenuButton<AppTheme>(
                         groupValue: selectedTheme,
                         value: AppTheme.dark,
                         onChanged: (value) {
@@ -258,6 +238,7 @@ void _showEditThemeDialog({
                             () => selectedTheme = value!,
                           );
                         },
+                        child: Text('Dark'),
                       ),
                     ],
                   ),
@@ -312,8 +293,7 @@ void _showEditPrefRoleDialog({
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RadioListTile<ContestRole>(
-                        title: Text('Organizer'),
+                      RadioMenuButton<ContestRole>(
                         groupValue: selectedRole,
                         value: ContestRole.organizer,
                         onChanged: (value) {
@@ -321,9 +301,9 @@ void _showEditPrefRoleDialog({
                             () => selectedRole = value!,
                           );
                         },
+                        child: Text('Organizer'),
                       ),
-                      RadioListTile<ContestRole>(
-                        title: Text('Participant'),
+                      RadioMenuButton<ContestRole>(
                         groupValue: selectedRole,
                         value: ContestRole.participant,
                         onChanged: (value) {
@@ -331,9 +311,9 @@ void _showEditPrefRoleDialog({
                             () => selectedRole = value!,
                           );
                         },
+                        child: Text('Participant'),
                       ),
-                      RadioListTile<ContestRole>(
-                        title: Text('Juror'),
+                      RadioMenuButton<ContestRole>(
                         groupValue: selectedRole,
                         value: ContestRole.juror,
                         onChanged: (value) {
@@ -341,6 +321,7 @@ void _showEditPrefRoleDialog({
                             () => selectedRole = value!,
                           );
                         },
+                        child: Text('Juror'),
                       ),
                     ],
                   ),

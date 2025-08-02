@@ -4,14 +4,14 @@ part of 'organizer_voting_form_edit_page_bloc.dart';
 final class OrganizerVotingFormEditPageState extends Equatable {
   final BlocStatus status;
   final OrganizerVotingFormEditPageEvent? sourceEvent;
-  final bool? isInitialized;
+  final bool isInitialized;
   final String? message;
   final VotingFormBundle? votingFormBundle;
 
   const OrganizerVotingFormEditPageState({
     required this.status,
     this.sourceEvent,
-    this.isInitialized,
+    this.isInitialized = false,
     this.message,
     this.votingFormBundle,
   });
@@ -44,9 +44,9 @@ final class OrganizerVotingFormEditPageState extends Equatable {
     return OrganizerVotingFormEditPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
-      isInitialized: isInitialized,
+      isInitialized: isInitialized ?? this.isInitialized,
       message: message,
-      votingFormBundle: votingFormBundle,
+      votingFormBundle: votingFormBundle ?? this.votingFormBundle,
     );
   }
 

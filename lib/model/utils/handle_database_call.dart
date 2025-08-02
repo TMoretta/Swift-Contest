@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
+import 'package:http/http.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/auth_exception_to_failure.dart';
 import 'package:swift_contest/model/utils/edge_function_exception_to_failure.dart';
@@ -13,6 +14,8 @@ Future<Either<Failure, T>> handleDatabaseCall<T>(Future<Either<Failure, T>> Func
     return await function();
   } on SocketException {
     return Either.left(const NetworkFailure());
+  } on ClientException catch (_) {
+    return Either.left(ClientFailure());
   } on AuthException catch (e) {
     return Either.left(authExceptionToFailure(e));
   } on PostgrestException catch (e) {
@@ -21,7 +24,7 @@ Future<Either<Failure, T>> handleDatabaseCall<T>(Future<Either<Failure, T>> Func
     return Either.left(edgeFunctionExceptionToFailure(e));
   } on StorageException catch (e) {
     return Either.left(storageExceptionToFailure(e));
-  } catch (e) {
+  } catch (_) {
     return Either.left(const ServerFailure());
   }
 }

@@ -1,12 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -50,100 +48,90 @@ class _AccountPageState extends State<AccountPage> {
           appBar: CustomAppBar(title: 'Account'),
           body: Builder(
             builder: (context) {
-              switch (state.blocStatus) {
-                case BlocStatus.initial:
-                  return VoidWidget();
-                case BlocStatus.loading:
-                  if (!state.isInitialized) {
-                    return VoidWidget();
-                  } else {
-                    continue successCase;
-                  }
-                case BlocStatus.failure:
-                  if (!state.isInitialized) {
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
-                      child: ListViewWithCentralLabel(label: Labels.anErrorOccurred),
-                    );
-                  } else {
-                    continue successCase;
-                  }
-                successCase:
-                case BlocStatus.success:
-                  final account = state.account!;
-                  final profile = state.profile!;
-                  return RefreshIndicator.adaptive(
-                    onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
-                    child: ListView(
-                      children: [
-                        ListTile(
-                          title: Text('Email'),
-                          titleTextStyle: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                          subtitle: Text(account.email),
-                          subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        ListTile(
-                          title: Text('Full name'),
-                          titleTextStyle: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(color: Theme.of(context).colorScheme.grey),
-                          subtitle: Text(profile.fullName),
-                          subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
-                          trailing: IconButton(
-                            onPressed: () {
-                              _showEditFullNameDialog(context: context);
-                            },
-                            icon: Icon(Icons.edit),
-                          ),
-                        ),
-                        ListTile(
-                          onTap: () async {
-                            final bool? res = await showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text('Delete account'),
-                                  content: Text(
-                                      'Are you sure you want to delete your account? This action is irreversible'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => context.router.pop(),
-                                      child: Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => context.router.pop(true),
-                                      child: Text('Proceed'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                            if (res == true) {
-                              if (context.mounted) {
-                                context.read<AuthBloc>().add(AuthDeleteAccount());
-                              }
-                            }
-                          },
-                          title: Text(
-                            'Delete account',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(color: Theme.of(context).colorScheme.error),
-                          ),
-                          leading: Icon(
-                            Icons.delete,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        )
-                      ],
+              if (!state.isInitialized) {
+                if (state.blocStatus.isFailure) {
+                  return Center(
+                    child: FilledButton(
+                      onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
+                      child: Text('Retry'),
                     ),
                   );
+                }
+                return VoidWidget();
               }
+              final account = state.account!;
+              final profile = state.profile!;
+              return RefreshIndicator.adaptive(
+                onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
+                child: ListView(
+                  children: [
+                    ListTile(
+                      title: Text('Email'),
+                      titleTextStyle: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                      subtitle: Text(account.email),
+                      subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    ListTile(
+                      title: Text('Full name'),
+                      titleTextStyle: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                      subtitle: Text(profile.fullName),
+                      subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
+                      trailing: IconButton(
+                        onPressed: () {
+                          _showEditFullNameDialog(context: context);
+                        },
+                        icon: Icon(Icons.edit),
+                      ),
+                    ),
+                    ListTile(
+                      onTap: () async {
+                        final bool? res = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Delete account'),
+                              content: Text(
+                                  'Are you sure you want to delete your account? This action is irreversible'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => context.router.pop(),
+                                  child: Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => context.router.pop(true),
+                                  child: Text('Proceed'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        if (res == true) {
+                          if (context.mounted) {
+                            context.read<AuthBloc>().add(AuthDeleteAccount());
+                          }
+                        }
+                      },
+                      title: Text(
+                        'Delete account',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Theme.of(context).colorScheme.error),
+                      ),
+                      leading: Icon(
+                        Icons.delete,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    )
+                  ],
+                ),
+              );
             },
           ),
         );

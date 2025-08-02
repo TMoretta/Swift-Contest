@@ -58,35 +58,24 @@ class _SplashPageState extends State<SplashPage> {
           body: SafeArea(
             child: Builder(
               builder: (context) {
-                switch (state.blocStatus) {
-                  case BlocStatus.failure:
-                    return RefreshIndicator(
-                      onRefresh: () async => context.read<AuthBloc>().add(AuthInit()),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return ListViewWithCentralWidget(
-                            centralWidget: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                MyLogo(),
-                                SizedBox(height: 32),
-                                Text(
-                                  'An error occurred',
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                )
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  case BlocStatus.initial:
-                  case BlocStatus.loading:
-                  case BlocStatus.success:
-                    return Center(
-                      child: MyLogo(),
-                    );
+                if (state.blocStatus.isFailure) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MyLogo(),
+                        SizedBox(height: 32),
+                        FilledButton(
+                          onPressed: () async => context.read<AuthBloc>().add(AuthInit()),
+                          child: Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
                 }
+                return Center(
+                  child: MyLogo(),
+                );
               },
             ),
           ),

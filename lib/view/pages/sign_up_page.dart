@@ -20,7 +20,9 @@ class SignUpPage extends StatefulWidget implements AutoRouteWrapper {
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<SignUpPageBloc>(
-      create: (context) => SignUpPageBloc(authRepository: context.read(),),
+      create: (context) => SignUpPageBloc(
+        authRepository: context.read(),
+      ),
       child: this,
     );
   }
@@ -102,9 +104,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
-                    SizedBox(
-                      height: 12,
-                    ),
+                    SizedBox(height: 24),
                     //* Form
                     Form(
                       key: _formKey,
@@ -152,7 +152,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
                             SizedBox(height: 5),
-                            //* Password field
+                            //* Confirm password field
                             ConstrainedBox(
                               constraints: BoxConstraints(maxWidth: 420),
                               child: CustomTextFormField(
@@ -185,30 +185,27 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
                             //* Sign in instead button
-                            Align(
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('Already have an account?'),
-                                  TextButton(
-                                    onPressed: () {
-                                      context.router.replace(SignInRoute());
-                                    },
-                                    style: ButtonStyle(),
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: Theme.of(context).colorScheme.primary,
-                                          ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('Already have an account?'),
+                                TextButton(
+                                  onPressed: () {
+                                    context.router.replace(SignInRoute());
+                                  },
+                                  style: ButtonStyle(),
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Theme.of(context).colorScheme.primary,
                                         ),
                                       ),
-                                      child: Text('Sign in'),
                                     ),
+                                    child: Text('Sign in'),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                             SizedBox(height: 24),
                             //* Vote as a simple juror button
