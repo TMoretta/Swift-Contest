@@ -10,7 +10,6 @@ import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_home_page_bloc/organizer_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
@@ -26,30 +25,15 @@ class OrganizerHomePage extends StatefulWidget implements AutoRouteWrapper {
     return BlocProvider(
       create: (context) => OrganizerHomePageBloc(
         organizerRepository: context.read(),
-      ),
+      )..add(OrganizerHomePageFetch()),
       child: this,
     );
   }
 }
 
 class _OrganizerHomePageState extends State<OrganizerHomePage> {
-  late String profileId;
-  late final FocusNode _searchFocusNode;
-  late final TextEditingController _searchController;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchFocusNode = FocusNode();
-    _searchController = TextEditingController();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
-    context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
-  }
+  final FocusNode _searchFocusNode = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void dispose() {
@@ -74,20 +58,24 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: HomePageAppBar(
-              contestRole: ContestRole.organizer),
+          appBar: HomePageAppBar(contestRole: ContestRole.organizer),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: Builder(
                 builder: (context) {
-                  if(!state.isInitialized) {
-                    if(state.status.isFailure) {
-                      return Center(child: FilledButton(onPressed: () async {
-                        _searchController.clear();
-                        _searchFocusNode.unfocus();
-                        context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
-                      }, child: Text('Retry'),),);
+                  if (!state.isInitialized) {
+                    if (state.status.isFailure) {
+                      return Center(
+                        child: FilledButton(
+                          onPressed: () async {
+                            _searchController.clear();
+                            _searchFocusNode.unfocus();
+                            context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
+                          },
+                          child: Text('Retry'),
+                        ),
+                      );
                     }
                     return VoidWidget();
                   }
@@ -112,36 +100,35 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                           },
                           child: (state.filteredContestsBundles!.isNotEmpty)
                               ? ListView.builder(
-                            itemCount: state.filteredContestsBundles!.length,
-                            itemBuilder: (context, index) {
-                              final homeContestBundle =
-                              state.filteredContestsBundles![index];
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ContestCard(
-                                    homeContestBundle: homeContestBundle,
-                                    onTap: () async {
-                                      final bool? res = await context.router.push(
-                                          OrganizerContestDetailsRoute(
-                                              contestId: homeContestBundle
-                                                  .contestBundle.contest.id!));
-                                      if (res == true) {
-                                        if (context.mounted) {
-                                          context
-                                              .read<OrganizerHomePageBloc>()
-                                              .add(OrganizerHomePageFetch());
-                                        }
-                                      }
-                                    },
-                                  ),
-                                  (index == state.filteredContestsBundles!.length - 1)
-                                      ? SizedBox(height: 72)
-                                      : SizedBox(height: 8),
-                                ],
-                              );
-                            },
-                          )
+                                  itemCount: state.filteredContestsBundles!.length,
+                                  itemBuilder: (context, index) {
+                                    final homeContestBundle = state.filteredContestsBundles![index];
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ContestCard(
+                                          homeContestBundle: homeContestBundle,
+                                          onTap: () async {
+                                            final bool? res = await context.router.push(
+                                                OrganizerContestDetailsRoute(
+                                                    contestId: homeContestBundle
+                                                        .contestBundle.contest.id!));
+                                            if (res == true) {
+                                              if (context.mounted) {
+                                                context
+                                                    .read<OrganizerHomePageBloc>()
+                                                    .add(OrganizerHomePageFetch());
+                                              }
+                                            }
+                                          },
+                                        ),
+                                        (index == state.filteredContestsBundles!.length - 1)
+                                            ? SizedBox(height: 72)
+                                            : SizedBox(height: 8),
+                                      ],
+                                    );
+                                  },
+                                )
                               : ListViewWithCentralLabel(label: 'No contest'),
                         ),
                       ),

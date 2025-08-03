@@ -34,7 +34,7 @@ class OrganizerContestDetailsPage extends StatefulWidget implements AutoRouteWra
     return BlocProvider<OrganizerContestDetailsPageBloc>(
       create: (context) => OrganizerContestDetailsPageBloc(
         organizerRepository: context.read(),
-      ),
+      )..add(OrganizerContestDetailsPageFetch(contestId: contestId)),
       child: this,
     );
   }
@@ -47,14 +47,6 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
   void initState() {
     super.initState();
     contestId = widget.contestId;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context
-        .read<OrganizerContestDetailsPageBloc>()
-        .add(OrganizerContestDetailsPageFetch(contestId: contestId));
   }
 
   @override

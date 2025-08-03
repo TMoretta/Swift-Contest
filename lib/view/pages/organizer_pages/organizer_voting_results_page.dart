@@ -72,100 +72,80 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
         }
       },
       builder: (context, state) {
-        return Placeholder();
-        // return Scaffold(
-        //   appBar: CustomAppBar(
-        //       title: state.votingSessionResultBundle?.votingSessionBundle.votingSession.name ?? ''),
-        //   body: SafeArea(
-        //     child: Padding(
-        //       padding: EdgeInsets.only(left: 16, top: 16, right: 16),
-        //       child: Builder(
-        //         builder: (context) {
-        //           switch (state.status) {
-        //             case BlocStatus.initial:
-        //               return VoidWidget();
-        //             case BlocStatus.loading:
-        //               if (!state.isInitialized) {
-        //                 return VoidWidget();
-        //               } else {
-        //                 continue successCase;
-        //               }
-        //             case BlocStatus.failure:
-        //               if (!state.isInitialized) {
-        //                 return RefreshIndicator.adaptive(
-        //                   onRefresh: () async => context.read<OrganizerVotingResultsPageBloc>().add(
-        //                       OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)),
-        //                   child: ListView(
-        //                     children: [
-        //                       Text('An error occurred'),
-        //                     ],
-        //                   ),
-        //                 );
-        //               } else {
-        //                 continue successCase;
-        //               }
-        //             successCase:
-        //             case BlocStatus.success:
-        //               final votingSession =
-        //                   state.votingSessionResultBundle!.votingSessionBundle.votingSession;
-        //               return RefreshIndicator.adaptive(
-        //                 onRefresh: () async => context.read<OrganizerVotingResultsPageBloc>().add(
-        //                     OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)),
-        //                 child: ListView(
-        //                   children: [
-        //                     Text('Voting session',style: Theme.of(context).textTheme.titleMedium,),
-        //                     Card(
-        //                       elevation: 0.5,
-        //                       color: Theme.of(context).colorScheme.tertiaryContainer,
-        //                       child: ListTile(
-        //                         title: Text(
-        //                           votingSession.name,
-        //                           maxLines: 1,
-        //                           overflow: TextOverflow.ellipsis,
-        //                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        //                               color: Theme.of(context).colorScheme.onPrimaryContainer),
-        //                         ),
-        //                         subtitle: Text(
-        //                           DateFormat('dd MMM, yyyy | HH:mm').format(votingSession.createdAt!),
-        //                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        //                               color: Theme.of(context).colorScheme.onPrimaryContainer),
-        //                         ),
-        //                         trailing: IconButton(
-        //                           onPressed: () {
-        //                             _showEditVotingSessionNameDialog(
-        //                                 context: context, votingSessionId: votingSession.id!);
-        //                           },
-        //                           icon: Icon(
-        //                             Icons.edit,
-        //                             color: Theme.of(context).colorScheme.onPrimaryContainer,
-        //                           ),
-        //                         ),
-        //                       ),
-        //                     ),
-        //                     SizedBox(height: 16),
-        //                     Text('Juries',style: Theme.of(context).textTheme.titleMedium,),
-        //                     ...state.votingSessionResultBundle!.votingSessionJuriesBundles
-        //                         .map((votingSessionJuryBundle) {
-        //                       return Card(
-        //                         elevation: 0,
-        //                         child: ListTile(
-        //                           onTap: () {
-        //                             context.router.push(OrganizerJuryVotingResultsRoute(votingSessionJuryId: votingSessionJuryBundle.votingSessionJury.id!));
-        //                           },
-        //                           title: Text(votingSessionJuryBundle.votingSessionJury.juryName),
-        //                           subtitle: Text('Submissions: ${state.votingSessionResultBundle!.participantsVotingsPerJurorMap.length.toString()}'),
-        //                         ),
-        //                       );
-        //                     }),
-        //                   ],
-        //                 ),
-        //               );
-        //           }
-        //         },
-        //       ),
-        //     ),
-        //   ),
-        // );
+        return Scaffold(
+          appBar: CustomAppBar(
+              title: state.votingSessionResultBundle?.votingSessionBundle.votingSession.name ?? ''),
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+              child: Builder(
+                builder: (context) {
+                  if(!state.isInitialized) {
+                    if(state.status.isFailure) {
+                      return Center(child: FilledButton(onPressed: () async => context.read<OrganizerVotingResultsPageBloc>().add(
+                          OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)), child: Text('Retry'),),);
+                    }
+                    return VoidWidget();
+                  }
+                  final votingSession =
+                      state.votingSessionResultBundle!.votingSessionBundle.votingSession;
+                  return RefreshIndicator.adaptive(
+                    onRefresh: () async => context.read<OrganizerVotingResultsPageBloc>().add(
+                        OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)),
+                    child: ListView(
+                      children: [
+                        Text('Voting session',style: Theme.of(context).textTheme.titleMedium,),
+                        Card(
+                          elevation: 0.5,
+                          color: Theme.of(context).colorScheme.tertiaryContainer,
+                          child: ListTile(
+                            title: Text(
+                              votingSession.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimaryContainer),
+                            ),
+                            subtitle: Text(
+                              DateFormat('dd MMM, yyyy | HH:mm').format(votingSession.createdAt!),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimaryContainer),
+                            ),
+                            trailing: IconButton(
+                              onPressed: () {
+                                _showEditVotingSessionNameDialog(
+                                    context: context, votingSessionId: votingSession.id!);
+                              },
+                              icon: Icon(
+                                Icons.edit,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text('Juries',style: Theme.of(context).textTheme.titleMedium,),
+                        ...state.votingSessionResultBundle!.votingSessionJuriesBundles
+                            .map((votingSessionJuryBundle) {
+                          return Card(
+                            elevation: 0,
+                            child: ListTile(
+                              onTap: () {
+                                context.router.push(OrganizerJuryVotingResultsRoute(votingSessionJuryId: votingSessionJuryBundle.votingSessionJury.id!));
+                              },
+                              title: Text(votingSessionJuryBundle.votingSessionJury.juryName),
+                              subtitle: Text('Submissions: ${votingSessionJuryBundle.votingSessionJurors.where((e) => e.hasSubmitted).length}'),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
       },
     );
   }

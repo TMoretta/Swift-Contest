@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_widget.dart';
 import 'package:swift_contest/view/widgets/my_logo.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -22,7 +21,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthInit(delay: 1));
+    context.read<AuthBloc>().add(AuthFetch(delay: 1));
   }
 
   @override
@@ -66,7 +65,7 @@ class _SplashPageState extends State<SplashPage> {
                         MyLogo(),
                         SizedBox(height: 32),
                         FilledButton(
-                          onPressed: () async => context.read<AuthBloc>().add(AuthInit()),
+                          onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
                           child: Text('Retry'),
                         ),
                       ],

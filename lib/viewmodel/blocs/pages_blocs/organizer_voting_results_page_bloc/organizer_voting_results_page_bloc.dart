@@ -49,19 +49,19 @@ class OrganizerVotingResultsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    // late final VotingSessionResultBundle votingSessionBundle;
-    // final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionResultDetails(
-    //     votingSessionId: event.votingSessionId);
-    // eitherVotingSessionBundle.fold(
-    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-    //   (success) => votingSessionBundle = success,
-    // );
-    //
-    // emit(state.copyWith(
-    //   status: BlocStatus.success,
-    //   isInitialized: true,
-    //   votingSessionResultBundle: votingSessionBundle,
-    // ));
+    late final VotingSessionResultBundle votingSessionBundle;
+    final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionResultDetails(
+        votingSessionId: event.votingSessionId);
+    eitherVotingSessionBundle.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => votingSessionBundle = success,
+    );
+
+    emit(state.copyWith(
+      status: BlocStatus.success,
+      isInitialized: true,
+      votingSessionResultBundle: votingSessionBundle,
+    ));
   }
 
   FutureOr<void> _editVotingSessionName(

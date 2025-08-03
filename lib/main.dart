@@ -24,8 +24,8 @@ import 'package:swift_contest/model/database/daos/voting_form_submission_dao.dar
 import 'package:swift_contest/model/database/daos/voting_form_submission_value_dao.dart';
 import 'package:swift_contest/model/database/daos/voting_session_dao.dart';
 import 'package:swift_contest/model/database/daos/voting_session_exclusion_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_juration_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_participation_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_juror_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_participant_dao.dart';
 import 'package:swift_contest/model/database/daos/work_dao.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
@@ -77,7 +77,6 @@ void main() async {
     await HydratedBloc.storage.clear();
   }
 
-
   final SupabaseClient supabase = Supabase.instance.client;
   final AccountDao accountDao = AccountDaoImpl(supabase: supabase);
   final ContestDao contestDao = ContestDaoImpl(supabase: supabase);
@@ -97,9 +96,9 @@ void main() async {
   final VotingSessionDao votingSessionDao = VotingSessionDaoImpl(supabase: supabase);
   final VotingSessionExclusionDao votingSessionExclusionDao =
       VotingSessionExclusionDaoImpl(supabase: supabase);
-  final VotingSessionJurationDao votingSessionJurationDao =
+  final VotingSessionJurorDao votingSessionJurationDao =
       VotingSessionJurationDaoImpl(supabase: supabase);
-  final VotingSessionParticipationDao votingSessionParticipationDao =
+  final VotingSessionParticipantDao votingSessionParticipationDao =
       VotingSessionParticipationDaoImpl(supabase: supabase);
   final WorkDao workDao = WorkDaoImpl(supabase: supabase);
   final sharedPreferencesInstance = await SharedPreferences.getInstance();

@@ -1,77 +1,83 @@
 import 'package:equatable/equatable.dart';
+import 'package:swift_contest/model/database/bundles/voting_form_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_form_submission_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_bundle.dart';
-import 'package:swift_contest/model/database/bundles/voting_session_jury_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_session_exclusion.dart';
+import 'package:swift_contest/model/database/entities/voting_session_jury.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 
-class VotingSessionJuryResultBundle extends Equatable {
+class VotingSessionJurorResultBundle extends Equatable {
   final VotingSessionBundle votingSessionBundle;
-  final VotingSessionJuryBundle votingSessionJuryBundle;
+  final VotingSessionJury votingSessionJury;
+  final VotingFormBundle votingFormBundle;
   final List<VotingSessionParticipant> votingSessionParticipants;
   final List<VotingSessionExclusion> votingSessionExclusions;
-  final List<VotingFormSubmissionBundle> votingFormSubmissionsBundles;
+  final VotingFormSubmissionBundle votingFormSubmissionBundle;
 
-  const VotingSessionJuryResultBundle({
+  const VotingSessionJurorResultBundle({
     required this.votingSessionBundle,
-    required this.votingSessionJuryBundle,
+    required this.votingSessionJury,
+    required this.votingFormBundle,
     required this.votingSessionParticipants,
     required this.votingSessionExclusions,
-    required this.votingFormSubmissionsBundles,
+    required this.votingFormSubmissionBundle,
   });
 
-  factory VotingSessionJuryResultBundle.fromJson(Map<String, dynamic> json) {
-    return VotingSessionJuryResultBundle(
+  factory VotingSessionJurorResultBundle.fromJson(Map<String, dynamic> json) {
+    return VotingSessionJurorResultBundle(
       votingSessionBundle: VotingSessionBundle.fromJson(json['voting_session_bundle']),
-      votingSessionJuryBundle: VotingSessionJuryBundle.fromJson(json['voting_session_jury_bundle']),
+      votingSessionJury: VotingSessionJury.fromJson(json['voting_session_jury']),
+      votingFormBundle: VotingFormBundle.fromJson(json['voting_form_bundle']),
       votingSessionParticipants: (json['voting_session_participants'] as List<dynamic>)
           .map((e) => VotingSessionParticipant.fromJson(e))
           .toList(growable: false),
       votingSessionExclusions: (json['voting_session_exclusions'] as List<dynamic>)
           .map((e) => VotingSessionExclusion.fromJson(e))
           .toList(growable: false),
-      votingFormSubmissionsBundles: (json['voting_form_submissions_bundles'] as List<dynamic>)
-          .map((e) => VotingFormSubmissionBundle.fromJson(e))
-          .toList(growable: false),
+      votingFormSubmissionBundle:
+          VotingFormSubmissionBundle.fromJson(json['voting_form_submission_bundle']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'voting_session_bundle': votingSessionBundle.toJson(),
-      'voting_session_jury_bundle': votingSessionJuryBundle.toJson(),
+      'voting_session_jury': votingSessionJury.toJson(),
+      'voting_form_bundle': votingFormBundle.toJson(),
       'voting_session_participants':
           votingSessionParticipants.map((e) => e.toJson()).toList(growable: false),
       'voting_session_exclusions':
           votingSessionExclusions.map((e) => e.toJson()).toList(growable: false),
-      'voting_form_submissions_bundles':
-          votingFormSubmissionsBundles.map((e) => e.toJson()).toList(growable: false),
+      'voting_form_submission_bundle': votingFormSubmissionBundle.toJson(),
+
     };
   }
 
-  VotingSessionJuryResultBundle copyWith({
+  VotingSessionJurorResultBundle copyWith({
     VotingSessionBundle? votingSessionBundle,
-    VotingSessionJuryBundle? votingSessionJuryBundle,
+    VotingSessionJury? votingSessionJury,
+    VotingFormBundle? votingFormBundle,
     List<VotingSessionParticipant>? votingSessionParticipants,
     List<VotingSessionExclusion>? votingSessionExclusions,
-    List<VotingFormSubmissionBundle>? votingFormSubmissionsBundles,
+    VotingFormSubmissionBundle? votingFormSubmissionBundle,
   }) {
-    return VotingSessionJuryResultBundle(
+    return VotingSessionJurorResultBundle(
       votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
-      votingSessionJuryBundle: votingSessionJuryBundle ?? this.votingSessionJuryBundle,
+      votingSessionJury: votingSessionJury ?? this.votingSessionJury,
+      votingFormBundle: votingFormBundle ?? this.votingFormBundle,
       votingSessionParticipants: votingSessionParticipants ?? this.votingSessionParticipants,
       votingSessionExclusions: votingSessionExclusions ?? this.votingSessionExclusions,
-      votingFormSubmissionsBundles: votingFormSubmissionsBundles ?? this.votingFormSubmissionsBundles,
+      votingFormSubmissionBundle: votingFormSubmissionBundle ?? this.votingFormSubmissionBundle,
     );
   }
 
   @override
   List<Object?> get props => [
         votingSessionBundle,
-        votingSessionJuryBundle,
+        votingSessionJury,
+        votingFormBundle,
         votingSessionParticipants,
         votingSessionExclusions,
-        votingFormSubmissionsBundles,
+        votingFormSubmissionBundle,
       ];
 }
-

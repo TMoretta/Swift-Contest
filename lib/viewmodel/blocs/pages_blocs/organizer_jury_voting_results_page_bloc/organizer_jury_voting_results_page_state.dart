@@ -6,23 +6,23 @@ final class OrganizerJuryVotingResultsPageState extends Equatable {
   final bool isInitialized;
   final OrganizerJuryVotingResultsPageEvent? sourceEvent;
   final String? message;
-  // final VotingSessionJuryResultBundle? votingSessionJuryResultBundle;
+  final VotingSessionJuryResultBundle? votingSessionJuryResultBundle;
 
   const OrganizerJuryVotingResultsPageState({
     required this.status,
     this.isInitialized = false,
     this.sourceEvent,
     this.message,
-    // this.votingSessionJuryResultBundle,
+    this.votingSessionJuryResultBundle,
   });
 
   factory OrganizerJuryVotingResultsPageState.fromJson(Map<String, dynamic> json) {
     return OrganizerJuryVotingResultsPageState(
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['is_initialized'] as bool,
-      // votingSessionJuryResultBundle: (json['voting_session_jury_result_bundle'] != null)
-      //     ? VotingSessionJuryResultBundle.fromJson(json['voting_session_jury_result_bundle'])
-      //     : null,
+      votingSessionJuryResultBundle: (json['voting_session_jury_result_bundle'] != null)
+          ? VotingSessionJuryResultBundle.fromJson(json['voting_session_jury_result_bundle'])
+          : null,
     );
   }
 
@@ -30,7 +30,7 @@ final class OrganizerJuryVotingResultsPageState extends Equatable {
     return {
       'status': status.name,
       'is_initialized': isInitialized,
-      // 'voting_session_jury_result_bundle': votingSessionJuryResultBundle?.toJson(),
+      'voting_session_jury_result_bundle': votingSessionJuryResultBundle?.toJson(),
     };
   }
 
@@ -39,14 +39,14 @@ final class OrganizerJuryVotingResultsPageState extends Equatable {
     bool? isInitialized,
     OrganizerJuryVotingResultsPageEvent? sourceEvent,
     String? message,
-    // VotingSessionJuryResultBundle? votingSessionJuryResultBundle,
+    VotingSessionJuryResultBundle? votingSessionJuryResultBundle,
   }) {
     return OrganizerJuryVotingResultsPageState(
       status: status,
       isInitialized: isInitialized ?? this.isInitialized,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
-      // votingSessionJuryResultBundle: votingSessionJuryResultBundle ?? this.votingSessionJuryResultBundle,
+      votingSessionJuryResultBundle: votingSessionJuryResultBundle ?? this.votingSessionJuryResultBundle,
     );
   }
 
@@ -56,6 +56,6 @@ final class OrganizerJuryVotingResultsPageState extends Equatable {
         isInitialized,
         sourceEvent,
         message,
-        // votingSessionJuryResultBundle,
+        votingSessionJuryResultBundle,
       ];
 }

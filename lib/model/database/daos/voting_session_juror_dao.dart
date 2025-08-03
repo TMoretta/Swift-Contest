@@ -6,9 +6,9 @@ import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 
-abstract interface class VotingSessionJurationDao implements Dao<VotingSessionJuror> {}
+abstract interface class VotingSessionJurorDao implements Dao<VotingSessionJuror> {}
 
-class VotingSessionJurationDaoImpl implements VotingSessionJurationDao {
+class VotingSessionJurationDaoImpl implements VotingSessionJurorDao {
   final SupabaseClient _supabase;
 
   VotingSessionJurationDaoImpl({required SupabaseClient supabase}) : _supabase = supabase;

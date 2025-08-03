@@ -5,7 +5,10 @@ import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
 import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_form_bundle.dart';
+import 'package:swift_contest/model/database/bundles/voting_session_juror_result_bundle.dart';
+import 'package:swift_contest/model/database/bundles/voting_session_jury_result_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
+import 'package:swift_contest/model/database/bundles/voting_session_result_bundle.dart';
 import 'package:swift_contest/model/database/daos/account_dao.dart';
 import 'package:swift_contest/model/database/daos/contest_dao.dart';
 import 'package:swift_contest/model/database/daos/juration_dao.dart';
@@ -118,13 +121,17 @@ abstract interface class OrganizerRepository {
 
   Future<Either<Failure, Unit>> cancelVotingSession({required String votingSessionId});
 
-  // Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultDetails({
-  //   required String votingSessionId,
-  // });
-  //
-  // Future<Either<Failure, VotingSessionJuryResultBundle>> getJuryVotingSessionResultDetails({
-  //   required String votingSessionJuryId,
-  // });
+  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultDetails({
+    required String votingSessionId,
+  });
+
+  Future<Either<Failure, VotingSessionJuryResultBundle>> getVotingSessionJuryResultDetails({
+    required String votingSessionJuryId,
+  });
+
+  Future<Either<Failure, VotingSessionJurorResultBundle>> getVotingSessionJurorResultDetails({
+    required String votingSessionJurorId,
+  });
 
   Future<Either<Failure, Unit>> updateVotingSessionName({
     required String votingSessionId,
@@ -592,49 +599,53 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     );
   }
 
-  // @override
-  // Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultDetails({
-  //   required String votingSessionId,
-  // }) {
-  //   // Uso un gestore di chiamate generico per il try-catch e la gestione degli errori.
-  //   // Se non ne hai uno, puoi usare un blocco try-catch standard.
-  //   return handleDatabaseCall(
-  //     () async {
-  //       // Esegue la chiamata alla funzione RPC sul database.
-  //       final result = await _supabase.rpc(
-  //         'get_voting_session_result_details',
-  //         params: {'p_voting_session_id': votingSessionId},
-  //       );
-  //
-  //       // La RPC restituisce un singolo oggetto jsonb, che il client Supabase
-  //       // interpreta come Map<String, dynamic>.
-  //       // Passiamo questa mappa al nostro costruttore factory per creare l'oggetto complesso.
-  //       final bundle = VotingSessionResultBundle.fromRawJson(result as Map<String, dynamic>);
-  //
-  //       // Restituisce il bundle in caso di successo.
-  //       return Either.right(bundle);
-  //     },
-  //   );
-  // }
-  //
-  // @override
-  // Future<Either<Failure, VotingSessionJuryResultBundle>> getJuryVotingSessionResultDetails({required String votingSessionJuryId,}) async {
-  //   return handleDatabaseCall(() async{
-  //     // Esegue la chiamata alla funzione RPC sul database.
-  //     final result = await _supabase.rpc(
-  //       'organizer_get_voting_session_jury_result_details',
-  //       params: {'p_voting_session_jury_id': votingSessionJuryId},
-  //     );
-  //
-  //     // La RPC restituisce un singolo oggetto jsonb, che il client Supabase
-  //     // interpreta come Map<String, dynamic>.
-  //     // Passiamo questa mappa al nostro costruttore factory per creare l'oggetto complesso.
-  //     final bundle = VotingSessionJuryResultBundle.fromRawJson(result as Map<String, dynamic>);
-  //
-  //     // Restituisce il bundle in caso di successo.
-  //     return Either.right(bundle);
-  //   },);
-  // }
+  @override
+  Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultDetails({
+    required String votingSessionId,
+  }) {
+    // Uso un gestore di chiamate generico per il try-catch e la gestione degli errori.
+    // Se non ne hai uno, puoi usare un blocco try-catch standard.
+    return handleDatabaseCall(
+      () async {
+        // Esegue la chiamata alla funzione RPC sul database.
+        final result = await _supabase.rpc(
+          'organizer_get_voting_session_result_bundle',
+          params: {'p_voting_session_id': votingSessionId},
+        ).single();
+
+        // Restituisce il bundle in caso di successo.
+        return Either.right(VotingSessionResultBundle.fromJson(result));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionJuryResultBundle>> getVotingSessionJuryResultDetails({required String votingSessionJuryId,}) async {
+    return handleDatabaseCall(() async{
+      // Esegue la chiamata alla funzione RPC sul database.
+      final result = await _supabase.rpc(
+        'organizer_get_voting_session_jury_result_bundle',
+        params: {'p_voting_session_jury_id': votingSessionJuryId},
+      ).single();
+
+      // Restituisce il bundle in caso di successo.
+      return Either.right(VotingSessionJuryResultBundle.fromJson(result));
+    },);
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionJurorResultBundle>> getVotingSessionJurorResultDetails({required String votingSessionJurorId,}) async {
+    return handleDatabaseCall(() async{
+      // Esegue la chiamata alla funzione RPC sul database.
+      final result = await _supabase.rpc(
+        'organizer_get_voting_session_juror_result_bundle',
+        params: {'p_voting_session_juror_id': votingSessionJurorId},
+      ).single();
+
+      // Restituisce il bundle in caso di successo.
+      return Either.right(VotingSessionJurorResultBundle.fromJson(result));
+    },);
+  }
 }
 
 // {

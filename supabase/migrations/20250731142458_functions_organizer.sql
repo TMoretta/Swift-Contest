@@ -562,3 +562,311 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region ORGANIZER GET VOTING SESSION RESULT BUNDLE
+-- Retrieves the complete result data for a voting session, intended for the contest organizer.
+-- This function bundles the session details, all its juries, their forms, and their jurors.
+CREATE OR REPLACE FUNCTION organizer_get_voting_session_result_bundle(p_voting_session_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_contest_organizer_id uuid;
+  result_bundle jsonb;
+BEGIN
+  -- STEP 1: Security Check
+  -- Find the organizer_id of the contest this voting session belongs to.
+  SELECT c.organizer_id
+  INTO v_contest_organizer_id
+  FROM public.voting_sessions vs
+  JOIN public.contests c ON vs.contest_id = c.id
+  WHERE vs.id = p_voting_session_id;
+
+  -- If no session is found, or if the caller is not the organizer, raise an exception.
+  IF NOT FOUND OR v_contest_organizer_id <> auth.uid() THEN
+    RAISE EXCEPTION 'Access denied: You are not the organizer of this contest or the session does not exist.';
+  END IF;
+
+  -- STEP 2: Build the final JSON bundle
+  SELECT jsonb_build_object(
+    -- Part 1: 'voting_session_bundle'
+    'voting_session_bundle', (
+      SELECT jsonb_build_object(
+        'voting_session', to_jsonb(vs),
+        'geo_res_place', to_jsonb(pl)
+      )
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.id = p_voting_session_id
+    ),
+
+    -- Part 2: 'voting_session_juries_bundles'
+    'voting_session_juries_bundles', (
+      SELECT COALESCE(jsonb_agg(jsonb_build_object(
+        'voting_session_jury', to_jsonb(vsj),
+        'voting_form_bundle', (
+            SELECT jsonb_build_object(
+              'voting_form', to_jsonb(vf),
+              'voting_form_fields', COALESCE((SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index) FROM public.voting_form_fields vff WHERE vff.voting_form_id = vsj.voting_form_id), '[]'::jsonb)
+            ) FROM public.voting_forms vf WHERE vf.id = vsj.voting_form_id
+        ),
+        'voting_session_jurors', COALESCE((SELECT jsonb_agg(to_jsonb(vsjuror) ORDER BY vsjuror.juror_full_name) FROM public.voting_session_jurors vsjuror WHERE vsjuror.voting_session_jury_id = vsj.id), '[]'::jsonb)
+      )), '[]'::jsonb)
+      FROM public.voting_session_juries vsj
+      WHERE vsj.voting_session_id = p_voting_session_id
+    )
+  )
+  INTO result_bundle;
+
+  RETURN result_bundle;
+END;
+$$;
+--endregion
+
+--region ORGANIZER GET VOTING SESSION JURY RESULT BUNDLE
+-- Retrieves the complete result data for a specific jury within a voting session.
+-- This is intended for the contest organizer to view detailed results for one jury.
+CREATE OR REPLACE FUNCTION organizer_get_voting_session_jury_result_bundle(p_voting_session_jury_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_voting_session_id uuid;
+  v_contest_organizer_id uuid;
+  result_bundle jsonb;
+BEGIN
+  -- STEP 1: Security Check & Get Session ID
+  -- Find the organizer_id and session_id associated with the given jury.
+  SELECT vsj.voting_session_id, c.organizer_id
+  INTO v_voting_session_id, v_contest_organizer_id
+  FROM public.voting_session_juries vsj
+  JOIN public.voting_sessions vs ON vsj.voting_session_id = vs.id
+  JOIN public.contests c ON vs.contest_id = c.id
+  WHERE vsj.id = p_voting_session_jury_id;
+
+  -- If no jury is found, or if the caller is not the organizer, raise an exception.
+  IF NOT FOUND OR v_contest_organizer_id <> auth.uid() THEN
+    RAISE EXCEPTION 'Access denied: You are not the organizer of this contest or the jury does not exist.';
+  END IF;
+
+  -- STEP 2: Build the final JSON bundle
+  SELECT jsonb_build_object(
+    -- 1. 'voting_session_bundle'
+    'voting_session_bundle', (
+      SELECT jsonb_build_object(
+        'voting_session', to_jsonb(vs),
+        'geo_res_place', to_jsonb(pl)
+      )
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.id = v_voting_session_id
+    ),
+
+    -- 2. 'voting_session_jury_bundle'
+    'voting_session_jury_bundle', (
+      SELECT jsonb_build_object(
+        'voting_session_jury', to_jsonb(vsj),
+        'voting_form_bundle', (
+          SELECT jsonb_build_object(
+            'voting_form', to_jsonb(vf),
+            'voting_form_fields', COALESCE(
+              (SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+               FROM public.voting_form_fields vff
+               WHERE vff.voting_form_id = vsj.voting_form_id),
+              '[]'::jsonb
+            )
+          )
+          FROM public.voting_forms vf
+          WHERE vf.id = vsj.voting_form_id
+        ),
+        'voting_session_jurors', COALESCE(
+          (SELECT jsonb_agg(to_jsonb(vsjuror) ORDER BY vsjuror.juror_full_name)
+           FROM public.voting_session_jurors vsjuror
+           WHERE vsjuror.voting_session_jury_id = vsj.id),
+          '[]'::jsonb
+        )
+      )
+      FROM public.voting_session_juries vsj
+      WHERE vsj.id = p_voting_session_jury_id
+    ),
+
+    -- 3. 'voting_session_participants'
+    'voting_session_participants', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index), '[]'::jsonb)
+      FROM public.voting_session_participants vsp
+      WHERE vsp.voting_session_id = v_voting_session_id
+    ),
+
+    -- 4. 'voting_session_exclusions' (for this jury only)
+    'voting_session_exclusions', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vse)), '[]'::jsonb)
+      FROM public.voting_session_exclusions vse
+      WHERE vse.voting_session_juror_id IN (
+        SELECT id FROM public.voting_session_jurors WHERE voting_session_jury_id = p_voting_session_jury_id
+      )
+    ),
+
+    -- 5. 'voting_form_submissions_bundles'
+    'voting_form_submissions_bundles', (
+      SELECT COALESCE(jsonb_agg(
+        jsonb_build_object(
+          'voting_form_submission', to_jsonb(vfs),
+          'voting_session_juror', (
+            SELECT to_jsonb(vsj) FROM public.voting_session_jurors vsj WHERE vsj.id = vfs.voting_session_juror_id
+          ),
+          'voting_form_submission_values_bundles', (
+            SELECT COALESCE(jsonb_agg(
+              jsonb_build_object(
+                'voting_form_submission_value', to_jsonb(vfsv),
+                'voting_form_field', (
+                  SELECT to_jsonb(vff) FROM public.voting_form_fields vff WHERE vff.id = vfsv.voting_form_field_id
+                ),
+                'voting_session_participant', (
+                  SELECT to_jsonb(vsp) FROM public.voting_session_participants vsp WHERE vsp.id = vfsv.voting_session_participant_id
+                )
+              )
+            ), '[]'::jsonb)
+            FROM public.voting_form_submission_values vfsv
+            WHERE vfsv.voting_form_submission_id = vfs.id
+          )
+        )
+      ), '[]'::jsonb)
+      FROM public.voting_form_submissions vfs
+      JOIN public.voting_session_jurors vsj ON vfs.voting_session_juror_id = vsj.id
+      WHERE vsj.voting_session_jury_id = p_voting_session_jury_id
+    )
+
+  )
+  INTO result_bundle;
+
+  RETURN result_bundle;
+END;
+$$;
+--endregion
+
+--region ORGANIZER GET VOTING SESSION JUROR RESULT BUNDLE
+-- Retrieves the complete result data for a specific juror within a voting session.
+-- This is intended for the contest organizer to view detailed results for one juror.
+CREATE OR REPLACE FUNCTION organizer_get_voting_session_juror_result_bundle(p_voting_session_juror_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  v_voting_session_id uuid;
+  v_voting_session_jury_id uuid;
+  v_contest_organizer_id uuid;
+  v_voting_form_id uuid;
+  result_bundle jsonb;
+BEGIN
+  -- STEP 1: Security Check & Get Key IDs
+  -- Find the organizer_id and other necessary IDs associated with the given juror.
+  SELECT
+      vsj2.voting_session_id,
+      vsj.voting_session_jury_id,
+      c.organizer_id,
+      vsj2.voting_form_id
+  INTO
+      v_voting_session_id,
+      v_voting_session_jury_id,
+      v_contest_organizer_id,
+      v_voting_form_id
+  FROM public.voting_session_jurors vsj
+  JOIN public.voting_session_juries vsj2 ON vsj.voting_session_jury_id = vsj2.id
+  JOIN public.voting_sessions vs ON vsj2.voting_session_id = vs.id
+  JOIN public.contests c ON vs.contest_id = c.id
+  WHERE vsj.id = p_voting_session_juror_id;
+
+  -- If no juror is found, or if the caller is not the organizer, raise an exception.
+  IF NOT FOUND OR v_contest_organizer_id <> auth.uid() THEN
+    RAISE EXCEPTION 'Access denied: You are not the organizer of this contest or the juror does not exist.';
+  END IF;
+
+  -- STEP 2: Build the final JSON bundle
+  SELECT jsonb_build_object(
+    -- 1. 'voting_session_bundle'
+    'voting_session_bundle', (
+      SELECT jsonb_build_object(
+        'voting_session', to_jsonb(vs),
+        'geo_res_place', to_jsonb(pl)
+      )
+      FROM public.voting_sessions vs
+      LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+      WHERE vs.id = v_voting_session_id
+    ),
+
+    -- 2. 'voting_session_jury'
+    'voting_session_jury', (
+        SELECT to_jsonb(vsj)
+        FROM public.voting_session_juries vsj
+        WHERE vsj.id = v_voting_session_jury_id
+    ),
+
+    -- 3. 'voting_form_bundle'
+    'voting_form_bundle', (
+      SELECT jsonb_build_object(
+        'voting_form', to_jsonb(vf),
+        'voting_form_fields', COALESCE(
+          (SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+           FROM public.voting_form_fields vff
+           WHERE vff.voting_form_id = v_voting_form_id),
+          '[]'::jsonb
+        )
+      )
+      FROM public.voting_forms vf
+      WHERE vf.id = v_voting_form_id
+    ),
+
+    -- 4. 'voting_session_participants'
+    'voting_session_participants', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index), '[]'::jsonb)
+      FROM public.voting_session_participants vsp
+      WHERE vsp.voting_session_id = v_voting_session_id
+    ),
+
+    -- 5. 'voting_session_exclusions' (for this juror only)
+    'voting_session_exclusions', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vse)), '[]'::jsonb)
+      FROM public.voting_session_exclusions vse
+      WHERE vse.voting_session_juror_id = p_voting_session_juror_id
+    ),
+
+    -- 6. 'voting_form_submission_bundle'
+    'voting_form_submission_bundle', (
+      SELECT jsonb_build_object(
+        'voting_form_submission', to_jsonb(vfs),
+        'voting_session_juror', (
+          SELECT to_jsonb(vsj) FROM public.voting_session_jurors vsj WHERE vsj.id = vfs.voting_session_juror_id
+        ),
+        'voting_form_submission_values_bundles', (
+          SELECT COALESCE(jsonb_agg(
+            jsonb_build_object(
+              'voting_form_submission_value', to_jsonb(vfsv),
+              'voting_form_field', (
+                SELECT to_jsonb(vff) FROM public.voting_form_fields vff WHERE vff.id = vfsv.voting_form_field_id
+              ),
+              'voting_session_participant', (
+                SELECT to_jsonb(vsp) FROM public.voting_session_participants vsp WHERE vsp.id = vfsv.voting_session_participant_id
+              )
+            ) ORDER BY (SELECT vff.order_index FROM public.voting_form_fields vff WHERE vff.id = vfsv.voting_form_field_id)
+          ), '[]'::jsonb)
+          FROM public.voting_form_submission_values vfsv
+          WHERE vfsv.voting_form_submission_id = vfs.id
+        )
+      )
+      FROM public.voting_form_submissions vfs
+      WHERE vfs.voting_session_juror_id = p_voting_session_juror_id
+    )
+
+  )
+  INTO result_bundle;
+
+  RETURN result_bundle;
+END;
+$$;
+--endregion

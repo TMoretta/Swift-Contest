@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/database/bundles/auth_bundle.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:swift_contest/model/database/entities/account.dart';
 import 'package:swift_contest/model/database/entities/message.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
@@ -15,17 +14,15 @@ import 'package:swift_contest/viewmodel/enums/auth_status.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'auth_event.dart';
-
 part 'auth_state.dart';
 
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
+class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
 
   AuthBloc({
     required AuthRepository authRepository,
   })  : _authRepository = authRepository,
         super(AuthState(blocStatus: BlocStatus.initial, authStatus: AuthStatus.initial)) {
-    on<AuthInit>(_init);
     on<AuthFetch>(_fetch);
     on<AuthSignOut>(_signOut);
     on<AuthDeleteAccount>(_deleteAccount);
@@ -57,54 +54,49 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   //* fetch
-  FutureOr<void> _init(
-    AuthInit event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    if (event.delay != 0) {
-      await Future.delayed(Duration(seconds: event.delay));
-    }
-
-    final eitherAuthBundle = await _authRepository.getCurrentAccountAuthBundle();
-    eitherAuthBundle.fold(
-      (failure) => emit(state.copyWith(
-          blocStatus: BlocStatus.success,
-          authStatus: AuthStatus.unauthenticated)),
-      (success) => emit(state.copyWith(
-        blocStatus: BlocStatus.success,
-        isInitialized: true,
-        authStatus: AuthStatus.authenticated,
-        account: success.account,
-        profile: success.profile,
-        messages: success.messages,
-      )),
-    );
-  }
-
-  //* fetch
   FutureOr<void> _fetch(
     AuthFetch event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
+    if(!state.isInitialized) {
+      emit(AuthState(blocStatus: BlocStatus.loading, authStatus: AuthStatus.initial, sourceEvent: event));
 
-    final eitherAuthBundle = await _authRepository.getCurrentAccountAuthBundle();
-    eitherAuthBundle.fold(
-      (failure) => emit(state.copyWith(
-          blocStatus: BlocStatus.failure,
-          authStatus: AuthStatus.unauthenticated,
-          message: failure.message)),
-      (success) => emit(state.copyWith(
-        blocStatus: BlocStatus.success,
-        isInitialized: true,
-        authStatus: AuthStatus.authenticated,
-        account: success.account,
-        profile: success.profile,
-        messages: success.messages,
-      )),
-    );
+      if (event.delay != 0) {
+        await Future.delayed(Duration(seconds: event.delay));
+      }
+
+      final eitherAuthBundle = await _authRepository.getCurrentAccountAuthBundle();
+      eitherAuthBundle.fold(
+            (failure) => emit(
+            state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated)),
+            (success) => emit(state.copyWith(
+          blocStatus: BlocStatus.success,
+          isInitialized: true,
+          authStatus: AuthStatus.authenticated,
+          account: success.account,
+          profile: success.profile,
+          messages: success.messages,
+        )),
+      );
+    } else {
+      emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
+
+      final eitherAuthBundle = await _authRepository.getCurrentAccountAuthBundle();
+      eitherAuthBundle.fold(
+            (failure) => emit(state.copyWith(
+            blocStatus: BlocStatus.failure,
+            authStatus: AuthStatus.unauthenticated,
+            message: failure.message)),
+            (success) => emit(state.copyWith(
+          blocStatus: BlocStatus.success,
+          isInitialized: true,
+          authStatus: AuthStatus.authenticated,
+          account: success.account,
+          profile: success.profile,
+          messages: success.messages,
+        )),
+      );
+    }
   }
 
   FutureOr<void> _signOut(
@@ -119,7 +111,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
         (success) async {
       emit(state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
-      // await HydratedBloc.storage.clear();
+      await HydratedBloc.storage.clear();
     });
   }
 

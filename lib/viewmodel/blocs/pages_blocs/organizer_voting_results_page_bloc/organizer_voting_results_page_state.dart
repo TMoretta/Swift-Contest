@@ -5,24 +5,23 @@ final class OrganizerVotingResultsPageState extends Equatable {
   final OrganizerVotingResultsPageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
-
-  // final VotingSessionResultBundle? votingSessionResultBundle;
+  final VotingSessionResultBundle? votingSessionResultBundle;
 
   const OrganizerVotingResultsPageState({
     required this.status,
     this.sourceEvent,
     this.isInitialized = false,
     this.message,
-    // this.votingSessionResultBundle,
+    this.votingSessionResultBundle,
   });
 
   factory OrganizerVotingResultsPageState.fromJson(Map<String, dynamic> json) {
     return OrganizerVotingResultsPageState(
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['is_initialized'] as bool,
-      // votingSessionResultBundle: (json['voting_session_result_bundle'] != null)
-      //     ? VotingSessionResultBundle.fromJson(json['voting_session_result_bundle'])
-      //     : null,
+      votingSessionResultBundle: (json['voting_session_result_bundle'] != null)
+          ? VotingSessionResultBundle.fromJson(json['voting_session_result_bundle'])
+          : null,
     );
   }
 
@@ -30,7 +29,7 @@ final class OrganizerVotingResultsPageState extends Equatable {
     return {
       'status': status.name,
       'is_initialized': isInitialized,
-      // 'voting_session_result_bundle': votingSessionResultBundle?.toJson(),
+      'voting_session_result_bundle': votingSessionResultBundle?.toJson(),
     };
   }
 
@@ -39,14 +38,14 @@ final class OrganizerVotingResultsPageState extends Equatable {
     OrganizerVotingResultsPageEvent? sourceEvent,
     bool? isInitialized,
     String? message,
-    // VotingSessionResultBundle? votingSessionResultBundle,
+    VotingSessionResultBundle? votingSessionResultBundle,
   }) {
     return OrganizerVotingResultsPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       isInitialized: isInitialized ?? this.isInitialized,
       message: message,
-      // votingSessionResultBundle: votingSessionResultBundle ?? this.votingSessionResultBundle,
+      votingSessionResultBundle: votingSessionResultBundle ?? this.votingSessionResultBundle,
     );
   }
 
@@ -56,6 +55,6 @@ final class OrganizerVotingResultsPageState extends Equatable {
         sourceEvent,
         isInitialized,
         message,
-        // votingSessionResultBundle,
+        votingSessionResultBundle,
       ];
 }

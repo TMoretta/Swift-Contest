@@ -65,7 +65,7 @@ class _RootPageState extends State<RootPage> {
                         MyLogo(),
                         SizedBox(height: 32),
                         FilledButton(
-                          onPressed: () async => context.read<AuthBloc>().add(AuthInit()),
+                          onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
                           child: Text('Retry'),
                         ),
                       ],

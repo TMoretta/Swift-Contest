@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/entities/message.dart';
