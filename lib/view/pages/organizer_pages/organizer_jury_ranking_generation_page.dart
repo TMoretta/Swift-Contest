@@ -1,17 +1,27 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:open_file/open_file.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
+import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
+import 'package:swift_contest/utils/functions/pretty_double.dart';
+import 'package:swift_contest/utils/functions/request_storage_permissions.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
+import 'package:swift_contest/utils/media_type.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_jury_ranking_generation_page_bloc/organizer_jury_ranking_generation_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+
+
 
 @RoutePage()
 class OrganizerJuryRankingGenerationPage extends StatefulWidget implements AutoRouteWrapper {
@@ -71,15 +81,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
               child: _buildBody(context, state),
             ),
           ),
-          floatingActionButton: (state.isInitialized)
-              ? FloatingActionButton.extended(
-                  onPressed: () {
-                    context.router.pop();
-                    context.router.pop();
-                  },
-                  label: Text('Generate'),
-                )
-              : null,
+          floatingActionButton: (state.isInitialized) ? _buildFabMenu(context, state) : null,
         );
       },
     );
@@ -237,6 +239,165 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
     );
   }
 
+  Widget _buildFabMenu(BuildContext context, OrganizerJuryRankingGenerationPageState state) {
+    return PopupMenuButton<String>(
+      onSelected: (value) async {
+        if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
+          showSnackBar(context: context, text: 'Select at least one juror and one field');
+        }
+        // Ottieni solo le sottomissioni dei giurati che l'organizzatore ha selezionato
+        final submissionsBundles = state.votingSessionJuryResultBundle!.votingFormSubmissionsBundles
+            .where((e) => selectedVotingSessionJurors.contains(e.votingSessionJuror))
+            .toList(growable: false);
+
+        final Map<VotingSessionParticipant, double> participantScores = {};
+
+        for (var submissionBundle in submissionsBundles) {
+          for (var submissionValueBundle
+              in submissionBundle.participantVotingFormSubmissionValuesBundles.entries) {
+            final votingSessionParticipant = submissionValueBundle.key;
+            final valuesBundles = submissionValueBundle.value
+                .where((e) => selectedVotingFormFields.contains(e.votingFormField));
+            double score = 0;
+            for (var valueBundle in valuesBundles) {
+              score += double.parse(valueBundle.votingFormSubmissionValue.value);
+            }
+            valuesBundles.map((e) => e.votingFormSubmissionValue.value);
+            final oldScore = participantScores[votingSessionParticipant] ?? 0;
+            participantScores.addAll({votingSessionParticipant: score + oldScore});
+          }
+        }
+
+        for (var participantScore in participantScores.entries) {
+          final participant = participantScore.key;
+          final score = participantScore.value;
+
+          Logger.debug('${participant.participantFullName} score: ${prettyDouble(score)}');
+        }
+
+        final sortedParticipantScores = participantScores.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+        switch (value) {
+          case 'pdf':
+            break;
+          case 'csv':
+            try {
+              final request = await requestStoragePermission();
+              if (request != true) {
+                if (context.mounted) {
+                  showSnackBar(context: context, text: 'Can not download file without permission');
+                }
+                return;
+              }
+
+              final directory = await ExternalPath.getExternalStoragePublicDirectory(
+                  ExternalPath.DIRECTORY_DOWNLOAD);
+              final baseName =
+                  'Ranking ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
+              final extension = '.csv';
+
+              String safeFilename;
+              int count = 0;
+              do {
+                safeFilename =
+                    (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
+                count++;
+              } while (await File('$directory/$safeFilename').exists());
+
+              final path = '$directory/$safeFilename';
+
+              // --- 1. Genera la stringa CSV ---
+              final buffer = StringBuffer();
+
+              // Aggiungi l'intestazione delle colonne
+              buffer.writeln('Participant,Score');
+
+              // Aggiungi una riga per ogni partecipante
+              for (final entry in sortedParticipantScores) {
+                final participantName = entry.key.participantFullName;
+                final score = entry.value;
+
+                // Metti il nome tra virgolette per gestire eventuali virgole nel nome
+                buffer.writeln('"$participantName",${prettyDouble(score)}');
+              }
+
+              final file = File(path);
+              // Scrivi la stringa nel file
+              await file.writeAsString(buffer.toString());
+
+              if (context.mounted) {
+                showSnackBar(
+                    context: context, text: 'File successfully saved in "Downloads" folder');
+              }
+
+              final res = await OpenFile.open(path, type: MediaType.mapExtension(extension));
+              switch (res.type) {
+                case ResultType.done:
+                  break;
+                case ResultType.noAppToOpen:
+                  if (context.mounted) {
+                    showSnackBar(
+                        context: context,
+                        text: 'No app to open the file. File saved in "Downloads" directory.');
+                  }
+                  break;
+                case ResultType.fileNotFound:
+                case ResultType.permissionDenied:
+                case ResultType.error:
+                  if (context.mounted) {
+                    showSnackBar(context: context, text: 'File saved in "Downloads" directory');
+                  }
+                  break;
+              }
+            } catch (e) {
+              Logger.error(e.toString(), StackTrace.current);
+              if (context.mounted) {
+                showSnackBar(context: context, text: 'An error occurred while saving the file');
+              }
+            }
+            break;
+        }
+      },
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            value: 'pdf',
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(Icons.picture_as_pdf),
+                Text('PDF'),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 'csv',
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(Icons.table_view),
+                Text('CSV'),
+              ],
+            ),
+          ),
+        ];
+      },
+      icon: Card(
+        elevation: 0.5,
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Icon(
+            Icons.download,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            size: 28,
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<List<VotingSessionJuror>>? _showSelectJurorsDialog(
     BuildContext context,
     OrganizerJuryRankingGenerationPageState state,
@@ -263,7 +424,8 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: double.maxFinite,
                       child: FilledButton(
                         onPressed: () {
                           setState(() {
@@ -354,7 +516,8 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: double.maxFinite,
                       child: FilledButton(
                         onPressed: () {
                           setState(() {

@@ -160,9 +160,9 @@ DROP POLICY IF EXISTS "Owners can delete their own files" ON storage.objects;
 
 -- POLICY DI SICUREZZA PER LO STORAGE
 
--- Politica sui Buckets
--- 1. Permetti a chiunque (anonimo e autenticato) di VEDERE la lista dei bucket.
---    Questo è generalmente sicuro e non espone dati sensibili.
+-- Politiche sui Bucket
+-- 1. Permetti a tutti di "vedere" quali bucket esistono.
+--    Questo non permette di leggere i file, solo di elencare i nomi dei bucket.
 CREATE POLICY "Allow public read access on buckets"
   ON storage.buckets
   FOR SELECT
@@ -179,8 +179,8 @@ CREATE POLICY "Allow authenticated uploads"
   TO authenticated
   WITH CHECK (
     -- L'utente può caricare file solo nei bucket specificati.
-    -- Aggiorna questa lista se aggiungi nuovi bucket.
-    bucket_id IN ('contests-images', 'works-images')
+    -- AGGIORNATO per includere il nuovo bucket dei ranking.
+    bucket_id IN ('contests-images', 'works-images', 'contests-rankings')
   );
 
 -- 3. Permetti agli utenti di LEGGERE i propri file.

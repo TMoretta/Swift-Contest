@@ -16,7 +16,7 @@ class VotingSessionParticipationDaoImpl implements VotingSessionParticipantDao {
   @override
   Future<Either<Failure, VotingSessionParticipant>> create({required VotingSessionParticipant entity}) async {
     return handleDatabaseCall(() async {
-      final res = await _supabase.from('voting_session_participations').insert(entity.toJson()).select().single();
+      final res = await _supabase.from('voting_session_participants').insert(entity.toJson()).select().single();
       return Either.right(VotingSessionParticipant.fromJson(res));
     });
   }
@@ -24,7 +24,7 @@ class VotingSessionParticipationDaoImpl implements VotingSessionParticipantDao {
   @override
   Future<Either<Failure, VotingSessionParticipant>> update({required VotingSessionParticipant entity}) async {
     return handleDatabaseCall(() async {
-      final res = await _supabase.from('voting_session_participations').update(entity.toJson()).eq('id', entity.id!).select().single();
+      final res = await _supabase.from('voting_session_participants').update(entity.toJson()).eq('id', entity.id!).select().single();
       return Either.right(VotingSessionParticipant.fromJson(res));
     });
   }
@@ -32,7 +32,7 @@ class VotingSessionParticipationDaoImpl implements VotingSessionParticipantDao {
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) async {
     return handleDatabaseCall(() async {
-      await _supabase.from('voting_session_participations').delete().eq('id', id);
+      await _supabase.from('voting_session_participants').delete().eq('id', id);
       return Either.right(unit);
     });
   }
@@ -40,7 +40,7 @@ class VotingSessionParticipationDaoImpl implements VotingSessionParticipantDao {
   @override
   Future<Either<Failure, VotingSessionParticipant>> getById({required String id}) async {
     return handleDatabaseCall(() async {
-      final res = await _supabase.from('voting_session_participations').select().eq('id', id).limit(1).single();
+      final res = await _supabase.from('voting_session_participants').select().eq('id', id).limit(1).single();
       return Either.right(VotingSessionParticipant.fromJson(res));
     });
   }
@@ -48,7 +48,7 @@ class VotingSessionParticipationDaoImpl implements VotingSessionParticipantDao {
   @override
   Future<Either<Failure, VotingSessionParticipant?>> getNullableById({required String id}) async {
     return handleDatabaseCall(() async {
-      final res = await _supabase.from('voting_session_participations').select().eq('id', id).limit(1).maybeSingle();
+      final res = await _supabase.from('voting_session_participants').select().eq('id', id).limit(1).maybeSingle();
       return Either.right(res != null ? VotingSessionParticipant.fromJson(res) : null);
     });
   }
@@ -56,7 +56,7 @@ class VotingSessionParticipationDaoImpl implements VotingSessionParticipantDao {
   @override
   Future<Either<Failure, List<VotingSessionParticipant>>> getAll() async {
     return handleDatabaseCall(() async {
-      final res = await _supabase.from('voting_session_participations').select();
+      final res = await _supabase.from('voting_session_participants').select();
       return Either.right(res.map((e) => VotingSessionParticipant.fromJson(e)).toList(growable: false));
     });
   }

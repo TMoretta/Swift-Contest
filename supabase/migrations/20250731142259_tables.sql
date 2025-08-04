@@ -1,7 +1,7 @@
 CREATE TABLE profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE cascade,
   created_at timestamptz NOT NULL DEFAULT now(),
-  full_name varchar NOT NULL,
+  full_name text NOT NULL,
   pref_role contest_role NOT NULL DEFAULT 'organizer'
 );
 
@@ -17,7 +17,7 @@ CREATE TABLE messages (
 CREATE TABLE places (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  address varchar NOT NULL,
+  address text NOT NULL,
   lat float NOT NULL,
   lon float NOT NULL
 );
@@ -25,15 +25,15 @@ CREATE TABLE places (
 CREATE TABLE voting_forms (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  name varchar NOT NULL,
-  description varchar NOT NULL
+  name text NOT NULL,
+  description text NOT NULL
 );
 
 CREATE TABLE voting_form_fields (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_form_id uuid NOT NULL REFERENCES voting_forms (id) ON DELETE cascade,
-  question varchar NOT NULL,
+  question text NOT NULL,
   order_index int NOT NULL,
   type voting_form_field_type NOT NULL,
   slider_min_value int,
@@ -46,9 +46,9 @@ CREATE TABLE contests (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   organizer_id uuid NOT NULL REFERENCES profiles (id) ON DELETE CASCADE,
-  organizer_full_name varchar NOT NULL,
-  name varchar NOT NULL,
-  description varchar NOT NULL,
+  organizer_full_name text NOT NULL,
+  name text NOT NULL,
+  description text NOT NULL,
   date_time timestamptz NOT NULL,
   works_submission_start timestamptz NOT NULL,
   works_submission_end timestamptz NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE participant_invitations (
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
-  email varchar NOT NULL
+  email text NOT NULL
 );
 
 CREATE TABLE juries (
@@ -70,7 +70,7 @@ CREATE TABLE juries (
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
   token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
-  name varchar NOT NULL,
+  name text NOT NULL,
   type jury_type NOT NULL,
   UNIQUE (contest_id, name)
 );
@@ -81,7 +81,7 @@ CREATE TABLE juror_invitations (
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   jury_id uuid NOT NULL REFERENCES juries (id) ON DELETE cascade,
   token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
-  email varchar NOT NULL
+  email text NOT NULL
 );
 
 CREATE TABLE participations (
@@ -89,7 +89,7 @@ CREATE TABLE participations (
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   participant_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
-  invitation_email varchar NOT NULL,
+  invitation_email text NOT NULL,
   has_submitted bool NOT NULL DEFAULT false,
   UNIQUE (contest_id, participant_id)
 );
@@ -98,9 +98,9 @@ CREATE TABLE works (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   participation_id uuid NOT NULL UNIQUE REFERENCES participations (id) ON DELETE cascade,
-  participant_full_name varchar NOT NULL,
-  name varchar NOT NULL,
-  description varchar NOT NULL,
+  participant_full_name text NOT NULL,
+  name text NOT NULL,
+  description text NOT NULL,
   images_urls text[] NOT NULL
 );
 
@@ -110,14 +110,14 @@ CREATE TABLE jurations (
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   jury_id uuid NOT NULL REFERENCES juries (id) ON DELETE cascade,
   juror_id uuid NOT NULL REFERENCES profiles (id) ON DELETE cascade,
-  invitation_email varchar NOT NULL,
+  invitation_email text NOT NULL,
   UNIQUE (jury_id, juror_id)
 );
 
 CREATE TABLE voting_sessions (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
-  name varchar NOT NULL,
+  name text NOT NULL,
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   is_geo_restricted bool NOT NULL,
   geo_res_place_id uuid UNIQUE REFERENCES places (id),
@@ -133,9 +133,9 @@ CREATE TABLE voting_session_participants (
   order_index int NOT NULL,
   UNIQUE (voting_session_id, participation_id),
   -- snapshot data
-  participant_full_name varchar NOT NULL,
-  work_name varchar NOT NULL,
-  work_description varchar NOT NULL,
+  participant_full_name text NOT NULL,
+  work_name text NOT NULL,
+  work_description text NOT NULL,
   work_images_urls text[] NOT NULL
 );
 
@@ -145,7 +145,7 @@ CREATE TABLE voting_session_juries (
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   jury_id uuid REFERENCES juries (id) ON DELETE SET NULL,
   -- snapshot data
-  jury_name varchar NOT NULL,
+  jury_name text NOT NULL,
   jury_type jury_type NOT NULL,
   voting_form_id uuid NOT NULL,
   jury_token uuid NOT NULL,
@@ -161,7 +161,7 @@ CREATE TABLE voting_session_jurors (
   juror_id uuid REFERENCES profiles (id) ON DELETE SET NULL,
   has_submitted bool NOT NULL DEFAULT false,
   -- snapshot data
-  juror_full_name varchar NOT NULL,
+  juror_full_name text NOT NULL,
   UNIQUE (voting_session_jury_id, juror_id)
 );
 
@@ -193,6 +193,15 @@ CREATE TABLE voting_form_submission_values (
   UNIQUE(voting_form_submission_id, voting_form_field_id, voting_session_participant_id)
 );
 
+CREATE TABLE public.contest_rankings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  contest_id uuid NOT NULL REFERENCES public.contests(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  file_path text NOT NULL UNIQUE,
+  published_at timestamptz NOT NULL DEFAULT now()
+);
+
 --CREATE TABLE juror_votings (
 --  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
 --  created_at timestamptz NOT NULL DEFAULT now(),
@@ -207,7 +216,7 @@ CREATE TABLE voting_form_submission_values (
 --  created_at timestamptz NOT NULL DEFAULT now(),
 --  juror_voting_id uuid NOT NULL REFERENCES juror_votings (id) ON DELETE cascade,
 --  voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
---  value varchar NOT NULL,
+--  value text NOT NULL,
 --  UNIQUE (juror_voting_id, voting_form_field_id)
 --);
 
@@ -225,6 +234,6 @@ CREATE TABLE voting_form_submission_values (
 --  created_at timestamptz NOT NULL DEFAULT now(),
 --  simple_juror_voting_id uuid NOT NULL REFERENCES simple_juror_votings (id) ON DELETE cascade,
 --  voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
---  value varchar NOT NULL,
+--  value text NOT NULL,
 --  UNIQUE (simple_juror_voting_id, voting_form_field_id)
 --);
