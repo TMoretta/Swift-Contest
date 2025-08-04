@@ -829,9 +829,9 @@ BEGIN
       WHERE vsp.voting_session_id = v_voting_session_id
     ),
 
-    -- 5. 'voting_session_exclusions' (for this juror only)
-    'voting_session_exclusions', (
-      SELECT COALESCE(jsonb_agg(to_jsonb(vse)), '[]'::jsonb)
+    -- 5. 'excluded_voting_session_participants_ids' (for this juror only)
+    'excluded_voting_session_participants_ids', (
+      SELECT COALESCE(jsonb_agg(to_jsonb(vse.voting_session_participant_id)), '[]'::jsonb)
       FROM public.voting_session_exclusions vse
       WHERE vse.voting_session_juror_id = p_voting_session_juror_id
     ),

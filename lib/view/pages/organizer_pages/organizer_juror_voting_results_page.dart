@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/voting_form_submission_value_bundle.dart';
-import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -36,7 +35,7 @@ class OrganizerJurorVotingResultsPage extends StatefulWidget implements AutoRout
 
 class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingResultsPage> {
   late String votingSessionJurorId;
-   VotingSessionParticipant? chosenVotingSessionParticipant;
+  VotingSessionParticipant? chosenVotingSessionParticipant;
 
   @override
   void initState() {
@@ -89,21 +88,15 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                     return VoidWidget();
                   }
 
-                  final headerValues = state.votingSessionJurorResultBundle!
-                      .votingFormSubmissionBundle.headerVotingFormSubmissionValuesBundles;
-                  final participantsValuesMap = state.votingSessionJurorResultBundle!
-                      .votingFormSubmissionBundle.participantVotingFormSubmissionValuesBundles;
-                  final footerValues = state.votingSessionJurorResultBundle!
-                      .votingFormSubmissionBundle.footerVotingFormSubmissionValuesBundles;
-
+                  final votingFormBundle = state.votingSessionJurorResultBundle!.votingFormBundle;
                   int tabsCount = 0;
-                  if (headerValues.isNotEmpty) {
+                  if (votingFormBundle.headerVotingFormFields.isNotEmpty) {
                     ++tabsCount;
                   }
-                  if (participantsValuesMap.isNotEmpty) {
+                  if (votingFormBundle.participantVotingFormFields.isNotEmpty) {
                     ++tabsCount;
                   }
-                  if (footerValues.isNotEmpty) {
+                  if (votingFormBundle.footerVotingFormFields.isNotEmpty) {
                     ++tabsCount;
                   }
 
@@ -113,25 +106,23 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                       children: [
                         TabBar(
                           tabs: [
-                            if (headerValues.isNotEmpty) Tab(text: 'Header'),
-                            if (participantsValuesMap.isNotEmpty) Tab(text: 'Participants'),
-                            if (footerValues.isNotEmpty) Tab(text: 'Footer'),
+                            if (votingFormBundle.headerVotingFormFields.isNotEmpty)
+                              Tab(text: 'Header'),
+                            if (votingFormBundle.participantVotingFormFields.isNotEmpty)
+                              Tab(text: 'Participants'),
+                            if (votingFormBundle.footerVotingFormFields.isNotEmpty)
+                              Tab(text: 'Footer'),
                           ],
                         ),
                         SizedBox(height: 24),
                         Expanded(
                           child: TabBarView(children: [
-                            if (headerValues.isNotEmpty)
-                              _buildHeaderTab(
-                                  context: context, state: state, headerValues: headerValues),
-                            if (participantsValuesMap.isNotEmpty)
-                              _buildParticipantsTab(
-                                  context: context,
-                                  state: state,
-                                  participantsValuesMap: participantsValuesMap),
-                            if (footerValues.isNotEmpty)
-                              _buildFooterTab(
-                                  context: context, state: state, footerValues: footerValues),
+                            if (votingFormBundle.headerVotingFormFields.isNotEmpty)
+                              _buildHeaderTab(context: context, state: state),
+                            if (votingFormBundle.participantVotingFormFields.isNotEmpty)
+                              _buildParticipantsTab(context: context, state: state),
+                            if (votingFormBundle.footerVotingFormFields.isNotEmpty)
+                              _buildFooterTab(context: context, state: state),
                           ]),
                         ),
                       ],
@@ -485,8 +476,9 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
   Widget _buildHeaderTab({
     required BuildContext context,
     required OrganizerJurorVotingResultsPageState state,
-    required List<VotingFormSubmissionValueBundle> headerValues,
   }) {
+    final headerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
+        .headerVotingFormSubmissionValuesBundles;
     return ListView.builder(
       itemCount: headerValues.length,
       itemBuilder: (context, index) {
@@ -513,11 +505,10 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
     );
   }
 
-  Widget _buildFooterTab({
-    required BuildContext context,
-    required OrganizerJurorVotingResultsPageState state,
-    required List<VotingFormSubmissionValueBundle> footerValues,
-  }) {
+  Widget _buildFooterTab(
+      {required BuildContext context, required OrganizerJurorVotingResultsPageState state}) {
+    final footerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
+        .footerVotingFormSubmissionValuesBundles;
     return ListView.builder(
       itemCount: footerValues.length,
       itemBuilder: (context, index) {
@@ -545,9 +536,13 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
   Widget _buildParticipantsTab({
     required BuildContext context,
     required OrganizerJurorVotingResultsPageState state,
-    required Map<VotingSessionParticipant, List<VotingFormSubmissionValueBundle>>
-        participantsValuesMap,
   }) {
+    final votingSessionParticipants =
+        state.votingSessionJurorResultBundle!.votingSessionParticipants;
+    final participantsValuesMap = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
+        .participantVotingFormSubmissionValuesBundles;
+    final excludedVotingSessionParticipantsIds =
+        state.votingSessionJurorResultBundle!.excludedVotingSessionParticipantsIds;
     List<VotingFormSubmissionValueBundle>? participantValues =
         participantsValuesMap[chosenVotingSessionParticipant];
 
@@ -564,7 +559,7 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
           },
           initialSelection: chosenVotingSessionParticipant,
           dropdownMenuEntries: [
-            ...participantsValuesMap.keys.map((votingSessionParticipant) {
+            ...votingSessionParticipants.map((votingSessionParticipant) {
               return DropdownMenuEntry(
                 value: votingSessionParticipant,
                 label: votingSessionParticipant.participantFullName,
@@ -573,7 +568,9 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
           ],
         ),
         SizedBox(height: 16),
-        if (participantValues == null)
+        if (excludedVotingSessionParticipantsIds.contains(chosenVotingSessionParticipant?.id!))
+          Text('Excluded from voting this participant')
+        else if (participantValues == null)
           Text('Select a participant')
         else
           ...participantValues.map((participantValue) {
