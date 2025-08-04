@@ -118,11 +118,11 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                         Expanded(
                           child: TabBarView(children: [
                             if (votingFormBundle.headerVotingFormFields.isNotEmpty)
-                              _buildHeaderTab(context: context, state: state),
+                              _buildHeaderTab(context, state),
                             if (votingFormBundle.participantVotingFormFields.isNotEmpty)
-                              _buildParticipantsTab(context: context, state: state),
+                              _buildParticipantsTab(context, state),
                             if (votingFormBundle.footerVotingFormFields.isNotEmpty)
-                              _buildFooterTab(context: context, state: state),
+                              _buildFooterTab(context, state),
                           ]),
                         ),
                       ],
@@ -473,10 +473,10 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
     );
   }
 
-  Widget _buildHeaderTab({
-    required BuildContext context,
-    required OrganizerJurorVotingResultsPageState state,
-  }) {
+  Widget _buildHeaderTab(
+    BuildContext context,
+    OrganizerJurorVotingResultsPageState state,
+  ) {
     final headerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
         .headerVotingFormSubmissionValuesBundles;
     return ListView.builder(
@@ -506,7 +506,9 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
   }
 
   Widget _buildFooterTab(
-      {required BuildContext context, required OrganizerJurorVotingResultsPageState state}) {
+    BuildContext context,
+    OrganizerJurorVotingResultsPageState state,
+  ) {
     final footerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
         .footerVotingFormSubmissionValuesBundles;
     return ListView.builder(
@@ -533,10 +535,10 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
     );
   }
 
-  Widget _buildParticipantsTab({
-    required BuildContext context,
-    required OrganizerJurorVotingResultsPageState state,
-  }) {
+  Widget _buildParticipantsTab(
+    BuildContext context,
+    OrganizerJurorVotingResultsPageState state,
+  ) {
     final votingSessionParticipants =
         state.votingSessionJurorResultBundle!.votingSessionParticipants;
     final participantsValuesMap = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle

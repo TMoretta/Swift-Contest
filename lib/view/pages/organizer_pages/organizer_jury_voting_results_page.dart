@@ -443,8 +443,46 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
               ),
             ),
           ),
+          floatingActionButton: (state.isInitialized) ? _buildFabMenu(context, state) : null,
         );
       },
+    );
+  }
+
+  Widget _buildFabMenu(BuildContext context, OrganizerJuryVotingResultsPageState state) {
+    return PopupMenuButton<String>(
+      onSelected: (value) {
+        switch (value) {
+          case 'generateRanking':
+            context.router
+                .push(OrganizerJuryRankingGenerationRoute(votingSessionJuryId: votingSessionJuryId));
+            break;
+          case 'export':
+            break;
+        }
+      },
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            value: 'generateRanking',
+            child: Text('Generate ranking'),
+          ),
+          PopupMenuItem(
+            value: 'export',
+            child: Text('Export'),
+          ),
+        ];
+      },
+      shape: RoundedRectangleBorder(),
+      iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      icon: Card(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        elevation: 0.5,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Icon(Icons.add,size: 32,),
+        ),
+      ),
     );
   }
 }

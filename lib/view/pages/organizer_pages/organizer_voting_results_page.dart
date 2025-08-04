@@ -80,21 +80,30 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
               padding: EdgeInsets.only(left: 16, top: 16, right: 16),
               child: Builder(
                 builder: (context) {
-                  if(!state.isInitialized) {
-                    if(state.status.isFailure) {
-                      return Center(child: FilledButton(onPressed: () async => context.read<OrganizerVotingResultsPageBloc>().add(
-                          OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)), child: Text('Retry'),),);
+                  if (!state.isInitialized) {
+                    if (state.status.isFailure) {
+                      return Center(
+                        child: FilledButton(
+                          onPressed: () async => context.read<OrganizerVotingResultsPageBloc>().add(
+                              OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)),
+                          child: Text('Retry'),
+                        ),
+                      );
                     }
                     return VoidWidget();
                   }
                   final votingSession =
                       state.votingSessionResultBundle!.votingSessionBundle.votingSession;
                   return RefreshIndicator.adaptive(
-                    onRefresh: () async => context.read<OrganizerVotingResultsPageBloc>().add(
-                        OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)),
+                    onRefresh: () async => context
+                        .read<OrganizerVotingResultsPageBloc>()
+                        .add(OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)),
                     child: ListView(
                       children: [
-                        Text('Voting session',style: Theme.of(context).textTheme.titleMedium,),
+                        Text(
+                          'Voting session',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         Card(
                           elevation: 0.5,
                           color: Theme.of(context).colorScheme.tertiaryContainer,
@@ -124,17 +133,23 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
                           ),
                         ),
                         SizedBox(height: 16),
-                        Text('Juries',style: Theme.of(context).textTheme.titleMedium,),
+                        Text(
+                          'Juries',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         ...state.votingSessionResultBundle!.votingSessionJuriesBundles
                             .map((votingSessionJuryBundle) {
                           return Card(
                             elevation: 0,
                             child: ListTile(
                               onTap: () {
-                                context.router.push(OrganizerJuryVotingResultsRoute(votingSessionJuryId: votingSessionJuryBundle.votingSessionJury.id!));
+                                context.router.push(OrganizerJuryVotingResultsRoute(
+                                    votingSessionJuryId:
+                                        votingSessionJuryBundle.votingSessionJury.id!));
                               },
                               title: Text(votingSessionJuryBundle.votingSessionJury.juryName),
-                              subtitle: Text('Submissions: ${votingSessionJuryBundle.votingSessionJurors.where((e) => e.hasSubmitted).length}'),
+                              subtitle: Text(
+                                  'Submissions: ${votingSessionJuryBundle.votingSessionJurors.where((e) => e.hasSubmitted).length}'),
                             ),
                           );
                         }),

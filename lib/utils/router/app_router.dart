@@ -4,7 +4,6 @@ import 'app_router.gr.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'Page,Route')
 class AppRouter extends RootStackRouter {
-
   @override
   List<AutoRoute> get routes => [
         // Splash
@@ -127,6 +126,10 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           path: '/organizer-juror-voting-results/:votingSessionJurorId',
           page: OrganizerJurorVotingResultsRoute.page,
+        ),
+        AutoRoute(
+          path: '/organizer-jury-ranking-generation/:votingSessionJuryId',
+          page: OrganizerJuryRankingGenerationRoute.page,
         ),
         // AutoRoute(
         //   path: '/organizer-voting-result-export/:votingSessionId',
