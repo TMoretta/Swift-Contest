@@ -6,6 +6,7 @@ import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_details_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_jurors_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_participants_tab.dart';
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_rankings_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_voting_tab.dart';
 import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_works_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -80,7 +81,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: DefaultTabController(
-                length: 5,
+                length: 6,
                 child: Column(
                   children: [
                     if(state.isInitialized)
@@ -93,6 +94,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                           Tab(text: 'Juries'),
                           Tab(text: 'Works'),
                           Tab(text: 'Voting'),
+                          Tab(text: 'Rankings'),
                         ],
                       ),
                     SizedBox(height: 16),
@@ -105,6 +107,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                           OrganizerJuriesTab(contestId: contestId),
                           OrganizerWorksTab(contestId: contestId),
                           OrganizerVotingTab(contestId: contestId),
+                          OrganizerRankingsTab(contestId: contestId),
                         ],
                       ),
                     ),

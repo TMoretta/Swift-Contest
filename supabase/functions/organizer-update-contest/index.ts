@@ -1,86 +1,160 @@
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { decode } from 'https://deno.land/std@0.208.0/encoding/base64.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
-serve(async (req) => {
-  // Gestione della richiesta pre-flight CORS
+// Interfacce per i dati in ingresso
+interface Place {
+  id: string;
+  address: string;
+  lat: number;
+  lon: number;
+}
+
+interface Contest {
+  id: string;
+  place_id: string;
+  name: string;
+  description: string;
+  images_urls: string[];
+  // ...tutti gli altri campi del contest
+}
+
+interface ImagePayload {
+  path: string; // Path completo, es: "contest-id/uuid/nome.jpg"
+  content: string; // Contenuto Base64
+}
+
+// Funzione helper per dedurre il MIME type dall'estensione
+const getMimeType = (fileName: string): string => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    default:
+      return 'application/octet-stream';
+  }
+};
+
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Leggiamo il body della richiesta all'inizio, così è disponibile anche nel blocco catch.
-  let requestBody;
-  try {
-    requestBody = await req.json();
-  } catch (e) {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
-  }
+  const newlyUploadedPaths: string[] = []
+  let oldImageUrls: string[] = []
 
-  const { p_contest, p_place } = requestBody;
+  // Client Supabase con privilegi di amministratore
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  )
 
   try {
-    // 1. Crea un client Supabase con l'autenticazione dell'utente.
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-    )
-
-    // 2. Chiama la RPC per aggiornare il contest nel database.
-    const { data: updatedContest, error: rpcError } = await supabaseClient
-      .rpc('organizer_update_contest', {
-        p_contest: p_contest,
-        p_place: p_place,
-      })
-      .single();
-
-    // Se la RPC stessa ha restituito un errore, lancialo per attivare il blocco catch.
-    if (rpcError) {
-      throw rpcError;
+    const { p_contest, p_place, p_images } = await req.json() as {
+      p_contest: Contest,
+      p_place: Place,
+      p_images?: ImagePayload[] // p_images è opzionale
     }
 
-    // 3. Se tutto è andato a buon fine, restituisci i dati del contest aggiornato.
-    return new Response(JSON.stringify(updatedContest), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200, // 200 OK è appropriato per un update
-    });
+    // Verifica l'utente che sta eseguendo l'operazione
+    const { data: { user } } = await createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    ).auth.getUser()
 
-  } catch (error) {
-    // --- LOGICA DI ROLLBACK ---
-    console.error('Error during contest update, starting rollback:', error.message);
+    if (!user) {
+      throw new Error("User not authenticated.")
+    }
 
-    // Estrai i path delle immagini dalla richiesta originale.
-    // Questi sono i path delle NUOVE immagini che potrebbero essere state caricate.
-    const imagePathsToDelete = p_contest?.images_urls;
+    // --- INIZIO TRANSAZIONE ---
 
-    if (imagePathsToDelete && Array.isArray(imagePathsToDelete) && imagePathsToDelete.length > 0) {
-      console.log(`Attempting to clean up ${imagePathsToDelete.length} potentially orphaned images...`);
-      
-      // Crea un client con i permessi di amministratore per cancellare i file.
-      const supabaseAdmin = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
+    // 1. Se si aggiornano le immagini, recupera la lista delle vecchie immagini per la pulizia finale
+    if (p_images && p_images.length > 0) {
+      const { data: currentContest, error: fetchError } = await supabaseClient
+        .from('contests')
+        .select('images_urls, organizer_id')
+        .eq('id', p_contest.id)
+        .single()
 
-      // Tenta di rimuovere i file dallo storage.
-      const { error: deleteError } = await supabaseAdmin.storage
-        .from('contests-images') // Assicurati che il nome del bucket sia corretto
-        .remove(imagePathsToDelete);
+      if (fetchError) throw new Error(`Failed to fetch current contest: ${fetchError.message}`)
+      if (currentContest.organizer_id !== user.id) throw new Error("User is not the organizer of this contest.")
 
-      if (deleteError) {
-        console.error('CRITICAL: Failed to delete orphaned images from storage during update rollback:', deleteError.message);
-      } else {
-        console.log('Orphaned images cleaned up successfully.');
+      oldImageUrls = currentContest.images_urls || []
+
+      // 2. Carica le nuove immagini PRIMA di toccare il DB
+      for (const image of p_images) {
+        const fileContent = decode(image.content)
+        const { error: uploadError } = await supabaseClient.storage
+          .from('contests-images')
+          .upload(image.path, fileContent, {
+            contentType: getMimeType(image.path),
+            upsert: false,
+          })
+
+        if (uploadError) {
+          throw new Error(`Image upload error for ${image.path}: ${uploadError.message}`)
+        }
+        newlyUploadedPaths.push(image.path)
       }
     }
 
-    // Restituisci una risposta di errore al client.
-    return new Response(JSON.stringify({ error: `Contest update failed: ${error.message}` }), {
+    // 3. Aggiorna il luogo (Place) nel database
+    const { error: placeError } = await supabaseClient
+      .from('places')
+      .update({ address: p_place.address, lat: p_place.lat, lon: p_place.lon })
+      .eq('id', p_contest.place_id)
+
+    if (placeError) throw new Error(`Place update error: ${placeError.message}`)
+
+    // 4. Aggiorna il contest nel database
+    // Se p_images non è stato fornito, p_contest.images_urls conterrà le vecchie URL, non modificandole.
+    // Se p_images è stato fornito, p_contest.images_urls conterrà le NUOVE URL, aggiornando il campo.
+    const { data: updatedContestData, error: contestError } = await supabaseClient
+      .from('contests')
+      .update(p_contest)
+      .eq('id', p_contest.id)
+      .select()
+      .single()
+
+    if (contestError) throw new Error(`Contest update error: ${contestError.message}`)
+
+    // 5. Se tutto è andato a buon fine, pulisci le vecchie immagini (se ne sono state caricate di nuove)
+    if (oldImageUrls.length > 0) {
+      const { error: deleteError } = await supabaseClient.storage
+        .from('contests-images')
+        .remove(oldImageUrls)
+
+      if (deleteError) {
+        // Non bloccare la richiesta per questo, ma logga l'errore perché richiede un intervento manuale
+        console.error(`CRITICAL: Failed to delete old images: ${oldImageUrls.join(', ')}. Error: ${deleteError.message}`)
+      }
+    }
+
+    // --- FINE TRANSAZIONE ---
+
+    // 6. Successo: restituisci il contest aggiornato
+    return new Response(JSON.stringify(updatedContestData), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200, // 200 OK
+    })
+
+  } catch (error) {
+    // --- ROLLBACK IN CASO DI ERRORE ---
+    console.error("Error during contest update, starting rollback...", error)
+
+    // Se sono state caricate nuove immagini prima del fallimento, eliminale
+    if (newlyUploadedPaths.length > 0) {
+      await supabaseClient.storage.from('contests-images').remove(newlyUploadedPaths)
+    }
+
+    // Restituisci una risposta di errore generica al client
+    return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
-    });
+    })
   }
 })

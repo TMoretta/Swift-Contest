@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:fpdart/fpdart.dart';
+import 'package:path/path.dart' as path;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
@@ -32,6 +36,7 @@ import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
+import 'package:swift_contest/utils/functions/gen_uuid.dart';
 
 abstract interface class OrganizerRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests();
@@ -41,11 +46,13 @@ abstract interface class OrganizerRepository {
   Future<Either<Failure, Contest>> createContest({
     required Contest contest,
     required Place place,
+    required List<File> images,
   });
 
   Future<Either<Failure, Unit>> updateContest({
     required Contest contest,
     required Place place,
+    required List<File>? images,
   });
 
   Future<Either<Failure, Unit>> deleteContest({required String contestId});
@@ -137,6 +144,11 @@ abstract interface class OrganizerRepository {
     required String votingSessionId,
     required String name,
   });
+
+  Future<Either<Failure, Unit>> publishRanking({
+    required String contestId,
+    required File file,
+  });
 }
 
 class OrganizerRepositoryImpl implements OrganizerRepository {
@@ -188,7 +200,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
     return handleDatabaseCall(
       () async {
-        final List<Map<String, dynamic>> res = await _supabase.rpc('organizer_get_created_contests');
+        final List<Map<String, dynamic>> res =
+            await _supabase.rpc('organizer_get_created_contests');
         return Either.right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
       },
     );
@@ -200,7 +213,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final res = await _supabase.rpc('user_get_contest_details', params: {'p_contest_id': contestId}).single();
+        final res = await _supabase
+            .rpc('user_get_contest_details', params: {'p_contest_id': contestId}).single();
         return Either.right(ContestDetailsBundle.fromJson(res));
       },
     );
@@ -210,14 +224,31 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Contest>> createContest({
     required Contest contest,
     required Place place,
+    required List<File> images,
   }) async {
     return handleDatabaseCall<Contest>(() async {
+      final List<String> imagesPaths = [];
+      final List<Map<String, String>> imagesPayload = [];
+      for (final imageFile in images) {
+        final fileBytes = await imageFile.readAsBytes();
+        final fileBase64 = base64Encode(fileBytes);
+        final filePath = '${genUuid()}/${path.basename(imageFile.path)}';
+        imagesPaths.add(filePath);
+
+        imagesPayload.add({
+          'path': filePath,
+          'content': fileBase64,
+        });
+      }
+
+      contest = contest.copyWith(imagesUrls: imagesPaths);
 
       final result = await _supabase.functions.invoke(
         'organizer-create-contest',
         body: {
           'p_contest': contest.toJson(),
           'p_place': place.toJson(),
+          'p_images': imagesPayload,
         },
       );
 
@@ -229,16 +260,40 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> updateContest({
     required Contest contest,
     required Place place,
+    required List<File>? images,
   }) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.functions.invoke(
+        // Prepara il corpo base della richiesta
+        final Map<String, dynamic> body = {
+          'p_place': place.toJson(),
+        };
+
+        // Gestisce le immagini solo se la lista non è nulla e non è vuota
+        if (images != null && images.isNotEmpty) {
+          final List<String> imagesPaths = [];
+          final List<Map<String, String>> imagesPayload = [];
+          for (final imageFile in images) {
+            final fileBytes = await imageFile.readAsBytes();
+            final fileBase64 = base64Encode(fileBytes);
+            final filePath = '${contest.id}/${genUuid()}/${path.basename(imageFile.path)}';
+            imagesPaths.add(filePath);
+            imagesPayload.add({
+              'path': filePath,
+              'content': fileBase64,
+            });
+          }
+          contest = contest.copyWith(imagesUrls: imagesPaths);
+          body['p_contest'] = contest.toJson();
+          // Aggiunge il payload delle immagini al corpo
+          body['p_images'] = imagesPayload;
+        }
+
+        final result = await _supabase.functions.invoke(
           'organizer-update-contest',
-          body: {
-            'p_contest': contest.toJson(),
-            'p_place': place.toJson(),
-          },
+          body: body, // Invia il corpo costruito
         );
+
         return Either.right(unit);
       },
     );
@@ -260,7 +315,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final res = await _supabase.rpc('organizer_create_jury', params: {'p_jury': jury.toJson()}).single();
+        final res = await _supabase
+            .rpc('organizer_create_jury', params: {'p_jury': jury.toJson()}).single();
         return Either.right(Jury.fromJson(res));
       },
     );
@@ -315,8 +371,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> inviteJuror({required JurorInvitation jurorInvitation}) async {
     return handleDatabaseCall(
       () async {
-        final res =
-            await _supabase.functions.invoke('organizer-invite-juror', body: jurorInvitation.toJson());
+        final res = await _supabase.functions
+            .invoke('organizer-invite-juror', body: jurorInvitation.toJson());
         if (res.status != 201) {
           return Either.left(Failure(res.data.toString()));
         }
@@ -409,7 +465,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, JuryBundle>> getJuryBundle({required String juryId}) async {
     return handleDatabaseCall(
       () async {
-        final res = await _supabase.rpc('user_get_jury_bundle', params: {'p_jury_id': juryId}).single();
+        final res =
+            await _supabase.rpc('user_get_jury_bundle', params: {'p_jury_id': juryId}).single();
         return Either.right(JuryBundle.fromJson(res));
       },
     );
@@ -421,8 +478,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final res = await _supabase
-            .rpc('user_get_voting_form_bundle', params: {'p_voting_form_id': votingFormId}).single();
+        final res = await _supabase.rpc('user_get_voting_form_bundle',
+            params: {'p_voting_form_id': votingFormId}).single();
 
         return Either.right(VotingFormBundle.fromJson(res));
       },
@@ -586,7 +643,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required String name,
   }) async {
     return handleDatabaseCall(
-          () async {
+      () async {
         final eitherVotingSession = await _votingSessionDao.getById(id: votingSessionId);
         if (eitherVotingSession.isLeft()) {
           return Either.left(eitherVotingSession.getLeft().toNullable()!);
@@ -620,31 +677,64 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure, VotingSessionJuryResultBundle>> getVotingSessionJuryResultDetails({required String votingSessionJuryId,}) async {
-    return handleDatabaseCall(() async{
-      // Esegue la chiamata alla funzione RPC sul database.
-      final result = await _supabase.rpc(
-        'organizer_get_voting_session_jury_result_bundle',
-        params: {'p_voting_session_jury_id': votingSessionJuryId},
-      ).single();
+  Future<Either<Failure, VotingSessionJuryResultBundle>> getVotingSessionJuryResultDetails({
+    required String votingSessionJuryId,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        // Esegue la chiamata alla funzione RPC sul database.
+        final result = await _supabase.rpc(
+          'organizer_get_voting_session_jury_result_bundle',
+          params: {'p_voting_session_jury_id': votingSessionJuryId},
+        ).single();
 
-      // Restituisce il bundle in caso di successo.
-      return Either.right(VotingSessionJuryResultBundle.fromJson(result));
-    },);
+        // Restituisce il bundle in caso di successo.
+        return Either.right(VotingSessionJuryResultBundle.fromJson(result));
+      },
+    );
   }
 
   @override
-  Future<Either<Failure, VotingSessionJurorResultBundle>> getVotingSessionJurorResultDetails({required String votingSessionJurorId,}) async {
-    return handleDatabaseCall(() async{
-      // Esegue la chiamata alla funzione RPC sul database.
-      final result = await _supabase.rpc(
-        'organizer_get_voting_session_juror_result_bundle',
-        params: {'p_voting_session_juror_id': votingSessionJurorId},
-      ).single();
+  Future<Either<Failure, VotingSessionJurorResultBundle>> getVotingSessionJurorResultDetails({
+    required String votingSessionJurorId,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        // Esegue la chiamata alla funzione RPC sul database.
+        final result = await _supabase.rpc(
+          'organizer_get_voting_session_juror_result_bundle',
+          params: {'p_voting_session_juror_id': votingSessionJurorId},
+        ).single();
 
-      // Restituisce il bundle in caso di successo.
-      return Either.right(VotingSessionJurorResultBundle.fromJson(result));
-    },);
+        // Restituisce il bundle in caso di successo.
+        return Either.right(VotingSessionJurorResultBundle.fromJson(result));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> publishRanking({
+    required String contestId,
+    required File file,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        final String filePath = '$contestId/${genUuid()}/${path.basename(file.path)}';
+        final List<int> fileBytes = await file.readAsBytes();
+        final String fileBase64 = base64Encode(fileBytes);
+
+        final res = await _supabase.functions.invoke(
+          'organizer-publish-ranking',
+          body: {
+            'contest_id': contestId,
+            'file_path': filePath,
+            'file': fileBase64,
+          },
+        );
+
+        return Either.right(unit);
+      },
+    );
   }
 }
 

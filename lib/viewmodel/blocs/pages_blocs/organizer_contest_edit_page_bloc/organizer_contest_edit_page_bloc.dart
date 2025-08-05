@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ import 'package:swift_contest/model/database/repositories/organizer_repository.d
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-import 'package:swift_contest/model/utils/storage_bucket.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 
 part 'organizer_contest_edit_page_event.dart';
 part 'organizer_contest_edit_page_state.dart';
@@ -76,24 +77,18 @@ class OrganizerContestEditPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    List<String>? newImagesUrls;
+    List<File>? newImagesFiles;
     if (event.images.isNotEmpty) {
-      final eitherImagesUrls = await _storageRepository.uploadImages(
-          bucket: StorageBucket.contestsImages,
-          pathPrefix: event.contest.id!,
-          images: event.images);
-      eitherImagesUrls.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => newImagesUrls = success,
-      );
-      if (eitherImagesUrls.isLeft()) {
-        return;
+      newImagesFiles = [];
+      for(var image in event.images) {
+        newImagesFiles.add(File(image.path));
       }
     }
 
     final eitherEditContest = await _organizerRepository.updateContest(
-      contest: event.contest.copyWith(imagesUrls: newImagesUrls),
+      contest: event.contest,
       place: event.place,
+      images: newImagesFiles,
     );
     eitherEditContest.fold(
         (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),

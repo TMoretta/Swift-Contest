@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
@@ -15,6 +17,7 @@ import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
 
 part 'organizer_contest_details_page_event.dart';
+
 part 'organizer_contest_details_page_state.dart';
 
 class OrganizerContestDetailsPageBloc
@@ -34,6 +37,7 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageRemoveJuror>(_removeJuror);
     on<OrganizerContestDetailsPageDeleteContest>(_deleteContest);
     on<OrganizerContestDetailsPageCreateJury>(_createJury);
+    on<OrganizerContestDetailsPagePublishRanking>(_publishRanking);
   }
 
   @override
@@ -215,6 +219,20 @@ class OrganizerContestDetailsPageBloc
       ),
     );
     eitherCreateJury.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _publishRanking(
+    OrganizerContestDetailsPagePublishRanking event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherPublish =
+        await _organizerRepository.publishRanking(contestId: event.contestId, file: event.file);
+    eitherPublish.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:swift_contest/model/utils/storage_bucket.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';

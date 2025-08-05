@@ -197,9 +197,7 @@ CREATE TABLE public.contest_rankings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES public.contests(id) ON DELETE CASCADE,
-  name text NOT NULL,
-  file_path text NOT NULL UNIQUE,
-  published_at timestamptz NOT NULL DEFAULT now()
+  file_path text NOT NULL UNIQUE
 );
 
 --CREATE TABLE juror_votings (

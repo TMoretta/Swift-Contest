@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
-import 'package:swift_contest/model/utils/storage_bucket.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/storage_image_fetcher_bloc/storage_image_fetcher_bloc.dart';

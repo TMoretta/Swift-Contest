@@ -1,86 +1,167 @@
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { decode } from 'https://deno.land/std@0.208.0/encoding/base64.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
-serve(async (req) => {
-  // Gestione della richiesta pre-flight CORS
+// Definiamo le interfacce per un type-checking migliore
+interface Place {
+  address: string;
+  lat: number;
+  lon: number;
+}
+
+interface Contest {
+  name: string;
+  description: string;
+  images_urls: string[];
+  // ...tutti gli altri campi
+}
+
+interface ImagePayload {
+  path: string; // Path parziale dal client, es: "uuid/nome.jpg"
+  content: string; // Base64 encoded
+}
+
+// Funzione helper per ottenere il MIME type dall'estensione del file
+const getMimeType = (fileName: string): string => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    default:
+      // Un tipo generico per file binari se non riconosciuto
+      return 'application/octet-stream';
+  }
+};
+
+
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Leggiamo il body della richiesta all'inizio, così è disponibile anche nel blocco catch.
-  let requestBody;
-  try {
-    requestBody = await req.json();
-  } catch (e) {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
-  }
+  let placeId: string | null = null
+  let contestId: string | null = null
+  const uploadedImagePaths: string[] = []
 
-  const { p_contest, p_place } = requestBody;
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  )
 
   try {
-    // 1. Crea un client Supabase con l'autenticazione dell'utente.
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-    )
-
-    // 2. Chiama la RPC per creare il contest nel database.
-    const { data: createdContest, error: rpcError } = await supabaseClient
-      .rpc('organizer_create_contest', {
-        p_contest: p_contest,
-        p_place: p_place,
-      })
-      .single(); // .single() è importante per ottenere un oggetto, non un array
-
-    // Se la RPC stessa ha restituito un errore, lancialo per attivare il blocco catch.
-    if (rpcError) {
-      throw rpcError;
+    const { p_contest, p_place, p_images } = await req.json() as {
+      p_contest: Contest,
+      p_place: Place,
+      p_images: ImagePayload[]
     }
 
-    // 3. Se tutto è andato a buon fine, restituisci i dati del contest appena creato.
-    return new Response(JSON.stringify(createdContest), {
+    const { data: { user } } = await createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    ).auth.getUser()
+
+    if (!user) {
+      throw new Error("User not authenticated.")
+    }
+
+    // --- INIZIO TRANSAZIONE ---
+
+    // 1. Inserisci il luogo (Place)
+    const { data: placeData, error: placeError } = await supabaseClient
+      .from('places')
+      .insert(p_place)
+      .select('id')
+      .single()
+
+    if (placeError) throw new Error(`Place insert error: ${placeError.message}`)
+    placeId = placeData.id
+
+    // 2. Inserisci il contest (inizialmente con images_urls vuoto)
+    const contestToInsert = {
+      ...p_contest,
+      images_urls: [], // Verrà aggiornato dopo l'upload
+      place_id: placeId,
+      organizer_id: user.id,
+    }
+
+    const { data: contestData, error: contestError } = await supabaseClient
+      .from('contests')
+      .insert(contestToInsert)
+      .select('id') // Prendiamo solo l'ID per ora
+      .single()
+
+    if (contestError) throw new Error(`Contest insert error: ${contestError.message}`)
+    contestId = contestData.id
+
+    // 3. Carica le immagini con il path corretto e raccogli gli URL finali
+    const finalImageUrls: string[] = []
+    for (const image of p_images) {
+      const fileContent = decode(image.content)
+
+      const clientPath = image.path.startsWith('null/') ? image.path.substring(5) : image.path
+      const finalUploadPath = `${contestId}/${clientPath}`
+
+      // *** MODIFICA CHIAVE: Aggiungiamo il Content-Type corretto ***
+      const { error: uploadError } = await supabaseClient.storage
+        .from('contests-images')
+        .upload(finalUploadPath, fileContent, {
+          upsert: false,
+          contentType: getMimeType(finalUploadPath),
+        })
+
+      if (uploadError) {
+        throw new Error(`Image upload error for ${finalUploadPath}: ${uploadError.message}`)
+      }
+
+      uploadedImagePaths.push(finalUploadPath) // Per il rollback
+      finalImageUrls.push(finalUploadPath) // Per l'update finale
+    }
+
+    // 4. Aggiorna il contest con gli URL delle immagini corrette
+    const { data: updatedContestData, error: updateError } = await supabaseClient
+      .from('contests')
+      .update({ images_urls: finalImageUrls })
+      .eq('id', contestId)
+      .select()
+      .single()
+
+    if (updateError) {
+      throw new Error(`Contest update error: ${updateError.message}`)
+    }
+
+    // --- FINE TRANSAZIONE ---
+
+    // 5. Successo: restituisci il contest completo e aggiornato
+    return new Response(JSON.stringify(updatedContestData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 201, // 201 Created è più appropriato qui
-    });
+      status: 201,
+    })
 
   } catch (error) {
-    // --- LOGICA DI ROLLBACK ---
-    console.error('Error during contest creation, starting rollback:', error.message);
+    // --- ROLLBACK IN CASO DI ERRORE ---
+    console.error("Error during contest creation, starting rollback...", error)
 
-    // Estrai i path delle immagini dalla richiesta originale.
-    const imagePathsToDelete = p_contest?.images_urls;
-
-    if (imagePathsToDelete && Array.isArray(imagePathsToDelete) && imagePathsToDelete.length > 0) {
-      console.log(`Attempting to clean up ${imagePathsToDelete.length} orphaned images...`);
-
-      // Crea un client con i permessi di amministratore per cancellare i file.
-      const supabaseAdmin = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
-
-      // Tenta di rimuovere i file dallo storage.
-      const { error: deleteError } = await supabaseAdmin.storage
-        .from('contests-images')
-        .remove(imagePathsToDelete);
-
-      if (deleteError) {
-        console.error('CRITICAL: Failed to delete orphaned images from storage:', deleteError.message);
-        // A questo punto, hai file orfani. È importante loggare questo errore.
-      } else {
-        console.log('Orphaned images cleaned up successfully.');
-      }
+    if (uploadedImagePaths.length > 0) {
+      await supabaseClient.storage.from('contests-images').remove(uploadedImagePaths)
+    }
+    if (contestId) {
+      await supabaseClient.from('contests').delete().eq('id', contestId)
+    }
+    if (placeId) {
+      await supabaseClient.from('places').delete().eq('id', placeId)
     }
 
-    // Restituisci una risposta di errore al client.
-    return new Response(JSON.stringify({ error: `Contest creation failed: ${error.message}` }), {
+    return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
-    });
+    })
   }
 })

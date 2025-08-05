@@ -99,7 +99,6 @@ final class OrganizerContestDetailsPageCreateJury extends OrganizerContestDetail
   final String juryName;
   final JuryType juryType;
 
-
   const OrganizerContestDetailsPageCreateJury({
     required this.contestId,
     required this.juryName,
@@ -112,4 +111,17 @@ final class OrganizerContestDetailsPageCreateJury extends OrganizerContestDetail
         juryName,
         juryType,
       ];
+}
+
+final class OrganizerContestDetailsPagePublishRanking extends OrganizerContestDetailsPageEvent {
+  final String contestId;
+  final File file;
+
+  const OrganizerContestDetailsPagePublishRanking({
+    required this.contestId,
+    required this.file,
+  });
+
+  @override
+  List<Object?> get props => [contestId, file];
 }

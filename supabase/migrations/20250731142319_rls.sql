@@ -173,57 +173,57 @@ CREATE POLICY "Allow public read access on buckets"
 -- Politiche sugli Oggetti (i file)
 -- 2. Permetti agli utenti AUTENTICATI di CARICARE file.
 --    La clausola WITH CHECK è una regola di sicurezza che viene applicata PRIMA dell'inserimento.
-CREATE POLICY "Allow authenticated uploads"
-  ON storage.objects
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    -- L'utente può caricare file solo nei bucket specificati.
-    -- AGGIORNATO per includere il nuovo bucket dei ranking.
-    bucket_id IN ('contests-images', 'works-images', 'contests-rankings')
-  );
+--CREATE POLICY "Allow authenticated uploads"
+--  ON storage.objects
+--  FOR INSERT
+--  TO authenticated
+--  WITH CHECK (
+--    -- L'utente può caricare file solo nei bucket specificati.
+--    -- AGGIORNATO per includere il nuovo bucket dei ranking.
+--    bucket_id IN ('contests-images', 'works-images', 'contests-rankings')
+--  );
+--
+---- 3. Permetti agli utenti di LEGGERE i propri file.
+--CREATE POLICY "Owners can read their own files"
+--  ON storage.objects
+--  FOR SELECT
+--  TO authenticated
+--  USING ( auth.uid() = owner );
+--
+---- 4. Permetti agli utenti di AGGIORNARE i propri file.
+--CREATE POLICY "Owners can update their own files"
+--  ON storage.objects
+--  FOR UPDATE
+--  TO authenticated
+--  USING ( auth.uid() = owner ); -- Per UPDATE, USING agisce anche come WITH CHECK per prevenire cambi di proprietà
+--
+---- 5. Permetti agli utenti di CANCELLARE i propri file.
+--CREATE POLICY "Owners can delete their own files"
+--  ON storage.objects
+--  FOR DELETE
+--  TO authenticated
+--  USING ( auth.uid() = owner );
 
--- 3. Permetti agli utenti di LEGGERE i propri file.
-CREATE POLICY "Owners can read their own files"
-  ON storage.objects
-  FOR SELECT
-  TO authenticated
-  USING ( auth.uid() = owner );
 
--- 4. Permetti agli utenti di AGGIORNARE i propri file.
-CREATE POLICY "Owners can update their own files"
-  ON storage.objects
-  FOR UPDATE
-  TO authenticated
-  USING ( auth.uid() = owner ); -- Per UPDATE, USING agisce anche come WITH CHECK per prevenire cambi di proprietà
-
--- 5. Permetti agli utenti di CANCELLARE i propri file.
-CREATE POLICY "Owners can delete their own files"
-  ON storage.objects
-  FOR DELETE
-  TO authenticated
-  USING ( auth.uid() = owner );
-
-
----- POLICIES FOR STORAGE
----- 1. Enable RLS on storage tables
+-- POLICIES FOR STORAGE
+-- 1. Enable RLS on storage tables
 --ALTER TABLE storage.buckets
 --  ENABLE ROW LEVEL SECURITY;
 --ALTER TABLE storage.objects
 --  ENABLE ROW LEVEL SECURITY;
---
----- 2. Policy for full access on storage.buckets
---CREATE POLICY "Buckets: allow all"
---  ON storage.buckets
---  FOR ALL
---  TO public
---  USING (true)
---  WITH CHECK (true);
---
----- 3. Policy for full access on storage.objects
---CREATE POLICY "Objects: allow all"
---  ON storage.objects
---  FOR ALL
---  TO public
---  USING (true)
---  WITH CHECK (true);
+
+-- 2. Policy for full access on storage.buckets
+CREATE POLICY "Buckets: allow all"
+  ON storage.buckets
+  FOR ALL
+  TO public
+  USING (true)
+  WITH CHECK (true);
+
+-- 3. Policy for full access on storage.objects
+CREATE POLICY "Objects: allow all"
+  ON storage.objects
+  FOR ALL
+  TO public
+  USING (true)
+  WITH CHECK (true);

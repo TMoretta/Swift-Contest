@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
-import 'package:swift_contest/model/utils/storage_bucket.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 

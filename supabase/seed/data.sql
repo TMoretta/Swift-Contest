@@ -34,9 +34,9 @@ INSERT INTO "public"."voting_form_fields" ("id", "created_at", "voting_form_id",
 	('eb9e6747-5fe8-450d-96ec-e9251d962000', '2025-08-01 22:15:51.906575+00', 'e63feae9-0e7c-4feb-8e27-4f6f03dfe360', 'Full name', 0, 'textual', NULL, NULL, true, 'header');
 
 
-INSERT INTO "public"."works" ("id", "created_at", "participation_id", "participant_full_name", "name", "description", "images_urls") VALUES
-	('e35b0197-931d-456e-9cf3-83290ffe7d2e', '2025-08-01 22:18:08.388234+00', '6eb62745-46a4-408f-9727-374721365378', 'Tommaso Participant2', 'Work 2', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{/8e727b16-7c8b-4ee1-b972-104a1b23948d/scaled_35.png}'),
-	('16e34dc8-05f3-4732-8a85-8d3d0eaed60f', '2025-08-01 22:18:53.218937+00', '71ca2c75-25fc-40f6-ac14-bc938f2a718f', 'Tommaso Participant1', 'Work 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{/5c873564-14b5-4cec-b8e4-0046bd5e94d2/scaled_33.jpg}');
+--INSERT INTO "public"."works" ("id", "created_at", "participation_id", "participant_full_name", "name", "description", "images_urls") VALUES
+--	('e35b0197-931d-456e-9cf3-83290ffe7d2e', '2025-08-01 22:18:08.388234+00', '6eb62745-46a4-408f-9727-374721365378', 'Tommaso Participant2', 'Work 2', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{/8e727b16-7c8b-4ee1-b972-104a1b23948d/scaled_35.png}'),
+--	('16e34dc8-05f3-4732-8a85-8d3d0eaed60f', '2025-08-01 22:18:53.218937+00', '71ca2c75-25fc-40f6-ac14-bc938f2a718f', 'Tommaso Participant1', 'Work 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{/5c873564-14b5-4cec-b8e4-0046bd5e94d2/scaled_33.jpg}');
 
 
 --INSERT INTO "storage"."buckets" ("id", "name", "owner", "created_at", "updated_at", "public", "avif_autodetection", "file_size_limit", "allowed_mime_types", "owner_id") VALUES

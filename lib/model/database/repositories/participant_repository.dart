@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:fpdart/fpdart.dart';
+import 'package:path/path.dart' as path;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
@@ -8,6 +12,7 @@ import 'package:swift_contest/model/database/daos/participation_dao.dart';
 import 'package:swift_contest/model/database/entities/work.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
+import 'package:swift_contest/utils/functions/gen_uuid.dart';
 
 abstract interface class ParticipantRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests();
@@ -25,6 +30,7 @@ abstract interface class ParticipantRepository {
   Future<Either<Failure, Unit>> submitWork({
     required String contestId,
     required Work work,
+    required List<File> images,
   });
 
   Future<Either<Failure, ParticipationBundle>> getParticipationBundle({
@@ -109,13 +115,35 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
   Future<Either<Failure, Unit>> submitWork({
     required String contestId,
     required Work work,
+    required List<File> images,
   }) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.rpc('participant_submit_work', params: {
-          'p_contest_id': contestId,
-          'p_work': work.toJson(),
-        });
+        final List<String> imagesPaths = [];
+        final List<Map<String, String>> imagesPayload = [];
+        for (final imageFile in images) {
+          final fileBytes = await imageFile.readAsBytes();
+          final fileBase64 = base64Encode(fileBytes);
+          final filePath = '$contestId/${genUuid()}/${path.basename(imageFile.path)}';
+          imagesPaths.add(filePath);
+
+          imagesPayload.add({
+            'path': filePath,
+            'content': fileBase64,
+          });
+        }
+
+        work = work.copyWith(imagesUrls: imagesPaths);
+
+        await _supabase.functions.invoke(
+          'participant-submit-work',
+          body: {
+            'p_contest_id': contestId,
+            'p_work': work.toJson(),
+            'p_images': imagesPayload,
+          },
+        );
+
         return Either.right(unit);
       },
     );

@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:pinput/pinput.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
-import 'package:swift_contest/model/utils/storage_bucket.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
