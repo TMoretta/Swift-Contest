@@ -4,7 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
@@ -20,8 +20,6 @@ import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_jury_ranking_generation_page_bloc/organizer_jury_ranking_generation_page_bloc.dart';
 import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
-
-
 
 @RoutePage()
 class OrganizerJuryRankingGenerationPage extends StatefulWidget implements AutoRouteWrapper {
@@ -331,7 +329,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
                     context: context, text: 'File successfully saved in "Downloads" folder');
               }
 
-              final res = await OpenFile.open(path, type: MediaType.mapExtension(extension));
+              final res = await OpenFilex.open(path, type: MediaType.mapExtension(extension));
               switch (res.type) {
                 case ResultType.done:
                   break;

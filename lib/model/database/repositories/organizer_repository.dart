@@ -149,6 +149,10 @@ abstract interface class OrganizerRepository {
     required String contestId,
     required File file,
   });
+
+  Future<Either<Failure, Unit>> unpublishRanking({
+    required String contestRankingId,
+  });
 }
 
 class OrganizerRepositoryImpl implements OrganizerRepository {
@@ -723,12 +727,28 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
         final List<int> fileBytes = await file.readAsBytes();
         final String fileBase64 = base64Encode(fileBytes);
 
-        final res = await _supabase.functions.invoke(
+        await _supabase.functions.invoke(
           'organizer-publish-ranking',
           body: {
             'contest_id': contestId,
             'file_path': filePath,
             'file': fileBase64,
+          },
+        );
+
+        return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> unpublishRanking({required String contestRankingId}) {
+    return handleDatabaseCall(
+      () async {
+        await _supabase.functions.invoke(
+          'organizer-unpublish-ranking',
+          body: {
+            'contest_ranking_id': contestRankingId,
           },
         );
 

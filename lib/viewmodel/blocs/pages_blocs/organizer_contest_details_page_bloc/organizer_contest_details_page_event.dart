@@ -125,3 +125,23 @@ final class OrganizerContestDetailsPagePublishRanking extends OrganizerContestDe
   @override
   List<Object?> get props => [contestId, file];
 }
+
+final class OrganizerContestDetailsPageUnpublishRanking extends OrganizerContestDetailsPageEvent {
+  final String contestRankingId;
+
+  const OrganizerContestDetailsPageUnpublishRanking({
+    required this.contestRankingId,
+  });
+
+  @override
+  List<Object?> get props => [contestRankingId];
+}
+
+final class OrganizerContestDetailsPageGetRankingFileUrl extends OrganizerContestDetailsPageEvent {
+  final String filePath;
+
+  const OrganizerContestDetailsPageGetRankingFileUrl({required this.filePath});
+
+  @override
+  List<Object?> get props => [filePath];
+}

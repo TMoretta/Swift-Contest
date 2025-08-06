@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
@@ -10,7 +9,9 @@ import 'package:swift_contest/model/database/entities/juror_invitation.dart';
 import 'package:swift_contest/model/database/entities/jury.dart';
 import 'package:swift_contest/model/database/entities/participant_invitation.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
+import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/model/database/types/jury_type.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -23,10 +24,13 @@ part 'organizer_contest_details_page_state.dart';
 class OrganizerContestDetailsPageBloc
     extends Bloc<OrganizerContestDetailsPageEvent, OrganizerContestDetailsPageState> {
   final OrganizerRepository _organizerRepository;
+  final StorageRepository _storageRepository;
 
   OrganizerContestDetailsPageBloc({
     required OrganizerRepository organizerRepository,
+    required StorageRepository storageRepository,
   })  : _organizerRepository = organizerRepository,
+        _storageRepository = storageRepository,
         super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerContestDetailsPageFetch>(_fetch);
     on<OrganizerContestDetailsPageSendParticipantInvite>(_sendParticipantInvite);
@@ -38,6 +42,8 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageDeleteContest>(_deleteContest);
     on<OrganizerContestDetailsPageCreateJury>(_createJury);
     on<OrganizerContestDetailsPagePublishRanking>(_publishRanking);
+    on<OrganizerContestDetailsPageUnpublishRanking>(_unpublishRanking);
+    on<OrganizerContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);
   }
 
   @override
@@ -235,6 +241,34 @@ class OrganizerContestDetailsPageBloc
     eitherPublish.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _unpublishRanking(
+    OrganizerContestDetailsPageUnpublishRanking event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherUnpublish =
+        await _organizerRepository.unpublishRanking(contestRankingId: event.contestRankingId);
+    eitherUnpublish.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _getRankingFileUrl(
+    OrganizerContestDetailsPageGetRankingFileUrl event,
+    Emitter<OrganizerContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res =
+        await _storageRepository.getSignedUrl(bucket: 'contests-rankings', path: event.filePath);
+    res.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, rankingFileUrl: success)),
     );
   }
 }

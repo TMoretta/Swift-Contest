@@ -3,6 +3,7 @@ import 'package:swift_contest/model/database/bundles/contest_bundle.dart';
 import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
 import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_bundle.dart';
+import 'package:swift_contest/model/database/entities/contest_ranking.dart';
 import 'package:swift_contest/model/database/entities/participant_invitation.dart';
 
 class ContestDetailsBundle extends Equatable {
@@ -11,6 +12,7 @@ class ContestDetailsBundle extends Equatable {
   final List<ParticipantInvitation> participantsInvitations;
   final List<JuryBundle> juriesBundles;
   final List<VotingSessionBundle> votingSessionsBundles;
+  final List<ContestRanking> contestRankings;
 
   const ContestDetailsBundle({
     required this.contestBundle,
@@ -18,6 +20,7 @@ class ContestDetailsBundle extends Equatable {
     required this.participantsInvitations,
     required this.juriesBundles,
     required this.votingSessionsBundles,
+    required this.contestRankings,
   });
 
   factory ContestDetailsBundle.fromJson(Map<String, dynamic> json) {
@@ -34,6 +37,9 @@ class ContestDetailsBundle extends Equatable {
       votingSessionsBundles: (json['voting_sessions_bundles'] as List<dynamic>)
           .map((e) => VotingSessionBundle.fromJson(e))
           .toList(growable: false),
+      contestRankings: (json['contest_rankings'] as List<dynamic>)
+          .map((e) => ContestRanking.fromJson(e))
+          .toList(growable: false),
     );
   }
 
@@ -45,6 +51,7 @@ class ContestDetailsBundle extends Equatable {
       'participants_invitations': participantsInvitations.map((e) => e.toJson()).toList(growable: false),
       'juries_bundles': juriesBundles.map((e) => e.toJson()).toList(growable: false),
       'voting_sessions_bundles': votingSessionsBundles.map((e) => e.toJson()).toList(growable: false),
+      'contest_rankings': contestRankings.map((e) => e.toJson()).toList(growable: false),
     };
   }
 
@@ -54,6 +61,7 @@ class ContestDetailsBundle extends Equatable {
     List<ParticipantInvitation>? participantsInvitations,
     List<JuryBundle>? juriesBundles,
     List<VotingSessionBundle>? votingSessionsBundles,
+    List<ContestRanking>? contestRankings,
   }) {
     return ContestDetailsBundle(
       contestBundle: contestBundle ?? this.contestBundle,
@@ -61,6 +69,7 @@ class ContestDetailsBundle extends Equatable {
       participantsInvitations: participantsInvitations ?? this.participantsInvitations,
       juriesBundles: juriesBundles ?? this.juriesBundles,
       votingSessionsBundles: votingSessionsBundles ?? this.votingSessionsBundles,
+      contestRankings: contestRankings ?? this.contestRankings,
     );
   }
 
@@ -71,5 +80,6 @@ class ContestDetailsBundle extends Equatable {
         participantsInvitations,
         juriesBundles,
         votingSessionsBundles,
+        contestRankings,
       ];
 }

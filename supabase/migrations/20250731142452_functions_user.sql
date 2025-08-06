@@ -1,12 +1,10 @@
---region USER GET CONTEST DETAILS BUNDLE
+--region USER GET CONTEST DETAILS BUNDLE (FINAL VERSION)
 -- Retrieves all nested data for a contest's detail page.
--- The data returned is tailored to the role of the calling user (organizer, participant, or juror).
--- This version builds all JSON bundles directly from base tables without using VIEWS.
 CREATE OR REPLACE FUNCTION user_get_contest_details(p_contest_id uuid)
-RETURNS jsonb -- Returns a single, complex JSONB object.
+RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+SECURITY DEFINER
 AS $$
 DECLARE
   result_bundle jsonb;
@@ -15,19 +13,18 @@ DECLARE
   is_juror boolean;
   current_user_id uuid := auth.uid();
 BEGIN
-  -- Step 1: Determine the user's role for THIS specific contest.
+  -- Step 1: Determine the user's role
   SELECT EXISTS (SELECT 1 FROM public.contests WHERE id = p_contest_id AND organizer_id = current_user_id) INTO is_organizer;
   SELECT EXISTS (SELECT 1 FROM public.participations WHERE contest_id = p_contest_id AND participant_id = current_user_id) INTO is_participant;
   SELECT EXISTS (SELECT 1 FROM public.jurations WHERE contest_id = p_contest_id AND juror_id = current_user_id) INTO is_juror;
 
-  -- Step 2: Security Check. If the user has no role, deny access.
+  -- Step 2: Security Check
   IF NOT (is_organizer OR is_participant OR is_juror) THEN
     RAISE EXCEPTION 'Access denied or contest not found.';
   END IF;
 
-  -- Step 3: Build the JSON response, conditionally including data based on the user's role.
+  -- Step 3: Build the JSON response
   SELECT jsonb_build_object(
-    -- 'contest_bundle': Costruito direttamente con JOINs.
     'contest_bundle', (
       SELECT jsonb_build_object(
                'contest', to_jsonb(c),
@@ -39,8 +36,6 @@ BEGIN
       JOIN public.places pl ON c.place_id = pl.id
       WHERE c.id = p_contest_id
     ),
-
-    -- 'participations_bundles': Costruito direttamente con JOINs.
     'participations_bundles', (
       SELECT COALESCE(jsonb_agg(
         jsonb_build_object(
@@ -51,11 +46,9 @@ BEGIN
       ), '[]'::jsonb)
       FROM public.participations pa
       JOIN public.profiles p ON pa.participant_id = p.id
-      LEFT JOIN public.works w ON pa.id = w.participation_id -- LEFT JOIN perché un'opera potrebbe non essere stata ancora sottomessa.
+      LEFT JOIN public.works w ON pa.id = w.participation_id
       WHERE pa.contest_id = p_contest_id
     ),
-
-    -- 'participants_invitations': Già usava la tabella base, rimane invariato.
     'participants_invitations', CASE
       WHEN is_organizer THEN (
         SELECT COALESCE(jsonb_agg(to_jsonb(pi)), '[]'::jsonb)
@@ -64,8 +57,6 @@ BEGIN
       )
       ELSE '[]'::jsonb
     END,
-
-    -- 'juries_bundles': Costruito direttamente con subquery nidificate.
     'juries_bundles', CASE
       WHEN is_organizer THEN (
         SELECT COALESCE(jsonb_agg(
@@ -101,22 +92,34 @@ BEGIN
       )
       ELSE '[]'::jsonb
     END,
-
-    -- 'voting_sessions_bundles': Costruito direttamente con JOIN.
     'voting_sessions_bundles', CASE
       WHEN is_organizer OR is_juror THEN (
         SELECT COALESCE(jsonb_agg(
           jsonb_build_object(
             'voting_session', to_jsonb(vs),
-            'place', to_jsonb(pl) -- Il luogo per la geo-restrizione
+            'place', to_jsonb(pl)
           )
         ), '[]'::jsonb)
         FROM public.voting_sessions vs
-        LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id -- LEFT JOIN perché la geo-restrizione è opzionale.
+        LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
         WHERE vs.contest_id = p_contest_id
       )
       ELSE '[]'::jsonb
-    END
+    END,
+
+    'contest_rankings', (
+      SELECT COALESCE(jsonb_agg(
+        -- COSTRUZIONE MANUALE PER MASSIMA AFFIDABILITÀ
+        jsonb_build_object(
+          'id', cr.id,
+          'created_at', cr.created_at,
+          'contest_id', cr.contest_id,
+          'file_path', cr.file_path
+        )
+      ), '[]'::jsonb)
+      FROM public.contest_rankings cr
+      WHERE cr.contest_id = p_contest_id
+    )
   )
   INTO result_bundle;
 

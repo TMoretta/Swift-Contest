@@ -49,7 +49,7 @@ serve(async (req) => {
     // 2. Insert into database using the admin client
     const { error: dbError } = await adminClient.from('contest_rankings').insert({
       contest_id: contest_id,
-      file_path: filePath,
+      file_path: file_path,
     })
 
     if (dbError) {

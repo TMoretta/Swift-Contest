@@ -7,6 +7,7 @@ final class OrganizerContestDetailsPageState extends Equatable {
   final bool isInitialized;
   final String? message;
   final ContestDetailsBundle? contestDetailsBundle;
+  final String? rankingFileUrl;
 
   const OrganizerContestDetailsPageState({
     required this.status,
@@ -14,10 +15,10 @@ final class OrganizerContestDetailsPageState extends Equatable {
     this.isInitialized = false,
     this.message,
     this.contestDetailsBundle,
+    this.rankingFileUrl,
   });
 
-
-factory OrganizerContestDetailsPageState.fromJson(Map<String, dynamic> json) {
+  factory OrganizerContestDetailsPageState.fromJson(Map<String, dynamic> json) {
     return OrganizerContestDetailsPageState(
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['isInitialized'] as bool,
@@ -41,6 +42,7 @@ factory OrganizerContestDetailsPageState.fromJson(Map<String, dynamic> json) {
     bool? isInitialized,
     String? message,
     ContestDetailsBundle? contestDetailsBundle,
+    String? rankingFileUrl,
   }) {
     return OrganizerContestDetailsPageState(
       status: status,
@@ -48,9 +50,17 @@ factory OrganizerContestDetailsPageState.fromJson(Map<String, dynamic> json) {
       isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
+      rankingFileUrl: rankingFileUrl,
     );
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, isInitialized, message, contestDetailsBundle];
+  List<Object?> get props => [
+        status,
+        sourceEvent,
+        isInitialized,
+        message,
+        contestDetailsBundle,
+        rankingFileUrl,
+      ];
 }
