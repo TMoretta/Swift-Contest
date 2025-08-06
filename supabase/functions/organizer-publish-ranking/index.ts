@@ -37,7 +37,7 @@ serve(async (req) => {
     // 1. Upload file to storage using the admin client
     const { error: uploadError } = await adminClient.storage
       .from('contests-rankings')
-      .upload(filePath, fileData, {
+      .upload(file_path, fileData, {
         contentType: 'application/pdf', // Or derive from file name if needed
         upsert: true,
       })
@@ -54,7 +54,7 @@ serve(async (req) => {
 
     if (dbError) {
       // If database insert fails, delete the uploaded file to prevent orphans
-      await adminClient.storage.from('contests-rankings').remove([filePath])
+      await adminClient.storage.from('contests-rankings').remove([file_path])
       throw new Error(`Database insert error: ${dbError.message}`)
     }
 
