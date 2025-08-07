@@ -7,7 +7,7 @@ import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_verify_page_bloc/sign_in_verify_page_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
 class SignInVerifyPage extends StatefulWidget implements AutoRouteWrapper {
@@ -59,7 +59,7 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
         }
         //* Show a message to verify email and go to 'sign in' in case of success
         if (state.status.isSuccess && state.sourceEvent is SignInVerifyOtp) {
-          context.router.replaceAll([RootRoute()]);
+          context.router.replaceAll([RootRoute(delay: 0)]);
         }
       },
       builder: (context, state) {

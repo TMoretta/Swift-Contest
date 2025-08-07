@@ -5,7 +5,7 @@
 // 
 // import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 // import 'package:swift_contest/utils/logger/logger.dart';
-// import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+// import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 //
 // part 'storage_image_fetcher_event.dart';
 // part 'storage_image_fetcher_state.dart';

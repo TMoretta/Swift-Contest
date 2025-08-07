@@ -16,7 +16,7 @@
 // import 'package:swift_contest/view/widgets/voting_procedure_form_and_work_view.dart';
 // import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 // import 'package:swift_contest/viewmodel/blocs/pages_blocs/simple_juror_voting_procedure_page_bloc/simple_juror_voting_procedure_page_bloc.dart';
-// import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+// import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 //
 // @RoutePage()
 // class SimpleJurorVotingProcedurePage extends StatefulWidget implements AutoRouteWrapper {

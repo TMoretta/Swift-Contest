@@ -7,16 +7,17 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
         // Splash
-        AutoRoute(
-          initial: true,
-          path: '/',
-          page: SplashRoute.page,
-        ),
+        // AutoRoute(
+        //   initial: true,
+        //   path: '/',
+        //   page: SplashRoute.page,
+        // ),
 
         // Root
         AutoRoute(
-          path: '/root',
+          path: '/:delay',
           page: RootRoute.page,
+          initial: true,
         ),
 
         // Authentication

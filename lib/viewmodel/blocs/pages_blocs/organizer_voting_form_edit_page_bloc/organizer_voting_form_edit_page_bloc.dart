@@ -8,7 +8,7 @@ import 'package:swift_contest/model/database/bundles/voting_form_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_voting_form_edit_page_event.dart';
 

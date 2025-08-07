@@ -6,7 +6,7 @@ import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class JurorDetailsTab extends StatefulWidget {

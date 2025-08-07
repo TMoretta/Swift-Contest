@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'juror_home_page_event.dart';
 

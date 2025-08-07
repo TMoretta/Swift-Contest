@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_juror_result_bundle.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_juror_voting_results_page_event.dart';
 

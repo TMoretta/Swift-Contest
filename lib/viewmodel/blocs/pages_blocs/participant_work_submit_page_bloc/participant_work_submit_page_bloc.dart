@@ -9,7 +9,7 @@ import 'package:swift_contest/model/database/entities/work.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 
 part 'participant_work_submit_page_event.dart';

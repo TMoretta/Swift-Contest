@@ -9,7 +9,7 @@
 // import 'package:swift_contest/view/widgets/overlay_loader.dart';
 // import 'package:swift_contest/view/widgets/void_widget.dart';
 // import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_result_details_page_bloc/organizer_voting_result_details_page_bloc.dart';
-// import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+// import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 //
 // class OrganizerVotingResultPageInfoTab extends StatefulWidget {
 //   final String votingSessionId;

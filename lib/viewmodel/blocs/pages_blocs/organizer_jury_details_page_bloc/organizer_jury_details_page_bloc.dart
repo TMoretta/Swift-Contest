@@ -8,7 +8,7 @@ import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
 import 'package:swift_contest/model/database/entities/juror_invitation.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_jury_details_page_event.dart';
 

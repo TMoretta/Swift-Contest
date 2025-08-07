@@ -9,7 +9,7 @@ import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
 class AccountPage extends StatefulWidget {
@@ -40,7 +40,7 @@ class _AccountPageState extends State<AccountPage> {
         }
         if (state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteAccount) {
           showSnackBar(context: context, text: 'Account deleted successfully');
-          context.router.replaceAll([RootRoute()]);
+          context.router.replaceAll([RootRoute(delay: 0)]);
         }
       },
       builder: (context, state) {

@@ -7,7 +7,7 @@ import 'package:swift_contest/model/database/bundles/voting_session_jury_result_
 
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_jury_voting_results_page_event.dart';
 part 'organizer_jury_voting_results_page_state.dart';

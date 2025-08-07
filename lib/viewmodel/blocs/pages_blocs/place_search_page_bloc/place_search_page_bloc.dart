@@ -9,7 +9,7 @@ import 'package:swift_contest/model/google_place/entities/google_place.dart';
 import 'package:swift_contest/model/google_place/entities/google_place_suggestion.dart';
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'place_search_page_event.dart';
 

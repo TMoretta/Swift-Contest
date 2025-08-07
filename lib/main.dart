@@ -35,6 +35,7 @@ import 'package:swift_contest/model/database/repositories/storage_repository.dar
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/model/local/repositories/theme_repository.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/deep_link_bloc/deep_link_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 void main() async {
@@ -73,7 +74,7 @@ void main() async {
         : HydratedStorageDirectory((await getTemporaryDirectory()).path),
   );
 
-  if(!kIsWeb) {
+  if (!kIsWeb) {
     await HydratedBloc.storage.clear();
   }
 
@@ -82,8 +83,10 @@ void main() async {
   final ContestDao contestDao = ContestDaoImpl(supabase: supabase);
   final JurationDao jurationDao = JurationDaoImpl(supabase: supabase);
   final JurorInvitationDao jurorInvitationDao = JurorInvitationDaoImpl(supabase: supabase);
-  final VotingFormSubmissionDao votingFormSubmissionDao = VotingFormSubmissionDaoImpl(supabase: supabase);
-  final VotingFormSubmissionValueDao votingFormSubmissionValueDao = VotingFormSubmissionValueDaoImpl(supabase: supabase);
+  final VotingFormSubmissionDao votingFormSubmissionDao =
+      VotingFormSubmissionDaoImpl(supabase: supabase);
+  final VotingFormSubmissionValueDao votingFormSubmissionValueDao =
+      VotingFormSubmissionValueDaoImpl(supabase: supabase);
   final JuryDao juryDao = JuryDaoImpl(supabase: supabase);
   final MessageDao messageDao = MessageDaoImpl(supabase: supabase);
   final ParticipantInvitationDao participantInvitationDao =
@@ -165,11 +168,18 @@ void main() async {
           //* AuthBloc provide authentication management through all the app
           BlocProvider<AuthBloc>(
             lazy: false,
-            create: (context) => AuthBloc(authRepository: context.read<AuthRepository>()),
+            create: (context) => AuthBloc(authRepository: context.read()),
           ),
           BlocProvider<ThemeBloc>(
             lazy: false,
-            create: (context) => ThemeBloc(themeRepository: context.read<ThemeRepository>()),
+            create: (context) => ThemeBloc(themeRepository: context.read()),
+          ),
+          BlocProvider<DeepLinkBloc>(
+            lazy: false,
+            create: (context) => DeepLinkBloc(
+              participantRepository: context.read(),
+              jurorRepository: context.read(),
+            ),
           ),
         ],
         child: App(),

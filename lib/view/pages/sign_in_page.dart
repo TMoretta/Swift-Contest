@@ -8,7 +8,7 @@ import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
 class SignInPage extends StatefulWidget implements AutoRouteWrapper {
@@ -59,7 +59,7 @@ class _SignInPageState extends State<SignInPage> {
         }
         //* Go to root page
         if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
-          context.router.replaceAll([RootRoute()]);
+          context.router.replaceAll([RootRoute(delay: 0)]);
         }
       },
       builder: (context, state) {
@@ -68,7 +68,7 @@ class _SignInPageState extends State<SignInPage> {
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: RefreshIndicator.adaptive(
-                onRefresh: () => context.router.replaceAll([RootRoute()]),
+                onRefresh: () => context.router.replaceAll([RootRoute(delay: 0)]),
                 child: LayoutBuilder(builder: (context, constraints) {
                   return ListView(
                     children: [

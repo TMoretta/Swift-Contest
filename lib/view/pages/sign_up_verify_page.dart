@@ -10,7 +10,7 @@ import 'package:swift_contest/view/widgets/otp_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_verify_page_bloc/sign_up_verify_page_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
 class SignUpVerifyPage extends StatefulWidget implements AutoRouteWrapper {
@@ -73,7 +73,7 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
           context.hideLoader();
         }
         if (state.status.isSuccess && state.sourceEvent is SignUpVerifyOtp) {
-          context.router.replaceAll([RootRoute()]);
+          context.router.replaceAll([RootRoute(delay: 0)]);
         }
       },
       builder: (context, state) {

@@ -11,7 +11,7 @@ import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
 class SettingsPage extends StatefulWidget {
@@ -43,7 +43,7 @@ class _AuthState extends State<SettingsPage> {
               context.hideLoader();
             }
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
-              context.router.replaceAll([SplashRoute()]);
+              context.router.replaceAll([RootRoute(delay: 0)]);
             }
           },
         ),

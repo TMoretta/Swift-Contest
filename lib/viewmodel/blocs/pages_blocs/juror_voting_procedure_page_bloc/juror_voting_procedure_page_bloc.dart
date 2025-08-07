@@ -13,7 +13,7 @@ import 'package:swift_contest/model/database/entities/voting_session_participant
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'juror_voting_procedure_page_event.dart';
 part 'juror_voting_procedure_page_state.dart';

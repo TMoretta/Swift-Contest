@@ -1,12 +1,19 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:app_links/app_links.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/local/types/app_theme.dart';
+import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/deep_link_bloc/deep_link_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 class App extends StatefulWidget {
@@ -17,13 +24,15 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late final AppRouter _appRouter;
+  final AppRouter _appRouter = AppRouter();
   late final MaterialTheme _materialTheme;
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _deepLinkSubscription;
 
   @override
   void initState() {
     super.initState();
-    _appRouter = AppRouter();
+    // Set theme
     TextTheme textTheme = Theme.of(context).textTheme;
     final TextTheme bodyTextTheme = GoogleFonts.getTextTheme('Roboto', textTheme);
     final TextTheme displayTextTheme = GoogleFonts.getTextTheme('Roboto', textTheme);
@@ -46,6 +55,34 @@ class _AppState extends State<App> {
     );
     textTheme = textTheme.apply(fontSizeDelta: 1.2, fontFamilyFallback: ['sans-serif']);
     _materialTheme = MaterialTheme(textTheme: textTheme);
+
+    _initDeepLinks(context);
+  }
+
+  Future<void> _initDeepLinks(BuildContext context) async {
+    // Gestisce il link iniziale che ha aperto l'app (da terminata).
+    final initialUri = await _appLinks.getInitialLink();
+    if (initialUri != null) {
+      Logger.info('Link iniziale ricevuto: $initialUri');
+      if (context.mounted) {
+        context.read<DeepLinkBloc>().add(DeepLinkSetPending(initialUri));
+      }
+    }
+
+    // Gestisce i link ricevuti mentre l'app è in primo piano.
+    _deepLinkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      if (context.mounted) {
+        context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
+        context.router.replaceAll([RootRoute(delay: 0)]);
+      }
+      Logger.info('Link ricevuto con app aperta: $uri');
+    });
+  }
+
+  @override
+  void dispose() {
+    _deepLinkSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -67,15 +104,12 @@ class _AppState extends State<App> {
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: 1000),
               child: MaterialApp.router(
-                routerConfig: _appRouter.config(
-                  // neglectWhen: (location) => true,
-                ),
+                routerConfig: _appRouter.config(),
                 scrollBehavior: CustomScrollBehavior(),
                 themeMode: ThemeMode.values.byName(appTheme.name),
                 theme: _materialTheme.light(),
                 darkTheme: _materialTheme.dark(),
                 debugShowCheckedModeBanner: false,
-                // locale: const Locale('it','IT'),
                 localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,

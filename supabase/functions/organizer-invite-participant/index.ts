@@ -66,20 +66,32 @@ Deno.serve(async (req) => {
       throw insertError;
     }
 
-    // 6. Invia l'email di invito usando Resend
-    const inviteUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?type=invite&token=${newInvitation.token}&redirect_to=/`;
+    // 6. Costruisce il deep link e invia l'email di invito usando Resend
+    const deepLinkUrl = `it.unisa.swiftcontest://app/participant-invite/${newInvitation.token}`;
 
     await resend.emails.send({
       from: "Swift Contest <onboarding@resend.dev>",
       to: [email],
       subject: `Sei stato invitato a partecipare a "${contest.name}"`,
       html: `
-        <h1>Invito a Swift Contest</h1>
-        <p>Ciao!</p>
-        <p>Hai ricevuto un invito per partecipare al contest "<strong>${contest.name}</strong>".</p>
-        <p>Usa il seguente token per accedere al contest: <strong>${newInvitation.token}</strong></p>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+            <h1 style="color: #007bff;">Invito a Swift Contest</h1>
+            <p>Ciao!</p>
+            <p>Hai ricevuto un invito per partecipare al contest "<strong>${contest.name}</strong>".</p>
+            <p>Clicca sul pulsante qui sotto per accettare l'invito e unirti al contest direttamente dall'app.</p>
+            <a href="${deepLinkUrl}" target="_blank" style="background-color: #28a745; color: white; padding: 14px 25px; text-align: center; text-decoration: none; display: inline-block; border-radius: 8px; font-size: 16px; font-weight: bold;">
+              Partecipa al Contest
+            </a>
+            <p style="margin-top: 20px; font-size: 12px; color: #666;">
+              Se il pulsante non funziona, puoi inserire manualmente questo token nell'app:<br>
+              <strong style="font-size: 14px; color: #333;">${newInvitation.token}</strong>
+            </p>
+          </div>
+        </div>
       `,
     });
+
 
     // 7. Restituisce l'invito creato al client
     return new Response(JSON.stringify(newInvitation), {

@@ -13,7 +13,7 @@ import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 
 part 'organizer_contest_edit_page_event.dart';

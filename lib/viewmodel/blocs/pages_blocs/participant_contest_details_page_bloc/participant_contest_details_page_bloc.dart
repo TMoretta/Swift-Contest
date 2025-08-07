@@ -8,7 +8,7 @@ import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart
 import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'participant_contest_details_page_event.dart';
 part 'participant_contest_details_page_state.dart';

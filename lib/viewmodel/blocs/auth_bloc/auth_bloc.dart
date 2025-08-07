@@ -10,8 +10,8 @@ import 'package:swift_contest/model/database/entities/profile.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/viewmodel/enums/auth_status.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/auth_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

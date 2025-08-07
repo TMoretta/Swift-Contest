@@ -5,7 +5,7 @@
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:swift_contest/model/database/bundles/voting_session_result_bundle.dart';
 // import 'package:swift_contest/model/database/repositories/organizer_repository_.dart';
-// import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+// import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 //
 // part 'organizer_voting_result_export_page_event.dart';
 //

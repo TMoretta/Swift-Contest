@@ -6,12 +6,21 @@ import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/my_logo.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/auth_status.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/blocs/deep_link_bloc/deep_link_bloc.dart';
+import 'package:swift_contest/viewmodel/types/auth_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/deep_link_status.dart';
 
 @RoutePage()
 class RootPage extends StatefulWidget {
-  const RootPage({super.key});
+  final int delay;
+
+  const RootPage({
+    // default is 1 second because cant pass initial argument to the first page,
+    // so it will be 1 when root page is the splash
+    @PathParam('delay') this.delay = 1,
+    super.key,
+  });
 
   @override
   State<RootPage> createState() => _RootPageState();
@@ -21,65 +30,201 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthFetch());
+    context.read<AuthBloc>().add(AuthFetch(delay: widget.delay));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) {
-        //* Show a message if there is one
-        if (state.message != null) {
-          showSnackBar(context: context, text: state.message!);
-        }
-        if (state.blocStatus.isSuccess) {
-          if (state.authStatus.isAuthenticated) {
-            //* If success and authenticated go to home page of the pref contest role
-            switch (state.profile!.prefRole) {
-              case ContestRole.organizer:
-                context.router.replace(OrganizerHomeRoute());
-                break;
-              case ContestRole.participant:
-                context.router.replace(ParticipantHomeRoute());
-                break;
-              case ContestRole.juror:
-                context.router.replace(JurorHomeRoute());
-                break;
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.message != null) {
+              showSnackBar(context: context, text: state.message!);
             }
-          } else if (state.authStatus.isUnauthenticated) {
-            //* If success and not authenticated go to sign in page
-            context.router.replace(SignInRoute());
-          }
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          body: SafeArea(
-            child: Builder(
-              builder: (context) {
-                if (state.blocStatus.isFailure) {
+            if (state.blocStatus.isSuccess) {
+              if (state.authStatus.isAuthenticated) {
+                context.read<DeepLinkBloc>().add(DeepLinkHandlePending());
+              } else if (state.authStatus.isUnauthenticated) {
+                //* If success and not authenticated go to sign in page
+                context.router.replace(SignInRoute());
+              }
+            }
+          },
+        ),
+        BlocListener<DeepLinkBloc, DeepLinkState>(
+          listener: (context, state) {
+            if (state.message != null) {
+              showSnackBar(context: context, text: state.message!);
+            }
+            if (state.status.isSuccess) {
+              if (state.sourceEvent is DeepLinkHandleParticipantInvite) {
+                context.router.push(ParticipantHomeRoute());
+              }
+
+              final prefRole = context.read<AuthBloc>().state.profile!.prefRole;
+              switch (prefRole) {
+                case ContestRole.organizer:
+                  context.router.replace(OrganizerHomeRoute());
+                  break;
+                case ContestRole.participant:
+                  context.router.replace(ParticipantHomeRoute());
+                  break;
+                case ContestRole.juror:
+                  context.router.replace(JurorHomeRoute());
+                  break;
+              }
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          return Scaffold(
+            body: SafeArea(
+              child: Builder(
+                builder: (context) {
+                  if (state.blocStatus.isFailure) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MyLogo(),
+                          SizedBox(height: 32),
+                          FilledButton(
+                            onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
+                            child: Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                   return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MyLogo(),
-                        SizedBox(height: 32),
-                        FilledButton(
-                          onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
-                          child: Text('Retry'),
-                        ),
-                      ],
-                    ),
+                    child: MyLogo(),
                   );
-                }
-                return Center(
-                  child: MyLogo(),
-                );
-              },
+                },
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
+    //
+    // return BlocListener<AuthBloc, AuthState>(
+    //   listener: (context, authState) {
+    //     if (authState.message != null) {
+    //       showSnackBar(context: context, text: authState.message!);
+    //     }
+    //     if (authState.blocStatus.isSuccess) {
+    //       if (authState.authStatus.isAuthenticated) {
+    //         context.read<DeepLinkBloc>().add(DeepLinkHandlePending());
+    //       } else if (authState.authStatus.isUnauthenticated) {
+    //         //* If success and not authenticated go to sign in page
+    //         context.router.replace(SignInRoute());
+    //       }
+    //     }
+    //   },
+    //   child: BlocListener<DeepLinkBloc, DeepLinkState>(
+    //     listener: (context, deepLinkState) {
+    //       if (deepLinkState.message != null) {
+    //         showSnackBar(context: context, text: deepLinkState.message!);
+    //       }
+    //       if (deepLinkState.status.isClear) {
+    //         switch (authState.profile!.prefRole) {}
+    //       }
+    //       if (deepLinkState.status.isSuccess) {
+    //         if (deepLinkState.sourceEvent is DeepLinkHandleParticipantInvite) {
+    //           context.router.push(ParticipantHomeRoute());
+    //         }
+    //       }
+    //     },
+    //     child: BlocBuilder<AuthBloc, AuthState>(
+    //       builder: (context, state) {
+    //         return Scaffold(
+    //           body: SafeArea(
+    //             child: Builder(
+    //               builder: (context) {
+    //                 if (state.blocStatus.isFailure) {
+    //                   return Center(
+    //                     child: Column(
+    //                       mainAxisSize: MainAxisSize.min,
+    //                       children: [
+    //                         MyLogo(),
+    //                         SizedBox(height: 32),
+    //                         FilledButton(
+    //                           onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
+    //                           child: Text('Retry'),
+    //                         ),
+    //                       ],
+    //                     ),
+    //                   );
+    //                 }
+    //                 return Center(
+    //                   child: MyLogo(),
+    //                 );
+    //               },
+    //             ),
+    //           ),
+    //         );
+    //       },
+    //     ),
+    //   ),
+    // );
+    //
+    // return BlocConsumer<AuthBloc, AuthState>(
+    //   listener: (context, state) {
+    //     //* Show a message if there is one
+    //     if (state.message != null) {
+    //       showSnackBar(context: context, text: state.message!);
+    //     }
+    //     if (state.blocStatus.isSuccess) {
+    //       if (state.authStatus.isAuthenticated) {
+    //         //* If success and authenticated go to home page of the pref contest role
+    //         switch (state.profile!.prefRole) {
+    //           case ContestRole.organizer:
+    //             context.router.replace(OrganizerHomeRoute());
+    //             break;
+    //           case ContestRole.participant:
+    //             context.router.replace(ParticipantHomeRoute());
+    //             break;
+    //           case ContestRole.juror:
+    //             context.router.replace(JurorHomeRoute());
+    //             break;
+    //         }
+    //       } else if (state.authStatus.isUnauthenticated) {
+    //         //* If success and not authenticated go to sign in page
+    //         context.router.replace(SignInRoute());
+    //       }
+    //     }
+    //   },
+    //   builder: (context, state) {
+    //     return Scaffold(
+    //       body: SafeArea(
+    //         child: Builder(
+    //           builder: (context) {
+    //             if (state.blocStatus.isFailure) {
+    //               return Center(
+    //                 child: Column(
+    //                   mainAxisSize: MainAxisSize.min,
+    //                   children: [
+    //                     MyLogo(),
+    //                     SizedBox(height: 32),
+    //                     FilledButton(
+    //                       onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
+    //                       child: Text('Retry'),
+    //                     ),
+    //                   ],
+    //                 ),
+    //               );
+    //             }
+    //             return Center(
+    //               child: MyLogo(),
+    //             );
+    //           },
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
   }
 }

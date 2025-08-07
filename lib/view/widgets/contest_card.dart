@@ -6,7 +6,7 @@ import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/storage_image_fetcher_bloc/storage_image_fetcher_bloc.dart';
-import 'package:swift_contest/viewmodel/enums/bloc_status.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 class ContestCard extends StatefulWidget {
   final HomeContestBundle homeContestBundle;

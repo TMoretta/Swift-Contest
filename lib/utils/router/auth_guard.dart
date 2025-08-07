@@ -1,6 +1,6 @@
 // import 'package:auto_route/auto_route.dart';
 // import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
-// import 'package:swift_contest/viewmodel/enums/auth_status.dart';
+// import 'package:swift_contest/viewmodel/types/auth_status.dart';
 //
 // import 'app_router.gr.dart';
 //
