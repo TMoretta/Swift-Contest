@@ -145,8 +145,12 @@ TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
-
-
+CREATE POLICY "Contest Rankings: allow all"
+ON public.contest_rankings
+FOR ALL
+TO authenticated, anon
+USING (true)
+WITH CHECK (true);
 
 
 -- Rimuove le policy esistenti per evitare conflitti durante le riesecuzioni.

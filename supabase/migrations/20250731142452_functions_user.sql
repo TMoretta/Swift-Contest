@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION user_get_contest_details(p_contest_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY DEFINER
+SECURITY INVOKER
 AS $$
 DECLARE
   result_bundle jsonb;

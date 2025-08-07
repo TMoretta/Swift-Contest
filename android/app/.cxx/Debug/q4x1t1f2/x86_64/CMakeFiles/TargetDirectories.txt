@@ -1,2 +1,0 @@
-C:/Users/Tommaso/Desktop/Swift-Contest/android/app/.cxx/Debug/q4x1t1f2/x86_64/CMakeFiles/edit_cache.dir
-C:/Users/Tommaso/Desktop/Swift-Contest/android/app/.cxx/Debug/q4x1t1f2/x86_64/CMakeFiles/rebuild_cache.dir

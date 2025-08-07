@@ -1,6 +1,6 @@
 {
-    "name": "swift_contest",
-    "short_name": "swift_contest",
+    "name": "swiftcontest",
+    "short_name": "swiftcontest",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
