@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
-class OtpField extends StatelessWidget {
+class OtpField extends StatefulWidget {
   final int length;
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -16,13 +16,18 @@ class OtpField extends StatelessWidget {
   });
 
   @override
+  State<OtpField> createState() => _OtpFieldState();
+}
+
+class _OtpFieldState extends State<OtpField> {
+  @override
   Widget build(BuildContext context) {
     return Pinput(
-      length: length,
-      controller: controller,
-      focusNode: focusNode,
-      onTapOutside: (event) => focusNode?.unfocus(),
-      validator: validator,
+      length: widget.length,
+      controller: widget.controller,
+      focusNode: widget.focusNode,
+      onTapOutside: (event) => widget.focusNode?.unfocus(),
+      validator: widget.validator,
       pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
       cursor: Column(
         mainAxisAlignment: MainAxisAlignment.end,

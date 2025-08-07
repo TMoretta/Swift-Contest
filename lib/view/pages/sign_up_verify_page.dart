@@ -97,29 +97,11 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          FormField(
-                            validator: (value) => otpValidator(_otpController.text, 6),
-                            builder: (field) {
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  OtpField(
-                                    length: 6,
-                                    controller: _otpController,
-                                    focusNode: _otpFocusNode,
-                                  ),
-                                  if (field.hasError) SizedBox(height: 8),
-                                  if (field.hasError)
-                                    Text(
-                                      'Enter a valid OTP',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(color: Theme.of(context).colorScheme.error),
-                                    ),
-                                ],
-                              );
-                            },
+                          OtpField(
+                            length: 6,
+                            controller: _otpController,
+                            focusNode: _otpFocusNode,
+                            validator: (value) => otpValidator(value, 6),
                           ),
                         ],
                       ),
