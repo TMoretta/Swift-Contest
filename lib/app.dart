@@ -72,8 +72,10 @@ class _AppState extends State<App> {
     // Gestisce i link ricevuti mentre l'app è in primo piano.
     _deepLinkSubscription = _appLinks.uriLinkStream.listen((uri) {
       if (context.mounted) {
-        context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
-        context.router.replaceAll([RootRoute(delay: 0)]);
+        if(uri.scheme == 'https' && uri.host == 'www.swiftcontest.com') {
+          context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
+          context.router.replaceAll([RootRoute(delay: 0)]);
+        }
       }
       Logger.info('Link ricevuto con app aperta: $uri');
     });
