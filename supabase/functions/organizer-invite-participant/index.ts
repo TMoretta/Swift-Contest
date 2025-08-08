@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     }
 
     // 6. Costruisce il deep link e invia l'email di invito usando Resend
-    const deepLinkUrl = `it.unisa.swiftcontest://app/participant-invite/${newInvitation.token}`;
+    const deepLinkUrl = `com.swiftcontest://participant-invite/${newInvitation.token}`;
 
     await resend.emails.send({
       from: "Swift Contest <onboarding@resend.dev>",

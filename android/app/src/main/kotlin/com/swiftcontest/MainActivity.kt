@@ -1,4 +1,4 @@
-package it.unisa.swiftcontest
+package com.swiftcontest
 
 import io.flutter.embedding.android.FlutterActivity
 
