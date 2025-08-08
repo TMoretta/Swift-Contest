@@ -47,4 +47,5 @@ app.*.map.json
 # Mine
 *.env
 #*.exe
-#node_modules/
+/node_modules/
+.vercel
