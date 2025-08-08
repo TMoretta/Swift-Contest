@@ -42,7 +42,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <!-- YOUR CUSTOM SCHEME -->
-                <data android:scheme="https" android:host="www.swiftcontest.com" />
+                <data android:scheme="https" android:host="swiftcontest.com" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
