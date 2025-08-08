@@ -1,3 +1,4 @@
+import 'package:dynamic_path_url_strategy/dynamic_path_url_strategy.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,6 +46,8 @@ void main() async {
   //   },
   // );
   WidgetsFlutterBinding.ensureInitialized();
+
+  setPathUrlStrategy();
 
   // configureUrlStrategy();
 

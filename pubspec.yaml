@@ -49,12 +49,12 @@ dependencies:
 #  internet_connection_checker_plus: ^2.7.2
   hydrated_bloc: ^10.0.0
   auto_route: ^10.1.0+1
-#  dynamic_path_url_strategy: ^1.0.0
 #  numberpicker: ^2.1.2
   url_launcher: ^6.3.2
   rxdart: ^0.28.0
   qr_flutter: ^4.1.0
   app_links: ^6.4.0
+  dynamic_path_url_strategy: ^1.0.0
 
 dev_dependencies:
   flutter_test:
