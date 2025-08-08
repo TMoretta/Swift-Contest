@@ -40,7 +40,7 @@ dependencies:
 #  connectivity_plus: ^6.1.4
   google_fonts: ^6.2.1
   pinput: ^5.0.1
-  flutter_dotenv: ^5.2.1
+#  flutter_dotenv: ^5.2.1
   scaled_app: ^2.3.0
   file_picker: ^10.2.0
   path: ^1.9.1
@@ -67,6 +67,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - .env
 
 

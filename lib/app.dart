@@ -63,9 +63,9 @@ class _AppState extends State<App> {
     // Gestisce il link iniziale che ha aperto l'app (da terminata).
     final initialUri = await _appLinks.getInitialLink();
     if (initialUri != null) {
-      Logger.info('Link iniziale ricevuto: $initialUri');
       if (context.mounted) {
         if (initialUri.scheme == 'https' && initialUri.host == 'www.swiftcontest.com') {
+          Logger.info('Link iniziale ricevuto: $initialUri');
           context.read<DeepLinkBloc>().add(DeepLinkSetPending(initialUri));
         }
       }
@@ -75,11 +75,11 @@ class _AppState extends State<App> {
     _deepLinkSubscription = _appLinks.uriLinkStream.listen((uri) {
       if (context.mounted) {
         if (uri.scheme == 'https' && uri.host == 'www.swiftcontest.com') {
+          Logger.info('Link ricevuto con app aperta: $uri');
           context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
           context.router.replaceAll([RootRoute(delay: 0)]);
         }
       }
-      Logger.info('Link ricevuto con app aperta: $uri');
     });
   }
 
