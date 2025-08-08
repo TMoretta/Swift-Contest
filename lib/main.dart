@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,12 +59,12 @@ void main() async {
   ]);
 
   // //* Load environment variables
-  // await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env');
 
   //* Initializing supabase
   await Supabase.initialize(
-    url: String.fromEnvironment('SUPABASE_URL'),
-    anonKey: String.fromEnvironment('SUPABASE_ANON_KEY'),
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
     authOptions: FlutterAuthClientOptions(autoRefreshToken: true, detectSessionInUri: true),
     realtimeClientOptions: const RealtimeClientOptions(
       eventsPerSecond: 2,
