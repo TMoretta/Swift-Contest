@@ -4,17 +4,10 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.swiftcontest",
-      "sha256_cert_fingerprints":
-      ["E9:8F:D3:5E:87:9E:B2:2A:18:90:22:02:3A:BA:BF:1B:30:21:FA:CC:84:7C:54:A9:0A:0D:B8:B8:C7:D0:1A:C8"]
-    }
-  },
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.swiftcontest",
-      "sha256_cert_fingerprints":
-      ["E9:8F:D3:5E:87:9E:B2:2A:18:90:22:02:3A:BA:BF:1B:30:21:FA:CC:84:7C:54:A9:0A:0D:B8:B8:C7:D0:1A:C8"]
+      "sha256_cert_fingerprints": [
+        "E9:8F:D3:5E:87:9E:B2:2A:18:90:22:02:3A:BA:BF:1B:30:21:FA:CC:84:7C:54:A9:0A:0D:B8:B8:C7:D0:1A:C8",
+        "E9:8F:D3:5E:87:9E:B2:2A:18:90:22:02:3A:BA:BF:1B:30:21:FA:CC:84:7C:54:A9:0A:0D:B8:B8:C7:D0:1A:C8"
+      ]
     }
   }
 ]
