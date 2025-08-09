@@ -26,6 +26,7 @@ import 'package:swift_contest/model/database/daos/voting_form_submission_value_d
 import 'package:swift_contest/model/database/daos/voting_session_dao.dart';
 import 'package:swift_contest/model/database/daos/voting_session_exclusion_dao.dart';
 import 'package:swift_contest/model/database/daos/voting_session_juror_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_jury_dao.dart';
 import 'package:swift_contest/model/database/daos/voting_session_participant_dao.dart';
 import 'package:swift_contest/model/database/daos/work_dao.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
@@ -58,7 +59,7 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // //* Load environment variables
+  //* Load environment variables
   await dotenv.load(fileName: '.env');
 
   //* Initializing supabase
@@ -107,6 +108,8 @@ void main() async {
   final VotingSessionParticipantDao votingSessionParticipationDao =
       VotingSessionParticipationDaoImpl(supabase: supabase);
   final WorkDao workDao = WorkDaoImpl(supabase: supabase);
+  final VotingSessionJuryDao votingSessionJuryDao = VotingSessionJuryDaoImpl(supabase: supabase);
+
   final sharedPreferencesInstance = await SharedPreferences.getInstance();
 
   //* App
@@ -164,6 +167,8 @@ void main() async {
             supabaseClient: supabase,
             accountDao: accountDao,
             jurationDao: jurationDao,
+            votingSessionDao: votingSessionDao,
+            votingSessionJuryDao: votingSessionJuryDao,
           ),
         ),
       ],

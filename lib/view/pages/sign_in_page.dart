@@ -20,7 +20,10 @@ class SignInPage extends StatefulWidget implements AutoRouteWrapper {
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<SignInPageBloc>(
-      create: (context) => SignInPageBloc(authRepository: context.read()),
+      create: (context) => SignInPageBloc(
+        authRepository: context.read(),
+        jurorRepository: context.read(),
+      ),
       child: this,
     );
   }
@@ -60,6 +63,9 @@ class _SignInPageState extends State<SignInPage> {
         //* Go to root page
         if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
           context.router.replaceAll([RootRoute(delay: 0)]);
+        }
+        if (state.status.isSuccess && state.sourceEvent is SignInPageAccessVotingAsSimpleJuror) {
+          context.router.push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
         }
       },
       builder: (context, state) {
@@ -138,9 +144,10 @@ class _SignInPageState extends State<SignInPage> {
                                       child: FilledButton(
                                         onPressed: () {
                                           if (_formKey.currentState?.validate() ?? false) {
-                                            context.read<SignInPageBloc>().add(SignInWithEmailAndPassword(
-                                                email: _emailController.text.trim(),
-                                                password: _passwordController.text.trim()));
+                                            context.read<SignInPageBloc>().add(
+                                                SignInWithEmailAndPassword(
+                                                    email: _emailController.text.trim(),
+                                                    password: _passwordController.text.trim()));
                                           }
                                         },
                                         child: Text('Sign in'),
@@ -188,14 +195,24 @@ class _SignInPageState extends State<SignInPage> {
                                     SizedBox(height: 24),
                                     //* Vote as a simple juror
                                     TextButton(
-                                      onPressed: () {
-                                        // _showVoteAsSimpleJurorDialog(context: context);
+                                      onPressed: () async {
+                                        final bool? authenticated =
+                                            await _showVoteAsSimpleJurorDialog(context: context);
+                                        if (authenticated == true && context.mounted) {
+                                          final String? token =
+                                              await context.router.push(QrCodeScannerRoute());
+                                          if (token != null && context.mounted) {
+                                            context
+                                                .read<SignInPageBloc>()
+                                                .add(SignInPageAccessVotingAsSimpleJuror(token: token));
+                                          }
+                                        }
                                       },
                                       child: DecoratedBox(
                                         decoration: BoxDecoration(
                                           border: Border(
-                                            bottom:
-                                            BorderSide(color: Theme.of(context).colorScheme.primary),
+                                            bottom: BorderSide(
+                                                color: Theme.of(context).colorScheme.primary),
                                           ),
                                         ),
                                         child: Text('Vote in a contest as a simple juror'),
@@ -220,80 +237,72 @@ class _SignInPageState extends State<SignInPage> {
   }
 }
 
-// void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
-//   final signInPageBloc = context.read<SignInPageBloc>();
-//   final accessVotingFormKey = GlobalKey<FormState>();
-//   final fullNameController = TextEditingController();
-//   final fullNameFocusNode = FocusNode();
-//   final tokenController = TextEditingController();
-//   final tokenFocusNode = FocusNode();
-//   showDialog(
-//     context: context,
-//     builder: (context) {
-//       return BlocProvider.value(
-//         value: signInPageBloc,
-//         child: BlocConsumer<SignInPageBloc, SignInPageState>(
-//           listener: (context, state) {
-//             if (state.status.isSuccess && state.sourceEvent is SignInPageVoteAsSimpleJuror) {
-//               final simpleJurorAndVotingSessionBundle = state.simpleJurorAndVotingSessionBundle!;
-//               final simpleJurorId = simpleJurorAndVotingSessionBundle.simpleJuror.id;
-//               final votingSessionId = simpleJurorAndVotingSessionBundle.votingSession.id;
-//               context.router.pop();
-//               context.router.replace(SimpleJurorVotingProcedureRoute(
-//                   simpleJurorId: simpleJurorId, votingSessionId: votingSessionId));
-//             }
-//           },
-//           builder: (context, state) {
-//             return AlertDialog(
-//               title: Text('Vote as simple juror'),
-//               content: Form(
-//                 key: accessVotingFormKey,
-//                 child: Column(
-//                   mainAxisSize: MainAxisSize.min,
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     CustomTextFormField(
-//                       borderType: InputBorderType.underlined,
-//                       controller: fullNameController,
-//                       focusNode: fullNameFocusNode,
-//                       label: 'Full name',
-//                       validator: (value) => noEmptyValidator(value?.trim()),
-//                     ),
-//                     CustomTextFormField(
-//                       borderType: InputBorderType.underlined,
-//                       controller: tokenController,
-//                       focusNode: tokenFocusNode,
-//                       label: 'Token',
-//                       validator: (value) => noEmptyValidator(value?.trim()),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               actions: [
-//                 TextButton(
-//                   onPressed: () {
-//                     context.router.pop();
-//                   },
-//                   child: Text('Cancel'),
-//                 ),
-//                 TextButton(
-//                   onPressed: () {
-//                     if (accessVotingFormKey.currentState?.validate() ?? false) {
-//                       context.read<SignInPageBloc>().add(
-//                             SignInPageVoteAsSimpleJuror(
-//                               fullName: fullNameController.text.trim(),
-//                               token: tokenController.text.trim(),
-//                             ),
-//                           );
-//                     }
-//                   },
-//                   child: Text('Ok'),
-//                 ),
-//               ],
-//             );
-//           },
-//         ),
-//       );
-//     },
-//   );
-// }
+Future<bool?> _showVoteAsSimpleJurorDialog({required BuildContext context}) async {
+  final signInPageBloc = context.read<SignInPageBloc>();
+  final accessVotingFormKey = GlobalKey<FormState>();
+  final fullNameController = TextEditingController();
+  final fullNameFocusNode = FocusNode();
+  // final tokenController = TextEditingController();
+  // final tokenFocusNode = FocusNode();
+
+  return await showDialog(
+    context: context,
+    builder: (context) {
+      return BlocProvider.value(
+        value: signInPageBloc,
+        child: BlocConsumer<SignInPageBloc, SignInPageState>(
+          listener: (context, state) {
+            if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
+              context.router.pop(true);
+            }
+          },
+          builder: (context, state) {
+            return AlertDialog(
+              title: Text('Vote as simple juror'),
+              content: Form(
+                key: accessVotingFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextFormField(
+                      borderType: InputBorderType.underlined,
+                      controller: fullNameController,
+                      focusNode: fullNameFocusNode,
+                      label: 'Full name',
+                      validator: (value) => noEmptyValidator(value?.trim()),
+                    ),
+                    // CustomTextFormField(
+                    //   borderType: InputBorderType.underlined,
+                    //   controller: tokenController,
+                    //   focusNode: tokenFocusNode,
+                    //   label: 'Token',
+                    //   validator: (value) => noEmptyValidator(value?.trim()),
+                    // ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    context.router.pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (accessVotingFormKey.currentState?.validate() ?? false) {
+                      context.read<SignInPageBloc>().add(SignInPageAuthenticateSimpleJuror(
+                          fullName: fullNameController.text.trim()));
+                    }
+                  },
+                  child: Text('Confirm'),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    },
+  );
+}

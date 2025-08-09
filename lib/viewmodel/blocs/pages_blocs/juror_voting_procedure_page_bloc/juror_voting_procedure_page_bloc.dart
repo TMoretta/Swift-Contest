@@ -64,6 +64,9 @@ class JurorVotingProcedurePageBloc
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => votingSessionProcedureBundle = success,
     );
+    if(eitherVotingSessionBundle.isLeft()) {
+      return;
+    }
 
     // //* Get own voting session juration
     // late final VotingSessionJuror ownVotingSessionJuration;

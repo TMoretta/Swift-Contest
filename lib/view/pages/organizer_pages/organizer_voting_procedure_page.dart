@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
+import 'package:swift_contest/model/database/types/jury_type.dart';
 import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -121,21 +123,50 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                         .add(OrganizerVotingProcedurePageFetch(votingSessionId: votingSessionId)),
                     child: Builder(
                       builder: (context) {
-                        final votingSessionJuriesBundles =
-                            state.votingSessionProcedureBundle!.votingSessionJuriesBundles;
+                        final List<({String name, String token})> tokensForSimpleJuries = state
+                            .votingSessionProcedureBundle!.votingSessionJuriesBundles
+                            .where((e) => e.votingSessionJury.juryType.isSimple)
+                            .map((e) => (
+                                  name: e.votingSessionJury.juryName,
+                                  token: e.votingSessionJury.juryToken
+                                ))
+                            .toList(growable: false);
                         return ListView(
                           children: [
+                            Center(
+                              child: Text(
+                                'Tokens for simple juries',
+                                style: Theme.of(context).textTheme.headlineSmall,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            ...tokensForSimpleJuries.map((e) {
+                              final name = e.name;
+                              final token = e.token;
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                    ),
+                                    SizedBox(height: 4),
+                                    QrImageView(
+                                        data: token,
+                                        size: 250,
+                                        backgroundColor: Theme.of(context).colorScheme.white),
+                                  ],
+                                ),
+                              );
+                            }),
                             // ...votingSessionJuriesBundles.map((votingSessionJuryBundle) {
                             //   return QrImageView(
                             //     data: votingSessionJuryBundle.votingSessionJury.token!,
                             //     backgroundColor: Theme.of(context).colorScheme.white,
                             //   );
                             // }),
-                            Center(
-                                child: Text(
-                              'Jurors are voting',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            )),
                           ],
                         );
 

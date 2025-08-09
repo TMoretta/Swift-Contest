@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:label="Swift Contest"
@@ -44,7 +45,7 @@
                 <!-- YOUR CUSTOM SCHEME -->
                 <data android:scheme="http" android:host="swift-contest-personal-5c81ce24.vercel.app" />
                 <data android:scheme="https" android:host="swift-contest-personal-5c81ce24.vercel.app" />
-                <data android:host="com.swiftcontest" />
+                <data android:scheme="com.swiftcontest" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

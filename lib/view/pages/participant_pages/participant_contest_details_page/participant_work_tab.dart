@@ -1,12 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
@@ -96,25 +98,12 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 8),
                                 child: (work.imagesUrls.isNotEmpty)
-                                    ? Image.network(
-                                  work.imagesUrls[index],
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/images/image_not_found.jpg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                  frameBuilder: (context, child, frame,
-                                      wasSynchronouslyLoaded) {
-                                    if (wasSynchronouslyLoaded || frame != null) {
-                                      return child;
-                                    }
-                                    return const Loader();
-                                  },
+                                    ? StorageImage(
+                                  bucket: StorageBucket.worksImages,
+                                  path: work.imagesUrls[index],
+                                  fit: BoxFit.cover,
                                 )
-                                    : Image.asset('assets/images/image_not_found.jpg',
-                                    fit: BoxFit.cover),
+                                    : Icon(Icons.broken_image_outlined),
                               );
                             },
                           ),

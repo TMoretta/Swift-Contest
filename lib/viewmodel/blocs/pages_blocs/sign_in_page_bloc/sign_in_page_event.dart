@@ -36,3 +36,24 @@ final class SignInPageVoteAsSimpleJuror extends SignInPageEvent {
   List<Object?> get props => [fullName, token];
 }
 
+final class SignInPageAccessVotingAsSimpleJuror extends SignInPageEvent {
+  final String token;
+
+  const SignInPageAccessVotingAsSimpleJuror({
+    required this.token,
+  });
+
+  @override
+  List<Object?> get props => [token];
+}
+
+final class SignInPageAuthenticateSimpleJuror extends SignInPageEvent {
+  final String fullName;
+
+  const SignInPageAuthenticateSimpleJuror({
+    required this.fullName,
+  });
+
+  @override
+  List<Object?> get props => [fullName];
+}

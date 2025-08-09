@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/database/entities/voting_session.dart';
+import 'package:swift_contest/model/database/entities/voting_session_jury.dart';
 
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository_.dart';
@@ -16,16 +18,18 @@ part 'sign_in_page_state.dart';
 
 class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
   final AuthRepository _authRepository;
-  // final JurorRepository _jurorRepository;
+  final JurorRepository _jurorRepository;
 
   SignInPageBloc({
     required AuthRepository authRepository,
-    // required JurorRepository jurorRepository,
+    required JurorRepository jurorRepository,
   })  : _authRepository = authRepository,
-        // _jurorRepository = jurorRepository,
+        _jurorRepository = jurorRepository,
         super(SignInPageState(status: BlocStatus.initial)) {
     on<SignInWithEmailAndPassword>(_signInWithEmailAndPassword);
     on<SignInWithEmail>(_signInWithEmail);
+    on<SignInPageAccessVotingAsSimpleJuror>(_verifyVotingToken);
+    on<SignInPageAuthenticateSimpleJuror>(_authenticateSimpleJuror);
     // on<SignInPageVoteAsSimpleJuror>(_voteAsSimpleJuror);
   }
 
@@ -91,4 +95,32 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
   //         state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),
   //   );
   // }
+
+  FutureOr<void> _verifyVotingToken(
+    SignInPageAccessVotingAsSimpleJuror event,
+    Emitter<SignInPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res = await _jurorRepository.accessVotingAsSimpleJuror(token: event.token);
+    res.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, votingSession: success)),
+    );
+  }
+
+  FutureOr<void> _authenticateSimpleJuror(
+    SignInPageAuthenticateSimpleJuror event,
+    Emitter<SignInPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res = await _authRepository.anonSignIn(
+      fullName: event.fullName,
+    );
+    res.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
 }

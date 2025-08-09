@@ -5,7 +5,9 @@ import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
-abstract interface class VotingSessionJuryDao implements Dao<VotingSessionJury> {}
+abstract interface class VotingSessionJuryDao implements Dao<VotingSessionJury> {
+  Future<Either<Failure, VotingSessionJury?>> getNullableByJuryToken({required String juryToken});
+}
 
 class VotingSessionJuryDaoImpl implements VotingSessionJuryDao {
   final SupabaseClient _supabase;
@@ -70,6 +72,14 @@ class VotingSessionJuryDaoImpl implements VotingSessionJuryDao {
     return handleDatabaseCall(() async {
       final res = await _supabase.from('voting_session_juries').select().order('created_at');
       return Either.right(res.map((e) => VotingSessionJury.fromJson(e)).toList(growable: false));
+    });
+  }
+
+  @override
+  Future<Either<Failure, VotingSessionJury?>> getNullableByJuryToken({required String juryToken}) {
+    return handleDatabaseCall(() async {
+      final votingSessionJury = await _supabase.from('voting_session_juries').select().eq('jury_token', juryToken).limit(1).maybeSingle();
+      return Either.right(votingSessionJury != null ? VotingSessionJury.fromJson(votingSessionJury) : null);
     });
   }
 }

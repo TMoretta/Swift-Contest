@@ -157,8 +157,8 @@ CREATE TABLE voting_session_jurors (
   created_at timestamptz NOT NULL DEFAULT now(),
   voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
   voting_session_jury_id uuid NOT NULL REFERENCES voting_session_juries (id) ON DELETE cascade,
-  juration_id uuid REFERENCES jurations (id) ON DELETE SET NULL,
-  juror_id uuid REFERENCES profiles (id) ON DELETE SET NULL,
+  juration_id uuid REFERENCES jurations (id) ON DELETE SET NULL, -- entrambi se è un juror che fa parte del contest
+  juror_id uuid REFERENCES profiles (id) ON DELETE SET NULL, -- solo questo se è un simple juror
   has_submitted bool NOT NULL DEFAULT false,
   -- snapshot data
   juror_full_name text NOT NULL,

@@ -4,7 +4,7 @@ class Contest extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? organizerId;
-  final String organizerFullName;
+  // final String organizerFullName;
   final String name;
   final String description;
   final DateTime dateTime;
@@ -17,7 +17,7 @@ class Contest extends Equatable {
     required this.id,
     required this.createdAt,
     required this.organizerId,
-    required this.organizerFullName,
+    // required this.organizerFullName,
     required this.name,
     required this.description,
     required this.dateTime,
@@ -32,7 +32,7 @@ class Contest extends Equatable {
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       organizerId: json['organizer_id'] as String,
-      organizerFullName: json['organizer_full_name'] as String,
+      // organizerFullName: json['organizer_full_name'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
       dateTime: DateTime.parse(json['date_time']).toLocal(),
@@ -48,7 +48,7 @@ class Contest extends Equatable {
       if(id !=null) 'id' : id,
       if(createdAt !=null) 'created_at' : createdAt!.toUtc().toIso8601String(),
       if(organizerId!=null) 'organizer_id': organizerId,
-      'organizer_full_name': organizerFullName,
+      // 'organizer_full_name': organizerFullName,
       'name': name,
       'description': description,
       'date_time': dateTime.toUtc().toIso8601String(),
@@ -63,7 +63,7 @@ class Contest extends Equatable {
     String? id,
     DateTime? createdAt,
     String? organizerId,
-    String? organizerFullName,
+    // String? organizerFullName,
     String? name,
     String? description,
     DateTime? dateTime,
@@ -76,7 +76,7 @@ class Contest extends Equatable {
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       organizerId: organizerId ?? this.organizerId,
-      organizerFullName: organizerFullName ?? this.organizerFullName,
+      // organizerFullName: organizerFullName ?? this.organizerFullName,
       name: name ?? this.name,
       description: description ?? this.description,
       dateTime: dateTime ?? this.dateTime,
@@ -92,7 +92,7 @@ class Contest extends Equatable {
         id,
         createdAt,
         organizerId,
-        organizerFullName,
+        // organizerFullName,
         name,
         description,
         dateTime,

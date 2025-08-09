@@ -116,8 +116,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           ? ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          Image.asset('assets/images/image_not_found.jpg',
-                              fit: BoxFit.contain),
+                          Icon(Icons.broken_image_outlined),
                         ],
                       )
                           : ListView.builder(

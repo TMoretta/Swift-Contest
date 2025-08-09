@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -125,19 +127,11 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                                 Radius.circular(12),
                                               ),
                                               clipBehavior: Clip.hardEdge,
-                                              child: Image.network(
-                                                participationBundle.work!.imagesUrls[0],
-                                                width: 65,
-                                                fit: BoxFit.cover,
-                                                errorBuilder:
-                                                    (context, error, stackTrace) {
-                                                  return Image.asset(
-                                                    'assets/images/image_not_found.jpg',
-                                                    width: 65,
-                                                    fit: BoxFit.cover,
-                                                  );
-                                                },
-                                              ),
+                                              child: StorageImage(
+                                              bucket: StorageBucket.worksImages,
+                                              path: participationBundle.work!.imagesUrls[0],
+                                              fit: BoxFit.cover,
+                                            ),
                                             ),
                                           ),
                                           Expanded(

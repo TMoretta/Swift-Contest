@@ -11,7 +11,7 @@ class VotingSessionJury extends Equatable {
   final String juryName;
   final JuryType juryType;
   final String? votingFormId;
-  final String? juryToken;
+  final String juryToken;
 
   const VotingSessionJury({
     required this.id,
@@ -46,7 +46,7 @@ class VotingSessionJury extends Equatable {
       'jury_name': juryName,
       'jury_type': juryType.name,
       if (votingFormId != null) 'voting_form_id': votingFormId,
-      if (juryToken != null) 'jury_token': juryToken,
+      'jury_token': juryToken,
     };
   }
 

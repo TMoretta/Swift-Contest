@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_work_details_page_bloc/organizer_work_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -105,25 +107,12 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 8),
                                 child: (work.imagesUrls.isNotEmpty)
-                                    ? Image.network(
-                                        work.imagesUrls[index],
-                                        fit: BoxFit.contain,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Image.asset(
-                                            'assets/images/image_not_found.jpg',
-                                            fit: BoxFit.cover,
-                                          );
-                                        },
-                                        frameBuilder:
-                                            (context, child, frame, wasSynchronouslyLoaded) {
-                                          if (wasSynchronouslyLoaded || frame != null) {
-                                            return child;
-                                          }
-                                          return const Loader();
-                                        },
-                                      )
-                                    : Image.asset('assets/images/image_not_found.jpg',
-                                        fit: BoxFit.cover),
+                                    ? StorageImage(
+                                  bucket: StorageBucket.worksImages,
+                                  path: work.imagesUrls[0],
+                                  fit: BoxFit.cover,
+                                )
+                                    : Icon(Icons.broken_image_outlined),
                               );
                             },
                           ),
@@ -153,7 +142,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                work.participantFullName,
+                                participationBundle.participant.fullName,
                                 // style: Theme.of(context)
                                 //     .textTheme
                                 //     .titleMedium,

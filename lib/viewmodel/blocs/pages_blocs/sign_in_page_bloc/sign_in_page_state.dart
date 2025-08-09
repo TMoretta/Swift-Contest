@@ -5,12 +5,14 @@ final class SignInPageState extends Equatable {
   final BlocStatus status;
   final SignInPageEvent? sourceEvent;
   final String? message;
+  final VotingSession? votingSession;
   // final SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle;
 
   const SignInPageState({
     required this.status,
     this.sourceEvent,
     this.message,
+    this.votingSession,
     // this.simpleJurorAndVotingSessionBundle,
   });
 
@@ -35,12 +37,14 @@ factory SignInPageState.fromJson(Map<String, dynamic> json) {
     required BlocStatus status,
     SignInPageEvent? sourceEvent,
     String? message,
+    VotingSession? votingSession,
     // SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle,
   }) {
     return SignInPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
+      votingSession: votingSession ?? this.votingSession,
       // simpleJurorAndVotingSessionBundle: simpleJurorAndVotingSessionBundle ?? this.simpleJurorAndVotingSessionBundle,
     );
   }
@@ -50,6 +54,7 @@ factory SignInPageState.fromJson(Map<String, dynamic> json) {
         status,
         sourceEvent,
         message,
+        votingSession,
         // simpleJurorAndVotingSessionBundle,
       ];
 }

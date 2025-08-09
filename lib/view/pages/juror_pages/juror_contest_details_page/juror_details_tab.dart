@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -105,35 +107,44 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                     //* Images carousel
                     SizedBox(
                       height: 180,
-                      child: (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
+                      child:
+                      (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
                           ? ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          Image.asset('assets/images/image_not_found.jpg',
-                              fit: BoxFit.contain),
+                          Icon(Icons.broken_image_outlined),
                         ],
                       )
                           : ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: state.contestDetailsBundle!.contestBundle.contest.imagesUrls.length,
+                        itemCount: state.contestDetailsBundle!.contestBundle.contest
+                            .imagesUrls.length,
                         itemBuilder: (context, index) {
+                          final imageUrl = state.contestDetailsBundle!.contestBundle
+                              .contest.imagesUrls[index];
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
-                            child: Image.network(
-                              state.contestDetailsBundle!.contestBundle.contest.imagesUrls[index],
+                            child: StorageImage(
+                              bucket: StorageBucket.contestsImages,
+                              path: imageUrl,
                               fit: BoxFit.contain,
-                              frameBuilder:
-                                  (context, child, frame, wasSynchronouslyLoaded) {
-                                if (wasSynchronouslyLoaded || frame != null) return child;
-                                return const Loader();
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/image_not_found.jpg',
-                                  fit: BoxFit.cover,
-                                );
-                              },
                             ),
+                            // Image.network(
+                            //   state.contestDetailsBundle!.contestBundle.contest
+                            //       .imagesUrls[index],
+                            //   fit: BoxFit.contain,
+                            //   frameBuilder:
+                            //       (context, child, frame, wasSynchronouslyLoaded) {
+                            //     if (wasSynchronouslyLoaded || frame != null) return child;
+                            //     return const Loader();
+                            //   },
+                            //   errorBuilder: (context, error, stackTrace) {
+                            //     return Image.asset(
+                            //       'assets/images/image_not_found.jpg',
+                            //       fit: BoxFit.cover,
+                            //     );
+                            //   },
+                            // ),
                           );
                         },
                       ),
@@ -172,7 +183,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            state.contestDetailsBundle!.contestBundle.contest.organizerFullName,
+                            state.contestDetailsBundle!.contestBundle.organizer.fullName,
                           ),
                         ),
                       ],

@@ -48,10 +48,8 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey];
 
   int currentStep = 0;
-  final participantFullNameController = TextEditingController();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
-  final participantFullNameFocusNode = FocusNode();
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
   final List<XFile> images = [];
@@ -110,14 +108,12 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
               final isLastStep = (currentStep == getSteps().length - 1);
               if (formKeys[currentStep].currentState?.validate() ?? false) {
                 if (isLastStep) {
-                  final participantFullName = participantFullNameController.text.trim();
                   final name = nameController.text.trim();
                   final description = descriptionController.text.trim();
                   context
                       .read<ParticipantWorkSubmitPageBloc>()
                       .add(ParticipantWorkSubmitPageSubmitWork(
                         contestId: contestId,
-                        participantFullName: participantFullName,
                         name: name,
                         description: description,
                         images: images,
@@ -172,13 +168,6 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
-                CustomTextFormField(
-                  borderType: InputBorderType.outlined,
-                  controller: participantFullNameController,
-                  focusNode: participantFullNameFocusNode,
-                  label: 'Your full name',
-                  validator: (value) => nameValidator(value?.trim()),
-                ),
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: nameController,

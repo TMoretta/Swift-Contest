@@ -60,8 +60,6 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
 
   List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
-  final organizerFullNameController = TextEditingController();
-  final organizerFullNameFocusNode = FocusNode();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
   final dateController = TextEditingController();
@@ -156,7 +154,6 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
               }
               if (!isPageInitialized) {
                 final contestDetailsBundle = state.contestDetailsBundle!;
-                organizerFullNameController.setText(contestDetailsBundle.contestBundle.contest.organizerFullName);
                 nameController.setText(contestDetailsBundle.contestBundle.contest.name);
                 descriptionController.setText(contestDetailsBundle.contestBundle.contest.description);
                 date = contestDetailsBundle.contestBundle.contest.dateTime;
@@ -184,7 +181,6 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   final isLastStep = (currentStep == getSteps().length - 1);
                   if (formKeys[currentStep].currentState?.validate() ?? false) {
                     if (isLastStep) {
-                      final organizerFullName = organizerFullNameController.text.trim();
                       final name = nameController.text.trim();
                       final description = descriptionController.text.trim();
                       final dateTime = DateTime(
@@ -192,7 +188,6 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                       context.read<OrganizerContestEditPageBloc>().add(
                         OrganizerContestEditPageEditContest(
                           contest: state.contestDetailsBundle!.contestBundle.contest.copyWith(
-                            organizerFullName: organizerFullName,
                             name: name,
                             description: description,
                             dateTime: dateTime,
@@ -260,13 +255,6 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
-                CustomTextFormField(
-                  borderType: InputBorderType.outlined,
-                  controller: organizerFullNameController,
-                  focusNode: organizerFullNameFocusNode,
-                  label: 'Your full name',
-                  validator: (value) => nameValidator(value?.trim()),
-                ),
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: nameController,

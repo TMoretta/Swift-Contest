@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 
 class VotingProcedureWorkDetailsView extends StatelessWidget {
   final String participantFullName;
@@ -40,23 +41,12 @@ class VotingProcedureWorkDetailsView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: (workImagesUrls.isNotEmpty)
-                    ? Image.network(
-                        workImagesUrls[index],
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/images/image_not_found.jpg',
-                            fit: BoxFit.cover,
-                          );
-                        },
-                        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                          if (wasSynchronouslyLoaded || frame != null) {
-                            return child;
-                          }
-                          return const Loader();
-                        },
-                      )
-                    : Image.asset('assets/images/image_not_found.jpg', fit: BoxFit.cover),
+                    ? StorageImage(
+                  bucket: StorageBucket.contestsImages,
+                  path: workImagesUrls[index],
+                  fit: BoxFit.cover,
+                )
+                    : Icon(Icons.broken_image_outlined),
               );
             },
           ),

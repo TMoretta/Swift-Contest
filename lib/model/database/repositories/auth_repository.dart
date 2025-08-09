@@ -79,6 +79,10 @@ class AuthRepositoryImpl implements AuthRepository {
         }
         final account = eitherAccount.getRight().toNullable()!;
 
+        if(account.isAnonymous) {
+          return Either.left(Failure('Account not found'));
+        }
+
         final eitherProfile = await _profileDao.getById(id: account.id);
         if (eitherProfile.isLeft()) {
           return Either.left(eitherProfile.getLeft().toNullable()!);
@@ -375,7 +379,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> anonSignIn({required String fullName}) {
     return handleDatabaseCall(
       () async {
-        await _supabase.auth.signInAnonymously();
+        await _supabase.auth.signInAnonymously(data: {'full_name':fullName});
         return Either.right(unit);
       },
     );

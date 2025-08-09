@@ -88,7 +88,6 @@ class OrganizerContestCreationPageBloc
     final Contest contest = Contest(
       id: null,
       createdAt: null,
-      organizerFullName: event.organizerFullName,
       organizerId: null,
       placeId: null,
       name: event.name,

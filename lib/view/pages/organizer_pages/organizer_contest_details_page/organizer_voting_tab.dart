@@ -152,8 +152,8 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
       onPressed: () async {
         if (liveVotingSession != null) {
           // Session is not null, go to voting management
-          context.router
-              .push(OrganizerVotingProcedureRoute(votingSessionId: liveVotingSession.id!));
+          context.router.push(OrganizerVotingProcedureRoute(votingSessionId: liveVotingSession.id!));
+          return;
         }
         // There is no live session, start one
         for (var juryBundle in state.contestDetailsBundle!.juriesBundles) {

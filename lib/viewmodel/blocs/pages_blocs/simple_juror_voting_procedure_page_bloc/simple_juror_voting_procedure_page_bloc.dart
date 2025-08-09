@@ -5,11 +5,16 @@
 // import 'package:equatable/equatable.dart';
 // import 'package:flutter/material.dart';
 // import 'package:geolocator/geolocator.dart';
+// import 'package:swift_contest/model/database/bundles/juror_voting_session_procedure_bundle.dart';
 // import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
 // import 'package:swift_contest/model/data_models/place.dart';
 // import 'package:swift_contest/model/data_models/voting_form_field.dart';
 // import 'package:swift_contest/model/data_models/voting_session.dart';
 // import 'package:swift_contest/model/data_models/voting_session_participant.dart';
+// import 'package:swift_contest/model/database/entities/place.dart';
+// import 'package:swift_contest/model/database/entities/voting_form_field.dart';
+// import 'package:swift_contest/model/database/entities/voting_session.dart';
+// import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 // import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 // import 'package:swift_contest/utils/failures/failures.dart';
 // import 'package:swift_contest/viewmodel/types/bloc_status.dart';

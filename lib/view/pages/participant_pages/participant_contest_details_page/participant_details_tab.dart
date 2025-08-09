@@ -123,31 +123,47 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                     //* Images carousel
                     SizedBox(
                       height: 180,
-                      child: (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
+                      child:
+                      (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
                           ? ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                Image.asset('assets/images/image_not_found.jpg',
-                                    fit: BoxFit.contain),
-                              ],
-                            )
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          Icon(Icons.broken_image_outlined),
+                        ],
+                      )
                           : ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: state
-                                  .contestDetailsBundle!.contestBundle.contest.imagesUrls.length,
-                              itemBuilder: (context, index) {
-                                final imageUrl = state
-                                    .contestDetailsBundle!.contestBundle.contest.imagesUrls[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: StorageImage(
-                                    bucket: StorageBucket.contestsImages,
-                                    path: imageUrl,
-                                    fit: BoxFit.contain,
-                                  ),
-                                );
-                              },
+                        scrollDirection: Axis.horizontal,
+                        itemCount: state.contestDetailsBundle!.contestBundle.contest
+                            .imagesUrls.length,
+                        itemBuilder: (context, index) {
+                          final imageUrl = state.contestDetailsBundle!.contestBundle
+                              .contest.imagesUrls[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: StorageImage(
+                              bucket: StorageBucket.contestsImages,
+                              path: imageUrl,
+                              fit: BoxFit.contain,
                             ),
+                            // Image.network(
+                            //   state.contestDetailsBundle!.contestBundle.contest
+                            //       .imagesUrls[index],
+                            //   fit: BoxFit.contain,
+                            //   frameBuilder:
+                            //       (context, child, frame, wasSynchronouslyLoaded) {
+                            //     if (wasSynchronouslyLoaded || frame != null) return child;
+                            //     return const Loader();
+                            //   },
+                            //   errorBuilder: (context, error, stackTrace) {
+                            //     return Image.asset(
+                            //       'assets/images/image_not_found.jpg',
+                            //       fit: BoxFit.cover,
+                            //     );
+                            //   },
+                            // ),
+                          );
+                        },
+                      ),
                     ),
                     SizedBox(height: 8),
                     //* Description
@@ -183,7 +199,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            state.contestDetailsBundle!.contestBundle.contest.organizerFullName,
+                            state.contestDetailsBundle!.contestBundle.organizer.fullName,
                           ),
                         ),
                       ],

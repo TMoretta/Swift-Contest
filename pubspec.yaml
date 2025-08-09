@@ -55,6 +55,7 @@ dependencies:
   qr_flutter: ^4.1.0
   app_links: ^6.4.0
   dynamic_path_url_strategy: ^1.0.0
+  mobile_scanner: ^7.0.1
 
 dev_dependencies:
   flutter_test:

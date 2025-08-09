@@ -1,19 +1,12 @@
-import 'dart:async';
 import 'dart:ui';
 
-import 'package:app_links/app_links.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/local/types/app_theme.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
-import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/deep_link_bloc/deep_link_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 class App extends StatefulWidget {
@@ -26,8 +19,8 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final AppRouter _appRouter = AppRouter();
   late final MaterialTheme _materialTheme;
-  final AppLinks _appLinks = AppLinks();
-  StreamSubscription<Uri>? _deepLinkSubscription;
+  // final AppLinks _appLinks = AppLinks();
+  // StreamSubscription<Uri>? _deepLinkSubscription;
 
   @override
   void initState() {
@@ -56,38 +49,38 @@ class _AppState extends State<App> {
     textTheme = textTheme.apply(fontSizeDelta: 1.2, fontFamilyFallback: ['sans-serif']);
     _materialTheme = MaterialTheme(textTheme: textTheme);
 
-    _initDeepLinks(context);
+    // _initDeepLinks(context);
   }
 
-  Future<void> _initDeepLinks(BuildContext context) async {
-    // Gestisce il link iniziale che ha aperto l'app (da terminata).
-    final initialUri = await _appLinks.getInitialLink();
-    if (initialUri != null) {
-      if (context.mounted) {
-        if (initialUri.scheme == 'https' && initialUri.host == 'www.swiftcontest.com') {
-          Logger.info('Link iniziale ricevuto: $initialUri');
-          context.read<DeepLinkBloc>().add(DeepLinkSetPending(initialUri));
-        }
-      }
-    }
+  // Future<void> _initDeepLinks(BuildContext context) async {
+  //   // Gestisce il link iniziale che ha aperto l'app (da terminata).
+  //   final initialUri = await _appLinks.getInitialLink();
+  //   if (initialUri != null) {
+  //     if (context.mounted) {
+  //       if (initialUri.scheme == 'https' && initialUri.host == 'www.swiftcontest.com') {
+  //         Logger.info('Link iniziale ricevuto: $initialUri');
+  //         context.read<DeepLinkBloc>().add(DeepLinkSetPending(initialUri));
+  //       }
+  //     }
+  //   }
+  //
+  //   // Gestisce i link ricevuti mentre l'app è in primo piano.
+  //   _deepLinkSubscription = _appLinks.uriLinkStream.listen((uri) {
+  //     if (context.mounted) {
+  //       if (uri.scheme == 'https' && uri.host == 'www.swiftcontest.com') {
+  //         Logger.info('Link ricevuto con app aperta: $uri');
+  //         context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
+  //         context.router.replaceAll([RootRoute(delay: 0)]);
+  //       }
+  //     }
+  //   });
+  // }
 
-    // Gestisce i link ricevuti mentre l'app è in primo piano.
-    _deepLinkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      if (context.mounted) {
-        if (uri.scheme == 'https' && uri.host == 'www.swiftcontest.com') {
-          Logger.info('Link ricevuto con app aperta: $uri');
-          context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
-          context.router.replaceAll([RootRoute(delay: 0)]);
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _deepLinkSubscription?.cancel();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _deepLinkSubscription?.cancel();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {

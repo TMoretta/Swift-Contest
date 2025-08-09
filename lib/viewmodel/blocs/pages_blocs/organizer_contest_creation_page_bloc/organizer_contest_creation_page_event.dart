@@ -5,7 +5,6 @@ sealed class OrganizerContestCreationPageEvent extends Equatable {
 }
 
 final class OrganizerContestCreationPageCreateContest extends OrganizerContestCreationPageEvent {
-  final String organizerFullName;
   final String name;
   final String description;
   final DateTime dateTime;
@@ -17,7 +16,6 @@ final class OrganizerContestCreationPageCreateContest extends OrganizerContestCr
   final double placeLat;
 
   const OrganizerContestCreationPageCreateContest({
-    required this.organizerFullName,
     required this.name,
     required this.description,
     required this.dateTime,

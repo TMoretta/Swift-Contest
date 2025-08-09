@@ -20,7 +20,7 @@
 //   final VotingSession votingSession;
 //   final Place? geoResPlace;
 //   final String simpleJurorId;
-//   final Map<VotingSessionParticipation, Map<VotingFormField, double>> votesPerParticipantMap;
+//   final Map<VotingSessionParticipant, Map<VotingFormField, double>> votesPerParticipantMap;
 //   final String? jurorId;
 //
 //   const SimpleJurorVotingProcedurePageSubmitVotes({

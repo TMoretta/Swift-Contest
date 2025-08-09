@@ -3,14 +3,12 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/database/entities/work.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
-import 'package:swift_contest/model/database/types/storage_bucket.dart';
 
 part 'participant_work_submit_page_event.dart';
 part 'participant_work_submit_page_state.dart';
@@ -66,7 +64,6 @@ class ParticipantWorkSubmitPageBloc
         id: null,
         createdAt: null,
         participationId: null,
-        participantFullName: event.participantFullName,
         name: event.name,
         description: event.description,
         imagesUrls: [],

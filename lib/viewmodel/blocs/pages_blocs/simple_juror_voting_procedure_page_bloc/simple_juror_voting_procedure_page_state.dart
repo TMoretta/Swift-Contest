@@ -6,7 +6,7 @@
 //   final String? message;
 //   final SimpleJurorVotingProcedurePageEvent? sourceEvent;
 //   final bool isInitialized;
-//   final VotingSessionProcedureBundle? votingSessionProcedureBundle;
+//   final JurorVotingSessionProcedureBundle? votingSessionProcedureBundle;
 //
 //   const SimpleJurorVotingProcedurePageState({
 //     required this.status,
@@ -21,7 +21,7 @@
 //     String? message,
 //     SimpleJurorVotingProcedurePageEvent? sourceEvent,
 //     bool? isInitialized,
-//     VotingSessionProcedureBundle? votingSessionProcedureBundle,
+//     JurorVotingSessionProcedureBundle? votingSessionProcedureBundle,
 //   }) {
 //     return SimpleJurorVotingProcedurePageState(
 //       status: status,

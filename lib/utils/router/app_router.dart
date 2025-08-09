@@ -55,6 +55,10 @@ class AppRouter extends RootStackRouter {
           path: '/place-search',
           page: PlaceSearchRoute.page,
         ),
+        AutoRoute(
+          path: '/qr-code-scanner',
+          page: QrCodeScannerRoute.page,
+        ),
 
         // AutoRoute(
         //   path: '/organizer/home',

@@ -260,9 +260,9 @@ void _showJoinContestDialog({
 // }) {
 //   final jurorHomePageBloc = context.read<JurorHomePageBloc>();
 //   final votingAccessFormKey = GlobalKey<FormState>();
-//   final fullNameController = TextEditingController();
+//   // final fullNameController = TextEditingController();
+//   // final fullNameFocusNode = FocusNode();
 //   final tokenController = TextEditingController();
-//   final fullNameFocusNode = FocusNode();
 //   final tokenFocusNode = FocusNode();
 //
 //   showDialog(

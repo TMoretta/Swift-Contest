@@ -181,95 +181,6 @@ END;
 $$;
 --endregion
 
- --region JUROR SUBMIT VOTES
- -- Allows a juror to submit their votes for a session.
- -- The operation is transactional and uses the new flexible schema.
- CREATE OR REPLACE FUNCTION juror_submit_votes(
-   p_voting_session_id uuid,
-   -- The payload is a flat list of all values.
-   -- Example: '[{"voting_form_field_id": "...", "value": "...", "voting_session_participant_id": "..."}, ...]'
-   -- 'voting_session_participant_id' is NULL for 'header' or 'footer' scope fields.
-   p_votes_payload jsonb,
-   p_juror_lat float DEFAULT NULL,
-   p_juror_lon float DEFAULT NULL
- )
- RETURNS void
- LANGUAGE plpgsql
- SECURITY INVOKER
- AS $$
- DECLARE
-   v_session record;
-   v_juror_record public.voting_session_jurors;
-   v_geo_res_place record;
-   v_submission_id uuid; -- ID of the new row in form_submissions
- BEGIN
-   -- STEP 1: SECURITY AND PRE-CHECKS
-   -- Retrieve the juror's record for this session using the caller's ID.
-   SELECT * INTO v_juror_record
-   FROM public.voting_session_jurors
-   WHERE voting_session_id = p_voting_session_id AND juror_id = auth.uid();
-
-   -- If no record is found, the user is not a juror for this session.
-   IF NOT FOUND THEN
-     RAISE EXCEPTION 'Access denied or not a juror in this voting session.';
-   END IF;
-
-   -- Check if votes have already been submitted.
-   IF v_juror_record.has_submitted THEN
-     RAISE EXCEPTION 'Votes for this session have already been submitted.';
-   END IF;
-
-   -- Check the session status.
-   SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
-   IF v_session.session_status <> 'live' THEN
-     RAISE EXCEPTION 'The voting session is not currently live.';
-   END IF;
-
-   -- STEP 2: GEO-RESTRICTION CHECK
-   IF v_session.is_geo_restricted THEN
-     IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
-       RAISE EXCEPTION 'Location data is required for this voting session.';
-     END IF;
-     SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
-     -- Use PostGIS to verify the distance.
-     IF NOT ST_DWithin(
-       ST_MakePoint(v_geo_res_place.lon, v_geo_res_place.lat)::geography,
-       ST_MakePoint(p_juror_lon, p_juror_lat)::geography,
-       v_session.geo_res_radius
-     ) THEN
-       RAISE EXCEPTION 'You are not within the allowed geographical area for voting.';
-     END IF;
-   END IF;
-
-   -- STEP 3: SAVE VOTES
-   -- 3a. Create a single submission record.
-   INSERT INTO public.voting_form_submissions (voting_session_id, voting_session_juror_id)
-   VALUES (p_voting_session_id, v_juror_record.id)
-   RETURNING id INTO v_submission_id;
-
-   -- 3b. Insert all vote values from the payload in a single, efficient operation.
-   INSERT INTO public.voting_form_submission_values (
-     voting_form_submission_id,
-     voting_form_field_id,
-     value,
-     voting_session_participant_id
-   )
-   SELECT
-     v_submission_id,
-     (value->>'voting_form_field_id')::uuid,
-     (value->>'value')::text,
-     (value->>'voting_session_participant_id')::uuid -- Will be NULL if the key is not in the JSON object.
-   FROM jsonb_array_elements(p_votes_payload) AS value;
-
-   -- STEP 4: UPDATE JUROR STATUS
-   UPDATE public.voting_session_jurors
-   SET has_submitted = true
-   WHERE id = v_juror_record.id;
-
- END;
- $$;
- --endregion
-
 --region JUROR SUBMIT VOTES
 -- Allows a juror to submit their votes for a session.
 -- The operation is transactional and uses the new flexible schema.
@@ -358,3 +269,84 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region JUROR ACCESS VOTING AS SIMPLE JUROR
+CREATE OR REPLACE FUNCTION juror_access_voting_as_simple_juror(p_token uuid)
+RETURNS voting_sessions
+LANGUAGE plpgsql
+SECURITY DEFINER -- Esegue la funzione con i permessi del creatore (necessario per accedere a tabelle e auth.uid())
+AS $$
+DECLARE
+  v_voting_session voting_sessions;
+  v_session_jury RECORD;
+  v_is_appointed_juror BOOLEAN;
+  v_user_full_name TEXT;
+BEGIN
+  -- 1. Verifica se esiste una giuria 'simple' in una sessione 'live' con il token fornito.
+  SELECT vsj.*, vs.id as session_id
+  INTO v_session_jury
+  FROM public.voting_session_juries vsj
+  JOIN public.voting_sessions vs ON vsj.voting_session_id = vs.id
+  WHERE vsj.jury_token = p_token
+    AND vsj.jury_type = 'simple'
+    AND vs.session_status = 'live';
+
+  -- 2. Se non viene trovata alcuna corrispondenza, solleva un'eccezione.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Token di invito non valido o sessione di voto non attiva.';
+  END IF;
+
+  -- 3. Verifica se l'utente corrente è già un giurato 'appointed' in qualsiasi giuria.
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.jurations j
+    JOIN public.juries ON j.jury_id = juries.id
+    WHERE j.juror_id = auth.uid()
+      AND juries.type = 'appointed'
+  )
+  INTO v_is_appointed_juror;
+
+  -- 4. Se è un giurato 'appointed', solleva un'eccezione specifica.
+  IF v_is_appointed_juror THEN
+    RAISE EXCEPTION 'Sei un giurato nominato (appointed) e devi votare nella sezione apposita all''interno del contest.';
+  END IF;
+
+  -- 5. Se i controlli passano, procedi con l'inserimento del giurato 'simple'.
+  --    Recupera prima il nome completo dell'utente dal suo profilo.
+  SELECT full_name
+  INTO v_user_full_name
+  FROM public.profiles
+  WHERE id = auth.uid();
+
+  -- Inserisci il nuovo record in voting_session_jurors.
+  -- ON CONFLICT DO NOTHING gestisce il caso in cui l'utente clicchi il link più volte,
+  -- evitando errori di duplicazione.
+  INSERT INTO public.voting_session_jurors (
+    voting_session_id,
+    voting_session_jury_id,
+    juration_id,
+    juror_id,
+    juror_full_name
+  )
+  VALUES (
+    v_session_jury.voting_session_id,
+    v_session_jury.id,
+    NULL, -- juration_id è nullo per i giurati 'simple'
+    auth.uid(),
+    v_user_full_name
+  )
+  ON CONFLICT (voting_session_jury_id, juror_id) DO NOTHING;
+
+  -- 6. Infine, restituisci la riga completa della sessione di voto a cui l'utente ha avuto accesso.
+  SELECT * INTO v_voting_session
+  FROM public.voting_sessions
+  WHERE id = v_session_jury.voting_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Sessione di voto non trovata.';
+  END IF;
+
+  RETURN v_voting_session;
+
+END;
+$$;

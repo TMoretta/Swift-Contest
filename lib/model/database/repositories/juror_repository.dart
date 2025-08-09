@@ -7,8 +7,12 @@ import 'package:swift_contest/model/database/bundles/juror_voting_session_proced
 import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/daos/account_dao.dart';
 import 'package:swift_contest/model/database/daos/juration_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_dao.dart';
+import 'package:swift_contest/model/database/daos/voting_session_jury_dao.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
+import 'package:swift_contest/model/database/entities/voting_session_jury.dart';
+import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
@@ -37,9 +41,13 @@ abstract interface class JurorRepository {
 
   Future<Either<Failure, Unit>> submitVotes({
     required String votingSessionId,
-    required List<Map<String,dynamic>> votesPayload,
+    required List<Map<String, dynamic>> votesPayload,
     required double? jurorLat,
     required double? jurorLon,
+  });
+
+  Future<Either<Failure, VotingSession>> accessVotingAsSimpleJuror({
+    required String token,
   });
 
 // Future<Either<Failure, SimpleJurorAndVotingSessionBundle>> accessVotingAsSimpleJuror({
@@ -59,14 +67,20 @@ class JurorRepositoryImpl implements JurorRepository {
   final SupabaseClient _supabase;
   final AccountDao _accountDao;
   final JurationDao _jurationDao;
+  final VotingSessionDao _votingSessionDao;
+  final VotingSessionJuryDao _votingSessionJuryDao;
 
   JurorRepositoryImpl({
     required SupabaseClient supabaseClient,
     required AccountDao accountDao,
     required JurationDao jurationDao,
+    required VotingSessionDao votingSessionDao,
+    required VotingSessionJuryDao votingSessionJuryDao,
   })  : _supabase = supabaseClient,
         _accountDao = accountDao,
-        _jurationDao = jurationDao;
+        _jurationDao = jurationDao,
+        _votingSessionDao = votingSessionDao,
+        _votingSessionJuryDao = votingSessionJuryDao;
 
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests() async {
@@ -185,7 +199,7 @@ class JurorRepositoryImpl implements JurorRepository {
   @override
   Future<Either<Failure, Unit>> submitVotes({
     required String votingSessionId,
-    required List<Map<String,dynamic>> votesPayload,
+    required List<Map<String, dynamic>> votesPayload,
     required double? jurorLat,
     required double? jurorLon,
   }) async {
@@ -198,6 +212,19 @@ class JurorRepositoryImpl implements JurorRepository {
           'p_juror_lon': jurorLon,
         });
         return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, VotingSession>> accessVotingAsSimpleJuror({
+    required String token,
+  }) async {
+    return handleDatabaseCall(
+      () async {
+        final res = await _supabase
+            .rpc('juror_access_voting_as_simple_juror', params: {'p_token': token}).single();
+        return Either.right(VotingSession.fromJson(res));
       },
     );
   }

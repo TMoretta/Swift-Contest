@@ -1,8 +1,6 @@
 // import 'package:auto_route/auto_route.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:swift_contest/model/data_models/voting_form_field.dart';
-// import 'package:swift_contest/model/data_models/voting_session_participant.dart';
 // import 'package:swift_contest/model/database/types/voting_session_status.dart';
 // import 'package:swift_contest/utils/labels/labels.dart';
 // import 'package:swift_contest/utils/router/app_router.gr.dart';
@@ -20,11 +18,9 @@
 //
 // @RoutePage()
 // class SimpleJurorVotingProcedurePage extends StatefulWidget implements AutoRouteWrapper {
-//   final String simpleJurorId;
 //   final String votingSessionId;
 //
 //   const SimpleJurorVotingProcedurePage({
-//     @PathParam('simpleJurorId') required this.simpleJurorId,
 //     @PathParam('votingSessionId') required this.votingSessionId,
 //     super.key,
 //   });

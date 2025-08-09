@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/storage_image_fetcher_bloc/storage_image_fetcher_bloc.dart';
-import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 class ContestCard extends StatefulWidget {
   final HomeContestBundle homeContestBundle;
@@ -27,6 +23,7 @@ class _ContestCardState extends State<ContestCard> {
   Widget build(BuildContext context) {
     final homeContestBundle = widget.homeContestBundle;
     final contest = homeContestBundle.contestBundle.contest;
+    final organizer = homeContestBundle.contestBundle.organizer;
     final place = homeContestBundle.contestBundle.place;
     final participations = homeContestBundle.participations;
     final jurations = homeContestBundle.jurations;
@@ -66,8 +63,12 @@ class _ContestCardState extends State<ContestCard> {
                           clipBehavior: Clip.hardEdge,
                           alignment: Alignment.center,
                           child: (contest.imagesUrls.isNotEmpty)
-                              ? StorageImage(bucket: StorageBucket.contestsImages, path: contest.imagesUrls[0],fit: BoxFit.cover,)
-                              : Image.asset('assets/images/image_not_found.jpg', fit: BoxFit.cover),
+                              ? StorageImage(
+                                  bucket: StorageBucket.contestsImages,
+                                  path: contest.imagesUrls[0],
+                                  fit: BoxFit.cover,
+                                )
+                              : Icon(Icons.broken_image_outlined),
                         ),
                       ),
                     ),
@@ -89,7 +90,9 @@ class _ContestCardState extends State<ContestCard> {
                           Expanded(
                             child: Text(
                               contest.name,
-                              style: Theme.of(context).textTheme.titleMedium
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
                                   ?.copyWith(color: Theme.of(context).colorScheme.primary),
                             ),
                           ),
@@ -124,8 +127,10 @@ class _ContestCardState extends State<ContestCard> {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              contest.organizerFullName,
-                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                              organizer.fullName,
+                              style: DefaultTextStyle.of(context)
+                                  .style
+                                  .copyWith(color: Theme.of(context).colorScheme.secondary),
                             ),
                           ),
                         ],
@@ -144,7 +149,9 @@ class _ContestCardState extends State<ContestCard> {
                             flex: 1,
                             child: Text(
                               place.address,
-                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                              style: DefaultTextStyle.of(context)
+                                  .style
+                                  .copyWith(color: Theme.of(context).colorScheme.secondary),
                             ),
                           ),
                         ],
@@ -163,7 +170,9 @@ class _ContestCardState extends State<ContestCard> {
                             flex: 1,
                             child: Text(
                               DateFormat('dd MMM, yyyy | HH:mm').format(contest.dateTime),
-                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                              style: DefaultTextStyle.of(context)
+                                  .style
+                                  .copyWith(color: Theme.of(context).colorScheme.secondary),
                             ),
                           ),
                         ],
@@ -182,7 +191,9 @@ class _ContestCardState extends State<ContestCard> {
                             flex: 1,
                             child: Text(
                               'Participants: ${participations.length} | Jurors: ${jurations.length}',
-                              style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.secondary),
+                              style: DefaultTextStyle.of(context)
+                                  .style
+                                  .copyWith(color: Theme.of(context).colorScheme.secondary),
                             ),
                           ),
                         ],

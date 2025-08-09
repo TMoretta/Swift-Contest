@@ -47,8 +47,6 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
 
   List<GlobalKey<FormState>> get formKeys => [firstFormKey, secondFormKey, thirdFormKey];
   int currentStep = 0;
-  final organizerFullNameController = TextEditingController();
-  final organizerFullNameFocusNode = FocusNode();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
   final dateController = TextEditingController();
@@ -131,14 +129,12 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   final isLastStep = (currentStep == getSteps().length - 1);
                   if (formKeys[currentStep].currentState?.validate() ?? false) {
                     if (isLastStep) {
-                      final organizerFullName = organizerFullNameController.text.trim();
                       final name = nameController.text.trim();
                       final description = descriptionController.text.trim();
                       final dateTime =
                           DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
                       context.read<OrganizerContestCreationPageBloc>().add(
                             OrganizerContestCreationPageCreateContest(
-                              organizerFullName: organizerFullName,
                               name: name,
                               description: description,
                               placeAddress: place!.address,
@@ -203,13 +199,6 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
-                CustomTextFormField(
-                  borderType: InputBorderType.outlined,
-                  controller: organizerFullNameController,
-                  focusNode: organizerFullNameFocusNode,
-                  label: 'Your full name',
-                  validator: (value) => nameValidator(value?.trim()),
-                ),
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   controller: nameController,

@@ -105,6 +105,19 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         }
       },
       builder: (context, state) {
+        if (!state.isInitialized) {
+          if (state.status.isFailure) {
+            return Center(
+              child: FilledButton(
+                onPressed: () async => context
+                    .read<JurorVotingProcedurePageBloc>()
+                    .add(JurorVotingProcedurePageFetch(votingSessionId: widget.votingSessionId)),
+                child: Text('Retry'),
+              ),
+            );
+          }
+          return VoidWidget();
+        }
         return Scaffold(
           appBar: CustomAppBar(title: 'Voting'),
           body: SafeArea(

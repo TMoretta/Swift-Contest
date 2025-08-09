@@ -36,7 +36,7 @@ Failure authExceptionToFailure(AuthException exception) {
     case 'weak_password':
       return AuthenticationFailure(exception.message);
     case 'otp_disabled':
-      return AuthenticationFailure(exception.message);
+      return AuthenticationFailure('User not found, sign up instead');
     case 'over_email_send_rate_limit':
       return AuthenticationFailure(exception.message);
     case 'otp_expired':

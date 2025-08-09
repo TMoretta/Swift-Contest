@@ -66,9 +66,6 @@ Deno.serve(async (req) => {
       throw insertError;
     }
 
-    // 6. Costruisce il deep link e invia l'email di invito usando Resend
-    const deepLinkUrl = `https://swift-contest-personal-5c81ce24.vercel.app/participant-invite/${newInvitation.token}`;
-
     await resend.emails.send({
       from: "Swift Contest <onboarding@resend.dev>",
       to: [email],
@@ -79,12 +76,8 @@ Deno.serve(async (req) => {
             <h1 style="color: #007bff;">Invito a Swift Contest</h1>
             <p>Ciao!</p>
             <p>Hai ricevuto un invito per partecipare al contest "<strong>${contest.name}</strong>".</p>
-            <p>Clicca sul pulsante qui sotto per accettare l'invito e unirti al contest direttamente dall'app.</p>
-            <a href="${deepLinkUrl}" target="_blank" style="background-color: #28a745; color: white; padding: 14px 25px; text-align: center; text-decoration: none; display: inline-block; border-radius: 8px; font-size: 16px; font-weight: bold;">
-              Partecipa al Contest
-            </a>
             <p style="margin-top: 20px; font-size: 12px; color: #666;">
-              Se il pulsante non funziona, puoi inserire manualmente questo token nell'app:<br>
+              Usa questo token nell'app:<br>
               <strong style="font-size: 14px; color: #333;">${newInvitation.token}</strong>
             </p>
           </div>
