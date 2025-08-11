@@ -158,7 +158,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
               FloatingActionButton.extended(
                 heroTag: 'voteAsSimpleJuror',
                 onPressed: () {
-                  //todo _showVoteAsSimpleJurorDialog(context: context, profileId: profileId);
+                  context.router.push(JurorVotingQrScannerRoute());
                 },
                 backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
                 foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,

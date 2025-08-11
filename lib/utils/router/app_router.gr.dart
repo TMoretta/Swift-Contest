@@ -20,40 +20,41 @@ import 'package:swift_contest/view/pages/juror_pages/juror_home_page.dart'
     as _i4;
 import 'package:swift_contest/view/pages/juror_pages/juror_voting_procedure_page.dart'
     as _i5;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_creation_page.dart'
+import 'package:swift_contest/view/pages/juror_pages/juror_voting_qr_scanner_page.dart'
     as _i6;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_contest_details_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_creation_page.dart'
     as _i7;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_edit_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_details_page/organizer_contest_details_page.dart'
     as _i8;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_contest_edit_page.dart'
     as _i9;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_juror_voting_results_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_home_page.dart'
     as _i10;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_jury_details_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_juror_voting_results_page.dart'
     as _i11;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_jury_ranking_generation_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_jury_details_page.dart'
     as _i12;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_jury_voting_results_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_jury_ranking_generation_page.dart'
     as _i13;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_jury_voting_results_page.dart'
     as _i14;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_procedure_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_form_edit_page.dart'
     as _i15;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_results_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_procedure_page.dart'
     as _i16;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_settings_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_results_page.dart'
     as _i17;
-import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_voting_settings_page.dart'
     as _i18;
-import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart'
+import 'package:swift_contest/view/pages/organizer_pages/organizer_work_details_page.dart'
     as _i19;
-import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart'
+import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_contest_details_page.dart'
     as _i20;
-import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart'
+import 'package:swift_contest/view/pages/participant_pages/participant_home_page.dart'
     as _i21;
-import 'package:swift_contest/view/pages/place_search_page.dart' as _i22;
-import 'package:swift_contest/view/pages/qr_code_scanner_page.dart' as _i23;
+import 'package:swift_contest/view/pages/participant_pages/participant_work_submit_page.dart'
+    as _i22;
+import 'package:swift_contest/view/pages/place_search_page.dart' as _i23;
 import 'package:swift_contest/view/pages/root_page.dart' as _i24;
 import 'package:swift_contest/view/pages/settings_page.dart' as _i25;
 import 'package:swift_contest/view/pages/sign_in_page.dart' as _i26;
@@ -234,7 +235,23 @@ class JurorVotingProcedureRouteArgs {
 }
 
 /// generated route for
-/// [_i6.OrganizerContestCreationPage]
+/// [_i6.JurorVotingQrScannerPage]
+class JurorVotingQrScannerRoute extends _i30.PageRouteInfo<void> {
+  const JurorVotingQrScannerRoute({List<_i30.PageRouteInfo>? children})
+      : super(JurorVotingQrScannerRoute.name, initialChildren: children);
+
+  static const String name = 'JurorVotingQrScannerRoute';
+
+  static _i30.PageInfo page = _i30.PageInfo(
+    name,
+    builder: (data) {
+      return _i30.WrappedRoute(child: const _i6.JurorVotingQrScannerPage());
+    },
+  );
+}
+
+/// generated route for
+/// [_i7.OrganizerContestCreationPage]
 class OrganizerContestCreationRoute extends _i30.PageRouteInfo<void> {
   const OrganizerContestCreationRoute({List<_i30.PageRouteInfo>? children})
       : super(OrganizerContestCreationRoute.name, initialChildren: children);
@@ -244,13 +261,13 @@ class OrganizerContestCreationRoute extends _i30.PageRouteInfo<void> {
   static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return _i30.WrappedRoute(child: const _i6.OrganizerContestCreationPage());
+      return _i30.WrappedRoute(child: const _i7.OrganizerContestCreationPage());
     },
   );
 }
 
 /// generated route for
-/// [_i7.OrganizerContestDetailsPage]
+/// [_i8.OrganizerContestDetailsPage]
 class OrganizerContestDetailsRoute
     extends _i30.PageRouteInfo<OrganizerContestDetailsRouteArgs> {
   OrganizerContestDetailsRoute({
@@ -277,7 +294,7 @@ class OrganizerContestDetailsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i7.OrganizerContestDetailsPage(
+        child: _i8.OrganizerContestDetailsPage(
           contestId: args.contestId,
           key: args.key,
         ),
@@ -310,7 +327,7 @@ class OrganizerContestDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i8.OrganizerContestEditPage]
+/// [_i9.OrganizerContestEditPage]
 class OrganizerContestEditRoute
     extends _i30.PageRouteInfo<OrganizerContestEditRouteArgs> {
   OrganizerContestEditRoute({
@@ -336,7 +353,7 @@ class OrganizerContestEditRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i8.OrganizerContestEditPage(
+        child: _i9.OrganizerContestEditPage(
           contestId: args.contestId,
           key: args.key,
         ),
@@ -369,7 +386,7 @@ class OrganizerContestEditRouteArgs {
 }
 
 /// generated route for
-/// [_i9.OrganizerHomePage]
+/// [_i10.OrganizerHomePage]
 class OrganizerHomeRoute extends _i30.PageRouteInfo<void> {
   const OrganizerHomeRoute({List<_i30.PageRouteInfo>? children})
       : super(OrganizerHomeRoute.name, initialChildren: children);
@@ -379,13 +396,13 @@ class OrganizerHomeRoute extends _i30.PageRouteInfo<void> {
   static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return _i30.WrappedRoute(child: const _i9.OrganizerHomePage());
+      return _i30.WrappedRoute(child: const _i10.OrganizerHomePage());
     },
   );
 }
 
 /// generated route for
-/// [_i10.OrganizerJurorVotingResultsPage]
+/// [_i11.OrganizerJurorVotingResultsPage]
 class OrganizerJurorVotingResultsRoute
     extends _i30.PageRouteInfo<OrganizerJurorVotingResultsRouteArgs> {
   OrganizerJurorVotingResultsRoute({
@@ -414,7 +431,7 @@ class OrganizerJurorVotingResultsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i10.OrganizerJurorVotingResultsPage(
+        child: _i11.OrganizerJurorVotingResultsPage(
           votingSessionJurorId: args.votingSessionJurorId,
           key: args.key,
         ),
@@ -451,7 +468,7 @@ class OrganizerJurorVotingResultsRouteArgs {
 }
 
 /// generated route for
-/// [_i11.OrganizerJuryDetailsPage]
+/// [_i12.OrganizerJuryDetailsPage]
 class OrganizerJuryDetailsRoute
     extends _i30.PageRouteInfo<OrganizerJuryDetailsRouteArgs> {
   OrganizerJuryDetailsRoute({
@@ -483,7 +500,7 @@ class OrganizerJuryDetailsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i11.OrganizerJuryDetailsPage(
+        child: _i12.OrganizerJuryDetailsPage(
           contestId: args.contestId,
           juryId: args.juryId,
           key: args.key,
@@ -525,7 +542,7 @@ class OrganizerJuryDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i12.OrganizerJuryRankingGenerationPage]
+/// [_i13.OrganizerJuryRankingGenerationPage]
 class OrganizerJuryRankingGenerationRoute
     extends _i30.PageRouteInfo<OrganizerJuryRankingGenerationRouteArgs> {
   OrganizerJuryRankingGenerationRoute({
@@ -554,7 +571,7 @@ class OrganizerJuryRankingGenerationRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i12.OrganizerJuryRankingGenerationPage(
+        child: _i13.OrganizerJuryRankingGenerationPage(
           votingSessionJuryId: args.votingSessionJuryId,
           key: args.key,
         ),
@@ -590,7 +607,7 @@ class OrganizerJuryRankingGenerationRouteArgs {
 }
 
 /// generated route for
-/// [_i13.OrganizerJuryVotingResultsPage]
+/// [_i14.OrganizerJuryVotingResultsPage]
 class OrganizerJuryVotingResultsRoute
     extends _i30.PageRouteInfo<OrganizerJuryVotingResultsRouteArgs> {
   OrganizerJuryVotingResultsRoute({
@@ -619,7 +636,7 @@ class OrganizerJuryVotingResultsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i13.OrganizerJuryVotingResultsPage(
+        child: _i14.OrganizerJuryVotingResultsPage(
           votingSessionJuryId: args.votingSessionJuryId,
           key: args.key,
         ),
@@ -655,7 +672,7 @@ class OrganizerJuryVotingResultsRouteArgs {
 }
 
 /// generated route for
-/// [_i14.OrganizerVotingFormEditPage]
+/// [_i15.OrganizerVotingFormEditPage]
 class OrganizerVotingFormEditRoute
     extends _i30.PageRouteInfo<OrganizerVotingFormEditRouteArgs> {
   OrganizerVotingFormEditRoute({
@@ -684,7 +701,7 @@ class OrganizerVotingFormEditRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i14.OrganizerVotingFormEditPage(
+        child: _i15.OrganizerVotingFormEditPage(
           votingFormId: args.votingFormId,
           key: args.key,
         ),
@@ -720,7 +737,7 @@ class OrganizerVotingFormEditRouteArgs {
 }
 
 /// generated route for
-/// [_i15.OrganizerVotingProcedurePage]
+/// [_i16.OrganizerVotingProcedurePage]
 class OrganizerVotingProcedureRoute
     extends _i30.PageRouteInfo<OrganizerVotingProcedureRouteArgs> {
   OrganizerVotingProcedureRoute({
@@ -749,7 +766,7 @@ class OrganizerVotingProcedureRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i15.OrganizerVotingProcedurePage(
+        child: _i16.OrganizerVotingProcedurePage(
           votingSessionId: args.votingSessionId,
           key: args.key,
         ),
@@ -785,7 +802,7 @@ class OrganizerVotingProcedureRouteArgs {
 }
 
 /// generated route for
-/// [_i16.OrganizerVotingResultsPage]
+/// [_i17.OrganizerVotingResultsPage]
 class OrganizerVotingResultsRoute
     extends _i30.PageRouteInfo<OrganizerVotingResultsRouteArgs> {
   OrganizerVotingResultsRoute({
@@ -814,7 +831,7 @@ class OrganizerVotingResultsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i16.OrganizerVotingResultsPage(
+        child: _i17.OrganizerVotingResultsPage(
           votingSessionId: args.votingSessionId,
           key: args.key,
         ),
@@ -850,7 +867,7 @@ class OrganizerVotingResultsRouteArgs {
 }
 
 /// generated route for
-/// [_i17.OrganizerVotingSettingsPage]
+/// [_i18.OrganizerVotingSettingsPage]
 class OrganizerVotingSettingsRoute
     extends _i30.PageRouteInfo<OrganizerVotingSettingsRouteArgs> {
   OrganizerVotingSettingsRoute({
@@ -877,7 +894,7 @@ class OrganizerVotingSettingsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i17.OrganizerVotingSettingsPage(
+        child: _i18.OrganizerVotingSettingsPage(
           contestId: args.contestId,
           key: args.key,
         ),
@@ -910,7 +927,7 @@ class OrganizerVotingSettingsRouteArgs {
 }
 
 /// generated route for
-/// [_i18.OrganizerWorkDetailsPage]
+/// [_i19.OrganizerWorkDetailsPage]
 class OrganizerWorkDetailsRoute
     extends _i30.PageRouteInfo<OrganizerWorkDetailsRouteArgs> {
   OrganizerWorkDetailsRoute({
@@ -939,7 +956,7 @@ class OrganizerWorkDetailsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i18.OrganizerWorkDetailsPage(
+        child: _i19.OrganizerWorkDetailsPage(
           participationId: args.participationId,
           key: args.key,
         ),
@@ -975,7 +992,7 @@ class OrganizerWorkDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i19.ParticipantContestDetailsPage]
+/// [_i20.ParticipantContestDetailsPage]
 class ParticipantContestDetailsRoute
     extends _i30.PageRouteInfo<ParticipantContestDetailsRouteArgs> {
   ParticipantContestDetailsRoute({
@@ -1004,7 +1021,7 @@ class ParticipantContestDetailsRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i19.ParticipantContestDetailsPage(
+        child: _i20.ParticipantContestDetailsPage(
           contestId: args.contestId,
           key: args.key,
         ),
@@ -1037,7 +1054,7 @@ class ParticipantContestDetailsRouteArgs {
 }
 
 /// generated route for
-/// [_i20.ParticipantHomePage]
+/// [_i21.ParticipantHomePage]
 class ParticipantHomeRoute extends _i30.PageRouteInfo<void> {
   const ParticipantHomeRoute({List<_i30.PageRouteInfo>? children})
       : super(ParticipantHomeRoute.name, initialChildren: children);
@@ -1047,13 +1064,13 @@ class ParticipantHomeRoute extends _i30.PageRouteInfo<void> {
   static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return _i30.WrappedRoute(child: const _i20.ParticipantHomePage());
+      return _i30.WrappedRoute(child: const _i21.ParticipantHomePage());
     },
   );
 }
 
 /// generated route for
-/// [_i21.ParticipantWorkSubmitPage]
+/// [_i22.ParticipantWorkSubmitPage]
 class ParticipantWorkSubmitRoute
     extends _i30.PageRouteInfo<ParticipantWorkSubmitRouteArgs> {
   ParticipantWorkSubmitRoute({
@@ -1079,7 +1096,7 @@ class ParticipantWorkSubmitRoute
         ),
       );
       return _i30.WrappedRoute(
-        child: _i21.ParticipantWorkSubmitPage(
+        child: _i22.ParticipantWorkSubmitPage(
           contestId: args.contestId,
           key: args.key,
         ),
@@ -1112,7 +1129,7 @@ class ParticipantWorkSubmitRouteArgs {
 }
 
 /// generated route for
-/// [_i22.PlaceSearchPage]
+/// [_i23.PlaceSearchPage]
 class PlaceSearchRoute extends _i30.PageRouteInfo<void> {
   const PlaceSearchRoute({List<_i30.PageRouteInfo>? children})
       : super(PlaceSearchRoute.name, initialChildren: children);
@@ -1122,23 +1139,7 @@ class PlaceSearchRoute extends _i30.PageRouteInfo<void> {
   static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return _i30.WrappedRoute(child: const _i22.PlaceSearchPage());
-    },
-  );
-}
-
-/// generated route for
-/// [_i23.QrCodeScannerPage]
-class QrCodeScannerRoute extends _i30.PageRouteInfo<void> {
-  const QrCodeScannerRoute({List<_i30.PageRouteInfo>? children})
-      : super(QrCodeScannerRoute.name, initialChildren: children);
-
-  static const String name = 'QrCodeScannerRoute';
-
-  static _i30.PageInfo page = _i30.PageInfo(
-    name,
-    builder: (data) {
-      return const _i23.QrCodeScannerPage();
+      return _i30.WrappedRoute(child: const _i23.PlaceSearchPage());
     },
   );
 }

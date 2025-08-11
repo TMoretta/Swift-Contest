@@ -7,7 +7,7 @@ final class JurorContestDetailsPageState extends Equatable {
   final bool isInitialized;
   final String? message;
   final ContestDetailsBundle? contestDetailsBundle;
-  // final VotingSessionProcedureBundle? votingSessionProcedureBundle;
+  final String? rankingFileUrl;
 
   const JurorContestDetailsPageState({
     required this.status,
@@ -15,7 +15,7 @@ final class JurorContestDetailsPageState extends Equatable {
     this.isInitialized = false,
     this.message,
     this.contestDetailsBundle,
-    // this.votingSessionProcedureBundle,
+    this.rankingFileUrl,
   });
 
   factory JurorContestDetailsPageState.fromJson(Map<String, dynamic> json) {
@@ -25,9 +25,6 @@ final class JurorContestDetailsPageState extends Equatable {
       contestDetailsBundle: (json['contest_details_bundle'] != null)
           ? ContestDetailsBundle.fromJson(json['contest_details_bundle'])
           : null,
-      // votingSessionProcedureBundle: (json['voting_session_procedure_bundle'] != null)
-      //     ? VotingSessionProcedureBundle.fromJson(json['voting_session_procedure_bundle'])
-      //     : null,
     );
   }
 
@@ -36,7 +33,6 @@ final class JurorContestDetailsPageState extends Equatable {
       'status': status.name,
       'is_initialized': isInitialized,
       'contest_details_bundle': contestDetailsBundle?.toJson(),
-      // 'voting_session_procedure_bundle': votingSessionProcedureBundle?.toJson(),
     };
   }
 
@@ -46,7 +42,7 @@ final class JurorContestDetailsPageState extends Equatable {
     bool? isInitialized,
     String? message,
     ContestDetailsBundle? contestDetailsBundle,
-    // VotingSessionProcedureBundle? votingSessionProcedureBundle,
+    String? rankingFileUrl,
   }) {
     return JurorContestDetailsPageState(
       status: status,
@@ -54,10 +50,16 @@ final class JurorContestDetailsPageState extends Equatable {
       isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
-      // votingSessionProcedureBundle: votingSessionProcedureBundle ?? this.votingSessionProcedureBundle,
+      rankingFileUrl: rankingFileUrl,
     );
   }
 
   @override
-  List<Object?> get props => [status, sourceEvent, message, contestDetailsBundle];
+  List<Object?> get props => [
+        status,
+        sourceEvent,
+        message,
+        contestDetailsBundle,
+        rankingFileUrl,
+      ];
 }

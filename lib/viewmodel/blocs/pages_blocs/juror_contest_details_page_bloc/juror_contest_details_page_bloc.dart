@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
+import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -16,13 +17,17 @@ part 'juror_contest_details_page_state.dart';
 class JurorContestDetailsPageBloc
     extends Bloc<JurorContestDetailsPageEvent, JurorContestDetailsPageState> {
   final JurorRepository _jurorRepository;
+  final StorageRepository _storageRepository;
 
   JurorContestDetailsPageBloc({
     required JurorRepository jurorRepository,
+    required StorageRepository storageRepository,
   })  : _jurorRepository = jurorRepository,
+        _storageRepository = storageRepository,
         super(JurorContestDetailsPageState(status: BlocStatus.initial)) {
     on<JurorContestDetailsPageFetch>(_fetch);
     on<JurorContestDetailsPageLeaveContest>(_leaveContest);
+    on<JurorContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);
   }
 
   @override
@@ -94,6 +99,20 @@ class JurorContestDetailsPageBloc
     eitherLeaveContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _getRankingFileUrl(
+      JurorContestDetailsPageGetRankingFileUrl event,
+      Emitter<JurorContestDetailsPageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res =
+    await _storageRepository.getSignedUrl(bucket: 'contests-rankings', path: event.filePath);
+    res.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success, rankingFileUrl: success)),
     );
   }
 }

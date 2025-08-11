@@ -50,7 +50,7 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SignInPageBloc, SignInPageState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         //* Show a message if there is one
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
@@ -64,8 +64,8 @@ class _SignInPageState extends State<SignInPage> {
         if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
           context.router.replaceAll([RootRoute(delay: 0)]);
         }
-        if (state.status.isSuccess && state.sourceEvent is SignInPageAccessVotingAsSimpleJuror) {
-          context.router.push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+        if(state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
+          context.router.push(JurorVotingQrScannerRoute());
         }
       },
       builder: (context, state) {
@@ -195,18 +195,8 @@ class _SignInPageState extends State<SignInPage> {
                                     SizedBox(height: 24),
                                     //* Vote as a simple juror
                                     TextButton(
-                                      onPressed: () async {
-                                        final bool? authenticated =
-                                            await _showVoteAsSimpleJurorDialog(context: context);
-                                        if (authenticated == true && context.mounted) {
-                                          final String? token =
-                                              await context.router.push(QrCodeScannerRoute());
-                                          if (token != null && context.mounted) {
-                                            context
-                                                .read<SignInPageBloc>()
-                                                .add(SignInPageAccessVotingAsSimpleJuror(token: token));
-                                          }
-                                        }
+                                      onPressed: () {
+                                        _showVoteAsSimpleJurorDialog(context: context);
                                       },
                                       child: DecoratedBox(
                                         decoration: BoxDecoration(
@@ -237,7 +227,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 }
 
-Future<bool?> _showVoteAsSimpleJurorDialog({required BuildContext context}) async {
+void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
   final signInPageBloc = context.read<SignInPageBloc>();
   final accessVotingFormKey = GlobalKey<FormState>();
   final fullNameController = TextEditingController();
@@ -245,7 +235,7 @@ Future<bool?> _showVoteAsSimpleJurorDialog({required BuildContext context}) asyn
   // final tokenController = TextEditingController();
   // final tokenFocusNode = FocusNode();
 
-  return await showDialog(
+  showDialog(
     context: context,
     builder: (context) {
       return BlocProvider.value(
@@ -253,7 +243,7 @@ Future<bool?> _showVoteAsSimpleJurorDialog({required BuildContext context}) asyn
         child: BlocConsumer<SignInPageBloc, SignInPageState>(
           listener: (context, state) {
             if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
-              context.router.pop(true);
+              context.router.pop();
             }
           },
           builder: (context, state) {

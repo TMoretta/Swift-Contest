@@ -28,7 +28,6 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
         super(SignInPageState(status: BlocStatus.initial)) {
     on<SignInWithEmailAndPassword>(_signInWithEmailAndPassword);
     on<SignInWithEmail>(_signInWithEmail);
-    on<SignInPageAccessVotingAsSimpleJuror>(_verifyVotingToken);
     on<SignInPageAuthenticateSimpleJuror>(_authenticateSimpleJuror);
     // on<SignInPageVoteAsSimpleJuror>(_voteAsSimpleJuror);
   }
@@ -95,19 +94,6 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
   //         state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),
   //   );
   // }
-
-  FutureOr<void> _verifyVotingToken(
-    SignInPageAccessVotingAsSimpleJuror event,
-    Emitter<SignInPageState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-
-    final res = await _jurorRepository.accessVotingAsSimpleJuror(token: event.token);
-    res.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success, votingSession: success)),
-    );
-  }
 
   FutureOr<void> _authenticateSimpleJuror(
     SignInPageAuthenticateSimpleJuror event,

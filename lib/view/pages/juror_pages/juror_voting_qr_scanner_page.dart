@@ -1,17 +1,42 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_voting_qr_scanner_page_bloc/juror_voting_qr_scanner_page_bloc.dart';
+import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
-class QrCodeScannerPage extends StatefulWidget {
-  const QrCodeScannerPage({super.key});
+class JurorVotingQrScannerPage extends StatefulWidget implements AutoRouteWrapper {
+  const JurorVotingQrScannerPage({super.key});
 
   @override
-  State<QrCodeScannerPage> createState() => _QrCodeScannerPageState();
+  State<JurorVotingQrScannerPage> createState() => _JurorVotingQrScannerPageState();
+
+  @override
+  Widget wrappedRoute(BuildContext context) {
+    return BlocProvider<JurorVotingQrScannerPageBloc>(
+      create: (context) => JurorVotingQrScannerPageBloc(
+        jurorRepository: context.read(),
+      ),
+      child: BlocConsumer<JurorVotingQrScannerPageBloc, JurorVotingQrScannerPageState>(
+        listener: (context, state) {
+          if (state.status.isSuccess &&
+              state.sourceEvent is JurorVotingQrScannerPageAccessVotingAsSimpleJuror) {
+            context.router
+                .replace(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+          }
+        },
+        builder: (context, state) {
+          return this;
+        },
+      ),
+    );
+  }
 }
 
-class _QrCodeScannerPageState extends State<QrCodeScannerPage> {
+class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
   // Controller per lo scanner
   final MobileScannerController _scannerController = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
@@ -73,10 +98,6 @@ class _QrCodeScannerPageState extends State<QrCodeScannerPage> {
             // 1. ASCOLTA L'INTERO CONTROLLER
             valueListenable: _scannerController,
             builder: (context, state, child) {
-              // 2. DENTRO IL BUILDER, CONTROLLA SE LA TORCIA È DISPONIBILE
-              if (state.torchState == null) {
-                return const SizedBox.shrink(); // Non mostrare l'icona se la torcia non c'è
-              }
               // 3. CREA L'ICONA IN BASE ALLO STATO
               return IconButton(
                 color: Colors.white,
@@ -104,8 +125,10 @@ class _QrCodeScannerPageState extends State<QrCodeScannerPage> {
         controller: _scannerController,
         onDetect: (capture) {
           final String? token = capture.barcodes.first.rawValue;
-          if (token != null && token.isNotEmpty && mounted) {
-            context.router.pop(token);
+          if (token != null && token.isNotEmpty) {
+            context
+                .read<JurorVotingQrScannerPageBloc>()
+                .add(JurorVotingQrScannerPageAccessVotingAsSimpleJuror(token: token));
           }
         },
       ),

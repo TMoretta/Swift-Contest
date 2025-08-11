@@ -2,11 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
+import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_rankings_tab.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_voting_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -28,6 +28,7 @@ class JurorContestDetailsPage extends StatefulWidget implements AutoRouteWrapper
     return BlocProvider<JurorContestDetailsPageBloc>(
       create: (context) => JurorContestDetailsPageBloc(
         jurorRepository: context.read(),
+        storageRepository: context.read(),
       ),
       child: this,
     );
@@ -88,7 +89,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: DefaultTabController(
-                length: 2,
+                length: 3,
                 child: Column(
                   children: [
                     if (state.isInitialized)
@@ -99,6 +100,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                         tabs: [
                           Tab(text: 'Details'),
                           Tab(text: 'Voting'),
+                          Tab(text: 'Rankings'),
                         ],
                       ),
                     SizedBox(height: 16),
@@ -108,6 +110,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                         children: [
                           JurorDetailsTab(contestId: contestId),
                           JurorVotingTab(contestId: contestId),
+                          JurorRankingsTab(contestId: contestId),
                         ],
                       ),
                     ),

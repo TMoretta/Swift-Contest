@@ -23,3 +23,13 @@ final class JurorContestDetailsPageLeaveContest extends JurorContestDetailsPageE
   @override
   List<Object?> get props => [contestId];
 }
+
+final class JurorContestDetailsPageGetRankingFileUrl extends JurorContestDetailsPageEvent {
+  final String filePath;
+
+  const JurorContestDetailsPageGetRankingFileUrl({required this.filePath});
+
+  @override
+  List<Object?> get props => [filePath];
+}
+

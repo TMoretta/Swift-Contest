@@ -55,6 +55,11 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   final _pageController = PageController(initialPage: 0);
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     context.hideLoader();
     _headerFieldsValuesMap.forEach((_, controller) => controller.dispose());
