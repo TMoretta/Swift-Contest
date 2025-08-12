@@ -6,7 +6,7 @@ final class OrganizerContestEditPageState extends Equatable {
   final OrganizerContestEditPageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
-  final ContestDetailsBundle? contestDetailsBundle;
+  final OrganizerContestDetailsBundle? contestDetailsBundle;
 
   const OrganizerContestEditPageState({
     required this.status,
@@ -21,7 +21,7 @@ final class OrganizerContestEditPageState extends Equatable {
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['is_initialized'] as bool,
       contestDetailsBundle: (json['contest_details_bundle'] != null)
-          ? ContestDetailsBundle.fromJson(json['contest_details_bundle'])
+          ? OrganizerContestDetailsBundle.fromJson(json['contest_details_bundle'])
           : null,
     );
   }
@@ -39,7 +39,7 @@ final class OrganizerContestEditPageState extends Equatable {
     OrganizerContestEditPageEvent? sourceEvent,
     bool? isInitialized,
     String? message,
-    ContestDetailsBundle? contestDetailsBundle,
+    OrganizerContestDetailsBundle? contestDetailsBundle,
   }) {
     return OrganizerContestEditPageState(
       status: status,

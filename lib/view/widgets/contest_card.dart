@@ -25,8 +25,6 @@ class _ContestCardState extends State<ContestCard> {
     final contest = homeContestBundle.contestBundle.contest;
     final organizer = homeContestBundle.contestBundle.organizer;
     final place = homeContestBundle.contestBundle.place;
-    final participations = homeContestBundle.participations;
-    final jurations = homeContestBundle.jurations;
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 600),
@@ -190,7 +188,7 @@ class _ContestCardState extends State<ContestCard> {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              'Participants: ${participations.length} | Jurors: ${jurations.length}',
+                              'Participants: ${homeContestBundle.participantsNumber} | Jurors: ${homeContestBundle.jurorsNumber}',
                               style: DefaultTextStyle.of(context)
                                   .style
                                   .copyWith(color: Theme.of(context).colorScheme.secondary),

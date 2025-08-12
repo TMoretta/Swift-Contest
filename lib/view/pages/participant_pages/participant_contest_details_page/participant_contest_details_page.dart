@@ -7,7 +7,6 @@ import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -28,6 +27,7 @@ class ParticipantContestDetailsPage extends StatefulWidget implements AutoRouteW
     return BlocProvider<ParticipantContestDetailsPageBloc>(
       create: (context) => ParticipantContestDetailsPageBloc(
         participantRepository: context.read(),
+        storageRepository: context.read(),
       ),
       child: this,
     );
@@ -35,14 +35,12 @@ class ParticipantContestDetailsPage extends StatefulWidget implements AutoRouteW
 }
 
 class _ParticipantContestDetailsPageState extends State<ParticipantContestDetailsPage> {
-  late String profileId;
   late final String contestId;
 
   @override
   void initState() {
     super.initState();
     contestId = widget.contestId;
-    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -50,7 +48,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
     super.didChangeDependencies();
     context
         .read<ParticipantContestDetailsPageBloc>()
-        .add(ParticipantContestDetailsPageFetch(contestId: contestId, participantId: profileId));
+        .add(ParticipantContestDetailsPageFetch(contestId: contestId));
   }
 
   @override
@@ -83,8 +81,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                     return VoidWidget();
                   }
                   return _Menu(
-                    contestId: contestId,
-                    profileId: profileId,
+                    contestId: contestId
                   );
                 },
               ),
@@ -132,9 +129,8 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
 
 class _Menu extends StatelessWidget {
   final String contestId;
-  final String profileId;
 
-  const _Menu({required this.contestId, required this.profileId});
+  const _Menu({required this.contestId});
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +172,7 @@ class _Menu extends StatelessWidget {
                             onPressed: () {
                               context.read<ParticipantContestDetailsPageBloc>().add(
                                   ParticipantContestDetailsPageLeaveContest(
-                                      contestId: contestId, participantId: profileId));
+                                      contestId: contestId));
                             },
                             child: Text('Proceed'),
                           ),

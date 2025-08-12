@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart';
 
-import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
+import 'package:swift_contest/model/database/bundles/organizer_voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
@@ -67,7 +67,7 @@ class OrganizerVotingProcedurePageBloc
     await _votingSessionSubscription?.cancel();
 
     //* Getting the voting session procedure bundle
-    late final VotingSessionProcedureBundle votingSessionProcedureBundle;
+    late final OrganizerVotingSessionProcedureBundle votingSessionProcedureBundle;
     final eitherVotingSessionBundle = await _organizerRepository.getVotingSessionProcedureBundle(
         votingSessionId: event.votingSessionId);
     eitherVotingSessionBundle.fold(

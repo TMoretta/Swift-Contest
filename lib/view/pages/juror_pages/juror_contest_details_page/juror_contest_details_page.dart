@@ -89,7 +89,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: DefaultTabController(
-                length: 3,
+                length: 2,
                 child: Column(
                   children: [
                     if (state.isInitialized)
@@ -99,7 +99,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                         indicatorSize: TabBarIndicatorSize.label,
                         tabs: [
                           Tab(text: 'Details'),
-                          Tab(text: 'Voting'),
+                          // Tab(text: 'Voting'),
                           Tab(text: 'Rankings'),
                         ],
                       ),
@@ -109,7 +109,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                         physics: NeverScrollableScrollPhysics(),
                         children: [
                           JurorDetailsTab(contestId: contestId),
-                          JurorVotingTab(contestId: contestId),
+                          // JurorVotingTab(contestId: contestId),
                           JurorRankingsTab(contestId: contestId),
                         ],
                       ),

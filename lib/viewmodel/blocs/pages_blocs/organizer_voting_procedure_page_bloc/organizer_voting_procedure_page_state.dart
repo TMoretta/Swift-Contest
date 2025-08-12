@@ -6,7 +6,7 @@ final class OrganizerVotingProcedurePageState extends Equatable {
   final OrganizerVotingProcedurePageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
-  final VotingSessionProcedureBundle? votingSessionProcedureBundle;
+  final OrganizerVotingSessionProcedureBundle? votingSessionProcedureBundle;
 
   const OrganizerVotingProcedurePageState({
     required this.status,
@@ -21,7 +21,7 @@ final class OrganizerVotingProcedurePageState extends Equatable {
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['is_initialized'] as bool,
       votingSessionProcedureBundle: (json['voting_session_procedure_bundle'] != null)
-          ? VotingSessionProcedureBundle.fromJson(json['voting_session_procedure_bundle'])
+          ? OrganizerVotingSessionProcedureBundle.fromJson(json['voting_session_procedure_bundle'])
           : null,
     );
   }
@@ -39,7 +39,7 @@ final class OrganizerVotingProcedurePageState extends Equatable {
     OrganizerVotingProcedurePageEvent? sourceEvent,
     bool? isInitialized,
     String? message,
-    VotingSessionProcedureBundle? votingSessionProcedureBundle,
+    OrganizerVotingSessionProcedureBundle? votingSessionProcedureBundle,
   }) {
     return OrganizerVotingProcedurePageState(
       status: status,

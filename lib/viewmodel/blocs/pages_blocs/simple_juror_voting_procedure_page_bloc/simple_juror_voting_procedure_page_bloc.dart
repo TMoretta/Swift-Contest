@@ -6,7 +6,7 @@
 // import 'package:flutter/material.dart';
 // import 'package:geolocator/geolocator.dart';
 // import 'package:swift_contest/model/database/bundles/juror_voting_session_procedure_bundle.dart';
-// import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
+// import 'package:swift_contest/model/database/bundles/organizer_voting_session_procedure_bundle.dart';
 // import 'package:swift_contest/model/data_models/place.dart';
 // import 'package:swift_contest/model/data_models/voting_form_field.dart';
 // import 'package:swift_contest/model/data_models/voting_session.dart';

@@ -29,26 +29,18 @@ BEGIN
          'place', to_jsonb(pl)
        ),
 
-       -- 2. The 'participations' array.
-       --    The subquery is correlated to the contest ID (c.id).
-       --    COALESCE ensures an empty array '[]' is returned instead of NULL.
-       'participations', COALESCE(
-         (
-           SELECT jsonb_agg(to_jsonb(pa))
-           FROM public.participations AS pa
-           WHERE pa.contest_id = c.id
-         ),
-         '[]'::jsonb
+       -- 2. 'participants_number'
+       'participants_number', (
+         SELECT COUNT(*)::int
+         FROM public.participations pa
+         WHERE pa.contest_id = c.id
        ),
 
-       -- 3. The 'jurations' array.
-       'jurations', COALESCE(
-         (
-           SELECT jsonb_agg(to_jsonb(ju))
-           FROM public.jurations AS ju
-           WHERE ju.contest_id = c.id
-         ),
-         '[]'::jsonb
+       -- 3. 'jurors_number'
+       'jurors_number', (
+         SELECT COUNT(*)::int
+         FROM public.jurations ju
+         WHERE ju.contest_id = c.id
        )
      )
    FROM
@@ -63,6 +55,116 @@ BEGIN
        c.created_at DESC;
 END;
 $$;
+
+--region ORGANIZER GET CONTEST DETAILS BUNDLE
+-- Retrieves all nested data for a contest's detail page, restricted to the organizer.
+CREATE OR REPLACE FUNCTION organizer_get_contest_details(p_contest_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+ result_bundle jsonb;
+BEGIN
+ -- Step 1: Security Check - Ensure the caller is the organizer
+ IF NOT EXISTS (SELECT 1 FROM public.contests WHERE id = p_contest_id AND organizer_id = auth.uid()) THEN
+   RAISE EXCEPTION 'Access denied or contest not found.';
+ END IF;
+
+ -- Step 2: Build the JSON response - Organizer gets all data
+ SELECT jsonb_build_object(
+   'contest_bundle', (
+     SELECT jsonb_build_object(
+              'contest', to_jsonb(c),
+              'organizer', to_jsonb(p),
+              'place', to_jsonb(pl)
+            )
+     FROM public.contests c
+     JOIN public.profiles p ON c.organizer_id = p.id
+     JOIN public.places pl ON c.place_id = pl.id
+     WHERE c.id = p_contest_id
+   ),
+   'participations_bundles', (
+     SELECT COALESCE(jsonb_agg(
+       jsonb_build_object(
+         'participation', to_jsonb(pa),
+         'participant', to_jsonb(p),
+         'work', to_jsonb(w)
+       )
+     ), '[]'::jsonb)
+     FROM public.participations pa
+     JOIN public.profiles p ON pa.participant_id = p.id
+     LEFT JOIN public.works w ON pa.id = w.participation_id
+     WHERE pa.contest_id = p_contest_id
+   ),
+   'participants_invitations', (
+       SELECT COALESCE(jsonb_agg(to_jsonb(pi)), '[]'::jsonb)
+       FROM public.participant_invitations pi
+       WHERE pi.contest_id = p_contest_id
+   ),
+   'juries_bundles', (
+       SELECT COALESCE(jsonb_agg(
+         jsonb_build_object(
+           'jury', to_jsonb(j),
+           'jurations_bundles', (
+             SELECT COALESCE(jsonb_agg(jsonb_build_object('juration', to_jsonb(ju), 'juror', to_jsonb(p_juror))), '[]'::jsonb)
+             FROM public.jurations ju
+             JOIN public.profiles p_juror ON ju.juror_id = p_juror.id
+             WHERE ju.jury_id = j.id
+           ),
+           'jurors_invitations', (
+             SELECT COALESCE(jsonb_agg(to_jsonb(ji)), '[]'::jsonb)
+             FROM public.juror_invitations ji
+             WHERE ji.jury_id = j.id
+           ),
+           'voting_form_bundle', (
+             SELECT jsonb_build_object(
+               'voting_form', to_jsonb(vf),
+               'voting_form_fields', (
+                 SELECT COALESCE(jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index), '[]'::jsonb)
+                 FROM public.voting_form_fields vff
+                 WHERE vff.voting_form_id = vf.id
+               )
+             )
+             FROM public.voting_forms vf
+             WHERE vf.id = j.voting_form_id
+           )
+         )
+       ), '[]'::jsonb)
+       FROM public.juries j
+       WHERE j.contest_id = p_contest_id
+   ),
+   'voting_sessions_bundles', (
+       SELECT COALESCE(jsonb_agg(
+         jsonb_build_object(
+           'voting_session', to_jsonb(vs),
+           'place', to_jsonb(pl)
+         )
+       ), '[]'::jsonb)
+       FROM public.voting_sessions vs
+       LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+       WHERE vs.contest_id = p_contest_id
+   ),
+   'contest_rankings', (
+     SELECT COALESCE(jsonb_agg(
+       jsonb_build_object(
+         'id', cr.id,
+         'created_at', cr.created_at,
+         'contest_id', cr.contest_id,
+         'file_path', cr.file_path
+       )
+     ), '[]'::jsonb)
+     FROM public.contest_rankings cr
+     WHERE cr.contest_id = p_contest_id
+   )
+ )
+ INTO result_bundle;
+
+ RETURN result_bundle;
+END;
+$$;
+--endregion
 
 --region CREATE CONTEST
 -- Crea un 'place' e un 'contest' in una singola transazione atomica.
@@ -867,6 +969,383 @@ BEGIN
   INTO result_bundle;
 
   RETURN result_bundle;
+END;
+$$;
+--endregion
+
+--region ORGANIZER GET PARTICIPATION BUNDLE
+ -- Retrieves the details of a single participation (participation, participant, and work).
+ -- Access is restricted to the contest organizer.
+ CREATE OR REPLACE FUNCTION organizer_get_participation_bundle(p_participation_id uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SECURITY INVOKER
+ AS $$
+ DECLARE
+   result_bundle jsonb;
+ BEGIN
+   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+   -- this participation belongs to.
+   IF NOT EXISTS (
+     SELECT 1
+     FROM public.participations pa
+     JOIN public.contests c ON pa.contest_id = c.id
+     WHERE
+       pa.id = p_participation_id
+       AND c.organizer_id = auth.uid()
+   ) THEN
+     RAISE EXCEPTION 'Participation not found or access denied.';
+   END IF;
+
+   -- If the security check passes, build the bundle.
+   SELECT jsonb_build_object(
+     'participation', to_jsonb(pa),
+     'participant', to_jsonb(p),
+     'work', to_jsonb(w)
+   )
+   INTO result_bundle
+   FROM public.participations pa
+   JOIN public.profiles p ON pa.participant_id = p.id
+   LEFT JOIN public.works w ON pa.id = w.participation_id
+   WHERE pa.id = p_participation_id;
+
+   RETURN result_bundle;
+ END;
+ $$;
+ --endregion
+
+ --region ORGANIZER GET JURY BUNDLE
+ -- Retrieves the complete details of a single jury.
+ -- Access is restricted to the contest organizer.
+ CREATE OR REPLACE FUNCTION organizer_get_jury_bundle(p_jury_id uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SECURITY INVOKER
+ AS $$
+ DECLARE
+   result_bundle jsonb;
+ BEGIN
+   -- SECURITY CHECK: Verify that the current user is the organizer of the contest.
+   IF NOT EXISTS (
+     SELECT 1
+     FROM public.juries j
+     JOIN public.contests c ON j.contest_id = c.id
+     WHERE j.id = p_jury_id AND c.organizer_id = auth.uid()
+   ) THEN
+     RAISE EXCEPTION 'Jury not found or access denied.';
+   END IF;
+
+   -- If the security check passes, build the complete jury bundle.
+   SELECT
+     jsonb_build_object(
+       'jury', to_jsonb(j),
+       'jurations_bundles', COALESCE(
+         (
+           SELECT jsonb_agg(
+             jsonb_build_object('juration', to_jsonb(ju), 'juror', to_jsonb(p_juror))
+           )
+           FROM public.jurations ju
+           JOIN public.profiles p_juror ON ju.juror_id = p_juror.id
+           WHERE ju.jury_id = j.id
+         ),
+         '[]'::jsonb
+       ),
+       'jurors_invitations', COALESCE(
+         (
+           SELECT jsonb_agg(to_jsonb(ji))
+           FROM public.juror_invitations ji
+           WHERE ji.jury_id = j.id
+         ),
+         '[]'::jsonb
+       ),
+       'voting_form_bundle', (
+         SELECT jsonb_build_object(
+           'voting_form', to_jsonb(vf),
+           'voting_form_fields', COALESCE(
+             (
+               SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+               FROM public.voting_form_fields vff
+               WHERE vff.voting_form_id = vf.id
+             ),
+             '[]'::jsonb
+           )
+         )
+         FROM public.voting_forms vf
+         WHERE vf.id = j.voting_form_id
+       )
+     )
+   INTO result_bundle
+   FROM public.juries j
+   WHERE j.id = p_jury_id;
+
+   RETURN result_bundle;
+ END;
+ $$;
+ --endregion
+
+--region ORGANIZER GET VOTING FORM BUNDLE
+ -- Retrieves a voting form and all its associated fields.
+ -- Access is restricted to the contest organizer.
+ CREATE OR REPLACE FUNCTION organizer_get_voting_form_bundle(p_voting_form_id uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SECURITY INVOKER
+ AS $$
+ DECLARE
+   result_bundle jsonb;
+ BEGIN
+   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+   -- associated with this voting form.
+   IF NOT EXISTS (
+     SELECT 1
+     FROM public.voting_forms vf
+     JOIN public.juries j ON vf.id = j.voting_form_id
+     JOIN public.contests c ON j.contest_id = c.id
+     WHERE vf.id = p_voting_form_id AND c.organizer_id = auth.uid()
+   ) THEN
+     RAISE EXCEPTION 'Voting form not found or access denied.';
+   END IF;
+
+   -- If the security check passes, build the bundle.
+   SELECT
+     jsonb_build_object(
+       'voting_form', to_jsonb(vf),
+       'voting_form_fields', COALESCE(
+         (
+           SELECT jsonb_agg(to_jsonb(vff) ORDER BY vff.order_index)
+           FROM public.voting_form_fields vff
+           WHERE vff.voting_form_id = vf.id
+         ),
+         '[]'::jsonb
+       )
+     )
+   INTO result_bundle
+   FROM public.voting_forms vf
+   WHERE vf.id = p_voting_form_id;
+
+   RETURN result_bundle;
+ END;
+ $$;
+ --endregion
+
+--region ORGANIZER DELETE PARTICIPANT INVITATION
+-- Deletes a participant invitation.
+-- Access is restricted to the organizer of the contest to which the invitation belongs.
+CREATE OR REPLACE FUNCTION organizer_delete_participant_invitation(p_invitation_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+BEGIN
+  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+  -- associated with this invitation before deleting.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.participant_invitations pi
+    JOIN public.contests c ON pi.contest_id = c.id
+    WHERE pi.id = p_invitation_id AND c.organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Invitation not found or access denied.';
+  END IF;
+
+  -- If the check passes, delete the invitation.
+  DELETE FROM public.participant_invitations
+  WHERE id = p_invitation_id;
+END;
+$$;
+--endregion
+
+--region ORGANIZER DELETE JUROR INVITATION
+-- Deletes a juror invitation.
+-- Access is restricted to the organizer of the contest to which the invitation belongs.
+CREATE OR REPLACE FUNCTION organizer_delete_juror_invitation(p_invitation_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+BEGIN
+  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+  -- associated with this invitation before deleting.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.juror_invitations ji
+    JOIN public.contests c ON ji.contest_id = c.id
+    WHERE ji.id = p_invitation_id AND c.organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Invitation not found or access denied.';
+  END IF;
+
+  -- If the check passes, delete the invitation.
+  DELETE FROM public.juror_invitations
+  WHERE id = p_invitation_id;
+END;
+$$;
+
+--region ORGANIZER DELETE JURY
+-- Deletes a jury. Access is restricted to the organizer of the contest.
+-- The associated voting form is deleted automatically via ON DELETE CASCADE.
+CREATE OR REPLACE FUNCTION organizer_delete_jury(p_jury_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+BEGIN
+ -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+ -- to which this jury belongs before allowing deletion.
+ IF NOT EXISTS (
+   SELECT 1
+   FROM public.juries j
+   JOIN public.contests c ON j.contest_id = c.id
+   WHERE j.id = p_jury_id AND c.organizer_id = auth.uid()
+ ) THEN
+   RAISE EXCEPTION 'Jury not found or access denied.';
+ END IF;
+
+ -- If the check passes, delete the jury.
+ DELETE FROM public.juries WHERE id = p_jury_id;
+END;
+$$;
+--endregion
+
+--region ORGANIZER REMOVE JUROR
+-- Removes a juror from a contest by deleting their juration record.
+-- Access is restricted to the organizer of the contest.
+CREATE OR REPLACE FUNCTION organizer_remove_juror(p_juration_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+BEGIN
+ -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+ -- associated with this juration before deleting.
+ IF NOT EXISTS (
+   SELECT 1
+   FROM public.jurations ju
+   JOIN public.contests c ON ju.contest_id = c.id
+   WHERE ju.id = p_juration_id AND c.organizer_id = auth.uid()
+ ) THEN
+   RAISE EXCEPTION 'Juration not found or access denied.';
+ END IF;
+
+ -- If the check passes, delete the juration.
+ DELETE FROM public.jurations
+ WHERE id = p_juration_id;
+END;
+$$;
+--endregion
+
+--region ORGANIZER REMOVE PARTICIPANT
+-- Removes a participant from a contest by deleting their participation record.
+-- Access is restricted to the organizer of the contest.
+CREATE OR REPLACE FUNCTION organizer_remove_participant(p_participation_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+BEGIN
+ -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+ -- associated with this participation before deleting.
+ IF NOT EXISTS (
+   SELECT 1
+   FROM public.participations pa
+   JOIN public.contests c ON pa.contest_id = c.id
+   WHERE pa.id = p_participation_id AND c.organizer_id = auth.uid()
+ ) THEN
+   RAISE EXCEPTION 'Participation not found or access denied.';
+ END IF;
+
+ -- If the check passes, delete the participation.
+ DELETE FROM public.participations
+ WHERE id = p_participation_id;
+END;
+$$;
+--endregion
+
+--region ORGANIZER UPDATE JURY NAME
+-- Updates the name of a jury.
+-- Access is restricted to the organizer of the contest.
+CREATE OR REPLACE FUNCTION organizer_update_jury_name(
+ p_jury_id uuid,
+ p_name text
+)
+RETURNS juries -- Returns the entire updated jury row
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+DECLARE
+ updated_jury_row juries;
+BEGIN
+ -- SECURITY CHECK: The WHERE clause implicitly verifies ownership by joining
+ -- through the contests table and checking the organizer_id.
+ UPDATE public.juries j
+ SET name = p_name
+ FROM public.contests c
+ WHERE j.id = p_jury_id
+   AND j.contest_id = c.id
+   AND c.organizer_id = auth.uid()
+ RETURNING j.* INTO updated_jury_row;
+
+ -- If no row was updated, it means the jury was not found or the user is not the organizer.
+ IF NOT FOUND THEN
+   RAISE EXCEPTION 'Jury not found or access denied.';
+ END IF;
+
+ RETURN updated_jury_row;
+END;
+$$;
+--endregion
+
+--region ORGANIZER UPDATE VOTING SESSION NAME
+-- Updates the name of a voting session.
+-- Access is restricted to the organizer of the contest.
+CREATE OR REPLACE FUNCTION organizer_update_voting_session_name(
+  p_voting_session_id uuid,
+  p_name text
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+BEGIN
+  -- SECURITY CHECK: The WHERE clause implicitly verifies ownership by joining
+  -- through the contests table and checking the organizer_id.
+  UPDATE public.voting_sessions vs
+  SET name = p_name
+  FROM public.contests c
+  WHERE vs.id = p_voting_session_id
+    AND vs.contest_id = c.id
+    AND c.organizer_id = auth.uid();
+
+  -- If no row was updated, it means the session was not found or the user is not the organizer.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Voting session not found or access denied.';
+  END IF;
+END;
+$$;
+--endregion
+
+--region ORGANIZER DELETE CONTEST
+-- Deletes a contest and all its related data via CASCADE.
+-- Access is restricted to the organizer of the contest.
+CREATE OR REPLACE FUNCTION organizer_delete_contest(p_contest_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+AS $$
+BEGIN
+ -- The WHERE clause acts as a security check, ensuring that only the
+ -- organizer of the contest can delete it.
+ DELETE FROM public.contests
+ WHERE id = p_contest_id AND organizer_id = auth.uid();
+
+ -- If no row was deleted, it means the contest was not found or the user
+ -- did not have permission.
+ IF NOT FOUND THEN
+   RAISE EXCEPTION 'Contest not found or access denied.';
+ END IF;
 END;
 $$;
 --endregion

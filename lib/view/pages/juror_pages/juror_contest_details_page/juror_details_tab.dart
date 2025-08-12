@@ -1,8 +1,10 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
@@ -202,8 +204,8 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                              'Participants: ${state.contestDetailsBundle!.participationsBundles.length} | '
-                                  'Jurors: ${state.contestDetailsBundle!.juriesBundles.map((e)=>e.jurationsBundles).toList(growable: false).length}'),
+                              'Participants: ${state.contestDetailsBundle!.participantsNumber} | '
+                                  'Jurors: ${state.contestDetailsBundle!.jurorsNumber}'),
                         ),
                       ],
                     ),
@@ -306,14 +308,114 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 72),
+                    SizedBox(height: 100),
                   ],
                 ),
               );
             },
           ),
+          floatingActionButton: (state.isInitialized) ? _buildFab(context,state) : null,
         );
       },
+    );
+  }
+
+  Widget _buildFab(BuildContext context, JurorContestDetailsPageState state) {
+    final liveVotingSessionBundle = state.contestDetailsBundle!.liveVotingSessionBundle;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        Text(
+          (liveVotingSessionBundle != null)
+              ? 'Voting session is live'
+              : 'No voting session live',
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
+        FloatingActionButton.extended(
+          onPressed: (liveVotingSessionBundle != null)
+              ? () async {
+            if (liveVotingSessionBundle.votingSession.isGeoRestricted) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Geo locate'),
+                    content: Text(
+                        'This voting session is restricted to a specific geographic area. '
+                            'It is recommended to verify location before proceed.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => context.pop(),
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            final status = await Geolocator.checkPermission();
+                            if (status == LocationPermission.denied) {
+                              final newStatus =
+                              await Geolocator.requestPermission();
+                              if (newStatus == LocationPermission.denied ||
+                                  newStatus == LocationPermission.deniedForever) {
+                                if (context.mounted) {
+                                  showSnackBar(
+                                      context: context,
+                                      text: 'Location permission denied.');
+                                }
+                                return;
+                              }
+                            }
+                            final currentPosition = await Geolocator.getCurrentPosition();
+                            final geoResPlace = liveVotingSessionBundle.geoResPlace;
+                            final distance = Geolocator.distanceBetween(
+                              geoResPlace!.lat,
+                              geoResPlace.lon,
+                              currentPosition.latitude,
+                              currentPosition.longitude,
+                            );
+
+                            if (distance > liveVotingSessionBundle.votingSession.geoResRadius!) {
+                              if(context.mounted) {
+                                showSnackBar(context: context, text: 'You are not inside the area of voting:\n${geoResPlace.address}');
+                              }
+                              return;
+                            }
+                          } catch (e) {
+                            if(context.mounted) {
+                              showSnackBar(context: context, text: 'Could not get location');
+                            }
+                            return;
+                          }
+                        },
+                        child: Text('Verify'),
+                      ),
+                      TextButton(
+                        onPressed: () => context.router.pop(),
+                        child: Text('Proceed'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+
+            final bool? res = await context.router.push(
+                JurorVotingProcedureRoute(votingSessionId: liveVotingSessionBundle.votingSession.id!));
+            if (res == true) {
+              if (context.mounted) {
+                context
+                    .read<JurorContestDetailsPageBloc>()
+                    .add(JurorContestDetailsPageFetch(contestId: contestId));
+              }
+            }
+          }
+              : null,
+          backgroundColor: (liveVotingSessionBundle == null) ? Theme.of(context).disabledColor : null,
+          icon: Icon(Icons.text_snippet),
+          label: Text('Vote'),
+        ),
+      ],
     );
   }
 }

@@ -64,7 +64,7 @@ class _SignInPageState extends State<SignInPage> {
         if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
           context.router.replaceAll([RootRoute(delay: 0)]);
         }
-        if(state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
+        if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
           context.router.push(JurorVotingQrScannerRoute());
         }
       },
@@ -137,21 +137,16 @@ class _SignInPageState extends State<SignInPage> {
                                       ),
                                     ),
                                     //* Sign in button
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: 100,
-                                      ),
-                                      child: FilledButton(
-                                        onPressed: () {
-                                          if (_formKey.currentState?.validate() ?? false) {
-                                            context.read<SignInPageBloc>().add(
-                                                SignInWithEmailAndPassword(
-                                                    email: _emailController.text.trim(),
-                                                    password: _passwordController.text.trim()));
-                                          }
-                                        },
-                                        child: Text('Sign in'),
-                                      ),
+                                    FilledButton(
+                                      onPressed: () {
+                                        if (_formKey.currentState?.validate() ?? false) {
+                                          context.read<SignInPageBloc>().add(
+                                              SignInWithEmailAndPassword(
+                                                  email: _emailController.text.trim(),
+                                                  password: _passwordController.text.trim()));
+                                        }
+                                      },
+                                      child: Text('Sign in'),
                                     ),
                                     // TextButton(
                                     //   onPressed: () {
@@ -165,7 +160,11 @@ class _SignInPageState extends State<SignInPage> {
                                     //         ),
                                     //       ),
                                     //     ),
-                                    //     child: Text('Forgot password?',style: Theme.of(context).textTheme.bodyMedium,),
+                                    //     child: Text(
+                                    //       'Forgot password?',
+                                    //       style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    //           color: Theme.of(context).colorScheme.primary),
+                                    //     ),
                                     //   ),
                                     // ),
                                     //* Sign up instead button

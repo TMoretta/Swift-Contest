@@ -29,16 +29,18 @@ BEGIN
           'organizer', to_jsonb(p),
           'place', to_jsonb(pl)
         ),
-        -- 2. 'participations' array for the contest.
-        'participations', COALESCE(
-          (SELECT jsonb_agg(to_jsonb(pa)) FROM public.participations AS pa WHERE pa.contest_id = c.id),
-          '[]'::jsonb
-        ),
-        -- 3. 'jurations' array for the contest.
-        'jurations', COALESCE(
-          (SELECT jsonb_agg(to_jsonb(ju)) FROM public.jurations AS ju WHERE ju.contest_id = c.id),
-          '[]'::jsonb
-        )
+        -- 2. 'participants_number'
+         'participants_number', (
+           SELECT COUNT(*)::int
+           FROM public.participations pa
+           WHERE pa.contest_id = c.id
+         ),
+         -- 3. 'jurors_number'
+         'jurors_number', (
+           SELECT COUNT(*)::int
+           FROM public.jurations ju
+           WHERE ju.contest_id = c.id
+         )
       ) as contest_data
     FROM
       public.contests AS c
@@ -57,6 +59,61 @@ BEGIN
 END;
 $$;
 --endregion
+
+ --region JUROR GET CONTEST DETAILS BUNDLE
+ -- Retrieves a tailored bundle of contest details for a specific juror.
+ CREATE OR REPLACE FUNCTION juror_get_contest_details(p_contest_id uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SECURITY INVOKER
+ AS $$
+ DECLARE
+   result_bundle jsonb;
+   current_user_id uuid := auth.uid();
+ BEGIN
+   -- Step 1: Security Check - Ensure the caller is a juror in this contest.
+   IF NOT EXISTS (
+     SELECT 1
+     FROM public.jurations
+     WHERE contest_id = p_contest_id AND juror_id = current_user_id
+   ) THEN
+     RAISE EXCEPTION 'Access denied: You are not a juror in this contest or the contest does not exist.';
+   END IF;
+
+   -- Step 2: Build the JSON response tailored for the juror view.
+   SELECT jsonb_build_object(
+     'contest_bundle', (
+       SELECT jsonb_build_object(
+         'contest', to_jsonb(c),
+         'organizer', to_jsonb(p),
+         'place', to_jsonb(pl)
+       )
+       FROM public.contests c
+       JOIN public.profiles p ON c.organizer_id = p.id
+       JOIN public.places pl ON c.place_id = pl.id
+       WHERE c.id = p_contest_id
+     ),
+     'participants_number', (SELECT COUNT(*)::int FROM public.participations WHERE contest_id = p_contest_id),
+     'jurors_number', (SELECT COUNT(*)::int FROM public.jurations WHERE contest_id = p_contest_id),
+     'contest_rankings', (SELECT COALESCE(jsonb_agg(to_jsonb(cr)), '[]'::jsonb) FROM public.contest_rankings cr WHERE cr.contest_id = p_contest_id),
+      'live_voting_session_bundle', (
+        SELECT jsonb_build_object(
+          'voting_session', to_jsonb(vs),
+          'place', to_jsonb(pl)
+        )
+        FROM public.voting_sessions vs
+        LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+        WHERE vs.contest_id = p_contest_id AND vs.session_status = 'live'
+        LIMIT 1 -- Ensures only one (or null) is returned
+      )
+   )
+   INTO result_bundle;
+
+   RETURN result_bundle;
+ END;
+ $$;
+ --endregion
 
 --region JUROR JOIN CONTEST
 -- Allows an authenticated user to join a jury using an invitation token.
@@ -100,6 +157,27 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region JUROR LEAVE CONTEST
+ -- Allows a juror to leave a contest, deleting their juration(s) for that contest.
+ CREATE OR REPLACE FUNCTION juror_leave_contest(p_contest_id uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY INVOKER
+ AS $$
+ BEGIN
+   -- Delete all juration records for the calling user in the specified contest.
+   -- This handles cases where a juror might be in multiple juries for the same contest.
+   DELETE FROM public.jurations
+   WHERE contest_id = p_contest_id AND juror_id = auth.uid();
+
+   -- If no rows were deleted, it means the user was not a juror in that contest.
+   IF NOT FOUND THEN
+     RAISE EXCEPTION 'Juration not found for this user in the specified contest.';
+   END IF;
+ END;
+ $$;
+ --endregion
 
 --region JUROR GET VOTING SESSION PROCEDURE BUNDLE
 -- Retrieves the data needed for a juror's voting page, tailored to the calling juror.

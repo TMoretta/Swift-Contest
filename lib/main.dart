@@ -9,26 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/app.dart';
-import 'package:swift_contest/model/database/daos/account_dao.dart';
-import 'package:swift_contest/model/database/daos/contest_dao.dart';
-import 'package:swift_contest/model/database/daos/juration_dao.dart';
-import 'package:swift_contest/model/database/daos/juror_invitation_dao.dart';
-import 'package:swift_contest/model/database/daos/jury_dao.dart';
-import 'package:swift_contest/model/database/daos/message_dao.dart';
-import 'package:swift_contest/model/database/daos/participant_invitation_dao.dart';
-import 'package:swift_contest/model/database/daos/participation_dao.dart';
-import 'package:swift_contest/model/database/daos/place_dao.dart';
-import 'package:swift_contest/model/database/daos/profile_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_form_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_form_field_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_form_submission_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_form_submission_value_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_exclusion_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_juror_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_jury_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_participant_dao.dart';
-import 'package:swift_contest/model/database/daos/work_dao.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
@@ -83,33 +63,6 @@ void main() async {
   }
 
   final SupabaseClient supabase = Supabase.instance.client;
-  final AccountDao accountDao = AccountDaoImpl(supabase: supabase);
-  final ContestDao contestDao = ContestDaoImpl(supabase: supabase);
-  final JurationDao jurationDao = JurationDaoImpl(supabase: supabase);
-  final JurorInvitationDao jurorInvitationDao = JurorInvitationDaoImpl(supabase: supabase);
-  final VotingFormSubmissionDao votingFormSubmissionDao =
-      VotingFormSubmissionDaoImpl(supabase: supabase);
-  final VotingFormSubmissionValueDao votingFormSubmissionValueDao =
-      VotingFormSubmissionValueDaoImpl(supabase: supabase);
-  final JuryDao juryDao = JuryDaoImpl(supabase: supabase);
-  final MessageDao messageDao = MessageDaoImpl(supabase: supabase);
-  final ParticipantInvitationDao participantInvitationDao =
-      ParticipantInvitationDaoImpl(supabase: supabase);
-  final ParticipationDao participationDao = ParticipationDaoImpl(supabase: supabase);
-  final PlaceDao placeDao = PlaceDaoImpl(supabase: supabase);
-  final ProfileDao profileDao = ProfileDaoImpl(supabase: supabase);
-  final VotingFormDao votingFormDao = VotingFormDaoImpl(supabase: supabase);
-  final VotingFormFieldDao votingFormFieldDao = VotingFormFieldDaoImpl(supabase: supabase);
-  final VotingSessionDao votingSessionDao = VotingSessionDaoImpl(supabase: supabase);
-  final VotingSessionExclusionDao votingSessionExclusionDao =
-      VotingSessionExclusionDaoImpl(supabase: supabase);
-  final VotingSessionJurorDao votingSessionJurationDao =
-      VotingSessionJurationDaoImpl(supabase: supabase);
-  final VotingSessionParticipantDao votingSessionParticipationDao =
-      VotingSessionParticipationDaoImpl(supabase: supabase);
-  final WorkDao workDao = WorkDaoImpl(supabase: supabase);
-  final VotingSessionJuryDao votingSessionJuryDao = VotingSessionJuryDaoImpl(supabase: supabase);
-
   final sharedPreferencesInstance = await SharedPreferences.getInstance();
 
   //* App
@@ -124,52 +77,25 @@ void main() async {
           ),
         ),
         RepositoryProvider<GooglePlaceRepository>(
-          create: (context) =>
-              GooglePlaceRepositoryImpl(supabase: supabase),
-              // GooglePlaceRepositoryImpl(apiKey: dotenv.env['GOOGLE_PLACES_API_KEY']!),
+          create: (context) => GooglePlaceRepositoryImpl(supabase: supabase),
+          // GooglePlaceRepositoryImpl(apiKey: dotenv.env['GOOGLE_PLACES_API_KEY']!),
         ),
         RepositoryProvider<StorageRepository>(
           create: (context) => StorageRepositoryImpl(supabaseClient: supabase),
         ),
         RepositoryProvider<AuthRepository>(
-          create: (context) => AuthRepositoryImpl(
-              supabaseClient: supabase,
-              profileDao: profileDao,
-              messageDao: messageDao,
-              accountDao: accountDao),
+          create: (context) => AuthRepositoryImpl(supabaseClient: supabase),
         ),
         RepositoryProvider<OrganizerRepository>(
           create: (context) => OrganizerRepositoryImpl(
-            supabaseClient: supabase,
-            profileDao: profileDao,
-            placeDao: placeDao,
-            participationDao: participationDao,
-            jurationDao: jurationDao,
-            contestDao: contestDao,
-            jurorInvitationDao: jurorInvitationDao,
-            juryDao: juryDao,
-            participantInvitationDao: participantInvitationDao,
-            votingSessionDao: votingSessionDao,
-            accountDao: accountDao,
-            votingFormDao: votingFormDao,
-            votingFormFieldDao: votingFormFieldDao,
+            supabaseClient: supabase
           ),
         ),
         RepositoryProvider<ParticipantRepository>(
-          create: (context) => ParticipantRepositoryImpl(
-            supabaseClient: supabase,
-            participationDao: participationDao,
-            accountDao: accountDao,
-          ),
+          create: (context) => ParticipantRepositoryImpl(supabaseClient: supabase),
         ),
         RepositoryProvider<JurorRepository>(
-          create: (context) => JurorRepositoryImpl(
-            supabaseClient: supabase,
-            accountDao: accountDao,
-            jurationDao: jurationDao,
-            votingSessionDao: votingSessionDao,
-            votingSessionJuryDao: votingSessionJuryDao,
-          ),
+          create: (context) => JurorRepositoryImpl(supabaseClient: supabase),
         ),
       ],
       child: MultiBlocProvider(

@@ -3,15 +3,13 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/database/bundles/juror_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'juror_contest_details_page_event.dart';
-
 part 'juror_contest_details_page_state.dart';
 
 class JurorContestDetailsPageBloc
@@ -56,7 +54,7 @@ class JurorContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    late final ContestDetailsBundle contestDetailsBundle;
+    late final JurorContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
         await _jurorRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(

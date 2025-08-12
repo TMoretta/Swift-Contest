@@ -3,28 +3,31 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
-import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
+import 'package:swift_contest/model/database/bundles/participant_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
+import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'participant_contest_details_page_event.dart';
+
 part 'participant_contest_details_page_state.dart';
 
 class ParticipantContestDetailsPageBloc
     extends Bloc<ParticipantContestDetailsPageEvent, ParticipantContestDetailsPageState> {
   final ParticipantRepository _participantRepository;
+  final StorageRepository _storageRepository;
 
   ParticipantContestDetailsPageBloc({
     required ParticipantRepository participantRepository,
-  })  :
-        _participantRepository = participantRepository,
+    required StorageRepository storageRepository,
+  })  : _participantRepository = participantRepository,
+        _storageRepository = storageRepository,
         super(ParticipantContestDetailsPageState(status: BlocStatus.initial)) {
     // on<ParticipantContestDetailsPageInit>(_init);
     on<ParticipantContestDetailsPageFetch>(_fetch);
     on<ParticipantContestDetailsPageLeaveContest>(_leaveContest);
+    on<ParticipantContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);
   }
 
   @override
@@ -53,7 +56,7 @@ class ParticipantContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    late final ContestDetailsBundle contestDetailsBundle;
+    late final ParticipantContestDetailsBundle contestDetailsBundle;
     final eitherContestDetails =
         await _participantRepository.getContestDetails(contestId: event.contestId);
     eitherContestDetails.fold(
@@ -61,26 +64,17 @@ class ParticipantContestDetailsPageBloc
       (success) => contestDetailsBundle = success,
     );
 
-    final eitherParticipation = await _participantRepository.getParticipationBundle(contestId: event.contestId, participantId: event.participantId);
-    if(eitherParticipation.isLeft()) {
-      emit(state.copyWith(status: BlocStatus.failure, message: eitherParticipation.getLeft().toNullable()!.message));
-      return;
-    }
-    final participationBundle = eitherParticipation.getRight().toNullable()!;
-
-    // late final Work? submittedWork;
-    // final eitherSubmittedWork = await _participantRepository.getSubmittedWork(
-    //     contestId: event.contestId);
-    // eitherSubmittedWork.fold(
-    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-    //   (success) => submittedWork = success,
-    // );
+    // final eitherParticipation = await _participantRepository.getParticipationBundle(contestId: event.contestId, participantId: event.participantId);
+    // if(eitherParticipation.isLeft()) {
+    //   emit(state.copyWith(status: BlocStatus.failure, message: eitherParticipation.getLeft().toNullable()!.message));
+    //   return;
+    // }
+    // final participationBundle = eitherParticipation.getRight().toNullable()!;
 
     emit(state.copyWith(
         status: BlocStatus.success,
         isInitialized: true,
-        contestDetailsBundle: contestDetailsBundle,
-        ownParticipationBundle: participationBundle));
+        contestDetailsBundle: contestDetailsBundle));
   }
 
   FutureOr<void> _leaveContest(
@@ -89,11 +83,25 @@ class ParticipantContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherLeaveContest = await _participantRepository.leaveContest(
-        contestId: event.contestId);
+    final eitherLeaveContest =
+        await _participantRepository.leaveContest(contestId: event.contestId);
     eitherLeaveContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _getRankingFileUrl(
+    ParticipantContestDetailsPageGetRankingFileUrl event,
+    Emitter<ParticipantContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res =
+        await _storageRepository.getSignedUrl(bucket: 'contests-rankings', path: event.filePath);
+    res.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, rankingFileUrl: success)),
     );
   }
 }

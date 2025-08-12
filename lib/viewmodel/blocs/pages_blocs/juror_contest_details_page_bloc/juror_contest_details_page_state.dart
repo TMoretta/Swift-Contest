@@ -6,7 +6,7 @@ final class JurorContestDetailsPageState extends Equatable {
   final JurorContestDetailsPageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
-  final ContestDetailsBundle? contestDetailsBundle;
+  final JurorContestDetailsBundle? contestDetailsBundle;
   final String? rankingFileUrl;
 
   const JurorContestDetailsPageState({
@@ -23,7 +23,7 @@ final class JurorContestDetailsPageState extends Equatable {
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['is_initialized'] as bool,
       contestDetailsBundle: (json['contest_details_bundle'] != null)
-          ? ContestDetailsBundle.fromJson(json['contest_details_bundle'])
+          ? JurorContestDetailsBundle.fromJson(json['contest_details_bundle'])
           : null,
     );
   }
@@ -41,7 +41,7 @@ final class JurorContestDetailsPageState extends Equatable {
     JurorContestDetailsPageEvent? sourceEvent,
     bool? isInitialized,
     String? message,
-    ContestDetailsBundle? contestDetailsBundle,
+    JurorContestDetailsBundle? contestDetailsBundle,
     String? rankingFileUrl,
   }) {
     return JurorContestDetailsPageState(

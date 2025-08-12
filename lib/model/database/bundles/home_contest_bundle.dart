@@ -6,47 +6,47 @@ import 'contest_bundle.dart';
 
 class HomeContestBundle extends Equatable {
   final ContestBundle contestBundle;
-  final List<Participation> participations;
-  final List<Juration> jurations;
+  final int participantsNumber;
+  final int jurorsNumber;
 
   const HomeContestBundle({
     required this.contestBundle,
-    required this.participations,
-    required this.jurations,
+    required this.participantsNumber,
+    required this.jurorsNumber,
   });
 
   factory HomeContestBundle.fromJson(Map<String, dynamic> json) {
     return HomeContestBundle(
       contestBundle: ContestBundle.fromJson(json['contest_bundle']),
-      participations: (json['participations'] as List<dynamic>)
-          .map((e) => Participation.fromJson(e))
-          .toList(growable: false),
-      jurations: (json['jurations'] as List<dynamic>)
-          .map((e) => Juration.fromJson(e))
-          .toList(growable: false),
+      participantsNumber: json['participants_number'] as int,
+      jurorsNumber: json['jurors_number'] as int,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'contest_bundle': contestBundle.toJson(),
-      'participations': participations.map((e) => e.toJson()).toList(growable: false),
-      'jurations': jurations.map((e) => e.toJson()).toList(growable: false),
+      'participants_number': participantsNumber,
+      'jurors_number': jurorsNumber,
     };
   }
 
   HomeContestBundle copyWith({
     ContestBundle? contestBundle,
-    List<Participation>? participations,
-    List<Juration>? jurations,
+    int? participantsNumber,
+    int? jurorsNumber,
   }) {
     return HomeContestBundle(
       contestBundle: contestBundle ?? this.contestBundle,
-      participations: participations ?? this.participations,
-      jurations: jurations ?? this.jurations,
+      participantsNumber: participantsNumber ?? this.participantsNumber,
+      jurorsNumber: jurorsNumber ?? this.jurorsNumber,
     );
   }
 
   @override
-  List<Object?> get props => [contestBundle, participations, jurations];
+  List<Object?> get props => [
+        contestBundle,
+        participantsNumber,
+        jurorsNumber,
+      ];
 }

@@ -4,27 +4,15 @@ import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:path/path.dart' as path;
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
+import 'package:swift_contest/model/database/bundles/organizer_contest_details_bundle.dart';
+import 'package:swift_contest/model/database/bundles/organizer_voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_form_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_juror_result_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_jury_result_bundle.dart';
-import 'package:swift_contest/model/database/bundles/voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_result_bundle.dart';
-import 'package:swift_contest/model/database/daos/account_dao.dart';
-import 'package:swift_contest/model/database/daos/contest_dao.dart';
-import 'package:swift_contest/model/database/daos/juration_dao.dart';
-import 'package:swift_contest/model/database/daos/juror_invitation_dao.dart';
-import 'package:swift_contest/model/database/daos/jury_dao.dart';
-import 'package:swift_contest/model/database/daos/participant_invitation_dao.dart';
-import 'package:swift_contest/model/database/daos/participation_dao.dart';
-import 'package:swift_contest/model/database/daos/place_dao.dart';
-import 'package:swift_contest/model/database/daos/profile_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_form_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_form_field_dao.dart';
-import 'package:swift_contest/model/database/daos/voting_session_dao.dart';
 import 'package:swift_contest/model/database/entities/contest.dart';
 import 'package:swift_contest/model/database/entities/juration.dart';
 import 'package:swift_contest/model/database/entities/juror_invitation.dart';
@@ -41,7 +29,8 @@ import 'package:swift_contest/utils/functions/gen_uuid.dart';
 abstract interface class OrganizerRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests();
 
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({required String contestId});
+  Future<Either<Failure, OrganizerContestDetailsBundle>> getContestDetails(
+      {required String contestId});
 
   Future<Either<Failure, Contest>> createContest({
     required Contest contest,
@@ -116,7 +105,7 @@ abstract interface class OrganizerRepository {
     required Place? geoResPlace,
   });
 
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+  Future<Either<Failure, OrganizerVotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   });
 
@@ -157,48 +146,10 @@ abstract interface class OrganizerRepository {
 
 class OrganizerRepositoryImpl implements OrganizerRepository {
   final SupabaseClient _supabase;
-  final AccountDao _accountDao;
-  final ContestDao _contestDao;
-  final ProfileDao _profileDao;
-  final PlaceDao _placeDao;
-  final ParticipationDao _participationDao;
-  final JurationDao _jurationDao;
-  final JuryDao _juryDao;
-  final VotingSessionDao _votingSessionDao;
-  final JurorInvitationDao _jurorInvitationDao;
-  final ParticipantInvitationDao _participantInvitationDao;
-  final VotingFormDao _votingFormDao;
-  final VotingFormFieldDao _votingFormFieldDao;
 
   OrganizerRepositoryImpl({
     required SupabaseClient supabaseClient,
-    required AccountDao accountDao,
-    required ContestDao contestDao,
-    required ProfileDao profileDao,
-    required PlaceDao placeDao,
-    required ParticipationDao participationDao,
-    required JurationDao jurationDao,
-    required JuryDao juryDao,
-    required VotingSessionDao votingSessionDao,
-    required JurorInvitationDao jurorInvitationDao,
-    required ParticipantInvitationDao participantInvitationDao,
-    required VotingFormDao votingFormDao,
-    required VotingFormFieldDao votingFormFieldDao,
-  })  : _supabase = supabaseClient,
-        _accountDao = accountDao,
-        _contestDao = contestDao,
-        _profileDao = profileDao,
-        _placeDao = placeDao,
-        _participationDao = participationDao,
-        _juryDao = juryDao,
-        _jurationDao = jurationDao,
-        _votingSessionDao = votingSessionDao,
-        _jurorInvitationDao = jurorInvitationDao,
-        _participantInvitationDao = participantInvitationDao,
-        _votingFormDao = votingFormDao,
-        _votingFormFieldDao = votingFormFieldDao;
-
-  String get accountId => _supabase.auth.currentUser?.id ?? '';
+  })  : _supabase = supabaseClient;
 
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
@@ -212,14 +163,14 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure, ContestDetailsBundle>> getContestDetails({
+  Future<Either<Failure, OrganizerContestDetailsBundle>> getContestDetails({
     required String contestId,
   }) async {
     return handleDatabaseCall(
       () async {
         final res = await _supabase
-            .rpc('user_get_contest_details', params: {'p_contest_id': contestId}).single();
-        return Either.right(ContestDetailsBundle.fromJson(res));
+            .rpc('organizer_get_contest_details', params: {'p_contest_id': contestId}).single();
+        return Either.right(OrganizerContestDetailsBundle.fromJson(res));
       },
     );
   }
@@ -293,7 +244,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
           body['p_images'] = imagesPayload;
         }
 
-        final result = await _supabase.functions.invoke(
+        await _supabase.functions.invoke(
           'organizer-update-contest',
           body: body, // Invia il corpo costruito
         );
@@ -307,7 +258,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> deleteContest({required String contestId}) async {
     return handleDatabaseCall(
       () async {
-        await _contestDao.deleteById(id: contestId);
+        await _supabase.rpc('organizer_delete_contest',params: {'p_contest_id': contestId});
         return Either.right(unit);
       },
     );
@@ -330,7 +281,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> deleteJurorInvitation({required String jurorInvitationId}) async {
     return handleDatabaseCall(
       () async {
-        await _jurorInvitationDao.deleteById(id: jurorInvitationId);
+        await _supabase.rpc('organizer_delete_juror_invitation',
+            params: {'p_juror_invitation_id': jurorInvitationId});
         return Either.right(unit);
       },
     );
@@ -340,7 +292,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> deleteJury({required String juryId}) async {
     return handleDatabaseCall(
       () async {
-        await _juryDao.deleteById(id: juryId);
+        await _supabase.rpc('organizer_delete_jury', params: {'p_jury_id': juryId});
         return Either.right(unit);
       },
     );
@@ -352,7 +304,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        await _participantInvitationDao.deleteById(id: participantInvitationId);
+        await _supabase.rpc('organizer_delete_participant_invitation',
+            params: {'p_participant_invitation_id': participantInvitationId});
         return Either.right(unit);
       },
     );
@@ -364,7 +317,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final Map<String, dynamic> res = await _supabase.rpc('user_get_participation_bundle',
+        final Map<String, dynamic> res = await _supabase.rpc('organizer_get_participation_bundle',
             params: {'p_participation_id': participationId}).single();
         return Either.right(ParticipationBundle.fromJson(res));
       },
@@ -405,7 +358,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> removeJuror({required String jurationId}) async {
     return handleDatabaseCall(
       () async {
-        await _jurationDao.deleteById(id: jurationId);
+        await _supabase.rpc('organizer_remove_juror',params: {'p_juration_id':jurationId});
         return Either.right(unit);
       },
     );
@@ -415,7 +368,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> removeParticipant({required String participationId}) async {
     return handleDatabaseCall(
       () async {
-        await _participationDao.deleteById(id: participationId);
+        await _supabase.rpc('organizer_remove_participant',params: {'p_participation_id':participationId});
         return Either.right(unit);
       },
     );
@@ -428,17 +381,14 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final eitherOldJury = await _juryDao.getById(id: juryId);
-        if (eitherOldJury.isLeft()) {
-          return left(eitherOldJury.getLeft().toNullable()!);
-        }
-        final Jury oldJury = eitherOldJury.getRight().toNullable()!;
-
-        final eitherNewJury = await _juryDao.update(entity: oldJury.copyWith(name: name));
-        if (eitherNewJury.isLeft()) {
-          return left(eitherNewJury.getLeft().toNullable()!);
-        }
-        return Either.right(eitherNewJury.getRight().toNullable()!);
+        final res = await _supabase.rpc(
+          'organizer_update_jury_name',
+          params: {
+            'p_jury_id': juryId,
+            'p_name': name,
+          },
+        ).single();
+        return Either.right(Jury.fromJson(res));
       },
     );
   }
@@ -469,8 +419,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, JuryBundle>> getJuryBundle({required String juryId}) async {
     return handleDatabaseCall(
       () async {
-        final res =
-            await _supabase.rpc('user_get_jury_bundle', params: {'p_jury_id': juryId}).single();
+        final res = await _supabase
+            .rpc('organizer_get_jury_bundle', params: {'p_jury_id': juryId}).single();
         return Either.right(JuryBundle.fromJson(res));
       },
     );
@@ -482,7 +432,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final res = await _supabase.rpc('user_get_voting_form_bundle',
+        final res = await _supabase.rpc('organizer_get_voting_form_bundle',
             params: {'p_voting_form_id': votingFormId}).single();
 
         return Either.right(VotingFormBundle.fromJson(res));
@@ -526,19 +476,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     );
   }
 
-  // @override
-  // Future<Either<Failure, Unit>> regenerateContestToken({required String contestId}) async {
-  //   return handleDatabaseCall(
-  //     () async {
-  //       await _supabase
-  //           .rpc('organizer_regenerate_contest_token', params: {'p_contest_id': contestId});
-  //       return Either.right(unit);
-  //     },
-  //   );
-  // }
-
   @override
-  Future<Either<Failure, VotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
+  Future<Either<Failure, OrganizerVotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   }) async {
     return handleDatabaseCall(
@@ -551,7 +490,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
         ).single();
 
         // 2. Deserializza la mappa JSON ricevuta nel bundle corrispondente.
-        return Either.right(VotingSessionProcedureBundle.fromJson(res));
+        return Either.right(OrganizerVotingSessionProcedureBundle.fromJson(res));
       },
     );
   }
@@ -585,33 +524,6 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
       },
     );
   }
-
-  // @override
-  // Future<Either<Failure, Unit>> startVotingSession({required String votingSessionId}) {
-  //   return handleDatabaseCall(
-  //         () async {
-  //       await _supabase.rpc(
-  //         'organizer_start_voting_session',
-  //         params: {'p_voting_session_id': votingSessionId},
-  //       );
-  //       return Either.right(unit);
-  //     },
-  //   );
-  // }
-  //
-  // @override
-  // Future<Either<Failure, Unit>> advanceVotingSession({required String votingSessionId}) {
-  //   return handleDatabaseCall(
-  //         () async {
-  //       // Chiama la funzione RPC senza aspettarsi un ritorno.
-  //       await _supabase.rpc(
-  //         'organizer_advance_voting_session',
-  //         params: {'p_voting_session_id': votingSessionId},
-  //       );
-  //       return Either.right(unit);
-  //     },
-  //   );
-  // }
 
   @override
   Future<Either<Failure, Unit>> endVotingSession({required String votingSessionId}) {
@@ -648,13 +560,13 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final eitherVotingSession = await _votingSessionDao.getById(id: votingSessionId);
-        if (eitherVotingSession.isLeft()) {
-          return Either.left(eitherVotingSession.getLeft().toNullable()!);
-        }
-        final votingSession = eitherVotingSession.getRight().toNullable()!;
-
-        await _votingSessionDao.update(entity: votingSession.copyWith(name: name));
+        await _supabase.rpc(
+          'organizer_update_voting_session_name',
+          params: {
+            'p_voting_session_id': votingSessionId,
+            'p_name': name,
+          },
+        );
         return Either.right(unit);
       },
     );
@@ -751,23 +663,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
             'contest_ranking_id': contestRankingId,
           },
         );
-
         return Either.right(unit);
       },
     );
   }
 }
-
-// {
-// 'contest_bundle' : {'contest' : contest , 'organizer' : profile, 'place' : place},
-// 'participations' : [participations],
-// 'jurations' : [jurations],
-// }
-//
-// {
-// 'contest_bundle' : {'contest' : contest , 'organizer' : profile, 'place' : place},
-// 'participations_bundles' : ['participation_bundle' : {'participation' : participation, 'participant' : profile, 'work' : work?}],
-// 'participants_invitations' : ['participant_invitation' : participant_invitation],
-// 'juries_bundles' : ['jury_bundle' : {'jury' : jury, 'jurations_bundles' : ['juration_bundle' : {'juration' : juration, 'juror' : profile}], 'jurors_invitations' : ['juror_invitation' : juror_invitation], 'voting_form_bundle' : {'voting_form': voting_form, 'voting_form_fields' : ['voting_form_field' : voting_form_field]}}],
-// 'voting_sessions' : ['voting_session' : voting_session],
-// }

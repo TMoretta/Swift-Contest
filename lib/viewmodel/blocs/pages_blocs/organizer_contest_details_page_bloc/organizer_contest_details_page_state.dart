@@ -6,7 +6,7 @@ final class OrganizerContestDetailsPageState extends Equatable {
   final OrganizerContestDetailsPageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
-  final ContestDetailsBundle? contestDetailsBundle;
+  final OrganizerContestDetailsBundle? contestDetailsBundle;
   final String? rankingFileUrl;
 
   const OrganizerContestDetailsPageState({
@@ -23,7 +23,7 @@ final class OrganizerContestDetailsPageState extends Equatable {
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['isInitialized'] as bool,
       contestDetailsBundle: json['contestDetailsBundle'] != null
-          ? ContestDetailsBundle.fromJson(json['contestDetailsBundle'] as Map<String, dynamic>)
+          ? OrganizerContestDetailsBundle.fromJson(json['contestDetailsBundle'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -41,7 +41,7 @@ final class OrganizerContestDetailsPageState extends Equatable {
     OrganizerContestDetailsPageEvent? sourceEvent,
     bool? isInitialized,
     String? message,
-    ContestDetailsBundle? contestDetailsBundle,
+    OrganizerContestDetailsBundle? contestDetailsBundle,
     String? rankingFileUrl,
   }) {
     return OrganizerContestDetailsPageState(

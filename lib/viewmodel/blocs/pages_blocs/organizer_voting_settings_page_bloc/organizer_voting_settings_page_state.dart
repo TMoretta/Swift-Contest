@@ -6,7 +6,7 @@ final class OrganizerVotingSettingsPageState extends Equatable {
   final OrganizerVotingSettingsPageEvent? sourceEvent;
   final bool isInitialized;
   final String? message;
-  final ContestDetailsBundle? contestDetailsBundle;
+  final OrganizerContestDetailsBundle? contestDetailsBundle;
   final String? votingSessionId;
 
   const OrganizerVotingSettingsPageState({
@@ -23,7 +23,7 @@ final class OrganizerVotingSettingsPageState extends Equatable {
       status: BlocStatus.values.byName(json['status']),
       isInitialized: json['is_initialized'] as bool,
       contestDetailsBundle: (json['contest_details_bundle'] != null)
-          ? ContestDetailsBundle.fromJson(json['contest_details_bundle'])
+          ? OrganizerContestDetailsBundle.fromJson(json['contest_details_bundle'])
           : null,
       votingSessionId: json['voting_session_id'],
     );
@@ -43,7 +43,7 @@ final class OrganizerVotingSettingsPageState extends Equatable {
     OrganizerVotingSettingsPageEvent? sourceEvent,
     bool? isInitialized,
     String? message,
-    ContestDetailsBundle? contestDetailsBundle,
+    OrganizerContestDetailsBundle? contestDetailsBundle,
     String? votingSessionId,
   }) {
     return OrganizerVotingSettingsPageState(

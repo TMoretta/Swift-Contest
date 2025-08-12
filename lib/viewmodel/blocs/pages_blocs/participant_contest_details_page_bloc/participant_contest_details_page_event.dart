@@ -6,26 +6,32 @@ sealed class ParticipantContestDetailsPageEvent extends Equatable {
 
 final class ParticipantContestDetailsPageFetch extends ParticipantContestDetailsPageEvent {
   final String contestId;
-  final String participantId;
 
   const ParticipantContestDetailsPageFetch({
     required this.contestId,
-    required this.participantId,
   });
 
   @override
-  List<Object?> get props => [contestId, participantId];
+  List<Object?> get props => [contestId];
 }
 
 final class ParticipantContestDetailsPageLeaveContest extends ParticipantContestDetailsPageEvent {
   final String contestId;
-  final String participantId;
 
   const ParticipantContestDetailsPageLeaveContest({
     required this.contestId,
-    required this.participantId,
   });
 
   @override
-  List<Object?> get props => [contestId, participantId];
+  List<Object?> get props => [contestId];
 }
+
+final class ParticipantContestDetailsPageGetRankingFileUrl extends ParticipantContestDetailsPageEvent {
+  final String filePath;
+
+  const ParticipantContestDetailsPageGetRankingFileUrl({required this.filePath});
+
+  @override
+  List<Object?> get props => [filePath];
+}
+

@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/functions/now.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -27,19 +24,12 @@ class ParticipantWorkTab extends StatefulWidget {
 }
 
 class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
-  late String profileId;
   late final String contestId;
 
   @override
   void initState() {
     super.initState();
     contestId = widget.contestId;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -61,7 +51,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                     child: FilledButton(
                       onPressed: () async => context.read<ParticipantContestDetailsPageBloc>().add(
                           ParticipantContestDetailsPageFetch(
-                              contestId: contestId, participantId: profileId)),
+                              contestId: contestId)),
                       child: Text('Retry'),
                     ),
                   );
@@ -70,12 +60,12 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
               }
               return LayoutBuilder(
                 builder: (context, constraints) {
-                  final work = state.ownParticipationBundle!.work;
+                  final work = state.contestDetailsBundle!.ownWork;
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<ParticipantContestDetailsPageBloc>()
                         .add(ParticipantContestDetailsPageFetch(
-                        contestId: contestId, participantId: profileId)),
+                        contestId: contestId)),
                     child: (work != null)
                         ? ListView(
                       children: [
@@ -228,7 +218,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
               final bool isInParticipationPhase =
                   state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart.isBefore(now()) &&
                       state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd.isAfter(now());
-              if (state.status.isSuccess && state.ownParticipationBundle!.work == null && isInParticipationPhase) {
+              if (state.status.isSuccess && state.contestDetailsBundle!.ownWork == null && isInParticipationPhase) {
                 return FloatingActionButton.extended(
                   onPressed: () async {
                     final bool? res =
@@ -237,7 +227,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                       if (context.mounted) {
                         context.read<ParticipantContestDetailsPageBloc>().add(
                             ParticipantContestDetailsPageFetch(
-                                contestId: contestId, participantId: profileId));
+                                contestId: contestId));
                       }
                     }
                   },

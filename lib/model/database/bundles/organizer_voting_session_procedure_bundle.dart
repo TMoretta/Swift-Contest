@@ -4,21 +4,21 @@ import 'package:swift_contest/model/database/bundles/voting_session_jury_bundle.
 import 'package:swift_contest/model/database/entities/voting_session_exclusion.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 
-class VotingSessionProcedureBundle extends Equatable {
+class OrganizerVotingSessionProcedureBundle extends Equatable {
   final VotingSessionBundle votingSessionBundle;
   final List<VotingSessionParticipant> votingSessionParticipants;
   final List<VotingSessionJuryBundle> votingSessionJuriesBundles;
   final List<VotingSessionExclusion> votingSessionExclusions;
 
-  const VotingSessionProcedureBundle({
+  const OrganizerVotingSessionProcedureBundle({
     required this.votingSessionBundle,
     required this.votingSessionParticipants,
     required this.votingSessionJuriesBundles,
     required this.votingSessionExclusions,
   });
 
-  factory VotingSessionProcedureBundle.fromJson(Map<String, dynamic> json) {
-    return VotingSessionProcedureBundle(
+  factory OrganizerVotingSessionProcedureBundle.fromJson(Map<String, dynamic> json) {
+    return OrganizerVotingSessionProcedureBundle(
       votingSessionBundle: VotingSessionBundle.fromJson(json['voting_session_bundle']),
       votingSessionParticipants: (json['voting_session_participants'] as List<dynamic>)
           .map((e) => VotingSessionParticipant.fromJson(e))
@@ -44,14 +44,14 @@ class VotingSessionProcedureBundle extends Equatable {
     };
   }
 
-  VotingSessionProcedureBundle copyWith({
+  OrganizerVotingSessionProcedureBundle copyWith({
     VotingSessionBundle? votingSessionBundle,
     List<VotingSessionParticipant>? votingSessionParticipations,
     List<VotingSessionJuryBundle>? votingSessionJuriesBundles,
     List<VotingSessionExclusion>? votingSessionExclusions,
     String? contestToken,
   }) {
-    return VotingSessionProcedureBundle(
+    return OrganizerVotingSessionProcedureBundle(
       votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
       votingSessionParticipants: votingSessionParticipations ?? this.votingSessionParticipants,
       votingSessionJuriesBundles: votingSessionJuriesBundles ?? this.votingSessionJuriesBundles,

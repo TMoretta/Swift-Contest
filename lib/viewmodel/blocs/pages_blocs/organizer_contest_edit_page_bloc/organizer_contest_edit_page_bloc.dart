@@ -5,16 +5,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-
 import 'package:image_picker/image_picker.dart';
-import 'package:swift_contest/model/database/bundles/contest_details_bundle.dart';
+import 'package:swift_contest/model/database/bundles/organizer_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/entities/contest.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
-import 'package:swift_contest/model/database/types/storage_bucket.dart';
 
 part 'organizer_contest_edit_page_event.dart';
 part 'organizer_contest_edit_page_state.dart';

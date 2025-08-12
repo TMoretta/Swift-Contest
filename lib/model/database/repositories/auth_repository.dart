@@ -1,33 +1,29 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/database/bundles/auth_bundle.dart';
-import 'package:swift_contest/model/database/daos/account_dao.dart';
-import 'package:swift_contest/model/database/daos/message_dao.dart';
-import 'package:swift_contest/model/database/daos/profile_dao.dart';
-import 'package:swift_contest/model/database/entities/account.dart';
+import 'package:swift_contest/model/database/bundles/account_bundle.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, AuthBundle>> getCurrentAccountAuthBundle();
+  Future<Either<Failure, AccountBundle?>> getAccountBundle();
 
-  Future<Either<Failure, Account>> updateCurrentAccountEmail({required String email});
+  // Future<Either<Failure, Account>> updateAccountEmail({required String email});
+  //
+  // Future<Either<Failure, Unit>> updateAccountPassword({required String password});
 
-  Future<Either<Failure, Unit>> updateCurrentAccountPassword({required String password});
-
-  Future<Either<Failure, Unit>> deleteCurrentAccount();
+  Future<Either<Failure, Unit>> deleteAccount();
 
   Future<Either<Failure, Unit>> markMessageAsRead({required String messageId});
 
   Future<Either<Failure, Unit>> deleteMessage({required String messageId});
 
-  Future<Either<Failure, Unit>> deleteAllCurrentAccountMessages();
+  Future<Either<Failure, Unit>> deleteAllAccountMessages();
 
-  Future<Either<Failure, Profile>> updateCurrentProfileFullName({required String fullName});
+  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
 
-  Future<Either<Failure, Profile>> updateCurrentProfilePrefRole({required ContestRole prefRole});
+  Future<Either<Failure, Profile>> updateProfilePrefRole({required ContestRole prefRole});
 
   Future<Either<Failure, Unit>> signInWithEmailAndPassword({
     required String email,
@@ -55,81 +51,55 @@ abstract interface class AuthRepository {
 
 class AuthRepositoryImpl implements AuthRepository {
   final SupabaseClient _supabase;
-  final AccountDao _accountDao;
-  final ProfileDao _profileDao;
-  final MessageDao _messageDao;
 
   AuthRepositoryImpl({
     required SupabaseClient supabaseClient,
-    required AccountDao accountDao,
-    required ProfileDao profileDao,
-    required MessageDao messageDao,
-  })  : _supabase = supabaseClient,
-        _accountDao = accountDao,
-        _profileDao = profileDao,
-        _messageDao = messageDao;
+  })  : _supabase = supabaseClient;
 
   @override
-  Future<Either<Failure, AuthBundle>> getCurrentAccountAuthBundle() async {
+  Future<Either<Failure, AccountBundle?>> getAccountBundle() async {
     return handleDatabaseCall(
       () async {
-        final eitherAccount = await _accountDao.getCurrent();
-        if (eitherAccount.isLeft()) {
-          return Either.left(eitherAccount.getLeft().toNullable()!);
+        final Map<String, dynamic>? res =
+            await _supabase.rpc('auth_get_account_bundle').maybeSingle();
+        if (res == null) {
+          return Either.right(null);
         }
-        final account = eitherAccount.getRight().toNullable()!;
-
-        if(account.isAnonymous) {
-          return Either.left(Failure('Account not found'));
-        }
-
-        final eitherProfile = await _profileDao.getById(id: account.id);
-        if (eitherProfile.isLeft()) {
-          return Either.left(eitherProfile.getLeft().toNullable()!);
-        }
-        final profile = eitherProfile.getRight().toNullable()!;
-
-        final eitherMessages = await _messageDao.getByAccountId(accountId: account.id);
-        if (eitherMessages.isLeft()) {
-          return Either.left(eitherMessages.getLeft().toNullable()!);
-        }
-        final messages = eitherMessages.getRight().toNullable()!;
-
-        return Either.right(AuthBundle(account: account, profile: profile, messages: messages));
+        return Either.right(AccountBundle.fromJson(res));
       },
     );
   }
 
-  @override
-  Future<Either<Failure, Account>> updateCurrentAccountEmail({required String email}) async {
-    return handleDatabaseCall(
-      () async {
-        final eitherAccount =
-            await _accountDao.updateCurrent(userAttributes: UserAttributes(email: email));
-        if (eitherAccount.isLeft()) {
-          return Either.left(eitherAccount.getLeft().toNullable()!);
-        }
-        return Either.right(eitherAccount.getRight().toNullable()!);
-      },
-    );
-  }
+  // @override
+  // Future<Either<Failure, Account>> updateAccountEmail({required String email}) async {
+  //   return handleDatabaseCall(
+  //     () async {
+  //       final eitherAccount =
+  //           await _accountDao.updateCurrent(userAttributes: UserAttributes(email: email));
+  //       if (eitherAccount.isLeft()) {
+  //         return Either.left(eitherAccount.getLeft().toNullable()!);
+  //       }
+  //       return Either.right(eitherAccount.getRight().toNullable()!);
+  //     },
+  //   );
+  // }
+  //
+  // @override
+  // Future<Either<Failure, Unit>> updateAccountPassword({required String password}) async {
+  //   return handleDatabaseCall(
+  //     () async {
+  //       final eitherAccount =
+  //           await _accountDao.updateCurrent(userAttributes: UserAttributes(password: password));
+  //       if (eitherAccount.isLeft()) {
+  //         return Either.left(eitherAccount.getLeft().toNullable()!);
+  //       }
+  //       return Either.right(unit);
+  //     },
+  //   );
+  // }
 
   @override
-  Future<Either<Failure, Unit>> updateCurrentAccountPassword({required String password}) async {
-    return handleDatabaseCall(
-      () async {
-        final eitherAccount =
-            await _accountDao.updateCurrent(userAttributes: UserAttributes(password: password));
-        if (eitherAccount.isLeft()) {
-          return Either.left(eitherAccount.getLeft().toNullable()!);
-        }
-        return Either.right(unit);
-      },
-    );
-  }
-
-  @override
-  Future<Either<Failure, Unit>> deleteCurrentAccount() async {
+  Future<Either<Failure, Unit>> deleteAccount() async {
     return handleDatabaseCall(
       () async {
         final res = await _supabase.functions.invoke('delete-account');
@@ -146,16 +116,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> markMessageAsRead({required String messageId}) async {
     return handleDatabaseCall(
       () async {
-        final eitherMessage = await _messageDao.getById(id: messageId);
-        if (eitherMessage.isLeft()) {
-          return Either.left(eitherMessage.getLeft().toNullable()!);
-        }
-        final message = eitherMessage.getRight().toNullable()!;
-
-        final eitherUpdate = await _messageDao.update(entity: message.copyWith(isRead: true));
-        if (eitherUpdate.isLeft()) {
-          return Either.left(eitherUpdate.getLeft().toNullable()!);
-        }
+        await _supabase.rpc('auth_mark_message_as_read', params: {'p_message_id': messageId});
         return Either.right(unit);
       },
     );
@@ -165,85 +126,42 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> deleteMessage({required String messageId}) async {
     return handleDatabaseCall(
       () async {
-        final eitherDelete = await _messageDao.deleteById(id: messageId);
-        if (eitherDelete.isLeft()) {
-          return Either.left(eitherDelete.getLeft().toNullable()!);
-        }
+        await _supabase.rpc('auth_delete_message', params: {'p_message_id': messageId});
         return Either.right(unit);
       },
     );
   }
 
   @override
-  Future<Either<Failure, Unit>> deleteAllCurrentAccountMessages() async {
+  Future<Either<Failure, Unit>> deleteAllAccountMessages() async {
     return handleDatabaseCall(
       () async {
-        final eitherAccount = await _accountDao.getCurrent();
-        if (eitherAccount.isLeft()) {
-          return Either.left(eitherAccount.getLeft().toNullable()!);
-        }
-        final account = eitherAccount.getRight().toNullable()!;
-        final eitherDelete = await _messageDao.deleteByAccountId(accountId: account.id);
-        if (eitherDelete.isLeft()) {
-          return Either.left(eitherDelete.getLeft().toNullable()!);
-        }
+        await _supabase.rpc('auth_delete_all_account_messages');
         return Either.right(unit);
       },
     );
   }
 
   @override
-  Future<Either<Failure, Profile>> updateCurrentProfileFullName({required String fullName}) async {
+  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName}) async {
     return handleDatabaseCall(
       () async {
-        final eitherAccount = await _accountDao.getCurrent();
-        if (eitherAccount.isLeft()) {
-          return Either.left(eitherAccount.getLeft().toNullable()!);
-        }
-        final account = eitherAccount.getRight().toNullable()!;
-
-        final eitherProfile = await _profileDao.getById(id: account.id);
-        if (eitherProfile.isLeft()) {
-          return Either.left(eitherProfile.getLeft().toNullable()!);
-        }
-        final oldProfile = eitherProfile.getRight().toNullable()!;
-
-        final eitherUpdate =
-            await _profileDao.update(entity: oldProfile.copyWith(fullName: fullName));
-        if (eitherUpdate.isLeft()) {
-          return Either.left(eitherUpdate.getLeft().toNullable()!);
-        }
-        final newProfile = eitherUpdate.getRight().toNullable()!;
-        return Either.right(newProfile);
+        final Map<String, dynamic> res =
+            await _supabase.rpc('auth_update_profile_full_name', params: {'p_full_name': fullName}).single();
+        return Either.right(Profile.fromJson(res));
       },
     );
   }
 
   @override
-  Future<Either<Failure, Profile>> updateCurrentProfilePrefRole({
+  Future<Either<Failure, Profile>> updateProfilePrefRole({
     required ContestRole prefRole,
   }) async {
     return handleDatabaseCall(
       () async {
-        final eitherAccount = await _accountDao.getCurrent();
-        if (eitherAccount.isLeft()) {
-          return Either.left(eitherAccount.getLeft().toNullable()!);
-        }
-        final account = eitherAccount.getRight().toNullable()!;
-
-        final eitherProfile = await _profileDao.getById(id: account.id);
-        if (eitherProfile.isLeft()) {
-          return Either.left(eitherProfile.getLeft().toNullable()!);
-        }
-        final oldProfile = eitherProfile.getRight().toNullable()!;
-
-        final eitherUpdate =
-            await _profileDao.update(entity: oldProfile.copyWith(prefRole: prefRole));
-        if (eitherUpdate.isLeft()) {
-          return Either.left(eitherUpdate.getLeft().toNullable()!);
-        }
-        final newProfile = eitherUpdate.getRight().toNullable()!;
-        return Either.right(newProfile);
+        final Map<String, dynamic> res =
+        await _supabase.rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole}).single();
+        return Either.right(Profile.fromJson(res));
       },
     );
   }
@@ -260,11 +178,6 @@ class AuthRepositoryImpl implements AuthRepository {
         if (session == null) {
           return Either.left(Failure('No valid session found'));
         }
-        // final account = Account.fromJson(session.user.toJson());
-        // if(account.isAdmin) {
-        //   await _supabase.auth.signOut();
-        //   return Eithlefter.right(Failure('Invalid credentials'));
-        // }
         return Either.right(unit);
       },
     );
@@ -379,7 +292,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> anonSignIn({required String fullName}) {
     return handleDatabaseCall(
       () async {
-        await _supabase.auth.signInAnonymously(data: {'full_name':fullName});
+        await _supabase.auth.signInAnonymously(data: {'full_name': fullName});
         return Either.right(unit);
       },
     );

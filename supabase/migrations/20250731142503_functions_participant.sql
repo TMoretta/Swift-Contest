@@ -9,61 +9,99 @@ AS $$
 BEGIN
   -- It's good practice to verify that the participant's profile exists.
   IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()) THEN
-    -- Corrected: Generic error message in English.
     RAISE EXCEPTION 'User profile not found or access denied.';
   END IF;
 
-  -- The query returns the results, building a single JSON object per row.
-  -- The key difference from organizer_get_created_contests is the additional JOIN
-  -- on the 'participations' table to filter contests based on the current user.
   RETURN QUERY
   SELECT
-    -- Build a single JSON object for each row.
     jsonb_build_object(
-      -- 1. 'contest_bundle' object.
       'contest_bundle', jsonb_build_object(
         'contest', to_jsonb(c),
         'organizer', to_jsonb(p),
         'place', to_jsonb(pl)
       ),
-
-      -- 2. 'participations' array for the contest.
-      'participations', COALESCE(
-        (
-          SELECT jsonb_agg(to_jsonb(pa))
-          FROM public.participations AS pa
-          WHERE pa.contest_id = c.id
-        ),
-        '[]'::jsonb
+      'participants_number', (
+        SELECT COUNT(*)::int
+        FROM public.participations pa
+        WHERE pa.contest_id = c.id
       ),
-
-      -- 3. 'jurations' array for the contest.
-      'jurations', COALESCE(
-        (
-          SELECT jsonb_agg(to_jsonb(ju))
-          FROM public.jurations AS ju
-          WHERE ju.contest_id = c.id
-        ),
-        '[]'::jsonb
+      'jurors_number', (
+        SELECT COUNT(*)::int
+        FROM public.jurations ju
+        WHERE ju.contest_id = c.id
       )
     )
   FROM
     public.contests AS c
-    -- JOIN to get the organizer's profile details.
     JOIN public.profiles AS p ON c.organizer_id = p.id
-    -- JOIN to get the contest's place details.
     JOIN public.places AS pl ON c.place_id = pl.id
-    -- *** KEY LOGIC ***
-    -- JOIN with the participations table to find contests the user is part of.
     JOIN public.participations user_participation ON c.id = user_participation.contest_id
   WHERE
-    -- Filter for the ID of the participant who called the function.
     user_participation.participant_id = auth.uid()
   ORDER BY
       c.created_at DESC;
 END;
 $$;
 --endregion
+
+--region PARTICIPANT GET CONTEST DETAILS BUNDLE
+ -- Retrieves a tailored bundle of contest details for a specific participant.
+ CREATE OR REPLACE FUNCTION participant_get_contest_details(p_contest_id uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SECURITY INVOKER
+ AS $$
+ DECLARE
+   result_bundle jsonb;
+   current_user_id uuid := auth.uid();
+ BEGIN
+   -- Step 1: Security Check - Ensure the caller is a participant in this contest.
+   IF NOT EXISTS (
+     SELECT 1
+     FROM public.participations
+     WHERE contest_id = p_contest_id AND participant_id = current_user_id
+   ) THEN
+     RAISE EXCEPTION 'Access denied: You are not a participant in this contest or the contest does not exist.';
+   END IF;
+
+   -- Step 2: Build the JSON response tailored for the participant view.
+   SELECT jsonb_build_object(
+     'contest_bundle', (
+       SELECT jsonb_build_object(
+         'contest', to_jsonb(c),
+         'organizer', to_jsonb(p),
+         'place', to_jsonb(pl)
+       )
+       FROM public.contests c
+       JOIN public.profiles p ON c.organizer_id = p.id
+       JOIN public.places pl ON c.place_id = pl.id
+       WHERE c.id = p_contest_id
+     ),
+     'participants_number', (
+       SELECT COUNT(*)::int FROM public.participations WHERE contest_id = p_contest_id
+     ),
+     'jurors_number', (
+       SELECT COUNT(*)::int FROM public.jurations WHERE contest_id = p_contest_id
+     ),
+     'contest_rankings', (
+       SELECT COALESCE(jsonb_agg(to_jsonb(cr)), '[]'::jsonb)
+       FROM public.contest_rankings cr
+       WHERE cr.contest_id = p_contest_id
+     ),
+     'own_work', (
+       SELECT to_jsonb(w)
+       FROM public.works w
+       JOIN public.participations pa ON w.participation_id = pa.id
+       WHERE pa.contest_id = p_contest_id AND pa.participant_id = current_user_id
+     )
+   )
+   INTO result_bundle;
+
+   RETURN result_bundle;
+ END;
+ $$;
+ --endregion
 
 --region PARTICIPANT JOIN CONTEST
 -- Allows an authenticated user to join a contest using an invitation token.
@@ -114,6 +152,26 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region PARTICIPANT LEAVE CONTEST
+ -- Allows a participant to leave a contest, deleting their participation record.
+ CREATE OR REPLACE FUNCTION participant_leave_contest(p_contest_id uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY INVOKER
+ AS $$
+ BEGIN
+   -- Delete the participation record for the calling user in the specified contest.
+   DELETE FROM public.participations
+   WHERE contest_id = p_contest_id AND participant_id = auth.uid();
+
+   -- If no row was deleted, it means the user was not a participant in that contest.
+   IF NOT FOUND THEN
+     RAISE EXCEPTION 'Participation not found for this user in the specified contest.';
+   END IF;
+ END;
+ $$;
+ --endregion
 
 --region SUBMIT WORK
 -- Allows a participant to submit their work for a contest.
@@ -187,3 +245,45 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region USER GET PARTICIPATION BUNDLE
+-- Retrieves the details of a single participation (participation, participant, and work).
+-- Access is granted to the contest organizer or the specific participant.
+CREATE OR REPLACE FUNCTION user_get_participation_bundle(p_participation_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY INVOKER
+AS $$
+DECLARE
+  result_bundle jsonb;
+BEGIN
+  -- SECURITY CHECK: Verify that the current user is either:
+  -- 1. The organizer of the contest this participation belongs to.
+  -- 2. The participant of this specific participation.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.participations pa
+    JOIN public.contests c ON pa.contest_id = c.id
+    WHERE
+      pa.id = p_participation_id
+      AND (c.organizer_id = auth.uid() OR pa.participant_id = auth.uid())
+  ) THEN
+    RAISE EXCEPTION 'Participation not found or access denied.';
+  END IF;
+
+  -- If the security check passes, build the bundle.
+  SELECT jsonb_build_object(
+           'participation', to_jsonb(pa),
+           'participant', to_jsonb(p),
+           'work', to_jsonb(w)
+         )
+  INTO result_bundle
+  FROM public.participations pa
+  JOIN public.profiles p ON pa.participant_id = p.id
+  LEFT JOIN public.works w ON pa.id = w.participation_id
+  WHERE pa.id = p_participation_id;
+
+  RETURN result_bundle;
+END;
+$$;

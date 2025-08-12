@@ -25,6 +25,6 @@ Future<Either<Failure, T>> handleDatabaseCall<T>(Future<Either<Failure, T>> Func
   } on StorageException catch (e) {
     return Either.left(storageExceptionToFailure(e));
   } catch (_) {
-    return Either.left(const ServerFailure());
+    return Either.left(const Failure());
   }
 }

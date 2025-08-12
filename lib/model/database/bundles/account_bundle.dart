@@ -3,19 +3,19 @@ import 'package:swift_contest/model/database/entities/account.dart';
 import 'package:swift_contest/model/database/entities/message.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
 
-class AuthBundle extends Equatable {
+class AccountBundle extends Equatable {
   final Account account;
   final Profile profile;
   final List<Message> messages;
 
-  const AuthBundle({
+  const AccountBundle({
     required this.account,
     required this.profile,
     required this.messages,
   });
 
-  factory AuthBundle.fromJson(Map<String, dynamic> json) {
-    return AuthBundle(
+  factory AccountBundle.fromJson(Map<String, dynamic> json) {
+    return AccountBundle(
       account: Account.fromJson(json['account']),
       profile: Profile.fromJson(json['profile']),
       messages: (json['messages'] as List<dynamic>)
@@ -32,12 +32,12 @@ class AuthBundle extends Equatable {
     };
   }
 
-  AuthBundle copyWith({
+  AccountBundle copyWith({
     Account? account,
     Profile? profile,
     List<Message>? messages,
   }) {
-    return AuthBundle(
+    return AccountBundle(
       account: account ?? this.account,
       profile: profile ?? this.profile,
       messages: messages ?? this.messages,

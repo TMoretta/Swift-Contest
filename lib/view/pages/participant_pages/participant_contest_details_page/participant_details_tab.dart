@@ -6,7 +6,6 @@ import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,19 +23,12 @@ class ParticipantDetailsTab extends StatefulWidget {
 }
 
 class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
-  late String profileId;
   late final String contestId;
 
   @override
   void initState() {
     super.initState();
     contestId = widget.contestId;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -58,7 +50,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                     child: FilledButton(
                       onPressed: () async => context.read<ParticipantContestDetailsPageBloc>().add(
                           ParticipantContestDetailsPageFetch(
-                              contestId: contestId, participantId: profileId)),
+                              contestId: contestId)),
                       child: Text('Retry'),
                     ),
                   );
@@ -68,7 +60,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
               return RefreshIndicator.adaptive(
                 onRefresh: () async => context.read<ParticipantContestDetailsPageBloc>().add(
                     ParticipantContestDetailsPageFetch(
-                        contestId: contestId, participantId: profileId)),
+                        contestId: contestId)),
                 child: ListView(
                   children: [
                     // SizedBox(height: 6),
@@ -218,8 +210,8 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                              'Participants: ${state.contestDetailsBundle!.participationsBundles.length} | '
-                              'Jurors: ${state.contestDetailsBundle!.juriesBundles.map((e) => e.jurationsBundles).toList(growable: false).length}'),
+                              'Participants: ${state.contestDetailsBundle!.participantsNumber} | '
+                              'Jurors: ${state.contestDetailsBundle!.jurorsNumber}'),
                         ),
                       ],
                     ),
