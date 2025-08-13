@@ -73,7 +73,7 @@ class _SignInVerifyPageState extends State<SignInVerifyPage> {
           context.hideLoader();
         }
         if (state.status.isSuccess && state.sourceEvent is SignInVerifyOtp) {
-          context.router.replaceAll([RootRoute(delay: 0)]);
+          context.router.replaceAll([RootRoute()]);
         }
       },
       builder: (context, state) {

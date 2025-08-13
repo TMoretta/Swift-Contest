@@ -1,24 +1,18 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/view/widgets/my_logo.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/types/auth_status.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
 class RootPage extends StatefulWidget {
-  final int delay;
-
-  const RootPage({
-    // default is 1 second because cant pass initial argument to the first page,
-    // so it will be 1 when root page is the splash
-    @PathParam('delay') this.delay = 1,
-    super.key,
-  });
+  const RootPage({super.key});
 
   @override
   State<RootPage> createState() => _RootPageState();
@@ -28,7 +22,7 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<AuthBloc>().add(AuthFetch(delay: widget.delay));
+    context.read<AuthBloc>().add(AuthFetch());
   }
 
   @override
@@ -36,6 +30,9 @@ class _RootPageState extends State<RootPage> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         //* Show a message if there is one
+        if (state.blocStatus.isSuccess || state.blocStatus.isFailure) {
+          FlutterNativeSplash.remove();
+        }
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
@@ -66,22 +63,13 @@ class _RootPageState extends State<RootPage> {
               builder: (context) {
                 if (state.blocStatus.isFailure) {
                   return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MyLogo(),
-                        SizedBox(height: 32),
-                        FilledButton(
-                          onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
-                          child: Text('Retry'),
-                        ),
-                      ],
+                    child: FilledButton(
+                      onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
+                      child: Text('Retry'),
                     ),
                   );
                 }
-                return Center(
-                  child: MyLogo(),
-                );
+                return VoidWidget();
               },
             ),
           ),

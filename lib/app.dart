@@ -70,7 +70,7 @@ class _AppState extends State<App> {
   //       if (uri.scheme == 'https' && uri.host == 'www.swiftcontest.com') {
   //         Logger.info('Link ricevuto con app aperta: $uri');
   //         context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
-  //         context.router.replaceAll([RootRoute(delay: 0)]);
+  //         context.router.replaceAll([RootRoute()]);
   //       }
   //     }
   //   });

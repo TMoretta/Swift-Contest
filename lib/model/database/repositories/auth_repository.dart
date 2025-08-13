@@ -160,7 +160,7 @@ class AuthRepositoryImpl implements AuthRepository {
     return handleDatabaseCall(
       () async {
         final Map<String, dynamic> res =
-        await _supabase.rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole}).single();
+        await _supabase.rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole.name}).single();
         return Either.right(Profile.fromJson(res));
       },
     );

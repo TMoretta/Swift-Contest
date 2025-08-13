@@ -110,14 +110,15 @@ class _ParticipantRankingsTabState extends State<ParticipantRankingsTab> {
                                   state.sourceEvent
                                   is ParticipantContestDetailsPageGetRankingFileUrl) {
                                 // Download the file
-                                final permission = await requestStoragePermission();
-                                if (!permission) {
-                                  if (context.mounted) {
-                                    showSnackBar(
-                                        context: context, text: 'Storage permission negated');
-                                  }
-                                  return;
-                                }
+
+                                // final permission = await requestStoragePermission();
+                                // if (!permission) {
+                                //   if (context.mounted) {
+                                //     showSnackBar(
+                                //         context: context, text: 'Storage permission negated');
+                                //   }
+                                //   return;
+                                // }
 
                                 try {
                                   final url = state.rankingFileUrl!;

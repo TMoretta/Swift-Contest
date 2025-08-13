@@ -281,13 +281,13 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
             break;
           case 'csv':
             try {
-              final request = await requestStoragePermission();
-              if (request != true) {
-                if (context.mounted) {
-                  showSnackBar(context: context, text: 'Can not download file without permission');
-                }
-                return;
-              }
+              // final request = await requestStoragePermission();
+              // if (request != true) {
+              //   if (context.mounted) {
+              //     showSnackBar(context: context, text: 'Can not download file without permission');
+              //   }
+              //   return;
+              // }
 
               final directory = await ExternalPath.getExternalStoragePublicDirectory(
                   ExternalPath.DIRECTORY_DOWNLOAD);

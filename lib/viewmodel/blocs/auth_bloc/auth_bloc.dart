@@ -14,6 +14,7 @@ import 'package:swift_contest/viewmodel/types/auth_status.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'auth_event.dart';
+
 part 'auth_state.dart';
 
 class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
@@ -58,60 +59,33 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthFetch event,
     Emitter<AuthState> emit,
   ) async {
-    if (!state.isInitialized) {
-      emit(AuthState(
-          blocStatus: BlocStatus.loading, authStatus: AuthStatus.initial, sourceEvent: event));
-
-      if (event.delay != 0) {
-        await Future.delayed(Duration(seconds: event.delay));
-      }
-
-      final eitherAuthBundle = await _authRepository.getAccountBundle();
-      eitherAuthBundle.fold(
-        (failure) => emit(
-            state.copyWith(blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated)),
-        (success) {
-          if (success == null) {
-            emit(state.copyWith(
-                blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
-          } else {
-            emit(state.copyWith(
-              blocStatus: BlocStatus.success,
-              isInitialized: true,
-              authStatus: AuthStatus.authenticated,
-              account: success.account,
-              profile: success.profile,
-              messages: success.messages,
-            ));
-          }
-        },
-      );
-    } else {
-      emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-      final eitherAuthBundle = await _authRepository.getAccountBundle();
-      eitherAuthBundle.fold(
-        (failure) => emit(state.copyWith(
-            blocStatus: BlocStatus.failure,
+    emit(AuthState(
+        blocStatus: BlocStatus.loading, authStatus: AuthStatus.initial, sourceEvent: event));
+    final eitherAuthBundle = await _authRepository.getAccountBundle();
+    eitherAuthBundle.fold(
+      (failure) => emit(state.copyWith(
+          blocStatus: BlocStatus.failure,
+          authStatus: AuthStatus.unauthenticated,
+          message: failure.message)),
+      (success) {
+        if (success == null) {
+          emit(state.copyWith(
+            blocStatus: BlocStatus.success,
             authStatus: AuthStatus.unauthenticated,
-            message: failure.message)),
-        (success) {
-          if (success == null) {
-            emit(state.copyWith(
-                blocStatus: BlocStatus.success, authStatus: AuthStatus.unauthenticated));
-          } else {
-            emit(state.copyWith(
-              blocStatus: BlocStatus.success,
-              isInitialized: true,
-              authStatus: AuthStatus.authenticated,
-              account: success.account,
-              profile: success.profile,
-              messages: success.messages,
-            ));
-          }
-        },
-      );
-    }
+            isInitialized: true,
+          ));
+        } else {
+          emit(state.copyWith(
+            blocStatus: BlocStatus.success,
+            authStatus: AuthStatus.authenticated,
+            isInitialized: true,
+            account: success.account,
+            profile: success.profile,
+            messages: success.messages,
+          ));
+        }
+      },
+    );
   }
 
   FutureOr<void> _signOut(

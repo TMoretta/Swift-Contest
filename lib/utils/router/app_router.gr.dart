@@ -1146,50 +1146,18 @@ class PlaceSearchRoute extends _i30.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i24.RootPage]
-class RootRoute extends _i30.PageRouteInfo<RootRouteArgs> {
-  RootRoute({int delay = 1, _i31.Key? key, List<_i30.PageRouteInfo>? children})
-      : super(
-          RootRoute.name,
-          args: RootRouteArgs(delay: delay, key: key),
-          rawPathParams: {'delay': delay},
-          initialChildren: children,
-        );
+class RootRoute extends _i30.PageRouteInfo<void> {
+  const RootRoute({List<_i30.PageRouteInfo>? children})
+      : super(RootRoute.name, initialChildren: children);
 
   static const String name = 'RootRoute';
 
   static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      final pathParams = data.inheritedPathParams;
-      final args = data.argsAs<RootRouteArgs>(
-        orElse: () => RootRouteArgs(delay: pathParams.getInt('delay', 1)),
-      );
-      return _i24.RootPage(delay: args.delay, key: args.key);
+      return const _i24.RootPage();
     },
   );
-}
-
-class RootRouteArgs {
-  const RootRouteArgs({this.delay = 1, this.key});
-
-  final int delay;
-
-  final _i31.Key? key;
-
-  @override
-  String toString() {
-    return 'RootRouteArgs{delay: $delay, key: $key}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! RootRouteArgs) return false;
-    return delay == other.delay && key == other.key;
-  }
-
-  @override
-  int get hashCode => delay.hashCode ^ key.hashCode;
 }
 
 /// generated route for

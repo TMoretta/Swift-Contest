@@ -40,7 +40,7 @@ class _AccountPageState extends State<AccountPage> {
         }
         if (state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteAccount) {
           showSnackBar(context: context, text: 'Account deleted successfully');
-          context.router.replaceAll([RootRoute(delay: 0)]);
+          context.router.replaceAll([RootRoute()]);
         }
       },
       builder: (context, state) {

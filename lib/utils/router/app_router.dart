@@ -15,7 +15,7 @@ class AppRouter extends RootStackRouter {
 
         // Root
         AutoRoute(
-          path: '/:delay',
+          path: '/',
           page: RootRoute.page,
           initial: true,
         ),

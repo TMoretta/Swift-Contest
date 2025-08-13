@@ -62,7 +62,7 @@ class _SignInPageState extends State<SignInPage> {
         }
         //* Go to root page
         if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
-          context.router.replaceAll([RootRoute(delay: 0)]);
+          context.router.replaceAll([RootRoute()]);
         }
         if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
           context.router.push(JurorVotingQrScannerRoute());
@@ -74,7 +74,7 @@ class _SignInPageState extends State<SignInPage> {
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: RefreshIndicator.adaptive(
-                onRefresh: () => context.router.replaceAll([RootRoute(delay: 0)]),
+                onRefresh: () => context.router.replaceAll([RootRoute()]),
                 child: LayoutBuilder(builder: (context, constraints) {
                   return ListView(
                     children: [

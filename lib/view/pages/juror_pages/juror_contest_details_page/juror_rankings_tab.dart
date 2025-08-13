@@ -110,14 +110,15 @@ class _JurorRankingsTabState extends State<JurorRankingsTab> {
                                   state.sourceEvent
                                   is JurorContestDetailsPageGetRankingFileUrl) {
                                 // Download the file
-                                final permission = await requestStoragePermission();
-                                if (!permission) {
-                                  if (context.mounted) {
-                                    showSnackBar(
-                                        context: context, text: 'Storage permission negated');
-                                  }
-                                  return;
-                                }
+
+                                // final permission = await requestStoragePermission();
+                                // if (!permission) {
+                                //   if (context.mounted) {
+                                //     showSnackBar(
+                                //         context: context, text: 'Storage permission negated');
+                                //   }
+                                //   return;
+                                // }
 
                                 try {
                                   final url = state.rankingFileUrl!;

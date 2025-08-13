@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:external_path/external_path.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
-import 'package:swift_contest/utils/functions/request_storage_permission.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -112,23 +113,28 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                                     if (state.status.isSuccess &&
                                         state.sourceEvent
                                             is OrganizerContestDetailsPageGetRankingFileUrl) {
-                                      // Download the file
-                                      final permission = await requestStoragePermission();
-                                      if (!permission) {
-                                        if (context.mounted) {
-                                          showSnackBar(
-                                              context: context, text: 'Storage permission negated');
+                                      if(Platform.isAndroid) {
+                                        AndroidDeviceInfo build = await DeviceInfoPlugin().androidInfo;
+                                        if(build.version.sdkInt <=28) {
+                                          final status = await Permission.storage.status;
+                                          if(!status.isGranted) {
+                                            final request = await Permission.storage.request();
+                                            if(!request.isGranted) {
+                                              if (context.mounted) {
+                                                showSnackBar(context: context, text: 'Storage permission is required to save files.');
+                                              }
+                                              return;
+                                            }
+                                          }
                                         }
-                                        return;
                                       }
-
                                       try {
                                         final url = state.rankingFileUrl!;
 
                                         // 2. Trova la cartella di download del dispositivo
                                         final directory =
-                                            await ExternalPath.getExternalStoragePublicDirectory(
-                                                ExternalPath.DIRECTORY_DOWNLOAD);
+                                        await ExternalPath.getExternalStoragePublicDirectory(
+                                            ExternalPath.DIRECTORY_DOWNLOAD);
 
                                         final fileName = path.basenameWithoutExtension(ranking.filePath);
                                         final extension = path.extension(ranking.filePath);

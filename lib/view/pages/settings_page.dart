@@ -43,7 +43,7 @@ class _AuthState extends State<SettingsPage> {
               context.hideLoader();
             }
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
-              context.router.replaceAll([RootRoute(delay: 0)]);
+              context.router.replaceAll([RootRoute()]);
             }
           },
         ),
