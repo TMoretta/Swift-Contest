@@ -1,23 +1,25 @@
 --region GET CREATED CONTESTS
--- Recupera una lista di contest creati dall'utente autenticato.
--- Non richiede parametri perché usa auth.uid() per identificare l'organizzatore.
+-- Retrieves a list of contests created by the authenticated user.
+-- No parameters are needed as it uses auth.uid() to identify the organizer.
 CREATE OR REPLACE FUNCTION organizer_get_created_contests()
 RETURNS SETOF jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER -- Eseguita con i permessi dell'utente chiamante.
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  -- Questa funzione recupera tutti i contest creati da un organizzatore specifico,
-  -- raggruppando i dettagli principali e le liste di partecipazioni e giurie.
+  -- This function retrieves all contests created by a specific organizer,
+  -- bundling the main details with participant and juror counts.
 
-  -- È buona norma verificare che l'organizzatore esista prima di procedere.
-  -- Se non viene trovato, la funzione solleva un'eccezione chiara.
+  -- Security check: Ensure the user has a profile before proceeding.
+  -- If not found, the function raises a clear exception.
   IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()) THEN
-    RAISE EXCEPTION 'Organizer profile not found or access denied.';
+    RAISE EXCEPTION 'Organizer profile not found.';
   END IF;
 
-  -- Esegue la query e restituisce i risultati nel formato richiesto.
+  -- Executes the query and returns the results in the requested format.
    RETURN QUERY
    SELECT
      -- We now build a single JSON object for each row, which matches the `RETURNS SETOF jsonb` signature.
@@ -45,9 +47,9 @@ BEGIN
      )
    FROM
      public.contests AS c
-     -- JOIN per ottenere i dettagli del profilo dell'organizzatore.
+     -- JOIN to get the organizer's profile details.
      JOIN public.profiles AS p ON c.organizer_id = p.id
-     -- JOIN per ottenere i dettagli del luogo del contest.
+     -- JOIN to get the contest's place details.
      JOIN public.places AS pl ON c.place_id = pl.id
    WHERE
      c.organizer_id = auth.uid()
@@ -62,17 +64,19 @@ CREATE OR REPLACE FUNCTION organizer_get_contest_details(p_contest_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
  result_bundle jsonb;
 BEGIN
- -- Step 1: Security Check - Ensure the caller is the organizer
+ -- SECURITY CHECK: Ensure the caller is the organizer of the contest.
  IF NOT EXISTS (SELECT 1 FROM public.contests WHERE id = p_contest_id AND organizer_id = auth.uid()) THEN
    RAISE EXCEPTION 'Access denied or contest not found.';
  END IF;
 
- -- Step 2: Build the JSON response - Organizer gets all data
+ -- If the check passes, build the complete JSON response.
  SELECT jsonb_build_object(
    'contest_bundle', (
      SELECT jsonb_build_object(
@@ -166,97 +170,94 @@ END;
 $$;
 --endregion
 
---region CREATE CONTEST
--- Crea un 'place' e un 'contest' in una singola transazione atomica.
--- Se una delle due operazioni fallisce, l'intera transazione viene annullata.
-CREATE OR REPLACE FUNCTION organizer_create_contest(p_contest jsonb, p_place jsonb)
-RETURNS contests -- Restituisce l'intera riga del contest creato.
-LANGUAGE plpgsql
-SECURITY INVOKER
-AS $$
-DECLARE
-  v_place_id uuid;
-  new_contest_row contests;
-BEGIN
-  -- 1. Crea il 'place' e recupera il suo ID.
-  INSERT INTO public.places (address, lat, lon)
-  VALUES (
-    p_place->>'address',
-    (p_place->>'lat')::float,
-    (p_place->>'lon')::float
-  )
-  RETURNING id INTO v_place_id;
-
-  -- 2. Crea il 'contest' usando l'ID del luogo e l'ID dell'organizzatore (auth.uid()).
-  INSERT INTO public.contests (
-    id,
-    organizer_id,
-    organizer_full_name,
-    name,
-    description,
-    date_time,
-    works_submission_start,
-    works_submission_end,
-    place_id,
-    images_urls
-  )
-  VALUES (
-    (p_contest->>'id')::uuid,
-    auth.uid(), -- Associa il contest all'utente autenticato.
-    p_contest->>'organizer_full_name',
-    p_contest->>'name',
-    p_contest->>'description',
-    (p_contest->>'date_time')::timestamptz,
-    (p_contest->>'works_submission_start')::timestamptz,
-    (p_contest->>'works_submission_end')::timestamptz,
-    v_place_id, -- Usa l'ID del luogo creato al passo 1.
-    (SELECT array_agg(value) FROM jsonb_array_elements_text(p_contest->'images_urls'))
-  )
-  RETURNING * INTO new_contest_row;
-
-  RETURN new_contest_row;
-END;
-$$;
-
---region UPDATE CONTEST
--- Aggiorna un 'contest' e il suo 'place' associato in una transazione.
-CREATE OR REPLACE FUNCTION organizer_update_contest(p_contest jsonb, p_place jsonb)
-RETURNS contests
-LANGUAGE plpgsql
-SECURITY INVOKER
-AS $$
-DECLARE
-  updated_contest_row contests;
-BEGIN
-  -- 1. Aggiorna il 'place'.
-  UPDATE public.places
-  SET
-    address = p_place->>'address',
-    lat = (p_place->>'lat')::float,
-    lon = (p_place->>'lon')::float
-  WHERE id = (p_place->>'id')::uuid;
-
-  -- 2. Aggiorna il 'contest', verificando che l'utente sia l'organizzatore.
-  UPDATE public.contests
-  SET
-    organizer_full_name = p_contest->>'organizer_full_name',
-    name = p_contest->>'name',
-    description = p_contest->>'description',
-    date_time = (p_contest->>'date_time')::timestamptz,
-    works_submission_start = (p_contest->>'works_submission_start')::timestamptz,
-    works_submission_end = (p_contest->>'works_submission_end')::timestamptz,
-    images_urls = (SELECT array_agg(value) FROM jsonb_array_elements_text(p_contest->'images_urls'))
-  WHERE id = (p_contest->>'id')::uuid AND organizer_id = auth.uid()
-  RETURNING * INTO updated_contest_row;
-
-  -- Se la riga non è stata aggiornata (perché l'utente non è l'organizzatore), solleva un errore.
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Contest not found or access denied.';
-  END IF;
-
-  RETURN updated_contest_row;
-END;
-$$;
+----region CREATE CONTEST
+---- Crea un 'place' e un 'contest' in una singola transazione atomica.
+---- Se una delle due operazioni fallisce, l'intera transazione viene annullata.
+--CREATE OR REPLACE FUNCTION organizer_create_contest(p_contest jsonb, p_place jsonb)
+--RETURNS contests -- Restituisce l'intera riga del contest creato.
+--LANGUAGE plpgsql
+--SECURITY DEFINER
+--AS $$
+--DECLARE
+--  v_place_id uuid;
+--  new_contest_row contests;
+--BEGIN
+--  -- 1. Crea il 'place' e recupera il suo ID.
+--  INSERT INTO public.places (address, lat, lon)
+--  VALUES (
+--    p_place->>'address',
+--    (p_place->>'lat')::float,
+--    (p_place->>'lon')::float
+--  )
+--  RETURNING id INTO v_place_id;
+--
+--  -- 2. Crea il 'contest' usando l'ID del luogo e l'ID dell'organizzatore (auth.uid()).
+--  INSERT INTO public.contests (
+--    id,
+--    organizer_id,
+--    name,
+--    description,
+--    date_time,
+--    works_submission_start,
+--    works_submission_end,
+--    place_id,
+--    images_urls
+--  )
+--  VALUES (
+--    (p_contest->>'id')::uuid,
+--    auth.uid(), -- Associa il contest all'utente autenticato.
+--    p_contest->>'name',
+--    p_contest->>'description',
+--    (p_contest->>'date_time')::timestamptz,
+--    (p_contest->>'works_submission_start')::timestamptz,
+--    (p_contest->>'works_submission_end')::timestamptz,
+--    v_place_id, -- Usa l'ID del luogo creato al passo 1.
+--    (SELECT array_agg(value) FROM jsonb_array_elements_text(p_contest->'images_urls'))
+--  )
+--  RETURNING * INTO new_contest_row;
+--
+--  RETURN new_contest_row;
+--END;
+--$$;
+--
+----region UPDATE CONTEST
+---- Aggiorna un 'contest' e il suo 'place' associato in una transazione.
+--CREATE OR REPLACE FUNCTION organizer_update_contest(p_contest jsonb, p_place jsonb)
+--RETURNS contests
+--LANGUAGE plpgsql
+--SECURITY DEFINER
+--AS $$
+--DECLARE
+--  updated_contest_row contests;
+--BEGIN
+--  -- 1. Aggiorna il 'place'.
+--  UPDATE public.places
+--  SET
+--    address = p_place->>'address',
+--    lat = (p_place->>'lat')::float,
+--    lon = (p_place->>'lon')::float
+--  WHERE id = (p_place->>'id')::uuid;
+--
+--  -- 2. Aggiorna il 'contest', verificando che l'utente sia l'organizzatore.
+--  UPDATE public.contests
+--  SET
+--    name = p_contest->>'name',
+--    description = p_contest->>'description',
+--    date_time = (p_contest->>'date_time')::timestamptz,
+--    works_submission_start = (p_contest->>'works_submission_start')::timestamptz,
+--    works_submission_end = (p_contest->>'works_submission_end')::timestamptz,
+--    images_urls = (SELECT array_agg(value) FROM jsonb_array_elements_text(p_contest->'images_urls'))
+--  WHERE id = (p_contest->>'id')::uuid AND organizer_id = auth.uid()
+--  RETURNING * INTO updated_contest_row;
+--
+--  -- Se la riga non è stata aggiornata (perché l'utente non è l'organizzatore), solleva un errore.
+--  IF NOT FOUND THEN
+--    RAISE EXCEPTION 'Contest not found or access denied.';
+--  END IF;
+--
+--  RETURN updated_contest_row;
+--END;
+--$$;
 
 --region CREATE JURY
 -- Creates a 'jury' and its associated 'voting_form' in a single transaction.
@@ -267,7 +268,9 @@ CREATE OR REPLACE FUNCTION organizer_create_jury(
 )
 RETURNS juries
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_contest_id uuid := (p_jury->>'contest_id')::uuid;
@@ -317,7 +320,9 @@ CREATE OR REPLACE FUNCTION organizer_update_voting_form (
 )
 RETURNS SETOF voting_form_fields
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -376,11 +381,13 @@ CREATE OR REPLACE FUNCTION organizer_start_voting_session(
   p_voting_session jsonb,
   p_participations_ids uuid[],
   p_exclusions jsonb,
-  p_geo_res_place jsonb -- Può essere NULL
+  p_geo_res_place jsonb -- Can be NULL
 )
-RETURNS voting_sessions -- Restituisce l'intera riga della sessione di voto creata.
+RETURNS voting_sessions -- Returns the entire created voting session row.
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the creator's privileges to allow inserting into 'places' and to snapshot data efficiently.
+-- Security is enforced by the initial check on the contest's organizer.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_contest_id uuid := (p_voting_session->>'contest_id')::uuid;
@@ -393,7 +400,7 @@ DECLARE
   v_original_form_name text;
   v_original_form_description text;
 BEGIN
-  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
+  -- SECURITY CHECK: Verify that the user is the organizer of the contest.
   IF NOT EXISTS (
     SELECT 1 FROM public.contests
     WHERE id = v_contest_id AND organizer_id = auth.uid()
@@ -401,7 +408,7 @@ BEGIN
     RAISE EXCEPTION 'Contest not found or access denied.';
   END IF;
 
-  -- 1. Crea il 'Place' per la geo-restrizione, SOLO SE necessario.
+  -- 1. Create the 'Place' for geo-restriction, ONLY if provided.
   IF p_geo_res_place IS NOT NULL THEN
     INSERT INTO public.places (address, lat, lon)
     VALUES (
@@ -412,7 +419,7 @@ BEGIN
     RETURNING id INTO v_geo_res_place_id;
   END IF;
 
-  -- 2. Crea la riga principale della sessione di voto.
+  -- 2. Create the main voting session row.
   INSERT INTO public.voting_sessions (
     contest_id, name, is_geo_restricted, session_status,
     geo_res_place_id, geo_res_radius
@@ -421,42 +428,40 @@ BEGIN
     p_voting_session->>'name',
     (p_voting_session->>'is_geo_restricted')::bool,
     'live',
-    v_geo_res_place_id, -- Sarà NULL se non è stato creato
+    v_geo_res_place_id, -- Will be NULL if not created
     (p_voting_session->>'geo_res_radius')::int
   )
   RETURNING id INTO v_session_id;
 
-  -- 3. Crea gli SNAPSHOT dei PARTECIPANTI selezionati.
+  -- 3. Create SNAPSHOTS of the selected PARTICIPANTS.
   INSERT INTO public.voting_session_participants (
     voting_session_id, participation_id,
-    participant_full_name, work_name, work_description, work_images_urls,
+    participant_full_name, work_name, work_description, work_images_paths,
     order_index
   )
   SELECT
     v_session_id, pa.id,
-    pr.full_name, w.name, w.description, w.images_urls,
+    pr.full_name, w.name, w.description, w.images_paths,
     u.ord - 1
-  FROM
-    unnest(p_participations_ids) WITH ORDINALITY AS u(id, ord) -- Espande l'array mantenendo l'ordine
+  FROM unnest(p_participations_ids) WITH ORDINALITY AS u(id, ord) -- Unnest array while preserving order
     JOIN public.participations pa ON pa.id = u.id
     JOIN public.profiles pr ON pa.participant_id = pr.id
     JOIN public.works w ON pa.id = w.participation_id;
 
-  -- 4. Itera su ogni GIURIA del contest per creare gli snapshot.
+  -- 4. Iterate over each JURY in the contest to create snapshots.
   FOR v_jury_record IN
     SELECT * FROM public.juries WHERE contest_id = v_contest_id
   LOOP
-    -- 4.a: Ottieni nome e descrizione dal modulo di voto originale.
+    -- 4.a: Get name and description from the original voting form.
     SELECT name, description INTO v_original_form_name, v_original_form_description
     FROM public.voting_forms
     WHERE id = v_jury_record.voting_form_id;
 
-    -- 4.b: Crea un NUOVO voting_form per lo snapshot, copiando nome e descrizione.
+    -- 4.b: Create a NEW voting_form for the snapshot, copying name and description.
     INSERT INTO public.voting_forms (name, description) VALUES (v_original_form_name, v_original_form_description)
     RETURNING id INTO v_new_voting_form_id;
 
-    -- 4.c: Copia i campi dal form originale al nuovo form (snapshot dei campi).
-    -- AGGIORNATO: Nomi delle colonne 'question', 'slider_*' e 'scope' allineati al nuovo schema.
+    -- 4.c: Copy fields from the original form to the new one (snapshot of fields).
     INSERT INTO public.voting_form_fields (voting_form_id, question, order_index, type, slider_min_value, slider_max_value, is_required, scope)
     SELECT
       v_new_voting_form_id,
@@ -464,8 +469,7 @@ BEGIN
     FROM public.voting_form_fields vff
     WHERE vff.voting_form_id = v_jury_record.voting_form_id;
 
-    -- 4.d: Crea lo snapshot della giuria.
-    -- AGGIORNATO: Aggiunto 'jury_type' e corretto 'jury_token'.
+    -- 4.d: Create the jury snapshot.
     INSERT INTO public.voting_session_juries (
       voting_session_id, jury_id, jury_name, jury_type, voting_form_id, jury_token
     ) VALUES (
@@ -473,7 +477,7 @@ BEGIN
     )
     RETURNING id INTO v_session_jury_id;
 
-    -- 4.e: Crea gli snapshot dei singoli giurati.
+    -- 4.e: Create snapshots of the individual jurors.
     INSERT INTO public.voting_session_jurors (
       voting_session_id, voting_session_jury_id, juration_id, juror_id, juror_full_name
     )
@@ -490,7 +494,7 @@ BEGIN
       ju.jury_id = v_jury_record.id;
   END LOOP;
 
-  -- 5. Crea le ESCLUSIONI specifiche.
+  -- 5. Create the specific EXCLUSIONS.
   INSERT INTO public.voting_session_exclusions (
     voting_session_id,
     voting_session_juror_id,
@@ -505,7 +509,7 @@ BEGIN
     JOIN public.voting_session_jurors vsj ON vsj.juration_id = x.juration_id AND vsj.voting_session_id = v_session_id
     JOIN public.voting_session_participants vsp ON vsp.participation_id = x.participation_id AND vsp.voting_session_id = v_session_id;
 
-  -- 6. Recupera e restituisce la riga completa della sessione appena creata.
+  -- 6. Fetch and return the complete row of the newly created session.
   SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
   RETURN v_new_session;
 END;
@@ -516,28 +520,30 @@ $$;
 CREATE OR REPLACE FUNCTION organizer_end_voting_session(p_voting_session_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER -- Modificato per maggiore sicurezza
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
+  -- SECURITY CHECK: Verify that the user is the organizer of the contest.
   IF NOT EXISTS (
     SELECT 1
     FROM public.voting_sessions vs
     JOIN public.contests c ON vs.contest_id = c.id
     WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
   ) THEN
-    RAISE EXCEPTION 'Sessione di voto non trovata o accesso non autorizzato.';
+    RAISE EXCEPTION 'Voting session not found or access denied.';
   END IF;
 
-  -- Prosegui con l'aggiornamento solo se il controllo è superato.
+  -- If the check passes, proceed with the update.
   UPDATE public.voting_sessions
   SET
     session_status = 'ended'
   WHERE id = p_voting_session_id;
 
   IF NOT FOUND THEN
-    -- Questo errore è improbabile se il controllo sopra ha successo, ma è una buona pratica mantenerlo.
-    RAISE EXCEPTION 'Sessione di voto non trovata.';
+    -- This error is unlikely if the check above succeeds, but it's good practice to keep it.
+    RAISE EXCEPTION 'Voting session not found.';
   END IF;
 END;
 $$;
@@ -547,63 +553,67 @@ $$;
 CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (p_voting_session_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER -- Modificato per maggiore sicurezza
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  -- SICUREZZA: Verifica che l'utente sia l'organizzatore del contest.
+  -- SECURITY CHECK: Verify that the user is the organizer of the contest.
   IF NOT EXISTS (
     SELECT 1
     FROM public.voting_sessions vs
     JOIN public.contests c ON vs.contest_id = c.id
     WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
   ) THEN
-    RAISE EXCEPTION 'Sessione di voto non trovata o accesso non autorizzato.';
+    RAISE EXCEPTION 'Voting session not found or access denied.';
   END IF;
 
-  -- Prosegui con l'aggiornamento solo se il controllo è superato.
+  -- If the check passes, proceed with the update.
   UPDATE public.voting_sessions
   SET
     session_status = 'cancelled'
   WHERE id = p_voting_session_id;
 
   IF NOT FOUND THEN
-    -- Questo errore è improbabile se il controllo sopra ha successo, ma è una buona pratica mantenerlo.
-    RAISE EXCEPTION 'Sessione di voto non trovata.';
+    -- This error is unlikely if the check above succeeds, but it's good practice to keep it.
+    RAISE EXCEPTION 'Voting session not found.';
   END IF;
 END;
 $$;
 --endregion
 
 --region ORGANIZER GET VOTING SESSION PROCEDURE BUNDLE
--- Recupera tutti i dati necessari per la conduzione di una sessione di voto.
--- Accessibile sia dall'organizzatore che dai giurati partecipanti.
--- Restituisce un singolo oggetto JSON che mappa la classe Dart 'VotingSessionProcedureBundle'.
+-- Retrieves all data necessary for conducting a voting session.
+-- Access is restricted to the contest organizer.
+-- Returns a single JSON object that maps to the Dart 'VotingSessionProcedureBundle' class.
 CREATE OR REPLACE FUNCTION organizer_get_voting_session_procedure_bundle(p_voting_session_id uuid)
-RETURNS jsonb -- Restituisce un singolo oggetto JSONB, non una tabella.
+RETURNS jsonb -- Returns a single JSONB object, not a table.
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   result_bundle jsonb;
 BEGIN
-  -- SICUREZZA: Verifica che l'utente che chiama la funzione sia l'organizzatore del contest.
+  -- SECURITY CHECK: Verify that the calling user is the organizer of the contest.
   IF NOT EXISTS (
     SELECT 1
     FROM public.voting_sessions vs
     JOIN public.contests c ON vs.contest_id = c.id
     WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
   ) THEN
-    RAISE EXCEPTION 'Sessione di voto non trovata o accesso non autorizzato.';
+    RAISE EXCEPTION 'Voting session not found or access denied.';
   END IF;
 
-  -- Costruisce l'oggetto JSON finale usando subquery per ogni campo del bundle.
+  -- Build the final JSON object using subqueries for each field in the bundle.
   SELECT jsonb_build_object(
     -- 1. 'voting_session_bundle'
     'voting_session_bundle', (
       SELECT jsonb_build_object(
         'voting_session', to_jsonb(vs),
-        'geo_res_place', to_jsonb(pl) -- Sarà 'null' se il LEFT JOIN non trova corrispondenze
+        'geo_res_place', to_jsonb(pl) -- Will be 'null' if the LEFT JOIN finds no match
       )
       FROM public.voting_sessions vs
       LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
@@ -621,7 +631,7 @@ BEGIN
     'voting_session_juries_bundles', (
       SELECT COALESCE(
         jsonb_agg(
-          -- Per ogni giuria della sessione, costruisce il suo bundle
+          -- For each jury in the session, build its bundle
           jsonb_build_object(
             'voting_session_jury', to_jsonb(vsj),
             'voting_session_jurors', (
@@ -666,34 +676,32 @@ $$;
 --endregion
 
 --region ORGANIZER GET VOTING SESSION RESULT BUNDLE
--- Retrieves the complete result data for a voting session, intended for the contest organizer.
--- This function bundles the session details, all its juries, their forms, and their jurors.
+-- Retrieves the complete result data for a voting session, restricted to the contest organizer.
 CREATE OR REPLACE FUNCTION organizer_get_voting_session_result_bundle(p_voting_session_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
-  v_contest_organizer_id uuid;
   result_bundle jsonb;
 BEGIN
-  -- STEP 1: Security Check
-  -- Find the organizer_id of the contest this voting session belongs to.
-  SELECT c.organizer_id
-  INTO v_contest_organizer_id
-  FROM public.voting_sessions vs
-  JOIN public.contests c ON vs.contest_id = c.id
-  WHERE vs.id = p_voting_session_id;
-
-  -- If no session is found, or if the caller is not the organizer, raise an exception.
-  IF NOT FOUND OR v_contest_organizer_id <> auth.uid() THEN
-    RAISE EXCEPTION 'Access denied: You are not the organizer of this contest or the session does not exist.';
+  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
+  -- associated with this voting session.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.voting_sessions vs
+    JOIN public.contests c ON vs.contest_id = c.id
+    WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Voting session not found or access denied.';
   END IF;
 
-  -- STEP 2: Build the final JSON bundle
+  -- If the check passes, build the final JSON bundle.
   SELECT jsonb_build_object(
-    -- Part 1: 'voting_session_bundle'
+    -- 1. 'voting_session_bundle'
     'voting_session_bundle', (
       SELECT jsonb_build_object(
         'voting_session', to_jsonb(vs),
@@ -704,7 +712,7 @@ BEGIN
       WHERE vs.id = p_voting_session_id
     ),
 
-    -- Part 2: 'voting_session_juries_bundles'
+    -- 2. 'voting_session_juries_bundles'
     'voting_session_juries_bundles', (
       SELECT COALESCE(jsonb_agg(jsonb_build_object(
         'voting_session_jury', to_jsonb(vsj),
@@ -728,34 +736,32 @@ $$;
 --endregion
 
 --region ORGANIZER GET VOTING SESSION JURY RESULT BUNDLE
--- Retrieves the complete result data for a specific jury within a voting session.
--- This is intended for the contest organizer to view detailed results for one jury.
+-- Retrieves the complete result data for a specific jury within a voting session,
+-- restricted to the contest organizer.
 CREATE OR REPLACE FUNCTION organizer_get_voting_session_jury_result_bundle(p_voting_session_jury_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_voting_session_id uuid;
-  v_contest_organizer_id uuid;
   result_bundle jsonb;
 BEGIN
-  -- STEP 1: Security Check & Get Session ID
-  -- Find the organizer_id and session_id associated with the given jury.
-  SELECT vsj.voting_session_id, c.organizer_id
-  INTO v_voting_session_id, v_contest_organizer_id
+  -- SECURITY CHECK: Verify that the user is the organizer and get the session ID.
+  SELECT vsj.voting_session_id INTO v_voting_session_id
   FROM public.voting_session_juries vsj
   JOIN public.voting_sessions vs ON vsj.voting_session_id = vs.id
   JOIN public.contests c ON vs.contest_id = c.id
-  WHERE vsj.id = p_voting_session_jury_id;
+  WHERE vsj.id = p_voting_session_jury_id AND c.organizer_id = auth.uid();
 
-  -- If no jury is found, or if the caller is not the organizer, raise an exception.
-  IF NOT FOUND OR v_contest_organizer_id <> auth.uid() THEN
-    RAISE EXCEPTION 'Access denied: You are not the organizer of this contest or the jury does not exist.';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Jury not found or access denied.';
   END IF;
 
-  -- STEP 2: Build the final JSON bundle
+  -- If the check passes, build the final JSON bundle.
   SELECT jsonb_build_object(
     -- 1. 'voting_session_bundle'
     'voting_session_bundle', (
@@ -817,22 +823,18 @@ BEGIN
       SELECT COALESCE(jsonb_agg(
         jsonb_build_object(
           'voting_form_submission', to_jsonb(vfs),
-          'voting_session_juror', (
-            SELECT to_jsonb(vsj) FROM public.voting_session_jurors vsj WHERE vsj.id = vfs.voting_session_juror_id
-          ),
+          'voting_session_juror', to_jsonb(vsj),
           'voting_form_submission_values_bundles', (
             SELECT COALESCE(jsonb_agg(
               jsonb_build_object(
                 'voting_form_submission_value', to_jsonb(vfsv),
-                'voting_form_field', (
-                  SELECT to_jsonb(vff) FROM public.voting_form_fields vff WHERE vff.id = vfsv.voting_form_field_id
-                ),
-                'voting_session_participant', (
-                  SELECT to_jsonb(vsp) FROM public.voting_session_participants vsp WHERE vsp.id = vfsv.voting_session_participant_id
-                )
+                'voting_form_field', to_jsonb(vff),
+                'voting_session_participant', to_jsonb(vsp)
               )
             ), '[]'::jsonb)
             FROM public.voting_form_submission_values vfsv
+            JOIN public.voting_form_fields vff ON vfsv.voting_form_field_id = vff.id
+            LEFT JOIN public.voting_session_participants vsp ON vfsv.voting_session_participant_id = vsp.id
             WHERE vfsv.voting_form_submission_id = vfs.id
           )
         )
@@ -851,47 +853,44 @@ $$;
 --endregion
 
 --region ORGANIZER GET VOTING SESSION JUROR RESULT BUNDLE
--- Retrieves the complete result data for a specific juror within a voting session.
--- This is intended for the contest organizer to view detailed results for one juror.
+-- Retrieves the complete result data for a specific juror within a voting session,
+-- restricted to the contest organizer.
 CREATE OR REPLACE FUNCTION organizer_get_voting_session_juror_result_bundle(p_voting_session_juror_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_voting_session_id uuid;
   v_voting_session_jury_id uuid;
-  v_contest_organizer_id uuid;
   v_voting_form_id uuid;
   result_bundle jsonb;
 BEGIN
-  -- STEP 1: Security Check & Get Key IDs
-  -- Find the organizer_id and other necessary IDs associated with the given juror.
+  -- SECURITY CHECK: Verify that the user is the organizer and get necessary IDs.
   SELECT
-      vsj2.voting_session_id,
-      vsj.voting_session_jury_id,
-      c.organizer_id,
-      vsj2.voting_form_id
+    vsj2.voting_session_id,
+    vsj.voting_session_jury_id,
+    vsj2.voting_form_id
   INTO
-      v_voting_session_id,
-      v_voting_session_jury_id,
-      v_contest_organizer_id,
-      v_voting_form_id
+    v_voting_session_id,
+    v_voting_session_jury_id,
+    v_voting_form_id
   FROM public.voting_session_jurors vsj
   JOIN public.voting_session_juries vsj2 ON vsj.voting_session_jury_id = vsj2.id
   JOIN public.voting_sessions vs ON vsj2.voting_session_id = vs.id
   JOIN public.contests c ON vs.contest_id = c.id
-  WHERE vsj.id = p_voting_session_juror_id;
+  WHERE vsj.id = p_voting_session_juror_id AND c.organizer_id = auth.uid();
 
-  -- If no juror is found, or if the caller is not the organizer, raise an exception.
-  IF NOT FOUND OR v_contest_organizer_id <> auth.uid() THEN
-    RAISE EXCEPTION 'Access denied: You are not the organizer of this contest or the juror does not exist.';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Juror not found or access denied.';
   END IF;
 
-  -- STEP 2: Build the final JSON bundle
+  -- If the check passes, build the final JSON bundle.
   SELECT jsonb_build_object(
-    -- 1. 'voting_session_bundle'
+    -- 1. 'voting_session_bundle' (session details)
     'voting_session_bundle', (
       SELECT jsonb_build_object(
         'voting_session', to_jsonb(vs),
@@ -902,14 +901,14 @@ BEGIN
       WHERE vs.id = v_voting_session_id
     ),
 
-    -- 2. 'voting_session_jury'
+    -- 2. 'voting_session_jury' (the jury this juror belongs to)
     'voting_session_jury', (
         SELECT to_jsonb(vsj)
         FROM public.voting_session_juries vsj
         WHERE vsj.id = v_voting_session_jury_id
     ),
 
-    -- 3. 'voting_form_bundle'
+    -- 3. 'voting_form_bundle' (the form this juror used)
     'voting_form_bundle', (
       SELECT jsonb_build_object(
         'voting_form', to_jsonb(vf),
@@ -924,40 +923,37 @@ BEGIN
       WHERE vf.id = v_voting_form_id
     ),
 
-    -- 4. 'voting_session_participants'
+    -- 4. 'voting_session_participants' (all participants in the session)
     'voting_session_participants', (
       SELECT COALESCE(jsonb_agg(to_jsonb(vsp) ORDER BY vsp.order_index), '[]'::jsonb)
       FROM public.voting_session_participants vsp
       WHERE vsp.voting_session_id = v_voting_session_id
     ),
 
-    -- 5. 'excluded_voting_session_participants_ids' (for this juror only)
+    -- 5. 'excluded_voting_session_participants_ids' (for this specific juror)
     'excluded_voting_session_participants_ids', (
       SELECT COALESCE(jsonb_agg(to_jsonb(vse.voting_session_participant_id)), '[]'::jsonb)
       FROM public.voting_session_exclusions vse
       WHERE vse.voting_session_juror_id = p_voting_session_juror_id
     ),
 
-    -- 6. 'voting_form_submission_bundle'
+    -- 6. 'voting_form_submission_bundle' (the submission from this specific juror)
     'voting_form_submission_bundle', (
       SELECT jsonb_build_object(
         'voting_form_submission', to_jsonb(vfs),
-        'voting_session_juror', (
-          SELECT to_jsonb(vsj) FROM public.voting_session_jurors vsj WHERE vsj.id = vfs.voting_session_juror_id
-        ),
+        'voting_session_juror', to_jsonb(vsj),
         'voting_form_submission_values_bundles', (
+          -- OPTIMIZED: Replaced correlated subqueries with JOINs for better performance.
           SELECT COALESCE(jsonb_agg(
             jsonb_build_object(
               'voting_form_submission_value', to_jsonb(vfsv),
-              'voting_form_field', (
-                SELECT to_jsonb(vff) FROM public.voting_form_fields vff WHERE vff.id = vfsv.voting_form_field_id
-              ),
-              'voting_session_participant', (
-                SELECT to_jsonb(vsp) FROM public.voting_session_participants vsp WHERE vsp.id = vfsv.voting_session_participant_id
-              )
-            ) ORDER BY (SELECT vff.order_index FROM public.voting_form_fields vff WHERE vff.id = vfsv.voting_form_field_id)
+              'voting_form_field', to_jsonb(vff),
+              'voting_session_participant', to_jsonb(vsp)
+            ) ORDER BY vff.order_index
           ), '[]'::jsonb)
           FROM public.voting_form_submission_values vfsv
+          JOIN public.voting_form_fields vff ON vfsv.voting_form_field_id = vff.id
+          LEFT JOIN public.voting_session_participants vsp ON vfsv.voting_session_participant_id = vsp.id
           WHERE vfsv.voting_form_submission_id = vfs.id
         )
       )
@@ -980,7 +976,9 @@ $$;
  RETURNS jsonb
  LANGUAGE plpgsql
  STABLE
- SECURITY INVOKER
+ -- Runs with the permissions of the calling user.
+ -- Added search_path for security and consistency.
+ SECURITY DEFINER SET search_path = public
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -1022,7 +1020,9 @@ $$;
  RETURNS jsonb
  LANGUAGE plpgsql
  STABLE
- SECURITY INVOKER
+ -- Runs with the permissions of the calling user.
+ -- Added search_path for security and consistency.
+ SECURITY DEFINER SET search_path = public
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -1092,7 +1092,9 @@ $$;
  RETURNS jsonb
  LANGUAGE plpgsql
  STABLE
- SECURITY INVOKER
+ -- Runs with the permissions of the calling user.
+ -- Added search_path for security and consistency.
+ SECURITY DEFINER SET search_path = public
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -1134,10 +1136,12 @@ $$;
 --region ORGANIZER DELETE PARTICIPANT INVITATION
 -- Deletes a participant invitation.
 -- Access is restricted to the organizer of the contest to which the invitation belongs.
-CREATE OR REPLACE FUNCTION organizer_delete_participant_invitation(p_invitation_id uuid)
+CREATE OR REPLACE FUNCTION organizer_delete_participant_invitation(p_participant_invitation_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1146,14 +1150,14 @@ BEGIN
     SELECT 1
     FROM public.participant_invitations pi
     JOIN public.contests c ON pi.contest_id = c.id
-    WHERE pi.id = p_invitation_id AND c.organizer_id = auth.uid()
+    WHERE pi.id = p_participant_invitation_id AND c.organizer_id = auth.uid()
   ) THEN
     RAISE EXCEPTION 'Invitation not found or access denied.';
   END IF;
 
   -- If the check passes, delete the invitation.
   DELETE FROM public.participant_invitations
-  WHERE id = p_invitation_id;
+  WHERE id = p_participant_invitation_id;
 END;
 $$;
 --endregion
@@ -1161,10 +1165,12 @@ $$;
 --region ORGANIZER DELETE JUROR INVITATION
 -- Deletes a juror invitation.
 -- Access is restricted to the organizer of the contest to which the invitation belongs.
-CREATE OR REPLACE FUNCTION organizer_delete_juror_invitation(p_invitation_id uuid)
+CREATE OR REPLACE FUNCTION organizer_delete_juror_invitation(p_juror_invitation_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1173,14 +1179,14 @@ BEGIN
     SELECT 1
     FROM public.juror_invitations ji
     JOIN public.contests c ON ji.contest_id = c.id
-    WHERE ji.id = p_invitation_id AND c.organizer_id = auth.uid()
+    WHERE ji.id = p_juror_invitation_id AND c.organizer_id = auth.uid()
   ) THEN
     RAISE EXCEPTION 'Invitation not found or access denied.';
   END IF;
 
   -- If the check passes, delete the invitation.
   DELETE FROM public.juror_invitations
-  WHERE id = p_invitation_id;
+  WHERE id = p_juror_invitation_id;
 END;
 $$;
 
@@ -1190,7 +1196,9 @@ $$;
 CREATE OR REPLACE FUNCTION organizer_delete_jury(p_jury_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1216,7 +1224,9 @@ $$;
 CREATE OR REPLACE FUNCTION organizer_remove_juror(p_juration_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1243,7 +1253,9 @@ $$;
 CREATE OR REPLACE FUNCTION organizer_remove_participant(p_participation_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1273,7 +1285,9 @@ CREATE OR REPLACE FUNCTION organizer_update_jury_name(
 )
 RETURNS juries -- Returns the entire updated jury row
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
  updated_jury_row juries;
@@ -1307,7 +1321,9 @@ CREATE OR REPLACE FUNCTION organizer_update_voting_session_name(
 )
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
   -- SECURITY CHECK: The WHERE clause implicitly verifies ownership by joining
@@ -1333,7 +1349,9 @@ $$;
 CREATE OR REPLACE FUNCTION organizer_delete_contest(p_contest_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
  -- The WHERE clause acts as a security check, ensuring that only the

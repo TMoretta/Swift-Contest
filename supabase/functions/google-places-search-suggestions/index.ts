@@ -1,21 +1,21 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { corsHeaders } from "../_shared/cors.ts";
 
-// Funzione principale che gestisce le richieste in entrata
-serve(async (req) => {
-  // Gestisce la richiesta pre-flight CORS
+// Main Deno function to handle incoming requests
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // 1. Recupera la API key di Google Places dai segreti di Supabase
+    // 1. Retrieve the Google Places API key from Supabase secrets
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) {
       throw new Error("Google Places API key not found in environment variables.");
     }
 
-    // 2. Estrae la query di ricerca dal corpo della richiesta
+    // 2. Extract the search query from the request body
     const { query } = await req.json();
     if (!query) {
       return new Response(JSON.stringify({ error: "Query parameter is missing" }), {
@@ -24,7 +24,7 @@ serve(async (req) => {
       });
     }
 
-    // 3. Prepara e invia la richiesta all'API di Google Places
+    // 3. Prepare and send the request to the Google Places Autocomplete API
     const googleApiUrl = "https://places.googleapis.com/v1/places:autocomplete";
     const headers = {
       "Content-Type": "application/json",
@@ -38,25 +38,33 @@ serve(async (req) => {
       body,
     });
 
-    // 4. Controlla la risposta di Google e la inoltra al client
+    // 4. Check the response from Google and forward the error if it's not ok
     if (!googleResponse.ok) {
       const errorText = await googleResponse.text();
-      // Inoltra lo stesso status code e messaggio di errore di Google
+      // Forward the same status code and error message from Google
       return new Response(errorText, {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: googleResponse.status,
       });
     }
 
-    const data = await googleResponse.json();
+    const googleData = await googleResponse.json();
 
-    // Inoltra la risposta di successo al client
-    return new Response(JSON.stringify(data), {
+    // 5. Transform the complex Google response into a simple list for the client.
+    const transformedSuggestions = (googleData.suggestions || []).map((suggestion: any) => {
+      return {
+        placeId: suggestion.placePrediction?.placeId,
+        address: suggestion.placePrediction?.text?.text,
+      };
+    }).filter((s: any) => s.placeId && s.address); // Filter out any malformed suggestions
+
+    // Return the simplified list to the client
+    return new Response(JSON.stringify(transformedSuggestions), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    // Gestisce errori interni della Edge Function
+    // Handle internal errors in the Edge Function
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

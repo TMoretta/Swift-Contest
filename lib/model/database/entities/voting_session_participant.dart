@@ -11,7 +11,7 @@ class VotingSessionParticipant extends Equatable {
   final String participantFullName;
   final String workName;
   final String workDescription;
-  final List<String> workImagesUrls;
+  final List<String> workImagesPaths;
 
   const VotingSessionParticipant({
     required this.id,
@@ -22,7 +22,7 @@ class VotingSessionParticipant extends Equatable {
     required this.participantFullName,
     required this.workName,
     required this.workDescription,
-    required this.workImagesUrls,
+    required this.workImagesPaths,
   });
 
   factory VotingSessionParticipant.fromJson(Map<String, dynamic> json) {
@@ -35,7 +35,7 @@ class VotingSessionParticipant extends Equatable {
       participantFullName: json['participant_full_name'] as String,
       workName: json['work_name'] as String,
       workDescription: json['work_description'] as String,
-      workImagesUrls: List<String>.from(json['work_images_urls']),
+      workImagesPaths: List<String>.from(json['work_images_paths']),
     );
   }
 
@@ -49,7 +49,7 @@ class VotingSessionParticipant extends Equatable {
       'participant_full_name': participantFullName,
       'work_name': workName,
       'work_description': workDescription,
-      'work_images_urls': workImagesUrls,
+      'work_images_paths': workImagesPaths,
     };
   }
 
@@ -63,7 +63,7 @@ class VotingSessionParticipant extends Equatable {
     String? participantFullName,
     String? workName,
     String? workDescription,
-    List<String>? workImagesUrls,
+    List<String>? workImagesPaths,
   }) {
     return VotingSessionParticipant(
       id: id ?? this.id,
@@ -74,7 +74,7 @@ class VotingSessionParticipant extends Equatable {
       participantFullName: participantFullName ?? this.participantFullName,
       workName: workName ?? this.workName,
       workDescription: workDescription ?? this.workDescription,
-      workImagesUrls: workImagesUrls ?? this.workImagesUrls,
+      workImagesPaths: workImagesPaths ?? this.workImagesPaths,
     );
   }
 
@@ -88,6 +88,6 @@ class VotingSessionParticipant extends Equatable {
         participantFullName,
         workName,
         workDescription,
-        workImagesUrls,
+        workImagesPaths,
       ];
 }

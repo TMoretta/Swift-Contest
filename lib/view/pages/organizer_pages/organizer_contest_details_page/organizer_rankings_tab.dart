@@ -254,6 +254,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                                         type: FileType.custom,
                                         allowedExtensions: ['pdf'],
                                         allowMultiple: false,
+                                        withData: true
                                       );
 
                                       if (res != null) {
@@ -268,7 +269,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                                     title: Text(
                                       (selectedFile == null)
                                           ? 'Select file'
-                                          : '${selectedFile!.name}${selectedFile!.extension}',
+                                          : selectedFile!.name,
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                           color: Theme.of(context).colorScheme.onTertiaryContainer),
                                       overflow: TextOverflow.ellipsis,
@@ -309,7 +310,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                           context.read<OrganizerContestDetailsPageBloc>().add(
                                 OrganizerContestDetailsPagePublishRanking(
                                   contestId: contestId,
-                                  file: File(selectedFile!.path!),
+                                  file: selectedFile!,
                                 ),
                               );
                         }

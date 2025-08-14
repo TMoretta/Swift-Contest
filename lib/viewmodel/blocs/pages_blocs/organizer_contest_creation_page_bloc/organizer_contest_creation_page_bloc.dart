@@ -1,34 +1,26 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/database/entities/contest.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/database/repositories/storage_repository.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
-import 'package:swift_contest/model/database/types/storage_bucket.dart';
 
 part 'organizer_contest_creation_page_event.dart';
+
 part 'organizer_contest_creation_page_state.dart';
 
 class OrganizerContestCreationPageBloc
     extends Bloc<OrganizerContestCreationPageEvent, OrganizerContestCreationPageState> {
-  final StorageRepository _storageRepository;
   final OrganizerRepository _organizerRepository;
 
   OrganizerContestCreationPageBloc({
-    required StorageRepository storageRepository,
     required OrganizerRepository organizerRepository,
-  })  :
-        _storageRepository = storageRepository,
-        _organizerRepository = organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerContestCreationPageState(status: BlocStatus.initial)) {
     on<OrganizerContestCreationPageCreateContest>(_createContest);
   }
@@ -72,11 +64,6 @@ class OrganizerContestCreationPageBloc
     //   return;
     // }
 
-    final List<File> images = [];
-    for(var image in event.images) {
-      images.add(File(image.path));
-    }
-
     final Place place = Place(
       id: null,
       createdAt: null,
@@ -95,11 +82,11 @@ class OrganizerContestCreationPageBloc
       dateTime: event.dateTime,
       worksSubmissionStart: event.worksSubmissionStart,
       worksSubmissionEnd: event.worksSubmissionEnd,
-      imagesUrls: [],
+      imagesPaths: [],
     );
 
     final eitherCreateContest = await _organizerRepository.createContest(
-        contest: contest, place: place, images: images);
+        contest: contest, place: place, images: event.images);
     eitherCreateContest.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),

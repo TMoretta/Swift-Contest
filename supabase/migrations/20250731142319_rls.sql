@@ -12,26 +12,26 @@ END $$;
 -- Note: These are permissive policies suitable for development.
 -- For production, consider more restrictive policies based on your app's logic.
 
-CREATE POLICY "Profiles: allow all"
-ON public.profiles
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
+--CREATE POLICY "Profiles: allow all"
+--ON public.profiles
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
 
-CREATE POLICY "Messages: allow all"
-ON public.messages
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
+--CREATE POLICY "Messages: allow all"
+--ON public.messages
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
 
-CREATE POLICY "Places: allow all"
-ON public.places
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
+--CREATE POLICY "Places: allow all"
+--ON public.places
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
 
 CREATE POLICY "Voting Forms: allow all"
 ON public.voting_forms
@@ -40,12 +40,12 @@ TO authenticated, anon
 USING (true)
 WITH CHECK (true);
 
-CREATE POLICY "Contests: allow all"
-ON public.contests
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
+--CREATE POLICY "Contests: allow all"
+--ON public.contests
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
 
 CREATE POLICY "Juries: allow all"
 ON public.juries

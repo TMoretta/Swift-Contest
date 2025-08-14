@@ -83,14 +83,14 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                           height: 180,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: work.imagesUrls.length,
+                            itemCount: work.imagesPaths.length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 8),
-                                child: (work.imagesUrls.isNotEmpty)
+                                child: (work.imagesPaths.isNotEmpty)
                                     ? StorageImage(
                                   bucket: StorageBucket.worksImages,
-                                  path: work.imagesUrls[index],
+                                  path: work.imagesPaths[index],
                                   fit: BoxFit.cover,
                                 )
                                     : Icon(Icons.broken_image_outlined),

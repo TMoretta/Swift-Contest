@@ -31,7 +31,6 @@ class OrganizerContestCreationPage extends StatefulWidget implements AutoRouteWr
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<OrganizerContestCreationPageBloc>(
       create: (context) => OrganizerContestCreationPageBloc(
-        storageRepository: context.read(),
         organizerRepository: context.read(),
       ),
       child: this,

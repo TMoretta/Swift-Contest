@@ -8,12 +8,12 @@ Failure edgeFunctionExceptionToFailure(FunctionException exception) {
   // 1. Priorità ai messaggi di errore personalizzati inviati dalla funzione.
   // Se la tua Edge Function restituisce un JSON come `{"error": "Messaggio specifico"}`,
   // questo blocco lo catturerà e lo mostrerà all'utente.
-  if (exception.details is Map<String, dynamic>) {
-    final detailsMap = exception.details as Map<String, dynamic>;
-    if (detailsMap.containsKey('error')) {
-      return CustomServerFailure(detailsMap['error'].toString());
-    }
-  }
+  // if (exception.details is Map<String, dynamic>) {
+  //   final detailsMap = exception.details as Map<String, dynamic>;
+  //   if (detailsMap.containsKey('error')) {
+  //     return CustomServerFailure(detailsMap['error'].toString());
+  //   }
+  // }
 
   // 2. Se non c'è un errore personalizzato, mappa gli status code HTTP standard.
   switch (exception.status) {

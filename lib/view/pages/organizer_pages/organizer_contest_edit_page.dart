@@ -42,7 +42,6 @@ class OrganizerContestEditPage extends StatefulWidget implements AutoRouteWrappe
     return BlocProvider<OrganizerContestEditPageBloc>(
       create: (context) => OrganizerContestEditPageBloc(
         organizerRepository: context.read(),
-        storageRepository: context.read(),
       ),
       child: this,
     );
@@ -169,7 +168,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                     .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
                 worksSubmissionEndController
                     .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
-                oldImagesUrls.addAll(contestDetailsBundle.contestBundle.contest.imagesUrls);
+                oldImagesUrls.addAll(contestDetailsBundle.contestBundle.contest.imagesPaths);
                 isPageInitialized = true;
               }
               return Stepper(

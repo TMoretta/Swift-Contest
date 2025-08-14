@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from 'npm:resend';
 import { corsHeaders } from "../_shared/cors.ts";
 
-// Inizializza Resend con la tua API key presa dai secrets
+// Initialize Resend with your API key from secrets
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
@@ -14,31 +14,36 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 1. Crea un client Supabase con permessi di amministratore
+    // 1. Create a Supabase client with admin privileges
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
 
-    // 2. Verifica l'autenticazione e i permessi dell'organizzatore
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing Authorization header");
-    }
-    const { data: { user } } = await supabaseAdmin.auth.getUser(authHeader.replace("Bearer ", ""));
+    // 2. Get the user from the authorization header.
+    const { data: { user } } = await createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    ).auth.getUser()
+
     if (!user) {
-      throw new Error("User not found for the provided JWT");
+      throw new Error("User not authenticated.")
     }
 
-    // 3. Estrae i dati dal corpo della richiesta
-    const { contest_id, email } = await req.json();
-    if (!contest_id || !email) {
-      throw new Error("Missing required fields: contest_id, email");
-    }
+     // 3. Extract data from the request body
+     const { participant_invitation } = await req.json();
+     if (!participant_invitation) {
+       throw new Error("Missing 'participant_invitation' in request body.");
+     }
+     const { contest_id, email } = participant_invitation;
+     if (!contest_id || !email) { // Check inside the nested object
+       throw new Error("Missing required fields: contest_id, email");
+     }
 
-    // 4. SICUREZZA: Verifica che l'utente sia l'organizzatore del contest
-    //    e recupera il nome del contest per l'email.
+    // 4. SECURITY: Verify that the user is the organizer of the contest
+    //    and retrieve the contest name for the email.
     const { data: contest, error: contestError } = await supabaseAdmin
       .from('contests')
       .select('name, organizer_id')
@@ -55,29 +60,29 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 5. Inserisce il nuovo invito e recupera la riga completa, incluso il token
+    // 5. Insert the new invitation and retrieve the complete row, including the token.
     const { data: newInvitation, error: insertError } = await supabaseAdmin
       .from('participant_invitations')
       .insert({ contest_id, email })
       .select()
       .single();
 
-    if (insertError) {
-      throw insertError;
+    if (insertError || !newInvitation) {
+      throw new Error("Failed to create invitation record.");
     }
 
     await resend.emails.send({
       from: "Swift Contest <onboarding@resend.dev>",
       to: [email],
-      subject: `Sei stato invitato a partecipare a "${contest.name}"`,
+      subject: `You have been invited to participate in "${contest.name}"`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-            <h1 style="color: #007bff;">Invito a Swift Contest</h1>
-            <p>Ciao!</p>
-            <p>Hai ricevuto un invito per partecipare al contest "<strong>${contest.name}</strong>".</p>
+            <h1 style="color: #007bff;">Invitation to Swift Contest</h1>
+            <p>Hello!</p>
+            <p>You have received an invitation to participate in the contest "<strong>${contest.name}</strong>".</p>
             <p style="margin-top: 20px; font-size: 12px; color: #666;">
-              Usa questo token nell'app:<br>
+              Use this token in the app:<br>
               <strong style="font-size: 14px; color: #333;">${newInvitation.token}</strong>
             </p>
           </div>
@@ -86,7 +91,7 @@ Deno.serve(async (req) => {
     });
 
 
-    // 7. Restituisce l'invito creato al client
+    // 7. Return the created invitation to the client.
     return new Response(JSON.stringify(newInvitation), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 201, // Created
@@ -96,7 +101,7 @@ Deno.serve(async (req) => {
     console.error(error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 400,
+      status: 500, // Use 500 for general server-side errors
     });
   }
 });

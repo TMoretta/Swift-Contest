@@ -529,9 +529,9 @@ void _showRemoveJurorDialog({
         child: BlocConsumer<OrganizerJuryDetailsPageBloc, OrganizerJuryDetailsPageState>(
           listener: (context, state) {
             if (state.status.isSuccess &&
-                state.sourceEvent is OrganizerContestDetailsPageRemoveParticipant) {
+                state.sourceEvent is OrganizerJuryDetailsPageRemoveJuror) {
               context.router.pop();
-              showSnackBar(context: context, text: 'Participant removed successfully');
+              showSnackBar(context: context, text: 'Juror removed successfully');
               context
                   .read<OrganizerJuryDetailsPageBloc>()
                   .add(OrganizerJuryDetailsPageFetch(juryId: juryId));

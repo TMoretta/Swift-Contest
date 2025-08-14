@@ -129,7 +129,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                               clipBehavior: Clip.hardEdge,
                                               child: StorageImage(
                                               bucket: StorageBucket.worksImages,
-                                              path: participationBundle.work!.imagesUrls[0],
+                                              path: participationBundle.work!.imagesPaths[0],
                                               fit: BoxFit.cover,
                                             ),
                                             ),

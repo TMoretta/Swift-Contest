@@ -10,23 +10,20 @@ import 'package:swift_contest/model/database/bundles/organizer_contest_details_b
 import 'package:swift_contest/model/database/entities/contest.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_contest_edit_page_event.dart';
+
 part 'organizer_contest_edit_page_state.dart';
 
 class OrganizerContestEditPageBloc
     extends Bloc<OrganizerContestEditPageEvent, OrganizerContestEditPageState> {
   final OrganizerRepository _organizerRepository;
-  final StorageRepository _storageRepository;
 
-  OrganizerContestEditPageBloc(
-      {required OrganizerRepository organizerRepository,
-      required StorageRepository storageRepository})
-      : _organizerRepository = organizerRepository,
-        _storageRepository = storageRepository,
+  OrganizerContestEditPageBloc({
+    required OrganizerRepository organizerRepository,
+  })  : _organizerRepository = organizerRepository,
         super(OrganizerContestEditPageState(status: BlocStatus.initial)) {
     on<OrganizerContestEditPageFetch>(_fetch);
     on<OrganizerContestEditPageEditContest>(_edit);
@@ -78,7 +75,7 @@ class OrganizerContestEditPageBloc
     List<File>? newImagesFiles;
     if (event.images.isNotEmpty) {
       newImagesFiles = [];
-      for(var image in event.images) {
+      for (var image in event.images) {
         newImagesFiles.add(File(image.path));
       }
     }
@@ -86,11 +83,11 @@ class OrganizerContestEditPageBloc
     final eitherEditContest = await _organizerRepository.updateContest(
       contest: event.contest,
       place: event.place,
-      images: newImagesFiles,
+      images: (event.images.isNotEmpty) ? event.images : null,
     );
     eitherEditContest.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => emit(state.copyWith(status: BlocStatus.success)),
-      );
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
   }
 }

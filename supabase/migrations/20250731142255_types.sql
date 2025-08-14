@@ -14,12 +14,12 @@ CREATE TYPE voting_form_field_type AS enum (
 );
 
 CREATE TYPE jury_type AS enum (
-  'appointed',
-  'simple'
+  'appointed', -- jury of invited jurors
+  'simple' -- jury of jurors that vote only, they access voting with the token
 );
 
  CREATE TYPE voting_form_field_scope AS ENUM (
-   'header',     -- Un campo che appare una sola volta per l'intero form/sottomissione.
-   'participant', -- Un campo che viene ripetuto per ogni partecipante.
-   'footer'
+   'header', -- initial form
+   'participant', -- this form is repeated for each participant
+   'footer' --ending form
  );

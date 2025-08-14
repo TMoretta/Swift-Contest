@@ -18,7 +18,6 @@ import 'package:swift_contest/model/database/repositories/storage_repository.dar
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/model/local/repositories/theme_repository.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/deep_link_bloc/deep_link_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 void main() async {
@@ -29,7 +28,9 @@ void main() async {
   //   },
   // );
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  if(!kIsWeb) {
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  }
 
   setPathUrlStrategy();
 
@@ -110,13 +111,6 @@ void main() async {
           BlocProvider<ThemeBloc>(
             lazy: false,
             create: (context) => ThemeBloc(themeRepository: context.read()),
-          ),
-          BlocProvider<DeepLinkBloc>(
-            lazy: false,
-            create: (context) => DeepLinkBloc(
-              participantRepository: context.read(),
-              jurorRepository: context.read(),
-            ),
           ),
         ],
         child: App(),

@@ -46,14 +46,13 @@ CREATE TABLE contests (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   organizer_id uuid NOT NULL REFERENCES profiles (id) ON DELETE CASCADE,
-  organizer_full_name text NOT NULL,
   name text NOT NULL,
   description text NOT NULL,
   date_time timestamptz NOT NULL,
   works_submission_start timestamptz NOT NULL,
   works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL UNIQUE REFERENCES places (id),
-  images_urls text[] NOT NULL
+  images_paths text[] NOT NULL
 );
 
 CREATE TABLE participant_invitations (
@@ -98,10 +97,9 @@ CREATE TABLE works (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   participation_id uuid NOT NULL UNIQUE REFERENCES participations (id) ON DELETE cascade,
-  participant_full_name text NOT NULL,
   name text NOT NULL,
   description text NOT NULL,
-  images_urls text[] NOT NULL
+  images_paths text[] NOT NULL
 );
 
 CREATE TABLE jurations (
@@ -136,7 +134,7 @@ CREATE TABLE voting_session_participants (
   participant_full_name text NOT NULL,
   work_name text NOT NULL,
   work_description text NOT NULL,
-  work_images_urls text[] NOT NULL
+  work_images_paths text[] NOT NULL
 );
 
 CREATE TABLE voting_session_juries (
@@ -199,39 +197,3 @@ CREATE TABLE public.contest_rankings (
   contest_id uuid NOT NULL REFERENCES public.contests(id) ON DELETE CASCADE,
   file_path text NOT NULL UNIQUE
 );
-
---CREATE TABLE juror_votings (
---  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
---  created_at timestamptz NOT NULL DEFAULT now(),
---  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
---  voting_session_juration_id uuid NOT NULL REFERENCES voting_session_jurations (id),
---  voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
---  UNIQUE (voting_session_juration_id, voting_session_participation_id)
---);
---
---CREATE TABLE juror_votes (
---  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
---  created_at timestamptz NOT NULL DEFAULT now(),
---  juror_voting_id uuid NOT NULL REFERENCES juror_votings (id) ON DELETE cascade,
---  voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
---  value text NOT NULL,
---  UNIQUE (juror_voting_id, voting_form_field_id)
---);
-
---CREATE TABLE simple_juror_votings (
---  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
---  created_at timestamptz NOT NULL DEFAULT now(),
---  voting_session_id uuid NOT NULL REFERENCES voting_sessions (id) ON DELETE cascade,
---  voting_session_simple_juror_id uuid NOT NULL REFERENCES voting_session_simple_jurors (id),
---  voting_session_participation_id uuid NOT NULL REFERENCES voting_session_participations (id),
---  UNIQUE (voting_session_simple_juror_id, voting_session_participation_id)
---);
---
---CREATE TABLE simple_juror_votes (
---  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
---  created_at timestamptz NOT NULL DEFAULT now(),
---  simple_juror_voting_id uuid NOT NULL REFERENCES simple_juror_votings (id) ON DELETE cascade,
---  voting_form_field_id uuid NOT NULL REFERENCES voting_form_fields (id),
---  value text NOT NULL,
---  UNIQUE (simple_juror_voting_id, voting_form_field_id)
---);

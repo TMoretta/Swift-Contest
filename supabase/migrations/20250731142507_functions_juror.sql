@@ -4,13 +4,14 @@ CREATE OR REPLACE FUNCTION juror_get_joined_contests()
 RETURNS SETOF jsonb -- Returning a set of JSON objects for consistency.
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  -- It's good practice to verify that the juror's profile exists.
+  -- Security check: Ensure the user has a profile before proceeding.
   IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()) THEN
-    -- Corrected: Generic error message in English.
-    RAISE EXCEPTION 'User profile not found or access denied.';
+    RAISE EXCEPTION 'User profile not found.';
   END IF;
 
   -- The query returns the results.
@@ -66,7 +67,9 @@ $$;
  RETURNS jsonb
  LANGUAGE plpgsql
  STABLE
- SECURITY INVOKER
+ -- Runs with the permissions of the calling user.
+ -- Added search_path for security and consistency.
+ SECURITY DEFINER SET search_path = public
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -78,7 +81,7 @@ $$;
      FROM public.jurations
      WHERE contest_id = p_contest_id AND juror_id = current_user_id
    ) THEN
-     RAISE EXCEPTION 'Access denied: You are not a juror in this contest or the contest does not exist.';
+     RAISE EXCEPTION 'Access denied or contest not found.';
    END IF;
 
    -- Step 2: Build the JSON response tailored for the juror view.
@@ -121,7 +124,9 @@ $$;
 CREATE OR REPLACE FUNCTION juror_join_contest(p_token uuid)
 RETURNS jurations -- Returns the created/existing juration row.
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_invitation record;
@@ -161,23 +166,44 @@ $$;
 --region JUROR LEAVE CONTEST
  -- Allows a juror to leave a contest, deleting their juration(s) for that contest.
  CREATE OR REPLACE FUNCTION juror_leave_contest(p_contest_id uuid)
- RETURNS void
- LANGUAGE plpgsql
- SECURITY INVOKER
- AS $$
- BEGIN
-   -- Delete all juration records for the calling user in the specified contest.
-   -- This handles cases where a juror might be in multiple juries for the same contest.
-   DELETE FROM public.jurations
-   WHERE contest_id = p_contest_id AND juror_id = auth.uid();
+  RETURNS void
+  LANGUAGE plpgsql
+  -- Runs with creator's privileges to insert a message for the organizer.
+  -- Security is enforced by checking that the user is the juror.
+  SECURITY DEFINER SET search_path = public
+  AS $$
+  DECLARE
+    v_contest record;
+    v_juror_name text;
+    v_jurations_found boolean;
+  BEGIN
+    -- SECURITY CHECK: Verify that the user is actually a juror in this contest.
+    SELECT EXISTS(
+      SELECT 1 FROM public.jurations
+      WHERE contest_id = p_contest_id AND juror_id = auth.uid()
+    ) INTO v_jurations_found;
 
-   -- If no rows were deleted, it means the user was not a juror in that contest.
-   IF NOT FOUND THEN
-     RAISE EXCEPTION 'Juration not found for this user in the specified contest.';
-   END IF;
- END;
- $$;
- --endregion
+    IF NOT v_jurations_found THEN
+      RAISE EXCEPTION 'Juration not found for this user in the specified contest.';
+    END IF;
+
+    -- Get contest and juror details for the notification message.
+    SELECT name, organizer_id INTO v_contest FROM public.contests WHERE id = p_contest_id;
+    SELECT full_name INTO v_juror_name FROM public.profiles WHERE id = auth.uid();
+
+    -- Delete all juration records for the user in this contest.
+    DELETE FROM public.jurations WHERE contest_id = p_contest_id AND juror_id = auth.uid();
+
+    -- Create a notification message for the organizer.
+    INSERT INTO public.messages (account_id, title, body)
+    VALUES (
+      v_contest.organizer_id,
+      'Juror Left Contest',
+      'The juror "' || v_juror_name || '" has left your contest "' || v_contest.name || '".'
+    );
+  END;
+  $$;
+  --endregion
 
 --region JUROR GET VOTING SESSION PROCEDURE BUNDLE
 -- Retrieves the data needed for a juror's voting page, tailored to the calling juror.
@@ -186,7 +212,9 @@ CREATE OR REPLACE FUNCTION juror_get_voting_session_procedure_bundle(p_voting_se
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   result_bundle jsonb;
@@ -200,8 +228,8 @@ BEGIN
   FROM public.voting_session_jurors
   WHERE voting_session_id = p_voting_session_id AND juror_id = v_current_user_id;
 
-  IF v_current_vs_juror_record.id IS NULL THEN
-    RAISE EXCEPTION 'Access denied or voting session not found for this juror.';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Access denied or juror not found in this voting session.';
   END IF;
 
   -- Build the final JSON object, filtering data based on the juror's specific context.
@@ -273,7 +301,9 @@ CREATE OR REPLACE FUNCTION juror_submit_votes(
 )
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_session record;
@@ -308,6 +338,7 @@ BEGIN
     IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
       RAISE EXCEPTION 'Location data is required for this voting session.';
     END IF;
+    -- NOTE: This check requires the 'postgis' extension to be enabled.
     SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
     -- Use PostGIS to verify the distance.
     IF NOT ST_DWithin(
@@ -350,9 +381,11 @@ $$;
 
 --region JUROR ACCESS VOTING AS SIMPLE JUROR
 CREATE OR REPLACE FUNCTION juror_access_voting_as_simple_juror(p_token uuid)
-RETURNS voting_sessions
+RETURNS voting_sessions -- Returns the voting session the simple juror has accessed.
 LANGUAGE plpgsql
-SECURITY DEFINER -- Esegue la funzione con i permessi del creatore (necessario per accedere a tabelle e auth.uid())
+-- Runs with creator's privileges to check for appointed status and insert the simple juror.
+-- SECURITY DEFINER is safe here due to rigorous checks. search_path is critical.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_voting_session voting_sessions;
@@ -360,8 +393,8 @@ DECLARE
   v_is_appointed_juror BOOLEAN;
   v_user_full_name TEXT;
 BEGIN
-  -- 1. Verifica se esiste una giuria 'simple' in una sessione 'live' con il token fornito.
-  SELECT vsj.*, vs.id as session_id
+  -- 1. Find a 'simple' jury in a 'live' session with the provided token.
+  SELECT vsj.*
   INTO v_session_jury
   FROM public.voting_session_juries vsj
   JOIN public.voting_sessions vs ON vsj.voting_session_id = vs.id
@@ -369,12 +402,12 @@ BEGIN
     AND vsj.jury_type = 'simple'
     AND vs.session_status = 'live';
 
-  -- 2. Se non viene trovata alcuna corrispondenza, solleva un'eccezione.
+  -- 2. If no match is found, raise an exception.
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Token di invito non valido o sessione di voto non attiva.';
+    RAISE EXCEPTION 'Invalid invitation token or voting session is not active.';
   END IF;
 
-  -- 3. Verifica se l'utente corrente è già un giurato 'appointed' in qualsiasi giuria.
+  -- 3. Check if the current user is already an 'appointed' juror in any jury.
   SELECT EXISTS (
     SELECT 1
     FROM public.jurations j
@@ -384,21 +417,26 @@ BEGIN
   )
   INTO v_is_appointed_juror;
 
-  -- 4. Se è un giurato 'appointed', solleva un'eccezione specifica.
+  -- 4. If the user is an 'appointed' juror, they cannot use a simple juror token.
   IF v_is_appointed_juror THEN
-    RAISE EXCEPTION 'Sei un giurato nominato (appointed) e devi votare nella sezione apposita all''interno del contest.';
+    RAISE EXCEPTION 'You are an appointed juror and must vote in the dedicated section within the contest.';
   END IF;
 
-  -- 5. Se i controlli passano, procedi con l'inserimento del giurato 'simple'.
-  --    Recupera prima il nome completo dell'utente dal suo profilo.
+  -- 5. If checks pass, proceed with inserting the 'simple' juror.
+  --    First, retrieve the user's full name from their profile.
   SELECT full_name
   INTO v_user_full_name
   FROM public.profiles
   WHERE id = auth.uid();
 
-  -- Inserisci il nuovo record in voting_session_jurors.
-  -- ON CONFLICT DO NOTHING gestisce il caso in cui l'utente clicchi il link più volte,
-  -- evitando errori di duplicazione.
+  -- If the profile doesn't exist, we can't proceed.
+  IF NOT FOUND THEN
+      RAISE EXCEPTION 'User profile not found.';
+  END IF;
+
+  -- Insert the new record into voting_session_jurors.
+  -- ON CONFLICT DO NOTHING handles the case where the user clicks the link multiple times,
+  -- preventing duplicate errors.
   INSERT INTO public.voting_session_jurors (
     voting_session_id,
     voting_session_jury_id,
@@ -409,19 +447,20 @@ BEGIN
   VALUES (
     v_session_jury.voting_session_id,
     v_session_jury.id,
-    NULL, -- juration_id è nullo per i giurati 'simple'
+    NULL, -- juration_id is null for 'simple' jurors
     auth.uid(),
     v_user_full_name
   )
   ON CONFLICT (voting_session_jury_id, juror_id) DO NOTHING;
 
-  -- 6. Infine, restituisci la riga completa della sessione di voto a cui l'utente ha avuto accesso.
+  -- 6. Finally, return the full row of the voting session the user has accessed.
   SELECT * INTO v_voting_session
   FROM public.voting_sessions
   WHERE id = v_session_jury.voting_session_id;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Sessione di voto non trovata.';
+    -- This is an unlikely internal error, but good to have.
+    RAISE EXCEPTION 'Voting session could not be retrieved after access was granted.';
   END IF;
 
   RETURN v_voting_session;

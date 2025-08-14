@@ -4,19 +4,17 @@ class Work extends Equatable {
   final String? id;
   final DateTime? createdAt;
   final String? participationId;
-  // final String participantFullName;
   final String name;
   final String description;
-  final List<String> imagesUrls;
+  final List<String> imagesPaths;
 
   const Work({
     required this.id,
     required this.createdAt,
     required this.participationId,
-    // required this.participantFullName,
     required this.name,
     required this.description,
-    required this.imagesUrls,
+    required this.imagesPaths,
   });
 
   factory Work.fromJson(Map<String, dynamic> json) {
@@ -24,10 +22,9 @@ class Work extends Equatable {
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       participationId: json['participation_id'] as String,
-      // participantFullName: json['participant_full_name'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      imagesUrls: List<String>.from(json['images_urls']),
+      imagesPaths: List<String>.from(json['images_paths']),
     );
   }
 
@@ -36,10 +33,9 @@ class Work extends Equatable {
       if(id!=null) 'id': id,
       if(createdAt!=null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if(participationId!=null) 'participation_id': participationId,
-      // 'participant_full_name': participantFullName,
       'name': name,
       'description': description,
-      'images_urls': imagesUrls,
+      'images_paths': imagesPaths,
     };
   }
 
@@ -47,19 +43,17 @@ class Work extends Equatable {
     String? id,
     DateTime? createdAt,
     String? participationId,
-    // String? participantFullName,
     String? name,
     String? description,
-    List<String>? imagesUrls,
+    List<String>? imagesPaths,
   }) {
     return Work(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       participationId: participationId ?? this.participationId,
-      // participantFullName: participantFullName ?? this.participantFullName,
       name: name ?? this.name,
       description: description ?? this.description,
-      imagesUrls: imagesUrls ?? this.imagesUrls,
+      imagesPaths: imagesPaths ?? this.imagesPaths,
     );
   }
 
@@ -68,9 +62,8 @@ class Work extends Equatable {
         id,
         createdAt,
         participationId,
-        // participantFullName,
         name,
         description,
-        imagesUrls,
+        imagesPaths,
       ];
 }

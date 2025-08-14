@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
       throw new Error("Missing 'contest_ranking_id' in request body.")
     }
 
-    // 1. Creare un client Supabase con i permessi dell'utente che fa la chiamata
+    // 1. Create a client to verify the user's identity from the auth header.
     const userSupabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -25,15 +25,15 @@ Deno.serve(async (req) => {
       throw new Error("User not authenticated.")
     }
 
-    // 2. Creare un client Supabase con privilegi di amministratore per le operazioni
+    // 2. Create an admin client to perform privileged operations.
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // --- INIZIO TRANSAZIONE ---
+    // --- TRANSACTION START ---
 
-    // 3. Recuperare i dati della classifica e verificare i permessi
+    // 3. Fetch the ranking data and verify permissions.
     const { data: rankingData, error: fetchError } = await supabaseAdmin
       .from('contest_rankings')
       .select(`
@@ -43,12 +43,13 @@ Deno.serve(async (req) => {
       .eq('id', contest_ranking_id)
       .single()
 
-    if (fetchError) {
-      throw new Error(`Ranking not found or failed to fetch: ${fetchError.message}`)
+    if (fetchError || !rankingData) {
+      // Handle both query errors and cases where the ranking ID does not exist.
+      throw new Error(`Ranking not found or failed to fetch.`)
     }
 
-    // Verifica di sicurezza: l'utente è l'organizzatore del contest?
-    if (rankingData.contest?.organizer_id !== user.id) {
+    // Security Check: Is the user the organizer of the contest?
+    if (rankingData.contest?.organizer_id !== user.id) { // The ?. is for type safety
       return new Response(JSON.stringify({ error: 'User is not authorized to unpublish this ranking.' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 403, // 403 Forbidden
@@ -57,7 +58,7 @@ Deno.serve(async (req) => {
 
     const filePathToDelete = rankingData.file_path;
 
-    // 4. Eliminare la riga dal database PRIMA
+    // 4. Delete the database row FIRST.
     const { error: dbDeleteError } = await supabaseAdmin
       .from('contest_rankings')
       .delete()
@@ -67,22 +68,22 @@ Deno.serve(async (req) => {
       throw new Error(`Failed to delete ranking from database: ${dbDeleteError.message}`)
     }
 
-    // 5. Se la cancellazione dal DB ha successo, eliminare il file dallo storage
+    // 5. If the DB deletion is successful, delete the file from storage.
     if (filePathToDelete) {
       const { error: storageError } = await supabaseAdmin
         .storage
-        .from('contests-rankings') // Assicurati che il nome del bucket sia corretto
+        .from('contests-rankings') // Ensure bucket name is correct
         .remove([filePathToDelete])
 
       if (storageError) {
-        // Non bloccare la richiesta, ma logga un errore critico per un intervento manuale
+        // Don't block the request, but log a critical error for manual intervention.
         console.error(`CRITICAL: Failed to delete orphaned file from storage: ${filePathToDelete}. Error: ${storageError.message}`)
       }
     }
 
-    // --- FINE TRANSAZIONE ---
+    // --- TRANSACTION END ---
 
-    // 6. Successo: restituisci una risposta vuota
+    // 6. Success: return an empty response.
     return new Response(null, {
       headers: { ...corsHeaders },
       status: 204, // 204 No Content

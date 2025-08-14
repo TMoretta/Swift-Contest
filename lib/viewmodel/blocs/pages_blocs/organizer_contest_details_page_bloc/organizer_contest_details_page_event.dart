@@ -74,17 +74,6 @@ final class OrganizerContestDetailsPageRemoveParticipant extends OrganizerContes
   List<Object?> get props => [participationId];
 }
 
-final class OrganizerContestDetailsPageRemoveJuror extends OrganizerContestDetailsPageEvent {
-  final String jurationId;
-
-  const OrganizerContestDetailsPageRemoveJuror({
-    required this.jurationId,
-  });
-
-  @override
-  List<Object?> get props => [jurationId];
-}
-
 final class OrganizerContestDetailsPageDeleteContest extends OrganizerContestDetailsPageEvent {
   final String contestId;
 
@@ -115,7 +104,7 @@ final class OrganizerContestDetailsPageCreateJury extends OrganizerContestDetail
 
 final class OrganizerContestDetailsPagePublishRanking extends OrganizerContestDetailsPageEvent {
   final String contestId;
-  final File file;
+  final PlatformFile file;
 
   const OrganizerContestDetailsPagePublishRanking({
     required this.contestId,

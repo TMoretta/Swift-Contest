@@ -67,7 +67,7 @@ class PlaceSearchPageBloc extends Bloc<PlaceSearchPageEvent, PlaceSearchPageStat
     Emitter<PlaceSearchPageState> emit,
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-    final res = await _googlePlaceRepository.fetchPlace(id: event.id);
+    final res = await _googlePlaceRepository.fetchPlace(placeId: event.id);
     res.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, googlePlace: success)),

@@ -27,6 +27,7 @@ class OrganizerJuryDetailsPageBloc
     on<OrganizerJuryDetailsPageDeleteJurorInvitation>(_deleteJurorInvitation);
     on<OrganizerJuryDetailsPageDeleteJury>(_deleteJury);
     on<OrganizerJuryDetailsPageEditJury>(_editJury);
+    on<OrganizerJuryDetailsPageRemoveJuror>(_removeJuror);
   }
 
   @override
@@ -111,6 +112,19 @@ class OrganizerJuryDetailsPageBloc
 
     final eitherUpdate = await _organizerRepository.updateJuryName(juryId: event.juryId,name: event.name);
     eitherUpdate.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _removeJuror(
+      OrganizerJuryDetailsPageRemoveJuror event,
+      Emitter<OrganizerJuryDetailsPageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherRemoveJuror = await _organizerRepository.removeJuror(jurationId: event.jurationId);
+    eitherRemoveJuror.fold(
           (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
           (success) => emit(state.copyWith(status: BlocStatus.success)),
     );

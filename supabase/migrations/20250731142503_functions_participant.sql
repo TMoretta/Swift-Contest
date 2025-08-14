@@ -4,12 +4,14 @@ CREATE OR REPLACE FUNCTION participant_get_joined_contests()
 RETURNS SETOF jsonb -- Returning a set of JSON objects for consistency.
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  -- It's good practice to verify that the participant's profile exists.
+  -- Security check: Ensure the user has a profile before proceeding.
   IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()) THEN
-    RAISE EXCEPTION 'User profile not found or access denied.';
+    RAISE EXCEPTION 'User profile not found.';
   END IF;
 
   RETURN QUERY
@@ -50,22 +52,24 @@ $$;
  RETURNS jsonb
  LANGUAGE plpgsql
  STABLE
- SECURITY INVOKER
+ -- Runs with the permissions of the calling user.
+ -- Added search_path for security and consistency.
+ SECURITY DEFINER SET search_path = public
  AS $$
  DECLARE
    result_bundle jsonb;
    current_user_id uuid := auth.uid();
  BEGIN
-   -- Step 1: Security Check - Ensure the caller is a participant in this contest.
+   -- SECURITY CHECK: Ensure the caller is a participant in this contest.
    IF NOT EXISTS (
      SELECT 1
      FROM public.participations
      WHERE contest_id = p_contest_id AND participant_id = current_user_id
    ) THEN
-     RAISE EXCEPTION 'Access denied: You are not a participant in this contest or the contest does not exist.';
+     RAISE EXCEPTION 'Access denied or contest not found.';
    END IF;
 
-   -- Step 2: Build the JSON response tailored for the participant view.
+   -- If the check passes, build the JSON response tailored for the participant view.
    SELECT jsonb_build_object(
      'contest_bundle', (
        SELECT jsonb_build_object(
@@ -109,7 +113,9 @@ $$;
 CREATE OR REPLACE FUNCTION participant_join_contest(p_token uuid)
 RETURNS participations -- MODIFICATION: Returns the created/existing participation row.
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_invitation record;
@@ -156,22 +162,45 @@ $$;
 --region PARTICIPANT LEAVE CONTEST
  -- Allows a participant to leave a contest, deleting their participation record.
  CREATE OR REPLACE FUNCTION participant_leave_contest(p_contest_id uuid)
- RETURNS void
- LANGUAGE plpgsql
- SECURITY INVOKER
- AS $$
- BEGIN
-   -- Delete the participation record for the calling user in the specified contest.
-   DELETE FROM public.participations
-   WHERE contest_id = p_contest_id AND participant_id = auth.uid();
+  RETURNS void
+  LANGUAGE plpgsql
+  -- Runs with creator's privileges to insert a message for the organizer.
+  -- Security is enforced by checking that the user is the participant.
+  SECURITY DEFINER SET search_path = public
+  AS $$
+  DECLARE
+    v_participation record;
+    v_contest record;
+    v_participant_name text;
+  BEGIN
+    -- SECURITY CHECK: Find the specific participation record for the current user.
+    -- This also retrieves the necessary IDs for creating the notification message.
+    SELECT * INTO v_participation
+    FROM public.participations
+    WHERE contest_id = p_contest_id AND participant_id = auth.uid();
 
-   -- If no row was deleted, it means the user was not a participant in that contest.
-   IF NOT FOUND THEN
-     RAISE EXCEPTION 'Participation not found for this user in the specified contest.';
-   END IF;
- END;
- $$;
- --endregion
+    -- If no record is found, the user is not a participant or the contest doesn't exist.
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Participation not found for this user in the specified contest.';
+    END IF;
+
+    -- Get contest and participant details for the notification message.
+    SELECT name, organizer_id INTO v_contest FROM public.contests WHERE id = v_participation.contest_id;
+    SELECT full_name INTO v_participant_name FROM public.profiles WHERE id = v_participation.participant_id;
+
+    -- Delete the participation record.
+    DELETE FROM public.participations WHERE id = v_participation.id;
+
+    -- Create a notification message for the organizer.
+    INSERT INTO public.messages (account_id, title, body)
+    VALUES (
+      v_contest.organizer_id,
+      'Participant Left Contest',
+      'The participant "' || v_participant_name || '" has left your contest "' || v_contest.name || '".'
+    );
+  END;
+  $$;
+  --endregion
 
 --region SUBMIT WORK
 -- Allows a participant to submit their work for a contest.
@@ -180,7 +209,9 @@ $$;
 CREATE OR REPLACE FUNCTION participant_submit_work(p_contest_id uuid, p_work jsonb)
 RETURNS works -- MODIFICATION: Returns the newly created work row.
 LANGUAGE plpgsql
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_participation record;
@@ -220,17 +251,15 @@ BEGIN
   -- 5. Create the new record in the 'works' table.
   INSERT INTO public.works (
     participation_id,
-    participant_full_name,
     name,
     description,
-    images_urls
+    images_paths
   )
   VALUES (
     v_participation.id,
-    p_work->>'participant_full_name',
     p_work->>'name',
     p_work->>'description',
-    (SELECT array_agg(value) FROM jsonb_array_elements_text(p_work->'images_urls'))
+    (SELECT array_agg(value) FROM jsonb_array_elements_text(p_work->'images_paths'))
   )
   RETURNING * INTO new_work_row; -- Capture the newly created work row.
 
@@ -253,7 +282,9 @@ CREATE OR REPLACE FUNCTION user_get_participation_bundle(p_participation_id uuid
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY INVOKER
+-- Runs with the permissions of the calling user.
+-- Added search_path for security and consistency.
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   result_bundle jsonb;

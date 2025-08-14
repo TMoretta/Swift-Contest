@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from 'npm:resend';
 import { corsHeaders } from "../_shared/cors.ts";
 
-// Inizializza Resend con la tua API key presa dai secrets
+// Initialize Resend with your API key from secrets
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
@@ -14,31 +14,37 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 1. Crea un client Supabase con permessi di amministratore
+    // 1. Create a Supabase client with admin privileges
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
 
-    // 2. Verifica l'autenticazione e i permessi dell'organizzatore
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing Authorization header");
-    }
-    const { data: { user } } = await supabaseAdmin.auth.getUser(authHeader.replace("Bearer ", ""));
+    // 2. Get the user from the authorization header.
+    const { data: { user } } = await createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    ).auth.getUser()
+
     if (!user) {
-      throw new Error("User not found for the provided JWT");
+      throw new Error("User not authenticated.")
     }
 
-    // 3. Estrae i dati dal corpo della richiesta
-    const { contest_id, jury_id, email } = await req.json();
-    if (!contest_id || !jury_id || !email) {
-      throw new Error("Missing required fields: contest_id, jury_id, email");
-    }
+     // 3. Extract data from the request body
+     const { juror_invitation } = await req.json();
+     if (!juror_invitation) {
+       throw new Error("Missing 'juror_invitation' in request body.");
+     }
+     // CRITICAL FIX: Extract jury_id, which was missing.
+     const { contest_id, jury_id, email } = juror_invitation;
+     if (!contest_id || !jury_id || !email) {
+       throw new Error("Missing required fields: contest_id, jury_id, email");
+     }
 
-    // 4. SICUREZZA: Verifica che l'utente sia l'organizzatore del contest
-    //    e recupera i nomi per l'email.
+    // 4. SECURITY: Verify that the user is the organizer of the contest
+    //    and retrieve the contest name for the email.
     const { data: contest, error: contestError } = await supabaseAdmin
       .from('contests')
       .select('name, organizer_id')
@@ -55,34 +61,44 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 5. Inserisce il nuovo invito e recupera la riga completa, incluso il token
+    // 5. Insert the new invitation and retrieve the complete row, including the token.
     const { data: newInvitation, error: insertError } = await supabaseAdmin
       .from('juror_invitations')
       .insert({ contest_id, jury_id, email })
       .select()
       .single();
 
-    if (insertError) {
-      throw insertError; // Es. errore per email duplicata
+    if (insertError || !newInvitation) {
+      throw new Error("Failed to create juror invitation record.");
     }
 
-    // 6. Invia l'email di invito usando Resend
-    const inviteUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?type=invite&token=${newInvitation.token}&redirect_to=/`;
-    const { data: jury } = await supabaseAdmin.from('juries').select('name').eq('id', jury_id).single();
+    // 6. Fetch jury name for the email content.
+    const { data: jury, error: juryError } = await supabaseAdmin.from('juries').select('name').eq('id', jury_id).single();
+    if (juryError || !jury) {
+        throw new Error("Failed to find the specified jury.");
+    }
 
+    // 7. Send the invitation email using Resend.
     await resend.emails.send({
       from: "Swift Contest <onboarding@resend.dev>",
       to: [email],
-      subject: `Invito a far parte della giuria per "${contest.name}"`,
+      subject: `Invitation to join the jury for "${contest.name}"`,
       html: `
-        <h1>Invito a Swift Contest</h1>
-        <p>Ciao!</p>
-        <p>Hai ricevuto un invito per far parte della giuria "<strong>${jury?.name ?? ''}</strong>" per il contest "<strong>${contest.name}</strong>".</p>
-        <p>Usa il seguente token per accedere al contest: <strong>${newInvitation.token}</strong></p>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+            <h1 style="color: #007bff;">Invitation to Swift Contest</h1>
+            <p>Hello!</p>
+            <p>You have received an invitation to join the "<strong>${jury.name}</strong>" jury for the contest "<strong>${contest.name}</strong>".</p>
+            <p style="margin-top: 20px; font-size: 12px; color: #666;">
+              Use this token in the app to accept:<br>
+              <strong style="font-size: 14px; color: #333;">${newInvitation.token}</strong>
+            </p>
+          </div>
+        </div>
       `,
     });
 
-    // 7. Restituisce l'invito creato al client
+    // 8. Return the created invitation to the client.
     return new Response(JSON.stringify(newInvitation), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 201, // Created
@@ -92,7 +108,7 @@ Deno.serve(async (req) => {
     console.error(error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 400,
+      status: 500, // Use 500 for general server-side errors
     });
   }
 });

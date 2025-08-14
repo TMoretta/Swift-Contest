@@ -322,7 +322,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           participantFullName: votingSessionParticipant.participantFullName,
           workName: votingSessionParticipant.workName,
           workDescription: votingSessionParticipant.workDescription,
-          workImagesUrls: votingSessionParticipant.workImagesUrls,
+          workImagesUrls: votingSessionParticipant.workImagesPaths,
         ),
         const Divider(height: 24),
         (isExcluded)

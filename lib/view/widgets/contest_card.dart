@@ -60,10 +60,10 @@ class _ContestCardState extends State<ContestCard> {
                           fit: BoxFit.cover,
                           clipBehavior: Clip.hardEdge,
                           alignment: Alignment.center,
-                          child: (contest.imagesUrls.isNotEmpty)
+                          child: (contest.imagesPaths.isNotEmpty)
                               ? StorageImage(
                                   bucket: StorageBucket.contestsImages,
-                                  path: contest.imagesUrls[0],
+                                  path: contest.imagesPaths[0],
                                   fit: BoxFit.cover,
                                 )
                               : Icon(Icons.broken_image_outlined),

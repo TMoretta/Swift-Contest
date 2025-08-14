@@ -112,7 +112,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                     SizedBox(
                       height: 180,
                       child:
-                      (state.contestDetailsBundle!.contestBundle.contest.imagesUrls.isEmpty)
+                      (state.contestDetailsBundle!.contestBundle.contest.imagesPaths.isEmpty)
                           ? ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
@@ -122,10 +122,10 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           : ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: state.contestDetailsBundle!.contestBundle.contest
-                            .imagesUrls.length,
+                            .imagesPaths.length,
                         itemBuilder: (context, index) {
                           final imageUrl = state.contestDetailsBundle!.contestBundle
-                              .contest.imagesUrls[index];
+                              .contest.imagesPaths[index];
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: StorageImage(

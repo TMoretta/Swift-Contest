@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/organizer_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/entities/juror_invitation.dart';
 import 'package:swift_contest/model/database/entities/jury.dart';
@@ -17,7 +17,6 @@ import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_contest_details_page_event.dart';
-
 part 'organizer_contest_details_page_state.dart';
 
 class OrganizerContestDetailsPageBloc
@@ -37,7 +36,6 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageDeleteParticipantInvitation>(_deleteParticipantInvitation);
     on<OrganizerContestDetailsPageDeleteJurorInvitation>(_deleteJurorInvitation);
     on<OrganizerContestDetailsPageRemoveParticipant>(_removeParticipant);
-    on<OrganizerContestDetailsPageRemoveJuror>(_removeJuror);
     on<OrganizerContestDetailsPageDeleteContest>(_deleteContest);
     on<OrganizerContestDetailsPageCreateJury>(_createJury);
     on<OrganizerContestDetailsPagePublishRanking>(_publishRanking);
@@ -174,19 +172,6 @@ class OrganizerContestDetailsPageBloc
     final eitherRemoveParticipant =
         await _organizerRepository.removeParticipant(participationId: event.participationId);
     eitherRemoveParticipant.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success)),
-    );
-  }
-
-  FutureOr<void> _removeJuror(
-    OrganizerContestDetailsPageRemoveJuror event,
-    Emitter<OrganizerContestDetailsPageState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-
-    final eitherRemoveJuror = await _organizerRepository.removeJuror(jurationId: event.jurationId);
-    eitherRemoveJuror.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
     );

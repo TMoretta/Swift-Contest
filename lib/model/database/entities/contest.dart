@@ -11,7 +11,7 @@ class Contest extends Equatable {
   final DateTime worksSubmissionStart;
   final DateTime worksSubmissionEnd;
   final String? placeId;
-  final List<String> imagesUrls;
+  final List<String> imagesPaths;
 
   const Contest({
     required this.id,
@@ -23,7 +23,7 @@ class Contest extends Equatable {
     required this.dateTime,
     required this.worksSubmissionStart,
     required this.worksSubmissionEnd,
-    required this.imagesUrls,
+    required this.imagesPaths,
     required this.placeId,
   });
 
@@ -39,7 +39,7 @@ class Contest extends Equatable {
       worksSubmissionStart: DateTime.parse(json['works_submission_start']).toLocal(),
       worksSubmissionEnd: DateTime.parse(json['works_submission_end']).toLocal(),
       placeId: json['place_id'] as String,
-      imagesUrls: List<String>.from(json['images_urls']),
+      imagesPaths: List<String>.from(json['images_paths']),
     );
   }
 
@@ -55,7 +55,7 @@ class Contest extends Equatable {
       'works_submission_start': worksSubmissionStart.toUtc().toIso8601String(),
       'works_submission_end': worksSubmissionEnd.toUtc().toIso8601String(),
       if(placeId!=null) 'place_id': placeId,
-      'images_urls': imagesUrls,
+      'images_paths': imagesPaths,
     };
   }
 
@@ -70,7 +70,7 @@ class Contest extends Equatable {
     DateTime? worksSubmissionStart,
     DateTime? worksSubmissionEnd,
     String? placeId,
-    List<String>? imagesUrls,
+    List<String>? imagesPaths,
   }) {
     return Contest(
       id: id ?? this.id,
@@ -83,7 +83,7 @@ class Contest extends Equatable {
       worksSubmissionStart: worksSubmissionStart ?? this.worksSubmissionStart,
       worksSubmissionEnd: worksSubmissionEnd ?? this.worksSubmissionEnd,
       placeId: placeId ?? this.placeId,
-      imagesUrls: imagesUrls ?? this.imagesUrls,
+      imagesPaths: imagesPaths ?? this.imagesPaths,
     );
   }
 
@@ -99,6 +99,6 @@ class Contest extends Equatable {
         worksSubmissionStart,
         worksSubmissionEnd,
         placeId,
-        imagesUrls,
+        imagesPaths,
       ];
 }

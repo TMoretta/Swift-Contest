@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:path/path.dart' as path;
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
@@ -24,24 +24,24 @@ import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
 
 abstract interface class OrganizerRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests();
 
-  Future<Either<Failure, OrganizerContestDetailsBundle>> getContestDetails(
-      {required String contestId});
+  Future<Either<Failure, OrganizerContestDetailsBundle>> getContestDetails({
+    required String contestId,
+  });
 
   Future<Either<Failure, Contest>> createContest({
     required Contest contest,
     required Place place,
-    required List<File> images,
+    required List<XFile> images,
   });
 
   Future<Either<Failure, Unit>> updateContest({
     required Contest contest,
     required Place place,
-    required List<File>? images,
+    required List<XFile>? images,
   });
 
   Future<Either<Failure, Unit>> deleteContest({required String contestId});
@@ -136,7 +136,7 @@ abstract interface class OrganizerRepository {
 
   Future<Either<Failure, Unit>> publishRanking({
     required String contestId,
-    required File file,
+    required PlatformFile file,
   });
 
   Future<Either<Failure, Unit>> unpublishRanking({
@@ -149,7 +149,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   OrganizerRepositoryImpl({
     required SupabaseClient supabaseClient,
-  })  : _supabase = supabaseClient;
+  }) : _supabase = supabaseClient;
 
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
@@ -179,31 +179,26 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Contest>> createContest({
     required Contest contest,
     required Place place,
-    required List<File> images,
+    required List<XFile> images,
   }) async {
     return handleDatabaseCall<Contest>(() async {
-      final List<String> imagesPaths = [];
       final List<Map<String, String>> imagesPayload = [];
       for (final imageFile in images) {
         final fileBytes = await imageFile.readAsBytes();
         final fileBase64 = base64Encode(fileBytes);
-        final filePath = '${genUuid()}/${path.basename(imageFile.path)}';
-        imagesPaths.add(filePath);
 
         imagesPayload.add({
-          'path': filePath,
+          'name': imageFile.name,
           'content': fileBase64,
         });
       }
 
-      contest = contest.copyWith(imagesUrls: imagesPaths);
-
       final result = await _supabase.functions.invoke(
         'organizer-create-contest',
         body: {
-          'p_contest': contest.toJson(),
-          'p_place': place.toJson(),
-          'p_images': imagesPayload,
+          'contest': contest.toJson(),
+          'place': place.toJson(),
+          'images': imagesPayload,
         },
       );
 
@@ -215,33 +210,29 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> updateContest({
     required Contest contest,
     required Place place,
-    required List<File>? images,
+    required List<XFile>? images,
   }) async {
     return handleDatabaseCall(
       () async {
         // Prepara il corpo base della richiesta
         final Map<String, dynamic> body = {
-          'p_place': place.toJson(),
+          'place': place.toJson(),
+          'contest': contest.toJson(),
         };
 
         // Gestisce le immagini solo se la lista non è nulla e non è vuota
         if (images != null && images.isNotEmpty) {
-          final List<String> imagesPaths = [];
           final List<Map<String, String>> imagesPayload = [];
           for (final imageFile in images) {
             final fileBytes = await imageFile.readAsBytes();
             final fileBase64 = base64Encode(fileBytes);
-            final filePath = '${contest.id}/${genUuid()}/${path.basename(imageFile.path)}';
-            imagesPaths.add(filePath);
             imagesPayload.add({
-              'path': filePath,
+              'name': imageFile.name,
               'content': fileBase64,
             });
           }
-          contest = contest.copyWith(imagesUrls: imagesPaths);
-          body['p_contest'] = contest.toJson();
           // Aggiunge il payload delle immagini al corpo
-          body['p_images'] = imagesPayload;
+          body['images'] = imagesPayload;
         }
 
         await _supabase.functions.invoke(
@@ -258,7 +249,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> deleteContest({required String contestId}) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.rpc('organizer_delete_contest',params: {'p_contest_id': contestId});
+        await _supabase.rpc('organizer_delete_contest', params: {'p_contest_id': contestId});
         return Either.right(unit);
       },
     );
@@ -329,7 +320,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     return handleDatabaseCall(
       () async {
         final res = await _supabase.functions
-            .invoke('organizer-invite-juror', body: jurorInvitation.toJson());
+            .invoke('organizer-invite-juror', body: {'juror_invitation': jurorInvitation.toJson()});
         if (res.status != 201) {
           return Either.left(Failure(res.data.toString()));
         }
@@ -344,8 +335,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        final res = await _supabase.functions
-            .invoke('organizer-invite-participant', body: participantInvitation.toJson());
+        final res = await _supabase.functions.invoke('organizer-invite-participant',
+            body: {'participant_invitation': participantInvitation.toJson()});
         if (res.status != 201) {
           return Either.left(Failure(res.data.toString()));
         }
@@ -358,7 +349,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> removeJuror({required String jurationId}) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.rpc('organizer_remove_juror',params: {'p_juration_id':jurationId});
+        await _supabase.rpc('organizer_remove_juror', params: {'p_juration_id': jurationId});
         return Either.right(unit);
       },
     );
@@ -368,7 +359,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> removeParticipant({required String participationId}) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.rpc('organizer_remove_participant',params: {'p_participation_id':participationId});
+        await _supabase
+            .rpc('organizer_remove_participant', params: {'p_participation_id': participationId});
         return Either.right(unit);
       },
     );
@@ -576,11 +568,8 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultDetails({
     required String votingSessionId,
   }) {
-    // Uso un gestore di chiamate generico per il try-catch e la gestione degli errori.
-    // Se non ne hai uno, puoi usare un blocco try-catch standard.
     return handleDatabaseCall(
       () async {
-        // Esegue la chiamata alla funzione RPC sul database.
         final result = await _supabase.rpc(
           'organizer_get_voting_session_result_bundle',
           params: {'p_voting_session_id': votingSessionId},
@@ -631,19 +620,17 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> publishRanking({
     required String contestId,
-    required File file,
+    required PlatformFile file,
   }) async {
     return handleDatabaseCall(
       () async {
-        final String filePath = '$contestId/${genUuid()}/${path.basename(file.path)}';
-        final List<int> fileBytes = await file.readAsBytes();
-        final String fileBase64 = base64Encode(fileBytes);
+        final String fileBase64 = base64Encode(file.bytes!);
 
         await _supabase.functions.invoke(
           'organizer-publish-ranking',
           body: {
             'contest_id': contestId,
-            'file_path': filePath,
+            'file_name': file.name,
             'file': fileBase64,
           },
         );

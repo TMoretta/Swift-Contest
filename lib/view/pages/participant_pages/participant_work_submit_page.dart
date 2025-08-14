@@ -31,7 +31,6 @@ class ParticipantWorkSubmitPage extends StatefulWidget implements AutoRouteWrapp
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<ParticipantWorkSubmitPageBloc>(
         create: (context) => ParticipantWorkSubmitPageBloc(
-          storageRepository: context.read(),
           participantRepository: context.read(),
         ),
         child: this,

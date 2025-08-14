@@ -1,22 +1,21 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { corsHeaders } from "../_shared/cors.ts";
 
-serve(async (req) => {
-  // Gestisce la richiesta pre-flight CORS
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // 1. Recupera la API key di Google Places
+    // 1. Retrieve the Google Places API key from environment variables.
     const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
     if (!apiKey) {
       throw new Error("Google Places API key not found in environment variables.");
     }
 
-    // 2. Estrae l'ID del luogo dai parametri dell'URL
-    const url = new URL(req.url);
-    const placeId = url.searchParams.get("id");
+    // 2. Extract the place ID from the request body.
+    const { place_id: placeId } = await req.json();
     if (!placeId) {
       return new Response(JSON.stringify({ error: "Place ID is missing" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -24,12 +23,12 @@ serve(async (req) => {
       });
     }
 
-    // 3. Prepara e invia la richiesta all'API di Google Places
+    // 3. Prepare and send the request to the Google Places API.
     const googleApiUrl = `https://places.googleapis.com/v1/places/${placeId}`;
     const headers = {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
-      // Manteniamo la FieldMask per ottimizzare la richiesta
+      // Use a FieldMask to optimize the request and only get the data we need.
       "X-Goog-FieldMask": "id,location,formattedAddress,shortFormattedAddress",
     };
 
@@ -38,7 +37,7 @@ serve(async (req) => {
       headers,
     });
 
-    // 4. Controlla la risposta di Google e la inoltra al client
+    // 4. Check the response from Google and forward the error if it's not ok.
     if (!googleResponse.ok) {
       const errorText = await googleResponse.text();
       return new Response(errorText, {
@@ -47,9 +46,19 @@ serve(async (req) => {
       });
     }
 
-    const data = await googleResponse.json();
+    const googleData = await googleResponse.json();
 
-    return new Response(JSON.stringify(data), {
+    // 5. Transform the data to match the client's expected format (e.g., Place entity).
+    // This simplifies the client-side parsing logic.
+    const transformedData = {
+      id: googleData.id,
+      address: googleData.formattedAddress,
+      lat: googleData.location.latitude,
+      lon: googleData.location.longitude,
+      // created_at is handled by the database, so we don't include it here.
+    };
+
+    return new Response(JSON.stringify(transformedData), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

@@ -1,43 +1,31 @@
 --region AUTH GET ACCOUNT BUNDLE
--- Retrieves a complete bundle of user data (account, profile, messages) in a single call.
+-- Retrieves a complete bundle of user data (account, profile, messages) in a single, efficient call.
 -- Returns NULL if the user does not have an associated profile.
 CREATE OR REPLACE FUNCTION auth_get_account_bundle()
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public, auth
 AS $$
 DECLARE
   result_bundle jsonb;
   current_user_id uuid := auth.uid();
 BEGIN
-  -- First, check if a profile exists for the user.
-  -- If not, we consider the user not fully set up and return NULL.
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = current_user_id) THEN
-    RETURN NULL;
-  END IF;
-
-  -- If the profile exists, proceed to build the complete bundle.
+  -- This function uses a single query with a LEFT JOIN to be more efficient.
+  -- It fetches the user from auth.users and joins their profile if it exists.
   SELECT
     jsonb_build_object(
       -- 1. 'account' object, reshaped to match the client's Account.fromJson factory.
-      'account', (
-        SELECT jsonb_build_object(
-            'id', u.id,
-            'email', u.email,
-            'is_admin', COALESCE((u.raw_user_meta_data->>'is_admin')::boolean, false),
-            'is_anonymous', u.is_anonymous
-        )
-        FROM auth.users u
-        WHERE u.id = current_user_id
+      'account', jsonb_build_object(
+        'id', u.id,
+        'email', u.email,
+        'is_admin', COALESCE((u.raw_user_meta_data->>'is_admin')::boolean, false),
+        'is_anonymous', u.is_anonymous
       ),
 
       -- 2. 'profile' object from public.profiles
-      'profile', (
-        SELECT to_jsonb(p)
-        FROM public.profiles p
-        WHERE p.id = current_user_id
-      ),
+      -- If the LEFT JOIN finds no profile, to_jsonb(p) will correctly be NULL.
+      'profile', to_jsonb(p),
 
       -- 3. 'messages' array from public.messages
       'messages', (
@@ -45,8 +33,16 @@ BEGIN
         FROM public.messages m
         WHERE m.account_id = current_user_id
       )
-    )
-  INTO result_bundle;
+    ) INTO result_bundle
+  FROM auth.users u
+  LEFT JOIN public.profiles p ON u.id = p.id
+  WHERE u.id = current_user_id;
+
+  -- If the profile was not found, the 'profile' field in the JSON will be null.
+  -- In this case, we return NULL for the entire bundle as the user is not fully set up.
+  IF result_bundle->'profile' = 'null'::jsonb THEN
+      RETURN NULL;
+  END IF;
 
   RETURN result_bundle;
 END;
@@ -58,7 +54,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_mark_message_as_read(p_message_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER -- The function runs with the permissions of the user calling it.
+SECURITY DEFINER SET search_path = public -- The function runs with the permissions of the user calling it.
 AS $$
 BEGIN
   -- Update the 'is_read' status of a specific message.
@@ -79,7 +75,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_delete_message(p_message_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER -- The function runs with the permissions of the user calling it.
+SECURITY DEFINER SET search_path = public -- The function runs with the permissions of the user calling it.
 AS $$
 BEGIN
   -- Delete the message from the public.messages table.
@@ -101,7 +97,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_delete_all_account_messages()
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
   -- Delete all messages where the account_id matches the caller's user ID.
@@ -116,7 +112,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_update_profile_full_name(p_full_name text)
 RETURNS profiles -- Returns the single updated profile row
 LANGUAGE plpgsql
-SECURITY INVOKER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   updated_profile profiles;
@@ -140,7 +136,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_update_profile_pref_role(p_pref_role text)
 RETURNS profiles -- Returns the single updated profile row
 LANGUAGE plpgsql
-SECURITY INVOKER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   updated_profile profiles;

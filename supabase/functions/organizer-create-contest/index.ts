@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { decode } from 'https://deno.land/std@0.208.0/encoding/base64.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
-// Definiamo le interfacce per un type-checking migliore
+// Define interfaces for better type-checking
 interface Place {
   address: string;
   lat: number;
@@ -12,16 +12,17 @@ interface Place {
 interface Contest {
   name: string;
   description: string;
-  images_urls: string[];
-  // ...tutti gli altri campi
+  date_time: string;
+  works_submission_start: string;
+  works_submission_end: string;
 }
 
 interface ImagePayload {
-  path: string; // Path parziale dal client, es: "uuid/nome.jpg"
+  name: string;   // Original file name from the client, e.g., "my-photo.jpg"
   content: string; // Base64 encoded
 }
 
-// Funzione helper per ottenere il MIME type dall'estensione del file
+// Helper function to get the MIME type from the file extension
 const getMimeType = (fileName: string): string => {
   const extension = fileName.split('.').pop()?.toLowerCase();
   switch (extension) {
@@ -35,8 +36,7 @@ const getMimeType = (fileName: string): string => {
     case 'webp':
       return 'image/webp';
     default:
-      // Un tipo generico per file binari se non riconosciuto
-      return 'application/octet-stream';
+      return 'application/octet-stream'; // A generic binary type if unrecognized
   }
 };
 
@@ -50,18 +50,20 @@ Deno.serve(async (req) => {
   let contestId: string | null = null
   const uploadedImagePaths: string[] = []
 
+  // Use the service role key to perform admin-level operations.
   const supabaseClient = createClient(
     Deno.env.get('SUPABASE_URL') ?? '',
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
   )
 
   try {
-    const { p_contest, p_place, p_images } = await req.json() as {
-      p_contest: Contest,
-      p_place: Place,
-      p_images: ImagePayload[]
+    const { contest, place, images } = await req.json() as {
+      contest: Contest,
+      place: Place,
+      images: ImagePayload[]
     }
 
+    // Get the user from the authorization header.
     const { data: { user } } = await createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -72,22 +74,22 @@ Deno.serve(async (req) => {
       throw new Error("User not authenticated.")
     }
 
-    // --- INIZIO TRANSAZIONE ---
+    // --- TRANSACTION START ---
 
-    // 1. Inserisci il luogo (Place)
+    // 1. Insert the Place
     const { data: placeData, error: placeError } = await supabaseClient
       .from('places')
-      .insert(p_place)
+      .insert(place)
       .select('id')
       .single()
 
     if (placeError) throw new Error(`Place insert error: ${placeError.message}`)
     placeId = placeData.id
 
-    // 2. Inserisci il contest (inizialmente con images_urls vuoto)
+    // 2. Insert the contest (initially with empty images_paths)
     const contestToInsert = {
-      ...p_contest,
-      images_urls: [], // Verrà aggiornato dopo l'upload
+      ...contest,
+      images_paths: [], // Will be updated after the image uploads
       place_id: placeId,
       organizer_id: user.id,
     }
@@ -95,21 +97,22 @@ Deno.serve(async (req) => {
     const { data: contestData, error: contestError } = await supabaseClient
       .from('contests')
       .insert(contestToInsert)
-      .select('id') // Prendiamo solo l'ID per ora
+      .select('id') // Get the ID for the next steps
       .single()
 
     if (contestError) throw new Error(`Contest insert error: ${contestError.message}`)
     contestId = contestData.id
 
-    // 3. Carica le immagini con il path corretto e raccogli gli URL finali
-    const finalImageUrls: string[] = []
-    for (const image of p_images) {
+    // 3. Upload images with the correct server-generated path and collect the final URLs
+    const finalImagePaths: string[] = []
+    for (const image of images) {
       const fileContent = decode(image.content)
 
-      const clientPath = image.path.startsWith('null/') ? image.path.substring(5) : image.path
-      const finalUploadPath = `${contestId}/${clientPath}`
+      // Generate a unique path on the server to prevent collisions.
+      // Format: {contest_id}/{uuid}/{original_file_name}
+      const finalUploadPath = `${contestId}/${crypto.randomUUID()}/${image.name}`
 
-      // *** MODIFICA CHIAVE: Aggiungiamo il Content-Type corretto ***
+      // Upload the file with the correct content type.
       const { error: uploadError } = await supabaseClient.storage
         .from('contests-images')
         .upload(finalUploadPath, fileContent, {
@@ -121,14 +124,14 @@ Deno.serve(async (req) => {
         throw new Error(`Image upload error for ${finalUploadPath}: ${uploadError.message}`)
       }
 
-      uploadedImagePaths.push(finalUploadPath) // Per il rollback
-      finalImageUrls.push(finalUploadPath) // Per l'update finale
+      uploadedImagePaths.push(finalUploadPath) // For rollback
+      finalImagePaths.push(finalUploadPath) // For the final update
     }
 
-    // 4. Aggiorna il contest con gli URL delle immagini corrette
+    // 4. Update the contest with the correct image URLs
     const { data: updatedContestData, error: updateError } = await supabaseClient
       .from('contests')
-      .update({ images_urls: finalImageUrls })
+      .update({ images_paths: finalImagePaths })
       .eq('id', contestId)
       .select()
       .single()
@@ -137,16 +140,16 @@ Deno.serve(async (req) => {
       throw new Error(`Contest update error: ${updateError.message}`)
     }
 
-    // --- FINE TRANSAZIONE ---
+    // --- TRANSACTION END ---
 
-    // 5. Successo: restituisci il contest completo e aggiornato
+    // 5. Success: return the complete and updated contest
     return new Response(JSON.stringify(updatedContestData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 201,
     })
 
   } catch (error) {
-    // --- ROLLBACK IN CASO DI ERRORE ---
+    // --- ROLLBACK ON ERROR ---
     console.error("Error during contest creation, starting rollback...", error)
 
     if (uploadedImagePaths.length > 0) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
@@ -28,7 +29,7 @@ abstract interface class ParticipantRepository {
   Future<Either<Failure, Unit>> submitWork({
     required String contestId,
     required Work work,
-    required List<File> images,
+    required List<XFile> images,
   });
 }
 
@@ -93,32 +94,27 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
   Future<Either<Failure, Unit>> submitWork({
     required String contestId,
     required Work work,
-    required List<File> images,
+    required List<XFile> images,
   }) async {
     return handleDatabaseCall(
       () async {
-        final List<String> imagesPaths = [];
         final List<Map<String, String>> imagesPayload = [];
         for (final imageFile in images) {
           final fileBytes = await imageFile.readAsBytes();
           final fileBase64 = base64Encode(fileBytes);
-          final filePath = '$contestId/${genUuid()}/${path.basename(imageFile.path)}';
-          imagesPaths.add(filePath);
 
           imagesPayload.add({
-            'path': filePath,
+            'name': imageFile.name,
             'content': fileBase64,
           });
         }
 
-        work = work.copyWith(imagesUrls: imagesPaths);
-
         await _supabase.functions.invoke(
           'participant-submit-work',
           body: {
-            'p_contest_id': contestId,
-            'p_work': work.toJson(),
-            'p_images': imagesPayload,
+            'contest_id': contestId,
+            'work': work.toJson(),
+            'images': imagesPayload,
           },
         );
 

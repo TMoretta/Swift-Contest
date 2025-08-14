@@ -3,8 +3,8 @@ INSERT INTO "public"."places" ("id", "created_at", "address", "lat", "lon") VALU
 	('4957d3ed-2a56-45e0-bbee-099033cf6fa7', '2025-08-01 22:13:32.335255+00', '84084 Fisciano, SA, Italy', 40.771681799999996, 14.799329300000002);
 
 
-INSERT INTO "public"."contests" ("id", "created_at", "organizer_id", "organizer_full_name", "name", "description", "date_time", "works_submission_start", "works_submission_end", "place_id", "images_urls") VALUES
-	('bba783a1-e576-464e-bcf8-8308a59a31d1', '2025-08-01 22:13:32.335255+00', (select id from auth.users where email = 'user1@example.com'), 'Tommaso Organizer', 'Contest 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '2025-08-31 16:30:00+00', '2025-07-31 22:00:00+00', '2025-08-29 22:00:00+00', '4957d3ed-2a56-45e0-bbee-099033cf6fa7', '{bba783a1-e576-464e-bcf8-8308a59a31d1/4cedcb95-1603-46d7-a118-b291eccbba0a/scaled_35.png}');
+INSERT INTO "public"."contests" ("id", "created_at", "organizer_id", "name", "description", "date_time", "works_submission_start", "works_submission_end", "place_id", "images_paths") VALUES
+	('bba783a1-e576-464e-bcf8-8308a59a31d1', '2025-08-01 22:13:32.335255+00', (select id from auth.users where email = 'user1@example.com'), 'Contest 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '2025-08-31 16:30:00+00', '2025-07-31 22:00:00+00', '2025-08-29 22:00:00+00', '4957d3ed-2a56-45e0-bbee-099033cf6fa7', '{bba783a1-e576-464e-bcf8-8308a59a31d1/4cedcb95-1603-46d7-a118-b291eccbba0a/scaled_35.png}');
 
 
 INSERT INTO "public"."voting_forms" ("id", "created_at", "name", "description") VALUES
@@ -34,8 +34,8 @@ INSERT INTO "public"."voting_form_fields" ("id", "created_at", "voting_form_id",
 	('eb9e6747-5fe8-450d-96ec-e9251d962000', '2025-08-01 22:15:51.906575+00', 'e63feae9-0e7c-4feb-8e27-4f6f03dfe360', 'Full name', 0, 'textual', NULL, NULL, true, 'header');
 
 
-INSERT INTO "public"."works" ("id", "created_at", "participation_id", "participant_full_name", "name", "description", "images_urls") VALUES
-	('e35b0197-931d-456e-9cf3-83290ffe7d2e', '2025-08-01 22:18:08.388234+00', '6eb62745-46a4-408f-9727-374721365378', 'Tommaso Participant2', 'Work 2', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}'),
-	('16e34dc8-05f3-4732-8a85-8d3d0eaed60f', '2025-08-01 22:18:53.218937+00', '71ca2c75-25fc-40f6-ac14-bc938f2a718f', 'Tommaso Participant1', 'Work 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}');
+INSERT INTO "public"."works" ("id", "created_at", "participation_id", "name", "description", "images_paths") VALUES
+	('e35b0197-931d-456e-9cf3-83290ffe7d2e', '2025-08-01 22:18:08.388234+00', '6eb62745-46a4-408f-9727-374721365378', 'Work 2', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}'),
+	('16e34dc8-05f3-4732-8a85-8d3d0eaed60f', '2025-08-01 22:18:53.218937+00', '71ca2c75-25fc-40f6-ac14-bc938f2a718f', 'Work 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}');
 
 

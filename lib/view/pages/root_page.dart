@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -31,10 +33,17 @@ class _RootPageState extends State<RootPage> {
       listener: (context, state) {
         //* Show a message if there is one
         if (state.blocStatus.isSuccess || state.blocStatus.isFailure) {
-          FlutterNativeSplash.remove();
+          if (!kIsWeb) {
+            FlutterNativeSplash.remove();
+          }
         }
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
+        }
+        if (state.blocStatus.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
         }
         if (state.blocStatus.isSuccess) {
           if (state.authStatus.isAuthenticated) {

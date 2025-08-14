@@ -11,18 +11,7 @@ BEGIN
     (new.raw_user_meta_data->>'full_name')::varchar
   );
 
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Profile creation error';
-  END IF;
-
   RETURN new;
-
-EXCEPTION
-  WHEN SQLSTATE 'P0001' THEN
-    RAISE;
-  WHEN OTHERS THEN
-    RAISE LOG 'Error: %', SQLERRM;
-    RAISE;
 END;
 $$ LANGUAGE plpgsql SECURITY definer;
 
