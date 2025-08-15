@@ -128,13 +128,11 @@ String? worksSubmissionStartValidator(
   }
 
   try {
-    final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy').parse(value);
+    final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy HH:mm').parse(value);
     if (worksSubmissionStart.isAfter(contestDate)) {
       return 'Can\'t be after contest date';
     }
-    if (worksSubmissionStart.day == contestDate.day &&
-        worksSubmissionStart.month == contestDate.month &&
-        worksSubmissionStart.year == contestDate.year) {
+    if (worksSubmissionStart == contestDate) {
       return 'Can\'t be equal to contest date';
     }
     if (worksSubmissionEnd == null) {
@@ -163,13 +161,11 @@ String? worksSubmissionEndValidator(
   }
 
   try {
-    final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy').parse(value);
+    final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy HH:mm').parse(value);
     if (worksSubmissionEnd.isAfter(contestDate)) {
       return 'Can\'t be after contest date';
     }
-    if (worksSubmissionEnd.day == contestDate.day &&
-        worksSubmissionEnd.month == contestDate.month &&
-        worksSubmissionEnd.year == contestDate.year) {
+    if (worksSubmissionEnd == contestDate) {
       return 'Can\'t be equal to contest date';
     }
     if (worksSubmissionStart == null) {

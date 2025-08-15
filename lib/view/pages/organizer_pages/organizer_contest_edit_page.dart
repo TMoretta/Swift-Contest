@@ -14,13 +14,12 @@ import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
+import 'package:swift_contest/view/widgets/date_time_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
-import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_edit_page_bloc/organizer_contest_edit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -61,10 +60,8 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
   int currentStep = 0;
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
-  final dateController = TextEditingController();
-  DateTime? date;
-  final timeController = TextEditingController();
-  TimeOfDay? time;
+  final dateTimeController = TextEditingController();
+  DateTime? dateTime;
   final placeController = TextEditingController();
   Place? place;
   final worksSubmissionStartController = TextEditingController();
@@ -75,11 +72,10 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
   final List<XFile> images = [];
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
-  final dateFocusNode = FocusNode();
+  final dateTimeFocusNode = FocusNode();
   final worksSubmissionStartFocusNode = FocusNode();
   final worksSubmissionEndFocusNode = FocusNode();
   final placeFocusNode = FocusNode();
-  final timeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -101,18 +97,16 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
     context.hideLoader();
     nameController.dispose();
     descriptionController.dispose();
-    dateController.dispose();
-    timeController.dispose();
+    dateTimeController.dispose();
     placeController.dispose();
     worksSubmissionStartController.dispose();
     worksSubmissionEndController.dispose();
     nameFocusNode.dispose();
     descriptionFocusNode.dispose();
-    dateFocusNode.dispose();
+    dateTimeFocusNode.dispose();
     worksSubmissionStartFocusNode.dispose();
     worksSubmissionEndFocusNode.dispose();
     placeFocusNode.dispose();
-    timeFocusNode.dispose();
     for (var formKey in formKeys) {
       formKey.currentState?.dispose();
     }
@@ -155,19 +149,16 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                 final contestDetailsBundle = state.contestDetailsBundle!;
                 nameController.setText(contestDetailsBundle.contestBundle.contest.name);
                 descriptionController.setText(contestDetailsBundle.contestBundle.contest.description);
-                date = contestDetailsBundle.contestBundle.contest.dateTime;
-                dateController.setText(DateFormat('dd/MM/yyyy').format(date!));
-                time = TimeOfDay.fromDateTime(contestDetailsBundle.contestBundle.contest.dateTime);
-                timeController.setText(
-                    '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}');
+                dateTime = contestDetailsBundle.contestBundle.contest.dateTime;
+                dateTimeController.setText(DateFormat('dd/MM/yyyy HH:mm').format(dateTime!));
                 place = contestDetailsBundle.contestBundle.place;
                 placeController.setText(place!.address);
                 worksSubmissionStart = contestDetailsBundle.contestBundle.contest.worksSubmissionStart;
                 worksSubmissionEnd = contestDetailsBundle.contestBundle.contest.worksSubmissionEnd;
                 worksSubmissionStartController
-                    .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionStart!));
+                    .setText(DateFormat('dd/MM/yyyy HH:mm').format(worksSubmissionStart!));
                 worksSubmissionEndController
-                    .setText(DateFormat('dd/MM/yyyy').format(worksSubmissionEnd!));
+                    .setText(DateFormat('dd/MM/yyyy HH:mm').format(worksSubmissionEnd!));
                 oldImagesUrls.addAll(contestDetailsBundle.contestBundle.contest.imagesPaths);
                 isPageInitialized = true;
               }
@@ -180,15 +171,11 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   final isLastStep = (currentStep == getSteps().length - 1);
                   if (formKeys[currentStep].currentState?.validate() ?? false) {
                     if (isLastStep) {
-                      final name = nameController.text.trim();
-                      final description = descriptionController.text.trim();
-                      final dateTime = DateTime(
-                          date!.year, date!.month, date!.day, time!.hour, time!.minute);
                       context.read<OrganizerContestEditPageBloc>().add(
                         OrganizerContestEditPageEditContest(
                           contest: state.contestDetailsBundle!.contestBundle.contest.copyWith(
-                            name: name,
-                            description: description,
+                            name: nameController.text.trim(),
+                            description: descriptionController.text.trim(),
                             dateTime: dateTime,
                             worksSubmissionStart: worksSubmissionStart,
                             worksSubmissionEnd: worksSubmissionEnd,
@@ -272,31 +259,18 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   minLines: 2,
                   maxLines: 4,
                 ),
-                DatePickerFormField(
-                  controller: dateController,
-                  focusNode: dateFocusNode,
-                  initialDate: date,
+                DateTimePickerFormField(
+                  controller: dateTimeController,
+                  focusNode: dateTimeFocusNode,
+                  initialDate: dateTime,
                   label: 'Date',
-                  validator: (value) => dateValidator(value),
-                  onSelected: (dateValue) {
+                  validator: (value) => noEmptyValidator(value),
+                  onSelected: (value) {
                     setState(() {
-                      date = dateValue;
+                      dateTime = value;
                     });
                   },
                   prefixIcon: Icon(Icons.calendar_today_outlined),
-                ),
-                TimePickerFormField(
-                  controller: timeController,
-                  focusNode: timeFocusNode,
-                  initialTime: time,
-                  label: 'Time',
-                  validator: (value) => timeValidator(value),
-                  onSelected: (timeValue) {
-                    setState(() {
-                      time = timeValue;
-                    });
-                  },
-                  prefixIcon: Icon(Icons.access_time_outlined),
                 ),
                 PlacePickerFormField(
                   controller: placeController,
@@ -447,25 +421,25 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 SizedBox(height: 10),
-                DatePickerFormField(
+                DateTimePickerFormField(
                   controller: worksSubmissionStartController,
                   focusNode: worksSubmissionStartFocusNode,
                   initialDate: worksSubmissionStart,
                   label: 'Start date',
                   validator: (value) =>
-                      worksSubmissionStartValidator(value, date!, worksSubmissionEnd),
+                      worksSubmissionStartValidator(value, dateTime!, worksSubmissionEnd),
                   onSelected: (workDateStartValue) {
                     worksSubmissionStart = workDateStartValue;
                   },
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                 ),
-                DatePickerFormField(
+                DateTimePickerFormField(
                   controller: worksSubmissionEndController,
                   focusNode: worksSubmissionEndFocusNode,
                   initialDate: worksSubmissionEnd,
                   label: 'End date',
                   validator: (value) =>
-                      worksSubmissionEndValidator(value, date!, worksSubmissionStart),
+                      worksSubmissionEndValidator(value, dateTime!, worksSubmissionStart),
                   onSelected: (workDateEndValue) {
                     worksSubmissionEnd = workDateEndValue;
                   },

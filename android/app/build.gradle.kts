@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.swiftcontest"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "29.0.13846066"
 
     compileOptions {
@@ -25,7 +25,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

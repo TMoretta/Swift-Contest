@@ -11,11 +11,11 @@ import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
+import 'package:swift_contest/view/widgets/date_time_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/view/widgets/time_picker_form_field.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_creation_page_bloc/organizer_contest_creation_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -30,9 +30,10 @@ class OrganizerContestCreationPage extends StatefulWidget implements AutoRouteWr
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<OrganizerContestCreationPageBloc>(
-      create: (context) => OrganizerContestCreationPageBloc(
-        organizerRepository: context.read(),
-      ),
+      create: (context) =>
+          OrganizerContestCreationPageBloc(
+            organizerRepository: context.read(),
+          ),
       child: this,
     );
   }
@@ -48,10 +49,8 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   int currentStep = 0;
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
-  final dateController = TextEditingController();
-  DateTime? date;
-  final timeController = TextEditingController();
-  TimeOfDay? time;
+  final dateTimeController = TextEditingController();
+  DateTime? dateTime;
   final placeController = TextEditingController();
   Place? place;
   final worksSubmissionStartController = TextEditingController();
@@ -61,16 +60,19 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   final List<XFile> images = [];
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
-  final dateFocusNode = FocusNode();
+  final dateTimeFocusNode = FocusNode();
   final worksSubmissionStartFocusNode = FocusNode();
   final worksSubmissionEndFocusNode = FocusNode();
   final placeFocusNode = FocusNode();
-  final timeFocusNode = FocusNode();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    accountId = context.read<AuthBloc>().state.profile!.id!;
+    accountId = context
+        .read<AuthBloc>()
+        .state
+        .profile!
+        .id!;
   }
 
   @override
@@ -78,18 +80,16 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
     context.hideLoader();
     nameController.dispose();
     descriptionController.dispose();
-    dateController.dispose();
-    timeController.dispose();
+    dateTimeController.dispose();
     placeController.dispose();
     worksSubmissionStartController.dispose();
     worksSubmissionEndController.dispose();
     nameFocusNode.dispose();
     descriptionFocusNode.dispose();
-    dateFocusNode.dispose();
+    dateTimeFocusNode.dispose();
     worksSubmissionStartFocusNode.dispose();
     worksSubmissionEndFocusNode.dispose();
     placeFocusNode.dispose();
-    timeFocusNode.dispose();
     for (var formKey in formKeys) {
       formKey.currentState?.dispose();
     }
@@ -128,23 +128,19 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   final isLastStep = (currentStep == getSteps().length - 1);
                   if (formKeys[currentStep].currentState?.validate() ?? false) {
                     if (isLastStep) {
-                      final name = nameController.text.trim();
-                      final description = descriptionController.text.trim();
-                      final dateTime =
-                          DateTime(date!.year, date!.month, date!.day, time!.hour, time!.minute);
                       context.read<OrganizerContestCreationPageBloc>().add(
-                            OrganizerContestCreationPageCreateContest(
-                              name: name,
-                              description: description,
-                              placeAddress: place!.address,
-                              placeLat: place!.lat,
-                              placeLon: place!.lon,
-                              dateTime: dateTime,
-                              worksSubmissionStart: worksSubmissionStart!,
-                              worksSubmissionEnd: worksSubmissionEnd!,
-                              images: images,
-                            ),
-                          );
+                        OrganizerContestCreationPageCreateContest(
+                          name: nameController.text.trim(),
+                          description: descriptionController.text.trim(),
+                          placeAddress: place!.address,
+                          placeLat: place!.lat,
+                          placeLon: place!.lon,
+                          dateTime: dateTime!,
+                          worksSubmissionStart: worksSubmissionStart!,
+                          worksSubmissionEnd: worksSubmissionEnd!,
+                          images: images,
+                        ),
+                      );
                     } else {
                       setState(() => ++currentStep);
                     }
@@ -185,7 +181,8 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   }
 
   //* Steps
-  List<Step> getSteps() => [
+  List<Step> getSteps() =>
+      [
         //* Details
         Step(
           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
@@ -216,31 +213,18 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   minLines: 2,
                   maxLines: 4,
                 ),
-                DatePickerFormField(
-                  controller: dateController,
-                  focusNode: dateFocusNode,
-                  initialDate: date,
+                DateTimePickerFormField(
+                  controller: dateTimeController,
+                  focusNode: dateTimeFocusNode,
+                  initialDate: dateTime,
                   label: 'Date',
-                  validator: (value) => dateValidator(value),
+                  validator: (value) => noEmptyValidator(value),
                   onSelected: (dateValue) {
                     setState(() {
-                      date = dateValue;
+                      dateTime = dateValue;
                     });
                   },
                   prefixIcon: Icon(Icons.calendar_today_outlined),
-                ),
-                TimePickerFormField(
-                  controller: timeController,
-                  focusNode: timeFocusNode,
-                  initialTime: time,
-                  label: 'Time',
-                  validator: (value) => timeValidator(value),
-                  onSelected: (timeValue) {
-                    setState(() {
-                      time = timeValue;
-                    });
-                  },
-                  prefixIcon: Icon(Icons.access_time_outlined),
                 ),
                 PlacePickerFormField(
                   controller: placeController,
@@ -279,39 +263,39 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                     (images.isEmpty)
                         ? Center(child: Text('No image selected yet.'))
                         : GridView.builder(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisSpacing: 4,
-                              crossAxisSpacing: 4,
-                            ),
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: images.length,
-                            itemBuilder: (context, index) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: (kIsWeb)
-                                    // ? buildImageForWeb(images[index])
-                                    ? Image.network(
-                                        images[index].path,
-                                        filterQuality: FilterQuality.medium,
-                                      )
-                                    : Image.file(
-                                        File(images[index].path),
-                                        fit: BoxFit.cover,
-                                        width: 5,
-                                        filterQuality: FilterQuality.medium,
-                                        frameBuilder:
-                                            (context, child, frame, wasSynchronouslyLoaded) {
-                                          if (wasSynchronouslyLoaded || frame != null) {
-                                            return child;
-                                          }
-                                          return const Loader();
-                                        },
-                                      ),
-                              );
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 4,
+                        crossAxisSpacing: 4,
+                      ),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: images.length,
+                      itemBuilder: (context, index) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: (kIsWeb)
+                          // ? buildImageForWeb(images[index])
+                              ? Image.network(
+                            images[index].path,
+                            filterQuality: FilterQuality.medium,
+                          )
+                              : Image.file(
+                            File(images[index].path),
+                            fit: BoxFit.cover,
+                            width: 5,
+                            filterQuality: FilterQuality.medium,
+                            frameBuilder:
+                                (context, child, frame, wasSynchronouslyLoaded) {
+                              if (wasSynchronouslyLoaded || frame != null) {
+                                return child;
+                              }
+                              return const Loader();
                             },
                           ),
+                        );
+                      },
+                    ),
                     SizedBox(height: 10),
                     FilledButton(
                       onPressed: () async {
@@ -341,10 +325,14 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                     ),
                     if (field.hasError)
                       Text('Select at least one image',
-                          style: Theme.of(context)
+                          style: Theme
+                              .of(context)
                               .textTheme
                               .labelLarge
-                              ?.copyWith(color: Theme.of(context).colorScheme.error)),
+                              ?.copyWith(color: Theme
+                              .of(context)
+                              .colorScheme
+                              .error)),
                   ],
                 );
               },
@@ -364,16 +352,19 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
               children: [
                 Text(
                   'Work upload deadline for participants',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium,
                 ),
                 SizedBox(height: 10),
-                DatePickerFormField(
+                DateTimePickerFormField(
                   controller: worksSubmissionStartController,
                   focusNode: worksSubmissionStartFocusNode,
                   initialDate: worksSubmissionStart,
                   label: 'Start date',
                   validator: (value) =>
-                      worksSubmissionStartValidator(value, date!, worksSubmissionEnd),
+                      worksSubmissionStartValidator(value, dateTime!, worksSubmissionEnd),
                   onSelected: (workDateStartValue) {
                     setState(() {
                       worksSubmissionStart = workDateStartValue;
@@ -381,13 +372,13 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   },
                   prefixIcon: Icon(Icons.calendar_today_outlined),
                 ),
-                DatePickerFormField(
+                DateTimePickerFormField(
                   controller: worksSubmissionEndController,
                   focusNode: worksSubmissionEndFocusNode,
                   initialDate: worksSubmissionEnd,
                   label: 'End date',
                   validator: (value) =>
-                      worksSubmissionEndValidator(value, date!, worksSubmissionStart),
+                      worksSubmissionEndValidator(value, dateTime!, worksSubmissionStart),
                   onSelected: (workDateEndValue) {
                     setState(() {
                       worksSubmissionEnd = workDateEndValue;
@@ -405,25 +396,26 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
 Future<bool?> showImagesDialog({required BuildContext context}) async {
   return await showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Pick images'),
-      content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
-          'The first image will represent the cover of the contest'),
-      actions: [
-        TextButton(
-          onPressed: () {
-            context.router.pop();
-          },
-          child: const Text('Cancel'),
+    builder: (context) =>
+        AlertDialog(
+          title: const Text('Pick images'),
+          content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
+              'The first image will represent the cover of the contest'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.router.pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                context.router.pop(true);
+              },
+              child: const Text('Ok'),
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: () {
-            context.router.pop(true);
-          },
-          child: const Text('Ok'),
-        ),
-      ],
-    ),
   );
 }
 
