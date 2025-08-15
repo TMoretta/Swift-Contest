@@ -10,7 +10,6 @@ import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/date_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/date_time_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -116,7 +115,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Contest Creation'),
+          appBar: CustomAppBar(title: 'Create contest'),
           body: Builder(
             builder: (context) {
               return Stepper(
@@ -234,6 +233,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   prefixIcon: Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
+                      placeFocusNode.requestFocus();
                       final Place? res = await context.router.push(PlaceSearchRoute());
                       if (res != null) {
                         placeController.text = res.address;

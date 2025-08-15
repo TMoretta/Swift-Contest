@@ -280,6 +280,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   prefixIcon: Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
+                      placeFocusNode.requestFocus();
                       final Place? placeRes =
                           await context.router.push(PlaceSearchRoute());
                       if (placeRes != null) {

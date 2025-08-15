@@ -127,11 +127,18 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           body: SafeArea(
             child: Builder(
               builder: (context) {
-                if(!state.isInitialized) {
-                  if(state.status.isFailure) {
-                    return Center(child: FilledButton(onPressed: ()async=> context.read<OrganizerVotingSettingsPageBloc>().add(OrganizerVotingSettingsPageFetch(
-                      contestId: contestId,
-                    )), child: Text('Retry'),),);
+                if (!state.isInitialized) {
+                  if (state.status.isFailure) {
+                    return Center(
+                      child: FilledButton(
+                        onPressed: () async => context
+                            .read<OrganizerVotingSettingsPageBloc>()
+                            .add(OrganizerVotingSettingsPageFetch(
+                              contestId: contestId,
+                            )),
+                        child: Text('Retry'),
+                      ),
+                    );
                   }
                   return VoidWidget();
                 }
@@ -449,31 +456,28 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   'Geo restricted',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                RadioListTile<bool>(
-                  title: Text('False'),
-                  value: false,
-                  groupValue: isGeoRestricted,
+                RadioGroup<bool>(
                   onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        isGeoRestricted = value;
-                      });
-                    }
+                    setState(() {
+                      isGeoRestricted = value!;
+                    });
                   },
-                ),
-                RadioListTile<bool>(
-                  title: Text('True'),
-                  value: true,
                   groupValue: isGeoRestricted,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        isGeoRestricted = value;
-                      });
-                    }
-                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      RadioListTile(
+                        title: Text('False'),
+                        value: false,
+                      ),
+                      RadioListTile(
+                        title: Text('True'),
+                        value: true,
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 32),
                 PlacePickerFormField(
                   controller: geoRestrictionPlaceController,
                   focusNode: geoRestrictionPlaceFocusNode,
@@ -484,6 +488,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   suffixIcon: TextButton(
                     onPressed: (isGeoRestricted)
                         ? () async {
+                            geoRestrictionPlaceFocusNode.requestFocus();
                             final Place? place = await context.router.push(PlaceSearchRoute());
                             if (place != null) {
                               geoRestrictionPlaceController.text = place.address;
@@ -594,15 +599,6 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                       }
                       return;
                     }
-                    // if (!areSimpleJurorsAllowed &&
-                    //     participationsBundles.length * jurationsBundles.length ==
-                    //         votingExclusions.length + 1) {
-                    //   if (mounted) {
-                    //     showSnackBar(
-                    //         context: context, text: 'If you add this exclusion no one can vote');
-                    //   }
-                    //   return;
-                    // }
                     setState(() {
                       votingExclusions.add(votingExclusion);
                     });
@@ -764,11 +760,4 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
       );
     },
   );
-}
-
-String? _timersValidator(Duration duration) {
-  if (duration.inSeconds < 10) {
-    return 'At least 10 seconds is required';
-  }
-  return null;
 }

@@ -58,10 +58,9 @@ void main() async {
         ? HydratedStorageDirectory.web
         : HydratedStorageDirectory((await getTemporaryDirectory()).path),
   );
-
-  if (!kIsWeb) {
-    await HydratedBloc.storage.clear();
-  }
+  // if (!kIsWeb) {
+  //   await HydratedBloc.storage.clear();
+  // }
 
   final SupabaseClient supabase = Supabase.instance.client;
   final sharedPreferencesInstance = await SharedPreferences.getInstance();

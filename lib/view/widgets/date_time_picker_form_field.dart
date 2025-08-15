@@ -53,6 +53,7 @@ class DateTimePickerFormField extends StatelessWidget {
         suffixIcon: TextButton(
           onPressed: () async {
             // FocusManager.instance.primaryFocus?.unfocus();
+            focusNode?.requestFocus();
             final date = await _showDatePicker(context: context, initialDate: initialDate);
             if(!context.mounted) return;
             if(date!=null) {

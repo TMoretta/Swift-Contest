@@ -10,6 +10,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool? readOnly;
   final FloatingLabelBehavior? floatingLabelBehavior;
   final Function(String)? onChanged;
+  final Function()? onEditingComplete;
   final String? Function(String?)? validator;
   final String? initialValue;
   final AutovalidateMode? autovalidateMode;
@@ -40,6 +41,7 @@ class CustomTextFormField extends StatelessWidget {
     this.label,
     this.floatingLabelBehavior,
     this.onChanged,
+    this.onEditingComplete,
     this.validator,
     this.initialValue,
     this.autovalidateMode,
@@ -94,6 +96,7 @@ class CustomTextFormField extends StatelessWidget {
       autofocus: autofocus ?? false,
       onTapOutside: (event) => focusNode?.unfocus(),
       onChanged: onChanged,
+      onEditingComplete: onEditingComplete,
       obscureText: obscureText ?? false,
       autovalidateMode: autovalidateMode,
       keyboardType: keyboardType,

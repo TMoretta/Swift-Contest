@@ -121,6 +121,7 @@ class _SignInPageState extends State<SignInPage> {
                                         borderType: InputBorderType.outlined,
                                         controller: _emailController,
                                         focusNode: _emailFocusNode,
+                                        onEditingComplete: () => _passwordFocusNode.requestFocus(),
                                         label: 'Email',
                                         validator: emailValidator,
                                         prefixIcon: Icon(Icons.email_outlined),
