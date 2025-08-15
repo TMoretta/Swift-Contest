@@ -34,8 +34,6 @@ void main() async {
 
   setPathUrlStrategy();
 
-  // configureUrlStrategy();
-
   //* Force vertical orientation
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

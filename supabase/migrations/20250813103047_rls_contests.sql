@@ -1,61 +1,61 @@
---region ROW LEVEL SECURITY FOR CONTESTS
--- Enable Row Level Security on the contests table to control data access.
-ALTER TABLE public.contests ENABLE ROW LEVEL SECURITY;
-
--- Drop existing policies to ensure a clean state.
-DROP POLICY IF EXISTS "Allow public read access to all contests" ON public.contests;
-DROP POLICY IF EXISTS "Allow authenticated users to create their own contests" ON public.contests;
-DROP POLICY IF EXISTS "Allow organizers to update their own contests" ON public.contests;
-DROP POLICY IF EXISTS "Allow organizers to delete their own contests" ON public.contests;
-
---region SELECT POLICY
--- Allow anyone (including anonymous users) to read contest data.
--- This is useful for public-facing pages that list available contests.
-CREATE POLICY "Allow public read access to all contests"
-ON public.contests
-FOR SELECT
-USING (true);
---endregion
-
---region INSERT POLICY
--- Allow authenticated users to insert new contests, but enforce that
--- they can only create contests for themselves.
--- The `WITH CHECK` clause ensures the `organizer_id` matches the current user's ID.
-CREATE POLICY "Allow authenticated users to create their own contests"
-ON public.contests
-FOR INSERT
-TO authenticated
-WITH CHECK (organizer_id = auth.uid());
---endregion
-
---region UPDATE POLICY
--- Allow a user to update a contest only if they are the organizer.
-CREATE POLICY "Allow organizers to update their own contests"
-ON public.contests
-FOR UPDATE
-TO authenticated
-USING (organizer_id = auth.uid())
-WITH CHECK (organizer_id = auth.uid());
---endregion
-
---region DELETE POLICY
--- Allow a user to delete a contest only if they are the organizer.
-CREATE POLICY "Allow organizers to delete their own contests"
-ON public.contests
-FOR DELETE
-TO authenticated
-USING (organizer_id = auth.uid());
---endregion
-
---region COLUMN-LEVEL PERMISSIONS FOR UPDATE
--- To prevent users from updating critical columns like `id` or `organizer_id`,
--- we explicitly grant update permissions only on the columns that should be modifiable.
--- First, revoke all default update permissions.
-REVOKE UPDATE ON public.contests FROM authenticated;
--- Then, grant permission only for specific columns.
-GRANT UPDATE (name, description, date_time, works_submission_start, works_submission_end, images_paths)
-ON public.contests
-TO authenticated;
---endregion
-
---endregion
+----region ROW LEVEL SECURITY FOR CONTESTS
+---- Enable Row Level Security on the contests table to control data access.
+--ALTER TABLE public.contests ENABLE ROW LEVEL SECURITY;
+--
+---- Drop existing policies to ensure a clean state.
+--DROP POLICY IF EXISTS "Allow public read access to all contests" ON public.contests;
+--DROP POLICY IF EXISTS "Allow authenticated users to create their own contests" ON public.contests;
+--DROP POLICY IF EXISTS "Allow organizers to update their own contests" ON public.contests;
+--DROP POLICY IF EXISTS "Allow organizers to delete their own contests" ON public.contests;
+--
+----region SELECT POLICY
+---- Allow anyone (including anonymous users) to read contest data.
+---- This is useful for public-facing pages that list available contests.
+--CREATE POLICY "Allow public read access to all contests"
+--ON public.contests
+--FOR SELECT
+--USING (true);
+----endregion
+--
+----region INSERT POLICY
+---- Allow authenticated users to insert new contests, but enforce that
+---- they can only create contests for themselves.
+---- The `WITH CHECK` clause ensures the `organizer_id` matches the current user's ID.
+--CREATE POLICY "Allow authenticated users to create their own contests"
+--ON public.contests
+--FOR INSERT
+--TO authenticated
+--WITH CHECK (organizer_id = auth.uid());
+----endregion
+--
+----region UPDATE POLICY
+---- Allow a user to update a contest only if they are the organizer.
+--CREATE POLICY "Allow organizers to update their own contests"
+--ON public.contests
+--FOR UPDATE
+--TO authenticated
+--USING (organizer_id = auth.uid())
+--WITH CHECK (organizer_id = auth.uid());
+----endregion
+--
+----region DELETE POLICY
+---- Allow a user to delete a contest only if they are the organizer.
+--CREATE POLICY "Allow organizers to delete their own contests"
+--ON public.contests
+--FOR DELETE
+--TO authenticated
+--USING (organizer_id = auth.uid());
+----endregion
+--
+----region COLUMN-LEVEL PERMISSIONS FOR UPDATE
+---- To prevent users from updating critical columns like `id` or `organizer_id`,
+---- we explicitly grant update permissions only on the columns that should be modifiable.
+---- First, revoke all default update permissions.
+--REVOKE UPDATE ON public.contests FROM authenticated;
+---- Then, grant permission only for specific columns.
+--GRANT UPDATE (name, description, date_time, works_submission_start, works_submission_end, images_paths)
+--ON public.contests
+--TO authenticated;
+----endregion
+--
+----endregion

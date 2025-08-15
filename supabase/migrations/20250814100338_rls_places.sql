@@ -1,18 +1,18 @@
---region ROW LEVEL SECURITY FOR PROFILES
--- Enable Row Level Security on the profiles table.
--- This is a critical security measure to protect user data.
-ALTER TABLE public.places ENABLE ROW LEVEL SECURITY;
-
--- Drop existing policies to ensure a clean state before creating new ones.
-DROP POLICY IF EXISTS "Allow authenticated users to read places" ON public.places;
-
---region SELECT POLICY
--- Allow any authenticated user to read profile information.
--- This is necessary for features like displaying an organizer's name on a contest page.
--- Anonymous users are blocked by default.
-CREATE POLICY "Allow authenticated users to read places"
-ON public.profiles
-FOR SELECT
-TO authenticated
-USING (true); -- Equivalent to auth.role() = 'authenticated'
---endregion
+----region ROW LEVEL SECURITY FOR PROFILES
+---- Enable Row Level Security on the profiles table.
+---- This is a critical security measure to protect user data.
+--ALTER TABLE public.places ENABLE ROW LEVEL SECURITY;
+--
+---- Drop existing policies to ensure a clean state before creating new ones.
+--DROP POLICY IF EXISTS "Allow authenticated users to read places" ON public.places;
+--
+----region SELECT POLICY
+---- Allow any authenticated user to read profile information.
+---- This is necessary for features like displaying an organizer's name on a contest page.
+---- Anonymous users are blocked by default.
+--CREATE POLICY "Allow authenticated users to read places"
+--ON public.profiles
+--FOR SELECT
+--TO authenticated
+--USING (true); -- Equivalent to auth.role() = 'authenticated'
+----endregion

@@ -119,11 +119,7 @@ Future<TimeOfDay?> _showTimePicker({
     context: context,
     builder: (context, child) => MediaQuery(
       data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-      child: Localizations.override(
-        context: context,
-        locale: const Locale('en', 'US'),
-        child: child!,
-      ),
+      child: child!,
     ),
     initialTime: initialTime ?? TimeOfDay.now(),
   );
