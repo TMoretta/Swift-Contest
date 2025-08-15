@@ -1,10 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/database/entities/profile.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/model/local/types/app_theme.dart';
+import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/view/pages/legal_pages/privacy_policy_page.dart';
+import 'package:swift_contest/view/pages/legal_pages/terms_of_service_page.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -78,7 +82,13 @@ class _AuthState extends State<SettingsPage> {
                   return VoidWidget();
                 }
 
-                final profile = state.profile!;
+                final profile = state.profile ??
+                    Profile(
+                      id: '',
+                      fullName: '',
+                      prefRole: ContestRole.organizer,
+                      createdAt: now(),
+                    );
                 return RefreshIndicator.adaptive(
                   onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
                   child: ListView(
@@ -152,6 +162,37 @@ class _AuthState extends State<SettingsPage> {
                             .textTheme
                             .labelMedium
                             ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                      ),
+                      //* Legal Documents
+                      ListTile(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const Dialog(child: TermsOfServicePage()),
+                          );
+                        },
+                        leading: Icon(
+                          Icons.gavel_outlined,
+                          size: 28,
+                        ),
+                        title: Text(
+                          'Terms of Service',
+                        ),
+                        titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      ListTile(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const Dialog(child: PrivacyPolicyPage()),
+                          );
+                        },
+                        leading: Icon(
+                          Icons.privacy_tip_outlined,
+                          size: 28,
+                        ),
+                        title: Text('Privacy Policy'),
+                        titleTextStyle: Theme.of(context).textTheme.titleMedium,
                       ),
                       //* Logout option
                       ListTile(

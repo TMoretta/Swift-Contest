@@ -1,9 +1,12 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
+import 'package:swift_contest/view/pages/legal_pages/privacy_policy_page.dart';
+import 'package:swift_contest/view/pages/legal_pages/terms_of_service_page.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -38,6 +41,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final FocusNode _passwordFocusNode = FocusNode();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final FocusNode _confirmPasswordFocusNode = FocusNode();
+   bool _isPrivacyAccepted = false;
 
   @override
   void dispose() {
@@ -167,20 +171,64 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
                             SizedBox(height: 10),
+                            CheckboxListTile(
+                              value: _isPrivacyAccepted,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isPrivacyAccepted = value ?? false;
+                                });
+                              },
+                              title: RichText(
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  children: [
+                                    const TextSpan(text: 'I have read and agree to the '),
+                                    TextSpan(
+                                      text: 'Terms of Service',
+                                      style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          // Mostra la pagina dei Termini come un dialogo
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => const Dialog(child: TermsOfServicePage()),
+                                          );
+                                        },
+                                    ),
+                                    const TextSpan(text: ' and the '),
+                                    TextSpan(
+                                      text: 'Privacy Policy',
+                                      style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          // Mostra la pagina della Privacy come un dialogo
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => const Dialog(child: PrivacyPolicyPage()),
+                                          );
+                                        },
+                                    ),
+                                    const TextSpan(text: '.'),
+                                  ],
+                                ),
+                              ),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              contentPadding: EdgeInsets.zero,
+                            ),
                             //* Sign up button
                             ConstrainedBox(
                               constraints: BoxConstraints(
                                 maxWidth: 100,
                               ),
                               child: FilledButton(
-                                onPressed: () {
+                                onPressed: (_isPrivacyAccepted) ? () {
                                   if (_formKey.currentState?.validate() ?? false) {
                                     context.read<SignUpPageBloc>().add(SignUpWithEmailAndPassword(
                                         email: _emailController.text.trim(),
                                         fullName: _fullNameController.text.trim(),
                                         password: _passwordController.text));
                                   }
-                                },
+                                } : null,
                                 child: Text('Sign up'),
                               ),
                             ),
@@ -206,20 +254,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ),
                               ],
-                            ),
-                            SizedBox(height: 24),
-                            //* Vote as a simple juror button
-                            TextButton(
-                              onPressed: () {},
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom:
-                                        BorderSide(color: Theme.of(context).colorScheme.primary),
-                                  ),
-                                ),
-                                child: Text('Vote in a contest as a simple juror'),
-                              ),
                             ),
                             SizedBox(height: 72),
                           ],

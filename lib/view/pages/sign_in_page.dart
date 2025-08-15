@@ -1,9 +1,12 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
+import 'package:swift_contest/view/pages/legal_pages/privacy_policy_page.dart';
+import 'package:swift_contest/view/pages/legal_pages/terms_of_service_page.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -231,66 +234,106 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
   final accessVotingFormKey = GlobalKey<FormState>();
   final fullNameController = TextEditingController();
   final fullNameFocusNode = FocusNode();
-  // final tokenController = TextEditingController();
-  // final tokenFocusNode = FocusNode();
+  bool isPrivacyAccepted = false;
 
   showDialog(
     context: context,
     builder: (context) {
-      return BlocProvider.value(
-        value: signInPageBloc,
-        child: BlocConsumer<SignInPageBloc, SignInPageState>(
-          listener: (context, state) {
-            if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
-              context.router.pop();
-            }
-          },
-          builder: (context, state) {
-            return AlertDialog(
-              title: Text('Vote as simple juror'),
-              content: Form(
-                key: accessVotingFormKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomTextFormField(
-                      borderType: InputBorderType.underlined,
-                      controller: fullNameController,
-                      focusNode: fullNameFocusNode,
-                      label: 'Full name',
-                      validator: (value) => noEmptyValidator(value?.trim()),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return BlocProvider.value(
+            value: signInPageBloc,
+            child: BlocConsumer<SignInPageBloc, SignInPageState>(
+              listener: (context, state) {
+                if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
+                  context.router.pop();
+                }
+              },
+              builder: (context, state) {
+                return AlertDialog(
+                  title: Text('Vote as simple juror'),
+                  content: Form(
+                    key: accessVotingFormKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextFormField(
+                          borderType: InputBorderType.underlined,
+                          controller: fullNameController,
+                          focusNode: fullNameFocusNode,
+                          label: 'Full name',
+                          validator: (value) => noEmptyValidator(value?.trim()),
+                        ),
+                        CheckboxListTile(
+                          value: isPrivacyAccepted,
+                          onChanged: (value) {
+                            setState(() {
+                              isPrivacyAccepted = value ?? false;
+                            });
+                          },
+                          title: RichText(
+                            text: TextSpan(
+                              style: Theme.of(context).textTheme.bodySmall,
+                              children: [
+                                const TextSpan(text: 'I have read and agree to the '),
+                                TextSpan(
+                                  text: 'Terms of Service',
+                                  style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // Mostra la pagina dei Termini come un dialogo
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => const Dialog(child: TermsOfServicePage()),
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: ' and the '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // Mostra la pagina della Privacy come un dialogo
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => const Dialog(child: PrivacyPolicyPage()),
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: '.'),
+                              ],
+                            ),
+                          ),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ],
                     ),
-                    // CustomTextFormField(
-                    //   borderType: InputBorderType.underlined,
-                    //   controller: tokenController,
-                    //   focusNode: tokenFocusNode,
-                    //   label: 'Token',
-                    //   validator: (value) => noEmptyValidator(value?.trim()),
-                    // ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        context.router.pop();
+                      },
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: (isPrivacyAccepted) ? () {
+                        if (accessVotingFormKey.currentState?.validate() ?? false) {
+                          context.read<SignInPageBloc>().add(SignInPageAuthenticateSimpleJuror(
+                              fullName: fullNameController.text.trim()));
+                        }
+                      } : null,
+                      child: Text('Confirm'),
+                    ),
                   ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    context.router.pop();
-                  },
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (accessVotingFormKey.currentState?.validate() ?? false) {
-                      context.read<SignInPageBloc>().add(SignInPageAuthenticateSimpleJuror(
-                          fullName: fullNameController.text.trim()));
-                    }
-                  },
-                  child: Text('Confirm'),
-                ),
-              ],
-            );
-          },
-        ),
+                );
+              },
+            ),
+          );
+        }
       );
     },
   );

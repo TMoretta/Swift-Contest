@@ -99,10 +99,11 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
         (failure) async =>
             emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
         (success) async {
-      emit(state.copyWith(
+      emit(AuthState(
           blocStatus: BlocStatus.success,
-          isInitialized: false,
-          authStatus: AuthStatus.unauthenticated));
+          sourceEvent: event,
+          authStatus: AuthStatus.unauthenticated,
+      ));
       await HydratedBloc.storage.clear();
     });
   }
