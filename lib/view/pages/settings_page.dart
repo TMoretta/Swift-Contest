@@ -7,11 +7,11 @@ import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
-import 'package:swift_contest/view/pages/legal_pages/privacy_policy_page.dart';
-import 'package:swift_contest/view/pages/legal_pages/terms_of_service_page.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/privacy_policy_dialog.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/terms_of_service_dialog.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
@@ -166,10 +166,7 @@ class _AuthState extends State<SettingsPage> {
                       //* Legal Documents
                       ListTile(
                         onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const Dialog(child: TermsOfServicePage()),
-                          );
+                          showTermsOfServiceDialog(context);
                         },
                         leading: Icon(
                           Icons.gavel_outlined,
@@ -182,10 +179,7 @@ class _AuthState extends State<SettingsPage> {
                       ),
                       ListTile(
                         onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const Dialog(child: PrivacyPolicyPage()),
-                          );
+                          showPrivacyPolicyDialog(context);
                         },
                         leading: Icon(
                           Icons.privacy_tip_outlined,

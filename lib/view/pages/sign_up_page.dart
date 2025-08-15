@@ -5,11 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
-import 'package:swift_contest/view/pages/legal_pages/privacy_policy_page.dart';
-import 'package:swift_contest/view/pages/legal_pages/terms_of_service_page.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/privacy_policy_dialog.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/terms_of_service_dialog.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_up_page_bloc/sign_up_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -41,7 +41,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final FocusNode _passwordFocusNode = FocusNode();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final FocusNode _confirmPasswordFocusNode = FocusNode();
-   bool _isPrivacyAccepted = false;
+  bool _isPrivacyAccepted = false;
 
   @override
   void dispose() {
@@ -171,49 +171,52 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
                             SizedBox(height: 10),
-                            CheckboxListTile(
-                              value: _isPrivacyAccepted,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isPrivacyAccepted = value ?? false;
-                                });
-                              },
-                              title: RichText(
-                                text: TextSpan(
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  children: [
-                                    const TextSpan(text: 'I have read and agree to the '),
-                                    TextSpan(
-                                      text: 'Terms of Service',
-                                      style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          // Mostra la pagina dei Termini come un dialogo
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => const Dialog(child: TermsOfServicePage()),
-                                          );
-                                        },
-                                    ),
-                                    const TextSpan(text: ' and the '),
-                                    TextSpan(
-                                      text: 'Privacy Policy',
-                                      style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          // Mostra la pagina della Privacy come un dialogo
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => const Dialog(child: PrivacyPolicyPage()),
-                                          );
-                                        },
-                                    ),
-                                    const TextSpan(text: '.'),
-                                  ],
-                                ),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: 420,
                               ),
-                              controlAffinity: ListTileControlAffinity.leading,
-                              contentPadding: EdgeInsets.zero,
+                              child: CheckboxListTile(
+                                value: _isPrivacyAccepted,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _isPrivacyAccepted = value ?? false;
+                                  });
+                                },
+                                title: RichText(
+                                  text: TextSpan(
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                    children: [
+                                      const TextSpan(text: 'I have read and agree to the '),
+                                      TextSpan(
+                                        text: 'Terms of Service',
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            decoration: TextDecoration.underline),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            // Mostra la pagina dei Termini come un dialogo
+                                            showTermsOfServiceDialog(context);
+                                          },
+                                      ),
+                                      const TextSpan(text: ' and the '),
+                                      TextSpan(
+                                        text: 'Privacy Policy',
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            decoration: TextDecoration.underline),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            // Mostra la pagina della Privacy come un dialog
+                                            showPrivacyPolicyDialog(context);
+                                          },
+                                      ),
+                                      const TextSpan(text: '.'),
+                                    ],
+                                  ),
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                contentPadding: EdgeInsets.zero,
+                              ),
                             ),
                             //* Sign up button
                             ConstrainedBox(
@@ -221,14 +224,17 @@ class _SignUpPageState extends State<SignUpPage> {
                                 maxWidth: 100,
                               ),
                               child: FilledButton(
-                                onPressed: (_isPrivacyAccepted) ? () {
-                                  if (_formKey.currentState?.validate() ?? false) {
-                                    context.read<SignUpPageBloc>().add(SignUpWithEmailAndPassword(
-                                        email: _emailController.text.trim(),
-                                        fullName: _fullNameController.text.trim(),
-                                        password: _passwordController.text));
-                                  }
-                                } : null,
+                                onPressed: (_isPrivacyAccepted)
+                                    ? () {
+                                        if (_formKey.currentState?.validate() ?? false) {
+                                          context.read<SignUpPageBloc>().add(
+                                              SignUpWithEmailAndPassword(
+                                                  email: _emailController.text.trim(),
+                                                  fullName: _fullNameController.text.trim(),
+                                                  password: _passwordController.text));
+                                        }
+                                      }
+                                    : null,
                                 child: Text('Sign up'),
                               ),
                             ),

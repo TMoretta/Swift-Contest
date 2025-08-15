@@ -5,11 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
-import 'package:swift_contest/view/pages/legal_pages/privacy_policy_page.dart';
-import 'package:swift_contest/view/pages/legal_pages/terms_of_service_page.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/privacy_policy_dialog.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/terms_of_service_dialog.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -283,10 +283,7 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
                                       // Mostra la pagina dei Termini come un dialogo
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => const Dialog(child: TermsOfServicePage()),
-                                      );
+                                      showTermsOfServiceDialog(context);
                                     },
                                 ),
                                 const TextSpan(text: ' and the '),
@@ -296,10 +293,7 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
                                       // Mostra la pagina della Privacy come un dialogo
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => const Dialog(child: PrivacyPolicyPage()),
-                                      );
+                                      showPrivacyPolicyDialog(context);
                                     },
                                 ),
                                 const TextSpan(text: '.'),
