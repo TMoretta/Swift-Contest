@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:swift_contest/model/database/entities/profile.dart';
 import 'package:swift_contest/model/database/types/jury_type.dart';
 import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/utils/themes/color_scheme_x.dart';
@@ -10,7 +9,6 @@ import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_procedure_page_bloc/organizer_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -38,13 +36,12 @@ class OrganizerVotingProcedurePage extends StatefulWidget implements AutoRouteWr
 }
 
 class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedurePage> {
-  late Profile profile;
   late final String votingSessionId;
+  bool isFinished = false;
 
   @override
   void initState() {
     super.initState();
-    profile = context.read<AuthBloc>().state.profile!;
     votingSessionId = widget.votingSessionId;
   }
 
@@ -76,22 +73,26 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
         }
         if (state.status.isSuccess &&
             state.sourceEvent is OrganizerVotingProcedurePageEndVotingSessionProcedure) {
-          showSnackBar(context: context, text: 'Voting session ended successfully');
-          context.router.pop();
-          return;
+          if (!isFinished) {
+            isFinished = true;
+            showSnackBar(context: context, text: 'Voting session ended successfully');
+            context.router.pop();
+          }
         }
         if (state.status.isSuccess &&
             state.sourceEvent is OrganizerVotingProcedurePageCancelVotingSessionProcedure) {
-          showSnackBar(context: context, text: 'Voting session cancelled successfully');
-          context.router.pop();
-          return;
+          if (!isFinished) {
+            isFinished = true;
+            showSnackBar(context: context, text: 'Voting session cancelled successfully');
+            context.router.pop();
+          }
         }
-        if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus
-                .isEnded ??
-            false) {
-          showSnackBar(context: context, text: 'Voting session ended successfully');
-          context.router.pop();
-          return;
+        if(state.votingSessionProcedureBundle!=null && !state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isLive) {
+          if(!isFinished) {
+            isFinished = true;
+            showSnackBar(context: context, text: 'Voting session has terminated');
+            context.router.pop();
+          }
         }
       },
       builder: (context, state) {
@@ -161,12 +162,6 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                 ),
                               );
                             }),
-                            // ...votingSessionJuriesBundles.map((votingSessionJuryBundle) {
-                            //   return QrImageView(
-                            //     data: votingSessionJuryBundle.votingSessionJury.token!,
-                            //     backgroundColor: Theme.of(context).colorScheme.white,
-                            //   );
-                            // }),
                           ],
                         );
 
@@ -312,10 +307,38 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
           floatingActionButton: (state.isInitialized)
               ? Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   spacing: 8,
                   children: [
                     FilledButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        final bool res = await showDialog(
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  title: Text('Cancel voting session'),
+                                  content: Text(
+                                      'Are you sure you want to cancel this voting session? This action cannot be undone.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        context.router.pop(false);
+                                      },
+                                      child: Text('No'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        context.router.pop(true);
+                                      },
+                                      child: Text('Yes'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ) ??
+                            false;
+                        if (!context.mounted || !res) return;
+
                         context.read<OrganizerVotingProcedurePageBloc>().add(
                               OrganizerVotingProcedurePageCancelVotingSessionProcedure(
                                 votingSessionId: state.votingSessionProcedureBundle!
@@ -337,7 +360,34 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                       ),
                     ),
                     FilledButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        final bool res = await showDialog(
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  title: Text('End voting session'),
+                                  content: Text(
+                                      'Are you sure you want to end this voting session? Only already submitted votes will be counted.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        context.router.pop(false);
+                                      },
+                                      child: Text('No'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        context.router.pop(true);
+                                      },
+                                      child: Text('Yes'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ) ??
+                            false;
+                        if (!context.mounted || !res) return;
+
                         context.read<OrganizerVotingProcedurePageBloc>().add(
                               OrganizerVotingProcedurePageEndVotingSessionProcedure(
                                 votingSessionId: state.votingSessionProcedureBundle!
@@ -361,76 +411,6 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                   ],
                 )
               : VoidWidget(),
-
-          // Builder(
-          //   builder: (context) {
-          //     switch (state.status) {
-          //       case BlocStatus.initial:
-          //         return VoidWidget();
-          //       case (BlocStatus.loading || BlocStatus.failure):
-          //         if (!state.isInitialized) {
-          //           return VoidWidget();
-          //         } else {
-          //           continue successCase;
-          //         }
-          //       successCase:
-          //       case BlocStatus.success:
-          //         final votingSessionBundle =
-          //             state.votingSessionProcedureBundle!.votingSessionBundle;
-          //         return Column(
-          //           mainAxisSize: MainAxisSize.min,
-          //           crossAxisAlignment: CrossAxisAlignment.end,
-          //           children: [
-          //             FilledButton(
-          //               onPressed: () {
-          //                 context.read<OrganizerVotingProcedurePageBloc>().add(
-          //                       OrganizerVotingProcedurePageCancelVotingSessionProcedure(
-          //                         votingSessionId: votingSessionBundle.votingSession.id!,
-          //                       ),
-          //                     );
-          //               },
-          //               style: ButtonStyle(
-          //                 backgroundColor:
-          //                     WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.error),
-          //               ),
-          //               child: Text(
-          //                 'Cancel procedure',
-          //                 textAlign: TextAlign.center,
-          //                 style: Theme.of(context)
-          //                     .textTheme
-          //                     .bodyMedium
-          //                     ?.copyWith(color: Theme.of(context).colorScheme.onError),
-          //               ),
-          //             ),
-          //             if (votingSessionBundle.votingSession.sessionStatus.isReview)
-          //               const SizedBox(width: 8),
-          //             if (votingSessionBundle.votingSession.sessionStatus.isReview)
-          //               FilledButton(
-          //                 onPressed: () {
-          //                   context.read<OrganizerVotingProcedurePageBloc>().add(
-          //                         OrganizerVotingProcedurePageEndVotingSessionProcedure(
-          //                           votingSessionId: votingSessionBundle.votingSession.id!,
-          //                         ),
-          //                       );
-          //                 },
-          //                 style: ButtonStyle(
-          //                   backgroundColor:
-          //                       WidgetStateProperty.all<Color>(Theme.of(context).colorScheme.green),
-          //                 ),
-          //                 child: Text(
-          //                   'End procedure',
-          //                   textAlign: TextAlign.center,
-          //                   style: Theme.of(context)
-          //                       .textTheme
-          //                       .bodyMedium
-          //                       ?.copyWith(color: Theme.of(context).colorScheme.onGreen),
-          //                 ),
-          //               ),
-          //           ],
-          //         );
-          //     }
-          //   },
-          // ),
         );
       },
     );

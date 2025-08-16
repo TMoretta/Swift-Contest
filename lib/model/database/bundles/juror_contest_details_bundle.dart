@@ -26,7 +26,7 @@ class JurorContestDetailsBundle extends Equatable {
       contestRankings: (json['contest_rankings'] as List<dynamic>)
           .map((e) => ContestRanking.fromJson(e))
           .toList(growable: false),
-      liveVotingSessionBundle: json['live_voting_session'] != null
+      liveVotingSessionBundle: json['live_voting_session_bundle'] != null
           ? VotingSessionBundle.fromJson(json['live_voting_session_bundle'])
           : null,
     );

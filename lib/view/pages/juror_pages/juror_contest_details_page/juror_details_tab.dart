@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
@@ -44,11 +43,16 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
         return Scaffold(
           body: Builder(
             builder: (context) {
-              if(!state.isInitialized) {
-                if(state.status.isFailure) {
-                  return Center(child: FilledButton(onPressed: () async => context
-                      .read<JurorContestDetailsPageBloc>()
-                      .add(JurorContestDetailsPageFetch(contestId: contestId)), child: Text('Retry'),),);
+              if (!state.isInitialized) {
+                if (state.status.isFailure) {
+                  return Center(
+                    child: FilledButton(
+                      onPressed: () async => context
+                          .read<JurorContestDetailsPageBloc>()
+                          .add(JurorContestDetailsPageFetch(contestId: contestId)),
+                      child: Text('Retry'),
+                    ),
+                  );
                 }
                 return VoidWidget();
               }
@@ -109,47 +113,46 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                     //* Images carousel
                     SizedBox(
                       height: 180,
-                      child:
-                      (state.contestDetailsBundle!.contestBundle.contest.imagesPaths.isEmpty)
+                      child: (state.contestDetailsBundle!.contestBundle.contest.imagesPaths.isEmpty)
                           ? ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Icon(Icons.broken_image_outlined),
-                        ],
-                      )
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                Icon(Icons.broken_image_outlined),
+                              ],
+                            )
                           : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: state.contestDetailsBundle!.contestBundle.contest
-                            .imagesPaths.length,
-                        itemBuilder: (context, index) {
-                          final imageUrl = state.contestDetailsBundle!.contestBundle
-                              .contest.imagesPaths[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: StorageImage(
-                              bucket: StorageBucket.contestsImages,
-                              path: imageUrl,
-                              fit: BoxFit.contain,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: state
+                                  .contestDetailsBundle!.contestBundle.contest.imagesPaths.length,
+                              itemBuilder: (context, index) {
+                                final imageUrl = state
+                                    .contestDetailsBundle!.contestBundle.contest.imagesPaths[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: StorageImage(
+                                    bucket: StorageBucket.contestsImages,
+                                    path: imageUrl,
+                                    fit: BoxFit.contain,
+                                  ),
+                                  // Image.network(
+                                  //   state.contestDetailsBundle!.contestBundle.contest
+                                  //       .imagesUrls[index],
+                                  //   fit: BoxFit.contain,
+                                  //   frameBuilder:
+                                  //       (context, child, frame, wasSynchronouslyLoaded) {
+                                  //     if (wasSynchronouslyLoaded || frame != null) return child;
+                                  //     return const Loader();
+                                  //   },
+                                  //   errorBuilder: (context, error, stackTrace) {
+                                  //     return Image.asset(
+                                  //       'assets/images/image_not_found.jpg',
+                                  //       fit: BoxFit.cover,
+                                  //     );
+                                  //   },
+                                  // ),
+                                );
+                              },
                             ),
-                            // Image.network(
-                            //   state.contestDetailsBundle!.contestBundle.contest
-                            //       .imagesUrls[index],
-                            //   fit: BoxFit.contain,
-                            //   frameBuilder:
-                            //       (context, child, frame, wasSynchronouslyLoaded) {
-                            //     if (wasSynchronouslyLoaded || frame != null) return child;
-                            //     return const Loader();
-                            //   },
-                            //   errorBuilder: (context, error, stackTrace) {
-                            //     return Image.asset(
-                            //       'assets/images/image_not_found.jpg',
-                            //       fit: BoxFit.cover,
-                            //     );
-                            //   },
-                            // ),
-                          );
-                        },
-                      ),
                     ),
                     SizedBox(height: 8),
                     //* Description
@@ -205,7 +208,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         Expanded(
                           child: Text(
                               'Participants: ${state.contestDetailsBundle!.participantsNumber} | '
-                                  'Jurors: ${state.contestDetailsBundle!.jurorsNumber}'),
+                              'Jurors: ${state.contestDetailsBundle!.jurorsNumber}'),
                         ),
                       ],
                     ),
@@ -224,7 +227,8 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () async {
-                              final address = state.contestDetailsBundle!.contestBundle.place.address;
+                              final address =
+                                  state.contestDetailsBundle!.contestBundle.place.address;
                               final query = Uri.encodeComponent(address);
                               final uri = Uri.parse(
                                   'https://www.google.com/maps/search/?api=1&query=$query');
@@ -239,7 +243,13 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                                 }
                               }
                             },
-                            child: Text(state.contestDetailsBundle!.contestBundle.place.address, style: Theme.of(context).textTheme.bodyMedium?.copyWith(decoration: TextDecoration.underline),),
+                            child: Text(
+                              state.contestDetailsBundle!.contestBundle.place.address,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(decoration: TextDecoration.underline),
+                            ),
                           ),
                         ),
                       ],
@@ -284,8 +294,8 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            DateFormat('dd MMM, yyyy | HH:mm')
-                                .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart),
+                            DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                .contestDetailsBundle!.contestBundle.contest.worksSubmissionStart),
                           ),
                         ),
                       ],
@@ -302,8 +312,8 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            DateFormat('dd MMM, yyyy | HH:mm')
-                                .format(state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd),
+                            DateFormat('dd MMM, yyyy | HH:mm').format(state
+                                .contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd),
                           ),
                         ),
                       ],
@@ -314,7 +324,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
               );
             },
           ),
-          floatingActionButton: (state.isInitialized) ? _buildFab(context,state) : null,
+          floatingActionButton: (state.isInitialized) ? _buildFab(context, state) : null,
         );
       },
     );
@@ -327,91 +337,58 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
       spacing: 8,
       children: [
         Text(
-          (liveVotingSessionBundle != null)
-              ? 'Voting session is live'
-              : 'No voting session live',
+          (liveVotingSessionBundle != null) ? 'Voting session is live' : 'No voting session live',
           style: Theme.of(context).textTheme.labelMedium,
         ),
         FloatingActionButton.extended(
           onPressed: (liveVotingSessionBundle != null)
               ? () async {
-            if (liveVotingSessionBundle.votingSession.isGeoRestricted) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text('Geo locate'),
-                    content: Text(
-                        'This voting session is restricted to a specific geographic area. '
-                            'It is recommended to verify location before proceed.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => context.pop(),
-                        child: Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          try {
-                            final status = await Geolocator.checkPermission();
-                            if (status == LocationPermission.denied) {
-                              final newStatus =
-                              await Geolocator.requestPermission();
-                              if (newStatus == LocationPermission.denied ||
-                                  newStatus == LocationPermission.deniedForever) {
-                                if (context.mounted) {
-                                  showSnackBar(
-                                      context: context,
-                                      text: 'Location permission denied.');
-                                }
-                                return;
-                              }
-                            }
-                            final currentPosition = await Geolocator.getCurrentPosition();
-                            final geoResPlace = liveVotingSessionBundle.geoResPlace;
-                            final distance = Geolocator.distanceBetween(
-                              geoResPlace!.lat,
-                              geoResPlace.lon,
-                              currentPosition.latitude,
-                              currentPosition.longitude,
-                            );
+                  bool? proceed = true;
+                  if (liveVotingSessionBundle.votingSession.isGeoRestricted) {
+                    proceed = await showDialog<bool?>(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: Text('Geo locate'),
+                          content: Text(
+                              'This voting session is restricted to a specific geographic area. '
+                              'It is recommended to verify location before proceed.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => context.pop(),
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                context
+                                    .read<JurorContestDetailsPageBloc>()
+                                    .add(JurorContestDetailsPageCheckVotingLocation());
+                              },
+                              child: Text('Verify'),
+                            ),
+                            TextButton(
+                              onPressed: () => context.router.pop(true),
+                              child: Text('Proceed'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
 
-                            if (distance > liveVotingSessionBundle.votingSession.geoResRadius!) {
-                              if(context.mounted) {
-                                showSnackBar(context: context, text: 'You are not inside the area of voting:\n${geoResPlace.address}');
-                              }
-                              return;
-                            }
-                          } catch (e) {
-                            if(context.mounted) {
-                              showSnackBar(context: context, text: 'Could not get location');
-                            }
-                            return;
-                          }
-                        },
-                        child: Text('Verify'),
-                      ),
-                      TextButton(
-                        onPressed: () => context.router.pop(),
-                        child: Text('Proceed'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-
-            final bool? res = await context.router.push(
-                JurorVotingProcedureRoute(votingSessionId: liveVotingSessionBundle.votingSession.id!));
-            if (res == true) {
-              if (context.mounted) {
-                context
-                    .read<JurorContestDetailsPageBloc>()
-                    .add(JurorContestDetailsPageFetch(contestId: contestId));
-              }
-            }
-          }
+                  if (proceed == true && context.mounted) {
+                    final bool? res = await context.router.push(JurorVotingProcedureRoute(
+                        votingSessionId: liveVotingSessionBundle.votingSession.id!));
+                    if (res == true && context.mounted) {
+                      context
+                          .read<JurorContestDetailsPageBloc>()
+                          .add(JurorContestDetailsPageFetch(contestId: contestId));
+                    }
+                  }
+                }
               : null,
-          backgroundColor: (liveVotingSessionBundle == null) ? Theme.of(context).disabledColor : null,
+          backgroundColor:
+              (liveVotingSessionBundle == null) ? Theme.of(context).disabledColor : null,
           icon: Icon(Icons.text_snippet),
           label: Text('Vote'),
         ),

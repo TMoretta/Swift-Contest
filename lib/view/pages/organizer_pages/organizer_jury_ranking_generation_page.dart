@@ -57,6 +57,12 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
   }
 
   @override
+  void dispose() {
+    context.hideLoader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrganizerJuryRankingGenerationPageBloc,
         OrganizerJuryRankingGenerationPageState>(

@@ -30,3 +30,8 @@ final class JurorVotingProcedurePageSubmit extends JurorVotingProcedurePageEvent
   @override
   List<Object?> get props => [headerFieldsValues, participantFieldsValues, footerFieldsValues];
 }
+
+final class JurorVotingProcedurePageCheckVotingLocation extends JurorVotingProcedurePageEvent {
+  @override
+  List<Object?> get props => [];
+}

@@ -11,7 +11,6 @@ import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submit_page_bloc/participant_work_submit_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -39,7 +38,6 @@ class ParticipantWorkSubmitPage extends StatefulWidget implements AutoRouteWrapp
 }
 
 class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
-  late String profileId;
   late final String contestId;
   final GlobalKey<FormState> detailsFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> imagesFormKey = GlobalKey<FormState>();
@@ -58,12 +56,6 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   void initState() {
     super.initState();
     contestId = widget.contestId;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override

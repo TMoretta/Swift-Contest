@@ -59,7 +59,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthFetch event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthState(
+    emit(state.copyWith(
         blocStatus: BlocStatus.loading, authStatus: AuthStatus.initial, sourceEvent: event));
     final eitherAuthBundle = await _authRepository.getAccountBundle();
     eitherAuthBundle.fold(

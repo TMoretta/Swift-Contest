@@ -17,7 +17,6 @@ import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/place_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_voting_settings_page_bloc/organizer_voting_settings_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -45,7 +44,6 @@ class OrganizerVotingSettingsPage extends StatefulWidget implements AutoRouteWra
 }
 
 class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPage> {
-  late String profileId;
   late final String contestId;
 
   final firstFormKey = GlobalKey<FormState>();
@@ -84,7 +82,6 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
     context.read<OrganizerVotingSettingsPageBloc>().add(OrganizerVotingSettingsPageFetch(
           contestId: contestId,
         ));

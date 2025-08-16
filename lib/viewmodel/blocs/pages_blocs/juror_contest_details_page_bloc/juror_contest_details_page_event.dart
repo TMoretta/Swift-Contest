@@ -33,3 +33,8 @@ final class JurorContestDetailsPageGetRankingFileUrl extends JurorContestDetails
   List<Object?> get props => [filePath];
 }
 
+final class JurorContestDetailsPageCheckVotingLocation extends JurorContestDetailsPageEvent {
+  @override
+  List<Object?> get props => [];
+}
+

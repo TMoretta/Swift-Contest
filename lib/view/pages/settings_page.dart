@@ -106,13 +106,6 @@ class _AuthState extends State<SettingsPage> {
                           'Account',
                         ),
                         titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                        subtitle: Text(
-                          'Full name',
-                        ),
-                        subtitleTextStyle: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(color: Theme.of(context).colorScheme.grey),
                       ),
                       //* Theme option
                       BlocBuilder<ThemeBloc, ThemeState>(
@@ -245,35 +238,28 @@ void _showEditThemeDialog({
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RadioMenuButton<AppTheme>(
-                        groupValue: selectedTheme,
-                        value: AppTheme.system,
+                      RadioGroup<AppTheme>(
                         onChanged: (value) {
-                          setState(
-                            () => selectedTheme = value!,
-                          );
+                          setState(() => selectedTheme = value!);
                         },
-                        child: Text('System'),
-                      ),
-                      RadioMenuButton<AppTheme>(
                         groupValue: selectedTheme,
-                        value: AppTheme.light,
-                        onChanged: (value) {
-                          setState(
-                            () => selectedTheme = value!,
-                          );
-                        },
-                        child: Text('Light'),
-                      ),
-                      RadioMenuButton<AppTheme>(
-                        groupValue: selectedTheme,
-                        value: AppTheme.dark,
-                        onChanged: (value) {
-                          setState(
-                            () => selectedTheme = value!,
-                          );
-                        },
-                        child: Text('Dark'),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            RadioListTile(
+                              value: AppTheme.system,
+                              title: Text('System'),
+                            ),
+                            RadioListTile(
+                              value: AppTheme.light,
+                              title: Text('Light'),
+                            ),
+                            RadioListTile(
+                              value: AppTheme.dark,
+                              title: Text('Dark'),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -328,35 +314,28 @@ void _showEditPrefRoleDialog({
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RadioMenuButton<ContestRole>(
-                        groupValue: selectedRole,
-                        value: ContestRole.organizer,
+                      RadioGroup<ContestRole>(
                         onChanged: (value) {
-                          setState(
-                            () => selectedRole = value!,
-                          );
+                          setState(() => selectedRole = value!);
                         },
-                        child: Text('Organizer'),
-                      ),
-                      RadioMenuButton<ContestRole>(
                         groupValue: selectedRole,
-                        value: ContestRole.participant,
-                        onChanged: (value) {
-                          setState(
-                            () => selectedRole = value!,
-                          );
-                        },
-                        child: Text('Participant'),
-                      ),
-                      RadioMenuButton<ContestRole>(
-                        groupValue: selectedRole,
-                        value: ContestRole.juror,
-                        onChanged: (value) {
-                          setState(
-                            () => selectedRole = value!,
-                          );
-                        },
-                        child: Text('Juror'),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            RadioListTile(
+                              value: ContestRole.organizer,
+                              title: Text('Organizer'),
+                            ),
+                            RadioListTile(
+                              value: ContestRole.participant,
+                              title: Text('Participant'),
+                            ),
+                            RadioListTile(
+                              value: ContestRole.juror,
+                              title: Text('Juror'),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

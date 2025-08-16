@@ -12,7 +12,6 @@ import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_home_page_bloc/participant_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -111,7 +110,6 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                             context
                                 .read<ParticipantHomePageBloc>()
                                 .add(ParticipantHomePageFetch());
-                            context.read<AuthBloc>().add(AuthFetch());
                           },
                           child: (state.filteredContestsBundles!.isNotEmpty)
                               ? ListView(

@@ -6,7 +6,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- Security check: Ensure the user has a profile before proceeding.
@@ -69,7 +69,7 @@ $$;
  STABLE
  -- Runs with the permissions of the calling user.
  -- Added search_path for security and consistency.
- SECURITY DEFINER SET search_path = public
+ SECURITY DEFINER SET search_path = public, extensions
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -103,7 +103,7 @@ $$;
       'live_voting_session_bundle', (
         SELECT jsonb_build_object(
           'voting_session', to_jsonb(vs),
-          'place', to_jsonb(pl)
+          'geo_res_place', to_jsonb(pl)
         )
         FROM public.voting_sessions vs
         LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
@@ -126,7 +126,7 @@ RETURNS jurations -- Returns the created/existing juration row.
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_invitation record;
@@ -170,7 +170,7 @@ $$;
   LANGUAGE plpgsql
   -- Runs with creator's privileges to insert a message for the organizer.
   -- Security is enforced by checking that the user is the juror.
-  SECURITY DEFINER SET search_path = public
+  SECURITY DEFINER SET search_path = public, extensions
   AS $$
   DECLARE
     v_contest record;
@@ -214,7 +214,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   result_bundle jsonb;
@@ -303,7 +303,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_session record;
@@ -328,21 +328,25 @@ BEGIN
   END IF;
 
   -- Check the session status.
-  SELECT * INTO v_session FROM public.voting_sessions WHERE id = p_voting_session_id;
+  -- We also fetch the place details in the same query if geo-restriction is enabled.
+  SELECT vs.*, pl.lat as geo_res_lat, pl.lon as geo_res_lon
+  INTO v_session
+  FROM public.voting_sessions vs
+  LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
+  WHERE vs.id = p_voting_session_id;
+
   IF v_session.session_status <> 'live' THEN
     RAISE EXCEPTION 'The voting session is not currently live.';
   END IF;
 
   -- STEP 2: GEO-RESTRICTION CHECK
   IF v_session.is_geo_restricted THEN
-    IF p_juror_lat IS NULL OR p_juror_lon IS NULL THEN
+    IF p_juror_lat IS NULL OR p_juror_lon IS NULL OR v_session.geo_res_lat IS NULL THEN
       RAISE EXCEPTION 'Location data is required for this voting session.';
     END IF;
-    -- NOTE: This check requires the 'postgis' extension to be enabled.
-    SELECT * INTO v_geo_res_place FROM public.places WHERE id = v_session.geo_res_place_id;
     -- Use PostGIS to verify the distance.
     IF NOT ST_DWithin(
-      ST_MakePoint(v_geo_res_place.lon, v_geo_res_place.lat)::geography,
+      ST_MakePoint(v_session.geo_res_lon, v_session.geo_res_lat)::geography,
       ST_MakePoint(p_juror_lon, p_juror_lat)::geography,
       v_session.geo_res_radius
     ) THEN
@@ -385,7 +389,7 @@ RETURNS voting_sessions -- Returns the voting session the simple juror has acces
 LANGUAGE plpgsql
 -- Runs with creator's privileges to check for appointed status and insert the simple juror.
 -- SECURITY DEFINER is safe here due to rigorous checks. search_path is critical.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_voting_session voting_sessions;

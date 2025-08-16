@@ -13,19 +13,10 @@ class Account extends Equatable {
     required this.isAnonymous,
   });
 
-  factory Account.fromDbJson(Map<String, dynamic> json) {
-    return Account(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      isAdmin: (json['user_metadata'] as Map<String, dynamic>?)?['is_admin'] ?? false,
-      isAnonymous: (json['is_anonymous'] != null) ? json['is_anonymous'] as bool : false,
-    );
-  }
-
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
       id: json['id'] as String,
-      email: json['email'] as String,
+      email: json['email'] as String? ?? '',
       isAdmin: json['is_admin'] as bool,
       isAnonymous: json['is_anonymous'] as bool,
     );

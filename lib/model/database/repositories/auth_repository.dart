@@ -60,12 +60,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AccountBundle?>> getAccountBundle() async {
     return handleDatabaseCall(
       () async {
-        final Map<String, dynamic>? res =
-            await _supabase.rpc('auth_get_account_bundle').maybeSingle();
+        final Map<String, dynamic>? res = await _supabase.rpc('auth_get_account_bundle').maybeSingle();
         if (res == null) {
           return Either.right(null);
         }
-        return Either.right(AccountBundle.fromJson(res));
+        final accountBundle = AccountBundle.fromJson(res);
+        if(accountBundle.account.isAnonymous) {
+          return Either.right(null);
+        }
+        return Either.right(accountBundle);
       },
     );
   }

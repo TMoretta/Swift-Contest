@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/contest_card.dart';
@@ -13,7 +12,6 @@ import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_home_page_bloc/juror_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -36,7 +34,6 @@ class JurorHomePage extends StatefulWidget implements AutoRouteWrapper {
 }
 
 class _JurorHomePageState extends State<JurorHomePage> {
-  late String profileId;
   late final FocusNode _searchFocusNode;
   late final TextEditingController _searchController;
 
@@ -50,7 +47,6 @@ class _JurorHomePageState extends State<JurorHomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
     context.read<JurorHomePageBloc>().add(JurorHomePageFetch());
   }
 
@@ -109,7 +105,6 @@ class _JurorHomePageState extends State<JurorHomePage> {
                         child: RefreshIndicator.adaptive(
                           onRefresh: () async {
                             context.read<JurorHomePageBloc>().add(JurorHomePageFetch());
-                            context.read<AuthBloc>().add(AuthFetch());
                           },
                           child: (state.filteredContestsBundles!.isNotEmpty)
                               ? ListView(
@@ -157,7 +152,32 @@ class _JurorHomePageState extends State<JurorHomePage> {
             children: [
               FloatingActionButton.extended(
                 heroTag: 'voteAsSimpleJuror',
-                onPressed: () {
+                onPressed: () async {
+                  final bool res = await showDialog(context: context, builder: (_) {
+                    return AlertDialog(
+                      title: Text('Voting Access'),
+                      content: Text(
+                          'You are about to access a voting session as a simple juror. Please have the QR code provided by the organizer ready.'),
+                      actions: [
+                          TextButton(
+                            onPressed: () {
+                              context.router.pop(false);
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              context.router.pop(true);
+                            },
+                            child: Text('Scan QR'),
+                          ),
+
+                      ],
+                    );
+                  },) ?? false;
+                  if(!context.mounted || !res) {
+                    return;
+                  }
                   context.router.push(JurorVotingQrScannerRoute());
                 },
                 backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
@@ -171,7 +191,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
               FloatingActionButton.extended(
                 heroTag: 'joinContest',
                 onPressed: () {
-                  _showJoinContestDialog(context: context, profileId: profileId);
+                  _showJoinContestDialog(context: context);
                 },
                 icon: Icon(Icons.login),
                 label: Text('Join contest'),
@@ -186,7 +206,6 @@ class _JurorHomePageState extends State<JurorHomePage> {
 
 void _showJoinContestDialog({
   required BuildContext context,
-  required String profileId,
 }) {
   final jurorHomePageBloc = context.read<JurorHomePageBloc>();
   final joinContestFormKey = GlobalKey<FormState>();

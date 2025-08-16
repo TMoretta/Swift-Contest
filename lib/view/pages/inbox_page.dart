@@ -19,14 +19,6 @@ class InboxPage extends StatefulWidget {
 }
 
 class _InboxPageState extends State<InboxPage> {
-  late String profileId;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    profileId = context.read<AuthBloc>().state.profile!.id!;
-  }
-
   @override
   void dispose() {
     context.hideLoader();
@@ -54,7 +46,7 @@ class _InboxPageState extends State<InboxPage> {
               (state.messages != null && state.messages!.isNotEmpty)
                   ? TextButton(
                       onPressed: () {
-                        _showDeleteAllMessagesDialog(context: context, profileId: profileId);
+                        _showDeleteAllMessagesDialog(context: context);
                       },
                       child: Text('Delete all'),
                     )
@@ -147,7 +139,7 @@ class _InboxPageState extends State<InboxPage> {
   }
 }
 
-void _showDeleteAllMessagesDialog({required BuildContext context, required String profileId}) {
+void _showDeleteAllMessagesDialog({required BuildContext context}) {
   final authBloc = context.read<AuthBloc>();
 
   showDialog(

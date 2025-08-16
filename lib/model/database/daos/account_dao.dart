@@ -20,7 +20,7 @@ class AccountDaoImpl implements AccountDao {
     return handleDatabaseCall(
       () async {
         final res = await _supabase.auth.updateUser(userAttributes);
-        return Either.right(Account.fromDbJson(res.user!.toJson()));
+        return Either.right(Account.fromJson(res.user!.toJson()));
       },
     );
   }
@@ -30,7 +30,7 @@ class AccountDaoImpl implements AccountDao {
     return handleDatabaseCall(
       () async {
         final response = await _supabase.auth.getUser();
-        return Either.right(Account.fromDbJson(response.user!.toJson()));
+        return Either.right(Account.fromJson(response.user!.toJson()));
       },
     );
   }

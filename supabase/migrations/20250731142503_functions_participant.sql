@@ -6,7 +6,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- Security check: Ensure the user has a profile before proceeding.
@@ -54,7 +54,7 @@ $$;
  STABLE
  -- Runs with the permissions of the calling user.
  -- Added search_path for security and consistency.
- SECURITY DEFINER SET search_path = public
+ SECURITY DEFINER SET search_path = public, extensions
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -115,7 +115,7 @@ RETURNS participations -- MODIFICATION: Returns the created/existing participati
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_invitation record;
@@ -166,7 +166,7 @@ $$;
   LANGUAGE plpgsql
   -- Runs with creator's privileges to insert a message for the organizer.
   -- Security is enforced by checking that the user is the participant.
-  SECURITY DEFINER SET search_path = public
+  SECURITY DEFINER SET search_path = public, extensions
   AS $$
   DECLARE
     v_participation record;
@@ -211,7 +211,7 @@ RETURNS works -- MODIFICATION: Returns the newly created work row.
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_participation record;
@@ -284,7 +284,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   result_bundle jsonb;

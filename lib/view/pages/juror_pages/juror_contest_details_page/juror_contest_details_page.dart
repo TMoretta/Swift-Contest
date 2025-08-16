@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_details_tab.dart';
 import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_rankings_tab.dart';
-import 'package:swift_contest/view/pages/juror_pages/juror_contest_details_page/juror_voting_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_contest_details_page_bloc/juror_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -36,14 +34,12 @@ class JurorContestDetailsPage extends StatefulWidget implements AutoRouteWrapper
 }
 
 class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
-  late String profileId;
   late String contestId;
 
   @override
   void initState() {
     super.initState();
     contestId = widget.contestId;
-    profileId = context.read<AuthBloc>().state.profile!.id!;
   }
 
   @override
@@ -81,7 +77,6 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
               if (state.isInitialized)
                 _Menu(
                   contestId: contestId,
-                  profileId: profileId,
                 ),
             ],
           ),
@@ -127,9 +122,8 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
 
 class _Menu extends StatelessWidget {
   final String contestId;
-  final String profileId;
 
-  const _Menu({required this.contestId, required this.profileId});
+  const _Menu({required this.contestId});
 
   @override
   Widget build(BuildContext context) {

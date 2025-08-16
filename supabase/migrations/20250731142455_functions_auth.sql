@@ -54,7 +54,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_mark_message_as_read(p_message_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = public -- The function runs with the permissions of the user calling it.
+SECURITY DEFINER SET search_path = public, extensions -- The function runs with the permissions of the user calling it.
 AS $$
 BEGIN
   -- Update the 'is_read' status of a specific message.
@@ -97,7 +97,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_delete_all_account_messages()
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- Delete all messages where the account_id matches the caller's user ID.
@@ -112,7 +112,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_update_profile_full_name(p_full_name text)
 RETURNS profiles -- Returns the single updated profile row
 LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   updated_profile profiles;
@@ -136,7 +136,7 @@ $$;
 CREATE OR REPLACE FUNCTION auth_update_profile_pref_role(p_pref_role text)
 RETURNS profiles -- Returns the single updated profile row
 LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   updated_profile profiles;

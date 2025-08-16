@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_voting_qr_scanner_page_bloc/juror_voting_qr_scanner_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -66,6 +67,7 @@ class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
   void dispose() {
     // Assicurati di rilasciare il controller quando la pagina viene distrutta
     _scannerController.dispose();
+    context.hideLoader();
     super.dispose();
   }
 
@@ -91,7 +93,7 @@ class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
   Widget _buildScannerView() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scansiona QR Code'),
+        title: const Text('Scan QR Code'),
         actions: [
           // Pulsante per la torcia
           ValueListenableBuilder(
@@ -138,7 +140,7 @@ class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
   // Widget mostrato quando il permesso non è concesso
   Widget _buildPermissionDeniedView() {
     return Scaffold(
-      appBar: AppBar(title: const Text('Permesso Fotocamera')),
+      appBar: AppBar(title: const Text('Camera Permission')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -148,18 +150,18 @@ class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
               const Icon(Icons.camera_alt, size: 60, color: Colors.grey),
               const SizedBox(height: 20),
               const Text(
-                'Accesso alla fotocamera necessario',
+                'Camera Access Required',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
               const Text(
-                'Per scansionare il QR code di invito, abbiamo bisogno del permesso di usare la fotocamera.',
+                'To scan the invitation QR code, we need permission to use your camera.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                child: const Text('Richiedi Permesso'),
+                child: const Text('Request Permission'),
                 onPressed: () async {
                   // Richiede il permesso. Se l'utente lo nega permanentemente,
                   // lo stato diventerà `PermissionStatus.permanentlyDenied`.
@@ -174,7 +176,7 @@ class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
               // mostra un pulsante per aprire le impostazioni dell'app.
               if (_permissionStatus == PermissionStatus.permanentlyDenied)
                 TextButton(
-                  child: const Text('Apri Impostazioni App'),
+                  child: const Text('Open App Settings'),
                   onPressed: () {
                     // Apre le impostazioni dell'app per permettere all'utente
                     // di abilitare il permesso manualmente.

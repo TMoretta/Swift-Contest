@@ -7,7 +7,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- This function retrieves all contests created by a specific organizer,
@@ -66,7 +66,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
  result_bundle jsonb;
@@ -270,7 +270,7 @@ RETURNS juries
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_contest_id uuid := (p_jury->>'contest_id')::uuid;
@@ -322,7 +322,7 @@ RETURNS SETOF voting_form_fields
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -387,7 +387,7 @@ RETURNS voting_sessions -- Returns the entire created voting session row.
 LANGUAGE plpgsql
 -- Runs with the creator's privileges to allow inserting into 'places' and to snapshot data efficiently.
 -- Security is enforced by the initial check on the contest's organizer.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_contest_id uuid := (p_voting_session->>'contest_id')::uuid;
@@ -522,7 +522,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the user is the organizer of the contest.
@@ -555,7 +555,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the user is the organizer of the contest.
@@ -592,7 +592,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   result_bundle jsonb;
@@ -683,7 +683,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   result_bundle jsonb;
@@ -744,7 +744,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_voting_session_id uuid;
@@ -861,7 +861,7 @@ LANGUAGE plpgsql
 STABLE
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
   v_voting_session_id uuid;
@@ -978,7 +978,7 @@ $$;
  STABLE
  -- Runs with the permissions of the calling user.
  -- Added search_path for security and consistency.
- SECURITY DEFINER SET search_path = public
+ SECURITY DEFINER SET search_path = public, extensions
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -1022,7 +1022,7 @@ $$;
  STABLE
  -- Runs with the permissions of the calling user.
  -- Added search_path for security and consistency.
- SECURITY DEFINER SET search_path = public
+ SECURITY DEFINER SET search_path = public, extensions
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -1094,7 +1094,7 @@ $$;
  STABLE
  -- Runs with the permissions of the calling user.
  -- Added search_path for security and consistency.
- SECURITY DEFINER SET search_path = public
+ SECURITY DEFINER SET search_path = public, extensions
  AS $$
  DECLARE
    result_bundle jsonb;
@@ -1141,7 +1141,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1170,7 +1170,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1198,7 +1198,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1226,7 +1226,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1255,7 +1255,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
  -- SECURITY CHECK: Verify that the current user is the organizer of the contest
@@ -1287,7 +1287,7 @@ RETURNS juries -- Returns the entire updated jury row
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 DECLARE
  updated_jury_row juries;
@@ -1323,7 +1323,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
   -- SECURITY CHECK: The WHERE clause implicitly verifies ownership by joining
@@ -1351,7 +1351,7 @@ RETURNS void
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
 -- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public
+SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
  -- The WHERE clause acts as a security check, ensuring that only the

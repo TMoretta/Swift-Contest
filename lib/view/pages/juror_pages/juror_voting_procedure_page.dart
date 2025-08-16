@@ -53,6 +53,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
   bool isPageInitialized = false;
   int pageIndex = 0;
   final _pageController = PageController(initialPage: 0);
+  bool isFinished = false;
 
   @override
   void initState() {
@@ -93,15 +94,20 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           context.hideLoader();
         }
         if (state.isInitialized) {
-          if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus
-              .isEnded) {
+          if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus.isEnded ?? false) {
+            if(!isFinished) {
+              isFinished = true;
+
             showSnackBar(context: context, text: 'Voting session procedure is ended');
             context.router.pop(true);
+            }
           }
-          if (state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus
-              .isCancelled) {
+          if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus.isCancelled ?? false) {
+            if(!isFinished) {
+              isFinished = true;
             showSnackBar(context: context, text: 'Voting session procedure has been cancelled');
-            context.router.pop(true);
+              context.router.pop(true);
+            }
           }
         }
         if (state.status.isSuccess && state.sourceEvent is JurorVotingProcedurePageSubmit) {
@@ -221,13 +227,60 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                 child: const Text('Previous'),
                               )
                             else
-                              // Placeholder to keep the other button aligned to the right
-                              const SizedBox.shrink(),
+                              Visibility(
+                                visible: false,
+                                maintainSize: true,
+                                maintainAnimation: true,
+                                maintainState: true,
+                                child: FilledButton(
+                                  onPressed: null,
+                                  child: Text('Previous'),
+                                ),
+                              ),
+                            if (votingSessionProcedureBundle
+                                .votingSessionBundle.votingSession.isGeoRestricted)
+                              FilledButton(
+                                onPressed: () {
+                                  context
+                                      .read<JurorVotingProcedurePageBloc>()
+                                      .add(JurorVotingProcedurePageCheckVotingLocation());
+                                },
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.onSecondaryContainer,
+                                ),
+                                child: Text(
+                                  'Verify\n Location',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             FilledButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 final isLastPage = pageIndex == pages.length - 1;
                                 if (isLastPage) {
                                   if (formKey.currentState?.validate() ?? false) {
+                                    final bool? res = await showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        return AlertDialog(
+                                          title: Text('Submit'),
+                                          content: Text('Are you sure you want to submit?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => context.router.pop(),
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => context.router.pop(true),
+                                              child: Text('Confirm'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                    if(!context.mounted || res!=true) return;
+
                                     // Costruisce le mappe dei voti leggendo dai controller
                                     final headerFieldsValues = _headerFieldsValuesMap
                                         .map((key, value) => MapEntry(key, value.text));
@@ -260,7 +313,14 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                       curve: Curves.ease);
                                 }
                               },
-                              child: Text(pageIndex == pages.length - 1 ? 'Submit' : 'Next'),
+                              style: (pageIndex == pages.length - 1)
+                                  ? FilledButton.styleFrom(
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.tertiaryContainer,
+                                      foregroundColor:
+                                          Theme.of(context).colorScheme.onTertiaryContainer)
+                                  : null,
+                              child: Text((pageIndex == pages.length - 1) ? 'Submit' : 'Next'),
                             ),
                           ],
                         ),

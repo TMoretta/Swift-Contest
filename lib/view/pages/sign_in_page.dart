@@ -67,9 +67,6 @@ class _SignInPageState extends State<SignInPage> {
         if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
           context.router.replaceAll([RootRoute()]);
         }
-        if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
-          context.router.push(JurorVotingQrScannerRoute());
-        }
       },
       builder: (context, state) {
         return Scaffold(
@@ -245,8 +242,34 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
           return BlocProvider.value(
             value: signInPageBloc,
             child: BlocConsumer<SignInPageBloc, SignInPageState>(
-              listener: (context, state) {
+              listener: (context, state) async {
                 if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
+                  final bool res = await showDialog(context: context, builder: (_) {
+                    return AlertDialog(
+                      title: Text('Voting Access'),
+                      content: Text(
+                          'You are about to access a voting session as a simple juror. Please have the QR code provided by the organizer ready.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            context.router.pop(false);
+                          },
+                          child: Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            context.router.pop(true);
+                          },
+                          child: Text('Scan QR'),
+                        ),
+
+                      ],
+                    );
+                  },) ?? false;
+                  if(!context.mounted || !res) {
+                    return;
+                  }
+                  context.router.push(JurorVotingQrScannerRoute());
                   context.router.pop();
                 }
               },
