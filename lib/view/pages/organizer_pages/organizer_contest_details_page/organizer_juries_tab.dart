@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/jury_type.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -141,7 +140,7 @@ void _showCreateJuryDialog({required BuildContext context, required String conte
                         controller: nameController,
                         focusNode: nameFocusNode,
                         label: 'Name',
-                        validator: noEmptyValidator,
+                        validator: titleValidator,
                       ),
                       Text('Jury type'),
                       SizedBox(height: 2),

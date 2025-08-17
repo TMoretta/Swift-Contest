@@ -200,7 +200,7 @@ void _showJoinContestDialog({
                       controller: tokenController,
                       focusNode: tokenFocusNode,
                       label: 'Token',
-                      validator: (value) => noEmptyValidator(value?.trim()),
+                      validator: noEmptyValidator,
                     ),
                   ],
                 ),

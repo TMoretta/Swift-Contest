@@ -7,7 +7,7 @@ Failure postgrestExceptionToFailure(PostgrestException exception) {
   // print('PostgrestException: Code=${exception.code}, Message=${exception.message}, Details=${exception.details}');
 
   if(exception.code == 'P0001') {
-    return CustomServerFailure(exception.message);
+    return ServerFailure(exception.message);
   }
 
   // Mapping based on specific error codes

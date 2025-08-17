@@ -752,7 +752,7 @@ void _showEditJuryDialog({
                     controller: nameController,
                     focusNode: nameFocusNode,
                     label: 'Name',
-                    validator: noEmptyValidator,
+                    validator: titleValidator,
                   ),
                 ],
               ),

@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/loader.dart';
+import 'package:swift_contest/view/widgets/images_picker_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_work_submit_page_bloc/participant_work_submit_page_bloc.dart';
@@ -29,10 +29,10 @@ class ParticipantWorkSubmitPage extends StatefulWidget implements AutoRouteWrapp
   @override
   Widget wrappedRoute(BuildContext context) {
     return BlocProvider<ParticipantWorkSubmitPageBloc>(
-        create: (context) => ParticipantWorkSubmitPageBloc(
-          participantRepository: context.read(),
-        ),
-        child: this,
+      create: (context) => ParticipantWorkSubmitPageBloc(
+        participantRepository: context.read(),
+      ),
+      child: this,
     );
   }
 }
@@ -41,6 +41,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   late final String contestId;
   final GlobalKey<FormState> detailsFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> imagesFormKey = GlobalKey<FormState>();
+
   // final GlobalKey<FormState> fileFormKey = GlobalKey<FormState>();
   List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey];
 
@@ -50,6 +51,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
   final List<XFile> images = [];
+
   // File? file;
 
   @override
@@ -164,7 +166,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                   controller: nameController,
                   focusNode: nameFocusNode,
                   label: 'Name',
-                  validator: (value) => nameValidator(value?.trim()),
+                  validator: titleValidator,
                   minLines: 1,
                   maxLines: 2,
                 ),
@@ -173,7 +175,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                   controller: descriptionController,
                   focusNode: descriptionFocusNode,
                   label: 'Description',
-                  validator: (value) => descriptionValidator(value?.trim()),
+                  validator: descriptionValidator,
                   minLines: 2,
                   maxLines: 4,
                 ),
@@ -188,77 +190,10 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
           title: Text(''),
           content: Form(
             key: imagesFormKey,
-            child: FormField(
-              validator: (value) => _imagesValidator(images),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              builder: (field) {
-                return Column(
-                  children: [
-                    (images.isEmpty)
-                        ? Center(child: Text('No image selected yet'))
-                        : GridView.builder(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisSpacing: 4,
-                              crossAxisSpacing: 4,
-                            ),
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: images.length,
-                            itemBuilder: (context, index) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: (kIsWeb)
-                                    ? Image.network(
-                                        images[index].path,
-                                        filterQuality: FilterQuality.medium,
-                                      )
-                                    : Image.file(
-                                        File(images[index].path),
-                                        fit: BoxFit.cover,
-                                        width: 5,
-                                        filterQuality: FilterQuality.medium,
-                                        frameBuilder:
-                                            (context, child, frame, wasSynchronouslyLoaded) {
-                                          if (wasSynchronouslyLoaded || frame != null) return child;
-                                          return const Loader();
-                                        },
-                                      ),
-                              );
-                            },
-                          ),
-                    FilledButton(
-                      onPressed: () async {
-                        final bool? choice = await _showImagesDialog(context: context);
-                        if (choice == true) {
-                          var res = await pickMultipleImages();
-                          if (res.isEmpty) return;
-                          if (res.length > 6) {
-                            res = res.getRange(0, 6).toList(growable: false);
-                            if (mounted) {
-                              showSnackBar(
-                                context: context,
-                                text: 'Exceeded images have been discarded',
-                              );
-                            }
-                          }
-                          setState(() {
-                            images.clear();
-                            images.addAll(res);
-                            field.didChange(images);
-                          });
-                        }
-                      },
-                      child: Text('Pick images'),
-                    ),
-                    if (field.hasError)
-                      Text(
-                        'Select at least one image',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                  ],
-                );
-              },
+            child: ImagesPickerFormField(
+              images: images,
+              maxImages: 5,
+              validator: atLeastOneImageValidator,
             ),
           ),
         ),
@@ -368,38 +303,4 @@ Future<File?> _pickFile() async {
     return File(pickedFile.path!);
   }
   return null;
-}
-
-String? nameValidator(String? value) {
-  if (value == null || value.isEmpty) {
-    return '';
-  }
-  if (value.length < 3) {
-    return 'At least 3 characters long';
-  }
-  return null;
-}
-
-String? descriptionValidator(String? value) {
-  if (value == null || value.isEmpty) {
-    return '';
-  }
-  if (value.length < 3) {
-    return 'At least 3 characters long';
-  }
-  return null;
-}
-
-String? _imagesValidator(List<XFile> images) {
-  if (images.isEmpty) {
-    return '';
-  }
-  return null;
-}
-
-Future<List<XFile>> pickMultipleImages() async {
-  final ImagePicker picker = ImagePicker();
-  final List<XFile> pickedImages = await picker.pickMultiImage(imageQuality: 90);
-
-  return pickedImages;
 }

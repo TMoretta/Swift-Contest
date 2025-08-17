@@ -232,8 +232,9 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
           title: Text(''),
           content: Form(
             key: firstFormKey,
-            child: FormField(
-              validator: (value) => (participationsBundles.isEmpty) ? '' : null,
+            child: FormField<List<ParticipationBundle>>(
+              initialValue: participationsBundles,
+              validator: (value) => (value?.isEmpty ?? true) ? 'Required' : null,
               builder: (field) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
@@ -273,6 +274,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                     trailing: IconButton(
                                       onPressed: () {
                                         setState(() {
+                                        field.didChange(participationsBundles);
                                           excludedParticipationsBundles
                                               .add(participationsBundles[i]);
                                           participationsBundles.removeAt(i);
@@ -323,6 +325,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                   trailing: IconButton(
                                     onPressed: () {
                                       setState(() {
+                                        field.didChange(participationsBundles);
                                         participationsBundles.add(excludedParticipationBundle);
                                         excludedParticipationsBundles.removeAt(index);
                                       });

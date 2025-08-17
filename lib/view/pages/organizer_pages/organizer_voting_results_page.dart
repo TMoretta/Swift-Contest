@@ -203,7 +203,7 @@ void _showEditVotingSessionNameDialog({
                       controller: nameController,
                       focusNode: nameFocusNode,
                       label: 'Name',
-                      validator: noEmptyValidator,
+                      validator: titleValidator,
                     ),
                   ],
                 ),

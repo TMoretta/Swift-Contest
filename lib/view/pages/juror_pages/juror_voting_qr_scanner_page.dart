@@ -5,6 +5,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_voting_qr_scanner_page_bloc/juror_voting_qr_scanner_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -21,72 +22,86 @@ class JurorVotingQrScannerPage extends StatefulWidget implements AutoRouteWrappe
       create: (context) => JurorVotingQrScannerPageBloc(
         jurorRepository: context.read(),
       ),
-      child: BlocConsumer<JurorVotingQrScannerPageBloc, JurorVotingQrScannerPageState>(
-        listener: (context, state) {
-          if (state.status.isSuccess &&
-              state.sourceEvent is JurorVotingQrScannerPageAccessVotingAsSimpleJuror) {
-            context.router
-                .replace(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
-          }
-        },
-        builder: (context, state) {
-          return this;
-        },
-      ),
+      child: this,
     );
   }
 }
 
-class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
+class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> with WidgetsBindingObserver {
+  // to recheck camera permission returning from settings
+  bool goneIntoSettings = false;
+
   // Controller per lo scanner
   final MobileScannerController _scannerController = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
   );
 
-  // Variabile per tenere traccia dello stato del permesso
-  PermissionStatus? _permissionStatus;
-
   @override
   void initState() {
     super.initState();
-    // Controlla lo stato del permesso all'avvio della pagina
-    _checkCameraPermission();
+    // Aggiunge questo widget come observer del ciclo di vita dell'app.
+    WidgetsBinding.instance.addObserver(this);
+    // Esegue il check iniziale dei permessi.
+    context.read<JurorVotingQrScannerPageBloc>().add(JurorVotingQrScannerPageCheckCameraPermission());
   }
 
-  Future<void> _checkCameraPermission() async {
-    final status = await Permission.camera.status;
-    if (status != _permissionStatus) {
-      setState(() {
-        _permissionStatus = status;
-      });
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Se l'app torna in primo piano (es. dopo essere stati nelle impostazioni)
+    if (goneIntoSettings && state == AppLifecycleState.resumed) {
+      goneIntoSettings = false;
+      // Esegui di nuovo il check dei permessi.
+      context
+          .read<JurorVotingQrScannerPageBloc>()
+          .add(JurorVotingQrScannerPageCheckCameraPermission());
     }
   }
 
   @override
   void dispose() {
     // Assicurati di rilasciare il controller quando la pagina viene distrutta
-    _scannerController.dispose();
+    // e di rimuovere l'observer per evitare memory leak.
+    WidgetsBinding.instance.removeObserver(this);
     context.hideLoader();
+    _scannerController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Mostra un indicatore di caricamento mentre controlliamo i permessi
-    if (_permissionStatus == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    // Se il permesso è stato concesso, mostra lo scanner
-    if (_permissionStatus == PermissionStatus.granted) {
-      return _buildScannerView();
-    }
-
-    // Altrimenti, mostra una schermata che spiega perché serve il permesso
-    return _buildPermissionDeniedView();
+    return BlocConsumer<JurorVotingQrScannerPageBloc, JurorVotingQrScannerPageState>(
+      listener: (context, state) {
+        if (state.message != null) {
+          showSnackBar(context: context, text: state.message!);
+        }
+        if (state.status.isLoading) {
+          context.showLoader();
+        } else {
+          context.hideLoader();
+        }
+        if (state.status.isSuccess &&
+            state.sourceEvent is JurorVotingQrScannerPageAccessVotingAsSimpleJuror) {
+          context.router
+              .replace(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+        }
+      },
+      builder: (context, state) {
+        switch (state.cameraPermissionStatus) {
+          case PermissionStatus.permanentlyDenied:
+            return _buildPermissionPermanentlyDeniedView();
+          case null:
+          case PermissionStatus.restricted:
+          case PermissionStatus.limited:
+          case PermissionStatus.provisional:
+          case PermissionStatus.denied:
+            return _buildPermissionDeniedView();
+          case PermissionStatus.granted:
+            return _buildScannerView();
+        }
+      },
+    );
   }
 
   // Widget che mostra lo scanner vero e proprio
@@ -162,27 +177,59 @@ class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 child: const Text('Request Permission'),
-                onPressed: () async {
-                  // Richiede il permesso. Se l'utente lo nega permanentemente,
-                  // lo stato diventerà `PermissionStatus.permanentlyDenied`.
-                  final status = await Permission.camera.request();
-                  setState(() {
-                    _permissionStatus = status;
-                  });
-                },
+                onPressed: () => context
+                    .read<JurorVotingQrScannerPageBloc>()
+                    .add(JurorVotingQrScannerPageCheckCameraPermission()),
               ),
-              const SizedBox(height: 10),
+              // const SizedBox(height: 10),
               // Se l'utente ha negato il permesso permanentemente,
               // mostra un pulsante per aprire le impostazioni dell'app.
-              if (_permissionStatus == PermissionStatus.permanentlyDenied)
-                TextButton(
-                  child: const Text('Open App Settings'),
-                  onPressed: () {
-                    // Apre le impostazioni dell'app per permettere all'utente
-                    // di abilitare il permesso manualmente.
-                    openAppSettings();
-                  },
-                ),
+              // if (_permissionStatus == PermissionStatus.permanentlyDenied)
+              //   TextButton(
+              //     child: const Text('Open App Settings'),
+              //     onPressed: () {
+              //       // Apre le impostazioni dell'app per permettere all'utente
+              //       // di abilitare il permesso manualmente.
+              //       openAppSettings();
+              //     },
+              //   ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPermissionPermanentlyDeniedView() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Camera Permission')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.camera_alt, size: 60, color: Colors.grey),
+              const SizedBox(height: 20),
+              const Text(
+                'Camera Access Required',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'To scan the invitation QR code, we need permission to use your camera. '
+                    'The permission has been permanently denied. Please enable it from app settings.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                child: const Text('Open app settings'),
+                onPressed: () {
+                  openAppSettings();
+                  goneIntoSettings = true;
+                },
+              ),
             ],
           ),
         ),

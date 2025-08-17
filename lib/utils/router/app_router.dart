@@ -6,12 +6,6 @@ import 'app_router.gr.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
-        // Splash
-        // AutoRoute(
-        //   initial: true,
-        //   path: '/',
-        //   page: SplashRoute.page,
-        // ),
 
         // Root
         AutoRoute(
@@ -28,10 +22,6 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           path: '/sign-up',
           page: SignUpRoute.page,
-        ),
-        AutoRoute(
-          path: '/sign-in-verify/:email',
-          page: SignInVerifyRoute.page,
         ),
         AutoRoute(
           path: '/sign-up-verify/:email',
@@ -136,10 +126,6 @@ class AppRouter extends RootStackRouter {
           path: '/organizer-jury-ranking-generation/:votingSessionJuryId',
           page: OrganizerJuryRankingGenerationRoute.page,
         ),
-        // AutoRoute(
-        //   path: '/organizer-voting-result-export/:votingSessionId',
-        //   page: OrganizerVotingResultExportRoute.page,
-        // ),
 
         // Participant
         AutoRoute(
@@ -168,9 +154,5 @@ class AppRouter extends RootStackRouter {
           path: '/juror-voting-procedure/:votingSessionId',
           page: JurorVotingProcedureRoute.page,
         ),
-        // AutoRoute(
-        //   path: '/simple-juror-voting-procedure/:votingSessionId/:simpleJurorId',
-        //   page: SimpleJurorVotingProcedureRoute.page,
-        // ),
       ];
 }

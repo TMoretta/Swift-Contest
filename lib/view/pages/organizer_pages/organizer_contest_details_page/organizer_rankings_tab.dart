@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:external_path/external_path.dart';
 import 'package:file_picker/file_picker.dart';
@@ -9,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
-import 'package:permission_handler/permission_handler.dart';
+import 'package:swift_contest/utils/permissions/permissions.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -107,27 +106,16 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                BlocListener<OrganizerContestDetailsPageBloc,
-                                    OrganizerContestDetailsPageState>(
+                                BlocListener<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
                                   listener: (context, state) async {
-                                    if (state.status.isSuccess &&
-                                        state.sourceEvent
-                                            is OrganizerContestDetailsPageGetRankingFileUrl) {
-                                      if(Platform.isAndroid) {
-                                        AndroidDeviceInfo build = await DeviceInfoPlugin().androidInfo;
-                                        if(build.version.sdkInt <=28) {
-                                          final status = await Permission.storage.status;
-                                          if(!status.isGranted) {
-                                            final request = await Permission.storage.request();
-                                            if(!request.isGranted) {
-                                              if (context.mounted) {
-                                                showSnackBar(context: context, text: 'Storage permission is required to save files.');
-                                              }
-                                              return;
-                                            }
-                                          }
-                                        }
+                                    if (state.status.isSuccess && state.sourceEvent is OrganizerContestDetailsPageGetRankingFileUrl) {
+                                      final bool permission = await requestStoragePermissionForDownloads();
+                                      if(!context.mounted) return;
+                                      if(!permission) {
+                                        showSnackBar(context: context, text: 'Storage permission is required to save files.');
+                                        return;
                                       }
+
                                       try {
                                         final url = state.rankingFileUrl!;
 
@@ -236,6 +224,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                             'Published rankings will be available for all jurors and participants in the contest. Only PDF format is allowed.'),
                         SizedBox(height: 12),
                         FormField<PlatformFile>(
+                          initialValue: selectedFile,
                           validator: (value) => (value == null) ? 'Select a file' : null,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           builder: (field) {

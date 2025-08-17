@@ -1,11 +1,12 @@
 //* No empty validator
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 String? noEmptyValidator(String? value) {
   final val = value?.trim();
 
   if (val == null || val.isEmpty) {
-    return '';
+    return 'Required';
   }
 
   return null;
@@ -16,7 +17,7 @@ String? emailValidator(String? value) {
   final val = value?.trim();
 
   if (val == null || val.isEmpty) {
-    return '';
+    return 'Required';
   }
 
   final emailRegex = RegExp(
@@ -32,18 +33,33 @@ String? emailValidator(String? value) {
 
 //* Full name validator
 String? fullNameValidator(String? value) {
-  final val = value?.trim();
+  final val = value?.trim(); // Remove leading/trailing whitespace.
 
   if (val == null || val.isEmpty) {
-    return '';
+    return 'Required';
   }
 
-  if (val.length < 6) {
-    return 'At least 5 characters long';
+  // A more reasonable minimum length for a full name.
+  if (val.length < 3) {
+    return 'Must be at least 3 characters long';
   }
 
-  if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(val)) {
-    return 'Not valid symbol used';
+  // A simple check to encourage entering both first and last names.
+  if (!val.contains(' ')) {
+    return 'Please include a last name';
+  }
+
+  // Check for multiple consecutive spaces.
+  if (val.contains('  ')) {
+    return 'Remove extra spaces between names';
+  }
+
+  // This more inclusive regex allows:
+  // - Unicode letters (for names with accents like "José" or "Müller").
+  // - Apostrophes (for names like "O'Connor").
+  // - Hyphens (for names like "Marie-Claire").
+  if (!RegExp(r"^[a-zA-Zà-üÀ-Ü'\- ]+$").hasMatch(val)) {
+    return 'Name contains invalid characters';
   }
 
   return null;
@@ -52,7 +68,7 @@ String? fullNameValidator(String? value) {
 //* Password validator
 String? passwordValidator(String? value) {
   if (value == null || value.isEmpty) {
-    return '';
+    return 'Required';
   }
 
   if (value.length < 8) {
@@ -81,7 +97,7 @@ String? passwordValidator(String? value) {
 //* Confirm password validator
 String? confirmPasswordValidator(String? value, String? password) {
   if (value == null || value.isEmpty) {
-    return '';
+    return 'Required';
   }
 
   if (value != password) {
@@ -102,12 +118,52 @@ String? otpValidator(String? value, int length) {
   return null;
 }
 
+/// Validator for titles (e.g., contest name, work name).
+String? titleValidator(String? value) {
+  final val = value?.trim();
+
+  if (val == null || val.isEmpty) {
+    return 'Required';
+  }
+  if (val.length < 3) {
+    return 'Must be at least 3 characters long';
+  }
+  if (val.length > 50) {
+    return 'Cannot exceed 50 characters';
+  }
+  return null;
+}
+
+/// Validator for descriptions.
+String? descriptionValidator(String? value) {
+  final val = value?.trim();
+
+  if (val == null || val.isEmpty) {
+    return 'Required';
+  }
+  if (val.length < 10) {
+    return 'Must be at least 10 characters long';
+  }
+  if (val.length > 1000) {
+    return 'Cannot exceed 1000 characters';
+  }
+  return null;
+}
+
+String? atLeastOneImageValidator(List<XFile>? images) {
+  if (images?.isEmpty ?? true) {
+    return 'Select at least one image';
+  }
+  return null;
+}
+
+
 //* Numbers validator
 String? integerValidator(String? value) {
   final val = value?.trim();
 
   if (val == null || val.isEmpty) {
-    return '';
+    return 'Required';
   }
 
   if (!RegExp(r'^\d+$').hasMatch(val)) {
@@ -124,7 +180,7 @@ String? worksSubmissionStartValidator(
   DateTime? worksSubmissionEnd,
 ) {
   if (value == null || value.isEmpty) {
-    return '';
+    return 'Required';
   }
 
   try {
@@ -132,7 +188,7 @@ String? worksSubmissionStartValidator(
     if (worksSubmissionStart.isAfter(contestDate)) {
       return 'Can\'t be after contest date';
     }
-    if (worksSubmissionStart == contestDate) {
+    if (worksSubmissionStart.isAtSameMomentAs(contestDate)) {
       return 'Can\'t be equal to contest date';
     }
     if (worksSubmissionEnd == null) {
@@ -141,7 +197,7 @@ String? worksSubmissionStartValidator(
     if (worksSubmissionStart.isAfter(worksSubmissionEnd)) {
       return 'Can\'t be after the date of the end';
     }
-    if (worksSubmissionStart == worksSubmissionEnd) {
+    if (worksSubmissionStart.isAtSameMomentAs(worksSubmissionEnd)) {
       return 'Can\'t be the same date of the ending';
     }
   } catch (e) {
@@ -157,7 +213,7 @@ String? worksSubmissionEndValidator(
   DateTime? worksSubmissionStart,
 ) {
   if (value == null || value.isEmpty) {
-    return '';
+    return 'Required';
   }
 
   try {
@@ -165,7 +221,7 @@ String? worksSubmissionEndValidator(
     if (worksSubmissionEnd.isAfter(contestDate)) {
       return 'Can\'t be after contest date';
     }
-    if (worksSubmissionEnd == contestDate) {
+    if (worksSubmissionEnd.isAtSameMomentAs(contestDate)) {
       return 'Can\'t be equal to contest date';
     }
     if (worksSubmissionStart == null) {
@@ -174,7 +230,7 @@ String? worksSubmissionEndValidator(
     if (worksSubmissionEnd.isBefore(worksSubmissionStart)) {
       return 'Can\'t be before the date of begin';
     }
-    if (worksSubmissionEnd == worksSubmissionStart) {
+    if (worksSubmissionEnd.isAtSameMomentAs(worksSubmissionStart)) {
       return 'Can\'t be the same date of the starting';
     }
   } catch (e) {

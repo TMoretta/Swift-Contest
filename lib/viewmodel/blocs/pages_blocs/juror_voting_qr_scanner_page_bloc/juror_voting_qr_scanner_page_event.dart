@@ -4,7 +4,14 @@ sealed class JurorVotingQrScannerPageEvent extends Equatable {
   const JurorVotingQrScannerPageEvent();
 }
 
-final class JurorVotingQrScannerPageAccessVotingAsSimpleJuror extends JurorVotingQrScannerPageEvent {
+final class JurorVotingQrScannerPageCheckCameraPermission
+    extends JurorVotingQrScannerPageEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+final class JurorVotingQrScannerPageAccessVotingAsSimpleJuror
+    extends JurorVotingQrScannerPageEvent {
   final String token;
 
   const JurorVotingQrScannerPageAccessVotingAsSimpleJuror({

@@ -11,7 +11,6 @@ import 'package:swift_contest/model/database/entities/voting_session_participant
 import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
-import 'package:swift_contest/utils/functions/request_storage_permission.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/utils/media_type.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';

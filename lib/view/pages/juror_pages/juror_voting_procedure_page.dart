@@ -453,6 +453,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           controller: controller,
           votingFormField: field,
           isEnabled: !isExcluded,
+        validator: (!isExcluded) ? (value) => _validateSliderField(value, field.isRequired) : null,
         ),
     };
 
@@ -475,11 +476,19 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
 }
 
 String? _validateTextualField(String? value, bool isRequired) {
-  if (isRequired && (value == null || value.trim().isEmpty)) {
-    return 'Required';
+  if (value == null || value.trim().isEmpty) {
+    return (isRequired) ? 'Required' : null;
   }
   return null;
 }
+
+String? _validateSliderField(String? value, bool isRequired) {
+  if (value == null || value.trim().isEmpty) {
+    return (isRequired) ? 'Required' : null;
+  }
+  return null;
+}
+
 
 /// A helper widget to preserve the state of pages in a PageView.
 class _KeepAlivePage extends StatefulWidget {

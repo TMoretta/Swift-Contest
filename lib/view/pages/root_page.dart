@@ -31,12 +31,11 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        //* Show a message if there is one
-        if (state.blocStatus.isSuccess || state.blocStatus.isFailure) {
-          if (!kIsWeb) {
-            FlutterNativeSplash.remove();
-          }
-        }
+        // if (state.blocStatus.isSuccess || state.blocStatus.isFailure) {
+        //   if (!kIsWeb) {
+        //     FlutterNativeSplash.remove();
+        //   }
+        // }
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }

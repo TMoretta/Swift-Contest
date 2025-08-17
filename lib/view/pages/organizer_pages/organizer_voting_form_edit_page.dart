@@ -738,66 +738,66 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
   );
 }
 
-String? _minValueValidator(String? value, String? maxValue) {
-  final val = value?.trim();
-  final maxVal = maxValue?.trim();
-
-  if (val == null || val.isEmpty) {
-    return '';
-  }
-
-  // Accetta solo numeri positivi con fino a 2 decimali
-  final decimalRegex = RegExp(r'^\d+(\.\d{1,2})?$');
-  if (!decimalRegex.hasMatch(val)) {
-    return 'Invalid format, only numbers with up to 2 decimal places';
-  }
-
-  if (maxVal == null || maxVal.isEmpty) {
-    return null;
-  }
-
-  if (!decimalRegex.hasMatch(maxVal)) {
-    // se il max non è valido, saltiamo il confronto
-    return null;
-  }
-
-  final valDouble = double.parse(val);
-  final maxValDouble = double.parse(maxVal);
-
-  if (valDouble >= maxValDouble) {
-    return 'Must be less than max value';
-  }
-
-  return null;
-}
-
-String? _maxValueValidator(String? value, String? minValue) {
-  final val = value?.trim();
-  final minVal = minValue?.trim();
-
-  if (val == null || val.isEmpty) {
-    return '';
-  }
-
-  final decimalRegex = RegExp(r'^\d+(\.\d{1,2})?$');
-  if (!decimalRegex.hasMatch(val)) {
-    return 'Invalid format, only numbers with up to 2 decimal places';
-  }
-
-  if (minVal == null || minVal.isEmpty) {
-    return null;
-  }
-
-  if (!decimalRegex.hasMatch(minVal)) {
-    return null;
-  }
-
-  final valDouble = double.parse(val);
-  final minValDouble = double.parse(minVal);
-
-  if (valDouble <= minValDouble) {
-    return 'Must be greater than min value';
-  }
-
-  return null;
-}
+// String? _minValueValidator(String? value, String? maxValue) {
+//   final val = value?.trim();
+//   final maxVal = maxValue?.trim();
+//
+//   if (val == null || val.isEmpty) {
+//     return 'Required';
+//   }
+//
+//   // Accetta solo numeri positivi con fino a 2 decimali
+//   final decimalRegex = RegExp(r'^\d+(\.\d{1,2})?$');
+//   if (!decimalRegex.hasMatch(val)) {
+//     return 'Invalid format, only numbers with up to 2 decimal places';
+//   }
+//
+//   if (maxVal == null || maxVal.isEmpty) {
+//     return null;
+//   }
+//
+//   if (!decimalRegex.hasMatch(maxVal)) {
+//     // se il max non è valido, saltiamo il confronto
+//     return null;
+//   }
+//
+//   final valDouble = double.parse(val);
+//   final maxValDouble = double.parse(maxVal);
+//
+//   if (valDouble >= maxValDouble) {
+//     return 'Must be less than max value';
+//   }
+//
+//   return null;
+// }
+//
+// String? _maxValueValidator(String? value, String? minValue) {
+//   final val = value?.trim();
+//   final minVal = minValue?.trim();
+//
+//   if (val == null || val.isEmpty) {
+//     return '';
+//   }
+//
+//   final decimalRegex = RegExp(r'^\d+(\.\d{1,2})?$');
+//   if (!decimalRegex.hasMatch(val)) {
+//     return 'Invalid format, only numbers with up to 2 decimal places';
+//   }
+//
+//   if (minVal == null || minVal.isEmpty) {
+//     return null;
+//   }
+//
+//   if (!decimalRegex.hasMatch(minVal)) {
+//     return null;
+//   }
+//
+//   final valDouble = double.parse(val);
+//   final minValDouble = double.parse(minVal);
+//
+//   if (valDouble <= minValDouble) {
+//     return 'Must be greater than min value';
+//   }
+//
+//   return null;
+// }

@@ -27,7 +27,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
     return handleDatabaseCall(
       () async {
         if (query.isEmpty) {
-          query = ' ';
+          return Either.right([]);
         }
         final res = await _supabase.functions.invoke(
           'google-places-search-suggestions',

@@ -6,18 +6,21 @@ final class JurorVotingQrScannerPageState extends Equatable {
   final JurorVotingQrScannerPageEvent? sourceEvent;
   final String? message;
   final VotingSession? votingSession;
+  final PermissionStatus? cameraPermissionStatus;
 
   const JurorVotingQrScannerPageState({
     required this.status,
     this.sourceEvent,
     this.message,
     this.votingSession,
+    this.cameraPermissionStatus,
   });
 
   factory JurorVotingQrScannerPageState.fromJson(Map<String, dynamic> json) {
     return JurorVotingQrScannerPageState(
       status: BlocStatus.values.byName(json['status']),
       votingSession: VotingSession.fromJson(json['votingSession']),
+      cameraPermissionStatus: PermissionStatus.values.byName(json['cameraPermissionStatus']),
     );
   }
 
@@ -25,6 +28,7 @@ final class JurorVotingQrScannerPageState extends Equatable {
     return {
       'status': status.name,
       'votingSession': votingSession?.toJson(),
+      'cameraPermissionStatus': cameraPermissionStatus?.name,
     };
   }
 
@@ -33,12 +37,14 @@ final class JurorVotingQrScannerPageState extends Equatable {
     JurorVotingQrScannerPageEvent? sourceEvent,
     String? message,
     VotingSession? votingSession,
+    PermissionStatus? cameraPermissionStatus,
   }) {
     return JurorVotingQrScannerPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
       votingSession: votingSession ?? this.votingSession,
+      cameraPermissionStatus: cameraPermissionStatus ?? this.cameraPermissionStatus,
     );
   }
 
@@ -48,5 +54,6 @@ final class JurorVotingQrScannerPageState extends Equatable {
         sourceEvent,
         message,
         votingSession,
+        cameraPermissionStatus,
       ];
 }

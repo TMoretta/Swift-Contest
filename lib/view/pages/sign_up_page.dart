@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -91,7 +90,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        Labels.appTitle,
+                        'Swift Contest',
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
                             .textTheme
@@ -103,7 +102,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        Labels.appSubtitle,
+                        'Welcome to your contest manager',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),

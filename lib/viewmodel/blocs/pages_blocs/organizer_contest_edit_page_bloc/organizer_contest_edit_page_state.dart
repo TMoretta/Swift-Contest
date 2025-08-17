@@ -7,6 +7,7 @@ final class OrganizerContestEditPageState extends Equatable {
   final bool isInitialized;
   final String? message;
   final OrganizerContestDetailsBundle? contestDetailsBundle;
+  final List<XFile>? images;
 
   const OrganizerContestEditPageState({
     required this.status,
@@ -14,6 +15,7 @@ final class OrganizerContestEditPageState extends Equatable {
     this.isInitialized = false,
     this.message,
     this.contestDetailsBundle,
+    this.images,
   });
 
   factory OrganizerContestEditPageState.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ final class OrganizerContestEditPageState extends Equatable {
     bool? isInitialized,
     String? message,
     OrganizerContestDetailsBundle? contestDetailsBundle,
+    List<XFile>? images,
   }) {
     return OrganizerContestEditPageState(
       status: status,
@@ -47,6 +50,7 @@ final class OrganizerContestEditPageState extends Equatable {
       isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
+      images: images ?? this.images,
     );
   }
 
@@ -57,5 +61,6 @@ final class OrganizerContestEditPageState extends Equatable {
         isInitialized,
         message,
         contestDetailsBundle,
+        images,
       ];
 }

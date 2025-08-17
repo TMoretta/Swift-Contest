@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
-import 'package:swift_contest/utils/labels/labels.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
@@ -160,7 +159,7 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
                               .add(OrganizerJuryVotingResultsPageFetch(
                                   votingSessionJuryId: votingSessionJuryId)),
                           child: ListViewWithCentralLabel(
-                            label: Labels.anErrorOccurred,
+                            label: 'An error occurred',
                           ),
                         );
                       } else {

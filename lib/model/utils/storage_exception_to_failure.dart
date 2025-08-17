@@ -3,10 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 Failure storageExceptionToFailure(StorageException exception) {
-  // Per gli sviluppatori: logga l'errore completo per il debug.
-  // Il codice di errore grezzo del server si trova nella proprietà `message`.
-  // print('StorageException: Message=${exception.message}, StatusCode=${exception.statusCode}');
-
   switch (exception.statusCode) {
     case '404':
       return const NotFoundFailure('The requested file or resource could not be found.');
@@ -25,7 +21,6 @@ Failure storageExceptionToFailure(StorageException exception) {
       return const ServerFailure('An unexpected server error occurred while accessing storage.');
 
     default:
-    // For any unmapped codes, return a generic and safe server error.
       return const ServerFailure('An unexpected storage error occurred.');
   }
 }
