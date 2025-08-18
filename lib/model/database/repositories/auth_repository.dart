@@ -64,11 +64,7 @@ class AuthRepositoryImpl implements AuthRepository {
         if (res == null) {
           return Either.right(null);
         }
-        final accountBundle = AccountBundle.fromJson(res);
-        if(accountBundle.account.isAnonymous) {
-          return Either.right(null);
-        }
-        return Either.right(accountBundle);
+        return Either.right(AccountBundle.fromJson(res));
       },
     );
   }

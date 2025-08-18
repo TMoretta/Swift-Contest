@@ -46,6 +46,11 @@ class _RootPageState extends State<RootPage> {
         }
         if (state.blocStatus.isSuccess) {
           if (state.authStatus.isAuthenticated) {
+            if(state.account!.isAnonymous) {
+              context.router.replace(SimpleJurorHomeRoute());
+              return;
+            }
+
             //* If success and authenticated go to home page of the pref contest role
             switch (state.profile!.prefRole) {
               case ContestRole.organizer:

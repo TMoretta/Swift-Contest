@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.dart';
 import 'package:swift_contest/utils/themes/material_theme.dart';
+import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 class App extends StatefulWidget {
@@ -17,7 +18,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final AppRouter _appRouter = AppRouter();
+  late final AppRouter _appRouter;
   late final MaterialTheme _materialTheme;
   // final AppLinks _appLinks = AppLinks();
   // StreamSubscription<Uri>? _deepLinkSubscription;
@@ -48,8 +49,13 @@ class _AppState extends State<App> {
     );
     textTheme = textTheme.apply(fontSizeDelta: 1.2, fontFamilyFallback: ['sans-serif']);
     _materialTheme = MaterialTheme(textTheme: textTheme);
+  }
 
-    // _initDeepLinks(context);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final authBloc = context.read<AuthBloc>();
+    _appRouter = AppRouter(authBloc: authBloc);
   }
 
   // Future<void> _initDeepLinks(BuildContext context) async {
