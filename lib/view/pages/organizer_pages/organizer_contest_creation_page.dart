@@ -52,7 +52,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
   DateTime? worksSubmissionStart;
   final worksSubmissionEndController = TextEditingController();
   DateTime? worksSubmissionEnd;
-  final List<XFile> images = [];
+  List<XFile> images = [];
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
   final dateTimeFocusNode = FocusNode();
@@ -117,7 +117,11 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 currentStep: currentStep,
                 onStepContinue: () {
                   final isLastStep = (currentStep == getSteps().length - 1);
+                  // Validate the current step's form.
                   if (formKeys[currentStep].currentState?.validate() ?? false) {
+                    // If valid, save the form to trigger `onSaved` callbacks and update state.
+                    formKeys[currentStep].currentState?.save();
+
                     if (isLastStep) {
                       context.read<OrganizerContestCreationPageBloc>().add(
                             OrganizerContestCreationPageCreateContest(
@@ -246,9 +250,9 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
           content: Form(
             key: secondFormKey,
             child: ImagesPickerFormField(
-              images: images,
               validator: atLeastOneImageValidator,
               maxImages: 5,
+              onSaved: (value) => images = value ?? [],
             ),
           ),
         ),

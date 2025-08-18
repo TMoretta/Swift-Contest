@@ -8,6 +8,30 @@ BEGIN
   END LOOP;
 END $$;
 
+-- Non dichiaro nessuna policy in modo da impedire qualsiasi operazione non prevista
+-- Tutto verrà eseguito con rpc (security definer) e edge functions con controlli interni
+
+-- Questa policy serve perchè il canale realtime viene creato dal supabase client
+-- Create a SELECT policy that grants read access to the relevant users.
+-- This allows them to subscribe to realtime changes for the sessions they are involved in.
+CREATE POLICY "Allow read access to organizers and involved jurors"
+ON public.voting_sessions
+FOR SELECT
+USING (
+ -- Condition 1: The user is the organizer of the contest.
+ (EXISTS (
+   SELECT 1 FROM public.contests c
+   WHERE c.id = voting_sessions.contest_id AND c.organizer_id = auth.uid()
+ ))
+ OR
+ -- Condition 2: The user is a juror participating in this specific voting session.
+ (EXISTS (
+   SELECT 1 FROM public.voting_session_jurors vsj
+   WHERE vsj.voting_session_id = voting_sessions.id AND vsj.juror_id = auth.uid()
+ ))
+);
+--endregion
+
 -- POLICIES FOR PUBLIC TABLES
 -- Note: These are permissive policies suitable for development.
 -- For production, consider more restrictive policies based on your app's logic.
@@ -32,13 +56,13 @@ END $$;
 --TO authenticated, anon
 --USING (true)
 --WITH CHECK (true);
-
-CREATE POLICY "Voting Forms: allow all"
-ON public.voting_forms
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
+--
+--CREATE POLICY "Voting Forms: allow all"
+--ON public.voting_forms
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
 
 --CREATE POLICY "Contests: allow all"
 --ON public.contests
@@ -46,188 +70,108 @@ WITH CHECK (true);
 --TO authenticated, anon
 --USING (true)
 --WITH CHECK (true);
-
-CREATE POLICY "Juries: allow all"
-ON public.juries
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Participant Invitations: allow all"
-ON public.participant_invitations
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Juror Invitations: allow all"
-ON public.juror_invitations
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Participations: allow all"
-ON public.participations
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Works: allow all"
-ON public.works
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Jurations: allow all"
-ON public.jurations
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Form Fields: allow all"
-ON public.voting_form_fields
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Sessions: allow all"
-ON public.voting_sessions
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Session Participants: allow all"
-ON public.voting_session_participants
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Session Jurors: allow all"
-ON public.voting_session_jurors
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Session Exclusions: allow all"
-ON public.voting_session_exclusions
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Form Submissions: allow all"
-ON public.voting_form_submissions
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Form Submission Values: allow all"
-ON public.voting_form_submission_values
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Voting Session Juries: allow all"
-ON public.voting_session_juries
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-CREATE POLICY "Contest Rankings: allow all"
-ON public.contest_rankings
-FOR ALL
-TO authenticated, anon
-USING (true)
-WITH CHECK (true);
-
-
--- Rimuove le policy esistenti per evitare conflitti durante le riesecuzioni.
-DROP POLICY IF EXISTS "Allow public read access on buckets" ON storage.buckets;
-DROP POLICY IF EXISTS "Allow authenticated uploads" ON storage.objects;
--- DROP per le nuove policy separate per la gestione dei file
-DROP POLICY IF EXISTS "Owners can read their own files" ON storage.objects;
-DROP POLICY IF EXISTS "Owners can update their own files" ON storage.objects;
-DROP POLICY IF EXISTS "Owners can delete their own files" ON storage.objects;
-
-
--- POLICY DI SICUREZZA PER LO STORAGE
-
--- Politiche sui Bucket
--- 1. Permetti a tutti di "vedere" quali bucket esistono.
---    Questo non permette di leggere i file, solo di elencare i nomi dei bucket.
-CREATE POLICY "Allow public read access on buckets"
-  ON storage.buckets
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
-
--- Politiche sugli Oggetti (i file)
--- 2. Permetti agli utenti AUTENTICATI di CARICARE file.
---    La clausola WITH CHECK è una regola di sicurezza che viene applicata PRIMA dell'inserimento.
---CREATE POLICY "Allow authenticated uploads"
---  ON storage.objects
---  FOR INSERT
---  TO authenticated
---  WITH CHECK (
---    -- L'utente può caricare file solo nei bucket specificati.
---    -- AGGIORNATO per includere il nuovo bucket dei ranking.
---    bucket_id IN ('contests-images', 'works-images', 'contests-rankings')
---  );
 --
----- 3. Permetti agli utenti di LEGGERE i propri file.
---CREATE POLICY "Owners can read their own files"
---  ON storage.objects
---  FOR SELECT
---  TO authenticated
---  USING ( auth.uid() = owner );
+--CREATE POLICY "Juries: allow all"
+--ON public.juries
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
 --
----- 4. Permetti agli utenti di AGGIORNARE i propri file.
---CREATE POLICY "Owners can update their own files"
---  ON storage.objects
---  FOR UPDATE
---  TO authenticated
---  USING ( auth.uid() = owner ); -- Per UPDATE, USING agisce anche come WITH CHECK per prevenire cambi di proprietà
+--CREATE POLICY "Participant Invitations: allow all"
+--ON public.participant_invitations
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
 --
----- 5. Permetti agli utenti di CANCELLARE i propri file.
---CREATE POLICY "Owners can delete their own files"
---  ON storage.objects
---  FOR DELETE
---  TO authenticated
---  USING ( auth.uid() = owner );
-
-
--- POLICIES FOR STORAGE
--- 1. Enable RLS on storage tables
---ALTER TABLE storage.buckets
---  ENABLE ROW LEVEL SECURITY;
---ALTER TABLE storage.objects
---  ENABLE ROW LEVEL SECURITY;
-
--- 2. Policy for full access on storage.buckets
-CREATE POLICY "Buckets: allow all"
-  ON storage.buckets
-  FOR ALL
-  TO public
-  USING (true)
-  WITH CHECK (true);
-
--- 3. Policy for full access on storage.objects
-CREATE POLICY "Objects: allow all"
-  ON storage.objects
-  FOR ALL
-  TO public
-  USING (true)
-  WITH CHECK (true);
+--CREATE POLICY "Juror Invitations: allow all"
+--ON public.juror_invitations
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Participations: allow all"
+--ON public.participations
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Works: allow all"
+--ON public.works
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Jurations: allow all"
+--ON public.jurations
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Form Fields: allow all"
+--ON public.voting_form_fields
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Sessions: allow all"
+--ON public.voting_sessions
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Session Participants: allow all"
+--ON public.voting_session_participants
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Session Jurors: allow all"
+--ON public.voting_session_jurors
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Session Exclusions: allow all"
+--ON public.voting_session_exclusions
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Form Submissions: allow all"
+--ON public.voting_form_submissions
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Form Submission Values: allow all"
+--ON public.voting_form_submission_values
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Voting Session Juries: allow all"
+--ON public.voting_session_juries
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);
+--
+--CREATE POLICY "Contest Rankings: allow all"
+--ON public.contest_rankings
+--FOR ALL
+--TO authenticated, anon
+--USING (true)
+--WITH CHECK (true);

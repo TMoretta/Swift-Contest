@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 
@@ -8,7 +9,7 @@ import 'package:swift_contest/view/widgets/loader.dart';
 /// Gestisce correttamente il caching e l'aggiornamento dell'immagine
 /// quando il percorso cambia, rendendolo ideale per l'uso in ListView.
 class StorageImage extends StatefulWidget {
-  final String bucket;
+  final StorageBucket bucket;
   final String path;
   final BoxFit? fit;
   final double? width;

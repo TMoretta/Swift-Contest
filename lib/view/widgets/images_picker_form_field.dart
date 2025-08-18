@@ -7,13 +7,15 @@ import 'package:swift_contest/view/widgets/adaptive_local_image.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 
 class ImagesPickerFormField extends StatefulWidget {
-  final List<XFile> images;
+  final List<XFile>? initialValue;
   final int? maxImages;
   final String? Function(List<XFile>?)? validator;
+  final void Function(List<XFile>?)? onSaved;
 
   const ImagesPickerFormField({
-    required this.images,
+    this.initialValue,
     this.validator,
+    this.onSaved,
     this.maxImages,
     super.key,
   });
@@ -29,14 +31,14 @@ class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
   @override
   void initState() {
     super.initState();
-    images = widget.images;
+    images = widget.initialValue ?? [];
     maxImages = widget.maxImages;
   }
 
   @override
   Widget build(BuildContext context) {
     return FormField<List<XFile>>(
-      initialValue: images,
+      onSaved: widget.onSaved,
       validator: widget.validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       builder: (field) {
@@ -103,7 +105,8 @@ class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
                       );
                     }
                     setState(() {
-                      images = res;
+                      images.clear();
+                      images.addAll(res);
                     });
                     field.didChange(images);
                   }
@@ -120,7 +123,8 @@ class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
                     return;
                   }
                   setState(() {
-                    images = res;
+                    images.clear();
+                    images.addAll(res);
                   });
                   field.didChange(images);
                 }

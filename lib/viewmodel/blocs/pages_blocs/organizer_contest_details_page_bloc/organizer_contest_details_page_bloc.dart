@@ -11,6 +11,7 @@ import 'package:swift_contest/model/database/entities/participant_invitation.dar
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/model/database/types/jury_type.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
@@ -249,7 +250,7 @@ class OrganizerContestDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final res =
-        await _storageRepository.getSignedUrl(bucket: 'contests-rankings', path: event.filePath);
+        await _storageRepository.getSignedUrl(bucket: StorageBucket.contestsRankings, path: event.filePath);
     res.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, rankingFileUrl: success)),

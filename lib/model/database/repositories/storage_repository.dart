@@ -4,6 +4,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
@@ -12,21 +13,21 @@ import 'package:swift_contest/utils/functions/gen_uuid.dart';
 abstract interface class StorageRepository {
   /// Carica più immagini e restituisce la lista dei loro **path** nel bucket.
   Future<Either<Failure, List<String>>> uploadImages({
-    required String bucket,
+    required StorageBucket bucket,
     required String pathPrefix,
     required List<XFile> images,
   });
 
   /// Carica un singolo file e restituisce il suo **path** nel bucket.
   Future<Either<Failure, String>> uploadFile({
-    required String bucket,
+    required StorageBucket bucket,
     required String pathPrefix,
     required File file,
   });
 
   /// Genera una URL firmata e temporanea per un dato path.
   Future<Either<Failure, String>> getSignedUrl({
-    required String bucket,
+    required StorageBucket bucket,
     required String path,
   });
 }
@@ -39,7 +40,7 @@ class StorageRepositoryImpl implements StorageRepository {
 
   @override
   Future<Either<Failure, List<String>>> uploadImages({
-    required String bucket,
+    required StorageBucket bucket,
     required String pathPrefix,
     required List<XFile> images,
   }) async {
@@ -51,7 +52,7 @@ class StorageRepositoryImpl implements StorageRepository {
         final uploadPath = '$pathPrefix/${genUuid()}/$fileName';
 
         final bytes = await image.readAsBytes();
-        await _supabase.storage.from(bucket).uploadBinary(
+        await _supabase.storage.from(bucket.name).uploadBinary(
           uploadPath,
           bytes,
           fileOptions: FileOptions(
@@ -73,7 +74,7 @@ class StorageRepositoryImpl implements StorageRepository {
 
   @override
   Future<Either<Failure, String>> uploadFile({
-    required String bucket,
+    required StorageBucket bucket,
     required String pathPrefix,
     required File file,
   }) async {
@@ -81,7 +82,7 @@ class StorageRepositoryImpl implements StorageRepository {
       final fileName = p.basename(file.path);
       final uploadPath = '$pathPrefix/${genUuid()}/$fileName';
 
-      await _supabase.storage.from(bucket).upload(
+      await _supabase.storage.from(bucket.name).upload(
         uploadPath,
         file,
         fileOptions: const FileOptions(upsert: true),
@@ -93,7 +94,7 @@ class StorageRepositoryImpl implements StorageRepository {
 
   @override
   Future<Either<Failure, String>> getSignedUrl({
-    required String bucket,
+    required StorageBucket bucket,
     required String path,
   }) async {
     return handleDatabaseCall(() async {
@@ -101,7 +102,7 @@ class StorageRepositoryImpl implements StorageRepository {
       // dobbiamo sempre generare una URL firmata.
       // Questa URL concede un accesso temporaneo al file.
       try {
-        final url = await _supabase.storage.from(bucket).createSignedUrl(
+        final url = await _supabase.storage.from(bucket.name).createSignedUrl(
           path,
           3600, // L'URL sarà valida per 1 ora (3600 secondi).
         );

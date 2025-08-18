@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/participant_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -98,7 +99,7 @@ class ParticipantContestDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final res =
-        await _storageRepository.getSignedUrl(bucket: 'contests-rankings', path: event.filePath);
+        await _storageRepository.getSignedUrl(bucket: StorageBucket.contestsRankings, path: event.filePath);
     res.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, rankingFileUrl: success)),

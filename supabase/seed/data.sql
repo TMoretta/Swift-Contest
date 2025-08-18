@@ -1,41 +1,40 @@
-
-INSERT INTO "public"."places" ("id", "created_at", "address", "lat", "lon") VALUES
-	('4957d3ed-2a56-45e0-bbee-099033cf6fa7', '2025-08-01 22:13:32.335255+00', '84084 Fisciano, SA, Italy', 40.771681799999996, 14.799329300000002);
-
-
-INSERT INTO "public"."contests" ("id", "created_at", "organizer_id", "name", "description", "date_time", "works_submission_start", "works_submission_end", "place_id", "images_paths") VALUES
-	('bba783a1-e576-464e-bcf8-8308a59a31d1', '2025-08-01 22:13:32.335255+00', (select id from auth.users where email = 'user1@example.com'), 'Contest 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '2025-08-31 16:30:00+00', '2025-07-31 22:00:00+00', '2025-08-29 22:00:00+00', '4957d3ed-2a56-45e0-bbee-099033cf6fa7', '{bba783a1-e576-464e-bcf8-8308a59a31d1/4cedcb95-1603-46d7-a118-b291eccbba0a/scaled_35.png}');
-
-
-INSERT INTO "public"."voting_forms" ("id", "created_at", "name", "description") VALUES
-	('280c9564-bbb1-44d6-afac-18fc47e329c2', '2025-08-01 22:13:59.483182+00', 'Giuria tecnica', 'Voting form for jury: Giuria tecnica'),
-	('e63feae9-0e7c-4feb-8e27-4f6f03dfe360', '2025-08-01 22:14:23.831605+00', 'Giuria semplice', 'Voting form for jury: Giuria semplice');
-
-
-INSERT INTO "public"."juries" ("id", "created_at", "contest_id", "voting_form_id", "token", "name", "type") VALUES
-	('afad653d-43c3-4c99-86cd-4443ace5e687', '2025-08-01 22:13:59.483182+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', '280c9564-bbb1-44d6-afac-18fc47e329c2', '8d6cd870-6fea-495d-b18e-359f3d5cf534', 'Giuria tecnica', 'appointed'),
-	('37334b71-b49b-4941-9711-859469bc744f', '2025-08-01 22:14:23.831605+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', 'e63feae9-0e7c-4feb-8e27-4f6f03dfe360', 'e8d83cb6-ab32-4de1-8c9c-f2f73df5e8cd', 'Giuria semplice', 'simple');
-
-
-INSERT INTO "public"."jurations" ("id", "created_at", "contest_id", "jury_id", "juror_id", "invitation_email") VALUES
-	('8fd71eb2-65ee-43c2-8a80-30cfaeb2c3b9', '2025-08-01 22:17:25.657995+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', 'afad653d-43c3-4c99-86cd-4443ace5e687', (select id from auth.users where email = 'user1@example.com'), 'tmoretta2001@gmail.com');
-
-
-INSERT INTO "public"."participations" ("id", "created_at", "contest_id", "participant_id", "invitation_email", "has_submitted") VALUES
-	('6eb62745-46a4-408f-9727-374721365378', '2025-08-01 22:16:51.06844+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', (select id from auth.users where email = 'user2@example.com'), 'tmoretta2001@gmail.com', true),
-	('71ca2c75-25fc-40f6-ac14-bc938f2a718f', '2025-08-01 22:16:33.665942+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', (select id from auth.users where email = 'user3@example.com'), 'tmoretta2001@gmail.com', true);
-
-
-INSERT INTO "public"."voting_form_fields" ("id", "created_at", "voting_form_id", "question", "order_index", "type", "slider_min_value", "slider_max_value", "is_required", "scope") VALUES
-	('46d841f5-52e2-44f5-b8d4-1d4552e63dcb', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Full name', 0, 'textual', NULL, NULL, true, 'header'),
-	('ce92471a-adf6-486f-bbe3-dc01dcaaa350', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Age', 1, 'textual', NULL, NULL, false, 'header'),
-	('c3ceaf67-f22c-4560-bc36-c69940aeb83d', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Creativity', 0, 'slider', 0, 10, true, 'participant'),
-	('f13090a6-994b-4470-94bb-4ae7a67c6ee2', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Utility', 1, 'slider', 1, 5, true, 'participant'),
-	('eb9e6747-5fe8-450d-96ec-e9251d962000', '2025-08-01 22:15:51.906575+00', 'e63feae9-0e7c-4feb-8e27-4f6f03dfe360', 'Full name', 0, 'textual', NULL, NULL, true, 'header');
-
-
-INSERT INTO "public"."works" ("id", "created_at", "participation_id", "name", "description", "images_paths") VALUES
-	('e35b0197-931d-456e-9cf3-83290ffe7d2e', '2025-08-01 22:18:08.388234+00', '6eb62745-46a4-408f-9727-374721365378', 'Work 2', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}'),
-	('16e34dc8-05f3-4732-8a85-8d3d0eaed60f', '2025-08-01 22:18:53.218937+00', '71ca2c75-25fc-40f6-ac14-bc938f2a718f', 'Work 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}');
-
-
+--
+--INSERT INTO "public"."places" ("id", "created_at", "address", "lat", "lon") VALUES
+--	('4957d3ed-2a56-45e0-bbee-099033cf6fa7', '2025-08-01 22:13:32.335255+00', '84084 Fisciano, SA, Italy', 40.771681799999996, 14.799329300000002);
+--
+--
+--INSERT INTO "public"."contests" ("id", "created_at", "organizer_id", "name", "description", "date_time", "works_submission_start", "works_submission_end", "place_id", "images_paths") VALUES
+--	('bba783a1-e576-464e-bcf8-8308a59a31d1', '2025-08-01 22:13:32.335255+00', (select id from auth.users where email = 'user1@example.com'), 'Contest 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '2025-08-31 16:30:00+00', '2025-07-31 22:00:00+00', '2025-08-29 22:00:00+00', '4957d3ed-2a56-45e0-bbee-099033cf6fa7', '{bba783a1-e576-464e-bcf8-8308a59a31d1/4cedcb95-1603-46d7-a118-b291eccbba0a/scaled_35.png}');
+--
+--
+--INSERT INTO "public"."voting_forms" ("id", "created_at", "name", "description") VALUES
+--	('280c9564-bbb1-44d6-afac-18fc47e329c2', '2025-08-01 22:13:59.483182+00', 'Giuria tecnica', 'Voting form for jury: Giuria tecnica'),
+--	('e63feae9-0e7c-4feb-8e27-4f6f03dfe360', '2025-08-01 22:14:23.831605+00', 'Giuria semplice', 'Voting form for jury: Giuria semplice');
+--
+--
+--INSERT INTO "public"."juries" ("id", "created_at", "contest_id", "voting_form_id", "token", "name", "type") VALUES
+--	('afad653d-43c3-4c99-86cd-4443ace5e687', '2025-08-01 22:13:59.483182+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', '280c9564-bbb1-44d6-afac-18fc47e329c2', '8d6cd870-6fea-495d-b18e-359f3d5cf534', 'Giuria tecnica', 'appointed'),
+--	('37334b71-b49b-4941-9711-859469bc744f', '2025-08-01 22:14:23.831605+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', 'e63feae9-0e7c-4feb-8e27-4f6f03dfe360', 'e8d83cb6-ab32-4de1-8c9c-f2f73df5e8cd', 'Giuria semplice', 'simple');
+--
+--
+--INSERT INTO "public"."jurations" ("id", "created_at", "contest_id", "jury_id", "juror_id", "invitation_email") VALUES
+--	('8fd71eb2-65ee-43c2-8a80-30cfaeb2c3b9', '2025-08-01 22:17:25.657995+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', 'afad653d-43c3-4c99-86cd-4443ace5e687', (select id from auth.users where email = 'user1@example.com'), 'tmoretta2001@gmail.com');
+--
+--
+--INSERT INTO "public"."participations" ("id", "created_at", "contest_id", "participant_id", "invitation_email", "has_submitted") VALUES
+--	('6eb62745-46a4-408f-9727-374721365378', '2025-08-01 22:16:51.06844+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', (select id from auth.users where email = 'user2@example.com'), 'tmoretta2001@gmail.com', true),
+--	('71ca2c75-25fc-40f6-ac14-bc938f2a718f', '2025-08-01 22:16:33.665942+00', 'bba783a1-e576-464e-bcf8-8308a59a31d1', (select id from auth.users where email = 'user3@example.com'), 'tmoretta2001@gmail.com', true);
+--
+--
+--INSERT INTO "public"."voting_form_fields" ("id", "created_at", "voting_form_id", "question", "order_index", "type", "slider_min_value", "slider_max_value", "is_required", "scope") VALUES
+--	('46d841f5-52e2-44f5-b8d4-1d4552e63dcb', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Full name', 0, 'textual', NULL, NULL, true, 'header'),
+--	('ce92471a-adf6-486f-bbe3-dc01dcaaa350', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Age', 1, 'textual', NULL, NULL, false, 'header'),
+--	('c3ceaf67-f22c-4560-bc36-c69940aeb83d', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Creativity', 0, 'slider', 0, 10, true, 'participant'),
+--	('f13090a6-994b-4470-94bb-4ae7a67c6ee2', '2025-08-01 22:15:15.856641+00', '280c9564-bbb1-44d6-afac-18fc47e329c2', 'Utility', 1, 'slider', 1, 5, true, 'participant'),
+--	('eb9e6747-5fe8-450d-96ec-e9251d962000', '2025-08-01 22:15:51.906575+00', 'e63feae9-0e7c-4feb-8e27-4f6f03dfe360', 'Full name', 0, 'textual', NULL, NULL, true, 'header');
+--
+--
+--INSERT INTO "public"."works" ("id", "created_at", "participation_id", "name", "description", "images_paths") VALUES
+--	('e35b0197-931d-456e-9cf3-83290ffe7d2e', '2025-08-01 22:18:08.388234+00', '6eb62745-46a4-408f-9727-374721365378', 'Work 2', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}'),
+--	('16e34dc8-05f3-4732-8a85-8d3d0eaed60f', '2025-08-01 22:18:53.218937+00', '71ca2c75-25fc-40f6-ac14-bc938f2a718f', 'Work 1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat', '{bba783a1-e576-464e-bcf8-8308a59a31d1/8c6c6fb9-b7fc-4253-8396-3877251f8e50/scaled_34.png}');
+--

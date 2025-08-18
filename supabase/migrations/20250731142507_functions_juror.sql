@@ -131,6 +131,8 @@ AS $$
 DECLARE
   v_invitation record;
   v_juration jurations;
+  v_contest record;
+  v_juror_name text;
 BEGIN
   -- 1. Find the invitation using the provided token.
   SELECT * INTO v_invitation FROM public.juror_invitations WHERE token = p_token;
@@ -153,11 +155,27 @@ BEGIN
   INSERT INTO public.jurations (contest_id, jury_id, juror_id, invitation_email)
   VALUES (v_invitation.contest_id, v_invitation.jury_id, auth.uid(), v_invitation.email)
   RETURNING * INTO v_juration;
+  
+  -- 5. Get contest, jury, and juror details for the notification message.
+  SELECT c.name as contest_name, c.organizer_id, j.name as jury_name
+  INTO v_contest
+  FROM public.contests c
+  JOIN public.juries j ON c.id = j.contest_id
+  WHERE c.id = v_invitation.contest_id AND j.id = v_invitation.jury_id;
+  SELECT full_name INTO v_juror_name FROM public.profiles WHERE id = auth.uid();
 
-  -- 5. Delete the invitation that was just used.
+  -- 6. Create a notification message for the organizer.
+  INSERT INTO public.messages (account_id, title, body)
+  VALUES (
+    v_contest.organizer_id,
+    'New Juror Joined',
+    'The juror "' || v_juror_name || '" has joined the jury "' || v_contest.jury_name || '" for your contest "' || v_contest.contest_name || '".'
+  );
+
+  -- 7. Delete the invitation that was just used.
   DELETE FROM public.juror_invitations WHERE id = v_invitation.id;
 
-  -- 6. Return the new juration.
+  -- 8. Return the new juration.
   RETURN v_juration;
 END;
 $$;

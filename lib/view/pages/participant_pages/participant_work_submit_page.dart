@@ -50,7 +50,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   final descriptionController = TextEditingController();
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
-  final List<XFile> images = [];
+  List<XFile> images = [];
 
   // File? file;
 
@@ -191,9 +191,9 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
           content: Form(
             key: imagesFormKey,
             child: ImagesPickerFormField(
-              images: images,
               maxImages: 5,
               validator: atLeastOneImageValidator,
+              onSaved: (value) => images = value ?? [],
             ),
           ),
         ),
@@ -263,33 +263,6 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
         //   ),
         // ),
       ];
-}
-
-Future<bool?> _showImagesDialog({required BuildContext context}) async {
-  return await showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Pick images'),
-        content: Text('Select at most 6 images. Exceeded images will be discarded.\n'
-            'The first image will represent the cover of the contest'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.router.pop();
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              context.router.pop(true);
-            },
-            child: const Text('Ok'),
-          ),
-        ],
-      );
-    },
-  );
 }
 
 Future<File?> _pickFile() async {

@@ -120,6 +120,8 @@ AS $$
 DECLARE
   v_invitation record;
   v_participation participations;
+  v_contest record;
+  v_participant_name text;
 BEGIN
   -- 1. Find the invitation using the provided token.
   SELECT *
@@ -142,26 +144,38 @@ BEGIN
     -- The user is already a participant. The operation is idempotent.
     -- Clean up the used invitation token and return the existing participation.
     DELETE FROM public.participant_invitations WHERE id = v_invitation.id;
-    RETURN v_participation; -- MODIFICATION: Return successfully instead of raising an error.
+    RETURN v_participation;
   END IF;
 
   -- 4. If not already a member, create the new participation row.
   INSERT INTO public.participations (contest_id, participant_id, invitation_email)
   VALUES (v_invitation.contest_id, auth.uid(), v_invitation.email)
   RETURNING * INTO v_participation; -- Get the newly created row.
+  
+  -- 5. Get contest and participant details for the notification message.
+  SELECT name, organizer_id INTO v_contest FROM public.contests WHERE id = v_invitation.contest_id;
+  SELECT full_name INTO v_participant_name FROM public.profiles WHERE id = auth.uid();
 
-  -- 5. Delete the invitation that was just used.
+  -- 6. Create a notification message for the organizer.
+  INSERT INTO public.messages (account_id, title, body)
+  VALUES (
+    v_contest.organizer_id,
+    'New Participant Joined',
+    'The participant "' || v_participant_name || '" has joined your contest "' || v_contest.name || '".'
+  );
+
+  -- 7. Delete the invitation that was just used.
   DELETE FROM public.participant_invitations WHERE id = v_invitation.id;
 
-  -- 6. Return the new participation.
+  -- 8. Return the new participation.
   RETURN v_participation;
 END;
 $$;
 --endregion
 
 --region PARTICIPANT LEAVE CONTEST
- -- Allows a participant to leave a contest, deleting their participation record.
- CREATE OR REPLACE FUNCTION participant_leave_contest(p_contest_id uuid)
+-- Allows a participant to leave a contest, deleting their participation record.
+CREATE OR REPLACE FUNCTION participant_leave_contest(p_contest_id uuid)
   RETURNS void
   LANGUAGE plpgsql
   -- Runs with creator's privileges to insert a message for the organizer.
@@ -217,6 +231,7 @@ DECLARE
   v_participation record;
   v_contest record;
   new_work_row works;
+  v_participant_name text;
 BEGIN
   -- 1. Retrieve contest details to check submission dates.
   SELECT *
@@ -268,53 +283,20 @@ BEGIN
   SET has_submitted = true
   WHERE id = v_participation.id;
 
-  -- 7. Return the new work object to the client.
+  -- 7. Get participant name for the notification.
+  SELECT full_name INTO v_participant_name FROM public.profiles WHERE id = auth.uid();
+
+  -- 8. Create a notification message for the organizer.
+  INSERT INTO public.messages (account_id, title, body)
+  VALUES (
+    v_contest.organizer_id,
+    'Work Submitted',
+    'The participant "' || v_participant_name || '" has submitted their work for your contest "' || v_contest.name || '".'
+  );
+
+  -- 9. Return the new work object to the client.
   RETURN new_work_row;
 
 END;
 $$;
 --endregion
-
---region USER GET PARTICIPATION BUNDLE
--- Retrieves the details of a single participation (participation, participant, and work).
--- Access is granted to the contest organizer or the specific participant.
-CREATE OR REPLACE FUNCTION user_get_participation_bundle(p_participation_id uuid)
-RETURNS jsonb
-LANGUAGE plpgsql
-STABLE
--- Runs with the permissions of the calling user.
--- Added search_path for security and consistency.
-SECURITY DEFINER SET search_path = public, extensions
-AS $$
-DECLARE
-  result_bundle jsonb;
-BEGIN
-  -- SECURITY CHECK: Verify that the current user is either:
-  -- 1. The organizer of the contest this participation belongs to.
-  -- 2. The participant of this specific participation.
-  IF NOT EXISTS (
-    SELECT 1
-    FROM public.participations pa
-    JOIN public.contests c ON pa.contest_id = c.id
-    WHERE
-      pa.id = p_participation_id
-      AND (c.organizer_id = auth.uid() OR pa.participant_id = auth.uid())
-  ) THEN
-    RAISE EXCEPTION 'Participation not found or access denied.';
-  END IF;
-
-  -- If the security check passes, build the bundle.
-  SELECT jsonb_build_object(
-           'participation', to_jsonb(pa),
-           'participant', to_jsonb(p),
-           'work', to_jsonb(w)
-         )
-  INTO result_bundle
-  FROM public.participations pa
-  JOIN public.profiles p ON pa.participant_id = p.id
-  LEFT JOIN public.works w ON pa.id = w.participation_id
-  WHERE pa.id = p_participation_id;
-
-  RETURN result_bundle;
-END;
-$$;

@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/database/bundles/juror_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -111,7 +112,7 @@ class JurorContestDetailsPageBloc
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final res =
-        await _storageRepository.getSignedUrl(bucket: 'contests-rankings', path: event.filePath);
+        await _storageRepository.getSignedUrl(bucket: StorageBucket.contestsRankings, path: event.filePath);
     res.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, rankingFileUrl: success)),

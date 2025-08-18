@@ -399,6 +399,8 @@ DECLARE
   v_new_session voting_sessions;
   v_original_form_name text;
   v_original_form_description text;
+  v_contest_name text;
+  v_session_name text;
 BEGIN
   -- SECURITY CHECK: Verify that the user is the organizer of the contest.
   IF NOT EXISTS (
@@ -407,6 +409,10 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'Contest not found or access denied.';
   END IF;
+
+  -- Get contest name and session name for the notification message
+  SELECT name INTO v_contest_name FROM public.contests WHERE id = v_contest_id;
+  v_session_name := p_voting_session->>'name';
 
   -- 1. Create the 'Place' for geo-restriction, ONLY if provided.
   IF p_geo_res_place IS NOT NULL THEN
@@ -509,7 +515,16 @@ BEGIN
     JOIN public.voting_session_jurors vsj ON vsj.juration_id = x.juration_id AND vsj.voting_session_id = v_session_id
     JOIN public.voting_session_participants vsp ON vsp.participation_id = x.participation_id AND vsp.voting_session_id = v_session_id;
 
-  -- 6. Fetch and return the complete row of the newly created session.
+  -- 6. Notify all appointed jurors in the contest that a new session has started.
+  INSERT INTO public.messages (account_id, title, body)
+  SELECT
+    DISTINCT ju.juror_id, -- Use DISTINCT to ensure a juror gets only one message
+    'New Voting Session Started',
+    'A new voting session "' || v_session_name || '" has started for the contest "' || v_contest_name || '".'
+  FROM public.jurations ju
+  WHERE ju.contest_id = v_contest_id;
+
+  -- 7. Fetch and return the complete row of the newly created session.
   SELECT * INTO v_new_session FROM public.voting_sessions WHERE id = v_session_id;
   RETURN v_new_session;
 END;
@@ -1200,19 +1215,36 @@ LANGUAGE plpgsql
 -- Added search_path for security and consistency.
 SECURITY DEFINER SET search_path = public, extensions
 AS $$
+DECLARE
+  v_jury_name TEXT;
+  v_contest_name TEXT;
 BEGIN
- -- SECURITY CHECK: Verify that the current user is the organizer of the contest
- -- to which this jury belongs before allowing deletion.
- IF NOT EXISTS (
-   SELECT 1
-   FROM public.juries j
-   JOIN public.contests c ON j.contest_id = c.id
-   WHERE j.id = p_jury_id AND c.organizer_id = auth.uid()
- ) THEN
-   RAISE EXCEPTION 'Jury not found or access denied.';
- END IF;
+  -- 1. SECURITY CHECK & FETCH DATA: Verify ownership and get names for the notification.
+  SELECT j.name, c.name
+  INTO v_jury_name, v_contest_name
+  FROM public.juries j
+  JOIN public.contests c ON j.contest_id = c.id
+  WHERE j.id = p_jury_id AND c.organizer_id = auth.uid();
 
- -- If the check passes, delete the jury.
+  -- If no record is found, the jury doesn't exist or the user is not the organizer.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Jury not found or access denied.';
+  END IF;
+
+  -- 2. NOTIFY JURORS: Insert a message for each juror who is about to be removed.
+  -- This must be done BEFORE deleting the jury, as the deletion will cascade to 'jurations'.
+  INSERT INTO public.messages (account_id, title, body)
+  SELECT
+    ju.juror_id,
+    'Jury Dissolved',
+    'The jury "' || v_jury_name || '" for the contest "' || v_contest_name || '" has been dissolved. Thank you for your participation.'
+  FROM
+    public.jurations ju
+  WHERE
+    ju.jury_id = p_jury_id;
+
+  -- 3. DELETE JURY: If the check passes, delete the jury.
+  -- The ON DELETE CASCADE constraint will automatically remove associated jurations, invitations, etc.
  DELETE FROM public.juries WHERE id = p_jury_id;
 END;
 $$;
@@ -1228,19 +1260,39 @@ LANGUAGE plpgsql
 -- Added search_path for security and consistency.
 SECURITY DEFINER SET search_path = public, extensions
 AS $$
+DECLARE
+  v_juror_id uuid;
+  v_contest_name text;
+  v_jury_name text;
 BEGIN
- -- SECURITY CHECK: Verify that the current user is the organizer of the contest
- -- associated with this juration before deleting.
- IF NOT EXISTS (
-   SELECT 1
-   FROM public.jurations ju
-   JOIN public.contests c ON ju.contest_id = c.id
-   WHERE ju.id = p_juration_id AND c.organizer_id = auth.uid()
- ) THEN
-   RAISE EXCEPTION 'Juration not found or access denied.';
- END IF;
+  -- 1. SECURITY CHECK & FETCH DATA: Verify ownership and get data for the notification.
+  SELECT
+    ju.juror_id,
+    c.name,
+    j.name
+  INTO
+    v_juror_id,
+    v_contest_name,
+    v_jury_name
+  FROM public.jurations ju
+  JOIN public.contests c ON ju.contest_id = c.id
+  JOIN public.juries j ON ju.jury_id = j.id
+  WHERE ju.id = p_juration_id AND c.organizer_id = auth.uid();
 
- -- If the check passes, delete the juration.
+  -- If no record is found, the juration doesn't exist or the user is not the organizer.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Juror not found or access denied.';
+  END IF;
+
+  -- 2. NOTIFY JUROR: Insert a message for the juror who is about to be removed.
+  INSERT INTO public.messages (account_id, title, body)
+  VALUES (
+    v_juror_id,
+    'Removed from Jury',
+    'You have been removed from the jury "' || v_jury_name || '" for the contest "' || v_contest_name || '".'
+  );
+
+  -- 3. DELETE JURATION: If the check passes, delete the juration.
  DELETE FROM public.jurations
  WHERE id = p_juration_id;
 END;
@@ -1257,19 +1309,35 @@ LANGUAGE plpgsql
 -- Added search_path for security and consistency.
 SECURITY DEFINER SET search_path = public, extensions
 AS $$
+DECLARE
+  v_participant_id uuid;
+  v_contest_name text;
 BEGIN
- -- SECURITY CHECK: Verify that the current user is the organizer of the contest
- -- associated with this participation before deleting.
- IF NOT EXISTS (
-   SELECT 1
-   FROM public.participations pa
-   JOIN public.contests c ON pa.contest_id = c.id
-   WHERE pa.id = p_participation_id AND c.organizer_id = auth.uid()
- ) THEN
-   RAISE EXCEPTION 'Participation not found or access denied.';
- END IF;
+  -- 1. SECURITY CHECK & FETCH DATA: Verify ownership and get data for the notification.
+  SELECT
+    pa.participant_id,
+    c.name
+  INTO
+    v_participant_id,
+    v_contest_name
+  FROM public.participations pa
+  JOIN public.contests c ON pa.contest_id = c.id
+  WHERE pa.id = p_participation_id AND c.organizer_id = auth.uid();
 
- -- If the check passes, delete the participation.
+  -- If no record is found, the participation doesn't exist or the user is not the organizer.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Participation not found or access denied.';
+  END IF;
+
+  -- 2. NOTIFY PARTICIPANT: Insert a message for the participant who is about to be removed.
+  INSERT INTO public.messages (account_id, title, body)
+  VALUES (
+    v_participant_id,
+    'Removed from Contest',
+    'You have been removed from the contest "' || v_contest_name || '".'
+  );
+
+  -- 3. DELETE PARTICIPATION: If the check passes, delete the participation.
  DELETE FROM public.participations
  WHERE id = p_participation_id;
 END;
@@ -1353,17 +1421,46 @@ LANGUAGE plpgsql
 -- Added search_path for security and consistency.
 SECURITY DEFINER SET search_path = public, extensions
 AS $$
+DECLARE
+  v_contest_name TEXT;
 BEGIN
- -- The WHERE clause acts as a security check, ensuring that only the
- -- organizer of the contest can delete it.
- DELETE FROM public.contests
- WHERE id = p_contest_id AND organizer_id = auth.uid();
+  -- 1. SECURITY CHECK & FETCH DATA: Verify ownership and get the contest name for notifications.
+  SELECT name
+  INTO v_contest_name
+  FROM public.contests
+  WHERE id = p_contest_id AND organizer_id = auth.uid();
 
- -- If no row was deleted, it means the contest was not found or the user
- -- did not have permission.
- IF NOT FOUND THEN
-   RAISE EXCEPTION 'Contest not found or access denied.';
- END IF;
+  -- If no record is found, the contest doesn't exist or the user is not the organizer.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Contest not found or access denied.';
+  END IF;
+
+  -- 2. NOTIFY PARTICIPANTS: Insert a message for each participant.
+  -- This must be done BEFORE deleting the contest, as the deletion will cascade to 'participations'.
+  INSERT INTO public.messages (account_id, title, body)
+  SELECT
+    pa.participant_id,
+    'Contest Cancelled',
+    'The contest "' || v_contest_name || '" you were participating in has been cancelled by the organizer.'
+  FROM
+    public.participations pa
+  WHERE
+    pa.contest_id = p_contest_id;
+
+  -- 3. NOTIFY JURORS: Insert a message for each juror.
+  -- Use DISTINCT to avoid duplicate messages if a juror is in multiple juries.
+  INSERT INTO public.messages (account_id, title, body)
+  SELECT
+    DISTINCT ju.juror_id,
+    'Contest Cancelled',
+    'The contest "' || v_contest_name || '" for which you were a juror has been cancelled by the organizer.'
+  FROM
+    public.jurations ju
+  WHERE
+    ju.contest_id = p_contest_id;
+
+  -- 4. DELETE CONTEST: Now, delete the contest. The ON DELETE CASCADE will handle related data.
+  DELETE FROM public.contests WHERE id = p_contest_id;
 END;
 $$;
 --endregion

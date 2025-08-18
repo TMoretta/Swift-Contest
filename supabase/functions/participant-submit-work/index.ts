@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
     // 1. Fetch contest details to check submission dates.
     const { data: contestData, error: contestError } = await supabaseClient
       .from('contests')
-      .select('works_submission_start, works_submission_end')
+      .select('works_submission_start, works_submission_end, organizer_id, name')
       .eq('id', contest_id)
       .single();
 
@@ -148,9 +148,33 @@ Deno.serve(async (req) => {
     // 8. Update the 'participations' table to mark the work as submitted.
     await supabaseClient.from('participations').update({ has_submitted: true }).eq('id', participationId);
 
-    // --- FINE TRANSAZIONE ---
+    // 9. Create a notification message for the organizer.
+    // This is a "fire-and-forget" operation; if it fails, it won't roll back the submission.
+    try {
+      const { data: profileData } = await supabaseClient
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
 
-    // 9. Success
+      if (profileData) {
+        const participantName = profileData.full_name;
+        const contestName = contestData.name;
+        const organizerId = contestData.organizer_id;
+
+        await supabaseClient
+          .from('messages')
+          .insert({
+            account_id: organizerId,
+            title: 'Work Submitted',
+            body: `The participant "${participantName}" has submitted their work for your contest "${contestName}".`
+          });
+      }
+    } catch (notificationError) {
+      console.error("Failed to create notification message, but submission was successful:", notificationError.message);
+    }
+
+    // 10. Success
     return new Response(null, {
       headers: { ...corsHeaders },
       status: 204, // 204 No Content

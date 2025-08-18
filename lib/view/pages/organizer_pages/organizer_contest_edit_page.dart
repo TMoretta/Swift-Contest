@@ -303,9 +303,10 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
           content: Form(
             key: secondFormKey,
             child: ImagesPickerFormField(
-              images: images,
+              initialValue: images,
               maxImages: 5,
               validator: atLeastOneImageValidator,
+              onSaved: (value) => images = value ?? [],
             ),
           ),
         ),

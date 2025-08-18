@@ -18,8 +18,8 @@ CREATE TYPE jury_type AS enum (
   'simple' -- jury of jurors that vote only, they access voting with the token
 );
 
- CREATE TYPE voting_form_field_scope AS ENUM (
-   'header', -- initial form
-   'participant', -- this form is repeated for each participant
-   'footer' --ending form
- );
+CREATE TYPE voting_form_field_scope AS ENUM (
+  'header', -- initial form
+  'participant', -- this form is repeated for each participant
+  'footer' --ending form
+);
