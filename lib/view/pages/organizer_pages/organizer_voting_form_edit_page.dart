@@ -528,7 +528,7 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
 }) async {
   final formKey = GlobalKey<FormState>();
   final questionController = TextEditingController();
-  final nameFocusNode = FocusNode();
+  final questionFocusNode = FocusNode();
   bool isRequired = true;
 
   return await showDialog<VotingFormField?>(
@@ -571,9 +571,9 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
                   CustomTextFormField(
                     borderType: InputBorderType.underlined,
                     controller: questionController,
-                    focusNode: nameFocusNode,
-                    validator: noEmptyValidator,
-                    label: 'Name',
+                    focusNode: questionFocusNode,
+                    validator: questionValidator,
+                    label: 'Question',
                   ),
                 ],
               ),
@@ -665,7 +665,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
                     borderType: InputBorderType.underlined,
                     controller: questionController,
                     focusNode: questionFocusNode,
-                    validator: noEmptyValidator,
+                    validator: questionValidator,
                     label: 'Question',
                   ),
                   DropdownButtonFormField<int>(
@@ -675,7 +675,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
                     onChanged: (value) {
                       setState(() => sliderMinValue = value!);
                     },
-                    value: sliderMinValue,
+                    initialValue: sliderMinValue,
                     items: [
                       for (var i = 0; i < sliderMaxValue; i++)
                         DropdownMenuItem(
@@ -691,7 +691,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
                     onChanged: (value) {
                       setState(() => sliderMaxValue = value!);
                     },
-                    value: sliderMaxValue,
+                    initialValue: sliderMaxValue,
                     items: [
                       for (var i = sliderMinValue + 1; i <= 10; i++)
                         DropdownMenuItem(

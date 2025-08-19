@@ -20,6 +20,11 @@ String? emailValidator(String? value) {
     return 'Required';
   }
 
+  // RFC standard max length for an email address.
+  if (val.length > 254) {
+    return 'Email cannot exceed 254 characters';
+  }
+
   final emailRegex = RegExp(
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   );
@@ -42,6 +47,10 @@ String? fullNameValidator(String? value) {
   // A more reasonable minimum length for a full name.
   if (val.length < 3) {
     return 'Must be at least 3 characters long';
+  }
+
+  if (val.length > 70) {
+    return 'Cannot exceed 70 characters';
   }
 
   // A simple check to encourage entering both first and last names.
@@ -73,6 +82,11 @@ String? passwordValidator(String? value) {
 
   if (value.length < 8) {
     return 'Must contain at least 8 characters';
+  }
+
+  // A sensible maximum length for passwords to prevent long-password DoS attacks.
+  if (value.length > 128) {
+    return 'Cannot exceed 128 characters';
   }
 
   if (value.contains(RegExp(r'\s'))) {
@@ -150,6 +164,23 @@ String? descriptionValidator(String? value) {
   return null;
 }
 
+/// Validator for voting form questions.
+String? questionValidator(String? value) {
+  final val = value?.trim();
+
+  if (val == null || val.isEmpty) {
+    return 'Required';
+  }
+  if (val.length < 5) {
+    return 'Must be at least 5 characters long';
+  }
+  if (val.length > 255) {
+    return 'Cannot exceed 255 characters';
+  }
+  return null;
+}
+
+
 String? atLeastOneImageValidator(List<XFile>? images) {
   if (images?.isEmpty ?? true) {
     return 'Select at least one image';
@@ -157,13 +188,17 @@ String? atLeastOneImageValidator(List<XFile>? images) {
   return null;
 }
 
-
 //* Numbers validator
 String? integerValidator(String? value) {
   final val = value?.trim();
 
   if (val == null || val.isEmpty) {
     return 'Required';
+  }
+
+  // Prevents numbers that would overflow a standard 32-bit integer.
+  if (val.length > 9) {
+    return 'Number is too large';
   }
 
   if (!RegExp(r'^\d+$').hasMatch(val)) {
@@ -186,19 +221,19 @@ String? worksSubmissionStartValidator(
   try {
     final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy HH:mm').parse(value);
     if (worksSubmissionStart.isAfter(contestDate)) {
-      return 'Can\'t be after contest date';
+      return "Can't be after contest date";
     }
     if (worksSubmissionStart.isAtSameMomentAs(contestDate)) {
-      return 'Can\'t be equal to contest date';
+      return "Can't be equal to contest date";
     }
     if (worksSubmissionEnd == null) {
       return null;
     }
     if (worksSubmissionStart.isAfter(worksSubmissionEnd)) {
-      return 'Can\'t be after the date of the end';
+      return "Can't be after the end date";
     }
     if (worksSubmissionStart.isAtSameMomentAs(worksSubmissionEnd)) {
-      return 'Can\'t be the same date of the ending';
+      return "Can't be the same as the end date";
     }
   } catch (e) {
     return 'Invalid date format';
@@ -219,19 +254,19 @@ String? worksSubmissionEndValidator(
   try {
     final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy HH:mm').parse(value);
     if (worksSubmissionEnd.isAfter(contestDate)) {
-      return 'Can\'t be after contest date';
+      return "Can't be after contest date";
     }
     if (worksSubmissionEnd.isAtSameMomentAs(contestDate)) {
-      return 'Can\'t be equal to contest date';
+      return "Can't be equal to contest date";
     }
     if (worksSubmissionStart == null) {
       return null;
     }
     if (worksSubmissionEnd.isBefore(worksSubmissionStart)) {
-      return 'Can\'t be before the date of begin';
+      return "Can't be before the start date";
     }
     if (worksSubmissionEnd.isAtSameMomentAs(worksSubmissionStart)) {
-      return 'Can\'t be the same date of the starting';
+      return "Can't be the same as the start date";
     }
   } catch (e) {
     return 'Invalid date format';
