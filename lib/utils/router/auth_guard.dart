@@ -20,7 +20,7 @@ class AuthGuard extends AutoRouteGuard {
 
     // 2. Ricava la rotta di destinazione (il "path")
     //    AutoRoute ti espone il path di PageRouteInfo in .path
-    final targetPath = resolver.route.path;
+    final targetPath = resolver.route.path.split('/:').first;
 
     // 3. Se siamo alla root o alla pagina di errore, prosegui senza controlli.
     //    La RootPage gestisce la sua logica di reindirizzamento.

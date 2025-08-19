@@ -3,13 +3,11 @@ import 'package:equatable/equatable.dart';
 class Account extends Equatable {
   final String id;
   final String email;
-  final bool isAdmin;
   final bool isAnonymous;
 
   const Account({
     required this.id,
     required this.email,
-    required this.isAdmin,
     required this.isAnonymous,
   });
 
@@ -17,7 +15,6 @@ class Account extends Equatable {
     return Account(
       id: json['id'] as String,
       email: json['email'] as String? ?? '',
-      isAdmin: json['is_admin'] as bool,
       isAnonymous: json['is_anonymous'] as bool,
     );
   }
@@ -26,7 +23,6 @@ class Account extends Equatable {
     return {
       'id': id,
       'email': email,
-      'is_admin': isAdmin,
       'is_anonymous': isAnonymous,
     };
   }
@@ -34,13 +30,11 @@ class Account extends Equatable {
   Account copyWith({
     String? id,
     String? email,
-    bool? isAdmin,
     bool? isAnonymous,
   }) {
     return Account(
       id: id ?? this.id,
       email: email ?? this.email,
-      isAdmin: isAdmin ?? this.isAdmin,
       isAnonymous: isAnonymous ?? this.isAnonymous,
     );
   }
@@ -49,7 +43,6 @@ class Account extends Equatable {
   List<Object?> get props => [
         id,
         email,
-        isAdmin,
         isAnonymous,
       ];
 }

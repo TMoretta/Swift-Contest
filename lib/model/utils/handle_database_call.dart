@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
-import 'package:http/http.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/auth_exception_to_failure.dart';
 import 'package:swift_contest/model/utils/edge_function_exception_to_failure.dart';

@@ -19,7 +19,6 @@ BEGIN
       'account', jsonb_build_object(
         'id', u.id,
         'email', u.email,
-        'is_admin', COALESCE((u.raw_user_meta_data->>'is_admin')::boolean, false),
         'is_anonymous', u.is_anonymous
       ),
 
