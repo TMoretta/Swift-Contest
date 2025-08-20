@@ -36,10 +36,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final FocusNode _fullNameFocusNode = FocusNode();
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
-  final TextEditingController _passwordController = TextEditingController();
-  final FocusNode _passwordFocusNode = FocusNode();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  final FocusNode _confirmPasswordFocusNode = FocusNode();
+  // final TextEditingController _passwordController = TextEditingController();
+  // final FocusNode _passwordFocusNode = FocusNode();
+  // final TextEditingController _confirmPasswordController = TextEditingController();
+  // final FocusNode _confirmPasswordFocusNode = FocusNode();
   bool _isPrivacyAccepted = false;
 
   @override
@@ -50,10 +50,10 @@ class _SignUpPageState extends State<SignUpPage> {
     _fullNameFocusNode.dispose();
     _emailController.dispose();
     _emailFocusNode.dispose();
-    _passwordController.dispose();
-    _passwordFocusNode.dispose();
-    _confirmPasswordController.dispose();
-    _confirmPasswordFocusNode.dispose();
+    // _passwordController.dispose();
+    // _passwordFocusNode.dispose();
+    // _confirmPasswordController.dispose();
+    // _confirmPasswordFocusNode.dispose();
     super.dispose();
   }
 
@@ -71,7 +71,7 @@ class _SignUpPageState extends State<SignUpPage> {
           context.hideLoader();
         }
         //* Go to sign up verify page
-        if (state.status.isSuccess && state.sourceEvent is SignUpWithEmailAndPassword) {
+        if (state.status.isSuccess && state.sourceEvent is SignUpWithEmail) {
           final email = _emailController.text.trim();
           context.router.push(SignUpVerifyRoute(email: email));
         }
@@ -136,42 +136,42 @@ class _SignUpPageState extends State<SignUpPage> {
                                 borderType: InputBorderType.outlined,
                                 controller: _emailController,
                                 focusNode: _emailFocusNode,
-                                onEditingComplete: () => _passwordFocusNode.requestFocus(),
+                                // onEditingComplete: () => _passwordFocusNode.requestFocus(),
                                 label: 'Email',
                                 validator: emailValidator,
                                 prefixIcon: Icon(Icons.email_outlined),
                               ),
                             ),
-                            SizedBox(height: 5),
-                            //* Password field
-                            ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 420),
-                              child: CustomTextFormField(
-                                borderType: InputBorderType.outlined,
-                                controller: _passwordController,
-                                focusNode: _passwordFocusNode,
-                                onEditingComplete: () => _confirmPasswordFocusNode.requestFocus(),
-                                validator: passwordValidator,
-                                label: 'Password',
-                                prefixIcon: Icon(Icons.lock),
-                                obscureText: true,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            //* Confirm password field
-                            ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 420),
-                              child: CustomTextFormField(
-                                borderType: InputBorderType.outlined,
-                                controller: _confirmPasswordController,
-                                focusNode: _confirmPasswordFocusNode,
-                                validator: (value) =>
-                                    confirmPasswordValidator(value, _passwordController.text),
-                                label: 'Confirm password',
-                                prefixIcon: Icon(Icons.check_circle_outline),
-                                obscureText: true,
-                              ),
-                            ),
+                            // SizedBox(height: 5),
+                            // //* Password field
+                            // ConstrainedBox(
+                            //   constraints: BoxConstraints(maxWidth: 420),
+                            //   child: CustomTextFormField(
+                            //     borderType: InputBorderType.outlined,
+                            //     controller: _passwordController,
+                            //     focusNode: _passwordFocusNode,
+                            //     onEditingComplete: () => _confirmPasswordFocusNode.requestFocus(),
+                            //     validator: passwordValidator,
+                            //     label: 'Password',
+                            //     prefixIcon: Icon(Icons.lock),
+                            //     obscureText: true,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 5),
+                            // //* Confirm password field
+                            // ConstrainedBox(
+                            //   constraints: BoxConstraints(maxWidth: 420),
+                            //   child: CustomTextFormField(
+                            //     borderType: InputBorderType.outlined,
+                            //     controller: _confirmPasswordController,
+                            //     focusNode: _confirmPasswordFocusNode,
+                            //     validator: (value) =>
+                            //         confirmPasswordValidator(value, _passwordController.text),
+                            //     label: 'Confirm password',
+                            //     prefixIcon: Icon(Icons.check_circle_outline),
+                            //     obscureText: true,
+                            //   ),
+                            // ),
                             SizedBox(height: 10),
                             ConstrainedBox(
                               constraints: BoxConstraints(
@@ -230,10 +230,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     ? () {
                                         if (_formKey.currentState?.validate() ?? false) {
                                           context.read<SignUpPageBloc>().add(
-                                              SignUpWithEmailAndPassword(
+                                              SignUpWithEmail(
                                                   email: _emailController.text.trim(),
-                                                  fullName: _fullNameController.text.trim(),
-                                                  password: _passwordController.text));
+                                                  fullName: _fullNameController.text.trim()));
                                         }
                                       }
                                     : null,

@@ -27,6 +27,11 @@ class AppRouter extends RootStackRouter {
           guards: [AuthGuard(authBloc: authBloc)],
         ),
         AutoRoute(
+          path: '/sign-in-verify/:email',
+          page: SignInVerifyRoute.page,
+          guards: [AuthGuard(authBloc: authBloc)],
+        ),
+        AutoRoute(
           path: '/sign-up',
           page: SignUpRoute.page,
           guards: [AuthGuard(authBloc: authBloc)],

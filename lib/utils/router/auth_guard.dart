@@ -31,7 +31,7 @@ class AuthGuard extends AutoRouteGuard {
     }
 
     // 4. Se NON autenticato e non sto andando su pagine di auth, redirigi al login
-    const authPaths = ['/sign-in', '/sign-up', '/sign-up-verify'];
+    const authPaths = ['/sign-in', '/sign-in-verify', '/sign-up', '/sign-up-verify'];
 
     if(isAnonymous) {
       if (!authPaths.contains(targetPath) &&

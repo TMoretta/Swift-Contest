@@ -10,6 +10,7 @@ import 'package:swift_contest/view/widgets/privacy_policy_dialog.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/terms_of_service_dialog.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_verify_page_bloc/sign_in_verify_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
@@ -35,8 +36,8 @@ class _SignInPageState extends State<SignInPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
-  final TextEditingController _passwordController = TextEditingController();
-  final FocusNode _passwordFocusNode = FocusNode();
+  // final TextEditingController _passwordController = TextEditingController();
+  // final FocusNode _passwordFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -44,8 +45,8 @@ class _SignInPageState extends State<SignInPage> {
     _formKey.currentState?.dispose();
     _emailController.dispose();
     _emailFocusNode.dispose();
-    _passwordController.dispose();
-    _passwordFocusNode.dispose();
+    // _passwordController.dispose();
+    // _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -63,8 +64,8 @@ class _SignInPageState extends State<SignInPage> {
           context.hideLoader();
         }
         //* Go to root page
-        if (state.status.isSuccess && state.sourceEvent is SignInWithEmailAndPassword) {
-          context.router.replaceAll([RootRoute()]);
+        if (state.status.isSuccess && state.sourceEvent is SignInWithEmail) {
+          context.router.push(SignInVerifyRoute(email: _emailController.text.trim()));
         }
       },
       builder: (context, state) {
@@ -117,33 +118,32 @@ class _SignInPageState extends State<SignInPage> {
                                         borderType: InputBorderType.outlined,
                                         controller: _emailController,
                                         focusNode: _emailFocusNode,
-                                        onEditingComplete: () => _passwordFocusNode.requestFocus(),
+                                        // onEditingComplete: () => _passwordFocusNode.requestFocus(),
                                         label: 'Email',
                                         validator: emailValidator,
                                         prefixIcon: Icon(Icons.email_outlined),
                                       ),
                                     ),
-                                    //* Password text field
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(maxWidth: 420),
-                                      child: CustomTextFormField(
-                                        borderType: InputBorderType.outlined,
-                                        controller: _passwordController,
-                                        focusNode: _passwordFocusNode,
-                                        label: 'Password',
-                                        prefixIcon: Icon(Icons.lock),
-                                        obscureText: true,
-                                        validator: noEmptyValidator,
-                                      ),
-                                    ),
+                                    // //* Password text field
+                                    // ConstrainedBox(
+                                    //   constraints: BoxConstraints(maxWidth: 420),
+                                    //   child: CustomTextFormField(
+                                    //     borderType: InputBorderType.outlined,
+                                    //     controller: _passwordController,
+                                    //     focusNode: _passwordFocusNode,
+                                    //     label: 'Password',
+                                    //     prefixIcon: Icon(Icons.lock),
+                                    //     obscureText: true,
+                                    //     validator: noEmptyValidator,
+                                    //   ),
+                                    // ),
                                     //* Sign in button
                                     FilledButton(
                                       onPressed: () {
                                         if (_formKey.currentState?.validate() ?? false) {
                                           context.read<SignInPageBloc>().add(
-                                              SignInWithEmailAndPassword(
-                                                  email: _emailController.text.trim(),
-                                                  password: _passwordController.text.trim()));
+                                              SignInWithEmail(
+                                                  email: _emailController.text.trim()));
                                         }
                                       },
                                       child: Text('Sign in'),
