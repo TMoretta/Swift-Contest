@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
       const resend = new Resend(resendApiKey);
       try {
         await resend.emails.send({
-          from: 'Swift Contest <onboarding@resend.dev>', // IMPORTANT: This must be a verified domain in your email provider
+          from: 'Swift Contest <noreply@swiftcontest.com>',
           to: [userEmail],
           subject: 'Your Swift Contest Account Has Been Deleted',
           html: `

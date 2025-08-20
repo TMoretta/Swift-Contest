@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
     }
 
     await resend.emails.send({
-      from: "Swift Contest <onboarding@resend.dev>",
+      from: "Swift Contest <noreply@swiftcontest.com>",
       to: [email],
       subject: `You have been invited to participate in "${contest.name}"`,
       html: `
