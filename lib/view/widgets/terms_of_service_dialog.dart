@@ -13,13 +13,26 @@ void showTermsOfServiceDialog(BuildContext context) {
         content: SingleChildScrollView(
           child: RichText(
             text: TextSpan(
-              style: Theme.of(context).textTheme.bodyMedium,
-              children: const [
+              style: Theme.of(context).textTheme.bodyMedium, // Default style
+              children: [
                 TextSpan(
+                  text: 'IMPORTANT NOTICE: University Project\n\n',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                const TextSpan(
+                  text:
+                      'This application has been developed as a university thesis project and is not intended for production use. The service may be unstable, subject to interruptions, or changes without notice. The data you enter may be lost or reset at any time. By using this application, you agree to these terms and use it at your own risk. It is strongly advised not to use real or sensitive personal data.\n\n',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const TextSpan(
                   text: 'Last updated: July 31, 2024\n\n',
                   style: TextStyle(fontStyle: FontStyle.italic),
                 ),
-                TextSpan(
+                const TextSpan(
                   text:
                       'Please read these Terms of Service ("Terms", "Terms of Service") carefully before using the Swift Contest mobile application (the "Service") operated by us.\n\n'
                       'Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms. These Terms apply to all visitors, users, and others who access or use the Service. By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.\n\n',

@@ -1148,6 +1148,38 @@ $$;
  $$;
  --endregion
 
+--region ORGANIZER REGENERATE JURY TOKEN
+-- Regenerates the token for a specific jury.
+-- Access is restricted to the organizer of the contest.
+CREATE OR REPLACE FUNCTION organizer_regenerate_jury_token(p_jury_id uuid)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public, extensions
+AS $$
+DECLARE
+  v_new_token text; -- Variable to hold the new token
+BEGIN
+  -- SECURITY CHECK & UPDATE: The WHERE clause implicitly verifies ownership
+  -- by joining through the contests table and checking the organizer_id.
+  -- A new unique token is generated and set in the same statement.
+  UPDATE public.juries j
+  SET token = public.gen_unique_token('juries', 'token', 14)
+  FROM public.contests c
+  WHERE j.id = p_jury_id
+    AND j.contest_id = c.id
+    AND c.organizer_id = auth.uid()
+  RETURNING j.token INTO v_new_token; -- Capture the newly generated token
+
+  -- If no row was updated, it means the jury was not found or the user is not the organizer.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Jury not found or access denied.';
+  END IF;
+
+  RETURN v_new_token; -- Return the new token to the client
+END;
+$$;
+--endregion
+
 --region ORGANIZER DELETE PARTICIPANT INVITATION
 -- Deletes a participant invitation.
 -- Access is restricted to the organizer of the contest to which the invitation belongs.

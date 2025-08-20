@@ -66,7 +66,7 @@ CREATE TABLE participant_invitations (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
-  token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
+  token varchar(14) NOT NULL UNIQUE DEFAULT public.gen_unique_token('participant_invitations', 'token', 14),
   email varchar(254) NOT NULL
 );
 
@@ -75,7 +75,7 @@ CREATE TABLE juries (
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   voting_form_id uuid NOT NULL UNIQUE REFERENCES voting_forms (id),
-  token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
+  token varchar(14) NOT NULL UNIQUE DEFAULT public.gen_unique_token('juries', 'token', 14),
   name varchar(50) NOT NULL,
   type jury_type NOT NULL,
   UNIQUE (contest_id, name)
@@ -86,7 +86,7 @@ CREATE TABLE juror_invitations (
   created_at timestamptz NOT NULL DEFAULT now(),
   contest_id uuid NOT NULL REFERENCES contests (id) ON DELETE cascade,
   jury_id uuid NOT NULL REFERENCES juries (id) ON DELETE cascade,
-  token uuid NOT NULL UNIQUE DEFAULT extensions.uuid_generate_v4(),
+  token varchar(14) NOT NULL UNIQUE DEFAULT public.gen_unique_token('juror_invitations', 'token', 14),
   email varchar(254) NOT NULL
 );
 
@@ -158,7 +158,7 @@ CREATE TABLE voting_session_juries (
   jury_name varchar(50) NOT NULL,
   jury_type jury_type NOT NULL,
   voting_form_id uuid NOT NULL,
-  jury_token uuid NOT NULL,
+  jury_token varchar(14) NOT NULL,
   UNIQUE (voting_session_id, jury_token)
 );
 

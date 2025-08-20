@@ -121,7 +121,7 @@ $$;
 --region JUROR JOIN CONTEST
 -- Allows an authenticated user to join a jury using an invitation token.
 -- If the invitation is valid, it creates a new juration and deletes the invitation.
-CREATE OR REPLACE FUNCTION juror_join_contest(p_token uuid)
+CREATE OR REPLACE FUNCTION juror_join_contest(p_token varchar)
 RETURNS jurations -- Returns the created/existing juration row.
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.
@@ -402,7 +402,7 @@ $$;
 --endregion
 
 --region JUROR ACCESS VOTING AS SIMPLE JUROR
-CREATE OR REPLACE FUNCTION juror_access_voting_as_simple_juror(p_token uuid)
+CREATE OR REPLACE FUNCTION juror_access_voting_as_simple_juror(p_token varchar)
 RETURNS voting_sessions -- Returns the voting session the simple juror has accessed.
 LANGUAGE plpgsql
 -- Runs with creator's privileges to check for appointed status and insert the simple juror.

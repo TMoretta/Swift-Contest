@@ -2,7 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
+import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
@@ -77,7 +79,15 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                 Icons.qr_code_2,
                 size: 28,
               ),
-              title: Text('Scan jury QR code'),
+              title: Text('Scan jury QR token'),
+            ),
+            ListTile(
+              onTap: () => _showInsertJuryTokenDialog(context),
+              leading: Icon(
+                Icons.abc,
+                size: 28,
+              ),
+              title: Text('Insert jury token manually'),
             ),
             ListTile(
               onTap: () async {
@@ -126,6 +136,53 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<bool?> _showInsertJuryTokenDialog(BuildContext context) async {
+    final simpleJurorHomePageBloc = context.read<SimpleJurorHomePageBloc>();
+    final tokenController = TextEditingController();
+    final tokenFocusNode = FocusNode();
+
+    return await showDialog<bool?>(
+      context: context,
+      builder: (dialogContext) {
+        return BlocProvider.value(
+          value: simpleJurorHomePageBloc,
+          child: BlocListener<SimpleJurorHomePageBloc, SimpleJurorHomePageState>(
+            listener: (context, state) {
+              if(state.status.isSuccess && state.sourceEvent is SimpleJurorHomePageAccessVoting) {
+                dialogContext.pop(true);
+                context.router.push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+              }
+            },
+            child: AlertDialog(
+              title: const Text('Insert Jury Token'),
+              content: CustomTextFormField(
+                borderType: InputBorderType.outlined,
+                controller: tokenController,
+                focusNode: tokenFocusNode,
+                validator: noEmptyValidator,
+                label: 'Token',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    dialogContext.pop(false);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    context.read<SimpleJurorHomePageBloc>().add(SimpleJurorHomePageAccessVoting(token: tokenController.text));
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

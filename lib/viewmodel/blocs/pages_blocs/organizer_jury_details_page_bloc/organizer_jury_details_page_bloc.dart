@@ -28,6 +28,7 @@ class OrganizerJuryDetailsPageBloc
     on<OrganizerJuryDetailsPageDeleteJury>(_deleteJury);
     on<OrganizerJuryDetailsPageEditJury>(_editJury);
     on<OrganizerJuryDetailsPageRemoveJuror>(_removeJuror);
+    on<OrganizerJuryDetailsPageRegenerateToken>(_regenerateToken);
   }
 
   @override
@@ -127,6 +128,28 @@ class OrganizerJuryDetailsPageBloc
     eitherRemoveJuror.fold(
           (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
           (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _regenerateToken(
+      OrganizerJuryDetailsPageRegenerateToken event,
+      Emitter<OrganizerJuryDetailsPageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherNewToken = await _organizerRepository.regenerateJuryToken(juryId: event.juryId);
+    eitherNewToken.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (newToken) {
+        // Instead of refetching, update the state directly with the new token.
+        final updatedJury = state.juryBundle!.jury.copyWith(token: newToken);
+        final updatedJuryBundle = state.juryBundle!.copyWith(jury: updatedJury);
+
+        emit(state.copyWith(
+          status: BlocStatus.success,
+          juryBundle: updatedJuryBundle,
+        ));
+      },
     );
   }
 }

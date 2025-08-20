@@ -136,14 +136,15 @@ void _showCreateJuryDialog({required BuildContext context, required String conte
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CustomTextFormField(
-                        borderType: InputBorderType.outlined,
+                        borderType: InputBorderType.underlined,
                         controller: nameController,
                         focusNode: nameFocusNode,
                         label: 'Name',
                         validator: titleValidator,
                       ),
-                      Text('Jury type'),
-                      SizedBox(height: 2),
+                      SizedBox(height: 8),
+                      Text('Jury type',style: Theme.of(context).textTheme.titleMedium,),
+                      SizedBox(height: 4),
                       RadioMenuButton<JuryType>(
                         value: JuryType.appointed,
                         groupValue: chosenJuryType,

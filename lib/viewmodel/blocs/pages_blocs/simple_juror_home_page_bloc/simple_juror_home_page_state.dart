@@ -5,11 +5,13 @@ final class SimpleJurorHomePageState extends Equatable {
   final BlocStatus status;
   final SimpleJurorHomePageEvent? sourceEvent;
   final String? message;
+  final VotingSession? votingSession;
 
   const SimpleJurorHomePageState({
     required this.status,
     this.sourceEvent,
     this.message,
+    this.votingSession,
   });
 
   factory SimpleJurorHomePageState.fromJson(Map<String, dynamic> json) {
@@ -28,11 +30,13 @@ final class SimpleJurorHomePageState extends Equatable {
     required BlocStatus status,
     SimpleJurorHomePageEvent? sourceEvent,
     String? message,
+    VotingSession? votingSession,
   }) {
     return SimpleJurorHomePageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
+      votingSession: votingSession,
     );
   }
 
@@ -42,5 +46,6 @@ final class SimpleJurorHomePageState extends Equatable {
         status,
         sourceEvent,
         message,
+        votingSession,
       ];
 }

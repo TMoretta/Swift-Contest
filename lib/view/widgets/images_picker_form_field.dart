@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
@@ -84,13 +85,15 @@ class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
                   final choice =
                       await _showMaxImagesDialog(context: context, maxImages: maxImages!);
                   if (choice == true) {
-                    final bool permission = await requestPhotoLibraryPermission();
-                    if (!context.mounted) return;
-                    if (!permission) {
-                      showSnackBar(
-                          context: context,
-                          text: 'Storage permission is required to select images.');
-                      return;
+                    if (!kIsWeb) {
+                      final bool permission = await requestPhotoLibraryPermission();
+                      if (!context.mounted) return;
+                      if (!permission) {
+                        showSnackBar(
+                            context: context,
+                            text: 'Storage permission is required to select images.');
+                        return;
+                      }
                     }
                     var res = await pickMultipleImages();
                     if (res.isEmpty) {

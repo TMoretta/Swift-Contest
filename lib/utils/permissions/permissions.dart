@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 /// Richiede il permesso per utilizzare la fotocamera.
@@ -22,29 +23,43 @@ Future<PermissionStatus> requestCameraPermission() async {
   return status;
 }
 
-/// Richiede il permesso per accedere alla galleria fotografica.
+/// Requests permission to access the photo library.
 ///
-/// Questa funzione è intelligente:
-/// - Su Android 13+ richiede `Permission.photos`.
-/// - Su Android < 13, `permission_handler` chiede automaticamente `Permission.storage`.
-/// - Su iOS, chiede l'accesso alla libreria.
+/// This function is platform-aware:
+/// - On Web, no permission is needed as the browser handles file picking.
+/// - On Android 13+ (API 33+), it requests `Permission.photos`.
+/// - On older Android versions, it requests `Permission.storage`.
+/// - On iOS, it requests `Permission.photos`.
 ///
-/// Usala prima di chiamare `image_picker`.
-/// Restituisce `true` se il permesso è concesso.
+/// Use this before calling `image_picker`.
+/// Returns `true` if the permission is granted.
 Future<bool> requestPhotoLibraryPermission() async {
-  // Su piattaforme non-mobile, non è necessario.
-  if (!Platform.isAndroid && !Platform.isIOS) {
+  // On web, permissions for picking files are handled by the browser.
+  if (kIsWeb) {
     return true;
   }
 
-  final deviceInfo = await DeviceInfoPlugin().androidInfo;
-  if (deviceInfo.version.sdkInt <= 32) {
-    final status = await Permission.storage.request();
+  // On mobile platforms, request the appropriate permission.
+  if (Platform.isAndroid) {
+    final deviceInfo = await DeviceInfoPlugin().androidInfo;
+    final Permission permission;
+    // Android 13 (API 33) and higher use granular media permissions.
+    if (deviceInfo.version.sdkInt >= 33) {
+      permission = Permission.photos;
+    } else {
+      // Older versions use storage permission.
+      permission = Permission.storage;
+    }
+    final status = await permission.request();
     return status.isGranted;
-  } else {
+  } else if (Platform.isIOS) {
+    // On iOS, always request photos permission.
     final status = await Permission.photos.request();
     return status.isGranted;
   }
+
+  // For other platforms (desktop), assume no permission is needed.
+  return true;
 }
 
 /// Richiede il permesso per la localizzazione precisa (GPS).

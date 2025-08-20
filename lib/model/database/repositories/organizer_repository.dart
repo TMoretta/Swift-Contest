@@ -142,6 +142,8 @@ abstract interface class OrganizerRepository {
   Future<Either<Failure, Unit>> unpublishRanking({
     required String contestRankingId,
   });
+
+  Future<Either<Failure, String>> regenerateJuryToken({required String juryId});
 }
 
 class OrganizerRepositoryImpl implements OrganizerRepository {
@@ -651,6 +653,20 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
           },
         );
         return Either.right(unit);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, String>> regenerateJuryToken({required String juryId}) async {
+    return handleDatabaseCall(
+      () async {
+        final newToken = await _supabase.rpc(
+          'organizer_regenerate_jury_token',
+          params: {'p_jury_id': juryId},
+        );
+        // The RPC now returns the new token as a string.
+        return Either.right(newToken as String);
       },
     );
   }

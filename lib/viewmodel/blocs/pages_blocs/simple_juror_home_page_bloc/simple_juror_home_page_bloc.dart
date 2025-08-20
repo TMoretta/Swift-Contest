@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -22,6 +23,7 @@ class SimpleJurorHomePageBloc extends Bloc<SimpleJurorHomePageEvent, SimpleJuror
         _jurorRepository = jurorRepository,
         super(SimpleJurorHomePageState(status: BlocStatus.initial)) {
     on<SimpleJurorHomePageSignOut>(_signOut);
+    on<SimpleJurorHomePageAccessVoting>(_accessVoting);
   }
 
   FutureOr<void> _signOut(
@@ -34,6 +36,19 @@ class SimpleJurorHomePageBloc extends Bloc<SimpleJurorHomePageEvent, SimpleJuror
     res.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _accessVoting(
+      SimpleJurorHomePageAccessVoting event,
+      Emitter<SimpleJurorHomePageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res = await _jurorRepository.accessVotingAsSimpleJuror(token: event.token);
+    res.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success, votingSession: success)),
     );
   }
 }

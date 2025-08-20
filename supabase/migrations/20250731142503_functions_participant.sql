@@ -110,7 +110,7 @@ $$;
 --region PARTICIPANT JOIN CONTEST
 -- Allows an authenticated user to join a contest using an invitation token.
 -- If the invitation is valid, it creates a new participation and deletes the invitation.
-CREATE OR REPLACE FUNCTION participant_join_contest(p_token uuid)
+CREATE OR REPLACE FUNCTION participant_join_contest(p_token varchar)
 RETURNS participations -- MODIFICATION: Returns the created/existing participation row.
 LANGUAGE plpgsql
 -- Runs with the permissions of the calling user.

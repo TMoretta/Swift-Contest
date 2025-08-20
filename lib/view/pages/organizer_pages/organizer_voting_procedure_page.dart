@@ -87,8 +87,10 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
             context.router.pop();
           }
         }
-        if(state.votingSessionProcedureBundle!=null && !state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus.isLive) {
-          if(!isFinished) {
+        if (state.votingSessionProcedureBundle != null &&
+            !state.votingSessionProcedureBundle!.votingSessionBundle.votingSession.sessionStatus
+                .isLive) {
+          if (!isFinished) {
             isFinished = true;
             showSnackBar(context: context, text: 'Voting session has terminated');
             context.router.pop();
@@ -158,6 +160,11 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                         data: token,
                                         size: 250,
                                         backgroundColor: Theme.of(context).colorScheme.white),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      token,
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
                                   ],
                                 ),
                               );

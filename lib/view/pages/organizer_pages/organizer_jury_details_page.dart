@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:swift_contest/model/database/types/jury_type.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
@@ -11,7 +13,6 @@ import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_contest_details_page_bloc/organizer_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_jury_details_page_bloc/organizer_jury_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -113,7 +114,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                   final footerVotingFormFields = juryBundle.votingFormBundle.footerVotingFormFields;
 
                   return DefaultTabController(
-                    length: (juryBundle.jury.type.isAppointed) ? 3 : 1,
+                    length: (juryBundle.jury.type.isAppointed) ? 3 : 2,
                     child: Column(
                       children: [
                         TabBar(
@@ -121,6 +122,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                           tabs: [
                             if (state.juryBundle!.jury.type.isAppointed) Tab(text: 'Joined'),
                             if (state.juryBundle!.jury.type.isAppointed) Tab(text: 'Attended'),
+                            if (state.juryBundle!.jury.type.isSimple) Tab(text: 'Token'),
                             Tab(text: 'Form'),
                           ],
                         ),
@@ -250,6 +252,100 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                         )
                                       : null,
                                 ),
+                              //* Token (only for simple juries)
+                              if (state.juryBundle!.jury.type.isSimple)
+                                Scaffold(
+                                  body: RefreshIndicator.adaptive(
+                                    onRefresh: () async => context
+                                        .read<OrganizerJuryDetailsPageBloc>()
+                                        .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
+                                    child: ListView(
+                                      children: [
+                                        Card(
+                                          elevation: 0,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryContainer.withAlpha(120),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Text.rich(
+                                              TextSpan(
+                                                style: Theme.of(context).textTheme.bodyMedium,
+                                                children: const [
+                                                  TextSpan(
+                                                    text:
+                                                        'This token allows jurors without an account (simple jurors) to join a voting session.\n\n',
+                                                  ),
+                                                  TextSpan(
+                                                    text: '• Share this token ',
+                                                    style:
+                                                        TextStyle(fontWeight: FontWeight.bold),
+                                                  ),
+                                                  TextSpan(
+                                                      text:
+                                                          'or display the QR code during the event.\n'),
+                                                  TextSpan(
+                                                    text: '• Regenerate it ',
+                                                    style:
+                                                        TextStyle(fontWeight: FontWeight.bold),
+                                                  ),
+                                                  TextSpan(
+                                                      text:
+                                                          'at any time for security reasons.'),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        Center(
+                                          child: QrImageView(
+                                            data: state.juryBundle!.jury.token!,
+                                            backgroundColor: Colors.white,
+                                            size: 220,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            SelectableText(
+                                              state.juryBundle!.jury.token!,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(
+                                                letterSpacing: 2,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.copy_outlined),
+                                              tooltip: 'Copy to clipboard',
+                                              onPressed: () {
+                                                Clipboard.setData(ClipboardData(text: state.juryBundle!.jury.token!));
+                                                showSnackBar(
+                                                    context: context,
+                                                    text: 'Token copied to clipboard');
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Center(
+                                          child: FilledButton.icon(
+                                            onPressed: () => _showRegenerateTokenDialog(
+                                                context: context, juryId: juryId),
+                                            icon: const Icon(Icons.refresh),
+                                            label: const Text('Regenerate Token'),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               //* Form
                               Scaffold(
                                 body: RefreshIndicator.adaptive(
@@ -257,7 +353,6 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                       .read<OrganizerJuryDetailsPageBloc>()
                                       .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
                                   child: ListView(
-                                    shrinkWrap: true,
                                     children: [
                                       Card(
                                         elevation: 0,
@@ -508,6 +603,47 @@ void _showInviteDialog({
               ],
             );
           },
+        ),
+      );
+    },
+  );
+}
+
+void _showRegenerateTokenDialog({
+  required BuildContext context,
+  required String juryId,
+}) {
+  final organizerJuryDetailsPageBloc = context.read<OrganizerJuryDetailsPageBloc>();
+
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      return BlocProvider.value(
+        value: organizerJuryDetailsPageBloc,
+        child: BlocListener<OrganizerJuryDetailsPageBloc, OrganizerJuryDetailsPageState>(
+          listener: (context, state) {
+            if (state.status.isSuccess && state.sourceEvent is OrganizerJuryDetailsPageRegenerateToken) {
+              context.router.pop(); // close the dialog
+              showSnackBar(context: context, text: 'Token regenerated successfully');
+            }
+          },
+          child: AlertDialog(
+            title: const Text('Regenerate Token'),
+            content: const Text(
+                'Are you sure you want to regenerate the token? The old token will no longer be valid.'),
+            actions: [
+              TextButton(
+                onPressed: () => context.router.pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<OrganizerJuryDetailsPageBloc>().add(OrganizerJuryDetailsPageRegenerateToken(juryId: juryId));
+                },
+                child: const Text('Regenerate'),
+              ),
+            ],
+          ),
         ),
       );
     },

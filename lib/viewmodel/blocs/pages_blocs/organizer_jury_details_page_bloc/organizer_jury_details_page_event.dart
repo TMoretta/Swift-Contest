@@ -64,3 +64,13 @@ final class OrganizerJuryDetailsPageDeleteJurorInvitation extends OrganizerJuryD
   @override
   List<Object?> get props => [jurorInvitationId];
 }
+
+final class OrganizerJuryDetailsPageRegenerateToken extends OrganizerJuryDetailsPageEvent {
+  final String juryId;
+
+  const OrganizerJuryDetailsPageRegenerateToken({required this.juryId});
+
+  @override
+  List<Object?> get props => [juryId];
+}
+

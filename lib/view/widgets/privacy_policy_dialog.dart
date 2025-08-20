@@ -13,13 +13,26 @@ void showPrivacyPolicyDialog(BuildContext context) {
         content: SingleChildScrollView(
           child: RichText(
             text: TextSpan(
-              style: Theme.of(context).textTheme.bodyMedium,
-              children: const [
+              style: Theme.of(context).textTheme.bodyMedium, // Default style
+              children: [
                 TextSpan(
+                  text: 'IMPORTANT NOTICE: University Project\n\n',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                const TextSpan(
+                  text:
+                      'This application is a university project and is not intended for commercial or production use. While security measures are in place, absolute security cannot be guaranteed. You are strongly advised NOT to enter real, sensitive, or valuable personal data. By using the app, you acknowledge and accept the risks associated with a development and testing environment.\n\n',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const TextSpan(
                   text: 'Last updated: July 31, 2024\n\n',
                   style: TextStyle(fontStyle: FontStyle.italic),
                 ),
-                TextSpan(
+                const TextSpan(
                   text:
                       'This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Swift Contest application (the "Service") and the choices you have associated with that data.\n\n'
                       'We use your data to provide and improve the Service. By using the Service, you agree to the collection and use of information in accordance with this policy.\n\n',
