@@ -7,44 +7,43 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
-import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
-import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/utils/media_type.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_jury_ranking_generation_page_bloc/organizer_jury_ranking_generation_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_jury_voting_results_export_page_bloc/organizer_jury_voting_results_export_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
-class OrganizerJuryRankingGenerationPage extends StatefulWidget implements AutoRouteWrapper {
+class OrganizerJuryVotingResultsExportPage extends StatefulWidget implements AutoRouteWrapper {
   final String votingSessionJuryId;
 
-  const OrganizerJuryRankingGenerationPage({
+  const OrganizerJuryVotingResultsExportPage({
     @PathParam('votingSessionJuryId') required this.votingSessionJuryId,
     super.key,
   });
 
   @override
   Widget wrappedRoute(BuildContext context) {
-    return BlocProvider<OrganizerJuryRankingGenerationPageBloc>(
-      create: (context) => OrganizerJuryRankingGenerationPageBloc(
+    return BlocProvider<OrganizerJuryVotingResultsExportPageBloc>(
+      create: (context) => OrganizerJuryVotingResultsExportPageBloc(
         organizerRepository: context.read(),
-      )..add(OrganizerJuryRankingGenerationPageFetch(votingSessionJuryId: votingSessionJuryId)),
+      )..add(OrganizerJuryVotingResultsExportPageFetch(votingSessionJuryId: votingSessionJuryId)),
       child: this,
     );
   }
 
   @override
-  State<OrganizerJuryRankingGenerationPage> createState() =>
-      _OrganizerJuryRankingGenerationPageState();
+  State<OrganizerJuryVotingResultsExportPage> createState() =>
+      _OrganizerJuryVotingResultsExportPageState();
 }
 
-class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankingGenerationPage> {
+class _OrganizerJuryVotingResultsExportPageState
+    extends State<OrganizerJuryVotingResultsExportPage> {
   late final String votingSessionJuryId;
   List<VotingSessionJuror> selectedVotingSessionJurors = [];
   List<VotingFormField> selectedVotingFormFields = [];
@@ -63,8 +62,8 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<OrganizerJuryRankingGenerationPageBloc,
-        OrganizerJuryRankingGenerationPageState>(
+    return BlocConsumer<OrganizerJuryVotingResultsExportPageBloc,
+        OrganizerJuryVotingResultsExportPageState>(
       listener: (context, state) {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
@@ -77,7 +76,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Ranking'),
+          appBar: CustomAppBar(title: 'Export'),
           body: SafeArea(
             child: Padding(
               padding: EdgeInsets.only(top: 16, left: 16, right: 16),
@@ -90,13 +89,14 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
     );
   }
 
-  Widget _buildBody(BuildContext context, OrganizerJuryRankingGenerationPageState state) {
+  Widget _buildBody(BuildContext context, OrganizerJuryVotingResultsExportPageState state) {
     if (!state.isInitialized) {
       if (state.status.isFailure) {
         return Center(
           child: FilledButton(
-            onPressed: () async => context.read<OrganizerJuryRankingGenerationPageBloc>().add(
-                OrganizerJuryRankingGenerationPageFetch(votingSessionJuryId: votingSessionJuryId)),
+            onPressed: () async => context.read<OrganizerJuryVotingResultsExportPageBloc>().add(
+                OrganizerJuryVotingResultsExportPageFetch(
+                    votingSessionJuryId: votingSessionJuryId)),
             child: Text('Retry'),
           ),
         );
@@ -242,110 +242,104 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
     );
   }
 
-  Widget _buildFabMenu(BuildContext context, OrganizerJuryRankingGenerationPageState state) {
+  Widget _buildFabMenu(BuildContext context, OrganizerJuryVotingResultsExportPageState state) {
     return FloatingActionButton.extended(
       onPressed: () async {
-        if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
+        if (selectedVotingSessionJurors.isEmpty ||
+            selectedVotingFormFields.isEmpty) {
           showSnackBar(context: context, text: 'Select at least one juror and one field');
+          return;
         }
-        // Ottieni solo le sottomissioni dei giurati che l'organizzatore ha selezionato
-        final submissionsBundles = state.votingSessionJuryResultBundle!.votingFormSubmissionsBundles
-            .where((e) => selectedVotingSessionJurors.contains(e.votingSessionJuror))
-            .toList(growable: false);
 
-        final Map<VotingSessionParticipant, double> participantScores = {};
+        // --- 1. Get all necessary data lists ---
+        final allParticipants = state.votingSessionJuryResultBundle!.votingSessionParticipants;
+        final allSubmissions = state.votingSessionJuryResultBundle!.votingFormSubmissionsBundles;
 
-        for (var submissionBundle in submissionsBundles) {
-          for (var submissionValueBundle
-              in submissionBundle.participantVotingFormSubmissionValuesBundles.entries) {
-            final votingSessionParticipant = submissionValueBundle.key;
-            final valuesBundles = submissionValueBundle.value
-                .where((e) => selectedVotingFormFields.contains(e.votingFormField));
-            double score = 0;
-            for (var valueBundle in valuesBundles) {
-              score += double.parse(valueBundle.votingFormSubmissionValue.value);
+        // --- 2. Pre-process submissions into a lookup map for efficiency ---
+        // Map structure: { jurorId: { participantId: { fieldId: value } } }
+        final Map<String, Map<String, Map<String, String>>> votesMap = {};
+        for (final submissionBundle in allSubmissions) {
+          final jurorId = submissionBundle.votingSessionJuror.id;
+          if (jurorId == null) continue;
+          votesMap[jurorId] = {};
+
+          for (final valueBundle in submissionBundle.votingFormSubmissionValuesBundles) {
+            if (valueBundle.votingSessionParticipant != null) {
+              final participantId = valueBundle.votingSessionParticipant!.id;
+              final fieldId = valueBundle.votingFormField.id;
+              final value = valueBundle.votingFormSubmissionValue.value;
+
+              if (votesMap[jurorId]![participantId] == null) {
+                votesMap[jurorId]![participantId!] = {};
+              }
+              votesMap[jurorId]![participantId]![fieldId!] = value;
             }
-            valuesBundles.map((e) => e.votingFormSubmissionValue.value);
-            final oldScore = participantScores[votingSessionParticipant] ?? 0;
-            participantScores.addAll({votingSessionParticipant: score + oldScore});
           }
         }
 
-        for (var participantScore in participantScores.entries) {
-          final participant = participantScore.key;
-          final score = participantScore.value;
+        // --- 3. Build the CSV string ---
+        final buffer = StringBuffer();
 
-          Logger.debug('${participant.participantFullName} score: ${prettyDouble(score)}');
+        // Helper to safely format CSV cells by quoting and escaping internal quotes.
+        String formatCsvCell(String data) {
+          return '"${data.replaceAll('"', '""')}"';
         }
 
-        final sortedParticipantScores = participantScores.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+        // --- Header Row 1: Juror Names ---
+        final jurorHeader = selectedVotingSessionJurors.expand((juror) {
+          return List.generate(
+              selectedVotingFormFields.length, (_) => formatCsvCell(juror.jurorFullName));
+        }).join(',');
+        buffer.writeln(',$jurorHeader');
+
+        // --- Header Row 2: Field Questions ---
+        final fieldHeader = selectedVotingSessionJurors.expand((_) {
+          return selectedVotingFormFields.map((field) => formatCsvCell(field.question));
+        }).join(',');
+        buffer.writeln(',$fieldHeader');
+
+        // --- Data Rows: Participants and Votes ---
+        for (final participant in allParticipants) {
+          buffer.write(formatCsvCell(participant.participantFullName));
+          buffer.write(',');
+
+          final List<String> rowValues = [];
+          for (final juror in selectedVotingSessionJurors) {
+            for (final field in selectedVotingFormFields) {
+              final value = votesMap[juror.id]?[participant.id]?[field.id] ?? '';
+              rowValues.add(formatCsvCell(value));
+            }
+          }
+          buffer.writeln(rowValues.join(','));
+        }
 
         try {
-          // final request = await requestStoragePermission();
-          // if (request != true) {
-          //   if (context.mounted) {
-          //     showSnackBar(context: context, text: 'Can not download file without permission');
-          //   }
-          //   return;
-          // }
-
           final directory =
               await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOWNLOAD);
           final baseName =
-              'Ranking ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
+              'Voting Results ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
           final extension = '.csv';
 
           String safeFilename;
           int count = 0;
           do {
-            safeFilename = (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
+            safeFilename =
+                (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
             count++;
           } while (await File('$directory/$safeFilename').exists());
 
           final path = '$directory/$safeFilename';
-
-          // --- 1. Genera la stringa CSV ---
-          final buffer = StringBuffer();
-
-          // Aggiungi l'intestazione delle colonne
-          buffer.writeln('Participant,Score');
-
-          // Aggiungi una riga per ogni partecipante
-          for (final entry in sortedParticipantScores) {
-            final participantName = entry.key.participantFullName;
-            final score = entry.value;
-
-            // Metti il nome tra virgolette per gestire eventuali virgole nel nome
-            buffer.writeln('"$participantName",${prettyDouble(score)}');
-          }
-
           final file = File(path);
-          // Scrivi la stringa nel file
           await file.writeAsString(buffer.toString());
 
-          if (context.mounted) {
-            showSnackBar(context: context, text: 'File successfully saved in "Downloads" folder');
-          }
+          if (!context.mounted) return;
+          showSnackBar(context: context, text: 'File successfully saved in "Downloads" folder');
 
           final res = await OpenFilex.open(path, type: MediaType.mapExtension(extension));
-          switch (res.type) {
-            case ResultType.done:
-              break;
-            case ResultType.noAppToOpen:
-              if (context.mounted) {
-                showSnackBar(
-                    context: context,
-                    text: 'No app to open the file. File saved in "Downloads" directory.');
-              }
-              break;
-            case ResultType.fileNotFound:
-            case ResultType.permissionDenied:
-            case ResultType.error:
-              if (context.mounted) {
-                showSnackBar(context: context, text: 'File saved in "Downloads" directory');
-              }
-              break;
+          if (res.type != ResultType.done && context.mounted) {
+            showSnackBar(
+                context: context,
+                text: 'No app to open the file. File saved in "Downloads" directory.');
           }
         } catch (e) {
           Logger.error(e.toString(), StackTrace.current);
@@ -355,13 +349,13 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
         }
       },
       icon: Icon(Icons.download),
-      label: Text('Download CSV'),
+      label: Text('Export to CSV'),
     );
   }
 
   Future<List<VotingSessionJuror>>? _showSelectJurorsDialog(
     BuildContext context,
-    OrganizerJuryRankingGenerationPageState state,
+    OrganizerJuryVotingResultsExportPageState state,
   ) async {
     // Only voting session jurors with submission considered
     final List<VotingSessionJuror> votingSessionJurors = state
@@ -454,7 +448,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
 
   Future<List<VotingFormField>>? _showSelectFieldsDialog(
     BuildContext context,
-    OrganizerJuryRankingGenerationPageState state,
+    OrganizerJuryVotingResultsExportPageState state,
   ) async {
     // Only required fields of the participant form and of type slider considered
     final List<VotingFormField> votingFormFields = state
