@@ -171,9 +171,6 @@ String? questionValidator(String? value) {
   if (val == null || val.isEmpty) {
     return 'Required';
   }
-  if (val.length < 5) {
-    return 'Must be at least 5 characters long';
-  }
   if (val.length > 255) {
     return 'Cannot exceed 255 characters';
   }

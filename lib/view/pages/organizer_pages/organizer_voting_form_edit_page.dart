@@ -8,7 +8,6 @@ import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
-import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -99,7 +98,11 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                 child: (isEdited)
                     ? FilledButton(
                         onPressed: () {
-                          if (_infoFormKey.currentState?.validate() ?? false) {
+                          // We must validate info tab before saving.
+                          if (!(_infoFormKey.currentState?.validate() ?? true)) {
+                            showSnackBar(
+                                context: context,
+                                text: "Errors in tab 'Info'");
                             return;
                           }
                           context.read<OrganizerVotingFormEditPageBloc>().add(
@@ -169,354 +172,38 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                         Expanded(
                           child: TabBarView(
                             children: [
-                              //* Info
-                              Form(
-                                key: _infoFormKey,
-                                child: ListView(
-                                  padding: EdgeInsets.only(top: 8),
-                                  children: [
-                                    CustomTextFormField(
-                                      borderType: InputBorderType.outlined,
-                                      label: 'Name',
-                                      controller: nameController,
-                                      focusNode: nameFocusNode,
-                                      validator: titleValidator,
-                                      onChanged: (_) => setState(() => isEdited = true),
-                                    ),
-                                    SizedBox(height: 16),
-                                    CustomTextFormField(
-                                      borderType: InputBorderType.outlined,
-                                      minLines: 1,
-                                      maxLines: 5,
-                                      label: 'Description',
-                                      controller: descriptionController,
-                                      focusNode: descriptionFocusNode,
-                                      validator: descriptionValidator,
-                                      onChanged: (_) => setState(() => isEdited = true),
-                                    ),
-                                  ],
-                                ),
+                              _InfoTab(
+                                formKey: _infoFormKey,
+                                nameController: nameController,
+                                descriptionController: descriptionController,
+                                nameFocusNode: nameFocusNode,
+                                descriptionFocusNode: descriptionFocusNode,
+                                onChanged: _setEdited,
                               ),
-                              //* Header form
-                              Scaffold(
-                                body: (updatedHeaderFields.isEmpty)
-                                    ? Center(child: Text('No field added'))
-                                    : Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ReorderableListView.builder(
-                                            shrinkWrap: true,
-                                            onReorder: (oldIndex, newIndex) {
-                                              setState(() {
-                                                if (newIndex > oldIndex) {
-                                                  newIndex -= 1;
-                                                }
-                                                final VotingFormField field =
-                                                    updatedHeaderFields.removeAt(oldIndex);
-                                                updatedHeaderFields.insert(newIndex, field);
-                                                isEdited = true;
-                                              });
-                                            },
-                                            itemCount: updatedHeaderFields.length,
-                                            itemBuilder: (context, index) {
-                                              final field = updatedHeaderFields[index];
-                                              return Card(
-                                                key: ValueKey(field.id),
-                                                elevation: 0,
-                                                child: ListTile(
-                                                  trailing: IconButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        updatedHeaderFields.remove(field);
-                                                        isEdited = true;
-                                                      });
-                                                    },
-                                                    icon: Icon(Icons.remove),
-                                                  ),
-                                                  leading: Icon((field.type.isTextual)
-                                                      ? Icons.text_fields
-                                                      : Icons.horizontal_distribute),
-                                                  title: (field.isRequired)
-                                                      ? Text('${field.question} *')
-                                                      : Text(field.question),
-                                                  subtitle: (field.type.isSlider)
-                                                      ? Text(
-                                                          '${field.sliderMinValue!} - ${field.sliderMaxValue!}')
-                                                      : null,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          SizedBox(height: 100),
-                                        ],
-                                      ),
-                                floatingActionButton: Card(
-                                  color: Theme.of(context).colorScheme.primaryContainer,
-                                  child: PopupMenuButton<VotingFormFieldType>(
-                                    iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                                    surfaceTintColor:
-                                        Theme.of(context).colorScheme.primaryContainer,
-                                    onSelected: (value) async {
-                                      switch (value) {
-                                        case VotingFormFieldType.textual:
-                                          final VotingFormField? newField =
-                                              await _showAddTextualFieldDialog(
-                                                  context: context,
-                                                  scope: VotingFormFieldScope.header);
-                                          if (newField != null) {
-                                            setState(() {
-                                              isEdited = true;
-                                              updatedHeaderFields.add(newField);
-                                            });
-                                          }
-                                        case VotingFormFieldType.slider:
-                                          final VotingFormField? newField =
-                                              await _showAddSliderFieldDialog(
-                                                  context: context,
-                                                  scope: VotingFormFieldScope.header);
-                                          if (newField != null) {
-                                            setState(() {
-                                              isEdited = true;
-                                              updatedHeaderFields.add(newField);
-                                            });
-                                          }
-                                      }
-                                    },
-                                    itemBuilder: (context) {
-                                      return [
-                                        PopupMenuItem(
-                                          value: VotingFormFieldType.textual,
-                                          child: ListTile(
-                                            leading: Icon(Icons.text_fields),
-                                            title: Text('Textual'),
-                                          ),
-                                        ),
-                                        PopupMenuItem(
-                                          value: VotingFormFieldType.slider,
-                                          child: ListTile(
-                                            leading: Icon(Icons.horizontal_distribute),
-                                            title: Text('Slider'),
-                                          ),
-                                        ),
-                                      ];
-                                    },
-                                    icon: Icon(Icons.add),
-                                  ),
-                                ),
+                              _FieldsTab(
+                                fields: updatedHeaderFields,
+                                scope: VotingFormFieldScope.header,
+                                onAddField: (field) => _addField(field, updatedHeaderFields),
+                                onRemoveField: (field) => _removeField(field, updatedHeaderFields),
+                                onReorder: (oldI, newI) =>
+                                    _reorderFields(oldI, newI, updatedHeaderFields),
                               ),
-                              //* Participant form
-                              Scaffold(
-                                body: (updatedParticipantFields.isEmpty)
-                                    ? Center(child: Text('No field added'))
-                                    : Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ReorderableListView.builder(
-                                            shrinkWrap: true,
-                                            onReorder: (oldIndex, newIndex) {
-                                              setState(() {
-                                                if (newIndex > oldIndex) {
-                                                  newIndex -= 1;
-                                                }
-                                                final VotingFormField field =
-                                                    updatedParticipantFields.removeAt(oldIndex);
-                                                updatedParticipantFields.insert(newIndex, field);
-                                                isEdited = true;
-                                              });
-                                            },
-                                            itemCount: updatedParticipantFields.length,
-                                            itemBuilder: (context, index) {
-                                              final field = updatedParticipantFields[index];
-                                              return Card(
-                                                key: ValueKey(field.id),
-                                                elevation: 0,
-                                                child: ListTile(
-                                                  trailing: IconButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        updatedParticipantFields.remove(field);
-                                                        isEdited = true;
-                                                      });
-                                                    },
-                                                    icon: Icon(Icons.remove),
-                                                  ),
-                                                  leading: Icon((field.type.isTextual)
-                                                      ? Icons.text_fields
-                                                      : Icons.horizontal_distribute),
-                                                  title: (field.isRequired)
-                                                      ? Text('${field.question} *')
-                                                      : Text(field.question),
-                                                  subtitle: (field.type.isSlider)
-                                                      ? Text(
-                                                          '${field.sliderMinValue!} - ${field.sliderMaxValue!}')
-                                                      : null,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          SizedBox(height: 100),
-                                        ],
-                                      ),
-                                floatingActionButton: Card(
-                                  color: Theme.of(context).colorScheme.primaryContainer,
-                                  child: PopupMenuButton<VotingFormFieldType>(
-                                    iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                                    surfaceTintColor:
-                                        Theme.of(context).colorScheme.primaryContainer,
-                                    onSelected: (value) async {
-                                      switch (value) {
-                                        case VotingFormFieldType.textual:
-                                          final VotingFormField? newField =
-                                              await _showAddTextualFieldDialog(
-                                                  context: context,
-                                                  scope: VotingFormFieldScope.participant);
-                                          if (newField != null) {
-                                            setState(() {
-                                              isEdited = true;
-                                              updatedParticipantFields.add(newField);
-                                            });
-                                          }
-                                        case VotingFormFieldType.slider:
-                                          final VotingFormField? newField =
-                                              await _showAddSliderFieldDialog(
-                                                  context: context,
-                                                  scope: VotingFormFieldScope.participant);
-                                          if (newField != null) {
-                                            setState(() {
-                                              isEdited = true;
-                                              updatedParticipantFields.add(newField);
-                                            });
-                                          }
-                                      }
-                                    },
-                                    itemBuilder: (context) {
-                                      return [
-                                        PopupMenuItem(
-                                          value: VotingFormFieldType.textual,
-                                          child: ListTile(
-                                            leading: Icon(Icons.text_fields),
-                                            title: Text('Textual'),
-                                          ),
-                                        ),
-                                        PopupMenuItem(
-                                          value: VotingFormFieldType.slider,
-                                          child: ListTile(
-                                            leading: Icon(Icons.horizontal_distribute),
-                                            title: Text('Slider'),
-                                          ),
-                                        ),
-                                      ];
-                                    },
-                                    icon: Icon(Icons.add),
-                                  ),
-                                ),
+                              _FieldsTab(
+                                fields: updatedParticipantFields,
+                                scope: VotingFormFieldScope.participant,
+                                onAddField: (field) => _addField(field, updatedParticipantFields),
+                                onRemoveField: (field) =>
+                                    _removeField(field, updatedParticipantFields),
+                                onReorder: (oldI, newI) =>
+                                    _reorderFields(oldI, newI, updatedParticipantFields),
                               ),
-                              //* Footer form
-                              Scaffold(
-                                body: (updatedFooterFields.isEmpty)
-                                    ? Center(child: Text('No field added'))
-                                    : Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ReorderableListView.builder(
-                                            shrinkWrap: true,
-                                            onReorder: (oldIndex, newIndex) {
-                                              setState(() {
-                                                if (newIndex > oldIndex) {
-                                                  newIndex -= 1;
-                                                }
-                                                final VotingFormField field =
-                                                    updatedFooterFields.removeAt(oldIndex);
-                                                updatedFooterFields.insert(newIndex, field);
-                                                isEdited = true;
-                                              });
-                                            },
-                                            itemCount: updatedFooterFields.length,
-                                            itemBuilder: (context, index) {
-                                              final field = updatedFooterFields[index];
-                                              return Card(
-                                                key: ValueKey(field.id),
-                                                elevation: 0,
-                                                child: ListTile(
-                                                  trailing: IconButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        updatedFooterFields.remove(field);
-                                                        isEdited = true;
-                                                      });
-                                                    },
-                                                    icon: Icon(Icons.remove),
-                                                  ),
-                                                  leading: Icon((field.type.isTextual)
-                                                      ? Icons.text_fields
-                                                      : Icons.horizontal_distribute),
-                                                  title: (field.isRequired)
-                                                      ? Text('${field.question} *')
-                                                      : Text(field.question),
-                                                  subtitle: (field.type.isSlider)
-                                                      ? Text(
-                                                          '${field.sliderMinValue!} - ${field.sliderMaxValue!}')
-                                                      : null,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          SizedBox(height: 100),
-                                        ],
-                                      ),
-                                floatingActionButton: Card(
-                                  color: Theme.of(context).colorScheme.primaryContainer,
-                                  child: PopupMenuButton<VotingFormFieldType>(
-                                    iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                                    surfaceTintColor:
-                                        Theme.of(context).colorScheme.primaryContainer,
-                                    onSelected: (value) async {
-                                      switch (value) {
-                                        case VotingFormFieldType.textual:
-                                          final VotingFormField? newField =
-                                              await _showAddTextualFieldDialog(
-                                                  context: context,
-                                                  scope: VotingFormFieldScope.footer);
-                                          if (newField != null) {
-                                            setState(() {
-                                              isEdited = true;
-                                              updatedFooterFields.add(newField);
-                                            });
-                                          }
-                                        case VotingFormFieldType.slider:
-                                          final VotingFormField? newField =
-                                              await _showAddSliderFieldDialog(
-                                                  context: context,
-                                                  scope: VotingFormFieldScope.footer);
-                                          if (newField != null) {
-                                            setState(() {
-                                              isEdited = true;
-                                              updatedFooterFields.add(newField);
-                                            });
-                                          }
-                                      }
-                                    },
-                                    itemBuilder: (context) {
-                                      return [
-                                        PopupMenuItem(
-                                          value: VotingFormFieldType.textual,
-                                          child: ListTile(
-                                            leading: Icon(Icons.text_fields),
-                                            title: Text('Textual'),
-                                          ),
-                                        ),
-                                        PopupMenuItem(
-                                          value: VotingFormFieldType.slider,
-                                          child: ListTile(
-                                            leading: Icon(Icons.horizontal_distribute),
-                                            title: Text('Slider'),
-                                          ),
-                                        ),
-                                      ];
-                                    },
-                                    icon: Icon(Icons.add),
-                                  ),
-                                ),
+                              _FieldsTab(
+                                fields: updatedFooterFields,
+                                scope: VotingFormFieldScope.footer,
+                                onAddField: (field) => _addField(field, updatedFooterFields),
+                                onRemoveField: (field) => _removeField(field, updatedFooterFields),
+                                onReorder: (oldI, newI) =>
+                                    _reorderFields(oldI, newI, updatedFooterFields),
                               ),
                             ],
                           ),
@@ -531,6 +218,39 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
         );
       },
     );
+  }
+
+  void _setEdited() {
+    if (!isEdited) {
+      setState(() {
+        isEdited = true;
+      });
+    }
+  }
+
+  void _addField(VotingFormField field, List<VotingFormField> list) {
+    setState(() {
+      list.add(field);
+      isEdited = true;
+    });
+  }
+
+  void _removeField(VotingFormField field, List<VotingFormField> list) {
+    setState(() {
+      list.remove(field);
+      isEdited = true;
+    });
+  }
+
+  void _reorderFields(int oldIndex, int newIndex, List<VotingFormField> list) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      final item = list.removeAt(oldIndex);
+      list.insert(newIndex, item);
+      isEdited = true;
+    });
   }
 }
 
@@ -626,6 +346,153 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
       });
     },
   );
+}
+
+/// A widget representing the 'Info' tab, which is kept alive.
+class _InfoTab extends StatefulWidget {
+  final GlobalKey<FormState> formKey;
+  final TextEditingController nameController;
+  final TextEditingController descriptionController;
+  final FocusNode nameFocusNode;
+  final FocusNode descriptionFocusNode;
+  final VoidCallback onChanged;
+
+  const _InfoTab({
+    required this.formKey,
+    required this.nameController,
+    required this.descriptionController,
+    required this.nameFocusNode,
+    required this.descriptionFocusNode,
+    required this.onChanged,
+  });
+
+  @override
+  State<_InfoTab> createState() => _InfoTabState();
+}
+
+class _InfoTabState extends State<_InfoTab> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+    return Form(
+      key: widget.formKey,
+      child: ListView(
+        padding: const EdgeInsets.only(top: 8),
+        children: [
+          CustomTextFormField(
+            borderType: InputBorderType.outlined,
+            label: 'Name',
+            controller: widget.nameController,
+            focusNode: widget.nameFocusNode,
+            validator: titleValidator,
+            onChanged: (_) => widget.onChanged(),
+          ),
+          const SizedBox(height: 16),
+          CustomTextFormField(
+            borderType: InputBorderType.outlined,
+            minLines: 1,
+            maxLines: 5,
+            label: 'Description',
+            controller: widget.descriptionController,
+            focusNode: widget.descriptionFocusNode,
+            validator: descriptionValidator,
+            onChanged: (_) => widget.onChanged(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A generic widget for the 'Header', 'Participant', and 'Footer' tabs, kept alive.
+class _FieldsTab extends StatefulWidget {
+  final List<VotingFormField> fields;
+  final VotingFormFieldScope scope;
+  final ValueChanged<VotingFormField> onAddField;
+  final ValueChanged<VotingFormField> onRemoveField;
+  final void Function(int oldIndex, int newIndex) onReorder;
+
+  const _FieldsTab({
+    required this.fields,
+    required this.scope,
+    required this.onAddField,
+    required this.onRemoveField,
+    required this.onReorder,
+  });
+
+  @override
+  State<_FieldsTab> createState() => _FieldsTabState();
+}
+
+class _FieldsTabState extends State<_FieldsTab> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+    return Scaffold(
+      body: widget.fields.isEmpty
+          ? const Center(child: Text('No field added'))
+          : ReorderableListView.builder(
+              padding: const EdgeInsets.only(bottom: 100), // To avoid FAB overlap
+              itemCount: widget.fields.length,
+              onReorder: widget.onReorder,
+              itemBuilder: (context, index) {
+                final field = widget.fields[index];
+                return Card(
+                  key: ValueKey(field.id),
+                  elevation: 0,
+                  child: ListTile(
+                    trailing: IconButton(
+                      onPressed: () => widget.onRemoveField(field),
+                      icon: const Icon(Icons.remove),
+                    ),
+                    leading: Icon(
+                        field.type.isTextual ? Icons.text_fields : Icons.horizontal_distribute),
+                    title: Text(field.isRequired ? '${field.question} *' : field.question),
+                    subtitle: field.type.isSlider
+                        ? Text('${field.sliderMinValue!} - ${field.sliderMaxValue!}')
+                        : null,
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: Card(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: PopupMenuButton<VotingFormFieldType>(
+          iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
+          surfaceTintColor: Theme.of(context).colorScheme.primaryContainer,
+          onSelected: (value) async {
+            VotingFormField? newField;
+            if (value == VotingFormFieldType.textual) {
+              newField = await _showAddTextualFieldDialog(context: context, scope: widget.scope);
+            } else if (value == VotingFormFieldType.slider) {
+              newField = await _showAddSliderFieldDialog(context: context, scope: widget.scope);
+            }
+            if (newField != null && mounted) {
+              widget.onAddField(newField);
+            }
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: VotingFormFieldType.textual,
+              child: ListTile(leading: Icon(Icons.text_fields), title: Text('Textual')),
+            ),
+            const PopupMenuItem(
+              value: VotingFormFieldType.slider,
+              child:
+                  ListTile(leading: Icon(Icons.horizontal_distribute), title: Text('Slider')),
+            ),
+          ],
+          icon: const Icon(Icons.add),
+        ),
+      ),
+    );
+  }
 }
 
 Future<VotingFormField?> _showAddSliderFieldDialog({

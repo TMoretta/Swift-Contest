@@ -41,7 +41,6 @@ CREATE TABLE voting_form_fields (
   slider_max_value int,
   is_required bool NOT NULL,
   scope voting_form_field_scope NOT NULL,
-  CHECK (char_length(question) >= 5),
   CHECK (
     (type = 'textual' AND slider_min_value IS NULL AND slider_max_value IS NULL)
     OR
