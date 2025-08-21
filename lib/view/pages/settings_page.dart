@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
@@ -122,9 +123,7 @@ class _AuthState extends State<SettingsPage> {
                               ),
                               title: Text('Theme'),
                               titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                              subtitle: Text(
-                                '${theme.name[0].toUpperCase()}${theme.name.substring(1).toLowerCase()}',
-                              ),
+                              subtitle: Text(theme.name.capitalize()),
                               subtitleTextStyle: Theme.of(context)
                                   .textTheme
                                   .labelMedium
@@ -147,10 +146,7 @@ class _AuthState extends State<SettingsPage> {
                           'Preferred role',
                         ),
                         titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                        subtitle: Text(
-                          '${profile.prefRole.name[0].toUpperCase()}'
-                          '${profile.prefRole.name.substring(1).toLowerCase()}',
-                        ),
+                        subtitle: Text(profile.prefRole.name.capitalize()),
                         subtitleTextStyle: Theme.of(context)
                             .textTheme
                             .labelMedium

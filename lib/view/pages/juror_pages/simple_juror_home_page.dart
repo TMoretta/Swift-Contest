@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/local/types/app_theme.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -9,6 +12,7 @@ import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/simple_juror_home_page_bloc/simple_juror_home_page_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
@@ -31,14 +35,6 @@ class SimpleJurorHomePage extends StatefulWidget implements AutoRouteWrapper {
 }
 
 class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
-  late final String fullName;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    fullName = context.read<AuthBloc>().state.profile?.fullName ?? '';
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<SimpleJurorHomePageBloc, SimpleJurorHomePageState>(
@@ -57,83 +53,127 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
       },
       child: Scaffold(
         appBar: CustomAppBar(title: 'Simple Juror'),
-        body: ListView(
-          children: [
-            ListTile(
-              title: Text(
-                fullName,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+        body: Padding(
+          padding: const EdgeInsets.only(top: 16, left:16, right: 16),
+          child: ListView(
+            children: [
+              Text('Actions', style: Theme.of(context).textTheme.titleMedium,),
+              ListTile(
+                onTap: () => context.router.push(JurorVotingQrScannerRoute()),
+                leading: Icon(
+                  Icons.qr_code_2,
+                  size: 28,
+                ),
+                title: Text('Scan jury QR token'),
               ),
-              leading: Icon(
-                Icons.person,
-                color: Theme.of(context).colorScheme.secondary,
-                size: 28,
+              ListTile(
+                onTap: () => _showInsertJuryTokenDialog(context),
+                leading: Icon(
+                  Icons.abc,
+                  size: 28,
+                ),
+                title: Text('Insert jury token manually'),
               ),
-            ),
-            ListTile(
-              onTap: () => context.router.push(JurorVotingQrScannerRoute()),
-              leading: Icon(
-                Icons.qr_code_2,
-                size: 28,
+              SizedBox(height: 16),
+              Text(
+                'Settings',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              title: Text('Scan jury QR token'),
-            ),
-            ListTile(
-              onTap: () => _showInsertJuryTokenDialog(context),
-              leading: Icon(
-                Icons.abc,
-                size: 28,
+              BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    return ListTile(
+                      onTap: () {},
+                      title: Text(
+                        state.profile?.fullName ?? 'Unknown',
+                      ),
+                      leading: Icon(
+                        Icons.person,
+                        size: 28,
+                      ),
+                    );
+                  }
               ),
-              title: Text('Insert jury token manually'),
-            ),
-            ListTile(
-              onTap: () async {
-                final bool res = await showDialog<bool?>(
-                      context: context,
-                      builder: (_) {
-                        return AlertDialog(
-                          title: Text('Logout'),
-                          content: Text('Are you sure you want to logout?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                context.router.pop(false);
-                              },
-                              child: Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                context.router.pop(true);
-                              },
-                              child: Text('Logout'),
-                            ),
-                          ],
-                        );
-                      },
-                    ) ??
-                    false;
-                if (!context.mounted || !res) {
-                  return;
-                }
-                context.read<SimpleJurorHomePageBloc>().add(SimpleJurorHomePageSignOut());
-              },
-              leading: Icon(
-                Icons.logout,
-                color: Theme.of(context).colorScheme.error,
-                size: 28,
+              BlocConsumer<ThemeBloc, ThemeState>(
+                listener: (context, state) {
+                  if(state.message!=null) {
+                    showSnackBar(context: context, text: state.message!);
+                  }
+                  if(state.status.isLoading) {
+                    context.showLoader();
+                  } else {
+                    context.hideLoader();
+                  }
+                  if(state.status.isSuccess && state.sourceEvent is SaveTheme) {
+                    showSnackBar(context: context, text: 'Theme changed successfully');
+                  }
+                },
+                builder: (context, state) {
+                  final theme = state.theme!;
+                  return InkWell(
+                    onTap: () {
+                      _showEditThemeDialog(context: context, currentTheme: theme);
+                    },
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.contrast,
+                        size: 28,
+                      ),
+                      title: Text('Theme'),
+                      subtitle: Text(theme.name.capitalize()),
+                      subtitleTextStyle: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                    ),
+                  );
+                },
               ),
-              title: Text(
-                'Logout',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.error),
+              ListTile(
+                onTap: () async {
+                  final bool res = await showDialog<bool?>(
+                        context: context,
+                        builder: (_) {
+                          return AlertDialog(
+                            title: Text('Logout'),
+                            content: Text('Are you sure you want to logout?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  context.router.pop(false);
+                                },
+                                child: Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  context.router.pop(true);
+                                },
+                                child: Text('Logout'),
+                              ),
+                            ],
+                          );
+                        },
+                      ) ??
+                      false;
+                  if (!context.mounted || !res) {
+                    return;
+                  }
+                  context.read<SimpleJurorHomePageBloc>().add(SimpleJurorHomePageSignOut());
+                },
+                leading: Icon(
+                  Icons.logout,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 28,
+                ),
+                title: Text(
+                  'Logout',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Theme.of(context).colorScheme.error),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -151,9 +191,10 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
           value: simpleJurorHomePageBloc,
           child: BlocListener<SimpleJurorHomePageBloc, SimpleJurorHomePageState>(
             listener: (context, state) {
-              if(state.status.isSuccess && state.sourceEvent is SimpleJurorHomePageAccessVoting) {
+              if (state.status.isSuccess && state.sourceEvent is SimpleJurorHomePageAccessVoting) {
                 dialogContext.pop(true);
-                context.router.push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+                context.router
+                    .push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
               }
             },
             child: AlertDialog(
@@ -174,13 +215,90 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    context.read<SimpleJurorHomePageBloc>().add(SimpleJurorHomePageAccessVoting(token: tokenController.text));
+                    context
+                        .read<SimpleJurorHomePageBloc>()
+                        .add(SimpleJurorHomePageAccessVoting(token: tokenController.text));
                   },
                   child: const Text('Confirm'),
                 ),
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  void _showEditThemeDialog({
+    required BuildContext context,
+    required AppTheme currentTheme,
+  }) {
+    final themeBloc = context.read<ThemeBloc>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        AppTheme selectedTheme = currentTheme;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return BlocProvider.value(
+              value: themeBloc,
+              child: BlocConsumer<ThemeBloc, ThemeState>(
+                listener: (context, state) {
+                  if (state.status.isSuccess && state.sourceEvent is SaveTheme) {
+                    showSnackBar(context: context, text: 'Theme changed successfully');
+                    context.router.pop();
+                  }
+                },
+                builder: (context, state) {
+                  return AlertDialog(
+                    title: Text('Theme'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RadioGroup<AppTheme>(
+                          onChanged: (value) {
+                            setState(() => selectedTheme = value!);
+                          },
+                          groupValue: selectedTheme,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              RadioListTile(
+                                value: AppTheme.system,
+                                title: Text('System'),
+                              ),
+                              RadioListTile(
+                                value: AppTheme.light,
+                                title: Text('Light'),
+                              ),
+                              RadioListTile(
+                                value: AppTheme.dark,
+                                title: Text('Dark'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => context.router.pop(),
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          context.read<ThemeBloc>().add(SaveTheme(theme: selectedTheme));
+                        },
+                        child: Text('Proceed'),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );
