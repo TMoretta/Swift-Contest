@@ -100,9 +100,9 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
             emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
         (success) async {
       emit(AuthState(
-          blocStatus: BlocStatus.success,
-          sourceEvent: event,
-          authStatus: AuthStatus.unauthenticated,
+        blocStatus: BlocStatus.success,
+        sourceEvent: event,
+        authStatus: AuthStatus.unauthenticated,
       ));
       await HydratedBloc.storage.clear();
     });
@@ -112,13 +112,20 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthEditPrefRole event,
     Emitter<AuthState> emit,
   ) async {
+    if(state.profile!.prefRole == event.prefRole) {
+      return;
+    }
+
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
     final eitherEditPrefRole =
         await _authRepository.updateProfilePrefRole(prefRole: event.prefRole);
     eitherEditPrefRole.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
+      (success) {
+        final updatedProfile = state.profile!.copyWith(prefRole: event.prefRole);
+        emit(state.copyWith(blocStatus: BlocStatus.success, profile: updatedProfile));
+      },
     );
   }
 
@@ -126,13 +133,20 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthEditFullName event,
     Emitter<AuthState> emit,
   ) async {
+    if(state.profile!.fullName == event.fullName) {
+      return;
+    }
+
     emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
 
     final eitherEditFullName =
         await _authRepository.updateProfileFullName(fullName: event.fullName);
     eitherEditFullName.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
+      (success) {
+        final updatedProfile = state.profile!.copyWith(fullName: event.fullName);
+        emit(state.copyWith(blocStatus: BlocStatus.success, profile: updatedProfile));
+      },
     );
   }
 

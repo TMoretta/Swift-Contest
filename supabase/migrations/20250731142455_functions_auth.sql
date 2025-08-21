@@ -109,23 +109,18 @@ $$;
 --region UPDATE PROFILE FULL NAME
 -- Updates the full_name for the currently authenticated user's profile.
 CREATE OR REPLACE FUNCTION auth_update_profile_full_name(p_full_name text)
-RETURNS profiles -- Returns the single updated profile row
+RETURNS void -- Returns the single updated profile row
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public, extensions
 AS $$
-DECLARE
-  updated_profile profiles;
 BEGIN
   UPDATE public.profiles
   SET full_name = p_full_name
-  WHERE id = auth.uid()
-  RETURNING * INTO updated_profile;
+  WHERE id = auth.uid();
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Profile not found or access denied.';
   END IF;
-
-  RETURN updated_profile;
 END;
 $$;
 --endregion
@@ -133,23 +128,18 @@ $$;
 --region UPDATE PROFILE PREFERRED ROLE
 -- Updates the pref_role for the currently authenticated user's profile.
 CREATE OR REPLACE FUNCTION auth_update_profile_pref_role(p_pref_role text)
-RETURNS profiles -- Returns the single updated profile row
+RETURNS void -- Returns the single updated profile row
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public, extensions
 AS $$
-DECLARE
-  updated_profile profiles;
 BEGIN
   UPDATE public.profiles
   SET pref_role = p_pref_role::contest_role -- Cast the text input to the enum type
-  WHERE id = auth.uid()
-  RETURNING * INTO updated_profile;
+  WHERE id = auth.uid();
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Profile not found or access denied.';
   END IF;
-
-  RETURN updated_profile;
 END;
 $$;
 --endregion

@@ -719,9 +719,6 @@ void _showDeleteInvitationDialog({
                 state.sourceEvent is OrganizerJuryDetailsPageDeleteJurorInvitation) {
               context.router.pop();
               showSnackBar(context: context, text: 'Invitation deleted successfully');
-              context
-                  .read<OrganizerJuryDetailsPageBloc>()
-                  .add(OrganizerJuryDetailsPageFetch(juryId: juryId));
             }
           },
           builder: (context, state) {

@@ -172,7 +172,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                   ? ListViewWithCentralLabel(
                                   label: 'No work attended from joined participants')
                                   : ListView.builder(
-                                itemCount: participationsWithWorksBundles.length,
+                                itemCount: participationsWithoutWorksBundles.length,
                                 itemBuilder: (context, index) {
                                   final participationBundle =
                                   participationsWithoutWorksBundles[index];

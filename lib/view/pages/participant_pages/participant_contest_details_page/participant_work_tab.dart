@@ -207,7 +207,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                             state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd
                                 .isAfter(now()))
                             ? 'No work submitted yet'
-                            : 'No work submitted.\n Period of participation is passed'),
+                            : 'No work submitted.\n Submission period is not on'),
                   );
                 },
               );

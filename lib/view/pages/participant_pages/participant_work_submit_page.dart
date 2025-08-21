@@ -100,6 +100,8 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
             onStepContinue: () {
               final isLastStep = (currentStep == getSteps().length - 1);
               if (formKeys[currentStep].currentState?.validate() ?? false) {
+                // If valid, save the form to trigger `onSaved` callbacks and update state.
+                formKeys[currentStep].currentState?.save();
                 if (isLastStep) {
                   final name = nameController.text.trim();
                   final description = descriptionController.text.trim();
@@ -110,7 +112,6 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                         name: name,
                         description: description,
                         images: images,
-                        // file: file!,
                       ));
                 } else {
                   setState(() => ++currentStep);

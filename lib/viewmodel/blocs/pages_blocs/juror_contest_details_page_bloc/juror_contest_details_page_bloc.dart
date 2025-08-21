@@ -4,7 +4,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/database/bundles/juror_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
@@ -13,7 +12,6 @@ import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'juror_contest_details_page_event.dart';
-
 part 'juror_contest_details_page_state.dart';
 
 class JurorContestDetailsPageBloc
@@ -73,23 +71,7 @@ class JurorContestDetailsPageBloc
     emit(state.copyWith(
         status: BlocStatus.success,
         isInitialized: true,
-        contestDetailsBundle: contestDetailsBundle)); //todo remove
-
-    //TODO add
-    // if (contestDetailsBundle.liveVotingSession == null) {
-    //   emit(state.copyWith(status: BlocStatus.success, isInitialized: true, contestDetailsBundle: contestDetailsBundle));
-    //   return;
-    // }
-    // final eitherProcedureBundle = await _jurorRepository.getVotingSessionProcedureBundle(
-    //     votingSessionId: contestDetailsBundle.liveVotingSession!.id);
-    // eitherProcedureBundle.fold(
-    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-    //   (success) => emit(state.copyWith(
-    //       status: BlocStatus.success,
-    //       isInitialized: true,
-    //       contestDetailsBundle: contestDetailsBundle,
-    //       votingSessionProcedureBundle: success)),
-    // );
+        contestDetailsBundle: contestDetailsBundle));
   }
 
   FutureOr<void> _leaveContest(

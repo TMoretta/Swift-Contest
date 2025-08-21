@@ -53,16 +53,6 @@ final class OrganizerContestDetailsPageDeleteParticipantInvitation
   List<Object?> get props => [participantInvitationId];
 }
 
-final class OrganizerContestDetailsPageDeleteJurorInvitation
-    extends OrganizerContestDetailsPageEvent {
-  final String jurorInvitationId;
-
-  const OrganizerContestDetailsPageDeleteJurorInvitation({required this.jurorInvitationId});
-
-  @override
-  List<Object?> get props => [jurorInvitationId];
-}
-
 final class OrganizerContestDetailsPageRemoveParticipant extends OrganizerContestDetailsPageEvent {
   final String participationId;
 

@@ -170,6 +170,8 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                 onStepContinue: () {
                   final isLastStep = (currentStep == getSteps().length - 1);
                   if (formKeys[currentStep].currentState?.validate() ?? false) {
+                    // If valid, save the form to trigger `onSaved` callbacks and update state.
+                    formKeys[currentStep].currentState?.save();
                     if (isLastStep) {
                       context.read<OrganizerContestEditPageBloc>().add(
                             OrganizerContestEditPageEditContest(

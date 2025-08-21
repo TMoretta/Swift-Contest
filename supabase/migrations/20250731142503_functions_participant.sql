@@ -176,45 +176,45 @@ $$;
 --region PARTICIPANT LEAVE CONTEST
 -- Allows a participant to leave a contest, deleting their participation record.
 CREATE OR REPLACE FUNCTION participant_leave_contest(p_contest_id uuid)
-  RETURNS void
-  LANGUAGE plpgsql
-  -- Runs with creator's privileges to insert a message for the organizer.
-  -- Security is enforced by checking that the user is the participant.
-  SECURITY DEFINER SET search_path = public, extensions
-  AS $$
-  DECLARE
-    v_participation record;
-    v_contest record;
-    v_participant_name text;
-  BEGIN
-    -- SECURITY CHECK: Find the specific participation record for the current user.
-    -- This also retrieves the necessary IDs for creating the notification message.
-    SELECT * INTO v_participation
-    FROM public.participations
-    WHERE contest_id = p_contest_id AND participant_id = auth.uid();
+RETURNS void
+LANGUAGE plpgsql
+-- Runs with creator's privileges to insert a message for the organizer.
+-- Security is enforced by checking that the user is the participant.
+SECURITY DEFINER SET search_path = public, extensions
+AS $$
+DECLARE
+  v_participation record;
+  v_contest record;
+  v_participant_name text;
+BEGIN
+  -- SECURITY CHECK: Find the specific participation record for the current user.
+  -- This also retrieves the necessary IDs for creating the notification message.
+  SELECT * INTO v_participation
+  FROM public.participations
+  WHERE contest_id = p_contest_id AND participant_id = auth.uid();
 
-    -- If no record is found, the user is not a participant or the contest doesn't exist.
-    IF NOT FOUND THEN
-      RAISE EXCEPTION 'Participation not found for this user in the specified contest.';
-    END IF;
+  -- If no record is found, the user is not a participant or the contest doesn't exist.
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Participation not found for this user in the specified contest.';
+  END IF;
 
-    -- Get contest and participant details for the notification message.
-    SELECT name, organizer_id INTO v_contest FROM public.contests WHERE id = v_participation.contest_id;
-    SELECT full_name INTO v_participant_name FROM public.profiles WHERE id = v_participation.participant_id;
+  -- Get contest and participant details for the notification message.
+  SELECT name, organizer_id INTO v_contest FROM public.contests WHERE id = v_participation.contest_id;
+  SELECT full_name INTO v_participant_name FROM public.profiles WHERE id = v_participation.participant_id;
 
-    -- Delete the participation record.
-    DELETE FROM public.participations WHERE id = v_participation.id;
+  -- Delete the participation record.
+  DELETE FROM public.participations WHERE id = v_participation.id;
 
-    -- Create a notification message for the organizer.
-    INSERT INTO public.messages (account_id, title, body)
-    VALUES (
-      v_contest.organizer_id,
-      'Participant Left Contest',
-      'The participant "' || v_participant_name || '" has left your contest "' || v_contest.name || '".'
-    );
-  END;
-  $$;
-  --endregion
+  -- Create a notification message for the organizer.
+  INSERT INTO public.messages (account_id, title, body)
+  VALUES (
+    v_contest.organizer_id,
+    'Participant Left Contest',
+    'The participant "' || v_participant_name || '" has left your contest "' || v_contest.name || '".'
+  );
+END;
+$$;
+--endregion
 
 --region SUBMIT WORK
 -- Allows a participant to submit their work for a contest.

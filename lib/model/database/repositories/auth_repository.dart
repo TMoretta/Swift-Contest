@@ -21,9 +21,9 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, Unit>> deleteAllAccountMessages();
 
-  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName});
+  Future<Either<Failure, Unit>> updateProfileFullName({required String fullName});
 
-  Future<Either<Failure, Profile>> updateProfilePrefRole({required ContestRole prefRole});
+  Future<Either<Failure, Unit>> updateProfilePrefRole({required ContestRole prefRole});
 
   Future<Either<Failure, Unit>> signInWithEmailAndPassword({
     required String email,
@@ -142,25 +142,23 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Profile>> updateProfileFullName({required String fullName}) async {
+  Future<Either<Failure, Unit>> updateProfileFullName({required String fullName}) async {
     return handleDatabaseCall(
       () async {
-        final Map<String, dynamic> res =
-            await _supabase.rpc('auth_update_profile_full_name', params: {'p_full_name': fullName}).single();
-        return Either.right(Profile.fromJson(res));
+        await _supabase.rpc('auth_update_profile_full_name', params: {'p_full_name': fullName});
+        return Either.right(unit);
       },
     );
   }
 
   @override
-  Future<Either<Failure, Profile>> updateProfilePrefRole({
+  Future<Either<Failure, Unit>> updateProfilePrefRole({
     required ContestRole prefRole,
   }) async {
     return handleDatabaseCall(
       () async {
-        final Map<String, dynamic> res =
-        await _supabase.rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole.name}).single();
-        return Either.right(Profile.fromJson(res));
+        await _supabase.rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole.name});
+        return Either.right(unit);
       },
     );
   }

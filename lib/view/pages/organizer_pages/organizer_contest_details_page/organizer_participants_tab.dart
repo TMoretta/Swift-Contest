@@ -333,7 +333,7 @@ void _showDeleteInvitationDialog({
 
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return BlocProvider.value(
         value: organizerContestDetailsPageBloc,
         child: BlocConsumer<OrganizerContestDetailsPageBloc, OrganizerContestDetailsPageState>(
@@ -342,9 +342,6 @@ void _showDeleteInvitationDialog({
                 state.sourceEvent is OrganizerContestDetailsPageDeleteParticipantInvitation) {
               context.router.pop();
               showSnackBar(context: context, text: 'Invitation deleted successfully');
-              context
-                  .read<OrganizerContestDetailsPageBloc>()
-                  .add(OrganizerContestDetailsPageFetch(contestId: contestId));
             }
           },
           builder: (context, state) {

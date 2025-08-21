@@ -87,54 +87,70 @@ class OrganizerJuryDetailsPageBloc
     );
   }
 
-  FutureOr<void> _deleteJurorInvitation(OrganizerJuryDetailsPageDeleteJurorInvitation event, Emitter<OrganizerJuryDetailsPageState> emit,) async {
+  FutureOr<void> _deleteJurorInvitation(
+    OrganizerJuryDetailsPageDeleteJurorInvitation event,
+    Emitter<OrganizerJuryDetailsPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDelete = await _organizerRepository.deleteJurorInvitation(jurorInvitationId: event.jurorInvitationId);
+    final eitherDelete = await _organizerRepository.deleteJurorInvitation(
+        jurorInvitationId: event.jurorInvitationId);
 
     eitherDelete.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure,message: failure.message)),
-        (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) {
+        final updatedInvitations = List<JurorInvitation>.from(state.juryBundle!.jurorsInvitations);
+        updatedInvitations.removeWhere((invitation) => invitation.id == event.jurorInvitationId);
+        final updatedJuryBundle = state.juryBundle!.copyWith(jurorsInvitations: updatedInvitations);
+        emit(state.copyWith(status: BlocStatus.success, juryBundle: updatedJuryBundle));
+      },
     );
   }
 
-  FutureOr<void> _deleteJury(OrganizerJuryDetailsPageDeleteJury event, Emitter<OrganizerJuryDetailsPageState> emit,)async {
+  FutureOr<void> _deleteJury(
+    OrganizerJuryDetailsPageDeleteJury event,
+    Emitter<OrganizerJuryDetailsPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherDelete = await _organizerRepository.deleteJury(juryId: event.juryId);
     eitherDelete.fold(
-        (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-        (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 
-  FutureOr<void> _editJury(OrganizerJuryDetailsPageEditJury event, Emitter<OrganizerJuryDetailsPageState> emit,) async{
+  FutureOr<void> _editJury(
+    OrganizerJuryDetailsPageEditJury event,
+    Emitter<OrganizerJuryDetailsPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherUpdate = await _organizerRepository.updateJuryName(juryId: event.juryId,name: event.name);
+    final eitherUpdate =
+        await _organizerRepository.updateJuryName(juryId: event.juryId, name: event.name);
     eitherUpdate.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 
   FutureOr<void> _removeJuror(
-      OrganizerJuryDetailsPageRemoveJuror event,
-      Emitter<OrganizerJuryDetailsPageState> emit,
-      ) async {
+    OrganizerJuryDetailsPageRemoveJuror event,
+    Emitter<OrganizerJuryDetailsPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherRemoveJuror = await _organizerRepository.removeJuror(jurationId: event.jurationId);
     eitherRemoveJuror.fold(
-          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-          (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success)),
     );
   }
 
   FutureOr<void> _regenerateToken(
-      OrganizerJuryDetailsPageRegenerateToken event,
-      Emitter<OrganizerJuryDetailsPageState> emit,
-      ) async {
+    OrganizerJuryDetailsPageRegenerateToken event,
+    Emitter<OrganizerJuryDetailsPageState> emit,
+  ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
     final eitherNewToken = await _organizerRepository.regenerateJuryToken(juryId: event.juryId);

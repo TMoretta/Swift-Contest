@@ -154,7 +154,6 @@ void _showEditFullNameDialog({required BuildContext context}) {
           listener: (context, state) {
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditFullName) {
               showSnackBar(context: context, text: 'Full name updated successfully');
-              context.read<AuthBloc>().add(AuthFetch());
               context.router.pop();
             }
           },

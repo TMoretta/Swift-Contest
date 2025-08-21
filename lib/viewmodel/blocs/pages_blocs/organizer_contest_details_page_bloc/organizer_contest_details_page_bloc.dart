@@ -35,7 +35,6 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPageSendParticipantInvite>(_sendParticipantInvite);
     on<OrganizerContestDetailsPageSendJurorInvite>(_sendJurorInvite);
     on<OrganizerContestDetailsPageDeleteParticipantInvitation>(_deleteParticipantInvitation);
-    on<OrganizerContestDetailsPageDeleteJurorInvitation>(_deleteJurorInvitation);
     on<OrganizerContestDetailsPageRemoveParticipant>(_removeParticipant);
     on<OrganizerContestDetailsPageDeleteContest>(_deleteContest);
     on<OrganizerContestDetailsPageCreateJury>(_createJury);
@@ -128,25 +127,18 @@ class OrganizerContestDetailsPageBloc
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final eitherDeleteInvitation = await _organizerRepository.deleteParticipantInvitation(
-        participantInvitationId: event.participantInvitationId);
+    final eitherDeleteInvitation = await _organizerRepository.deleteParticipantInvitation(participantInvitationId: event.participantInvitationId);
     eitherDeleteInvitation.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success)),
-    );
-  }
-
-  FutureOr<void> _deleteJurorInvitation(
-    OrganizerContestDetailsPageDeleteJurorInvitation event,
-    Emitter<OrganizerContestDetailsPageState> emit,
-  ) async {
-    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-
-    final eitherDeleteInvitation = await _organizerRepository.deleteJurorInvitation(
-        jurorInvitationId: event.jurorInvitationId);
-    eitherDeleteInvitation.fold(
-      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(status: BlocStatus.success)),
+      (success) {
+        final updatedInvitations = List<ParticipantInvitation>.from(
+            state.contestDetailsBundle!.participantsInvitations);
+        updatedInvitations.removeWhere((element) => element.id == event.participantInvitationId);
+        emit(state.copyWith(
+            status: BlocStatus.success,
+            contestDetailsBundle:
+                state.contestDetailsBundle!.copyWith(participantsInvitations: updatedInvitations)));
+        },
     );
   }
 

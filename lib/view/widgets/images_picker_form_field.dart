@@ -8,13 +8,13 @@ import 'package:swift_contest/view/widgets/adaptive_local_image.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 
 class ImagesPickerFormField extends StatefulWidget {
-  final List<XFile>? initialValue;
+  final List<XFile> initialValue;
   final int? maxImages;
   final String? Function(List<XFile>?)? validator;
   final void Function(List<XFile>?)? onSaved;
 
   const ImagesPickerFormField({
-    this.initialValue,
+    this.initialValue = const [],
     this.validator,
     this.onSaved,
     this.maxImages,
@@ -26,26 +26,25 @@ class ImagesPickerFormField extends StatefulWidget {
 }
 
 class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
-  late final List<XFile> images;
   late final int? maxImages;
 
   @override
   void initState() {
     super.initState();
-    images = widget.initialValue ?? [];
     maxImages = widget.maxImages;
   }
 
   @override
   Widget build(BuildContext context) {
     return FormField<List<XFile>>(
+      initialValue: widget.initialValue,
       onSaved: widget.onSaved,
       validator: widget.validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       builder: (field) {
         return Column(
           children: [
-            (images.isEmpty)
+            (field.value!.isEmpty)
                 ? Center(child: Text('No image selected yet.'))
                 : ReorderableGridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -54,25 +53,25 @@ class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
                       crossAxisSpacing: 4,
                     ),
                     onReorder: (oldIndex, newIndex) {
-                      setState(() {
-                        final XFile item = images.removeAt(oldIndex);
-                        images.insert(newIndex, item);
-                      });
-                      field.didChange(images);
+                      // Create a mutable copy of the list to avoid modification errors.
+                      final reorderedList = List<XFile>.from(field.value!);
+                      final XFile item = reorderedList.removeAt(oldIndex);
+                      reorderedList.insert(newIndex, item);
+                      field.didChange(reorderedList);
                     },
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: images.length,
+                    itemCount: field.value!.length,
                     itemBuilder: (context, index) {
                       return Card(
-                        key: ValueKey(images[index].path),
+                        key: ValueKey(field.value![index].path),
                         elevation: 0,
                         clipBehavior: Clip.antiAlias,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: AdaptiveLocalImage(
-                          image: images[index],
+                          image: field.value![index],
                           fit: BoxFit.contain,
                         ),
                       );
@@ -81,39 +80,16 @@ class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
             SizedBox(height: 10),
             FilledButton(
               onPressed: () async {
+                // 1. If maxImages is set, show a confirmation dialog.
                 if (maxImages != null) {
                   final choice =
                       await _showMaxImagesDialog(context: context, maxImages: maxImages!);
-                  if (choice == true) {
-                    if (!kIsWeb) {
-                      final bool permission = await requestPhotoLibraryPermission();
-                      if (!context.mounted) return;
-                      if (!permission) {
-                        showSnackBar(
-                            context: context,
-                            text: 'Storage permission is required to select images.');
-                        return;
-                      }
-                    }
-                    var res = await pickMultipleImages();
-                    if (res.isEmpty) {
-                      return;
-                    }
-                    if (res.length > maxImages!) {
-                      res = res.getRange(0, maxImages!).toList(growable: false);
-                      if (!context.mounted) return;
-                      showSnackBar(
-                        context: context,
-                        text: 'Exceeded images have been discarded',
-                      );
-                    }
-                    setState(() {
-                      images.clear();
-                      images.addAll(res);
-                    });
-                    field.didChange(images);
-                  }
-                } else {
+                  // User cancelled the dialog.
+                  if (choice != true) return;
+                }
+
+                // 2. Request permissions (platform-aware).
+                if (!kIsWeb) {
                   final bool permission = await requestPhotoLibraryPermission();
                   if (!context.mounted) return;
                   if (!permission) {
@@ -121,16 +97,24 @@ class _ImagesPickerFormFieldState extends State<ImagesPickerFormField> {
                         context: context, text: 'Storage permission is required to select images.');
                     return;
                   }
-                  var res = await pickMultipleImages();
-                  if (res.isEmpty) {
-                    return;
-                  }
-                  setState(() {
-                    images.clear();
-                    images.addAll(res);
-                  });
-                  field.didChange(images);
                 }
+
+                // 3. Pick images.
+                var newImages = await pickMultipleImages();
+                if (newImages.isEmpty) return;
+
+                // 4. Check if widget is still mounted after async gap.
+                if (!context.mounted) return;
+
+                // 5. Enforce maxImages limit if necessary.
+                if (maxImages != null && newImages.length > maxImages!) {
+                  newImages = newImages.take(maxImages!).toList();
+                  showSnackBar(context: context, text: 'Exceeded images have been discarded');
+                }
+
+                // 6. Update the FormField with the new list.
+                // This is the correct way to update the value and trigger a rebuild.
+                field.didChange(newImages);
               },
               child: Text('Pick images'),
             ),

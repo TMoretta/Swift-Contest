@@ -155,7 +155,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
               _showJoinContestDialog(context: context);
             },
             icon: Icon(Icons.login),
-            label: Text('Join a contest'),
+            label: Text('Join contest'),
           ),
         );
       },

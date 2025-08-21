@@ -303,7 +303,6 @@ void _showEditPrefRoleDialog({
               listener: (context, state) {
                 if (state.blocStatus.isSuccess && state.sourceEvent is AuthEditPrefRole) {
                   showSnackBar(context: context, text: 'Preferred role changed successfully');
-                  context.read<AuthBloc>().add(AuthFetch());
                   context.router.pop();
                 }
               },
