@@ -27,15 +27,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             )
           : null,
-      title: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          title,
-          style: Theme.of(context)
-              .textTheme
-              .headlineSmall!
-              .copyWith(color: Theme.of(context).colorScheme.primary),
-        ),
+      title: Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context)
+            .textTheme
+            .headlineSmall!
+            .copyWith(color: Theme.of(context).colorScheme.primary),
       ),
       actions: actions,
       shadowColor: Theme.of(context).colorScheme.black,

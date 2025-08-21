@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/functions/now.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/view/widgets/images_carousel_full_screen.dart';
 import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
@@ -49,9 +50,9 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                 if (state.status.isFailure) {
                   return Center(
                     child: FilledButton(
-                      onPressed: () async => context.read<ParticipantContestDetailsPageBloc>().add(
-                          ParticipantContestDetailsPageFetch(
-                              contestId: contestId)),
+                      onPressed: () async => context
+                          .read<ParticipantContestDetailsPageBloc>()
+                          .add(ParticipantContestDetailsPageFetch(contestId: contestId)),
                       child: Text('Retry'),
                     ),
                   );
@@ -64,150 +65,165 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
                         .read<ParticipantContestDetailsPageBloc>()
-                        .add(ParticipantContestDetailsPageFetch(
-                        contestId: contestId)),
+                        .add(ParticipantContestDetailsPageFetch(contestId: contestId)),
                     child: (work != null)
                         ? ListView(
-                      children: [
-                        //* Title
-                        Text(
-                          work.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                        ),
-                        SizedBox(height: 8),
-                        //* Images carousel
-                        SizedBox(
-                          height: 180,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: work.imagesPaths.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: (work.imagesPaths.isNotEmpty)
-                                    ? StorageImage(
-                                  bucket: StorageBucket.worksImages,
-                                  path: work.imagesPaths[index],
-                                  fit: BoxFit.cover,
-                                )
-                                    : Icon(Icons.broken_image_outlined),
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        //* Description
-                        Text(
-                          'Description',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                        ),
-                        Text(work.description),
-                        SizedBox(height: 16),
-                        //* File
-                        // Text(
-                        //   'File',
-                        //   style: Theme.of(context)
-                        //       .textTheme
-                        //       .titleMedium
-                        //       ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                        // ),
-                        // Card(
-                        //   elevation: 0.1,
-                        //   color: Theme.of(context).colorScheme.tertiaryContainer,
-                        //   child: ListTile(
-                        //     title: Text(
-                        //       work!.fileUrl.split('/').last,
-                        //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        //           color:
-                        //               Theme.of(context).colorScheme.onTertiaryContainer),
-                        //       maxLines: 1,
-                        //       overflow: TextOverflow.ellipsis,
-                        //     ),
-                        //     trailing: IconButton(
-                        //       onPressed: () async {
-                        //         if (!await requestStoragePermission()) {
-                        //           if (context.mounted) {
-                        //             showSnackBar(
-                        //                 context: context, text: 'Permission denied');
-                        //           }
-                        //           return;
-                        //         }
-                        //
-                        //         final directory =
-                        //             await ExternalPath.getExternalStoragePublicDirectory(
-                        //                 ExternalPath.DIRECTORY_DOWNLOAD);
-                        //
-                        //         final originalFilename =
-                        //             work!.fileUrl.split('/').last;
-                        //         final baseName =
-                        //             p.basenameWithoutExtension(originalFilename);
-                        //         final extension = p.extension(originalFilename);
-                        //
-                        //         String safeFilename;
-                        //         int count = 0;
-                        //         do {
-                        //           safeFilename = (count == 0)
-                        //               ? originalFilename
-                        //               : '$baseName ($count)$extension';
-                        //           count++;
-                        //         } while (await File('$directory/$safeFilename').exists());
-                        //
-                        //         final path = '$directory/$safeFilename';
-                        //
-                        //         try {
-                        //           await Dio().download(
-                        //             work!.fileUrl,
-                        //             path,
-                        //             onReceiveProgress: (received, total) {
-                        //               if (total != -1) {
-                        //                 // opzionale: mostra progress %
-                        //                 final pct =
-                        //                     (received / total * 100).toStringAsFixed(0);
-                        //                 debugPrint('Download: $pct%');
-                        //               }
-                        //             },
-                        //           );
-                        //         } catch (e) {
-                        //           debugPrint('Download error: $e');
-                        //           if (context.mounted) {
-                        //             showSnackBar(
-                        //                 context: context, text: Labels.anErrorOccurred);
-                        //           }
-                        //           return;
-                        //         }
-                        //
-                        //         if (context.mounted) {
-                        //           showSnackBar(
-                        //               context: context,
-                        //               text:
-                        //                   'File successfully downloaded in "Downloads" directory');
-                        //         }
-                        //
-                        //         await OpenFile.open(path,
-                        //             type: MediaTypes.mapExtension(extension));
-                        //       },
-                        //       icon: Icon(
-                        //         Icons.download_rounded,
-                        //         color: Theme.of(context).colorScheme.onTertiaryContainer,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    )
+                            children: [
+                              //* Title
+                              Text(
+                                work.name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                              ),
+                              SizedBox(height: 8),
+                              //* Images carousel
+                              SizedBox(
+                                height: 180,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: work.imagesPaths.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: (work.imagesPaths.isNotEmpty)
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                // Show the full-screen image viewer dialog
+                                                showDialog(
+                                                  context: context,
+                                                  // Use a custom dialog for a better full-screen experience
+                                                  builder: (_) => ImagesCarouselFullScreen(
+                                                    bucket: StorageBucket.worksImages,
+                                                    imagePaths: work.imagesPaths,
+                                                    initialIndex: index,
+                                                  ),
+                                                );
+                                              },
+                                              child: StorageImage(
+                                                bucket: StorageBucket.worksImages,
+                                                path: work.imagesPaths[index],
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )
+                                          : Icon(Icons.broken_image_outlined),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              //* Description
+                              Text(
+                                'Description',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                              ),
+                              Text(work.description),
+                              SizedBox(height: 16),
+                              //* File
+                              // Text(
+                              //   'File',
+                              //   style: Theme.of(context)
+                              //       .textTheme
+                              //       .titleMedium
+                              //       ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                              // ),
+                              // Card(
+                              //   elevation: 0.1,
+                              //   color: Theme.of(context).colorScheme.tertiaryContainer,
+                              //   child: ListTile(
+                              //     title: Text(
+                              //       work!.fileUrl.split('/').last,
+                              //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              //           color:
+                              //               Theme.of(context).colorScheme.onTertiaryContainer),
+                              //       maxLines: 1,
+                              //       overflow: TextOverflow.ellipsis,
+                              //     ),
+                              //     trailing: IconButton(
+                              //       onPressed: () async {
+                              //         if (!await requestStoragePermission()) {
+                              //           if (context.mounted) {
+                              //             showSnackBar(
+                              //                 context: context, text: 'Permission denied');
+                              //           }
+                              //           return;
+                              //         }
+                              //
+                              //         final directory =
+                              //             await ExternalPath.getExternalStoragePublicDirectory(
+                              //                 ExternalPath.DIRECTORY_DOWNLOAD);
+                              //
+                              //         final originalFilename =
+                              //             work!.fileUrl.split('/').last;
+                              //         final baseName =
+                              //             p.basenameWithoutExtension(originalFilename);
+                              //         final extension = p.extension(originalFilename);
+                              //
+                              //         String safeFilename;
+                              //         int count = 0;
+                              //         do {
+                              //           safeFilename = (count == 0)
+                              //               ? originalFilename
+                              //               : '$baseName ($count)$extension';
+                              //           count++;
+                              //         } while (await File('$directory/$safeFilename').exists());
+                              //
+                              //         final path = '$directory/$safeFilename';
+                              //
+                              //         try {
+                              //           await Dio().download(
+                              //             work!.fileUrl,
+                              //             path,
+                              //             onReceiveProgress: (received, total) {
+                              //               if (total != -1) {
+                              //                 // opzionale: mostra progress %
+                              //                 final pct =
+                              //                     (received / total * 100).toStringAsFixed(0);
+                              //                 debugPrint('Download: $pct%');
+                              //               }
+                              //             },
+                              //           );
+                              //         } catch (e) {
+                              //           debugPrint('Download error: $e');
+                              //           if (context.mounted) {
+                              //             showSnackBar(
+                              //                 context: context, text: Labels.anErrorOccurred);
+                              //           }
+                              //           return;
+                              //         }
+                              //
+                              //         if (context.mounted) {
+                              //           showSnackBar(
+                              //               context: context,
+                              //               text:
+                              //                   'File successfully downloaded in "Downloads" directory');
+                              //         }
+                              //
+                              //         await OpenFile.open(path,
+                              //             type: MediaTypes.mapExtension(extension));
+                              //       },
+                              //       icon: Icon(
+                              //         Icons.download_rounded,
+                              //         color: Theme.of(context).colorScheme.onTertiaryContainer,
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
+                            ],
+                          )
                         : ListViewWithCentralLabel(
-                        label: (state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart
-                            .isBefore(now()) &&
-                            state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd
-                                .isAfter(now()))
-                            ? 'No work submitted yet'
-                            : 'No work submitted.\n Submission period is not on'),
+                            label: (state.contestDetailsBundle!.contestBundle.contest
+                                        .worksSubmissionStart
+                                        .isBefore(now()) &&
+                                    state.contestDetailsBundle!.contestBundle.contest
+                                        .worksSubmissionEnd
+                                        .isAfter(now()))
+                                ? 'No work submitted yet'
+                                : 'No work submitted.\n Submission period is not on'),
                   );
                 },
               );
@@ -215,19 +231,23 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
           ),
           floatingActionButton: Builder(
             builder: (context) {
-              final bool isInParticipationPhase =
-                  state.contestDetailsBundle!.contestBundle.contest.worksSubmissionStart.isBefore(now()) &&
-                      state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd.isAfter(now());
-              if (state.status.isSuccess && state.contestDetailsBundle!.ownWork == null && isInParticipationPhase) {
+              final bool isInParticipationPhase = state
+                      .contestDetailsBundle!.contestBundle.contest.worksSubmissionStart
+                      .isBefore(now()) &&
+                  state.contestDetailsBundle!.contestBundle.contest.worksSubmissionEnd
+                      .isAfter(now());
+              if (state.status.isSuccess &&
+                  state.contestDetailsBundle!.ownWork == null &&
+                  isInParticipationPhase) {
                 return FloatingActionButton.extended(
                   onPressed: () async {
                     final bool? res =
                         await context.router.push(ParticipantWorkSubmitRoute(contestId: contestId));
                     if (res == true) {
                       if (context.mounted) {
-                        context.read<ParticipantContestDetailsPageBloc>().add(
-                            ParticipantContestDetailsPageFetch(
-                                contestId: contestId));
+                        context
+                            .read<ParticipantContestDetailsPageBloc>()
+                            .add(ParticipantContestDetailsPageFetch(contestId: contestId));
                       }
                     }
                   },

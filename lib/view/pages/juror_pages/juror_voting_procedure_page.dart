@@ -5,15 +5,17 @@ import 'package:swift_contest/model/database/bundles/juror_voting_session_proced
 import 'package:swift_contest/model/database/entities/voting_form.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
+import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/model/database/types/voting_session_status.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_slider_form_field.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
+import 'package:swift_contest/view/widgets/images_carousel_full_screen.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/view/widgets/voting_procedure_work_details_view.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/juror_voting_procedure_page_bloc/juror_voting_procedure_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -94,18 +96,22 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           context.hideLoader();
         }
         if (state.isInitialized) {
-          if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus.isEnded ?? false) {
-            if(!isFinished) {
+          if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus
+                  .isEnded ??
+              false) {
+            if (!isFinished) {
               isFinished = true;
 
-            showSnackBar(context: context, text: 'Voting session procedure is ended');
-            context.router.pop(true);
+              showSnackBar(context: context, text: 'Voting session procedure is ended');
+              context.router.pop(true);
             }
           }
-          if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus.isCancelled ?? false) {
-            if(!isFinished) {
+          if (state.votingSessionProcedureBundle?.votingSessionBundle.votingSession.sessionStatus
+                  .isCancelled ??
+              false) {
+            if (!isFinished) {
               isFinished = true;
-            showSnackBar(context: context, text: 'Voting session procedure has been cancelled');
+              showSnackBar(context: context, text: 'Voting session procedure has been cancelled');
               context.router.pop(true);
             }
           }
@@ -279,7 +285,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                         );
                                       },
                                     );
-                                    if(!context.mounted || res!=true) return;
+                                    if (!context.mounted || res != true) return;
 
                                     // Costruisce le mappe dei voti leggendo dai controller
                                     final headerFieldsValues = _headerFieldsValuesMap
@@ -378,11 +384,82 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       children: [
-        VotingProcedureWorkDetailsView(
-          participantFullName: votingSessionParticipant.participantFullName,
-          workName: votingSessionParticipant.workName,
-          workDescription: votingSessionParticipant.workDescription,
-          workImagesUrls: votingSessionParticipant.workImagesPaths,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //* Title
+            Text(
+              votingSessionParticipant.workName,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+            ),
+            SizedBox(height: 8),
+            //* Images carousel
+            SizedBox(
+              height: 180,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: votingSessionParticipant.workImagesPaths.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: (votingSessionParticipant.workImagesPaths.isNotEmpty)
+                        ? GestureDetector(
+                            onTap: () {
+                              // Show the full-screen image viewer dialog
+                              showDialog(
+                                context: context,
+                                // Use a custom dialog for a better full-screen experience
+                                builder: (_) => ImagesCarouselFullScreen(
+                                  bucket: StorageBucket.worksImages,
+                                  imagePaths: votingSessionParticipant.workImagesPaths,
+                                  initialIndex: index,
+                                ),
+                              );
+                            },
+                            child: StorageImage(
+                              bucket: StorageBucket.worksImages,
+                              path: votingSessionParticipant.workImagesPaths[index],
+                              fit: BoxFit.contain,
+                            ),
+                          )
+                        : Icon(Icons.broken_image_outlined),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 8),
+            //* Description
+            Text(
+              'Description',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+            Text(votingSessionParticipant.workDescription, style: TextStyle(fontSize: 18)),
+            SizedBox(height: 8),
+            //* Participant name
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
+              children: [
+                Icon(
+                  Icons.person_rounded,
+                  size: 24,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                Expanded(
+                  child: Text(
+                    votingSessionParticipant.participantFullName,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         const Divider(height: 24),
         (isExcluded)
@@ -453,7 +530,8 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           controller: controller,
           votingFormField: field,
           isEnabled: !isExcluded,
-        validator: (!isExcluded) ? (value) => _validateSliderField(value, field.isRequired) : null,
+          validator:
+              (!isExcluded) ? (value) => _validateSliderField(value, field.isRequired) : null,
         ),
     };
 
@@ -488,7 +566,6 @@ String? _validateSliderField(String? value, bool isRequired) {
   }
   return null;
 }
-
 
 /// A helper widget to preserve the state of pages in a PageView.
 class _KeepAlivePage extends StatefulWidget {

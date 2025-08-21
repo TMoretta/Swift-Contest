@@ -158,6 +158,11 @@ class AppRouter extends RootStackRouter {
           page: OrganizerJuryRankingGenerationRoute.page,
           guards: [AuthGuard(authBloc: authBloc)],
         ),
+        AutoRoute(
+          path: '/organizer-jury-results-export/:votingSessionJuryId',
+          page: OrganizerJuryVotingResultsExportRoute.page,
+          guards: [AuthGuard(authBloc: authBloc)],
+        ),
 
         // Participant
         AutoRoute(

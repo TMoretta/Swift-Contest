@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
+import 'package:swift_contest/view/widgets/images_carousel_full_screen.dart';
 import 'package:swift_contest/view/widgets/loader.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
@@ -107,11 +108,25 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 8),
                                 child: (work.imagesPaths.isNotEmpty)
-                                    ? StorageImage(
-                                  bucket: StorageBucket.worksImages,
-                                  path: work.imagesPaths[0],
-                                  fit: BoxFit.cover,
-                                )
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          // Show the full-screen image viewer dialog
+                                          showDialog(
+                                            context: context,
+                                            // Use a custom dialog for a better full-screen experience
+                                            builder: (_) => ImagesCarouselFullScreen(
+                                              bucket: StorageBucket.worksImages,
+                                              imagePaths: work.imagesPaths,
+                                              initialIndex: index,
+                                            ),
+                                          );
+                                        },
+                                        child: StorageImage(
+                                          bucket: StorageBucket.worksImages,
+                                          path: work.imagesPaths[index],
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
                                     : Icon(Icons.broken_image_outlined),
                               );
                             },

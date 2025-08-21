@@ -527,7 +527,9 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                     .titleMedium
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
-              Text(footerValue.votingFormSubmissionValue.value)
+              Text((footerValue.votingFormSubmissionValue.value.isNotEmpty)
+                  ? footerValue.votingFormSubmissionValue.value
+                  : 'No answer')
             ],
           ),
         );
@@ -588,7 +590,9 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                         .titleMedium
                         ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                   ),
-                  Text(participantValue.votingFormSubmissionValue.value)
+                  Text((participantValue.votingFormSubmissionValue.value.isNotEmpty)
+                      ? participantValue.votingFormSubmissionValue.value
+                      : 'No answer')
                 ],
               ),
             );

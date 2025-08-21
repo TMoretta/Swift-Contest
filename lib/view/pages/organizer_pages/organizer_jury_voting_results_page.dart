@@ -457,6 +457,7 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
                 .push(OrganizerJuryRankingGenerationRoute(votingSessionJuryId: votingSessionJuryId));
             break;
           case 'export':
+            context.router.push(OrganizerJuryVotingResultsExportRoute(votingSessionJuryId: votingSessionJuryId));
             break;
         }
       },

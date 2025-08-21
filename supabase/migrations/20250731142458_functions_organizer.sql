@@ -885,6 +885,7 @@ BEGIN
         )
       )
       FROM public.voting_form_submissions vfs
+      JOIN public.voting_session_jurors vsj ON vfs.voting_session_juror_id = vsj.id
       WHERE vfs.voting_session_juror_id = p_voting_session_juror_id
     )
 

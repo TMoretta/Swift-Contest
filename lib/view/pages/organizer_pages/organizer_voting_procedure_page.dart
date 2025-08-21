@@ -136,39 +136,46 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                             .toList(growable: false);
                         return ListView(
                           children: [
-                            Center(
-                              child: Text(
-                                'Tokens for simple juries',
-                                style: Theme.of(context).textTheme.headlineSmall,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            ...tokensForSimpleJuries.map((e) {
-                              final name = e.name;
-                              final token = e.token;
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      name,
-                                      style: Theme.of(context).textTheme.titleLarge,
+                            Center(child: Text('Voting Session is Live', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.secondary),),),
+                            SizedBox(height: 16),
+                            if(tokensForSimpleJuries.isNotEmpty)
+                              ...tokensForSimpleJuries.map((e) {
+                                final name = e.name;
+                                final token = e.token;
+                                return Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Theme.of(context).colorScheme.grey),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              name,
+                                              style: Theme.of(context).textTheme.titleLarge,
+                                            ),
+                                            SizedBox(height: 4),
+                                            QrImageView(
+                                                data: token,
+                                                size: 250,
+                                                backgroundColor: Theme.of(context).colorScheme.white),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              token,
+                                              style: Theme.of(context).textTheme.titleMedium,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    SizedBox(height: 4),
-                                    QrImageView(
-                                        data: token,
-                                        size: 250,
-                                        backgroundColor: Theme.of(context).colorScheme.white),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      token,
-                                      style: Theme.of(context).textTheme.titleMedium,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
+                                  ),
+                                );
+                              }),
                           ],
                         );
 

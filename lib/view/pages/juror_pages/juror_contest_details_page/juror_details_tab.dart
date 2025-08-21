@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
+import 'package:swift_contest/view/widgets/images_carousel_full_screen.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
@@ -62,54 +63,12 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                     .add(JurorContestDetailsPageFetch(contestId: contestId)),
                 child: ListView(
                   children: [
-                    //* Status
-                    // Row(
-                    //   mainAxisSize: MainAxisSize.min,
-                    //   mainAxisAlignment: MainAxisAlignment.start,
-                    //   children: [
-                    //     Icon(
-                    //       Icons.circle,
-                    //       size: 18,
-                    //       color: switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
-                    //         ContestStatus.preparationPhase =>
-                    //           Theme.of(context).colorScheme.statusPreparation,
-                    //         ContestStatus.participationPhase =>
-                    //           Theme.of(context).colorScheme.statusParticipation,
-                    //         ContestStatus.votingPhase =>
-                    //           Theme.of(context).colorScheme.statusVoting,
-                    //         ContestStatus.terminated =>
-                    //           Theme.of(context).colorScheme.statusTerminated,
-                    //         ContestStatus.deleted =>
-                    //           Theme.of(context).colorScheme.statusDeleted,
-                    //       },
-                    //     ),
-                    //     SizedBox(width: 2),
-                    //     Text(
-                    //       switch (state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
-                    //         ContestStatus.preparationPhase => 'Preparation phase',
-                    //         ContestStatus.participationPhase => 'Participation phase',
-                    //         ContestStatus.votingPhase => 'Voting phase',
-                    //         ContestStatus.terminated => 'Terminated',
-                    //         ContestStatus.deleted => 'Deleted',
-                    //       },
-                    //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    //             color: switch (
-                    //                 state.contestDetailsBundle!.contestBundle.contest.contestStatus) {
-                    //               ContestStatus.preparationPhase =>
-                    //                 Theme.of(context).colorScheme.statusPreparation,
-                    //               ContestStatus.participationPhase =>
-                    //                 Theme.of(context).colorScheme.statusParticipation,
-                    //               ContestStatus.votingPhase =>
-                    //                 Theme.of(context).colorScheme.statusVoting,
-                    //               ContestStatus.terminated =>
-                    //                 Theme.of(context).colorScheme.statusTerminated,
-                    //               ContestStatus.deleted =>
-                    //                 Theme.of(context).colorScheme.statusDeleted,
-                    //             },
-                    //           ),
-                    //     ),
-                    //   ],
-                    // ),
+                    //* Name
+                    Text(
+                      state.contestDetailsBundle!.contestBundle.contest.name,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    SizedBox(height: 12),
                     //* Images carousel
                     SizedBox(
                       height: 180,
@@ -129,10 +88,25 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                                     .contestDetailsBundle!.contestBundle.contest.imagesPaths[index];
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 8),
-                                  child: StorageImage(
-                                    bucket: StorageBucket.contestsImages,
-                                    path: imageUrl,
-                                    fit: BoxFit.contain,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      // Show the full-screen image viewer dialog
+                                      showDialog(
+                                        context: context,
+                                        // Use a custom dialog for a better full-screen experience
+                                        builder: (_) => ImagesCarouselFullScreen(
+                                          bucket: StorageBucket.contestsImages,
+                                          imagePaths: state.contestDetailsBundle!.contestBundle
+                                              .contest.imagesPaths,
+                                          initialIndex: index,
+                                        ),
+                                      );
+                                    },
+                                    child: StorageImage(
+                                      bucket: StorageBucket.contestsImages,
+                                      path: imageUrl,
+                                      fit: BoxFit.contain,
+                                    ),
                                   ),
                                   // Image.network(
                                   //   state.contestDetailsBundle!.contestBundle.contest
@@ -389,6 +363,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
               : null,
           backgroundColor:
               (liveVotingSessionBundle == null) ? Theme.of(context).disabledColor : null,
+          foregroundColor: (liveVotingSessionBundle == null) ? Colors.white : null,
           icon: Icon(Icons.text_snippet),
           label: Text('Vote'),
         ),

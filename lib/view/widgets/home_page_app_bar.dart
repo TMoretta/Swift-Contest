@@ -1,10 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
-import 'package:swift_contest/utils/themes/color_scheme_x.dart';
+import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -21,7 +21,6 @@ class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _HomePageAppBarState extends State<HomePageAppBar> {
   late final ContestRole contestRole;
-  late final void Function() onRefresh;
 
   @override
   void initState() {
@@ -31,25 +30,12 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      automaticallyImplyLeading: (!kIsWeb),
-      title: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+    return CustomAppBar(
+        title: contestRole.name.capitalize(),
+      actions: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              switch (contestRole) {
-                ContestRole.organizer => 'Organizer',
-                ContestRole.participant => 'Participant',
-                ContestRole.juror => 'Juror',
-              },
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall!
-                  .copyWith(color: Theme.of(context).colorScheme.primary),
-            ),
-            SizedBox(width: 4),
             TextButton(
               onPressed: () => _showSwitchRoleDialog(context: context, currentRole: contestRole),
               child: Row(
@@ -61,7 +47,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                   ),
                   SizedBox(width: 2),
                   Text(
-                    'Switch role',
+                    'Switch',
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium!
@@ -70,68 +56,35 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-      actions: [
-        BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-              final messagesCount = state.messages?.where((e) => !e.isRead).length;
-              return IconButton(
-                onPressed: () {
-                  context.router.push(InboxRoute());
-                },
-                icon: Badge.count(
-                  count: messagesCount ?? -1,
-                  isLabelVisible: (messagesCount != 0),
-                  backgroundColor: Theme.of(context).colorScheme.tertiary,
-                  child: Icon(
-                    Icons.notifications,
-                    color: Theme.of(context).colorScheme.secondary,
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                final messagesCount = state.messages?.where((e) => !e.isRead).length;
+                return IconButton(
+                  onPressed: () {
+                    context.router.push(InboxRoute());
+                  },
+                  icon: Badge.count(
+                    count: messagesCount ?? -1,
+                    isLabelVisible: (messagesCount != 0),
+                    backgroundColor: Theme.of(context).colorScheme.tertiary,
+                    child: Icon(
+                      Icons.notifications,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                   ),
-                ),
-              );
-
-            // switch (state.blocStatus) {
-            //   case BlocStatus.initial:
-            //     return VoidWidget();
-            //   case (BlocStatus.loading || BlocStatus.failure):
-            //     if (state.sourceEvent is AuthInit) {
-            //       return VoidWidget();
-            //     } else {
-            //       continue successCase;
-            //     }
-            //   successCase:
-            //   case BlocStatus.success:
-            //     final messagesCount = state.messages!.where((e) => !e.isRead).length;
-            //     return IconButton(
-            //       onPressed: () {
-            //         context.router.push(InboxRoute());
-            //       },
-            //       icon: Badge.count(
-            //         count: messagesCount,
-            //         isLabelVisible: (messagesCount != 0),
-            //         backgroundColor: Theme.of(context).colorScheme.tertiary,
-            //         child: Icon(
-            //           Icons.notifications,
-            //           color: Theme.of(context).colorScheme.secondary,
-            //         ),
-            //       ),
-            //     );
-            // }
-          },
-        ),
-        IconButton(
-          onPressed: () {
-            context.router.push(SettingsRoute());
-          },
-          icon: Icon(Icons.more_vert),
-          color: Theme.of(context).colorScheme.secondary,
-        ),
+                );
+              },
+            ),
+            IconButton(
+              onPressed: () {
+                context.router.push(SettingsRoute());
+              },
+              icon: Icon(Icons.more_vert),
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ],
+        )
       ],
-      shadowColor: Theme.of(context).colorScheme.black,
-      surfaceTintColor: Theme.of(context).colorScheme.surface,
-      elevation: 0.8,
     );
   }
 }
@@ -141,7 +94,7 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
 
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
@@ -198,7 +151,7 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                   }
                   context.router.pop();
                 },
-                child: const Text('Proceed'),
+                child: const Text('Switch'),
               ),
             ],
           );
