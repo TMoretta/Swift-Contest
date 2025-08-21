@@ -531,6 +531,8 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
       },
     );
   }
+
+
 }
 
 void _showInviteDialog({

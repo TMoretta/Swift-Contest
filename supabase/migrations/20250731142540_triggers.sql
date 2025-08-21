@@ -45,7 +45,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE TRIGGER on_contest_delete
-  BEFORE DELETE ON public.contests
+  AFTER DELETE ON public.contests
   FOR EACH ROW EXECUTE FUNCTION public.handle_contest_delete();
 --endregion
 
@@ -64,7 +64,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE TRIGGER on_work_delete
-  BEFORE DELETE ON public.works
+  AFTER DELETE ON public.works
   FOR EACH ROW EXECUTE FUNCTION public.handle_work_delete();
 --endregion
 
@@ -84,7 +84,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE TRIGGER on_contest_ranking_delete
-  BEFORE DELETE ON public.contest_rankings
+  AFTER DELETE ON public.contest_rankings
   FOR EACH ROW EXECUTE FUNCTION public.handle_contest_ranking_delete();
 --endregion
 
@@ -103,6 +103,6 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE TRIGGER on_jury_delete
-  BEFORE DELETE ON public.juries
+  AFTER DELETE ON public.juries
   FOR EACH ROW EXECUTE FUNCTION public.handle_jury_delete();
 --endregion

@@ -29,7 +29,7 @@ class VotingSessionJury extends Equatable {
       id: json['id'] as String,
       createdAt: DateTime.parse(json['created_at']).toLocal(),
       votingSessionId: json['voting_session_id'] as String,
-      juryId: json['jury_id'] as String,
+      juryId: json['jury_id'] as String?,
       juryName: json['jury_name'] as String,
       juryType: JuryType.values.byName(json['jury_type']),
       votingFormId: json['voting_form_id'] as String,
