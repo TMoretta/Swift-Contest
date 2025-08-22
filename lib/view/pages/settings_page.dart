@@ -15,6 +15,7 @@ import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/terms_of_service_dialog.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/inbox_bloc/inbox_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -48,6 +49,7 @@ class _AuthState extends State<SettingsPage> {
               context.hideLoader();
             }
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
+              context.read<InboxBloc>().add(InboxClear());
               context.router.replaceAll([RootRoute()]);
             }
           },

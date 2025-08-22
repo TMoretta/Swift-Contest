@@ -7,7 +7,7 @@ import 'package:swift_contest/view/widgets/list_view_with_central_label.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/inbox_bloc/inbox_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
@@ -19,6 +19,12 @@ class InboxPage extends StatefulWidget {
 }
 
 class _InboxPageState extends State<InboxPage> {
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<InboxBloc>().add(InboxGetStream());
+  }
   @override
   void dispose() {
     context.hideLoader();
@@ -27,12 +33,12 @@ class _InboxPageState extends State<InboxPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthBloc, AuthState>(
+    return BlocConsumer<InboxBloc, InboxState>(
       listener: (context, state) {
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
-        if (state.blocStatus.isLoading) {
+        if (state.status.isLoading) {
           context.showLoader();
         } else {
           context.hideLoader();
@@ -46,7 +52,7 @@ class _InboxPageState extends State<InboxPage> {
               (state.messages != null && state.messages!.isNotEmpty)
                   ? TextButton(
                       onPressed: () {
-                        _showDeleteAllMessagesDialog(context: context);
+                        _showDeleteAllMessagesDialog(context);
                       },
                       child: Text('Delete all'),
                     )
@@ -55,82 +61,84 @@ class _InboxPageState extends State<InboxPage> {
           ),
           body: Builder(
             builder: (context) {
+              if (state.status.isFailure && state.sourceEvent is InboxGetStream) {
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('An error occurred'),
+                      FilledButton(
+                        onPressed: () async => context.read<InboxBloc>().add(InboxGetStream()),
+                        child: Text('Refresh'),
+                      ),
+                    ],
+                  ),
+                );
+              }
               if (!state.isInitialized) {
-                if (state.blocStatus.isFailure) {
-                  return Center(
-                    child: FilledButton(
-                      onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
-                      child: Text('Retry'),
-                    ),
-                  );
-                }
                 return VoidWidget();
               }
-              return RefreshIndicator.adaptive(
-                onRefresh: () async => context.read<AuthBloc>().add(AuthFetch()),
-                child: (state.messages!.isEmpty)
-                    ? ListViewWithCentralLabel(label: 'No message')
-                    : ListView.builder(
-                        itemCount: state.messages!.length,
-                        itemBuilder: (context, index) {
-                          final message = state.messages![index];
-                          return ListTile(
-                            onTap: () async {
-                              await showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text(message.title),
-                                    content: Text(
-                                        '${message.body}\n\n${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt!)}'),
-                                  );
-                                },
-                              );
-                              if (context.mounted && !message.isRead) {
-                                context
-                                    .read<AuthBloc>()
-                                    .add(AuthMarkMessageAsRead(messageId: message.id!));
-                              }
-                            },
-                            title: Text(message.title),
-                            subtitle: Text('${message.body}\n'
-                                '${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt!)}'),
-                            tileColor: (!message.isRead)
-                                ? Theme.of(context).colorScheme.primaryContainer
-                                : Theme.of(context).colorScheme.surfaceContainer,
-                            trailing: IconButton(
-                                onPressed: () async {
-                                  final bool? res = await showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: Text('Delete message'),
-                                        content:
-                                            Text('Are you sure you want to delete this message?'),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () => context.router.pop(),
-                                              child: Text('Cancel')),
-                                          TextButton(
-                                              onPressed: () => context.router.pop(true),
-                                              child: Text('Proceed')),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                  if (res == true) {
-                                    if (context.mounted) {
-                                      context
-                                          .read<AuthBloc>()
-                                          .add(AuthDeleteMessage(messageId: message.id!));
-                                    }
-                                  }
-                                },
-                                icon: Icon(Icons.delete)),
-                          );
-                        },
-                      ),
-              );
+              return (state.messages!.isEmpty)
+                  ? ListViewWithCentralLabel(label: 'No message')
+                  : ListView.builder(
+                      itemCount: state.messages!.length,
+                      itemBuilder: (context, index) {
+                        final message = state.messages![index];
+                        return ListTile(
+                          onTap: () async {
+                            await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(message.title),
+                                  content: Text(
+                                      '${message.body}\n\n${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt!)}'),
+                                );
+                              },
+                            );
+                            if (context.mounted && !message.isRead) {
+                              context
+                                  .read<InboxBloc>()
+                                  .add(InboxMarkMessageAsRead(messageId: message.id!));
+                            }
+                          },
+                          title: Text(message.title),
+                          subtitle: Text('${message.body}\n'
+                              '${DateFormat('dd/MM/yyyy, HH:mm').format(message.createdAt!)}'),
+                          tileColor: (!message.isRead)
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.surfaceContainer,
+                          trailing: IconButton(
+                              onPressed: () async {
+                                final bool? res = await showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Delete message'),
+                                      content:
+                                          Text('Are you sure you want to delete this message?'),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () => context.router.pop(),
+                                            child: Text('Cancel')),
+                                        TextButton(
+                                            onPressed: () => context.router.pop(true),
+                                            child: Text('Proceed')),
+                                      ],
+                                    );
+                                  },
+                                );
+                                if (!context.mounted) return;
+                                if (res == true) {
+                                  context
+                                      .read<InboxBloc>()
+                                      .add(InboxDeleteMessage(messageId: message.id!));
+                                }
+                              },
+                              icon: Icon(Icons.delete)),
+                        );
+                      },
+                    );
             },
           ),
         );
@@ -139,17 +147,17 @@ class _InboxPageState extends State<InboxPage> {
   }
 }
 
-void _showDeleteAllMessagesDialog({required BuildContext context}) {
-  final authBloc = context.read<AuthBloc>();
+void _showDeleteAllMessagesDialog(BuildContext context) {
+  final inboxBloc = context.read<InboxBloc>();
 
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return BlocProvider.value(
-        value: authBloc,
-        child: BlocConsumer<AuthBloc, AuthState>(
+        value: inboxBloc,
+        child: BlocConsumer<InboxBloc, InboxState>(
           listener: (context, state) {
-            if (state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteAllMessages) {
+            if (state.status.isSuccess && state.sourceEvent is InboxDeleteAllMessages) {
               context.router.pop();
             }
           },
@@ -163,10 +171,8 @@ void _showDeleteAllMessagesDialog({required BuildContext context}) {
                   child: Text('Cancel'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    authBloc.add(AuthDeleteAllMessages());
-                  },
-                  child: Text('Proceed'),
+                  onPressed: () => context.read<InboxBloc>().add(InboxDeleteAllMessages()),
+                  child: Text('Confirm'),
                 ),
               ],
             );

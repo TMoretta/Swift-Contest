@@ -1,14 +1,13 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/inbox_bloc/inbox_bloc.dart';
 import 'package:swift_contest/viewmodel/types/auth_status.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
@@ -50,6 +49,9 @@ class _RootPageState extends State<RootPage> {
               context.router.replace(SimpleJurorHomeRoute());
               return;
             }
+
+            //* Get realtime messages stream
+            context.read<InboxBloc>().add(InboxGetStream());
 
             //* If success and authenticated go to home page of the pref contest role
             switch (state.profile!.prefRole) {

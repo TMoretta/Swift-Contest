@@ -29,9 +29,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     on<AuthDeleteAccount>(_deleteAccount);
     on<AuthEditPrefRole>(_editPrefRole);
     on<AuthEditFullName>(_editFullName);
-    on<AuthMarkMessageAsRead>(_markMessageAsRead);
-    on<AuthDeleteMessage>(_deleteMessage);
-    on<AuthDeleteAllMessages>(_deleteAllMessages);
   }
 
   @override
@@ -81,7 +78,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
             isInitialized: true,
             account: success.account,
             profile: success.profile,
-            messages: success.messages,
           ));
         }
       },
@@ -150,28 +146,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     );
   }
 
-  FutureOr<void> _markMessageAsRead(
-    AuthMarkMessageAsRead event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherMarkMessageAsRead =
-        await _authRepository.markMessageAsRead(messageId: event.messageId);
-    eitherMarkMessageAsRead.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) {
-        final updatedMessages = state.messages!.map((e) {
-          if (e.id == event.messageId) {
-            e = e.copyWith(isRead: true);
-          }
-          return e;
-        }).toList(growable: false);
-        emit(state.copyWith(blocStatus: BlocStatus.success, messages: updatedMessages));
-      },
-    );
-  }
-
   FutureOr<void> _deleteAccount(
     AuthDeleteAccount event,
     Emitter<AuthState> emit,
@@ -182,37 +156,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     eitherDeleteUser.fold(
       (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(blocStatus: BlocStatus.success)),
-    );
-  }
-
-  FutureOr<void> _deleteMessage(
-    AuthDeleteMessage event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherDeleteMessage = await _authRepository.deleteMessage(messageId: event.messageId);
-    eitherDeleteMessage.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) {
-        final List<Message> updatedMessages = [];
-        updatedMessages.addAll(state.messages!);
-        updatedMessages.remove(updatedMessages.firstWhere((e) => e.id == event.messageId));
-        emit(state.copyWith(blocStatus: BlocStatus.success, messages: updatedMessages));
-      },
-    );
-  }
-
-  FutureOr<void> _deleteAllMessages(
-    AuthDeleteAllMessages event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(blocStatus: BlocStatus.loading, sourceEvent: event));
-
-    final eitherDeleteAllMessages = await _authRepository.deleteAllAccountMessages();
-    eitherDeleteAllMessages.fold(
-      (failure) => emit(state.copyWith(blocStatus: BlocStatus.failure, message: failure.message)),
-      (success) => emit(state.copyWith(blocStatus: BlocStatus.success, messages: [])),
     );
   }
 }

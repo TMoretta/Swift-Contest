@@ -24,14 +24,14 @@ BEGIN
 
       -- 2. 'profile' object from public.profiles
       -- If the LEFT JOIN finds no profile, to_jsonb(p) will correctly be NULL.
-      'profile', to_jsonb(p),
+      'profile', to_jsonb(p)
 
-      -- 3. 'messages' array from public.messages
-      'messages', (
-        SELECT COALESCE(jsonb_agg(to_jsonb(m) ORDER BY m.created_at DESC), '[]'::jsonb)
-        FROM public.messages m
-        WHERE m.account_id = current_user_id
-      )
+--      -- 3. 'messages' array from public.messages
+--      'messages', (
+--        SELECT COALESCE(jsonb_agg(to_jsonb(m) ORDER BY m.created_at DESC), '[]'::jsonb)
+--        FROM public.messages m
+--        WHERE m.account_id = current_user_id
+--      )
     ) INTO result_bundle
   FROM auth.users u
   LEFT JOIN public.profiles p ON u.id = p.id
@@ -47,6 +47,25 @@ BEGIN
 END;
 $$;
 --endregion
+
+ --region AUTH GET MESSAGES
+ -- Retrieves all messages for the currently authenticated user.
+ CREATE OR REPLACE FUNCTION auth_get_messages()
+ RETURNS SETOF messages
+ LANGUAGE plpgsql
+ STABLE
+ -- SECURITY DEFINER is used to bypass RLS and centralize the access logic.
+ SECURITY DEFINER SET search_path = public
+ AS $$
+ BEGIN
+   RETURN QUERY
+   SELECT *
+   FROM public.messages
+   WHERE account_id = auth.uid()
+   ORDER BY created_at DESC;
+ END;
+ $$;
+ --endregion
 
 --region MARK MESSAGE AS READ
 -- Marks a specific message as read for the authenticated user.
@@ -99,9 +118,20 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public, extensions
 AS $$
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM messages
+    WHERE account_id = auth.uid()
+  ) THEN
+    RETURN; -- No messages to delete
+  END IF;
+
   -- Delete all messages where the account_id matches the caller's user ID.
   DELETE FROM public.messages
   WHERE account_id = auth.uid();
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'An error occurred while deleting all messages.';
+  END IF;
 END;
 $$;
 --endregion

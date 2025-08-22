@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/utils/router/app_router.gr.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
-import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/inbox_bloc/inbox_bloc.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
   final ContestRole contestRole;
@@ -56,7 +56,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                 ],
               ),
             ),
-            BlocBuilder<AuthBloc, AuthState>(
+            BlocBuilder<InboxBloc, InboxState>(
               builder: (context, state) {
                 final messagesCount = state.messages?.where((e) => !e.isRead).length;
                 return IconButton(
@@ -64,7 +64,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                     context.router.push(InboxRoute());
                   },
                   icon: Badge.count(
-                    count: messagesCount ?? -1,
+                    count: messagesCount ?? 0,
                     isLabelVisible: (messagesCount != 0),
                     backgroundColor: Theme.of(context).colorScheme.tertiary,
                     child: Icon(

@@ -1,13 +1,19 @@
+import 'dart:async';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/account_bundle.dart';
-import 'package:swift_contest/model/database/entities/profile.dart';
+import 'package:swift_contest/model/database/entities/message.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class AuthRepository {
   Future<Either<Failure, AccountBundle?>> getAccountBundle();
+
+  Future<Either<Failure, List<Message>>> getMessages();
+
+  Future<Either<Failure, Stream<List<Message>>>> getMessagesStream();
 
   // Future<Either<Failure, Account>> updateAccountEmail({required String email});
   //
@@ -54,17 +60,49 @@ class AuthRepositoryImpl implements AuthRepository {
 
   AuthRepositoryImpl({
     required SupabaseClient supabaseClient,
-  })  : _supabase = supabaseClient;
+  }) : _supabase = supabaseClient;
 
   @override
   Future<Either<Failure, AccountBundle?>> getAccountBundle() async {
     return handleDatabaseCall(
       () async {
-        final Map<String, dynamic>? res = await _supabase.rpc('auth_get_account_bundle').maybeSingle();
+        final Map<String, dynamic>? res =
+            await _supabase.rpc('auth_get_account_bundle').maybeSingle();
         if (res == null) {
           return Either.right(null);
         }
         return Either.right(AccountBundle.fromJson(res));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, List<Message>>> getMessages() async {
+    return handleDatabaseCall(
+      () async {
+        final List<Map<String, dynamic>> res = await _supabase.rpc('auth_get_messages');
+        return Either.right(res.map((e) => Message.fromJson(e)).toList(growable: false));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Stream<List<Message>>>> getMessagesStream() async {
+    return handleDatabaseCall(
+      () async {
+        final userId = _supabase.auth.currentUser?.id;
+        if (userId == null) {
+          return Either.left(Failure('User not authenticated to get messages.'));
+        }
+
+        final Stream<List<Message>> stream = _supabase
+            .from('messages')
+            .stream(primaryKey: ['id'])
+            .eq('account_id', userId)
+            .map((listOfMaps) {
+          return listOfMaps.map((e) => Message.fromJson(e)).toList(growable: false);
+        });
+        return Either.right(stream);
       },
     );
   }
@@ -157,7 +195,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole.name});
+        await _supabase
+            .rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole.name});
         return Either.right(unit);
       },
     );

@@ -109,7 +109,7 @@ abstract interface class OrganizerRepository {
     required String votingSessionId,
   });
 
-  Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
+  Future<Either<Failure, Stream<VotingSession?>>> getVotingSessionStream({
     required String votingSessionId,
   });
 
@@ -490,29 +490,20 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   }
 
   @override
-  Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
+  Future<Either<Failure, Stream<VotingSession?>>> getVotingSessionStream({
     required String votingSessionId,
   }) async {
     return handleDatabaseCall(
       () async {
-        final Stream<Either<Failure, VotingSession?>> stream = _supabase
+        final Stream<VotingSession?> stream = _supabase
             .from('voting_sessions')
-            .stream(primaryKey: ['id']) // Specifica la chiave primaria della tabella
-            .eq('id', votingSessionId) // Filtra per ricevere aggiornamenti solo per questa sessione
-            .timeout(Duration(days: 1))
+            .stream(primaryKey: ['id'])
+            .eq('id', votingSessionId)
             .map((listOfMaps) {
-              // La stream emette una lista di mappe.
-              try {
-                if (listOfMaps.isEmpty) {
-                  // Se la lista è vuota, la sessione è stata probabilmente cancellata.
-                  return Either.right(null);
-                }
-                // Altrimenti, deserializza il primo (e unico) elemento.
-                return Either.right(VotingSession.fromJson(listOfMaps.first));
-              } catch (e) {
-                // In caso di errore di parsing, emetti un Failure.
-                return Either.left(Failure(e.toString()));
+              if (listOfMaps.isEmpty) {
+                return null;
               }
+              return VotingSession.fromJson(listOfMaps.first);
             });
         return Either.right(stream);
       },

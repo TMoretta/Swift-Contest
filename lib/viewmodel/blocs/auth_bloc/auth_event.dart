@@ -32,30 +32,8 @@ final class AuthEditFullName extends AuthEvent {
   List<Object?> get props => [fullName];
 }
 
-final class AuthMarkMessageAsRead extends AuthEvent {
-  final String messageId;
-
-  const AuthMarkMessageAsRead({required this.messageId});
-
-  @override
-  List<Object?> get props => [messageId];
-}
-
 final class AuthDeleteAccount extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
 
-final class AuthDeleteMessage extends AuthEvent {
-  final String messageId;
-
-  const AuthDeleteMessage({required this.messageId});
-
-  @override
-  List<Object?> get props => [messageId];
-}
-
-final class AuthDeleteAllMessages extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}

@@ -30,7 +30,14 @@ USING (
    WHERE vsj.voting_session_id = voting_sessions.id AND vsj.juror_id = auth.uid()
  ))
 );
---endregion
+
+-- For messages realtime channel
+-- Allow a user to read ONLY their own messages.
+CREATE POLICY "Allow owner to read their own messages"
+ON public.messages
+FOR SELECT
+TO authenticated
+USING ( account_id = auth.uid() );
 
 -- POLICIES FOR PUBLIC TABLES
 -- Note: These are permissive policies suitable for development.

@@ -17,6 +17,7 @@ import 'package:swift_contest/model/database/repositories/storage_repository.dar
 import 'package:swift_contest/model/google_place/repositories/google_place_repository.dart';
 import 'package:swift_contest/model/local/repositories/theme_repository.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
+import 'package:swift_contest/viewmodel/blocs/inbox_bloc/inbox_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
 
 void main() async {
@@ -49,7 +50,7 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
     authOptions: FlutterAuthClientOptions(autoRefreshToken: true, detectSessionInUri: true),
     realtimeClientOptions: const RealtimeClientOptions(
-      eventsPerSecond: 2,
+      timeout: Duration(days: 1),
     ),
   );
 
@@ -104,6 +105,10 @@ void main() async {
           BlocProvider<AuthBloc>(
             lazy: false,
             create: (context) => AuthBloc(authRepository: context.read()),
+          ),
+          BlocProvider<InboxBloc>(
+            lazy: false,
+            create: (context) => InboxBloc(authRepository: context.read()),
           ),
           BlocProvider<ThemeBloc>(
             lazy: false,
