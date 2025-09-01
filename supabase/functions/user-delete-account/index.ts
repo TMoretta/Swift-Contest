@@ -41,15 +41,15 @@ Deno.serve(async (req) => {
       .single();
     const userFullName = profile?.full_name || 'A user';
 
-    // 2. Handle notifications if the user is an ORGANIZER
-    const { data: organizedContests } = await supabaseAdmin
+    // 2. Handle notifications and cleanup if the user is an ORGANIZER
+    const { data: organizedContestsData } = await supabaseAdmin
       .from('contests')
-      .select('id, name')
+      .select('id, name, images_paths, place_id, contest_rankings(file_path), juries(voting_form_id)')
       .eq('organizer_id', userId);
 
-    if (organizedContests && organizedContests.length > 0) {
-      for (const contest of organizedContests) {
-        // Notify all participants of this contest
+    if (organizedContestsData && organizedContestsData.length > 0) {
+      for (const contest of organizedContestsData) {
+        // Notify participants and jurors
         const { data: participants } = await supabaseAdmin
           .from('participations')
           .select('participant_id')
@@ -64,7 +64,6 @@ Deno.serve(async (req) => {
           await supabaseAdmin.from('messages').insert(participantMessages);
         }
 
-        // Notify all jurors of this contest
         const { data: jurors } = await supabaseAdmin
           .from('jurations')
           .select('juror_id')
@@ -78,16 +77,46 @@ Deno.serve(async (req) => {
           }));
           await supabaseAdmin.from('messages').insert(jurorMessages);
         }
+
+        // --- STORAGE & RECORD CLEANUP for ORGANIZED CONTESTS ---
+        // Delete contest images
+        if (contest.images_paths && contest.images_paths.length > 0) {
+          await supabaseAdmin.storage.from('contests-images').remove(contest.images_paths);
+        }
+        // Delete ranking files
+        const rankingPaths = contest.contest_rankings.map(r => r.file_path);
+        if (rankingPaths.length > 0) {
+          await supabaseAdmin.storage.from('contests-rankings').remove(rankingPaths);
+        }
+        // Delete associated place
+        if (contest.place_id) {
+          await supabaseAdmin.from('places').delete().eq('id', contest.place_id);
+        }
+        // Delete associated voting forms
+        const votingFormIds = contest.juries.map(j => j.voting_form_id);
+        if (votingFormIds.length > 0) {
+          await supabaseAdmin.from('voting_forms').delete().in('id', votingFormIds);
+        }
       }
     }
 
     // 3. Handle notifications for contests the user PARTICIPATED in
     const { data: participations } = await supabaseAdmin
       .from('participations')
-      .select('contest:contests(organizer_id, name)')
+      .select('contest:contests(organizer_id, name), work:works(images_paths)')
       .eq('participant_id', userId);
 
     if (participations && participations.length > 0) {
+      // --- STORAGE CLEANUP for PARTICIPATED CONTESTS ---
+      const workImagePaths = participations
+        .map(p => p.work?.images_paths)
+        .flat()
+        .filter(path => path) as string[];
+
+      if (workImagePaths.length > 0) {
+        await supabaseAdmin.storage.from('works-images').remove(workImagePaths);
+      }
+
       const participationMessages = participations
         .filter(p => p.contest) // Ensure contest data was fetched
         .map(p => ({

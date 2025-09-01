@@ -1,22 +1,20 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/bundles/participant_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/entities/work.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
-import 'package:swift_contest/utils/functions/gen_uuid.dart';
 
 abstract interface class ParticipantRepository {
   Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests();
 
-  Future<Either<Failure, ParticipantContestDetailsBundle>> getContestDetails(
-      {required String contestId});
+  Future<Either<Failure, ParticipantContestDetailsBundle>> getContestDetails({
+    required String contestId,
+  });
 
   Future<Either<Failure, Unit>> joinContest({
     required String token,
@@ -84,7 +82,10 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.rpc('participant_leave_contest', params: {'p_contest_id': contestId});
+        await _supabase.functions.invoke(
+          'participant-leave-contest',
+          body: {'contestId': contestId},
+        );
         return Either.right(unit);
       },
     );

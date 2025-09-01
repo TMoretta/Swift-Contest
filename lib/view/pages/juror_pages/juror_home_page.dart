@@ -73,19 +73,21 @@ class _JurorHomePageState extends State<JurorHomePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: HomePageAppBar(
-            contestRole: ContestRole.juror
-
-          ),
+          appBar: HomePageAppBar(contestRole: ContestRole.juror),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Builder(
                 builder: (context) {
-                  if(!state.isInitialized) {
-                    if(state.status.isFailure) {
-                      return Center(child: FilledButton(onPressed: () async =>
-                          context.read<JurorHomePageBloc>().add(JurorHomePageFetch()), child: Text('Retry'),),);
+                  if (!state.isInitialized) {
+                    if (state.status.isFailure) {
+                      return Center(
+                        child: FilledButton(
+                          onPressed: () async =>
+                              context.read<JurorHomePageBloc>().add(JurorHomePageFetch()),
+                          child: Text('Retry'),
+                        ),
+                      );
                     }
                     return VoidWidget();
                   }
@@ -108,34 +110,35 @@ class _JurorHomePageState extends State<JurorHomePage> {
                           },
                           child: (state.filteredContestsBundles!.isNotEmpty)
                               ? ListView(
-                            children: [
-                              SizedBox(height: 16),
-                              ...state.filteredContestsBundles!.map((homeContestBundle) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    ContestCard(
-                                      homeContestBundle: homeContestBundle,
-                                      onTap: () async {
-                                        final bool? res = await context.router.push(
-                                            JurorContestDetailsRoute(
-                                                contestId: homeContestBundle.contestBundle.contest.id!));
-                                        if (res == true) {
-                                          if (context.mounted) {
-                                            context
-                                                .read<JurorHomePageBloc>()
-                                                .add(JurorHomePageFetch());
-                                          }
-                                        }
-                                      },
-                                    ),
-                                    SizedBox(height: 8),
+                                    SizedBox(height: 16),
+                                    ...state.filteredContestsBundles!.map((homeContestBundle) {
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ContestCard(
+                                            homeContestBundle: homeContestBundle,
+                                            onTap: () async {
+                                              final bool? res = await context.router.push(
+                                                  JurorContestDetailsRoute(
+                                                      contestId: homeContestBundle
+                                                          .contestBundle.contest.id!));
+                                              if (res == true) {
+                                                if (context.mounted) {
+                                                  context
+                                                      .read<JurorHomePageBloc>()
+                                                      .add(JurorHomePageFetch());
+                                                }
+                                              }
+                                            },
+                                          ),
+                                          SizedBox(height: 8),
+                                        ],
+                                      );
+                                    }),
+                                    SizedBox(height: 64),
                                   ],
-                                );
-                              }),
-                              SizedBox(height: 64),
-                            ],
-                          )
+                                )
                               : ListViewWithCentralLabel(label: 'No contest'),
                         ),
                       ),
@@ -145,59 +148,104 @@ class _JurorHomePageState extends State<JurorHomePage> {
               ),
             ),
           ),
-          floatingActionButton: (state.isInitialized) ? Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            spacing: 8,
-            children: [
-              FloatingActionButton.extended(
-                heroTag: 'voteAsSimpleJuror',
-                onPressed: () async {
-                  final bool res = await showDialog(context: context, builder: (_) {
-                    return AlertDialog(
-                      title: Text('Voting Access'),
-                      content: Text(
-                          'You are about to access a voting session as a simple juror. Please have the QR code provided by the organizer ready.'),
-                      actions: [
-                          TextButton(
-                            onPressed: () {
-                              context.router.pop(false);
-                            },
-                            child: Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              context.router.pop(true);
-                            },
-                            child: Text('Scan QR'),
-                          ),
+          floatingActionButton: (state.isInitialized)
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  spacing: 8,
+                  children: [
+                    FloatingActionButton.extended(
+                      heroTag: 'voteAsSimpleJuror',
+                      onPressed: () async {
+                        final jurorHomePageBloc = context.read<JurorHomePageBloc>();
 
-                      ],
-                    );
-                  },) ?? false;
-                  if(!context.mounted || !res) {
-                    return;
-                  }
-                  context.router.push(JurorVotingQrScannerRoute());
-                },
-                backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-                foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                // style: FilledButton.styleFrom(
-                //   backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-                //   foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                // ),
-                label: Text('Vote as simple juror'),
-              ),
-              FloatingActionButton.extended(
-                heroTag: 'joinContest',
-                onPressed: () {
-                  _showJoinContestDialog(context: context);
-                },
-                icon: Icon(Icons.login),
-                label: Text('Join contest'),
-              ),
-            ],
-          ) : VoidWidget(),
+                        showDialog(
+                          context: context,
+                          builder: (dialogContext) {
+                            final formKey = GlobalKey<FormState>();
+                            final tokenController = TextEditingController();
+                            final tokenFocusNode = FocusNode();
+
+                            return BlocProvider.value(
+                              value: jurorHomePageBloc,
+                              child: BlocListener<JurorHomePageBloc, JurorHomePageState>(
+                                listener: (context, state) {
+                                  if(state.status.isSuccess && state.sourceEvent is JurorHomePageAccessVotingAsSimpleJuror) {
+                                    dialogContext.pop();
+                                    context.router.push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+                                  }
+                                },
+                                child: AlertDialog(
+                                  title: Text('Voting Access'),
+                                  content: Form(
+                                    key: formKey,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                            'You are about to access a voting session as a simple juror. '
+                                            'Insert the token or scan the QR code provided by the organizer.'),
+                                        SizedBox(height: 16),
+                                        CustomTextFormField(
+                                          borderType: InputBorderType.underlined,
+                                          label: 'Token',
+                                          controller: tokenController,
+                                          focusNode: tokenFocusNode,
+                                          validator: noEmptyValidator,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        dialogContext.pop();
+                                      },
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        dialogContext.pop();
+                                        context.router.push(JurorVotingQrScannerRoute());
+                                      },
+                                      child: Text('Scan QR'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        if (formKey.currentState?.validate() ?? false) {
+                                          context.read<JurorHomePageBloc>().add(
+                                              JurorHomePageAccessVotingAsSimpleJuror(
+                                                  token: tokenController.text.trim()));
+                                        }
+                                      },
+                                      child: Text('Insert'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                      foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                      // style: FilledButton.styleFrom(
+                      //   backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                      //   foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                      // ),
+                      label: Text('Vote as simple juror'),
+                    ),
+                    FloatingActionButton.extended(
+                      heroTag: 'joinContest',
+                      onPressed: () {
+                        _showJoinContestDialog(context: context);
+                      },
+                      icon: Icon(Icons.login),
+                      label: Text('Join contest'),
+                    ),
+                  ],
+                )
+              : VoidWidget(),
         );
       },
     );

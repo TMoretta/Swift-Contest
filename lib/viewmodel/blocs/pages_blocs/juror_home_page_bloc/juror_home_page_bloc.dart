@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
+import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
@@ -24,7 +25,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     on<JurorHomePageFetch>(_fetch);
     on<JurorHomePageFilterResults>(_filterResults);
     on<JurorHomePageJoinContest>(_joinContest);
-    on<JurorHomePageVoteAsSimpleJuror>(_voteAsAuthenticatedSimpleJuror);
+    on<JurorHomePageAccessVotingAsSimpleJuror>(_accessVotingAsSimpleJuror);
   }
 
   @override
@@ -102,19 +103,16 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     );
   }
 
-  //* Vote as simple juror
-  FutureOr<void> _voteAsAuthenticatedSimpleJuror(
-    JurorHomePageVoteAsSimpleJuror event,
+  FutureOr<void> _accessVotingAsSimpleJuror(
+    JurorHomePageAccessVotingAsSimpleJuror event,
     Emitter<JurorHomePageState> emit,
   ) async {
-    // emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-    //
-    // final eitherJoinContest = await _jurorRepository.accessVotingAsSimpleJuror(
-    //     fullName: event.fullName, token: event.token);
-    // eitherJoinContest.fold(
-    //   (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-    //   (success) => emit(
-    //       state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),
-    // );
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res = await _jurorRepository.accessVotingAsSimpleJuror(token: event.token);
+    res.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success, votingSession: success)),
+    );
   }
 }

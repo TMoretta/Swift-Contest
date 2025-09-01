@@ -301,6 +301,10 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                       ),
                                     );
 
+                                    if(headerFieldsValues.isEmpty && participantFieldsValues.isEmpty && footerFieldsValues.isEmpty) {
+                                      showSnackBar(context: context, text: 'Please fill at least one field');
+                                    }
+
                                     // Invia l'evento al BLoC
                                     context.read<JurorVotingProcedurePageBloc>().add(
                                           JurorVotingProcedurePageSubmit(

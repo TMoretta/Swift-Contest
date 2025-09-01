@@ -21,6 +21,8 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, Unit>> deleteAccount();
 
+  Future<Either<Failure, bool>> checkAccountExists({required String email});
+
   Future<Either<Failure, Unit>> markMessageAsRead({required String messageId});
 
   Future<Either<Failure, Unit>> deleteMessage({required String messageId});
@@ -82,6 +84,19 @@ class AuthRepositoryImpl implements AuthRepository {
       () async {
         final List<Map<String, dynamic>> res = await _supabase.rpc('auth_get_messages');
         return Either.right(res.map((e) => Message.fromJson(e)).toList(growable: false));
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, bool>> checkAccountExists({required String email}) {
+    return handleDatabaseCall(
+      () async {
+        final bool exists = await _supabase.rpc(
+          'auth_check_account_exists',
+          params: {'p_email': email},
+        );
+        return Either.right(exists);
       },
     );
   }
@@ -247,8 +262,19 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> signInWithEmail({required String email}) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
-        return Either.right(unit);
+        // First, check if the account exists.
+        final eitherExists = await checkAccountExists(email: email);
+        return await eitherExists.fold(
+          (failure) => Either.left(failure),
+          (exists) async {
+            if (!exists) {
+              return Either.left(Failure('Account does not exist. Please sign up first.'));
+            }
+            // If account exists, proceed with sign-in.
+            await _supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
+            return Either.right(unit);
+          },
+        );
       },
     );
   }
@@ -260,14 +286,25 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.auth.signInWithOtp(
-          shouldCreateUser: true,
-          email: email,
-          data: {
-            'full_name': fullName,
+        // First, check if the account already exists.
+        final eitherExists = await checkAccountExists(email: email);
+        return await eitherExists.fold(
+          (failure) => Either.left(failure),
+          (exists) async {
+            if (exists) {
+              return Either.left(Failure('An account with this email already exists.'));
+            }
+            // If account does not exist, proceed with sign-up.
+            await _supabase.auth.signInWithOtp(
+              shouldCreateUser: true,
+              email: email,
+              data: {
+                'full_name': fullName,
+              },
+            );
+            return Either.right(unit);
           },
         );
-        return Either.right(unit);
       },
     );
   }

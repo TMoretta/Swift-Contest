@@ -251,7 +251,10 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> deleteContest({required String contestId}) async {
     return handleDatabaseCall(
       () async {
-        await _supabase.rpc('organizer_delete_contest', params: {'p_contest_id': contestId});
+        await _supabase.functions.invoke(
+          'organizer-delete-contest',
+          body: {'contestId': contestId},
+        );
         return Either.right(unit);
       },
     );
@@ -361,8 +364,10 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> removeParticipant({required String participationId}) async {
     return handleDatabaseCall(
       () async {
-        await _supabase
-            .rpc('organizer_remove_participant', params: {'p_participation_id': participationId});
+        await _supabase.functions.invoke(
+          'organizer-remove-participant',
+          body: {'participationId': participationId},
+        );
         return Either.right(unit);
       },
     );

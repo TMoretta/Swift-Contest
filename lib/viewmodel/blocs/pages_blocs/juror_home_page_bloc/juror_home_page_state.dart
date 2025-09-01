@@ -8,7 +8,7 @@ final class JurorHomePageState extends Equatable {
   final String? message;
   final List<HomeContestBundle>? joinedContestsBundles;
   final List<HomeContestBundle>? filteredContestsBundles;
-  // final SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle;
+  final VotingSession? votingSession;
 
   const JurorHomePageState({
     required this.status,
@@ -17,7 +17,7 @@ final class JurorHomePageState extends Equatable {
     this.message,
     this.joinedContestsBundles,
     this.filteredContestsBundles,
-    // this.simpleJurorAndVotingSessionBundle,
+    this.votingSession,
   });
 
   factory JurorHomePageState.fromJson(Map<String, dynamic> json) {
@@ -30,9 +30,6 @@ final class JurorHomePageState extends Equatable {
       filteredContestsBundles: (json['filtered_contests_bundles'] as List?)
           ?.map((e) => HomeContestBundle.fromJson(e as Map<String, dynamic>))
           .toList(),
-      // simpleJurorAndVotingSessionBundle: (json['simple_juror_and_voting_session_bundle'] != null)
-      //     ? SimpleJurorAndVotingSessionBundle.fromJson(json['simple_juror_and_voting_session_bundle'])
-      //     : null,
     );
   }
 
@@ -42,7 +39,6 @@ final class JurorHomePageState extends Equatable {
       'is_initialized': isInitialized,
       'joined_contests_bundles': joinedContestsBundles?.map((e) => e.toJson()).toList(),
       'filtered_contests_bundles': filteredContestsBundles?.map((e) => e.toJson()).toList(),
-      // 'simple_juror_and_voting_session_bundle': simpleJurorAndVotingSessionBundle?.toJson(),
     };
   }
 
@@ -54,7 +50,7 @@ final class JurorHomePageState extends Equatable {
     String? message,
     List<HomeContestBundle>? joinedContestsBundles,
     List<HomeContestBundle>? filteredContestsBundles,
-    // SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle,
+    VotingSession? votingSession,
   }) {
     return JurorHomePageState(
       status: status,
@@ -63,8 +59,7 @@ final class JurorHomePageState extends Equatable {
       message: message,
       joinedContestsBundles: joinedContestsBundles ?? this.joinedContestsBundles,
       filteredContestsBundles: filteredContestsBundles ?? this.filteredContestsBundles,
-      // simpleJurorAndVotingSessionBundle:
-      //     simpleJurorAndVotingSessionBundle ?? this.simpleJurorAndVotingSessionBundle,
+      votingSession: votingSession ?? this.votingSession,
     );
   }
 
@@ -76,6 +71,6 @@ final class JurorHomePageState extends Equatable {
         message,
         joinedContestsBundles,
         filteredContestsBundles,
-        // simpleJurorAndVotingSessionBundle,
+        votingSession,
       ];
 }

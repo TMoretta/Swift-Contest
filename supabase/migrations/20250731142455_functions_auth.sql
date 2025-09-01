@@ -40,7 +40,7 @@ BEGIN
   -- If the profile was not found, the 'profile' field in the JSON will be null.
   -- In this case, we return NULL for the entire bundle as the user is not fully set up.
   IF result_bundle->'profile' = 'null'::jsonb THEN
-      RETURN NULL;
+      RAISE EXCEPTION 'Profile not found';
   END IF;
 
   RETURN result_bundle;
@@ -66,6 +66,25 @@ $$;
  END;
  $$;
  --endregion
+
+--region AUTH CHECK ACCOUNT EXISTS
+-- Checks if a user exists in auth.users for a given email.
+-- This is a public-facing function that can be called without authentication.
+CREATE OR REPLACE FUNCTION public.auth_check_account_exists(p_email text)
+RETURNS boolean
+LANGUAGE plpgsql
+STABLE
+-- SECURITY DEFINER is used to query the auth.users table, which is normally restricted.
+SECURITY DEFINER SET search_path = auth
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM auth.users
+    WHERE lower(email) = lower(p_email) -- Case-insensitive check
+  );
+END;
+$$;
 
 --region MARK MESSAGE AS READ
 -- Marks a specific message as read for the authenticated user.
