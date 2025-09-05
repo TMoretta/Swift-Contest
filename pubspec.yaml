@@ -1,5 +1,5 @@
 name: swift_contest
-description: "A new Flutter project."
+description: "A Flutter + Supabase project for real time contest management."
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -66,5 +66,3 @@ flutter:
   assets:
     - .env
     - assets/logo.png
-
-
