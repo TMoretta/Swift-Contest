@@ -21,6 +21,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
     on<InboxMarkMessageAsRead>(_markMessageAsRead);
     on<InboxDeleteMessage>(_deleteMessage);
     on<InboxDeleteAllMessages>(_deleteAllMessages);
+    on<InboxClear>(_clear);
   }
 
   FutureOr<void> _getStream(
@@ -42,7 +43,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
     await emit.forEach(
       stream,
       onData: (newMessages) {
-        if(newMessages == state.messages ) {
+        if (newMessages == state.messages) {
           return state;
         }
         return state.copyWith(
@@ -105,5 +106,12 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, messages: [])),
     );
+  }
+
+  void _clear(
+    InboxClear event,
+    Emitter<InboxState> emit,
+  ) {
+    emit(InboxState(status: BlocStatus.initial));
   }
 }

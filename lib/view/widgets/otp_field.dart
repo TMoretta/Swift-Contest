@@ -25,7 +25,6 @@ class _OtpFieldState extends State<OtpField> {
     return Pinput(
       length: widget.length,
       controller: widget.controller,
-
       focusNode: widget.focusNode,
       onTapOutside: (event) => widget.focusNode?.unfocus(),
       validator: widget.validator,
