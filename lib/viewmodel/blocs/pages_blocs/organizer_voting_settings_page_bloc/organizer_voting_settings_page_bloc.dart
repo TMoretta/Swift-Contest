@@ -10,7 +10,6 @@ import 'package:swift_contest/model/database/bundles/participation_bundle.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_voting_settings_page_event.dart';
@@ -26,26 +25,6 @@ class OrganizerVotingSettingsPageBloc
         super(OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingSettingsPageFetch>(_fetch);
     on<OrganizerVotingSettingsPageStartVotingSession>(_startVotingSession);
-  }
-
-  @override
-  OrganizerVotingSettingsPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerVotingSettingsPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerVotingSettingsPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

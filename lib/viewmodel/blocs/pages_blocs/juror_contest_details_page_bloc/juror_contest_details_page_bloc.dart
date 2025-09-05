@@ -8,7 +8,6 @@ import 'package:swift_contest/model/database/bundles/juror_contest_details_bundl
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'juror_contest_details_page_event.dart';
@@ -29,26 +28,6 @@ class JurorContestDetailsPageBloc
     on<JurorContestDetailsPageLeaveContest>(_leaveContest);
     on<JurorContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);
     on<JurorContestDetailsPageCheckVotingLocation>(_checkVotingLocation);
-  }
-
-  @override
-  JurorContestDetailsPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return JurorContestDetailsPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(JurorContestDetailsPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:swift_contest/model/database/bundles/voting_session_result_bundle.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_voting_results_page_event.dart';
@@ -21,26 +19,6 @@ class OrganizerVotingResultsPageBloc
         super(OrganizerVotingResultsPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingResultsPageFetch>(_fetch);
     on<OrganizerVotingResultsPageEditVotingSessionName>(_editVotingSessionName);
-  }
-
-  @override
-  OrganizerVotingResultsPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerVotingResultsPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerVotingResultsPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

@@ -51,7 +51,7 @@ class JurorVotingSessionProcedureBundle extends Equatable {
 
   JurorVotingSessionProcedureBundle copyWith({
     VotingSessionBundle? votingSessionBundle,
-    List<VotingSessionParticipant>? votingSessionParticipations,
+    List<VotingSessionParticipant>? votingSessionParticipants,
     VotingSessionJury? votingSessionJury,
     VotingFormBundle? votingFormBundle,
     VotingSessionJuror? votingSessionJuror,
@@ -59,7 +59,7 @@ class JurorVotingSessionProcedureBundle extends Equatable {
   }) {
     return JurorVotingSessionProcedureBundle(
       votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
-      votingSessionParticipants: votingSessionParticipations ?? this.votingSessionParticipants,
+      votingSessionParticipants: votingSessionParticipants ?? this.votingSessionParticipants,
       votingSessionJury: votingSessionJury ?? this.votingSessionJury,
       votingFormBundle: votingFormBundle ?? this.votingFormBundle,
       votingSessionJuror: votingSessionJuror ?? this.votingSessionJuror,

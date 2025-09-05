@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -266,15 +263,3 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
       ];
 }
 
-Future<File?> _pickFile() async {
-  FilePickerResult? res = await FilePicker.platform.pickFiles(
-    type: FileType.any,
-    allowMultiple: false,
-  );
-
-  if (res != null) {
-    PlatformFile pickedFile = res.files.first;
-    return File(pickedFile.path!);
-  }
-  return null;
-}

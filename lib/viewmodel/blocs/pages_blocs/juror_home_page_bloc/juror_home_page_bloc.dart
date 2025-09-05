@@ -3,15 +3,12 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'juror_home_page_event.dart';
-
 part 'juror_home_page_state.dart';
 
 class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
@@ -26,26 +23,6 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
     on<JurorHomePageFilterResults>(_filterResults);
     on<JurorHomePageJoinContest>(_joinContest);
     on<JurorHomePageAccessVotingAsSimpleJuror>(_accessVotingAsSimpleJuror);
-  }
-
-  @override
-  JurorHomePageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return JurorHomePageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(JurorHomePageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

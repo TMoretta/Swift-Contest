@@ -12,7 +12,6 @@ import 'package:swift_contest/model/database/entities/voting_session_juror.dart'
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
 import 'package:swift_contest/model/database/repositories/juror_repository.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'juror_voting_procedure_page_event.dart';
@@ -29,26 +28,6 @@ class JurorVotingProcedurePageBloc
     on<JurorVotingProcedurePageFetch>(_fetch);
     on<JurorVotingProcedurePageSubmit>(_submit);
     on<JurorVotingProcedurePageCheckVotingLocation>(_checkVotingLocation);
-  }
-
-  @override
-  JurorVotingProcedurePageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return JurorVotingProcedurePageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(JurorVotingProcedurePageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

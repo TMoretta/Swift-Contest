@@ -1,13 +1,9 @@
-import 'dart:io';
-
 import 'package:fpdart/fpdart.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/database/entities/jury.dart';
-import 'package:swift_contest/model/utils/postgrest_exception_to_failure.dart';
+import 'package:swift_contest/model/utils/dao.dart';
+import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
-
 
 abstract interface class JuryDao implements Dao<Jury> {
   Future<Either<Failure, List<Jury>>> getByContestId({required String contestId});
@@ -29,7 +25,12 @@ class JuryDaoImpl implements JuryDao {
   @override
   Future<Either<Failure, Jury>> update({required Jury entity}) {
     return handleDatabaseCall(() async {
-      final res = await _supabase.from('juries').update(entity.toJson()).eq('id', entity.id!).select().single();
+      final res = await _supabase
+          .from('juries')
+          .update(entity.toJson())
+          .eq('id', entity.id!)
+          .select()
+          .single();
       return Either.right(Jury.fromJson(res));
     });
   }

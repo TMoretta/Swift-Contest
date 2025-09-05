@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/organizer_voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_voting_procedure_page_event.dart';
@@ -21,30 +20,8 @@ class OrganizerVotingProcedurePageBloc
   })  : _organizerRepository = organizerRepository,
         super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
     on<OrganizerVotingProcedurePageFetch>(_fetch);
-    // on<OrganizerVotingProcedurePageStartVotingSession>(_startVotingSession);
-    // on<OrganizerVotingProcedurePageAdvanceSession>(_advanceSession);
     on<OrganizerVotingProcedurePageCancelVotingSessionProcedure>(_cancelVotingSessionProcedure);
     on<OrganizerVotingProcedurePageEndVotingSessionProcedure>(_endVotingSessionProcedure);
-  }
-
-  @override
-  OrganizerVotingProcedurePageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerVotingProcedurePageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerVotingProcedurePageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

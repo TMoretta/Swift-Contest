@@ -3,15 +3,12 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:swift_contest/model/database/bundles/jury_bundle.dart';
 import 'package:swift_contest/model/database/entities/juror_invitation.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_jury_details_page_event.dart';
-
 part 'organizer_jury_details_page_state.dart';
 
 class OrganizerJuryDetailsPageBloc
@@ -29,26 +26,6 @@ class OrganizerJuryDetailsPageBloc
     on<OrganizerJuryDetailsPageEditJury>(_editJury);
     on<OrganizerJuryDetailsPageRemoveJuror>(_removeJuror);
     on<OrganizerJuryDetailsPageRegenerateToken>(_regenerateToken);
-  }
-
-  @override
-  OrganizerJuryDetailsPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerJuryDetailsPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerJuryDetailsPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   Future<void> _fetch(

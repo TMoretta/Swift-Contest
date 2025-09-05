@@ -14,7 +14,6 @@ import 'package:swift_contest/model/database/types/jury_type.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 import 'package:swift_contest/utils/functions/now.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_contest_details_page_event.dart';
@@ -41,26 +40,6 @@ class OrganizerContestDetailsPageBloc
     on<OrganizerContestDetailsPagePublishRanking>(_publishRanking);
     on<OrganizerContestDetailsPageUnpublishRanking>(_unpublishRanking);
     on<OrganizerContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);
-  }
-
-  @override
-  OrganizerContestDetailsPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerContestDetailsPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerContestDetailsPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

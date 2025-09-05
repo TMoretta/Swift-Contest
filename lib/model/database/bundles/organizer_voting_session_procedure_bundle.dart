@@ -46,14 +46,14 @@ class OrganizerVotingSessionProcedureBundle extends Equatable {
 
   OrganizerVotingSessionProcedureBundle copyWith({
     VotingSessionBundle? votingSessionBundle,
-    List<VotingSessionParticipant>? votingSessionParticipations,
+    List<VotingSessionParticipant>? votingSessionParticipants,
     List<VotingSessionJuryBundle>? votingSessionJuriesBundles,
     List<VotingSessionExclusion>? votingSessionExclusions,
     String? contestToken,
   }) {
     return OrganizerVotingSessionProcedureBundle(
       votingSessionBundle: votingSessionBundle ?? this.votingSessionBundle,
-      votingSessionParticipants: votingSessionParticipations ?? this.votingSessionParticipants,
+      votingSessionParticipants: votingSessionParticipants ?? this.votingSessionParticipants,
       votingSessionJuriesBundles: votingSessionJuriesBundles ?? this.votingSessionJuriesBundles,
       votingSessionExclusions: votingSessionExclusions ?? this.votingSessionExclusions,
     );

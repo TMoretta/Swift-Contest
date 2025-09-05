@@ -2,7 +2,6 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/entities/voting_form_submission_values.dart';
 import 'package:swift_contest/model/utils/dao.dart';
-import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/utils/handle_database_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 

@@ -4,9 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/voting_session_jury_result_bundle.dart';
-
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_jury_voting_results_page_event.dart';
@@ -20,26 +18,6 @@ class OrganizerJuryVotingResultsPageBloc
       : _organizerRepository = organizerRepository,
         super(OrganizerJuryVotingResultsPageState(status: BlocStatus.initial)) {
     on<OrganizerJuryVotingResultsPageFetch>(_fetch);
-  }
-
-  @override
-  OrganizerJuryVotingResultsPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerJuryVotingResultsPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerJuryVotingResultsPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

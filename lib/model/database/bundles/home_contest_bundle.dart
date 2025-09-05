@@ -1,8 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:swift_contest/model/database/entities/juration.dart';
-import 'package:swift_contest/model/database/entities/participation.dart';
-
-import 'contest_bundle.dart';
+import 'package:swift_contest/model/database/bundles/contest_bundle.dart';
 
 class HomeContestBundle extends Equatable {
   final ContestBundle contestBundle;
@@ -44,7 +41,8 @@ class HomeContestBundle extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
+  List<Object?> get props =>
+      [
         contestBundle,
         participantsNumber,
         jurorsNumber,

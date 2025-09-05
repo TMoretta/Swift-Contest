@@ -4,11 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/database/entities/work.dart';
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'participant_work_submit_page_event.dart';
-
 part 'participant_work_submit_page_state.dart';
 
 class ParticipantWorkSubmitPageBloc
@@ -20,26 +18,6 @@ class ParticipantWorkSubmitPageBloc
   })  : _participantRepository = participantRepository,
         super(ParticipantWorkSubmitPageState(status: BlocStatus.initial)) {
     on<ParticipantWorkSubmitPageSubmitWork>(_submitWork);
-  }
-
-  @override
-  ParticipantWorkSubmitPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return ParticipantWorkSubmitPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(ParticipantWorkSubmitPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   Future<void> _submitWork(

@@ -10,7 +10,6 @@ import 'package:swift_contest/view/widgets/privacy_policy_dialog.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/terms_of_service_dialog.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_page_bloc/sign_in_page_bloc.dart';
-import 'package:swift_contest/viewmodel/blocs/pages_blocs/sign_in_verify_page_bloc/sign_in_verify_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 @RoutePage()
@@ -25,7 +24,6 @@ class SignInPage extends StatefulWidget implements AutoRouteWrapper {
     return BlocProvider<SignInPageBloc>(
       create: (context) => SignInPageBloc(
         authRepository: context.read(),
-        jurorRepository: context.read(),
       ),
       child: this,
     );

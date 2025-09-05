@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'sign_up_page_event.dart';
@@ -17,26 +16,6 @@ class SignUpPageBloc extends Bloc<SignUpPageEvent, SignUpPageState> {
 }) : _authRepository = authRepository, super(SignUpPageState(status: BlocStatus.initial)) {
     on<SignUpWithEmailAndPassword>(_signUpWithEmailAndPassword);
     on<SignUpWithEmail>(_signUpWithEmail);
-  }
-
-  @override
-  SignUpPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return SignUpPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(SignUpPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _signUpWithEmailAndPassword(

@@ -35,26 +35,6 @@ class OrganizerContestEditPageBloc
     on<OrganizerContestEditPageEditContest>(_edit);
   }
 
-  @override
-  OrganizerContestEditPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerContestEditPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerContestEditPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
   FutureOr<void> _fetch(
     OrganizerContestEditPageFetch event,
     Emitter<OrganizerContestEditPageState> emit,

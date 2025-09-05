@@ -7,11 +7,9 @@ import 'package:swift_contest/model/database/bundles/participant_contest_details
 import 'package:swift_contest/model/database/repositories/participant_repository.dart';
 import 'package:swift_contest/model/database/repositories/storage_repository.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'participant_contest_details_page_event.dart';
-
 part 'participant_contest_details_page_state.dart';
 
 class ParticipantContestDetailsPageBloc
@@ -29,26 +27,6 @@ class ParticipantContestDetailsPageBloc
     on<ParticipantContestDetailsPageFetch>(_fetch);
     on<ParticipantContestDetailsPageLeaveContest>(_leaveContest);
     on<ParticipantContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);
-  }
-
-  @override
-  ParticipantContestDetailsPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return ParticipantContestDetailsPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(ParticipantContestDetailsPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

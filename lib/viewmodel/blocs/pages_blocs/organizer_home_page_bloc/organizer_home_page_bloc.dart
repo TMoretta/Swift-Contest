@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/entities/message.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_home_page_event.dart';
@@ -21,26 +20,6 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
         super(OrganizerHomePageState(status: BlocStatus.initial)) {
     on<OrganizerHomePageFetch>(_fetch);
     on<OrganizerHomePageFilterResults>(_filterResults);
-  }
-
-  @override
-  OrganizerHomePageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerHomePageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerHomePageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
   }
 
   FutureOr<void> _fetch(

@@ -7,11 +7,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:swift_contest/model/database/entities/contest.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/repositories/organizer_repository.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'organizer_contest_creation_page_event.dart';
-
 part 'organizer_contest_creation_page_state.dart';
 
 class OrganizerContestCreationPageBloc
@@ -25,44 +23,11 @@ class OrganizerContestCreationPageBloc
     on<OrganizerContestCreationPageCreateContest>(_createContest);
   }
 
-  @override
-  OrganizerContestCreationPageState? fromJson(Map<String, dynamic> json) {
-    try {
-      return OrganizerContestCreationPageState.fromJson(json);
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(OrganizerContestCreationPageState state) {
-    try {
-      return state.toJson();
-    } catch (e) {
-      Logger.error(e);
-      return null;
-    }
-  }
-
   FutureOr<void> _createContest(
     OrganizerContestCreationPageCreateContest event,
     Emitter<OrganizerContestCreationPageState> emit,
   ) async {
     emit(OrganizerContestCreationPageState(status: BlocStatus.loading, sourceEvent: event));
-
-    // final String contestId = genUuid();
-    //
-    // late final List<String> imagesUrls;
-    // final eitherImagesUrls = await _storageRepository.uploadImages(
-    //     bucket: StorageBucket.contestsImages,pathPrefix: contestId, images: event.images);
-    // eitherImagesUrls.fold(
-    //       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-    //       (success) => imagesUrls = success,
-    // );
-    // if (eitherImagesUrls.isLeft()) {
-    //   return;
-    // }
 
     final Place place = Place(
       id: null,
