@@ -7,8 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
-import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
-import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/utils/media_type.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
@@ -349,11 +347,11 @@ class _OrganizerJuryVotingResultsExportPageState
         }
       },
       icon: Icon(Icons.download),
-      label: Text('Export to CSV'),
+      label: Text('Download CSV'),
     );
   }
 
-  Future<List<VotingSessionJuror>>? _showSelectJurorsDialog(
+  Future<List<VotingSessionJuror>?> _showSelectJurorsDialog(
     BuildContext context,
     OrganizerJuryVotingResultsExportPageState state,
   ) async {
@@ -363,8 +361,7 @@ class _OrganizerJuryVotingResultsExportPageState
         .where((e) => e.hasSubmitted)
         .toList(growable: false);
 
-    final List<VotingSessionJuror> localSelectedVotingSessionJurors =
-        List.from(selectedVotingSessionJurors);
+    final List<VotingSessionJuror> localSelectedVotingSessionJurors = List.from(selectedVotingSessionJurors);
 
     return await showDialog(
       context: context,
@@ -446,14 +443,13 @@ class _OrganizerJuryVotingResultsExportPageState
     );
   }
 
-  Future<List<VotingFormField>>? _showSelectFieldsDialog(
+  Future<List<VotingFormField>?> _showSelectFieldsDialog(
     BuildContext context,
     OrganizerJuryVotingResultsExportPageState state,
   ) async {
     // Only required fields of the participant form and of type slider considered
     final List<VotingFormField> votingFormFields = state
         .votingSessionJuryResultBundle!.votingSessionJuryBundle.votingFormBundle.votingFormFields
-        .where((e) => e.scope.isParticipant && e.type.isSlider && e.isRequired)
         .toList(growable: false);
 
     final List<VotingFormField> localSelectedVotingFormFields = List.from(selectedVotingFormFields);
@@ -464,7 +460,7 @@ class _OrganizerJuryVotingResultsExportPageState
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Select jurors'),
+              title: Text('Select fields'),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 300,

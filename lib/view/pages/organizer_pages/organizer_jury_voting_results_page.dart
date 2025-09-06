@@ -145,7 +145,9 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
               ),
             ),
           ),
-          floatingActionButton: (state.isInitialized) ? _buildFabMenu(context, state) : null,
+          floatingActionButton: (state.isInitialized && state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJurors
+              .where((e) => e.hasSubmitted)
+              .isNotEmpty) ? _buildFabMenu(context, state) : null,
         );
       },
     );
@@ -154,16 +156,17 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
   Widget _buildFabMenu(BuildContext context, OrganizerJuryVotingResultsPageState state) {
     return PopupMenuButton<String>(
       onSelected: (value) {
-        switch (value) {
-          case 'generateRanking':
-            context.router
-                .push(OrganizerJuryRankingGenerationRoute(votingSessionJuryId: votingSessionJuryId));
-            break;
-          case 'export':
-            context.router.push(OrganizerJuryVotingResultsExportRoute(votingSessionJuryId: votingSessionJuryId));
-            break;
-        }
-      },
+              switch (value) {
+                case 'generateRanking':
+                  context.router.push(OrganizerJuryRankingGenerationRoute(
+                      votingSessionJuryId: votingSessionJuryId));
+                  break;
+                case 'export':
+                  context.router.push(OrganizerJuryVotingResultsExportRoute(
+                      votingSessionJuryId: votingSessionJuryId));
+                  break;
+              }
+            },
       itemBuilder: (context) {
         return [
           PopupMenuItem(
@@ -183,7 +186,10 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
         elevation: 0.5,
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Icon(Icons.add,size: 32,),
+          child: Icon(
+            Icons.add,
+            size: 32,
+          ),
         ),
       ),
     );

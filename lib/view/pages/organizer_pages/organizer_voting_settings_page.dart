@@ -249,42 +249,50 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                           ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                     ),
                     (participationsBundles.isNotEmpty)
-                        ? ReorderableListView(
-                            shrinkWrap: true,
-                            onReorder: (oldIndex, newIndex) {
-                              setState(() {
-                                if (oldIndex < newIndex) {
-                                  newIndex -= 1;
-                                }
-                                final ParticipationBundle ppw =
-                                    participationsBundles.removeAt(oldIndex);
-                                participationsBundles.insert(newIndex, ppw);
-                              });
-                            },
-                            children: [
-                              for (var i = 0; i < participationsBundles.length; i++)
-                                Card(
-                                  key: ValueKey(participationsBundles[i].participation.id),
-                                  elevation: 0.05,
-                                  child: ListTile(
-                                    onTap: () {},
-                                    title: Text(participationsBundles[i].participant.fullName),
-                                    subtitle: Text(participationsBundles[i].work!.name),
-                                    leading: Icon(Icons.swap_vert),
-                                    trailing: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                        field.didChange(participationsBundles);
-                                          excludedParticipationsBundles
-                                              .add(participationsBundles[i]);
-                                          participationsBundles.removeAt(i);
-                                        });
-                                      },
-                                      icon: Icon(Icons.remove),
+                        ? AbsorbPointer(
+                            absorbing: participationsBundles.length == 1,
+                            child: ReorderableListView(
+                              shrinkWrap: true,
+                              onReorder: (oldIndex, newIndex) {
+                                if (participationsBundles.length == 1) return;
+                                setState(() {
+                                  if (oldIndex < newIndex) {
+                                    newIndex -= 1;
+                                  }
+                                  final ParticipationBundle ppw =
+                                      participationsBundles.removeAt(oldIndex);
+                                  participationsBundles.insert(newIndex, ppw);
+                                });
+                              },
+                              children: [
+                                for (var i = 0; i < participationsBundles.length; i++)
+                                  Card(
+                                    key: ValueKey(participationsBundles[i].participation.id),
+                                    elevation: 0.05,
+                                    child: ListTile(
+                                      onTap: () {},
+                                      title: Text(participationsBundles[i].participant.fullName),
+                                      subtitle: Text(participationsBundles[i].work!.name),
+                                      leading: Icon(Icons.swap_vert),
+                                      trailing: IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            votingExclusions.removeWhere(
+                                              (e) =>
+                                                  e.participationBundle == participationsBundles[i],
+                                            );
+                                            field.didChange(participationsBundles);
+                                            excludedParticipationsBundles
+                                                .add(participationsBundles[i]);
+                                            participationsBundles.removeAt(i);
+                                          });
+                                        },
+                                        icon: Icon(Icons.remove),
+                                      ),
                                     ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           )
                         : Column(
                             mainAxisSize: MainAxisSize.min,
@@ -537,36 +545,56 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                           return Card(
                             elevation: 0,
                             child: ListTile(
-                              title: Row(
-                                children: [
-                                  Text(
-                                    'Juror: ',
-                                    style: Theme.of(context).textTheme.labelLarge,
-                                  ),
-                                  Text(votingExclusion.jurationBundle.juror.fullName),
-                                  Text(
-                                    ' | ',
-                                    style: Theme.of(context).textTheme.labelLarge,
-                                  ),
-                                  Text(juriesBundles
-                                      .map((e) => e.jury)
-                                      .where((e) =>
-                                          votingExclusion.jurationBundle.juration.juryId == e.id)
-                                      .first
-                                      .name),
-                                ],
+                              title: RichText(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                softWrap: false,
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                        text: 'Jur: ',
+                                        style: Theme.of(context).textTheme.labelLarge),
+                                    TextSpan(
+                                      text: votingExclusion.jurationBundle.juror.fullName,
+                                      style: Theme.of(context).textTheme.bodyMedium,
+                                    ),
+                                    TextSpan(
+                                        text: ' | ', style: Theme.of(context).textTheme.labelLarge),
+                                    TextSpan(
+                                      text: juriesBundles
+                                          .map((e) => e.jury)
+                                          .where((e) =>
+                                              votingExclusion.jurationBundle.juration.juryId ==
+                                              e.id)
+                                          .first
+                                          .name,
+                                      style: Theme.of(context).textTheme.bodyMedium,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              subtitle: Row(
-                                children: [
-                                  Text(
-                                    'Participant: ',
-                                    style: Theme.of(context).textTheme.labelLarge,
-                                  ),
-                                  Text(votingExclusion.participationBundle.participant.fullName),
-                                ],
+                              subtitle: RichText(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                        text: 'Par: ',
+                                        style: Theme.of(context).textTheme.labelLarge),
+                                    TextSpan(
+                                      text:
+                                          votingExclusion.participationBundle.participant.fullName,
+                                      style: Theme.of(context).textTheme.bodyMedium,
+                                    ),
+                                    TextSpan(
+                                        text: ' | ', style: Theme.of(context).textTheme.labelLarge),
+                                    TextSpan(
+                                      text: votingExclusion.participationBundle.work!.name,
+                                      style: Theme.of(context).textTheme.bodyMedium,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              titleTextStyle: Theme.of(context).textTheme.bodyMedium,
-                              subtitleTextStyle: Theme.of(context).textTheme.bodyMedium,
                               trailing: IconButton(
                                   onPressed: () {
                                     setState(() {
@@ -708,9 +736,10 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
                   dropdownMenuEntries: [
                     for (var element in jurationsBundles)
                       DropdownMenuEntry(
-                          value: element,
-                          label:
-                              '${element.juror.fullName} | ${juries.where((e) => e.id == element.juration.juryId).first.name}'),
+                        value: element,
+                        label:
+                            '${element.juror.fullName} | ${juries.where((e) => e.id == element.juration.juryId).first.name}',
+                      ),
                   ],
                 ),
                 SizedBox(height: 8),
@@ -729,7 +758,10 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
                   },
                   dropdownMenuEntries: [
                     for (var element in participationsBundles)
-                      DropdownMenuEntry(value: element, label: element.participant.fullName),
+                      DropdownMenuEntry(
+                        value: element,
+                        label: '${element.participant.fullName} | ${element.work!.name}',
+                      ),
                   ],
                 ),
               ],

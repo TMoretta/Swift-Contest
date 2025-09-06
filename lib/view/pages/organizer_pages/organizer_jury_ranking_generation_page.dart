@@ -154,6 +154,12 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           ),
           child: ListTile(
             onTap: () async {
+              if(state
+                  .votingSessionJuryResultBundle!.votingSessionJuryBundle.votingFormBundle.votingFormFields
+                  .where((e) => e.scope.isParticipant && e.type.isSlider && e.isRequired).isEmpty) {
+                showSnackBar(context: context, text: 'There is no valid field for ranking generation');
+                return;
+              }
               final selectedFields = await _showSelectFieldsDialog(context, state);
               if (selectedFields != null) {
                 selectedVotingFormFields.clear();
@@ -162,7 +168,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
                 });
               }
             },
-            title: Text('Select fields'),
+            title: Text('Select valid fields'),
             trailing: Icon(Icons.arrow_downward),
           ),
         ),
@@ -247,6 +253,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
       onPressed: () async {
         if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
           showSnackBar(context: context, text: 'Select at least one juror and one field');
+          return;
         }
         // Ottieni solo le sottomissioni dei giurati che l'organizzatore ha selezionato
         final submissionsBundles = state.votingSessionJuryResultBundle!.votingFormSubmissionsBundles
@@ -359,7 +366,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
     );
   }
 
-  Future<List<VotingSessionJuror>>? _showSelectJurorsDialog(
+  Future<List<VotingSessionJuror>?> _showSelectJurorsDialog(
     BuildContext context,
     OrganizerJuryRankingGenerationPageState state,
   ) async {
@@ -452,7 +459,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
     );
   }
 
-  Future<List<VotingFormField>>? _showSelectFieldsDialog(
+  Future<List<VotingFormField>?> _showSelectFieldsDialog(
     BuildContext context,
     OrganizerJuryRankingGenerationPageState state,
   ) async {
@@ -470,7 +477,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Select jurors'),
+              title: Text('Select valid fields'),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 300,

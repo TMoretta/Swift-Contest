@@ -147,14 +147,17 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
         .singleOrNull;
 
     return FloatingActionButton.extended(
-      heroTag: 'startVoting',
+      heroTag: 'votingButton',
       onPressed: () async {
         if (liveVotingSession != null) {
           // Session is not null, go to voting management
-          context.router.push(OrganizerVotingProcedureRoute(votingSessionId: liveVotingSession.id!));
+          context.router
+              .push(OrganizerVotingProcedureRoute(votingSessionId: liveVotingSession.id!));
           return;
         }
         // There is no live session, start one
+
+        // Check if there is at least one field for each form
         for (var juryBundle in state.contestDetailsBundle!.juriesBundles) {
           if (juryBundle.votingFormBundle.votingFormFields.isEmpty) {
             showSnackBar(
@@ -163,7 +166,18 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
             return;
           }
         }
-
+        // Check if there is at least one jury
+        if (state.contestDetailsBundle!.juriesBundles
+            .map((e) => e.jury)
+            .toList(growable: false)
+            .isEmpty) {
+          showSnackBar(
+            context: context,
+            text: 'At least one jury is necessary',
+          );
+          return;
+        }
+        // Check if there is at least one juror
         if (state.contestDetailsBundle!.juriesBundles
             .map((e) => e.jurationsBundles)
             .toList(growable: false)
@@ -174,6 +188,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
           );
           return;
         }
+        // Check if there is at least one participant with a submitted work
         if (state.contestDetailsBundle!.participationsBundles
             .where((e) => e.participation.hasSubmitted)
             .toList(growable: false)

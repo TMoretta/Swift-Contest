@@ -100,6 +100,15 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                     ++tabsCount;
                   }
 
+                  if (tabsCount == 0) {
+                    return Center(
+                      child: Text(
+                        'No field was added to the form\nfor this jury',
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+
                   return DefaultTabController(
                     length: tabsCount,
                     child: Column(
