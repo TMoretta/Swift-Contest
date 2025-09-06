@@ -145,7 +145,7 @@ BEGIN
          jsonb_build_object(
            'voting_session', to_jsonb(vs),
            'place', to_jsonb(pl)
-         )
+         ) ORDER BY vs.created_at DESC
        ), '[]'::jsonb)
        FROM public.voting_sessions vs
        LEFT JOIN public.places pl ON vs.geo_res_place_id = pl.id
