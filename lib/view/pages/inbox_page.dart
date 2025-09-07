@@ -21,11 +21,6 @@ class InboxPage extends StatefulWidget {
 class _InboxPageState extends State<InboxPage> {
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context.read<InboxBloc>().add(InboxGetStream());
-  }
-  @override
   void dispose() {
     context.hideLoader();
     super.dispose();

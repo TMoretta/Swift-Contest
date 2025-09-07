@@ -54,7 +54,6 @@ $$;
  RETURNS SETOF messages
  LANGUAGE plpgsql
  STABLE
- -- SECURITY DEFINER is used to bypass RLS and centralize the access logic.
  SECURITY DEFINER SET search_path = public
  AS $$
  BEGIN

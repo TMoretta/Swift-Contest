@@ -115,7 +115,9 @@ class AuthRepositoryImpl implements AuthRepository {
             .stream(primaryKey: ['id'])
             .eq('account_id', userId)
             .map((listOfMaps) {
-          return listOfMaps.map((e) => Message.fromJson(e)).toList(growable: false);
+              final messages = listOfMaps.map((e) => Message.fromJson(e)).toList(growable: false);
+              messages.sort((a, b) => b.createdAt!.compareTo(a.createdAt!),);
+              return messages;
         });
         return Either.right(stream);
       },

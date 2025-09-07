@@ -180,22 +180,6 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: GestureDetector(
-                            // onTap: () async {
-                            //   final address =
-                            //       state.contestDetailsBundle!.contestBundle.place.address;
-                            //   final query = Uri.encodeComponent(address);
-                            //   final uri = Uri.parse(
-                            //       'https://www.google.com/maps/search/?api=1&query=$query');
-                            //
-                            //   if (await canLaunchUrl(uri)) {
-                            //     await launchUrl(uri, mode: LaunchMode.externalApplication);
-                            //   } else {
-                            //     if (!context.mounted) return;
-                            //     showSnackBar(
-                            //         context: context,
-                            //         text: 'It has not been possible to open the map');
-                            //   }
-                            // },
                             onLongPress: () {
                               final address =
                                   state.contestDetailsBundle!.contestBundle.place.address;

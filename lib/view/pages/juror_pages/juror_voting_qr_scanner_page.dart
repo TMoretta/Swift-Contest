@@ -81,10 +81,12 @@ class _JurorVotingQrScannerPageState extends State<JurorVotingQrScannerPage> wit
         } else {
           context.hideLoader();
         }
-        if (state.status.isSuccess &&
-            state.sourceEvent is JurorVotingQrScannerPageAccessVotingAsSimpleJuror) {
+        if (state.status.isSuccess && state.sourceEvent is JurorVotingQrScannerPageAccessVotingAsSimpleJuror) {
           context.router
               .replace(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+        }
+        if (state.status.isFailure && state.sourceEvent is JurorVotingQrScannerPageAccessVotingAsSimpleJuror) {
+          context.router.pop();
         }
       },
       builder: (context, state) {

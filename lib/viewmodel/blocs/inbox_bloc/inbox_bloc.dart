@@ -47,10 +47,10 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
           return state;
         }
         return state.copyWith(
-            status: BlocStatus.success, isInitialized: true, messages: newMessages);
+            status: BlocStatus.success, sourceEvent: event, isInitialized: true, messages: newMessages);
       },
       onError: (error, stackTrace) {
-        return state.copyWith(status: BlocStatus.failure, message: 'An error occurred');
+        return state.copyWith(status: BlocStatus.failure, sourceEvent: event, message: 'An error occurred');
       },
     );
   }
@@ -87,7 +87,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
     eitherDeleteMessage.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) {
-        // Create a new list, excluding the message to be deleted.
+        // Create a new list, excluding the message that has been deleted.
         final updatedMessages = List<Message>.from(state.messages!)
           ..removeWhere((msg) => msg.id == event.messageId);
         emit(state.copyWith(status: BlocStatus.success, messages: updatedMessages));

@@ -156,83 +156,11 @@ class _JurorHomePageState extends State<JurorHomePage> {
                   children: [
                     FloatingActionButton.extended(
                       heroTag: 'voteAsSimpleJuror',
-                      onPressed: () async {
-                        final jurorHomePageBloc = context.read<JurorHomePageBloc>();
-
-                        showDialog(
-                          context: context,
-                          builder: (dialogContext) {
-                            final formKey = GlobalKey<FormState>();
-                            final tokenController = TextEditingController();
-                            final tokenFocusNode = FocusNode();
-
-                            return BlocProvider.value(
-                              value: jurorHomePageBloc,
-                              child: BlocListener<JurorHomePageBloc, JurorHomePageState>(
-                                listener: (context, state) {
-                                  if(state.status.isSuccess && state.sourceEvent is JurorHomePageAccessVotingAsSimpleJuror) {
-                                    dialogContext.pop();
-                                    context.router.push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
-                                  }
-                                },
-                                child: AlertDialog(
-                                  title: Text('Voting Access'),
-                                  content: Form(
-                                    key: formKey,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                            'You are about to access a voting session as a simple juror. '
-                                            'Insert the token or scan the QR code provided by the organizer.'),
-                                        SizedBox(height: 16),
-                                        CustomTextFormField(
-                                          borderType: InputBorderType.underlined,
-                                          label: 'Token',
-                                          controller: tokenController,
-                                          focusNode: tokenFocusNode,
-                                          validator: noEmptyValidator,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        dialogContext.pop();
-                                      },
-                                      child: Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        dialogContext.pop();
-                                        context.router.push(JurorVotingQrScannerRoute());
-                                      },
-                                      child: Text('Scan QR'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        if (formKey.currentState?.validate() ?? false) {
-                                          context.read<JurorHomePageBloc>().add(
-                                              JurorHomePageAccessVotingAsSimpleJuror(
-                                                  token: tokenController.text.trim()));
-                                        }
-                                      },
-                                      child: Text('Insert'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                      onPressed: () {
+                        _showVoteAsSimpleJurorDialog(context: context);
                       },
                       backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
                       foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                      // style: FilledButton.styleFrom(
-                      //   backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-                      //   foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                      // ),
                       label: Text('Vote as simple juror'),
                     ),
                     FloatingActionButton.extended(
@@ -315,6 +243,79 @@ void _showJoinContestDialog({
               ],
             );
           },
+        ),
+      );
+    },
+  );
+}
+
+void _showVoteAsSimpleJurorDialog({
+  required BuildContext context,
+}) {
+  final jurorHomePageBloc = context.read<JurorHomePageBloc>();
+  final formKey = GlobalKey<FormState>();
+  final tokenController = TextEditingController();
+  final tokenFocusNode = FocusNode();
+
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      return BlocProvider.value(
+        value: jurorHomePageBloc,
+        child: BlocListener<JurorHomePageBloc, JurorHomePageState>(
+          listener: (context, state) {
+            if(state.status.isSuccess && state.sourceEvent is JurorHomePageAccessVotingAsSimpleJuror) {
+              dialogContext.pop();
+              context.router.push(JurorVotingProcedureRoute(votingSessionId: state.votingSession!.id!));
+            }
+          },
+          child: AlertDialog(
+            title: Text('Voting Access'),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                      'You are about to access a voting session as a simple juror. '
+                          'Insert the token or scan the QR code provided by the organizer.'),
+                  SizedBox(height: 16),
+                  CustomTextFormField(
+                    borderType: InputBorderType.underlined,
+                    label: 'Token',
+                    controller: tokenController,
+                    focusNode: tokenFocusNode,
+                    validator: noEmptyValidator,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  dialogContext.pop();
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  dialogContext.pop();
+                  context.router.push(JurorVotingQrScannerRoute());
+                },
+                child: Text('Scan QR'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (formKey.currentState?.validate() ?? false) {
+                    context.read<JurorHomePageBloc>().add(
+                        JurorHomePageAccessVotingAsSimpleJuror(
+                            token: tokenController.text.trim()));
+                  }
+                },
+                child: Text('Insert'),
+              ),
+            ],
+          ),
         ),
       );
     },

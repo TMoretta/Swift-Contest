@@ -135,209 +135,222 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
           }
           return VoidWidget();
         }
-        return Scaffold(
-          appBar: CustomAppBar(title: 'Voting'),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Builder(
-                builder: (context) {
-                  if (!state.isInitialized) {
-                    if (state.status.isFailure) {
-                      return Center(
-                        child: FilledButton(
-                          onPressed: () async => context.read<JurorVotingProcedurePageBloc>().add(
-                              JurorVotingProcedurePageFetch(
-                                  votingSessionId: widget.votingSessionId)),
-                          child: Text('Retry'),
-                        ),
-                      );
-                    }
-                    return VoidWidget();
-                  }
-                  final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
-                  final votingSessionParticipants =
-                      votingSessionProcedureBundle.votingSessionParticipants;
-                  final votingForm = votingSessionProcedureBundle.votingFormBundle.votingForm;
-                  final headerVotingFormFields =
-                      votingSessionProcedureBundle.votingFormBundle.headerVotingFormFields;
-                  final participantVotingFormFields =
-                      votingSessionProcedureBundle.votingFormBundle.participantVotingFormFields;
-                  final footerVotingFormFields =
-                      votingSessionProcedureBundle.votingFormBundle.footerVotingFormFields;
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            // If the pop was already successful (e.g., canPop was true), do nothing.
+            if (didPop) return;
 
-                  if (!isPageInitialized) {
-                    for (var participant in votingSessionParticipants) {
-                      final Map<VotingFormField, TextEditingController> fieldsControllers = {};
-                      final Map<VotingFormField, FocusNode> fieldsFocusNodes = {};
-                      for (var votingFormField in participantVotingFormFields) {
-                        fieldsControllers[votingFormField] = TextEditingController();
-                        fieldsFocusNodes[votingFormField] = FocusNode();
-                      }
-                      _participantFieldsValuesMap[participant] = fieldsControllers;
-                      _participantFieldsFocusNodes[participant] = fieldsFocusNodes;
-                    }
-                    for (var field in headerVotingFormFields) {
-                      _headerFieldsValuesMap[field] = TextEditingController();
-                      _headerFieldsFocusNodes[field] = FocusNode();
-                    }
-                    for (var field in footerVotingFormFields) {
-                      _footerFieldsValuesMap[field] = TextEditingController();
-                      _footerFieldsFocusNodes[field] = FocusNode();
-                    }
-                    isPageInitialized = true;
-                  }
-
-                  final List<Widget> pages = [];
-                  pages.add(_KeepAlivePage(child: _buildIntroductionPage(context, votingForm)));
-
-                  if (headerVotingFormFields.isNotEmpty) {
-                    pages.add(_KeepAlivePage(
-                        child: _buildHeaderFormPage(context, headerVotingFormFields)));
-                  }
-                  if (participantVotingFormFields.isNotEmpty) {
-                    pages.addAll(votingSessionParticipants.map((p) => _KeepAlivePage(
-                        child: _buildParticipantFormPage(context, p, participantVotingFormFields,
-                            votingSessionProcedureBundle))));
-                  }
-                  if (footerVotingFormFields.isNotEmpty) {
-                    pages.add(_KeepAlivePage(
-                        child: _buildFooterFormPage(context, footerVotingFormFields)));
-                  }
-
-                  return Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: PageView(
-                            physics: const NeverScrollableScrollPhysics(),
-                            controller: _pageController,
-                            onPageChanged: (value) {
-                              setState(() {
-                                pageIndex = value;
-                              });
-                            },
-                            children: pages,
+            // Otherwise, show a confirmation dialog.
+            final bool shouldPop = await _showLeaveConfirmationDialog(context) ?? false;
+            if (shouldPop && context.mounted) {
+              context.router.pop();
+            }
+          },
+          child: Scaffold(
+            appBar: CustomAppBar(title: 'Voting'),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Builder(
+                  builder: (context) {
+                    if (!state.isInitialized) {
+                      if (state.status.isFailure) {
+                        return Center(
+                          child: FilledButton(
+                            onPressed: () async => context.read<JurorVotingProcedurePageBloc>().add(
+                                JurorVotingProcedurePageFetch(
+                                    votingSessionId: widget.votingSessionId)),
+                            child: Text('Retry'),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            if (pageIndex != 0)
-                              FilledButton(
-                                onPressed: () => _pageController.previousPage(
-                                    duration: const Duration(milliseconds: 400),
-                                    curve: Curves.ease),
-                                child: const Text('Previous'),
-                              )
-                            else
-                              Visibility(
-                                visible: false,
-                                maintainSize: true,
-                                maintainAnimation: true,
-                                maintainState: true,
-                                child: FilledButton(
-                                  onPressed: null,
-                                  child: Text('Previous'),
-                                ),
-                              ),
-                            if (votingSessionProcedureBundle
-                                .votingSessionBundle.votingSession.isGeoRestricted)
-                              FilledButton(
-                                onPressed: () {
-                                  context
-                                      .read<JurorVotingProcedurePageBloc>()
-                                      .add(JurorVotingProcedurePageCheckVotingLocation());
-                                },
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.onSecondaryContainer,
-                                ),
-                                child: Text(
-                                  'Verify\n Location',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            FilledButton(
-                              onPressed: () async {
-                                final isLastPage = pageIndex == pages.length - 1;
-                                if (isLastPage) {
-                                  if (formKey.currentState?.validate() ?? false) {
-                                    final bool? res = await showDialog(
-                                      context: context,
-                                      builder: (_) {
-                                        return AlertDialog(
-                                          title: Text('Submit'),
-                                          content: Text('Are you sure you want to submit?'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => context.router.pop(),
-                                              child: Text('Cancel'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () => context.router.pop(true),
-                                              child: Text('Confirm'),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                    if (!context.mounted || res != true) return;
+                        );
+                      }
+                      return VoidWidget();
+                    }
+                    final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
+                    final votingSessionParticipants =
+                        votingSessionProcedureBundle.votingSessionParticipants;
+                    final votingForm = votingSessionProcedureBundle.votingFormBundle.votingForm;
+                    final headerVotingFormFields =
+                        votingSessionProcedureBundle.votingFormBundle.headerVotingFormFields;
+                    final participantVotingFormFields =
+                        votingSessionProcedureBundle.votingFormBundle.participantVotingFormFields;
+                    final footerVotingFormFields =
+                        votingSessionProcedureBundle.votingFormBundle.footerVotingFormFields;
 
-                                    // Costruisce le mappe dei voti leggendo dai controller
-                                    final headerFieldsValues = _headerFieldsValuesMap
-                                        .map((key, value) => MapEntry(key, value.text));
-                                    final footerFieldsValues = _footerFieldsValuesMap
-                                        .map((key, value) => MapEntry(key, value.text));
-                                    final participantFieldsValues = _participantFieldsValuesMap.map(
-                                      (participant, controllerMap) => MapEntry(
-                                        participant,
-                                        controllerMap.map(
-                                          (field, controller) => MapEntry(field, controller.text),
-                                        ),
-                                      ),
-                                    );
+                    if (!isPageInitialized) {
+                      for (var participant in votingSessionParticipants) {
+                        final Map<VotingFormField, TextEditingController> fieldsControllers = {};
+                        final Map<VotingFormField, FocusNode> fieldsFocusNodes = {};
+                        for (var votingFormField in participantVotingFormFields) {
+                          fieldsControllers[votingFormField] = TextEditingController();
+                          fieldsFocusNodes[votingFormField] = FocusNode();
+                        }
+                        _participantFieldsValuesMap[participant] = fieldsControllers;
+                        _participantFieldsFocusNodes[participant] = fieldsFocusNodes;
+                      }
+                      for (var field in headerVotingFormFields) {
+                        _headerFieldsValuesMap[field] = TextEditingController();
+                        _headerFieldsFocusNodes[field] = FocusNode();
+                      }
+                      for (var field in footerVotingFormFields) {
+                        _footerFieldsValuesMap[field] = TextEditingController();
+                        _footerFieldsFocusNodes[field] = FocusNode();
+                      }
+                      isPageInitialized = true;
+                    }
 
-                                    if(headerFieldsValues.isEmpty && participantFieldsValues.isEmpty && footerFieldsValues.isEmpty) {
-                                      showSnackBar(context: context, text: 'Please fill at least one field');
-                                    }
+                    final List<Widget> pages = [];
+                    pages.add(_KeepAlivePage(child: _buildIntroductionPage(context, votingForm)));
 
-                                    // Invia l'evento al BLoC
-                                    context.read<JurorVotingProcedurePageBloc>().add(
-                                          JurorVotingProcedurePageSubmit(
-                                            headerFieldsValues: headerFieldsValues,
-                                            participantFieldsValues: participantFieldsValues,
-                                            footerFieldsValues: footerFieldsValues,
-                                          ),
-                                        );
-                                  } else {
-                                    showSnackBar(
-                                        context: context, text: 'Please fill all required fields');
-                                  }
-                                } else {
-                                  _pageController.nextPage(
-                                      duration: const Duration(milliseconds: 400),
-                                      curve: Curves.ease);
-                                }
+                    if (headerVotingFormFields.isNotEmpty) {
+                      pages.add(_KeepAlivePage(
+                          child: _buildHeaderFormPage(context, headerVotingFormFields)));
+                    }
+                    if (participantVotingFormFields.isNotEmpty) {
+                      pages.addAll(votingSessionParticipants.map((p) => _KeepAlivePage(
+                          child: _buildParticipantFormPage(context, p, participantVotingFormFields,
+                              votingSessionProcedureBundle))));
+                    }
+                    if (footerVotingFormFields.isNotEmpty) {
+                      pages.add(_KeepAlivePage(
+                          child: _buildFooterFormPage(context, footerVotingFormFields)));
+                    }
+
+                    return Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: PageView(
+                              physics: const NeverScrollableScrollPhysics(),
+                              controller: _pageController,
+                              onPageChanged: (value) {
+                                setState(() {
+                                  pageIndex = value;
+                                });
                               },
-                              style: (pageIndex == pages.length - 1)
-                                  ? FilledButton.styleFrom(
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.tertiaryContainer,
-                                      foregroundColor:
-                                          Theme.of(context).colorScheme.onTertiaryContainer)
-                                  : null,
-                              child: Text((pageIndex == pages.length - 1) ? 'Submit' : 'Next'),
+                              children: pages,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              if (pageIndex != 0)
+                                FilledButton(
+                                  onPressed: () => _pageController.previousPage(
+                                      duration: const Duration(milliseconds: 400),
+                                      curve: Curves.ease),
+                                  child: const Text('Previous'),
+                                )
+                              else
+                                Visibility(
+                                  visible: false,
+                                  maintainSize: true,
+                                  maintainAnimation: true,
+                                  maintainState: true,
+                                  child: FilledButton(
+                                    onPressed: null,
+                                    child: Text('Previous'),
+                                  ),
+                                ),
+                              if (votingSessionProcedureBundle
+                                  .votingSessionBundle.votingSession.isGeoRestricted)
+                                FilledButton(
+                                  onPressed: () {
+                                    context
+                                        .read<JurorVotingProcedurePageBloc>()
+                                        .add(JurorVotingProcedurePageCheckVotingLocation());
+                                  },
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.onSecondaryContainer,
+                                  ),
+                                  child: Text(
+                                    'Verify\n Location',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              FilledButton(
+                                onPressed: () async {
+                                  final isLastPage = pageIndex == pages.length - 1;
+                                  if (isLastPage) {
+                                    if (formKey.currentState?.validate() ?? false) {
+                                      final bool? res = await showDialog(
+                                        context: context,
+                                        builder: (_) {
+                                          return AlertDialog(
+                                            title: Text('Submit'),
+                                            content: Text('Are you sure you want to submit?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => context.router.pop(),
+                                                child: Text('Cancel'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () => context.router.pop(true),
+                                                child: Text('Confirm'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                      if (!context.mounted || res != true) return;
+
+                                      // Costruisce le mappe dei voti leggendo dai controller
+                                      final headerFieldsValues = _headerFieldsValuesMap
+                                          .map((key, value) => MapEntry(key, value.text));
+                                      final footerFieldsValues = _footerFieldsValuesMap
+                                          .map((key, value) => MapEntry(key, value.text));
+                                      final participantFieldsValues = _participantFieldsValuesMap.map(
+                                        (participant, controllerMap) => MapEntry(
+                                          participant,
+                                          controllerMap.map(
+                                            (field, controller) => MapEntry(field, controller.text),
+                                          ),
+                                        ),
+                                      );
+
+                                      if(headerFieldsValues.isEmpty && participantFieldsValues.isEmpty && footerFieldsValues.isEmpty) {
+                                        showSnackBar(context: context, text: 'Please fill at least one field');
+                                      }
+
+                                      // Invia l'evento al BLoC
+                                      context.read<JurorVotingProcedurePageBloc>().add(
+                                            JurorVotingProcedurePageSubmit(
+                                              headerFieldsValues: headerFieldsValues,
+                                              participantFieldsValues: participantFieldsValues,
+                                              footerFieldsValues: footerFieldsValues,
+                                            ),
+                                          );
+                                    } else {
+                                      showSnackBar(
+                                          context: context, text: 'Please fill all required fields');
+                                    }
+                                  } else {
+                                    _pageController.nextPage(
+                                        duration: const Duration(milliseconds: 400),
+                                        curve: Curves.ease);
+                                  }
+                                },
+                                style: (pageIndex == pages.length - 1)
+                                    ? FilledButton.styleFrom(
+                                        backgroundColor:
+                                            Theme.of(context).colorScheme.tertiaryContainer,
+                                        foregroundColor:
+                                            Theme.of(context).colorScheme.onTertiaryContainer)
+                                    : null,
+                                child: Text((pageIndex == pages.length - 1) ? 'Submit' : 'Next'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -590,4 +603,27 @@ class _KeepAlivePageState extends State<_KeepAlivePage> with AutomaticKeepAliveC
     super.build(context); // This is important!
     return widget.child;
   }
+}
+
+/// Shows a confirmation dialog to the user when they try to leave the voting procedure.
+Future<bool?> _showLeaveConfirmationDialog(BuildContext context) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Leave Voting Session?'),
+        content: const Text('Your progress will not be saved. Are you sure you want to leave?'),
+        actions: [
+          TextButton(
+            onPressed: () => context.router.pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => context.router.pop(true),
+            child: const Text('Leave'),
+          ),
+        ],
+      );
+    },
+  );
 }

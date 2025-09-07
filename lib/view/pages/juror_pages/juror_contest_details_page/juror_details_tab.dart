@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
@@ -200,32 +201,20 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         SizedBox(width: 4),
                         Expanded(
                           child: GestureDetector(
-                            onTap: () async {
+                            onLongPress: () {
                               final address =
                                   state.contestDetailsBundle!.contestBundle.place.address;
-                              final query = Uri.encodeComponent(address);
-                              final uri = Uri.parse(
-                                  'https://www.google.com/maps/search/?api=1&query=$query');
-
-                              if (await canLaunchUrl(uri)) {
-                                await launchUrl(uri, mode: LaunchMode.externalApplication);
-                              } else {
-                                if (context.mounted) {
-                                  showSnackBar(
-                                      context: context,
-                                      text: 'It has not been possible to open the map');
-                                }
-                              }
+                              Clipboard.setData(ClipboardData(text: address));
+                              showSnackBar(context: context, text: 'Address copied to clipboard');
                             },
                             child: Text(
                               state.contestDetailsBundle!.contestBundle.place.address,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(decoration: TextDecoration.underline),
+                                  .bodyMedium,
                             ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                     SizedBox(height: 8),
