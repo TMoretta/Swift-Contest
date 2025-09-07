@@ -156,7 +156,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> deleteAccount() async {
     return handleDatabaseCall(
       () async {
-        final res = await _supabase.functions.invoke('delete-account');
+        final res = await _supabase.functions.invoke('user-delete-account');
         if (res.status != 200) {
           return Either.left(Failure(res.data.toString()));
         }

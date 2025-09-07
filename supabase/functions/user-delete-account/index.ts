@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "https://esm.sh/resend@3.2.0";
 import { corsHeaders } from "../_shared/cors.ts";
 
 // Main Deno function
@@ -29,6 +30,7 @@ Deno.serve(async (req) => {
       throw new Error("User not authenticated.");
     }
     const userId = user.id;
+    const userEmail = user.email;
 
     // --- NOTIFICATION LOGIC ---
     // This must happen BEFORE deleting the user, as cascade deletes will remove the data needed for notifications.
@@ -146,6 +148,32 @@ Deno.serve(async (req) => {
       if (jurationMessages.length > 0) {
         await supabaseAdmin.from('messages').insert(jurationMessages);
       }
+    }
+
+    // --- EMAIL NOTIFICATION ---
+    // Send an email to the user confirming the deletion.
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (resendApiKey && userEmail) {
+      const resend = new Resend(resendApiKey);
+      try {
+        await resend.emails.send({
+          from: 'Swift Contest <noreply@swiftcontest.com>',
+          to: [userEmail],
+          subject: 'Your Swift Contest Account Has Been Deleted',
+          html: `
+            <p>Hello ${userFullName || 'user'},</p>
+            <p>This is a confirmation that your account on Swift Contest has been successfully deleted as you requested.</p>
+            <p>We're sorry to see you go. If you have any feedback, we'd love to hear it.</p>
+            <p>Thank you for being part of our community,</p>
+            <p>The Swift Contest Team</p>
+          `,
+        });
+      } catch (emailError) {
+        // Log the email error but don't block the user deletion process
+        console.error("Failed to send deletion confirmation email:", emailError.message);
+      }
+    } else {
+      console.warn("RESEND_API_KEY not set or user email not found. Skipping email notification.");
     }
 
     // 5. Finally, delete the user from auth. This will cascade to the 'profiles' table and all related data.
