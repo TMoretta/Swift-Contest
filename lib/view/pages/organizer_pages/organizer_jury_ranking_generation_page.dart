@@ -1,25 +1,21 @@
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
-import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
-import 'package:open_filex/open_filex.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
+import 'package:swift_contest/utils/functions/save_and_launch_file.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/utils/media_type.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_jury_ranking_generation_page_bloc/organizer_jury_ranking_generation_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 
 @RoutePage()
 class OrganizerJuryRankingGenerationPage extends StatefulWidget implements AutoRouteWrapper {
@@ -173,7 +169,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
                 });
               }
             },
-            title: Text('Select valid fields'),
+            title: Text("Select participant's form fields"),
             trailing: Icon(Icons.arrow_downward),
           ),
         ),
@@ -293,95 +289,41 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
         final sortedParticipantScores = participantScores.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value));
 
-        try {
-          // final request = await requestStoragePermission();
-          // if (request != true) {
-          //   if (context.mounted) {
-          //     showSnackBar(context: context, text: 'Can not download file without permission');
-          //   }
-          //   return;
-          // }
+        // --- Generate Excel File ---
+        final xlsio.Workbook workbook = xlsio.Workbook();
+        final xlsio.Worksheet sheet = workbook.worksheets[0];
+        sheet.name = 'Ranking';
 
-          final directory =
-              await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOWNLOAD);
-          final baseName =
-              'Ranking - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
-          const extension = '.xlsx';
+        final xlsio.Style headerStyle = workbook.styles.add('headerStyle');
+        headerStyle.bold = true;
+        headerStyle.hAlign = xlsio.HAlignType.center;
 
-          String safeFilename;
-          int count = 0;
-          do {
-            safeFilename = (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
-            count++;
-          } while (await File('$directory/$safeFilename').exists());
+        sheet.getRangeByName('A1').setText('Participant | Work');
+        sheet.getRangeByName('A1').cellStyle = headerStyle;
+        sheet.getRangeByName('B1').setText('Score');
+        sheet.getRangeByName('B1').cellStyle = headerStyle;
 
-          final path = '$directory/$safeFilename';
-          
-          // --- 1. Generate the Excel file content ---
-          // Create a new Excel document.
-          final xlsio.Workbook workbook = xlsio.Workbook();
-          // Accessing worksheet via index.
-          final xlsio.Worksheet sheet = workbook.worksheets[0];
-          sheet.name = 'Ranking';
+        int rowIndex = 2;
+        for (final entry in sortedParticipantScores) {
+          final participantName = entry.key.participantFullName;
+          final workName = entry.key.workName;
+          final score = entry.value;
 
-          // Create a style for the header row.
-          final xlsio.Style headerStyle = workbook.styles.add('headerStyle');
-          headerStyle.bold = true;
-          headerStyle.hAlign = xlsio.HAlignType.center;
+          sheet.getRangeByName('A$rowIndex').setText('$participantName | $workName');
+          sheet.getRangeByName('B$rowIndex').setNumber(score);
+          rowIndex++;
+        }
 
-          // Add header row
-          sheet.getRangeByName('A1').setText('Participant | Work');
-          sheet.getRangeByName('A1').cellStyle = headerStyle;
-          sheet.getRangeByName('B1').setText('Score');
-          sheet.getRangeByName('B1').cellStyle = headerStyle;
+        final List<int> fileBytes = workbook.saveAsStream();
+        workbook.dispose();
 
-          // Add a row for each participant
-          int rowIndex = 2; // Start from the second row
-          for (final entry in sortedParticipantScores) {
-            final participantName = entry.key.participantFullName;
-            final workName = entry.key.workName;
-            final score = entry.value;
+        final fileName =
+            'Ranking - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}.xlsx';
 
-            sheet.getRangeByName('A$rowIndex').setText('$participantName | $workName');
-            sheet.getRangeByName('B$rowIndex').setNumber(score);
-            rowIndex++;
-          }
-          
-          // Save and dispose the document.
-          final List<int> fileBytes = workbook.saveAsStream();
-          workbook.dispose();
-          
-          final file = File(path);
-          await file.writeAsBytes(fileBytes);
-
-          if (context.mounted) {
-            showSnackBar(context: context, text: 'File successfully saved in "Downloads" folder');
-          }
-
-          final res = await OpenFilex.open(path, type: MediaType.mapExtension(extension));
-          switch (res.type) {
-            case ResultType.done:
-              break;
-            case ResultType.noAppToOpen:
-              if (context.mounted) {
-                showSnackBar(
-                    context: context,
-                    text: 'No app to open the file. File saved in "Downloads" directory.');
-              }
-              break;
-            case ResultType.fileNotFound:
-            case ResultType.permissionDenied:
-            case ResultType.error:
-              if (context.mounted) {
-                showSnackBar(context: context, text: 'File saved in "Downloads" directory');
-              }
-              break;
-          }
-        } catch (e) {
-          Logger.error(e.toString(), StackTrace.current);
-          if (context.mounted) {
-            showSnackBar(context: context, text: 'An error occurred while saving the file');
-          }
+        // --- Save and Launch File (Platform-Aware) ---
+        final (_, message) = await saveAndLaunchFile(fileBytes, fileName);
+        if (context.mounted) {
+          showSnackBar(context: context, text: message ?? 'File operation completed.');
         }
       },
       icon: Icon(Icons.download),

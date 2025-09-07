@@ -1,14 +1,8 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:external_path/external_path.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
-import 'package:url_launcher/url_launcher.dart';
-import 'package:swift_contest/utils/permissions/permissions.dart';
+import 'package:swift_contest/utils/functions/save_and_launch_file.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -85,110 +79,80 @@ class _JurorRankingsTabState extends State<JurorRankingsTab> {
                   .add(JurorContestDetailsPageFetch(contestId: contestId)),
               child: (state.contestDetailsBundle!.contestRankings.isEmpty)
                   ? ListView(
-                children: [
-                  Text('No ranking published'),
-                ],
-              )
+                      children: [
+                        Text('No ranking published'),
+                      ],
+                    )
                   : ListView.builder(
-                itemCount: state.contestDetailsBundle!.contestRankings.length,
-                itemBuilder: (context, index) {
-                  final ranking = state.contestDetailsBundle!.contestRankings[index];
-                  return Card(
-                    elevation: 0,
-                    child: ListTile(
-                      title: Text(
-                        path.basename(ranking.filePath),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          BlocListener<JurorContestDetailsPageBloc,
-                              JurorContestDetailsPageState>(
-                            listener: (context, state) async {
-                              if (state.status.isSuccess &&
-                                  state.sourceEvent is JurorContestDetailsPageGetRankingFileUrl) {
-                                final url = state.rankingFileUrl!;
+                      itemCount: state.contestDetailsBundle!.contestRankings.length,
+                      itemBuilder: (context, index) {
+                        final ranking = state.contestDetailsBundle!.contestRankings[index];
+                        return Card(
+                          elevation: 0,
+                          child: ListTile(
+                            title: Text(
+                              path.basename(ranking.filePath),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                BlocListener<JurorContestDetailsPageBloc,
+                                    JurorContestDetailsPageState>(
+                                  listener: (context, state) async {
+                                    if (state.status.isSuccess &&
+                                        state.sourceEvent
+                                            is JurorContestDetailsPageGetRankingFileUrl) {
+                                      final url = state.rankingFileUrl!;
+                                      final dio = Dio();
+                                      try {
+                                        final response = await dio.get<List<int>>(
+                                          url,
+                                          options: Options(responseType: ResponseType.bytes),
+                                        );
+                                        final fileBytes = response.data;
 
-                                if (kIsWeb) {
-                                  // On web, open the URL in a new tab and let the browser handle it.
-                                  final uri = Uri.parse(url);
-                                  if (!await launchUrl(uri)) {
-                                    if (context.mounted) {
-                                      showSnackBar(
-                                          context: context,
-                                          text: 'Could not open the file link.');
+                                        if (fileBytes == null) {
+                                          if (context.mounted) {
+                                            showSnackBar(
+                                                context: context,
+                                                text: 'Failed to download file data.');
+                                          }
+                                          return;
+                                        }
+
+                                        final (_, message) = await saveAndLaunchFile(
+                                            fileBytes, path.basename(ranking.filePath));
+                                        if (context.mounted) {
+                                          showSnackBar(
+                                              context: context,
+                                              text: message ?? 'File operation completed.');
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          showSnackBar(
+                                              context: context, text: 'Download failed.');
+                                        }
+                                      }
                                     }
-                                  }
-                                } else {
-                                  // On mobile, download the file to the device.
-                                  final bool permission =
-                                      await requestStoragePermissionForDownloads();
-                                  if (!context.mounted) return;
-                                  if (!permission) {
-                                    showSnackBar(
-                                        context: context,
-                                        text: 'Storage permission is required to save files.');
-                                    return;
-                                  }
-
-                                  try {
-                                    // 1. Get the downloads directory.
-                                    final directory = await ExternalPath
-                                        .getExternalStoragePublicDirectory(
-                                            ExternalPath.DIRECTORY_DOWNLOAD);
-
-                                    // 2. Create a safe, non-conflicting filename.
-                                    final fileName =
-                                        path.basenameWithoutExtension(ranking.filePath);
-                                    final extension = path.extension(ranking.filePath);
-                                    String safeFilename;
-                                    int count = 0;
-                                    do {
-                                      safeFilename = (count == 0)
-                                          ? '$fileName$extension'
-                                          : '$fileName ($count)$extension';
-                                      count++;
-                                    } while (await File('$directory/$safeFilename').exists());
-                                    final safePath = '$directory/$safeFilename';
-
-                                    // 3. Download the file using Dio.
-                                    final dio = Dio();
-                                    await dio.download(url, safePath);
-
-                                    // 4. Open the downloaded file.
-                                    final result = await OpenFilex.open(safePath);
-                                    if (result.type != ResultType.done && context.mounted) {
-                                      showSnackBar(
-                                          context: context,
-                                          text:
-                                              'Could not open the file. It is saved in your Downloads folder.');
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      showSnackBar(context: context, text: 'Download failed.');
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            child: IconButton(
-                              onPressed: () {
-                                context.read<JurorContestDetailsPageBloc>().add(
-                                    JurorContestDetailsPageGetRankingFileUrl(
-                                        filePath: ranking.filePath));
-                              },
-                              icon: Icon(Icons.download),
+                                  },
+                                  child: IconButton(
+                                    onPressed: () {
+                                      context.read<JurorContestDetailsPageBloc>().add(
+                                          JurorContestDetailsPageGetRankingFileUrl(
+                                              filePath: ranking.filePath));
+                                    },
+                                    icon: Icon(Icons.download),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              )),
+                        );
+                      },
+                    )),
         ),
       ],
     );

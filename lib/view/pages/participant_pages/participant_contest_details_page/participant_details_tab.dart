@@ -10,7 +10,6 @@ import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/participant_contest_details_page_bloc/participant_contest_details_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ParticipantDetailsTab extends StatefulWidget {
   final String contestId;

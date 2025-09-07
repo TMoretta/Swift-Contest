@@ -1,22 +1,17 @@
-import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
-import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
-import 'package:swift_contest/utils/media_type.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
+import 'package:swift_contest/utils/functions/save_and_launch_file.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_jury_voting_results_export_page_bloc/organizer_jury_voting_results_export_page_bloc.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 
 @RoutePage()
 class OrganizerJuryVotingResultsExportPage extends StatefulWidget implements AutoRouteWrapper {
@@ -46,7 +41,9 @@ class _OrganizerJuryVotingResultsExportPageState
     extends State<OrganizerJuryVotingResultsExportPage> {
   late final String votingSessionJuryId;
   List<VotingSessionJuror> selectedVotingSessionJurors = [];
-  List<VotingFormField> selectedVotingFormFields = [];
+  List<VotingFormField> selectedHeaderFields = [];
+  List<VotingFormField> selectedParticipantFields = [];
+  List<VotingFormField> selectedFooterFields = [];
 
   @override
   void initState() {
@@ -104,6 +101,13 @@ class _OrganizerJuryVotingResultsExportPageState
       return VoidWidget();
     }
 
+    final allHeaderFields = state.votingSessionJuryResultBundle!.votingSessionJuryBundle
+        .votingFormBundle.headerVotingFormFields;
+    final allParticipantFields = state.votingSessionJuryResultBundle!.votingSessionJuryBundle
+        .votingFormBundle.participantVotingFormFields;
+    final allFooterFields = state.votingSessionJuryResultBundle!.votingSessionJuryBundle
+        .votingFormBundle.footerVotingFormFields;
+
     return ListView(
       children: [
         DecoratedBox(
@@ -112,11 +116,11 @@ class _OrganizerJuryVotingResultsExportPageState
           ),
           child: ListTile(
             onTap: () async {
-              final selectedJurors = await _showSelectJurorsDialog(context, state);
+              final List<VotingSessionJuror>? selectedJurors =
+                  await _showSelectJurorsDialog(context, state);
               if (selectedJurors != null) {
-                selectedVotingSessionJurors.clear();
                 setState(() {
-                  selectedVotingSessionJurors.addAll(selectedJurors);
+                  selectedVotingSessionJurors = selectedJurors;
                 });
               }
             },
@@ -129,9 +133,7 @@ class _OrganizerJuryVotingResultsExportPageState
           constraints: BoxConstraints(maxHeight: 200),
           child: SingleChildScrollView(
             child: Wrap(
-              // Spazio orizzontale tra i chip sulla stessa riga
               spacing: 8.0,
-              // Spazio verticale tra le righe di chip
               runSpacing: 4.0,
               // Mappa la tua lista di giurati a una lista di widget Chip
               children: selectedVotingSessionJurors.map((juror) {
@@ -144,53 +146,70 @@ class _OrganizerJuryVotingResultsExportPageState
                   //   });
                   // },
                 );
-              }).toList(), // .toList() è fondamentale per convertire l'Iterable in una List<Widget>
-            ),
-          ),
-        ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.primary)),
-          ),
-          child: ListTile(
-            onTap: () async {
-              final selectedFields = await _showSelectFieldsDialog(context, state);
-              if (selectedFields != null) {
-                selectedVotingFormFields.clear();
-                setState(() {
-                  selectedVotingFormFields.addAll(selectedFields);
-                });
-              }
-            },
-            title: Text('Select fields'),
-            trailing: Icon(Icons.arrow_downward),
-          ),
-        ),
-        SizedBox(height: 8),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 200),
-          child: SingleChildScrollView(
-            child: Wrap(
-              // Spazio orizzontale tra i chip sulla stessa riga
-              spacing: 8.0,
-              // Spazio verticale tra le righe di chip
-              runSpacing: 4.0,
-              // Mappa la tua lista di giurati a una lista di widget Chip
-              children: selectedVotingFormFields.map((votingFormField) {
-                return Chip(
-                  label: Text(votingFormField.question),
-                  // Puoi anche aggiungere un'azione di cancellazione se necessario
-                  // onDeleted: () {
-                  //   setState(() {
-                  //     selectedVotingSessionJurors.remove(juror);
-                  //   });
-                  // },
-                );
-              }).toList(), // .toList() è fondamentale per convertire l'Iterable in una List<Widget>
+              }).toList(),
             ),
           ),
         ),
 
+        // --- Header Fields Selection ---
+        if (allHeaderFields.isNotEmpty) ...[
+          _buildFieldSelector(
+            context: context,
+            title: 'Select header form fields',
+            onTap: () async {
+              final List<VotingFormField>? selected = await _showSelectFieldsDialog(
+                context,
+                title: 'Select header fields',
+                availableFields: allHeaderFields,
+                initiallySelectedFields: selectedHeaderFields,
+              );
+              if (selected != null) {
+                setState(() => selectedHeaderFields = selected);
+              }
+            },
+            selectedFields: selectedHeaderFields,
+          ),
+        ],
+
+        // --- Participant Fields Selection ---
+        if (allParticipantFields.isNotEmpty) ...[
+          _buildFieldSelector(
+            context: context,
+            title: "Select participant's form fields",
+            onTap: () async {
+              final List<VotingFormField>? selected = await _showSelectFieldsDialog(
+                context,
+                title: "Select participant's form fields",
+                availableFields: allParticipantFields,
+                initiallySelectedFields: selectedParticipantFields,
+              );
+              if (selected != null) {
+                setState(() => selectedParticipantFields = selected);
+              }
+            },
+            selectedFields: selectedParticipantFields,
+          ),
+        ],
+
+        // --- Footer Fields Selection ---
+        if (allFooterFields.isNotEmpty) ...[
+          _buildFieldSelector(
+            context: context,
+            title: 'Select footer form fields',
+            onTap: () async {
+              final List<VotingFormField>? selected = await _showSelectFieldsDialog(
+                context,
+                title: 'Select footer fields',
+                availableFields: allFooterFields,
+                initiallySelectedFields: selectedFooterFields,
+              );
+              if (selected != null) {
+                setState(() => selectedFooterFields = selected);
+              }
+            },
+            selectedFields: selectedFooterFields,
+          ),
+        ],
         // MultiSelectDialogField<VotingSessionJuror>(
         //   items: votingSessionJurors
         //       .map((e) => MultiSelectItem(e, e.jurorFullName))
@@ -242,21 +261,59 @@ class _OrganizerJuryVotingResultsExportPageState
     );
   }
 
+  Widget _buildFieldSelector({
+    required BuildContext context,
+    required String title,
+    required VoidCallback onTap,
+    required List<VotingFormField> selectedFields,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 16),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.primary)),
+          ),
+          child: ListTile(
+            onTap: onTap,
+            title: Text(title),
+            trailing: Icon(Icons.arrow_downward),
+          ),
+        ),
+        SizedBox(height: 8),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 200),
+          child: SingleChildScrollView(
+            child: Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: selectedFields.map((field) {
+                return Chip(label: Text(field.question));
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildFabMenu(BuildContext context, OrganizerJuryVotingResultsExportPageState state) {
     return FloatingActionButton.extended(
       onPressed: () async {
-        if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
+        if (selectedVotingSessionJurors.isEmpty ||
+            (selectedHeaderFields.isEmpty &&
+                selectedParticipantFields.isEmpty &&
+                selectedFooterFields.isEmpty)) {
           showSnackBar(context: context, text: 'Select at least one juror and one field');
           return;
         }
 
         // --- 1. Filter selected fields by scope ---
-        final headerFields =
-            selectedVotingFormFields.where((f) => f.scope.isHeader).toList(growable: false);
-        final participantFields =
-            selectedVotingFormFields.where((f) => f.scope.isParticipant).toList(growable: false);
-        final footerFields =
-            selectedVotingFormFields.where((f) => f.scope.isFooter).toList(growable: false);
+        final headerFields = selectedHeaderFields;
+        final participantFields = selectedParticipantFields;
+        final footerFields = selectedFooterFields;
 
         // --- 2. Pre-process submissions into efficient lookup maps ---
         final allParticipants = state.votingSessionJuryResultBundle!.votingSessionParticipants;
@@ -264,8 +321,9 @@ class _OrganizerJuryVotingResultsExportPageState
         final exclusions = state.votingSessionJuryResultBundle!.votingSessionExclusions;
 
         final votesMap = <String, Map<String, String>>{}; // { jurorId: { fieldId: value } }
-        final participantVotesMap =
-            <String, Map<String, Map<String, String>>>{}; // { jurorId: { participantId: { fieldId: value } } }
+        final participantVotesMap = <String,
+            Map<String,
+                Map<String, String>>>{}; // { jurorId: { participantId: { fieldId: value } } }
 
         for (final submission in allSubmissions) {
           final jurorId = submission.votingSessionJuror.id!;
@@ -396,40 +454,16 @@ class _OrganizerJuryVotingResultsExportPageState
           }
         }
 
-        try {
-          final directory =
-              await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOWNLOAD);
-          final baseName =
-              'Results - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
-          const extension = '.xlsx';
+        // --- Save and Launch File (Platform-Aware) ---
+        final List<int> fileBytes = workbook.saveAsStream();
+        workbook.dispose();
 
-          String safeFilename;
-          int count = 0;
-          do {
-            safeFilename = (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
-            count++;
-          } while (await File('$directory/$safeFilename').exists());
+        final fileName =
+            'Results - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}.xlsx';
 
-          final path = '$directory/$safeFilename';
-          final List<int> fileBytes = workbook.saveAsStream();
-          workbook.dispose();
-          final file = File(path);
-          await file.writeAsBytes(fileBytes);
-
-          if (!context.mounted) return;
-          showSnackBar(context: context, text: 'File successfully saved in "Downloads" folder');
-
-          final res = await OpenFilex.open(path, type: MediaType.mapExtension(extension));
-          if (res.type != ResultType.done && context.mounted) {
-            showSnackBar(
-                context: context,
-                text: 'No app to open the file. File saved in "Downloads" directory.');
-          }
-        } catch (e) {
-          Logger.error(e.toString(), StackTrace.current);
-          if (context.mounted) {
-            showSnackBar(context: context, text: 'An error occurred while saving the file');
-          }
+        final (_, message) = await saveAndLaunchFile(fileBytes, fileName);
+        if (context.mounted) {
+          showSnackBar(context: context, text: message ?? 'File operation completed.');
         }
       },
       icon: Icon(Icons.download),
@@ -531,15 +565,12 @@ class _OrganizerJuryVotingResultsExportPageState
   }
 
   Future<List<VotingFormField>?> _showSelectFieldsDialog(
-    BuildContext context,
-    OrganizerJuryVotingResultsExportPageState state,
-  ) async {
-    // Only required fields of the participant form and of type slider considered
-    final List<VotingFormField> votingFormFields = state
-        .votingSessionJuryResultBundle!.votingSessionJuryBundle.votingFormBundle.votingFormFields
-        .toList(growable: false);
-
-    final List<VotingFormField> localSelectedVotingFormFields = List.from(selectedVotingFormFields);
+    BuildContext context, {
+    required String title,
+    required List<VotingFormField> availableFields,
+    required List<VotingFormField> initiallySelectedFields,
+  }) async {
+    final List<VotingFormField> localSelectedVotingFormFields = List.from(initiallySelectedFields);
 
     return await showDialog(
       context: context,
@@ -547,7 +578,7 @@ class _OrganizerJuryVotingResultsExportPageState
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Select fields'),
+              title: Text(title),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 300,
@@ -560,20 +591,20 @@ class _OrganizerJuryVotingResultsExportPageState
                         onPressed: () {
                           setState(() {
                             final bool areAllSelected =
-                                localSelectedVotingFormFields.length == votingFormFields.length;
+                                localSelectedVotingFormFields.length == availableFields.length;
 
                             if (areAllSelected) {
                               localSelectedVotingFormFields.clear();
                             } else {
                               localSelectedVotingFormFields.clear();
-                              localSelectedVotingFormFields.addAll(votingFormFields);
+                              localSelectedVotingFormFields.addAll(availableFields);
                             }
                           });
                         },
                         style: FilledButton.styleFrom(
                             backgroundColor: Theme.of(context).colorScheme.tertiaryContainer),
                         child: Text(
-                          (localSelectedVotingFormFields.length == votingFormFields.length)
+                          (localSelectedVotingFormFields.length == availableFields.length)
                               ? 'Deselect all'
                               : 'Select all',
                           style: Theme.of(context)
@@ -583,7 +614,7 @@ class _OrganizerJuryVotingResultsExportPageState
                         ),
                       ),
                     ),
-                    ...votingFormFields.map((votingFormField) {
+                    ...availableFields.map((votingFormField) {
                       return CheckboxListTile(
                         onChanged: (value) {
                           setState(() {

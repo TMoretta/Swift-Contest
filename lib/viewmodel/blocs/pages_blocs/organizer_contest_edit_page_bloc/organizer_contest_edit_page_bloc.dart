@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -52,14 +54,12 @@ class OrganizerContestEditPageBloc
       return;
     }
 
-    // 1. Prepara la directory temporanea e la lista per le immagini.
-    final tempDir = await getTemporaryDirectory();
+    // --- Image Fetching Logic ---
     final dio = Dio();
     final List<XFile> images = [];
+    final imagePaths = contestDetailsBundle.contestBundle.contest.imagesPaths;
 
-    // 2. Itera su ogni percorso di immagine salvato in Supabase.
-    for (final imageStoragePath in contestDetailsBundle.contestBundle.contest.imagesPaths) {
-      // 3. Ottieni un URL firmato per scaricare il file.
+    for (final imageStoragePath in imagePaths) {
       final eitherUrl = await _storageRepository.getSignedUrl(
         bucket: StorageBucket.contestsImages,
         path: imageStoragePath,
@@ -71,14 +71,26 @@ class OrganizerContestEditPageBloc
         return;
       }
       final url = eitherUrl.getRight().toNullable()!;
-      // 4. Crea un percorso locale unico nella directory temporanea.
-      final localFilePath = '${tempDir.path}/${p.basename(imageStoragePath)}';
 
       try {
-        // 5. Scarica l'immagine e salvala localmente.
-        await dio.download(url, localFilePath);
-        // 6. Crea un XFile dal percorso locale e aggiungilo alla lista.
-        images.add(XFile(localFilePath));
+        if (kIsWeb) {
+          // Web: Download image bytes into memory.
+          final response = await dio.get<List<int>>(
+            url,
+            options: Options(responseType: ResponseType.bytes),
+          );
+          final bytes = Uint8List.fromList(response.data!);
+          images.add(XFile.fromData(
+            bytes,
+            name: p.basename(imageStoragePath),
+          ));
+        } else {
+          // Mobile: Download image to a temporary file.
+          final tempDir = await getTemporaryDirectory();
+          final localFilePath = '${tempDir.path}/${p.basename(imageStoragePath)}';
+          await dio.download(url, localFilePath);
+          images.add(XFile(localFilePath));
+        }
       } catch (e) {
         Logger.error('Failed to download image $url: $e');
         emit(state.copyWith(
@@ -87,7 +99,7 @@ class OrganizerContestEditPageBloc
       }
     }
 
-    // 7. Emetti lo stato di successo con i dettagli e le immagini scaricate.
+    // Emit the success state with the contest details and the downloaded images.
     emit(state.copyWith(
         status: BlocStatus.success, isInitialized: true, contestDetailsBundle: contestDetailsBundle, images: images));
   }
