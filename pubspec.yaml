@@ -30,7 +30,7 @@ dependencies:
   permission_handler: ^12.0.0+1
   device_info_plus: ^11.4.0
   external_path: ^2.2.0
-  syncfusion_flutter_xlsio: ^30.2.4
+  syncfusion_flutter_xlsio: ^31.1.17
   geolocator: ^14.0.0
   google_fonts: ^6.2.1
   pinput: ^5.0.1

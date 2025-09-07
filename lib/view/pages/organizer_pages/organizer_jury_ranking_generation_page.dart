@@ -4,12 +4,13 @@ import 'package:auto_route/auto_route.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 import 'package:open_filex/open_filex.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
-import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
-import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/utils/media_type.dart';
@@ -106,6 +107,8 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
 
     return ListView(
       children: [
+        Text('Only fields of type "slider" and in the "participant form" are valid for the ranking generation.'),
+        SizedBox(height: 20),
         DecoratedBox(
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.primary)),
@@ -155,7 +158,9 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           child: ListTile(
             onTap: () async {
               if(state
-                  .votingSessionJuryResultBundle!.votingSessionJuryBundle.votingFormBundle.votingFormFields
+                  .votingSessionJuryResultBundle!
+                  .votingSessionJuryBundle
+                  .votingFormBundle.participantVotingFormFields
                   .where((e) => e.scope.isParticipant && e.type.isSlider && e.isRequired).isEmpty) {
                 showSnackBar(context: context, text: 'There is no valid field for ranking generation');
                 return;
@@ -300,8 +305,8 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           final directory =
               await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOWNLOAD);
           final baseName =
-              'Ranking ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
-          final extension = '.csv';
+              'Ranking - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
+          const extension = '.xlsx';
 
           String safeFilename;
           int count = 0;
@@ -311,25 +316,43 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           } while (await File('$directory/$safeFilename').exists());
 
           final path = '$directory/$safeFilename';
+          
+          // --- 1. Generate the Excel file content ---
+          // Create a new Excel document.
+          final xlsio.Workbook workbook = xlsio.Workbook();
+          // Accessing worksheet via index.
+          final xlsio.Worksheet sheet = workbook.worksheets[0];
+          sheet.name = 'Ranking';
 
-          // --- 1. Genera la stringa CSV ---
-          final buffer = StringBuffer();
+          // Create a style for the header row.
+          final xlsio.Style headerStyle = workbook.styles.add('headerStyle');
+          headerStyle.bold = true;
+          headerStyle.hAlign = xlsio.HAlignType.center;
 
-          // Aggiungi l'intestazione delle colonne
-          buffer.writeln('Participant,Score');
+          // Add header row
+          sheet.getRangeByName('A1').setText('Participant | Work');
+          sheet.getRangeByName('A1').cellStyle = headerStyle;
+          sheet.getRangeByName('B1').setText('Score');
+          sheet.getRangeByName('B1').cellStyle = headerStyle;
 
-          // Aggiungi una riga per ogni partecipante
+          // Add a row for each participant
+          int rowIndex = 2; // Start from the second row
           for (final entry in sortedParticipantScores) {
             final participantName = entry.key.participantFullName;
+            final workName = entry.key.workName;
             final score = entry.value;
 
-            // Metti il nome tra virgolette per gestire eventuali virgole nel nome
-            buffer.writeln('"$participantName",${prettyDouble(score)}');
+            sheet.getRangeByName('A$rowIndex').setText('$participantName | $workName');
+            sheet.getRangeByName('B$rowIndex').setNumber(score);
+            rowIndex++;
           }
-
+          
+          // Save and dispose the document.
+          final List<int> fileBytes = workbook.saveAsStream();
+          workbook.dispose();
+          
           final file = File(path);
-          // Scrivi la stringa nel file
-          await file.writeAsString(buffer.toString());
+          await file.writeAsBytes(fileBytes);
 
           if (context.mounted) {
             showSnackBar(context: context, text: 'File successfully saved in "Downloads" folder');
@@ -362,7 +385,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
         }
       },
       icon: Icon(Icons.download),
-      label: Text('Download CSV'),
+      label: Text('Download Ranking'),
     );
   }
 
@@ -465,7 +488,9 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
   ) async {
     // Only required fields of the participant form and of type slider considered
     final List<VotingFormField> votingFormFields = state
-        .votingSessionJuryResultBundle!.votingSessionJuryBundle.votingFormBundle.votingFormFields
+        .votingSessionJuryResultBundle!
+        .votingSessionJuryBundle
+        .votingFormBundle.participantVotingFormFields
         .where((e) => e.scope.isParticipant && e.type.isSlider && e.isRequired)
         .toList(growable: false);
 

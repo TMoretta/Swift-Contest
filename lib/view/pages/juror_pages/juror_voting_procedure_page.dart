@@ -380,7 +380,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       children: [
-        Text('General Evaluation', style: Theme.of(context).textTheme.headlineSmall),
+        Text('Header form', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 12),
         ...headerVotingFormFields.map((field) {
           return _buildFormField(context, field, _headerFieldsValuesMap[field]!,
@@ -520,7 +520,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       children: [
-        Text('Final Remarks', style: Theme.of(context).textTheme.headlineSmall),
+        Text('Footer form', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 16),
         ...footerVotingFormFields.map((field) {
           return _buildFormField(context, field, _footerFieldsValuesMap[field]!,

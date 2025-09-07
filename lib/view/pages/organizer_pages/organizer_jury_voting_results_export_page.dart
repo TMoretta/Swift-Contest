@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_scope.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
@@ -243,92 +245,176 @@ class _OrganizerJuryVotingResultsExportPageState
   Widget _buildFabMenu(BuildContext context, OrganizerJuryVotingResultsExportPageState state) {
     return FloatingActionButton.extended(
       onPressed: () async {
-        if (selectedVotingSessionJurors.isEmpty ||
-            selectedVotingFormFields.isEmpty) {
+        if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
           showSnackBar(context: context, text: 'Select at least one juror and one field');
           return;
         }
 
-        // --- 1. Get all necessary data lists ---
+        // --- 1. Filter selected fields by scope ---
+        final headerFields =
+            selectedVotingFormFields.where((f) => f.scope.isHeader).toList(growable: false);
+        final participantFields =
+            selectedVotingFormFields.where((f) => f.scope.isParticipant).toList(growable: false);
+        final footerFields =
+            selectedVotingFormFields.where((f) => f.scope.isFooter).toList(growable: false);
+
+        // --- 2. Pre-process submissions into efficient lookup maps ---
         final allParticipants = state.votingSessionJuryResultBundle!.votingSessionParticipants;
         final allSubmissions = state.votingSessionJuryResultBundle!.votingFormSubmissionsBundles;
+        final exclusions = state.votingSessionJuryResultBundle!.votingSessionExclusions;
 
-        // --- 2. Pre-process submissions into a lookup map for efficiency ---
-        // Map structure: { jurorId: { participantId: { fieldId: value } } }
-        final Map<String, Map<String, Map<String, String>>> votesMap = {};
-        for (final submissionBundle in allSubmissions) {
-          final jurorId = submissionBundle.votingSessionJuror.id;
-          if (jurorId == null) continue;
+        final votesMap = <String, Map<String, String>>{}; // { jurorId: { fieldId: value } }
+        final participantVotesMap =
+            <String, Map<String, Map<String, String>>>{}; // { jurorId: { participantId: { fieldId: value } } }
+
+        for (final submission in allSubmissions) {
+          final jurorId = submission.votingSessionJuror.id!;
           votesMap[jurorId] = {};
+          participantVotesMap[jurorId] = {};
 
-          for (final valueBundle in submissionBundle.votingFormSubmissionValuesBundles) {
-            if (valueBundle.votingSessionParticipant != null) {
+          for (final valueBundle in submission.votingFormSubmissionValuesBundles) {
+            final fieldId = valueBundle.votingFormField.id!;
+            final value = valueBundle.votingFormSubmissionValue.value;
+
+            if (valueBundle.votingFormField.scope.isParticipant) {
               final participantId = valueBundle.votingSessionParticipant!.id;
-              final fieldId = valueBundle.votingFormField.id;
-              final value = valueBundle.votingFormSubmissionValue.value;
-
-              if (votesMap[jurorId]![participantId] == null) {
-                votesMap[jurorId]![participantId!] = {};
+              if (participantVotesMap[jurorId]![participantId] == null) {
+                participantVotesMap[jurorId]![participantId!] = {};
               }
-              votesMap[jurorId]![participantId]![fieldId!] = value;
+              participantVotesMap[jurorId]![participantId]![fieldId] = value;
+            } else {
+              votesMap[jurorId]![fieldId] = value;
             }
           }
         }
 
-        // --- 3. Build the CSV string ---
-        final buffer = StringBuffer();
+        // --- 3. Build the Excel file ---
+        final xlsio.Workbook workbook = xlsio.Workbook();
+        final xlsio.Style headerStyle = workbook.styles.add('headerStyle')..bold = true;
+        int sheetCounter = 0;
 
-        // Helper to safely format CSV cells by quoting and escaping internal quotes.
-        String formatCsvCell(String data) {
-          return '"${data.replaceAll('"', '""')}"';
+        // Helper function to get a new or existing sheet. This avoids creating a sheet
+        // and then deleting the default one, which is more efficient and robust.
+        xlsio.Worksheet getSheet(String name) {
+          if (sheetCounter == 0) {
+            final sheet = workbook.worksheets[0];
+            sheet.name = name;
+            sheetCounter++;
+            return sheet;
+          } else {
+            return workbook.worksheets.addWithName(name);
+          }
         }
 
-        // --- Header Row 1: Juror Names ---
-        final jurorHeader = selectedVotingSessionJurors.expand((juror) {
-          return List.generate(
-              selectedVotingFormFields.length, (_) => formatCsvCell(juror.jurorFullName));
-        }).join(',');
-        buffer.writeln(',$jurorHeader');
+        // --- Header Sheet ---
+        if (headerFields.isNotEmpty) {
+          final xlsio.Worksheet sheet = getSheet('Header form');
+          sheet.getRangeByName('A1').setText('Juror');
+          sheet.getRangeByName('A1').cellStyle = headerStyle;
 
-        // --- Header Row 2: Field Questions ---
-        final fieldHeader = selectedVotingSessionJurors.expand((_) {
-          return selectedVotingFormFields.map((field) => formatCsvCell(field.question));
-        }).join(',');
-        buffer.writeln(',$fieldHeader');
+          for (int i = 0; i < headerFields.length; i++) {
+            sheet.getRangeByIndex(1, i + 2).setText(headerFields[i].question);
+            sheet.getRangeByIndex(1, i + 2).cellStyle = headerStyle;
+          }
 
-        // --- Data Rows: Participants and Votes ---
-        for (final participant in allParticipants) {
-          buffer.write(formatCsvCell(participant.participantFullName));
-          buffer.write(',');
+          for (int r = 0; r < selectedVotingSessionJurors.length; r++) {
+            final juror = selectedVotingSessionJurors[r];
+            sheet.getRangeByIndex(r + 2, 1).setText(juror.jurorFullName);
+            for (int c = 0; c < headerFields.length; c++) {
+              final field = headerFields[c];
+              final value = votesMap[juror.id]?[field.id] ?? '';
+              sheet.getRangeByIndex(r + 2, c + 2).setText(value);
+            }
+          }
+        }
 
-          final List<String> rowValues = [];
+        // --- Participant Sheet ---
+        if (participantFields.isNotEmpty) {
+          final xlsio.Worksheet sheet = getSheet("Participant's form");
+          sheet.getRangeByName('A1').setText('Juror');
+          sheet.getRangeByName('A1').cellStyle = headerStyle;
+          sheet.getRangeByName('B1').setText('Field');
+          sheet.getRangeByName('B1').cellStyle = headerStyle;
+
+          for (int i = 0; i < allParticipants.length; i++) {
+            final participant = allParticipants[i];
+            sheet
+                .getRangeByIndex(1, i + 3)
+                .setText('${participant.participantFullName} | ${participant.workName}');
+            sheet.getRangeByIndex(1, i + 3).cellStyle = headerStyle;
+          }
+
+          int currentRow = 2;
           for (final juror in selectedVotingSessionJurors) {
-            for (final field in selectedVotingFormFields) {
-              final value = votesMap[juror.id]?[participant.id]?[field.id] ?? '';
-              rowValues.add(formatCsvCell(value));
+            final startRow = currentRow;
+            for (int i = 0; i < participantFields.length; i++) {
+              final field = participantFields[i];
+              sheet.getRangeByIndex(currentRow + i, 2).setText(field.question);
+
+              for (int p = 0; p < allParticipants.length; p++) {
+                final participant = allParticipants[p];
+                final isExcluded = exclusions.any((ex) =>
+                    ex.votingSessionJurorId == juror.id &&
+                    ex.votingSessionParticipantId == participant.id);
+
+                if (isExcluded) {
+                  sheet.getRangeByIndex(currentRow + i, p + 3).setText('Excluded');
+                } else {
+                  final value = participantVotesMap[juror.id]?[participant.id]?[field.id] ?? '';
+                  sheet.getRangeByIndex(currentRow + i, p + 3).setText(value);
+                }
+              }
+            }
+            final endRow = currentRow + participantFields.length - 1;
+            sheet.getRangeByName('A$startRow:A$endRow').merge();
+            sheet.getRangeByName('A$startRow').setText(juror.jurorFullName);
+            sheet.getRangeByName('A$startRow').cellStyle.vAlign = xlsio.VAlignType.center;
+
+            currentRow += participantFields.length;
+          }
+        }
+
+        // --- Footer Sheet ---
+        if (footerFields.isNotEmpty) {
+          final xlsio.Worksheet sheet = getSheet('Footer form');
+          sheet.getRangeByName('A1').setText('Juror');
+          sheet.getRangeByName('A1').cellStyle = headerStyle;
+
+          for (int i = 0; i < footerFields.length; i++) {
+            sheet.getRangeByIndex(1, i + 2).setText(footerFields[i].question);
+            sheet.getRangeByIndex(1, i + 2).cellStyle = headerStyle;
+          }
+
+          for (int r = 0; r < selectedVotingSessionJurors.length; r++) {
+            final juror = selectedVotingSessionJurors[r];
+            sheet.getRangeByIndex(r + 2, 1).setText(juror.jurorFullName);
+            for (int c = 0; c < footerFields.length; c++) {
+              final field = footerFields[c];
+              final value = votesMap[juror.id]?[field.id] ?? '';
+              sheet.getRangeByIndex(r + 2, c + 2).setText(value);
             }
           }
-          buffer.writeln(rowValues.join(','));
         }
 
         try {
           final directory =
               await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOWNLOAD);
           final baseName =
-              'Voting Results ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
-          final extension = '.csv';
+              'Results - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}';
+          const extension = '.xlsx';
 
           String safeFilename;
           int count = 0;
           do {
-            safeFilename =
-                (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
+            safeFilename = (count == 0) ? '$baseName$extension' : '$baseName ($count)$extension';
             count++;
           } while (await File('$directory/$safeFilename').exists());
 
           final path = '$directory/$safeFilename';
+          final List<int> fileBytes = workbook.saveAsStream();
+          workbook.dispose();
           final file = File(path);
-          await file.writeAsString(buffer.toString());
+          await file.writeAsBytes(fileBytes);
 
           if (!context.mounted) return;
           showSnackBar(context: context, text: 'File successfully saved in "Downloads" folder');
@@ -347,7 +433,7 @@ class _OrganizerJuryVotingResultsExportPageState
         }
       },
       icon: Icon(Icons.download),
-      label: Text('Download CSV'),
+      label: Text('Export to Excel'),
     );
   }
 
@@ -361,7 +447,8 @@ class _OrganizerJuryVotingResultsExportPageState
         .where((e) => e.hasSubmitted)
         .toList(growable: false);
 
-    final List<VotingSessionJuror> localSelectedVotingSessionJurors = List.from(selectedVotingSessionJurors);
+    final List<VotingSessionJuror> localSelectedVotingSessionJurors =
+        List.from(selectedVotingSessionJurors);
 
     return await showDialog(
       context: context,
