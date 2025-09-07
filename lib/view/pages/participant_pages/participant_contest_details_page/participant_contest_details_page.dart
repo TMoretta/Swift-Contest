@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_details_tab.dart';
+import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_rankings_tab.dart';
 import 'package:swift_contest/view/pages/participant_pages/participant_contest_details_page/participant_work_tab.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
@@ -91,7 +92,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
             child: Padding(
               padding: const EdgeInsets.only(top: 16,left: 16,right: 16),
               child: DefaultTabController(
-                length: 2,
+                length: 3,
                 child: Column(
                   children: [
                     SizedBox(height: 16),
@@ -103,6 +104,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                         tabs: [
                           Tab(text: 'Details'),
                           Tab(text: 'Work'),
+                          Tab(text: 'Rankings'),
                         ],
                       ),
                     SizedBox(height: 16),
@@ -112,7 +114,7 @@ class _ParticipantContestDetailsPageState extends State<ParticipantContestDetail
                         children: [
                           ParticipantDetailsTab(contestId: contestId),
                           ParticipantWorkTab(contestId: contestId),
-                          // ParticipantVotingTab(contestId: contestId),
+                          ParticipantRankingsTab(contestId: contestId),
                         ],
                       ),
                     ),

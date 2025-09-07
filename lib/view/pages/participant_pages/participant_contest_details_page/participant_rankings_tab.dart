@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:external_path/external_path.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
+import 'package:url_launcher/url_launcher.dart';
+import 'package:swift_contest/utils/permissions/permissions.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
@@ -107,53 +110,67 @@ class _ParticipantRankingsTabState extends State<ParticipantRankingsTab> {
                             listener: (context, state) async {
                               if (state.status.isSuccess &&
                                   state.sourceEvent
-                                  is ParticipantContestDetailsPageGetRankingFileUrl) {
-                                // Download the file
+                                      is ParticipantContestDetailsPageGetRankingFileUrl) {
+                                final url = state.rankingFileUrl!;
 
-                                // final permission = await requestStoragePermission();
-                                // if (!permission) {
-                                //   if (context.mounted) {
-                                //     showSnackBar(
-                                //         context: context, text: 'Storage permission negated');
-                                //   }
-                                //   return;
-                                // }
-
-                                try {
-                                  final url = state.rankingFileUrl!;
-
-                                  // 2. Trova la cartella di download del dispositivo
-                                  final directory =
-                                  await ExternalPath.getExternalStoragePublicDirectory(
-                                      ExternalPath.DIRECTORY_DOWNLOAD);
-
-                                  final fileName = path.basenameWithoutExtension(ranking.filePath);
-                                  final extension = path.extension(ranking.filePath);
-
-                                  String safeFilename;
-                                  int count = 0;
-                                  do {
-                                    safeFilename = (count == 0)
-                                        ? '$fileName$extension'
-                                        : '$fileName ($count)$extension';
-                                    count++;
-                                  } while (await File('$directory/$safeFilename').exists());
-
-                                  final safePath = '$directory/$safeFilename';
-
-                                  // 3. Scarica il file con Dio
-                                  final dio = Dio();
-                                  await dio.download(url, safePath);
-
-                                  // 4. Apri il file scaricato
-                                  final result = await OpenFilex.open(safePath);
-                                  if (result.type != ResultType.done && context.mounted) {
-                                    showSnackBar(
-                                        context: context, text: 'Impossible open the file');
+                                if (kIsWeb) {
+                                  // On web, open the URL in a new tab and let the browser handle it.
+                                  final uri = Uri.parse(url);
+                                  if (!await launchUrl(uri)) {
+                                    if (context.mounted) {
+                                      showSnackBar(
+                                          context: context,
+                                          text: 'Could not open the file link.');
+                                    }
                                   }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    showSnackBar(context: context, text: 'Download failed');
+                                } else {
+                                  // On mobile, download the file to the device.
+                                  final bool permission =
+                                      await requestStoragePermissionForDownloads();
+                                  if (!context.mounted) return;
+                                  if (!permission) {
+                                    showSnackBar(
+                                        context: context,
+                                        text: 'Storage permission is required to save files.');
+                                    return;
+                                  }
+
+                                  try {
+                                    // 1. Get the downloads directory.
+                                    final directory = await ExternalPath
+                                        .getExternalStoragePublicDirectory(
+                                            ExternalPath.DIRECTORY_DOWNLOAD);
+
+                                    // 2. Create a safe, non-conflicting filename.
+                                    final fileName =
+                                        path.basenameWithoutExtension(ranking.filePath);
+                                    final extension = path.extension(ranking.filePath);
+                                    String safeFilename;
+                                    int count = 0;
+                                    do {
+                                      safeFilename = (count == 0)
+                                          ? '$fileName$extension'
+                                          : '$fileName ($count)$extension';
+                                      count++;
+                                    } while (await File('$directory/$safeFilename').exists());
+                                    final safePath = '$directory/$safeFilename';
+
+                                    // 3. Download the file using Dio.
+                                    final dio = Dio();
+                                    await dio.download(url, safePath);
+
+                                    // 4. Open the downloaded file.
+                                    final result = await OpenFilex.open(safePath);
+                                    if (result.type != ResultType.done && context.mounted) {
+                                      showSnackBar(
+                                          context: context,
+                                          text:
+                                              'Could not open the file. It is saved in your Downloads folder.');
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      showSnackBar(context: context, text: 'Download failed.');
+                                    }
                                   }
                                 }
                               }

@@ -4,12 +4,17 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// Richiede il permesso per utilizzare la fotocamera.
+/// Requests permission to use the camera.
 ///
-/// Essenziale per funzionalità come la scansione di QR code.
-/// Restituisce `true` se il permesso è concesso.
+/// Essential for features like QR code scanning.
+/// Returns the `PermissionStatus`.
 Future<PermissionStatus> requestCameraPermission() async {
-  // Su piattaforme non-mobile, non è necessario.
+  // On web, permissions are handled by the browser.
+  // The mobile_scanner package handles this internally for web.
+  if (kIsWeb) {
+    return PermissionStatus.granted;
+  }
+  // On non-mobile platforms, it's not needed.
   if (!Platform.isAndroid && !Platform.isIOS) {
     return PermissionStatus.granted;
   }
@@ -66,9 +71,13 @@ Future<bool> requestPhotoLibraryPermission() async {
 ///
 /// Utile per funzionalità di geo-restrizione.
 /// `locationWhenInUse` è la scelta migliore per la privacy quando l'app è in primo piano.
-/// Restituisce `true` se il permesso è concesso.
+/// Returns `true` if the permission is granted.
 Future<bool> requestFineLocationPermission() async {
-  // Su piattaforme non-mobile, non è necessario.
+  // On web, browser geolocation API is used, which has its own permission prompt.
+  if (kIsWeb) {
+    return true; // Assume permission will be handled by the browser's prompt.
+  }
+  // On non-mobile platforms, it's not needed.
   if (!Platform.isAndroid && !Platform.isIOS) {
     return true;
   }
@@ -88,21 +97,26 @@ Future<bool> requestFineLocationPermission() async {
 /// - **iOS e altre piattaforme:** Restituisce `true` poiché la logica dei permessi
 ///   per il salvataggio è gestita diversamente.
 ///
-/// Restituisce `true` se l'operazione di salvataggio può procedere.
+/// Returns `true` if the save operation can proceed.
 Future<bool> requestStoragePermissionForDownloads() async {
-  if (!Platform.isAndroid) {
-    // Su iOS e altre piattaforme, non si usa questo permesso per salvare in 'Downloads'.
+  // On web, the browser handles downloads and permissions.
+  if (kIsWeb) {
     return true;
   }
 
-  // Controlla la versione dell'SDK per decidere se chiedere il permesso.
+  if (!Platform.isAndroid) {
+    // On iOS and other non-Android platforms, this permission isn't used for saving to 'Downloads'.
+    return true;
+  }
+
+  // On Android, check the SDK version to decide if permission is needed.
   final deviceInfo = await DeviceInfoPlugin().androidInfo;
   if (deviceInfo.version.sdkInt >= 29) {
-    // Da Android 10 in poi, non serve il permesso per scrivere in Downloads.
+    // From Android 10 (API 29) onwards, no permission is needed to write to the Downloads folder.
     return true;
   }
 
-  // Per Android 9 e inferiori, il permesso è necessario.
+  // For Android 9 (API 28) and below, storage permission is required.
   final status = await Permission.storage.request();
   return status.isGranted;
 }
