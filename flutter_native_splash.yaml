@@ -4,4 +4,4 @@ flutter_native_splash:
   android_12:
     image: "assets/splash.png"
 
-  web: false
+#  web: false

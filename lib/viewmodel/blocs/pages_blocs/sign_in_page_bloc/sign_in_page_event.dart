@@ -33,3 +33,8 @@ final class SignInPageAuthenticateSimpleJuror extends SignInPageEvent {
   @override
   List<Object?> get props => [fullName];
 }
+
+final class SignInPageDownloadLatestApk extends SignInPageEvent {
+  @override
+  List<Object?> get props => [];
+}

@@ -122,11 +122,11 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                                   ),
                                                 ),
                                                 title: Text(
-                                                  participationBundle.participant.fullName,
+                                                  participationBundle.participantBundle.profile.fullName,
                                                   style: Theme.of(context).textTheme.titleMedium,
                                                 ),
                                                 subtitle: Text(
-                                                  participationBundle.participation.invitationEmail,
+                                                  participationBundle.participantBundle.account.email,
                                                   style: Theme.of(context).textTheme.bodyMedium,
                                                 ),
                                               ),

@@ -17,6 +17,8 @@
     <!-- To write all files until API level 29. We will MediaStore from API level 30 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
 
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <application
         android:label="Swift Contest"
         android:name="${applicationName}"

@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
 import 'package:swift_contest/model/database/repositories/auth_repository.dart';
+import 'package:swift_contest/utils/functions/save_and_launch_file.dart';
 import 'package:swift_contest/viewmodel/types/bloc_status.dart';
 
 part 'sign_in_page_event.dart';
+
 part 'sign_in_page_state.dart';
 
 class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
@@ -20,6 +22,7 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
     on<SignInWithEmailAndPassword>(_signInWithEmailAndPassword);
     on<SignInWithEmail>(_signInWithEmail);
     on<SignInPageAuthenticateSimpleJuror>(_authenticateSimpleJuror);
+    on<SignInPageDownloadLatestApk>(_downloadLatestApk);
   }
 
   FutureOr<void> _signInWithEmailAndPassword(
@@ -61,6 +64,32 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
     res.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _downloadLatestApk(
+    SignInPageDownloadLatestApk event,
+    Emitter<SignInPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherBytes = await _authRepository.getLatestApk();
+
+    await eitherBytes.fold(
+      (failure) async {
+        emit(state.copyWith(status: BlocStatus.failure, message: failure.message));
+      },
+      (fileBytes) async {
+        // The saveAndLaunchFile function returns a tuple indicating success and a message.
+        final (isSuccess, message) = await saveAndLaunchFile(fileBytes, 'app-release.apk');
+        if (isSuccess) {
+          // On success, we still want to show the message from saveAndLaunchFile.
+          emit(state.copyWith(status: BlocStatus.success, message: message));
+        } else {
+          // On failure, emit a failure state with the corresponding message.
+          emit(state.copyWith(status: BlocStatus.failure, message: message));
+        }
+      },
     );
   }
 }

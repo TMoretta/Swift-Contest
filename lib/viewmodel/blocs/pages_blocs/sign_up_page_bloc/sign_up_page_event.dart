@@ -40,3 +40,8 @@ final class SignUpPageAuthenticateSimpleJuror extends SignUpPageEvent {
   List<Object?> get props => [fullName];
 }
 
+final class SignUpPageDownloadLatestApk extends SignUpPageEvent {
+  @override
+  List<Object?> get props => [];
+}
+

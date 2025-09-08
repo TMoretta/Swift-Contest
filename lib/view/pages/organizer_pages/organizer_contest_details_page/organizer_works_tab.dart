@@ -150,7 +150,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                                         fontWeight: FontWeight.w500),
                                                   ),
                                                   Text(participationBundle
-                                                      .participant.fullName),
+                                                      .participantBundle.profile.fullName),
                                                 ],
                                               ),
                                             ),
@@ -180,7 +180,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                     elevation: 0.2,
                                     child: ListTile(
                                       title:
-                                      Text(participationBundle.participant.fullName),
+                                      Text(participationBundle.participantBundle.profile.fullName),
                                       subtitle: Text(participationBundle
                                           .participation.invitationEmail),
                                     ),

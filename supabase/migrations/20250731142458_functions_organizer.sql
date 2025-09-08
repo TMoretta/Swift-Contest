@@ -93,13 +93,18 @@ BEGIN
    'participations_bundles', (
      SELECT COALESCE(jsonb_agg(
        jsonb_build_object(
-         'participation', to_jsonb(pa),
-         'participant', to_jsonb(p),
+          'participation', to_jsonb(pa),
+          'participant_bundle', jsonb_build_object(
+            'account', jsonb_build_object('id', u.id, 'email', u.email, 'is_anonymous', u.is_anonymous),
+            'profile', to_jsonb(p)
+          ),
          'work', to_jsonb(w)
        )
      ), '[]'::jsonb)
      FROM public.participations pa
      JOIN public.profiles p ON pa.participant_id = p.id
+     -- Join with auth.users to get the email
+     JOIN auth.users u ON p.id = u.id
      LEFT JOIN public.works w ON pa.id = w.participation_id
      WHERE pa.contest_id = p_contest_id
    ),
@@ -112,10 +117,13 @@ BEGIN
        SELECT COALESCE(jsonb_agg(
          jsonb_build_object(
            'jury', to_jsonb(j),
-           'jurations_bundles', (
-             SELECT COALESCE(jsonb_agg(jsonb_build_object('juration', to_jsonb(ju), 'juror', to_jsonb(p_juror))), '[]'::jsonb)
+            'jurations_bundles', (
+             SELECT COALESCE(jsonb_agg(jsonb_build_object(
+               'juration', to_jsonb(ju),
+               'juror_bundle', jsonb_build_object('account', jsonb_build_object('id', u_juror.id, 'email', u_juror.email, 'is_anonymous', u_juror.is_anonymous), 'profile', to_jsonb(p_juror))
+             )), '[]'::jsonb)
              FROM public.jurations ju
-             JOIN public.profiles p_juror ON ju.juror_id = p_juror.id
+             JOIN public.profiles p_juror ON ju.juror_id = p_juror.id JOIN auth.users u_juror ON p_juror.id = u_juror.id
              WHERE ju.jury_id = j.id
            ),
            'jurors_invitations', (
@@ -924,15 +932,19 @@ $$;
      RAISE EXCEPTION 'Participation not found or access denied.';
    END IF;
 
-   -- If the security check passes, build the bundle.
+  -- If the security check passes, build the bundle with account and profile details.
    SELECT jsonb_build_object(
      'participation', to_jsonb(pa),
-     'participant', to_jsonb(p),
+     'participant_bundle', jsonb_build_object(
+       'account', jsonb_build_object('id', u.id, 'email', u.email, 'is_anonymous', u.is_anonymous),
+       'profile', to_jsonb(p)
+     ),
      'work', to_jsonb(w)
    )
    INTO result_bundle
    FROM public.participations pa
    JOIN public.profiles p ON pa.participant_id = p.id
+   JOIN auth.users u ON p.id = u.id
    LEFT JOIN public.works w ON pa.id = w.participation_id
    WHERE pa.id = p_participation_id;
 
@@ -971,11 +983,13 @@ $$;
        'jury', to_jsonb(j),
        'jurations_bundles', COALESCE(
          (
-           SELECT jsonb_agg(
-             jsonb_build_object('juration', to_jsonb(ju), 'juror', to_jsonb(p_juror))
-           )
+           SELECT jsonb_agg(jsonb_build_object(
+             'juration', to_jsonb(ju),
+             'juror_bundle', jsonb_build_object('account', jsonb_build_object('id', u_juror.id, 'email', u_juror.email, 'is_anonymous', u_juror.is_anonymous), 'profile', to_jsonb(p_juror))
+           ))
            FROM public.jurations ju
            JOIN public.profiles p_juror ON ju.juror_id = p_juror.id
+           JOIN auth.users u_juror ON p_juror.id = u_juror.id
            WHERE ju.jury_id = j.id
          ),
          '[]'::jsonb

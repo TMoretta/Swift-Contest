@@ -156,7 +156,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                participationBundle.participant.fullName,
+                                participationBundle.participantBundle.profile.fullName,
                                 // style: Theme.of(context)
                                 //     .textTheme
                                 //     .titleMedium,

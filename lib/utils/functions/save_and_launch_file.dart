@@ -15,6 +15,6 @@ Future<(bool, String?)> saveAndLaunchFile(List<int> bytes, String fileName) asyn
     return await saveAndLaunchFilePlatform(bytes, fileName);
   } catch (e, stackTrace) {
     Logger.error('Failed to save and launch file: $e', stackTrace);
-    return (false, 'An error occurred: ${e.toString()}');
+    return (false, 'An error occurred.');
   }
 }

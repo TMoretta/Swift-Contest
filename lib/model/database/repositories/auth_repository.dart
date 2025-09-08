@@ -55,6 +55,8 @@ abstract interface class AuthRepository {
   Future<Either<Failure, Unit>> signOut();
 
   Future<Either<Failure, Unit>> anonSignIn({required String fullName});
+
+  Future<Either<Failure, List<int>>> getLatestApk();
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -116,9 +118,11 @@ class AuthRepositoryImpl implements AuthRepository {
             .eq('account_id', userId)
             .map((listOfMaps) {
               final messages = listOfMaps.map((e) => Message.fromJson(e)).toList(growable: false);
-              messages.sort((a, b) => b.createdAt!.compareTo(a.createdAt!),);
+              messages.sort(
+                (a, b) => b.createdAt!.compareTo(a.createdAt!),
+              );
               return messages;
-        });
+            });
         return Either.right(stream);
       },
     );
@@ -371,5 +375,19 @@ class AuthRepositoryImpl implements AuthRepository {
         return Either.right(unit);
       },
     );
+  }
+
+  @override
+  Future<Either<Failure, List<int>>> getLatestApk() {
+    return handleDatabaseCall(() async {
+      // Invoke the Edge Function which acts as a secure proxy to GitHub.
+      final response = await _supabase.functions.invoke('get-latest-apk');
+
+      if (response.data is List<int>) {
+        return Either.right(response.data as List<int>);
+      }
+
+      return Either.left(ServerFailure('Failed to download APK.'));
+    });
   }
 }

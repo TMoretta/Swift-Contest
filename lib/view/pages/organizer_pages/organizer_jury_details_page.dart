@@ -180,12 +180,12 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                                           ),
                                                         ),
                                                         title: Text(
-                                                          jurationBundle.juror.fullName,
+                                                          jurationBundle.jurorBundle.profile.fullName,
                                                           style:
                                                               Theme.of(context).textTheme.titleMedium,
                                                         ),
                                                         subtitle: Text(
-                                                          jurationBundle.juration.invitationEmail,
+                                                          jurationBundle.jurorBundle.account.email,
                                                           style:
                                                               Theme.of(context).textTheme.bodyMedium,
                                                         ),

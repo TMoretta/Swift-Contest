@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,6 +37,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final FocusNode _fullNameFocusNode = FocusNode();
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
+
   // final TextEditingController _passwordController = TextEditingController();
   // final FocusNode _passwordFocusNode = FocusNode();
   // final TextEditingController _confirmPasswordController = TextEditingController();
@@ -229,10 +231,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                 onPressed: (_isPrivacyAccepted)
                                     ? () {
                                         if (_formKey.currentState?.validate() ?? false) {
-                                          context.read<SignUpPageBloc>().add(
-                                              SignUpWithEmail(
-                                                  email: _emailController.text.trim(),
-                                                  fullName: _fullNameController.text.trim()));
+                                          context.read<SignUpPageBloc>().add(SignUpWithEmail(
+                                              email: _emailController.text.trim(),
+                                              fullName: _fullNameController.text.trim()));
                                         }
                                       }
                                     : null,
@@ -271,13 +272,27 @@ class _SignUpPageState extends State<SignUpPage> {
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(
-                                        color: Theme.of(context).colorScheme.primary),
+                                    bottom:
+                                        BorderSide(color: Theme.of(context).colorScheme.primary),
                                   ),
                                 ),
                                 child: Text('Vote in a contest as a simple juror'),
                               ),
                             ),
+                            SizedBox(height: 24),
+                            if (kIsWeb)
+                              FilledButton.tonalIcon(
+                                onPressed: () {
+                                  showSnackBar(
+                                      context: context, text: 'Download started, please wait...');
+                                  context.read<SignUpPageBloc>().add(SignUpPageDownloadLatestApk());
+                                },
+                                icon: Icon(Icons.android),
+                                label: Text('Download latest APK'),
+                                style: FilledButton.styleFrom(
+                                    backgroundColor: Colors.green.shade200,
+                                    foregroundColor: Colors.grey.shade900),
+                              ),
                           ],
                         ),
                       ),
@@ -308,7 +323,8 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
           value: signInPageBloc,
           child: BlocConsumer<SignUpPageBloc, SignUpPageState>(
             listener: (context, state) async {
-              if (state.status.isSuccess && state.sourceEvent is SignUpPageAuthenticateSimpleJuror) {
+              if (state.status.isSuccess &&
+                  state.sourceEvent is SignUpPageAuthenticateSimpleJuror) {
                 context.router.pop();
                 context.router.replaceAll([RootRoute()]);
               }
@@ -382,11 +398,11 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                   TextButton(
                     onPressed: (isPrivacyAccepted)
                         ? () {
-                      if (accessVotingFormKey.currentState?.validate() ?? false) {
-                        context.read<SignUpPageBloc>().add(SignUpPageAuthenticateSimpleJuror(
-                            fullName: fullNameController.text.trim()));
-                      }
-                    }
+                            if (accessVotingFormKey.currentState?.validate() ?? false) {
+                              context.read<SignUpPageBloc>().add(SignUpPageAuthenticateSimpleJuror(
+                                  fullName: fullNameController.text.trim()));
+                            }
+                          }
                         : null,
                     child: Text('Confirm'),
                   ),

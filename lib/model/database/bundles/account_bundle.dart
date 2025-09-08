@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:swift_contest/model/database/entities/account.dart';
-import 'package:swift_contest/model/database/entities/message.dart';
 import 'package:swift_contest/model/database/entities/profile.dart';
 
 class AccountBundle extends Equatable {
@@ -29,7 +28,6 @@ class AccountBundle extends Equatable {
   AccountBundle copyWith({
     Account? account,
     Profile? profile,
-    List<Message>? messages,
   }) {
     return AccountBundle(
       account: account ?? this.account,

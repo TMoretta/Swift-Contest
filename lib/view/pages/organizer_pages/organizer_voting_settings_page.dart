@@ -271,7 +271,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                     elevation: 0.05,
                                     child: ListTile(
                                       onTap: () {},
-                                      title: Text(participationsBundles[i].participant.fullName),
+                                      title: Text(participationsBundles[i].participantBundle.profile.fullName),
                                       subtitle: Text(participationsBundles[i].work!.name),
                                       leading: Icon(Icons.swap_vert),
                                       trailing: IconButton(
@@ -328,7 +328,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                               return Card(
                                 elevation: 0.05,
                                 child: ListTile(
-                                  title: Text(excludedParticipationBundle.participant.fullName),
+                                  title: Text(excludedParticipationBundle.participantBundle.profile.fullName),
                                   subtitle: Text(excludedParticipationBundle.work!.name),
                                   trailing: IconButton(
                                     onPressed: () {
@@ -555,7 +555,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                         text: 'Jur: ',
                                         style: Theme.of(context).textTheme.labelLarge),
                                     TextSpan(
-                                      text: votingExclusion.jurationBundle.juror.fullName,
+                                      text: votingExclusion.jurationBundle.jurorBundle.profile.fullName,
                                       style: Theme.of(context).textTheme.bodyMedium,
                                     ),
                                     TextSpan(
@@ -583,7 +583,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                         style: Theme.of(context).textTheme.labelLarge),
                                     TextSpan(
                                       text:
-                                          votingExclusion.participationBundle.participant.fullName,
+                                          votingExclusion.participationBundle.participantBundle.profile.fullName,
                                       style: Theme.of(context).textTheme.bodyMedium,
                                     ),
                                     TextSpan(
@@ -738,7 +738,7 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
                       DropdownMenuEntry(
                         value: element,
                         label:
-                            '${element.juror.fullName} | ${juries.where((e) => e.id == element.juration.juryId).first.name}',
+                            '${element.jurorBundle.profile.fullName} | ${juries.where((e) => e.id == element.juration.juryId).first.name}',
                       ),
                   ],
                 ),
@@ -760,7 +760,7 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
                     for (var element in participationsBundles)
                       DropdownMenuEntry(
                         value: element,
-                        label: '${element.participant.fullName} | ${element.work!.name}',
+                        label: '${element.participantBundle.profile.fullName} | ${element.work!.name}',
                       ),
                   ],
                 ),

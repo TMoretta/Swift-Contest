@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,8 +124,7 @@ class _SignInPageState extends State<SignInPage> {
                                       onPressed: () {
                                         if (_formKey.currentState?.validate() ?? false) {
                                           context.read<SignInPageBloc>().add(
-                                              SignInWithEmail(
-                                                  email: _emailController.text.trim()));
+                                              SignInWithEmail(email: _emailController.text.trim()));
                                         }
                                       },
                                       child: Text('Sign in'),
@@ -169,6 +169,23 @@ class _SignInPageState extends State<SignInPage> {
                                         child: Text('Vote in a contest as a simple juror'),
                                       ),
                                     ),
+                                    SizedBox(height: 24),
+                                    if (kIsWeb)
+                                      FilledButton.tonalIcon(
+                                        onPressed: () {
+                                          showSnackBar(
+                                              context: context,
+                                              text: 'Download started, please wait...');
+                                          context
+                                              .read<SignInPageBloc>()
+                                              .add(SignInPageDownloadLatestApk());
+                                        },
+                                        icon: Icon(Icons.android),
+                                        label: Text('Download latest APK'),
+                                        style: FilledButton.styleFrom(
+                                            backgroundColor: Colors.green.shade200,
+                                            foregroundColor: Colors.grey.shade900),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -203,7 +220,8 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
           value: signInPageBloc,
           child: BlocConsumer<SignInPageBloc, SignInPageState>(
             listener: (context, state) async {
-              if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
+              if (state.status.isSuccess &&
+                  state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
                 context.router.pop();
                 context.router.replaceAll([RootRoute()]);
               }
