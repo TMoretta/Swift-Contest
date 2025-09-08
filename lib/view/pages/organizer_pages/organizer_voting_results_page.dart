@@ -70,6 +70,12 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
         } else {
           context.hideLoader();
         }
+        if (state.status.isSuccess &&
+            state.sourceEvent is OrganizerVotingResultsPageDeleteVotingSession) {
+          showSnackBar(context: context, text: 'Voting session deleted successfully');
+          context.router.pop(); // Pop the confirmation dialog
+          context.router.pop(true); // Pop this page and signal a change to the previous one
+        }
       },
       builder: (context, state) {
         return Scaffold(
@@ -120,15 +126,30 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.onPrimaryContainer),
                             ),
-                            trailing: IconButton(
-                              onPressed: () {
-                                _showEditVotingSessionNameDialog(
-                                    context: context, votingSessionId: votingSession.id!);
-                              },
-                              icon: Icon(
-                                Icons.edit,
-                                color: Theme.of(context).colorScheme.onPrimaryContainer,
-                              ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    _showEditVotingSessionNameDialog(
+                                        context: context, votingSessionId: votingSession.id!);
+                                  },
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    _showDeleteVotingSessionDialog(
+                                        context: context, votingSessionId: votingSession.id!);
+                                  },
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -164,6 +185,37 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
       },
     );
   }
+}
+
+void _showDeleteVotingSessionDialog({
+  required BuildContext context,
+  required String votingSessionId,
+}) {
+  final organizerVotingResultsPageBloc = context.read<OrganizerVotingResultsPageBloc>();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Delete Voting Session'),
+        content: Text(
+            'Are you sure you want to delete this voting session? This action cannot be undone and all related data will be lost.'),
+        actions: [
+          TextButton(
+            onPressed: () => context.router.pop(),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              organizerVotingResultsPageBloc
+                  .add(OrganizerVotingResultsPageDeleteVotingSession(votingSessionId: votingSessionId));
+            },
+            child: Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 void _showEditVotingSessionNameDialog({

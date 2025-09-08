@@ -1314,3 +1314,31 @@ BEGIN
 END;
 $$;
 --endregion
+
+--region ORGANIZER DELETE VOTING SESSION
+-- Deletes a voting session. Access is restricted to the organizer of the contest.
+-- The associated geo-restricted place is deleted automatically via a trigger.
+CREATE OR REPLACE FUNCTION organizer_delete_voting_session(p_voting_session_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+-- Runs with the permissions of the calling user.
+SECURITY DEFINER SET search_path = public, extensions
+AS $$
+BEGIN
+  -- SECURITY CHECK: Verify that the user is the organizer of the contest
+  -- to which this voting session belongs.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.voting_sessions vs
+    JOIN public.contests c ON vs.contest_id = c.id
+    WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
+  ) THEN
+    RAISE EXCEPTION 'Voting session not found or access denied.';
+  END IF;
+
+  -- If the check passes, delete the voting session.
+  -- ON DELETE CASCADE constraints and triggers will handle related data cleanup.
+  DELETE FROM public.voting_sessions WHERE id = p_voting_session_id;
+END;
+$$;
+--endregion

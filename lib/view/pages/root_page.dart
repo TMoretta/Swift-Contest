@@ -66,8 +66,8 @@ class _RootPageState extends State<RootPage> {
                 break;
             }
           } else if (state.authStatus.isUnauthenticated) {
-            //* If success and not authenticated go to sign in page
-            context.router.replace(SignInRoute());
+            //* If success and not authenticated go to sign up page
+            context.router.replace(SignUpRoute());
           }
         }
       },

@@ -67,10 +67,11 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
                         elevation: 0.1,
                         child: ListTile(
                           onTap: () async {
-                            final bool? res = await context.router.push(
+                            final bool? refresh = await context.router.push(
                                 OrganizerJuryDetailsRoute(
                                     contestId: contestId, juryId: juryBundle.jury.id!));
-                            if (res == true && context.mounted) {
+                            if(!context.mounted) return;
+                            if (refresh == true) {
                               context.read<OrganizerContestDetailsPageBloc>().add(
                                   OrganizerContestDetailsPageFetch(contestId: contestId));
                             }

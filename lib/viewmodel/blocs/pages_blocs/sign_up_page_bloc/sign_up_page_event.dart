@@ -28,3 +28,15 @@ final class SignUpWithEmail extends SignUpPageEvent {
   @override
   List<Object> get props => [email,fullName];
 }
+
+final class SignUpPageAuthenticateSimpleJuror extends SignUpPageEvent {
+  final String fullName;
+
+  const SignUpPageAuthenticateSimpleJuror({
+    required this.fullName,
+  });
+
+  @override
+  List<Object?> get props => [fullName];
+}
+

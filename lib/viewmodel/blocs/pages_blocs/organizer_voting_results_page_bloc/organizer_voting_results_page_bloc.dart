@@ -19,6 +19,7 @@ class OrganizerVotingResultsPageBloc
         super(OrganizerVotingResultsPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingResultsPageFetch>(_fetch);
     on<OrganizerVotingResultsPageEditVotingSessionName>(_editVotingSessionName);
+    on<OrganizerVotingResultsPageDeleteVotingSession>(_deleteVotingSession);
   }
 
   FutureOr<void> _fetch(
@@ -53,6 +54,21 @@ class OrganizerVotingResultsPageBloc
     eitherDeleteInvitation.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _deleteVotingSession(
+      OrganizerVotingResultsPageDeleteVotingSession event,
+      Emitter<OrganizerVotingResultsPageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherDelete =
+    await _organizerRepository.deleteVotingSession(votingSessionId: event.votingSessionId);
+
+    eitherDelete.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success, sourceEvent: event)),
     );
   }
 }

@@ -34,8 +34,6 @@ class _SignInPageState extends State<SignInPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
-  // final TextEditingController _passwordController = TextEditingController();
-  // final FocusNode _passwordFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -43,8 +41,6 @@ class _SignInPageState extends State<SignInPage> {
     _formKey.currentState?.dispose();
     _emailController.dispose();
     _emailFocusNode.dispose();
-    // _passwordController.dispose();
-    // _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -122,19 +118,6 @@ class _SignInPageState extends State<SignInPage> {
                                         prefixIcon: Icon(Icons.email_outlined),
                                       ),
                                     ),
-                                    // //* Password text field
-                                    // ConstrainedBox(
-                                    //   constraints: BoxConstraints(maxWidth: 420),
-                                    //   child: CustomTextFormField(
-                                    //     borderType: InputBorderType.outlined,
-                                    //     controller: _passwordController,
-                                    //     focusNode: _passwordFocusNode,
-                                    //     label: 'Password',
-                                    //     prefixIcon: Icon(Icons.lock),
-                                    //     obscureText: true,
-                                    //     validator: noEmptyValidator,
-                                    //   ),
-                                    // ),
                                     //* Sign in button
                                     FilledButton(
                                       onPressed: () {
@@ -146,25 +129,6 @@ class _SignInPageState extends State<SignInPage> {
                                       },
                                       child: Text('Sign in'),
                                     ),
-                                    // TextButton(
-                                    //   onPressed: () {
-                                    //
-                                    //   },
-                                    //   child: DecoratedBox(
-                                    //     decoration: BoxDecoration(
-                                    //       border: Border(
-                                    //         bottom: BorderSide(
-                                    //           color: Theme.of(context).colorScheme.primary,
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //     child: Text(
-                                    //       'Forgot password?',
-                                    //       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                    //           color: Theme.of(context).colorScheme.primary),
-                                    //     ),
-                                    //   ),
-                                    // ),
                                     //* Sign up instead button
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -242,36 +206,6 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
               if (state.status.isSuccess && state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
                 context.router.pop();
                 context.router.replaceAll([RootRoute()]);
-                // final bool res = await showDialog(
-                //       context: context,
-                //       builder: (_) {
-                //         return AlertDialog(
-                //           title: Text('Voting Access'),
-                //           content: Text(
-                //               'You are about to access a voting session as a simple juror. Please have the QR code provided by the organizer ready.'),
-                //           actions: [
-                //             TextButton(
-                //               onPressed: () {
-                //                 context.router.pop(false);
-                //               },
-                //               child: Text('Cancel'),
-                //             ),
-                //             TextButton(
-                //               onPressed: () {
-                //                 context.router.pop(true);
-                //               },
-                //               child: Text('Scan QR'),
-                //             ),
-                //           ],
-                //         );
-                //       },
-                //     ) ??
-                //     false;
-                // if (!context.mounted || !res) {
-                //   return;
-                // }
-                // context.router.push(JurorVotingQrScannerRoute());
-                // context.router.pop();
               }
             },
             builder: (context, state) {

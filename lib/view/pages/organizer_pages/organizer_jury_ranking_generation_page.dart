@@ -8,7 +8,6 @@ import 'package:swift_contest/model/database/types/voting_form_field_scope.dart'
 import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
 import 'package:swift_contest/utils/functions/pretty_double.dart';
 import 'package:swift_contest/utils/functions/save_and_launch_file.dart';
-import 'package:swift_contest/utils/logger/logger.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -45,6 +44,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
   late final String votingSessionJuryId;
   List<VotingSessionJuror> selectedVotingSessionJurors = [];
   List<VotingFormField> selectedVotingFormFields = [];
+  List<MapEntry<VotingSessionParticipant, double>>? _generatedRanking;
 
   @override
   void initState() {
@@ -103,7 +103,8 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
 
     return ListView(
       children: [
-        Text('Only fields of type "slider" and in the "participant form" are valid for the ranking generation.'),
+        Text(
+            'Only fields of type "slider" and in the "participant form" are valid for the ranking generation.'),
         SizedBox(height: 20),
         DecoratedBox(
           decoration: BoxDecoration(
@@ -153,12 +154,12 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           ),
           child: ListTile(
             onTap: () async {
-              if(state
-                  .votingSessionJuryResultBundle!
-                  .votingSessionJuryBundle
-                  .votingFormBundle.participantVotingFormFields
-                  .where((e) => e.scope.isParticipant && e.type.isSlider && e.isRequired).isEmpty) {
-                showSnackBar(context: context, text: 'There is no valid field for ranking generation');
+              if (state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingFormBundle
+                  .participantVotingFormFields
+                  .where((e) => e.scope.isParticipant && e.type.isSlider && e.isRequired)
+                  .isEmpty) {
+                showSnackBar(
+                    context: context, text: 'There is no valid field for ranking generation');
                 return;
               }
               final selectedFields = await _showSelectFieldsDialog(context, state);
@@ -186,148 +187,122 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
               children: selectedVotingFormFields.map((votingFormField) {
                 return Chip(
                   label: Text(votingFormField.question),
-                  // Puoi anche aggiungere un'azione di cancellazione se necessario
-                  // onDeleted: () {
-                  //   setState(() {
-                  //     selectedVotingSessionJurors.remove(juror);
-                  //   });
-                  // },
                 );
-              }).toList(), // .toList() è fondamentale per convertire l'Iterable in una List<Widget>
+              }).toList(),
             ),
           ),
         ),
-
-        // MultiSelectDialogField<VotingSessionJuror>(
-        //   items: votingSessionJurors
-        //       .map((e) => MultiSelectItem(e, e.jurorFullName))
-        //       .toList(growable: false),
-        //   title: Row(
-        //     mainAxisSize: MainAxisSize.min,
-        //     children: [
-        //       Text('Jurors'),
-        //       TextButton(onPressed: (){}, child: Text('Select all'),),
-        //     ],
-        //   ),
-        //   buttonText: Text('Select jurors'),
-        //   initialValue: selectedVotingSessionJurors,
-        //   onSelectionChanged: (p0) {
-        //
-        //   },
-        //   onConfirm: (values) {
-        //     setState(() {
-        //       selectedVotingSessionJurors = values;
-        //     });
-        //   },
-        //   listType: MultiSelectListType.LIST,
-        //   dialogHeight: 250,
-        //   selectedColor: Theme.of(context).colorScheme.primary,
-        //   itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   checkColor: Theme.of(context).colorScheme.onPrimary,
-        // ),
-        // SizedBox(height: 20),
-        // MultiSelectDialogField<VotingFormField>(
-        //   items:
-        //       votingFormFields.map((f) => MultiSelectItem(f, f.question)).toList(growable: false),
-        //   title: Text('Fields'),
-        //   buttonText: Text('Select fields'),
-        //   initialValue: selectedVotingFormFields,
-        //   onConfirm: (values) {
-        //     setState(() {
-        //       selectedVotingFormFields = values;
-        //     });
-        //   },
-        //   listType: MultiSelectListType.LIST,
-        //   dialogHeight: 250,
-        //   selectedColor: Theme.of(context).colorScheme.primary,
-        //   itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   checkColor: Theme.of(context).colorScheme.onPrimary,
-        // ),
+        if (_generatedRanking != null) _buildRankingDisplay(_generatedRanking!),
+        SizedBox(height: 200),
       ],
     );
   }
 
+  List<MapEntry<VotingSessionParticipant, double>> _calculateRanking(
+      OrganizerJuryRankingGenerationPageState state) {
+    // Get only submissions from selected jurors
+    final submissionsBundles = state.votingSessionJuryResultBundle!.votingFormSubmissionsBundles
+        .where((e) => selectedVotingSessionJurors.contains(e.votingSessionJuror))
+        .toList(growable: false);
+
+    final Map<VotingSessionParticipant, double> participantScores = {};
+
+    for (var submissionBundle in submissionsBundles) {
+      for (var submissionValueBundle
+          in submissionBundle.participantVotingFormSubmissionValuesBundles.entries) {
+        final votingSessionParticipant = submissionValueBundle.key;
+        final valuesBundles = submissionValueBundle.value
+            .where((e) => selectedVotingFormFields.contains(e.votingFormField));
+        double score = 0;
+        for (var valueBundle in valuesBundles) {
+          // Use tryParse for safety against non-numeric values
+          score += double.tryParse(valueBundle.votingFormSubmissionValue.value) ?? 0.0;
+        }
+
+        final oldScore = participantScores[votingSessionParticipant] ?? 0;
+        participantScores[votingSessionParticipant] = score + oldScore;
+      }
+    }
+
+    final sortedParticipantScores = participantScores.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return sortedParticipantScores;
+  }
+
   Widget _buildFabMenu(BuildContext context, OrganizerJuryRankingGenerationPageState state) {
-    return FloatingActionButton.extended(
-      onPressed: () async {
-        if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
-          showSnackBar(context: context, text: 'Select at least one juror and one field');
-          return;
-        }
-        // Ottieni solo le sottomissioni dei giurati che l'organizzatore ha selezionato
-        final submissionsBundles = state.votingSessionJuryResultBundle!.votingFormSubmissionsBundles
-            .where((e) => selectedVotingSessionJurors.contains(e.votingSessionJuror))
-            .toList(growable: false);
-
-        final Map<VotingSessionParticipant, double> participantScores = {};
-
-        for (var submissionBundle in submissionsBundles) {
-          for (var submissionValueBundle
-              in submissionBundle.participantVotingFormSubmissionValuesBundles.entries) {
-            final votingSessionParticipant = submissionValueBundle.key;
-            final valuesBundles = submissionValueBundle.value
-                .where((e) => selectedVotingFormFields.contains(e.votingFormField));
-            double score = 0;
-            for (var valueBundle in valuesBundles) {
-              score += double.parse(valueBundle.votingFormSubmissionValue.value);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        FloatingActionButton.extended(
+          heroTag: 'generateRanking',
+          onPressed: () async {
+            if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
+              showSnackBar(context: context, text: 'Select at least one juror and one field');
+              return;
             }
-            valuesBundles.map((e) => e.votingFormSubmissionValue.value);
-            final oldScore = participantScores[votingSessionParticipant] ?? 0;
-            participantScores.addAll({votingSessionParticipant: score + oldScore});
-          }
-        }
+            final ranking = _calculateRanking(state);
+            setState(() {
+              _generatedRanking = ranking;
+            });
+            showSnackBar(context: context, text: 'Ranking generated successfully.');
+          },
+          icon: const Icon(Icons.calculate_outlined),
+          label: const Text('Generate'),
+        ),
+        const SizedBox(height: 8),
+        FloatingActionButton.extended(
+          heroTag: 'downloadRanking',
+          onPressed: () async {
+            if (selectedVotingSessionJurors.isEmpty || selectedVotingFormFields.isEmpty) {
+              showSnackBar(context: context, text: 'Select at least one juror and one field');
+              return;
+            }
 
-        for (var participantScore in participantScores.entries) {
-          final participant = participantScore.key;
-          final score = participantScore.value;
+            final sortedParticipantScores = _calculateRanking(state);
 
-          Logger.debug('${participant.participantFullName} score: ${prettyDouble(score)}');
-        }
+            // --- Generate Excel File ---
+            final xlsio.Workbook workbook = xlsio.Workbook();
+            final xlsio.Worksheet sheet = workbook.worksheets[0];
+            sheet.name = 'Ranking';
 
-        final sortedParticipantScores = participantScores.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+            final xlsio.Style headerStyle = workbook.styles.add('headerStyle');
+            headerStyle.bold = true;
+            headerStyle.hAlign = xlsio.HAlignType.center;
 
-        // --- Generate Excel File ---
-        final xlsio.Workbook workbook = xlsio.Workbook();
-        final xlsio.Worksheet sheet = workbook.worksheets[0];
-        sheet.name = 'Ranking';
+            sheet.getRangeByName('A1').setText('Participant | Work');
+            sheet.getRangeByName('A1').cellStyle = headerStyle;
+            sheet.getRangeByName('B1').setText('Score');
+            sheet.getRangeByName('B1').cellStyle = headerStyle;
 
-        final xlsio.Style headerStyle = workbook.styles.add('headerStyle');
-        headerStyle.bold = true;
-        headerStyle.hAlign = xlsio.HAlignType.center;
+            int rowIndex = 2;
+            for (final entry in sortedParticipantScores) {
+              final participantName = entry.key.participantFullName;
+              final workName = entry.key.workName;
+              final score = entry.value;
 
-        sheet.getRangeByName('A1').setText('Participant | Work');
-        sheet.getRangeByName('A1').cellStyle = headerStyle;
-        sheet.getRangeByName('B1').setText('Score');
-        sheet.getRangeByName('B1').cellStyle = headerStyle;
+              sheet.getRangeByName('A$rowIndex').setText('$participantName | $workName');
+              sheet.getRangeByName('B$rowIndex').setNumber(score);
+              rowIndex++;
+            }
 
-        int rowIndex = 2;
-        for (final entry in sortedParticipantScores) {
-          final participantName = entry.key.participantFullName;
-          final workName = entry.key.workName;
-          final score = entry.value;
+            final List<int> fileBytes = workbook.saveAsStream();
+            workbook.dispose();
 
-          sheet.getRangeByName('A$rowIndex').setText('$participantName | $workName');
-          sheet.getRangeByName('B$rowIndex').setNumber(score);
-          rowIndex++;
-        }
+            final fileName =
+                'Ranking - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}.xlsx';
 
-        final List<int> fileBytes = workbook.saveAsStream();
-        workbook.dispose();
-
-        final fileName =
-            'Ranking - ${state.votingSessionJuryResultBundle!.votingSessionJuryBundle.votingSessionJury.juryName}.xlsx';
-
-        // --- Save and Launch File (Platform-Aware) ---
-        final (_, message) = await saveAndLaunchFile(fileBytes, fileName);
-        if (context.mounted) {
-          showSnackBar(context: context, text: message ?? 'File operation completed.');
-        }
-      },
-      icon: Icon(Icons.download),
-      label: Text('Download Ranking'),
+            // --- Save and Launch File (Platform-Aware) ---
+            final (_, message) = await saveAndLaunchFile(fileBytes, fileName);
+            if (context.mounted) {
+              showSnackBar(context: context, text: message ?? 'File operation completed.');
+            }
+          },
+          icon: const Icon(Icons.download),
+          label: const Text('Download'),
+        ),
+      ],
     );
   }
 
@@ -429,10 +404,8 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
     OrganizerJuryRankingGenerationPageState state,
   ) async {
     // Only required fields of the participant form and of type slider considered
-    final List<VotingFormField> votingFormFields = state
-        .votingSessionJuryResultBundle!
-        .votingSessionJuryBundle
-        .votingFormBundle.participantVotingFormFields
+    final List<VotingFormField> votingFormFields = state.votingSessionJuryResultBundle!
+        .votingSessionJuryBundle.votingFormBundle.participantVotingFormFields
         .where((e) => e.scope.isParticipant && e.type.isSlider && e.isRequired)
         .toList(growable: false);
 
@@ -515,6 +488,55 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           },
         );
       },
+    );
+  }
+
+  Widget _buildRankingDisplay(List<MapEntry<VotingSessionParticipant, double>> ranking) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0), // Padding to avoid FAB
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Generated Ranking',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
+              const Divider(height: 24),
+              if (ranking.isEmpty)
+                const Center(child: Text('No scores to display based on selection.'))
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: ranking.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final entry = ranking[index];
+                    final participant = entry.key;
+                    final score = entry.value;
+                    return ListTile(
+                      leading: CircleAvatar(child: Text('${index + 1}')),
+                      title: Text('${participant.participantFullName} | ${participant.workName}'),
+                      trailing: Text(
+                        prettyDouble(score),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

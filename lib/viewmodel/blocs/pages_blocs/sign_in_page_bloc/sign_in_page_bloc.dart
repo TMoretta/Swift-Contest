@@ -49,22 +49,6 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
     );
   }
 
-  //* Vote as simple juror
-  // FutureOr<void> _voteAsSimpleJuror(
-  //   SignInPageVoteAsSimpleJuror event,
-  //   Emitter<SignInPageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   final eitherJoinContest = await _jurorRepository.accessVotingAsSimpleJuror(
-  //       fullName: event.fullName, token: event.token);
-  //   eitherJoinContest.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => emit(
-  //         state.copyWith(status: BlocStatus.success, simpleJurorAndVotingSessionBundle: success)),
-  //   );
-  // }
-
   FutureOr<void> _authenticateSimpleJuror(
     SignInPageAuthenticateSimpleJuror event,
     Emitter<SignInPageState> emit,

@@ -97,9 +97,14 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                           Card(
                             elevation: 0.05,
                             child: ListTile(
-                              onTap: () {
-                                context.router.push(OrganizerVotingResultsRoute(
+                              onTap: () async {
+                                final refresh = await context.router.push(OrganizerVotingResultsRoute(
                                     votingSessionId: votingSession.id!));
+                                if(!context.mounted) return;
+                                if(refresh == true) {
+                                  context.read<OrganizerContestDetailsPageBloc>().add(
+                                      OrganizerContestDetailsPageFetch(contestId: contestId));
+                                }
                               },
                               title: Text(
                                 votingSession.name,
@@ -109,17 +114,6 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                               subtitle: Text(
                                 DateFormat('dd MMM, yyyy | HH:mm').format(votingSession.createdAt!),
                               ),
-                              // trailing: IconButton(
-                              //   onPressed: () async {
-                              //     _showEditVotingSessionNameDialog(
-                              //         context: context,
-                              //         votingSessionId: votingSession.id!,
-                              //         contestId: contestId);
-                              //   },
-                              //   icon: Icon(
-                              //     Icons.edit,
-                              //   ),
-                              // ),
                             ),
                           ),
                           if (index == endedVotingSessions.length - 1) SizedBox(height: 72),

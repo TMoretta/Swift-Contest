@@ -16,6 +16,7 @@ class SignUpPageBloc extends Bloc<SignUpPageEvent, SignUpPageState> {
 }) : _authRepository = authRepository, super(SignUpPageState(status: BlocStatus.initial)) {
     on<SignUpWithEmailAndPassword>(_signUpWithEmailAndPassword);
     on<SignUpWithEmail>(_signUpWithEmail);
+    on<SignUpPageAuthenticateSimpleJuror>(_authenticateSimpleJuror);
   }
 
   FutureOr<void> _signUpWithEmailAndPassword(
@@ -39,6 +40,21 @@ class SignUpPageBloc extends Bloc<SignUpPageEvent, SignUpPageState> {
     emit(SignUpPageState(status: BlocStatus.loading,sourceEvent: event));
 
     final res = await _authRepository.signUpWithEmail(email: event.email,fullName: event.fullName);
+    res.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success)),
+    );
+  }
+
+  FutureOr<void> _authenticateSimpleJuror(
+      SignUpPageAuthenticateSimpleJuror event,
+      Emitter<SignUpPageState> emit,
+      ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res = await _authRepository.anonSignIn(
+      fullName: event.fullName,
+    );
     res.fold(
           (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
           (success) => emit(state.copyWith(status: BlocStatus.success)),

@@ -38,7 +38,6 @@ class SignUpVerifyPage extends StatefulWidget implements AutoRouteWrapper {
 class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
-  final _otpFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -55,7 +54,6 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
       BrowserContextMenu.enableContextMenu();
     }
     _otpController.dispose();
-    _otpFocusNode.dispose();
     super.dispose();
   }
 
@@ -100,7 +98,6 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
                           OtpField(
                             length: 6,
                             controller: _otpController,
-                            focusNode: _otpFocusNode,
                             validator: (value) => otpValidator(value, 6),
                           ),
                         ],

@@ -144,6 +144,8 @@ abstract interface class OrganizerRepository {
   });
 
   Future<Either<Failure, String>> regenerateJuryToken({required String juryId});
+
+  Future<Either<Failure, Unit>> deleteVotingSession({required String votingSessionId});
 }
 
 class OrganizerRepositoryImpl implements OrganizerRepository {
@@ -663,6 +665,18 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
         );
         // The RPC now returns the new token as a string.
         return Either.right(newToken as String);
+      },
+    );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteVotingSession({required String votingSessionId}) {
+    return handleDatabaseCall(
+          () async {
+        await _supabase
+            .rpc(
+            'organizer_delete_voting_session', params: {'p_voting_session_id': votingSessionId});
+        return Either.right(unit);
       },
     );
   }

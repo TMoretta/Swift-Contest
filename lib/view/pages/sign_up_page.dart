@@ -262,7 +262,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 72),
+                            SizedBox(height: 24),
+                            //* Vote as a simple juror
+                            TextButton(
+                              onPressed: () {
+                                _showVoteAsSimpleJurorDialog(context: context);
+                              },
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                        color: Theme.of(context).colorScheme.primary),
+                                  ),
+                                ),
+                                child: Text('Vote in a contest as a simple juror'),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -276,4 +291,111 @@ class _SignUpPageState extends State<SignUpPage> {
       },
     );
   }
+}
+
+void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
+  final signInPageBloc = context.read<SignUpPageBloc>();
+  final accessVotingFormKey = GlobalKey<FormState>();
+  final fullNameController = TextEditingController();
+  final fullNameFocusNode = FocusNode();
+  bool isPrivacyAccepted = false;
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(builder: (context, setState) {
+        return BlocProvider.value(
+          value: signInPageBloc,
+          child: BlocConsumer<SignUpPageBloc, SignUpPageState>(
+            listener: (context, state) async {
+              if (state.status.isSuccess && state.sourceEvent is SignUpPageAuthenticateSimpleJuror) {
+                context.router.pop();
+                context.router.replaceAll([RootRoute()]);
+              }
+            },
+            builder: (context, state) {
+              return AlertDialog(
+                title: Text('Vote as simple juror'),
+                content: Form(
+                  key: accessVotingFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomTextFormField(
+                        borderType: InputBorderType.underlined,
+                        controller: fullNameController,
+                        focusNode: fullNameFocusNode,
+                        label: 'Full name',
+                        validator: fullNameValidator,
+                      ),
+                      CheckboxListTile(
+                        value: isPrivacyAccepted,
+                        onChanged: (value) {
+                          setState(() {
+                            isPrivacyAccepted = value ?? false;
+                          });
+                        },
+                        title: RichText(
+                          text: TextSpan(
+                            style: Theme.of(context).textTheme.bodySmall,
+                            children: [
+                              const TextSpan(text: 'I have read and agree to the '),
+                              TextSpan(
+                                text: 'Terms of Service',
+                                style: const TextStyle(
+                                    color: Colors.blue, decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    // Mostra la pagina dei Termini come un dialogo
+                                    showTermsOfServiceDialog(context);
+                                  },
+                              ),
+                              const TextSpan(text: ' and the '),
+                              TextSpan(
+                                text: 'Privacy Policy',
+                                style: const TextStyle(
+                                    color: Colors.blue, decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    // Mostra la pagina della Privacy come un dialogo
+                                    showPrivacyPolicyDialog(context);
+                                  },
+                              ),
+                              const TextSpan(text: '.'),
+                            ],
+                          ),
+                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      context.router.pop();
+                    },
+                    child: Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: (isPrivacyAccepted)
+                        ? () {
+                      if (accessVotingFormKey.currentState?.validate() ?? false) {
+                        context.read<SignUpPageBloc>().add(SignUpPageAuthenticateSimpleJuror(
+                            fullName: fullNameController.text.trim()));
+                      }
+                    }
+                        : null,
+                    child: Text('Confirm'),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      });
+    },
+  );
 }

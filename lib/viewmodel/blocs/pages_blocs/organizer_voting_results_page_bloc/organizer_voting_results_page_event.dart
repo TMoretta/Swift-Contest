@@ -28,3 +28,12 @@ final class OrganizerVotingResultsPageEditVotingSessionName
   @override
   List<Object?> get props => [votingSessionId, name];
 }
+
+final class OrganizerVotingResultsPageDeleteVotingSession extends OrganizerVotingResultsPageEvent {
+  final String votingSessionId;
+
+  const OrganizerVotingResultsPageDeleteVotingSession({required this.votingSessionId});
+
+  @override
+  List<Object> get props => [votingSessionId];
+}
