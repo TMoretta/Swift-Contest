@@ -9,7 +9,9 @@ import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/privacy_policy_dialog.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
+import 'package:swift_contest/view/widgets/terms_of_service_dialog.dart';
 import 'package:swift_contest/viewmodel/blocs/auth_bloc/auth_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/simple_juror_home_page_bloc/simple_juror_home_page_bloc.dart';
 import 'package:swift_contest/viewmodel/blocs/theme_bloc/theme_bloc.dart';
@@ -127,6 +129,31 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                     ),
                   );
                 },
+              ),
+              //* Legal Documents
+              ListTile(
+                onTap: () {
+                  showTermsOfServiceDialog(context);
+                },
+                leading: Icon(
+                  Icons.gavel_outlined,
+                  size: 28,
+                ),
+                title: Text(
+                  'Terms of Service',
+                ),
+                titleTextStyle: Theme.of(context).textTheme.titleMedium,
+              ),
+              ListTile(
+                onTap: () {
+                  showPrivacyPolicyDialog(context);
+                },
+                leading: Icon(
+                  Icons.privacy_tip_outlined,
+                  size: 28,
+                ),
+                title: Text('Privacy Policy'),
+                titleTextStyle: Theme.of(context).textTheme.titleMedium,
               ),
               ListTile(
                 onTap: () async {

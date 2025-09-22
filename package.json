@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "supabase": "^2.33.9",
-    "typescript": "^5.9.2",
-    "vercel": "^44.7.3"
+    "typescript": "^5.9.2"
   }
 }

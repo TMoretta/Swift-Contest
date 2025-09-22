@@ -32,7 +32,8 @@ class SimpleJurorHomePageBloc extends Bloc<SimpleJurorHomePageEvent, SimpleJuror
   ) async {
     emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
 
-    final res = await _authRepository.signOut();
+    // It is an anonymous user. At sign out it will be deleted
+    final res = await _authRepository.deleteAccount();
     res.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success)),
