@@ -119,6 +119,7 @@ class _SignInPageState extends State<SignInPage> {
                                         prefixIcon: Icon(Icons.email_outlined),
                                       ),
                                     ),
+                                    SizedBox(height: 12),
                                     //* Sign in button
                                     FilledButton(
                                       onPressed: () {
@@ -129,6 +130,7 @@ class _SignInPageState extends State<SignInPage> {
                                       },
                                       child: Text('Sign in'),
                                     ),
+                                    SizedBox(height: 12),
                                     //* Sign up instead button
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -181,7 +183,7 @@ class _SignInPageState extends State<SignInPage> {
                                               .add(SignInPageDownloadLatestApk());
                                         },
                                         icon: Icon(Icons.android),
-                                        label: Text('Download latest APK'),
+                                        label: Text('Download for Android'),
                                         style: FilledButton.styleFrom(
                                             backgroundColor: Colors.green.shade200,
                                             foregroundColor: Colors.grey.shade900),

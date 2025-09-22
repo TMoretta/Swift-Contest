@@ -66,3 +66,4 @@ flutter:
     - .env
     - assets/logo.png
     - assets/splash.png
+    - assets/transparent.png

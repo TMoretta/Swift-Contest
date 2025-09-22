@@ -1,7 +1,8 @@
 flutter_native_splash:
-  background_image: "assets/splash.png"
+  background_image: "assets/transparent.png"
+#  color: "#000000"
+  image_android: "assets/splash.png"
+  image_web: "assets/splash.png"
 
   android_12:
     image: "assets/splash.png"
-
-#  web: false

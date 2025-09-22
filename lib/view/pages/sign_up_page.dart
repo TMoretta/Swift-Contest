@@ -222,6 +222,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 contentPadding: EdgeInsets.zero,
                               ),
                             ),
+                            SizedBox(height: 12),
                             //* Sign up button
                             ConstrainedBox(
                               constraints: BoxConstraints(
@@ -240,6 +241,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: Text('Sign up'),
                               ),
                             ),
+                            SizedBox(height: 12),
                             //* Sign in instead button
                             Row(
                               mainAxisSize: MainAxisSize.min,
@@ -280,6 +282,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
                             SizedBox(height: 24),
+                            // Download for Android if on web
                             if (kIsWeb)
                               FilledButton.tonalIcon(
                                 onPressed: () {
@@ -288,7 +291,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   context.read<SignUpPageBloc>().add(SignUpPageDownloadLatestApk());
                                 },
                                 icon: Icon(Icons.android),
-                                label: Text('Download latest APK'),
+                                label: Text('Download for Android'),
                                 style: FilledButton.styleFrom(
                                     backgroundColor: Colors.green.shade200,
                                     foregroundColor: Colors.grey.shade900),
