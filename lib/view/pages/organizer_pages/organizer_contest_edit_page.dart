@@ -266,7 +266,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   focusNode: dateTimeFocusNode,
                   initialDate: dateTime,
                   label: 'Date',
-                  validator: noEmptyValidator,
+                  validator: dateTimeNotPassedValidator,
                   onSelected: (value) {
                     setState(() {
                       dateTime = value;

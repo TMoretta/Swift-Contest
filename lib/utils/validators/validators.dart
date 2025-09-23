@@ -1,6 +1,6 @@
 //* No empty validator
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
+import 'package:swift_contest/utils/extensions/string_to_date_time_x.dart';
 
 String? noEmptyValidator(String? value) {
   final val = value?.trim();
@@ -177,7 +177,6 @@ String? questionValidator(String? value) {
   return null;
 }
 
-
 String? atLeastOneImageValidator(List<XFile>? images) {
   if (images?.isEmpty ?? true) {
     return 'Select at least one image';
@@ -205,6 +204,27 @@ String? integerValidator(String? value) {
   return null;
 }
 
+String? dateTimeNotPassedValidator(String? value) {
+  final val = value?.trim();
+
+  if (val == null || val.isEmpty) {
+    return 'Required';
+  }
+
+  try {
+    final DateTime selectedDateTime = val.toDateTime();
+    final DateTime now = DateTime.now();
+
+    if (selectedDateTime.isBefore(now)) {
+      return 'Date and time cannot be in the past';
+    }
+  } catch (e) {
+    return 'Invalid date format';
+  }
+
+  return null;
+}
+
 //* Works submission start validator
 String? worksSubmissionStartValidator(
   String? value,
@@ -216,7 +236,7 @@ String? worksSubmissionStartValidator(
   }
 
   try {
-    final DateTime worksSubmissionStart = DateFormat('dd/MM/yyyy HH:mm').parse(value);
+    final DateTime worksSubmissionStart = value.toDateTime();
     if (worksSubmissionStart.isAfter(contestDate)) {
       return "Can't be after contest date";
     }
@@ -249,7 +269,7 @@ String? worksSubmissionEndValidator(
   }
 
   try {
-    final DateTime worksSubmissionEnd = DateFormat('dd/MM/yyyy HH:mm').parse(value);
+    final DateTime worksSubmissionEnd = value.toDateTime();
     if (worksSubmissionEnd.isAfter(contestDate)) {
       return "Can't be after contest date";
     }

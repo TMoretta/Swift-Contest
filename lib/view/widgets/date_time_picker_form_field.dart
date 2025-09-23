@@ -55,18 +55,17 @@ class DateTimePickerFormField extends StatelessWidget {
             // FocusManager.instance.primaryFocus?.unfocus();
             focusNode?.requestFocus();
             final date = await _showDatePicker(context: context, initialDate: initialDate);
-            if(!context.mounted) return;
-            if(date!=null) {
+            if (!context.mounted) return;
+            if (date != null) {
               final time = await _showTimePicker(context: context, initialTime: TimeOfDay.now());
               if (time != null) {
-              final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
                 controller.text = DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
                 if (onSelected != null) {
                   onSelected!(dateTime);
                 }
               }
             }
-
           },
           child: Text('Select'),
         ),
@@ -145,4 +144,3 @@ Future<TimeOfDay?> _showTimePicker({
   );
   return time;
 }
-

@@ -212,7 +212,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   focusNode: dateTimeFocusNode,
                   initialDate: dateTime,
                   label: 'Date',
-                  validator: noEmptyValidator,
+                  validator: dateTimeNotPassedValidator,
                   onSelected: (dateValue) {
                     setState(() {
                       dateTime = dateValue;
