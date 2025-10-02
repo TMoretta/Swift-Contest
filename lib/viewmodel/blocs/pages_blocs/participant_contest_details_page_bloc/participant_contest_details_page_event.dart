@@ -35,3 +35,11 @@ final class ParticipantContestDetailsPageGetRankingFileUrl extends ParticipantCo
   List<Object?> get props => [filePath];
 }
 
+final class ParticipantContestDetailsPageGetWorkFileUrl extends ParticipantContestDetailsPageEvent {
+  final String filePath;
+
+  const ParticipantContestDetailsPageGetWorkFileUrl({required this.filePath});
+
+  @override
+  List<Object?> get props => [filePath];
+}

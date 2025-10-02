@@ -9,5 +9,6 @@ class StorageBucket {
   // for each bucket name, which is efficient and safe.
   static const StorageBucket contestsImages = StorageBucket._('contests-images');
   static const StorageBucket worksImages = StorageBucket._('works-images');
+  static const StorageBucket worksFiles = StorageBucket._('works-files');
   static const StorageBucket contestsRankings = StorageBucket._('contests-rankings');
 }

@@ -20,7 +20,8 @@ CREATE TABLE places (
   created_at timestamptz NOT NULL DEFAULT now(),
   address varchar(255) NOT NULL,
   lat float NOT NULL,
-  lon float NOT NULL
+  lon float NOT NULL,
+  CHECK ( lat BETWEEN -90 AND 90 AND lon BETWEEN -180 AND 180 )
 );
 
 CREATE TABLE voting_forms (
@@ -58,7 +59,8 @@ CREATE TABLE contests (
   works_submission_start timestamptz NOT NULL,
   works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL UNIQUE REFERENCES places (id),
-  images_paths text[] NOT NULL
+  images_paths text[] NOT NULL,
+  CHECK ( works_submission_start < works_submission_end AND works_submission_end <= date_time )
 );
 
 CREATE TABLE participant_invitations (
@@ -105,7 +107,8 @@ CREATE TABLE works (
   participation_id uuid NOT NULL UNIQUE REFERENCES participations (id) ON DELETE cascade,
   name varchar(50) NOT NULL,
   description varchar(1000) NOT NULL,
-  images_paths text[] NOT NULL
+  images_paths text[] NOT NULL,
+  file_path text NOT NULL
 );
 
 CREATE TABLE jurations (
@@ -141,6 +144,7 @@ CREATE TABLE voting_session_participants (
   participation_id uuid REFERENCES participations (id) ON DELETE SET NULL,
   order_index int NOT NULL,
   UNIQUE (voting_session_id, participation_id),
+  UNIQUE (voting_session_id, order_index),
   -- snapshot data 
   participant_full_name varchar(70) NOT NULL,
   work_name varchar(50) NOT NULL,

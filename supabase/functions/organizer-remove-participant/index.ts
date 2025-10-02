@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       .select(`
         participant_id,
         contest:contests ( organizer_id, name ),
-        work:works ( images_paths )
+        work:works ( images_paths, file_path )
       `)
       .eq('id', participationId)
       .single();
@@ -64,7 +64,8 @@ Deno.serve(async (req) => {
       body: `You have been removed from the contest "${participationData.contest?.name}".`
     });
 
-    // 5. Delete associated work images from storage, if they exist
+    // 5. Delete associated work files from storage
+    // 5a. Delete work images
     const workImages = participationData.work?.images_paths;
     if (workImages && workImages.length > 0) {
       const { error: storageError } = await supabaseAdmin.storage
@@ -72,8 +73,19 @@ Deno.serve(async (req) => {
         .remove(workImages);
 
       if (storageError) {
-        // Log the error but proceed with DB deletion to not block the user.
-        console.error(`Storage deletion error for participation ${participationId}:`, storageError.message);
+        console.error(`Work images deletion error for participation ${participationId}:`, storageError.message);
+      }
+    }
+
+    // 5b. NEW: Delete work file (ZIP)
+    const workFile = participationData.work?.file_path;
+    if (workFile) {
+      const { error: fileStorageError } = await supabaseAdmin.storage
+        .from('works-files')
+        .remove([workFile]); // .remove() expects an array of paths
+
+      if (fileStorageError) {
+        console.error(`Work file deletion error for participation ${participationId}:`, fileStorageError.message);
       }
     }
 

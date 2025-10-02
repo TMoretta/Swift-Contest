@@ -8,6 +8,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
   final String? message;
   final ParticipantContestDetailsBundle? contestDetailsBundle;
   final String? rankingFileUrl;
+  final String? workFileUrl;
 
   const ParticipantContestDetailsPageState({
     required this.status,
@@ -16,6 +17,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
     this.message,
     this.contestDetailsBundle,
     this.rankingFileUrl,
+    this.workFileUrl,
   });
 
   factory ParticipantContestDetailsPageState.fromJson(Map<String, dynamic> json) {
@@ -36,7 +38,6 @@ final class ParticipantContestDetailsPageState extends Equatable {
     };
   }
 
-
   ParticipantContestDetailsPageState copyWith({
     required BlocStatus status,
     ParticipantContestDetailsPageEvent? sourceEvent,
@@ -44,6 +45,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
     String? message,
     ParticipantContestDetailsBundle? contestDetailsBundle,
     String? rankingFileUrl,
+    String? workFileUrl,
   }) {
     return ParticipantContestDetailsPageState(
       status: status,
@@ -52,6 +54,7 @@ final class ParticipantContestDetailsPageState extends Equatable {
       message: message,
       contestDetailsBundle: contestDetailsBundle ?? this.contestDetailsBundle,
       rankingFileUrl: rankingFileUrl,
+      workFileUrl: workFileUrl,
     );
   }
 
@@ -63,5 +66,6 @@ final class ParticipantContestDetailsPageState extends Equatable {
         message,
         contestDetailsBundle,
         rankingFileUrl,
+        workFileUrl,
       ];
 }

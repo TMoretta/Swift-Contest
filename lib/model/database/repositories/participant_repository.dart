@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,6 +29,7 @@ abstract interface class ParticipantRepository {
     required String contestId,
     required Work work,
     required List<XFile> images,
+    required PlatformFile file,
   });
 }
 
@@ -96,19 +98,25 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
     required String contestId,
     required Work work,
     required List<XFile> images,
+    required PlatformFile file,
   }) async {
     return handleDatabaseCall(
       () async {
         final List<Map<String, String>> imagesPayload = [];
         for (final imageFile in images) {
-          final fileBytes = await imageFile.readAsBytes();
-          final fileBase64 = base64Encode(fileBytes);
+          final imageBytes = await imageFile.readAsBytes();
+          final imageBase64 = base64Encode(imageBytes);
 
           imagesPayload.add({
             'name': imageFile.name,
-            'content': fileBase64,
+            'content': imageBase64,
           });
         }
+
+        Map<String,String> filePayload = {
+          'name': file.name,
+          'content': base64Encode(file.bytes!),
+        };
 
         await _supabase.functions.invoke(
           'participant-submit-work',
@@ -116,6 +124,7 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
             'contest_id': contestId,
             'work': work.toJson(),
             'images': imagesPayload,
+            'file': filePayload,
           },
         );
 

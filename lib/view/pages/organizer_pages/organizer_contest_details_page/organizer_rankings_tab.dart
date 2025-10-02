@@ -82,33 +82,33 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                   .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
               child: (state.contestDetailsBundle!.contestRankings.isEmpty)
                   ? ListView(
-                children: [
-                  Text('No ranking published'),
-                ],
-              )
+                      children: [
+                        Text('No ranking published'),
+                      ],
+                    )
                   : ListView.builder(
-                itemCount: state.contestDetailsBundle!.contestRankings.length,
-                itemBuilder: (context, index) {
-                  final ranking = state.contestDetailsBundle!.contestRankings[index];
-                  return Card(
-                    elevation: 0,
-                    child: ListTile(
-                      title: Text(
-                        path.basename(ranking.filePath),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          BlocListener<OrganizerContestDetailsPageBloc,
-                              OrganizerContestDetailsPageState>(
-                            listener: (context, state) async {
-                              if (state.status.isSuccess &&
-                                  state.sourceEvent
+                      itemCount: state.contestDetailsBundle!.contestRankings.length,
+                      itemBuilder: (context, index) {
+                        final ranking = state.contestDetailsBundle!.contestRankings[index];
+                        return Card(
+                          elevation: 0,
+                          child: ListTile(
+                            title: Text(
+                              path.basename(ranking.filePath),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                BlocListener<OrganizerContestDetailsPageBloc,
+                                    OrganizerContestDetailsPageState>(
+                                  listener: (context, state) async {
+                                    if (state.status.isSuccess &&
+                                        state.sourceEvent
                                             is OrganizerContestDetailsPageGetRankingFileUrl) {
-                                final url = state.rankingFileUrl!;
+                                      final url = state.rankingFileUrl!;
                                       final dio = Dio();
                                       try {
                                         final response = await dio.get<List<int>>(
@@ -135,32 +135,31 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                                         }
                                       } catch (e) {
                                         if (context.mounted) {
-                                          showSnackBar(
-                                              context: context, text: 'Download failed.');
+                                          showSnackBar(context: context, text: 'Download failed.');
                                         }
                                       }
-                              }
-                            },
-                            child: IconButton(
-                              onPressed: () {
-                                context.read<OrganizerContestDetailsPageBloc>().add(
-                                    OrganizerContestDetailsPageGetRankingFileUrl(
-                                        filePath: ranking.filePath));
-                              },
-                              icon: Icon(Icons.download),
+                                    }
+                                  },
+                                  child: IconButton(
+                                    onPressed: () {
+                                      context.read<OrganizerContestDetailsPageBloc>().add(
+                                          OrganizerContestDetailsPageGetRankingFileUrl(
+                                              filePath: ranking.filePath));
+                                    },
+                                    icon: Icon(Icons.download),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () => _showUnpublishRankingDialog(
+                                      context: context, contestRankingId: ranking.id!),
+                                  icon: Icon(Icons.remove),
+                                ),
+                              ],
                             ),
                           ),
-                          IconButton(
-                            onPressed: () => _showUnpublishRankingDialog(
-                                context: context, contestRankingId: ranking.id!),
-                            icon: Icon(Icons.remove),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              )),
+                        );
+                      },
+                    )),
         ),
       ],
     );
@@ -240,9 +239,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                                       }
                                     },
                                     title: Text(
-                                      (selectedFile == null)
-                                          ? 'Select file'
-                                          : selectedFile!.name,
+                                      (selectedFile == null) ? 'Select file' : selectedFile!.name,
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                           color: Theme.of(context).colorScheme.onTertiaryContainer),
                                       overflow: TextOverflow.ellipsis,
@@ -281,11 +278,11 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                       onPressed: () {
                         if (formKey.currentState?.validate() ?? false) {
                           context.read<OrganizerContestDetailsPageBloc>().add(
-                            OrganizerContestDetailsPagePublishRanking(
-                              contestId: contestId,
-                              file: selectedFile!,
-                            ),
-                          );
+                                OrganizerContestDetailsPagePublishRanking(
+                                  contestId: contestId,
+                                  file: selectedFile!,
+                                ),
+                              );
                         }
                       },
                       child: Text('Confirm'),

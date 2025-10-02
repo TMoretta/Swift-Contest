@@ -1,10 +1,14 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path/path.dart' as path;
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
+import 'package:swift_contest/utils/functions/save_and_launch_file.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/images_carousel_full_screen.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
+import 'package:swift_contest/view/widgets/show_snack_bar.dart';
 import 'package:swift_contest/view/widgets/storage_image.dart';
 import 'package:swift_contest/view/widgets/void_widget.dart';
 import 'package:swift_contest/viewmodel/blocs/pages_blocs/organizer_work_details_page_bloc/organizer_work_details_page_bloc.dart';
@@ -27,6 +31,7 @@ class OrganizerWorkDetailsPage extends StatefulWidget implements AutoRouteWrappe
     return BlocProvider<OrganizerWorkDetailsPageBloc>(
       create: (context) => OrganizerWorkDetailsPageBloc(
         organizerRepository: context.read(),
+        storageRepository: context.read(),
       ),
       child: this,
     );
@@ -166,77 +171,79 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                         ),
                         SizedBox(height: 12),
                         //* File
-                        // Text(
-                        //   'File',
-                        //   style: Theme.of(context)
-                        //       .textTheme
-                        //       .titleMedium
-                        //       ?.copyWith(color: Theme.of(context).colorScheme.secondary),
-                        // ),
-                        // Card(
-                        //   elevation: 0.1,
-                        //   color: Theme.of(context).colorScheme.tertiaryContainer,
-                        //   child: ListTile(
-                        //     title: Text(
-                        //       work.fileUrl.split('/').last,
-                        //       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        //           color: Theme.of(context).colorScheme.onTertiaryContainer),
-                        //       maxLines: 1,
-                        //       overflow: TextOverflow.ellipsis,
-                        //     ),
-                        //     trailing: IconButton(
-                        //       onPressed: () async {
-                        //         try {
-                        //           if (!await requestStoragePermission()) {
-                        //             if (context.mounted) {
-                        //               showSnackBar(context: context, text: 'Permission denied');
-                        //             }
-                        //             return;
-                        //           }
-                        //
-                        //           final directory =
-                        //               await ExternalPath.getExternalStoragePublicDirectory(
-                        //                   ExternalPath.DIRECTORY_DOWNLOAD);
-                        //
-                        //           final originalFilename = work.fileUrl.split('/').last;
-                        //           final baseName = p.basenameWithoutExtension(originalFilename);
-                        //           final extension = p.extension(originalFilename);
-                        //
-                        //           String safeFilename;
-                        //           int count = 0;
-                        //           do {
-                        //             safeFilename = (count == 0)
-                        //                 ? '$baseName$extension'
-                        //                 : '$baseName ($count)$extension';
-                        //             count++;
-                        //           } while (await File('$directory/$safeFilename').exists());
-                        //
-                        //           final path = '$directory/$safeFilename';
-                        //
-                        //           await Dio().download(
-                        //             work.fileUrl,
-                        //             path,
-                        //             onReceiveProgress: (received, total) {
-                        //               if (total != -1) {
-                        //                 // opzionale: mostra progress %
-                        //                 final pct = (received / total * 100).toStringAsFixed(0);
-                        //                 debugPrint('Download: $pct%');
-                        //               }
-                        //             },
-                        //           );
-                        //           await OpenFile.open(path,
-                        //               type: MediaTypes.mapExtension(extension));
-                        //         } catch (e) {
-                        //           debugPrint('Download error: $e');
-                        //         }
-                        //       },
-                        //       icon: Icon(
-                        //         Icons.download_rounded,
-                        //         color: Theme.of(context).colorScheme.onTertiaryContainer,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
+                        Text(
+                          'File',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                        ),
+                        Card(
+                          color: Theme.of(context).colorScheme.tertiaryContainer,
+                          elevation: 0,
+                          child: ListTile(
+                            title: Text(
+                              path.basename(work.filePath!),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onTertiaryContainer),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                BlocListener<OrganizerWorkDetailsPageBloc,
+                                    OrganizerWorkDetailsPageState>(
+                                  listener: (context, state) async {
+                                    if (state.status.isSuccess &&
+                                        state.sourceEvent
+                                            is OrganizerWorkDetailsPageGetWorkFileUrl) {
+                                      final url = state.workFileUrl!;
+                                      final dio = Dio();
+                                      try {
+                                        final response = await dio.get<List<int>>(
+                                          url,
+                                          options: Options(responseType: ResponseType.bytes),
+                                        );
+                                        final fileBytes = response.data;
+
+                                        if (fileBytes == null) {
+                                          if (context.mounted) {
+                                            showSnackBar(
+                                                context: context,
+                                                text: 'Failed to download file data.');
+                                          }
+                                          return;
+                                        }
+
+                                        final (_, message) = await saveAndLaunchFile(
+                                            fileBytes, path.basename(work.filePath!));
+                                        if (context.mounted) {
+                                          showSnackBar(
+                                              context: context,
+                                              text: message ?? 'File operation completed.');
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          showSnackBar(context: context, text: 'Download failed.');
+                                        }
+                                      }
+                                    }
+                                  },
+                                  child: IconButton(
+                                    onPressed: () {
+                                      context.read<OrganizerWorkDetailsPageBloc>().add(
+                                          OrganizerWorkDetailsPageGetWorkFileUrl(
+                                              filePath: work.filePath!));
+                                    },
+                                    icon: Icon(Icons.download),
+                                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );

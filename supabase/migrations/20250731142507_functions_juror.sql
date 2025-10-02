@@ -372,6 +372,31 @@ BEGIN
     END IF;
   END IF;
 
+  -- STEP 2.5: VALIDATE VOTE VALUES
+  -- Check if any slider value is out of its defined min/max range.
+  IF EXISTS (
+    WITH unpacked_votes AS (
+      SELECT
+        (value->>'voting_form_field_id')::uuid as field_id,
+        (value->>'value')::text as value
+      FROM jsonb_array_elements(p_votes_payload)
+    )
+    SELECT 1
+    FROM unpacked_votes uv
+    JOIN public.voting_form_fields vff ON vff.id = uv.field_id
+    WHERE
+      vff.type = 'slider'
+      AND (
+        -- Check if the value is not a valid integer string
+        NOT (uv.value ~ '^-?\d+$')
+        -- Or if it is an integer, check if it's outside the bounds
+        OR uv.value::integer < vff.slider_min_value
+        OR uv.value::integer > vff.slider_max_value
+      )
+  ) THEN
+    RAISE EXCEPTION 'Invalid vote value: A slider value is outside its allowed range or is not a valid number.';
+  END IF;
+
   -- STEP 3: SAVE VOTES
   -- 3a. Create a single submission record.
   INSERT INTO public.voting_form_submissions (voting_session_id, voting_session_juror_id)

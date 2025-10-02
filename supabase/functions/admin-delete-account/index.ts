@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@3.2.0";
 import { corsHeaders } from "../_shared/cors.ts";
@@ -17,15 +17,12 @@ Deno.serve(async (req) => {
 
   try {
     // --- API KEY AUTHORIZATION ---
-    // This is the recommended pattern for server-to-server communication (e.g., Retool to Supabase).
     const apiKey = req.headers.get('X-API-Key');
     const secretKey = Deno.env.get('RETOOL_API_KEY');
 
-    // 1. Check if the secret key is set in Supabase secrets.
     if (!secretKey) {
       throw new Error("RETOOL_API_KEY is not set in Supabase secrets.");
     }
-    // 2. Check if the provided API key matches the secret.
     if (apiKey !== secretKey) {
       return new Response(JSON.stringify({ error: "Unauthorized. Invalid API Key." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -40,8 +37,6 @@ Deno.serve(async (req) => {
       throw new Error("userIdToDelete is required in the request body.");
     }
 
-    // Create a Supabase client with admin privileges (service_role)
-    // This is necessary to perform admin-level operations.
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -49,11 +44,9 @@ Deno.serve(async (req) => {
     );
 
     // --- PRE-DELETION CHECKS ---
-    // Get the full user object to ensure they exist and to get their email for notification.
     const { data: { user: userToDelete }, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(userIdToDelete);
 
     if (getUserError) {
-      // If the user doesn't exist, we can't delete them.
       if (getUserError.message.includes("User not found")) {
         return new Response(JSON.stringify({ error: "User not found." }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -67,9 +60,6 @@ Deno.serve(async (req) => {
     const userId = userIdToDelete;
 
     // --- NOTIFICATION LOGIC ---
-    // This must happen BEFORE deleting the user, as cascade deletes will remove the data needed for notifications.
-
-    // 1. Get user's full name for messages
     const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('full_name')
@@ -77,8 +67,7 @@ Deno.serve(async (req) => {
       .single();
     const userFullName = profile?.full_name || 'A user';
 
-    // 2. Handle notifications if the user is an ORGANIZER
-    // AND prepare for cleanup of associated storage files and records.
+    // 1. Handle notifications for ORGANIZED contests
     const { data: organizedContestsData } = await supabaseAdmin
       .from('contests')
       .select('id, name, images_paths, place_id, contest_rankings(file_path), juries(voting_form_id)')
@@ -108,20 +97,16 @@ Deno.serve(async (req) => {
         }
 
         // --- STORAGE & RECORD CLEANUP for ORGANIZED CONTESTS ---
-        // Delete contest images
         if (contest.images_paths && contest.images_paths.length > 0) {
           await supabaseAdmin.storage.from('contests-images').remove(contest.images_paths);
         }
-        // Delete ranking files
         const rankingPaths = contest.contest_rankings.map(r => r.file_path);
         if (rankingPaths.length > 0) {
           await supabaseAdmin.storage.from('contests-rankings').remove(rankingPaths);
         }
-        // Delete associated place
         if (contest.place_id) {
           await supabaseAdmin.from('places').delete().eq('id', contest.place_id);
         }
-        // Delete associated voting forms
         const votingFormIds = contest.juries.map(j => j.voting_form_id);
         if (votingFormIds.length > 0) {
           await supabaseAdmin.from('voting_forms').delete().in('id', votingFormIds);
@@ -129,53 +114,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. Handle notifications and cleanup for contests the user PARTICIPATED in
-    const { data: organizedContests } = await supabaseAdmin
-      .from('contests')
-      .select('id, name')
-      .eq('organizer_id', userId);
-
-    if (organizedContests && organizedContests.length > 0) {
-      for (const contest of organizedContests) {
-        // Notify all participants of this contest
-        const { data: participants } = await supabaseAdmin
-          .from('participations')
-          .select('participant_id')
-          .eq('contest_id', contest.id);
-
-        if (participants && participants.length > 0) {
-          const participantMessages = participants.map(p => ({
-            account_id: p.participant_id,
-            title: 'Contest Cancelled',
-            body: `The contest "${contest.name}" has been cancelled because the organizer's account was deleted.`
-          }));
-          await supabaseAdmin.from('messages').insert(participantMessages);
-        }
-
-        // Notify all jurors of this contest
-        const { data: jurors } = await supabaseAdmin
-          .from('jurations')
-          .select('juror_id')
-          .eq('contest_id', contest.id);
-
-        if (jurors && jurors.length > 0) {
-          const jurorMessages = jurors.map(j => ({
-            account_id: j.juror_id,
-            title: 'Contest Cancelled',
-            body: `The contest "${contest.name}" for which you were a juror has been cancelled because the organizer's account was deleted.`
-          }));
-          await supabaseAdmin.from('messages').insert(jurorMessages);
-        }
-      }
-    }
-
+    // 2. Handle notifications and cleanup for PARTICIPATED contests
     const { data: participations } = await supabaseAdmin
       .from('participations')
-      .select('contest:contests(organizer_id, name), work:works(images_paths)')
+      // UPDATED: Select 'file_path' from the related work as well
+      .select('contest:contests(organizer_id, name), work:works(images_paths, file_path)')
       .eq('participant_id', userId);
 
     if (participations && participations.length > 0) {
       // --- STORAGE CLEANUP for PARTICIPATED CONTESTS ---
+      // Cleanup work images
       const workImagePaths = participations
         .map(p => p.work?.images_paths)
         .flat()
@@ -185,8 +133,18 @@ Deno.serve(async (req) => {
         await supabaseAdmin.storage.from('works-images').remove(workImagePaths);
       }
 
+      // NEW: Cleanup work files (ZIPs)
+      const workFilePaths = participations
+        .map(p => p.work?.file_path)
+        .filter(path => path) as string[]; // .flat() is not needed as it's a single path
+
+      if (workFilePaths.length > 0) {
+        await supabaseAdmin.storage.from('works-files').remove(workFilePaths);
+      }
+
+      // Notify organizers
       const participationMessages = participations
-        .filter(p => p.contest) // Ensure contest data was fetched
+        .filter(p => p.contest)
         .map(p => ({
           account_id: p.contest!.organizer_id,
           title: 'Participant Left Contest',
@@ -197,7 +155,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 4. Handle notifications for contests the user was a JUROR in (no cleanup needed here)
+    // 3. Handle notifications for JUROR contests
     const { data: jurations } = await supabaseAdmin
       .from('jurations')
       .select('contest:contests(organizer_id, name)')
@@ -205,7 +163,7 @@ Deno.serve(async (req) => {
 
     if (jurations && jurations.length > 0) {
       const jurationMessages = jurations
-        .filter(j => j.contest) // Ensure contest data was fetched
+        .filter(j => j.contest)
         .map(j => ({
           account_id: j.contest!.organizer_id,
           title: 'Juror Left Contest',
@@ -217,8 +175,6 @@ Deno.serve(async (req) => {
     }
 
     // --- EMAIL NOTIFICATION ---
-    // Send an email to the user informing them of the deletion.
-    // This requires an email service provider like Resend and an API key stored as a Supabase secret.
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (resendApiKey && userEmail) {
       const resend = new Resend(resendApiKey);
@@ -227,16 +183,9 @@ Deno.serve(async (req) => {
           from: 'Swift Contest <noreply@swiftcontest.com>',
           to: [userEmail],
           subject: 'Your Swift Contest Account Has Been Deleted',
-          html: `
-            <p>Hello ${userFullName || 'user'},</p>
-            <p>This is a notification to inform you that your account on Swift Contest has been deleted by an administrator.</p>
-            <p>If you believe this was a mistake, please contact our support team.</p>
-            <p>Thank you,</p>
-            <p>The Swift Contest Team</p>
-          `,
+          html: `<p>Hello ${userFullName || 'user'},</p><p>This is a notification to inform you that your account on Swift Contest has been deleted by an administrator.</p><p>If you believe this was a mistake, please contact our support team.</p><p>Thank you,</p><p>The Swift Contest Team</p>`,
         });
       } catch (emailError) {
-        // Log the email error but don't block the user deletion process
         console.error("Failed to send deletion notification email:", emailError.message);
       }
     } else {
@@ -244,8 +193,6 @@ Deno.serve(async (req) => {
     }
 
     // --- FINAL DELETION ---
-    // Finally, delete the user from auth. This will cascade to the 'profiles' table and all related data.
-    // Deleting the user automatically invalidates all their sessions, so an explicit global sign-out is not necessary.
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteError) {
@@ -257,7 +204,6 @@ Deno.serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    // Log the actual error to the server for debugging
     console.error(error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

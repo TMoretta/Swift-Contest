@@ -7,6 +7,7 @@ final class OrganizerWorkDetailsPageState extends Equatable {
   final bool isInitialized;
   final String? message;
   final ParticipationBundle? participationBundle;
+  final String? workFileUrl;
 
   const OrganizerWorkDetailsPageState({
     required this.status,
@@ -14,6 +15,7 @@ final class OrganizerWorkDetailsPageState extends Equatable {
     this.isInitialized = false,
     this.message,
     this.participationBundle,
+    this.workFileUrl,
   });
 
   factory OrganizerWorkDetailsPageState.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ final class OrganizerWorkDetailsPageState extends Equatable {
     bool? isInitialized,
     String? message,
     ParticipationBundle? participationBundle,
+    String? workFileUrl,
   }) {
     return OrganizerWorkDetailsPageState(
       status: status,
@@ -47,6 +50,7 @@ final class OrganizerWorkDetailsPageState extends Equatable {
       isInitialized: isInitialized ?? this.isInitialized,
       message: message,
       participationBundle: participationBundle ?? this.participationBundle,
+      workFileUrl: workFileUrl,
     );
   }
 
@@ -57,5 +61,6 @@ final class OrganizerWorkDetailsPageState extends Equatable {
         isInitialized,
         message,
         participationBundle,
+        workFileUrl,
       ];
 }

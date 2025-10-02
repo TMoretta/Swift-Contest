@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/utils/validators/validators.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/custom_text_form_field.dart';
@@ -38,9 +41,10 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   late final String contestId;
   final GlobalKey<FormState> detailsFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> imagesFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> fileFormKey = GlobalKey<FormState>();
 
   // final GlobalKey<FormState> fileFormKey = GlobalKey<FormState>();
-  List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey];
+  List<GlobalKey<FormState>> get formKeys => [detailsFormKey, imagesFormKey, fileFormKey];
 
   int currentStep = 0;
   final nameController = TextEditingController();
@@ -48,8 +52,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
   final nameFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
   List<XFile> images = [];
-
-  // File? file;
+  PlatformFile? file;
 
   @override
   void initState() {
@@ -109,6 +112,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                         name: name,
                         description: description,
                         images: images,
+                        file: file!,
                       ));
                 } else {
                   setState(() => ++currentStep);
@@ -196,70 +200,92 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
           ),
         ),
         //* File
-        // Step(
-        //   state: currentStep >= 3 ? StepState.complete : StepState.indexed,
-        //   isActive: currentStep >= 2,
-        //   title: Text(''),
-        //   content: Form(
-        //     key: fileFormKey,
-        //     child: FormField(
-        //       validator: (value) => (file == null) ? '' : null,
-        //       autovalidateMode: AutovalidateMode.onUserInteraction,
-        //       builder: (field) {
-        //         return Column(
-        //           children: [
-        //             Align(
-        //               alignment: Alignment.centerLeft,
-        //               child: Text(
-        //                 'File',
-        //                 style: Theme.of(context)
-        //                     .textTheme
-        //                     .titleLarge
-        //                     ?.copyWith(color: Theme.of(context).colorScheme.primary),
-        //               ),
-        //             ),
-        //             SizedBox(height: 20),
-        //             (file == null)
-        //                 ? Center(child: Text('No file selected yet'))
-        //                 : Card(
-        //                     elevation: 0.1,
-        //                     child: Padding(
-        //                       padding: const EdgeInsets.all(12),
-        //                       child: Text(path.basename(file!.path)),
-        //                     ),
-        //                   ),
-        //             FilledButton(
-        //               onPressed: () async {
-        //                 if (!await requestStoragePermission()) {
-        //                   if (mounted) {
-        //                     showSnackBar(context: context, text: 'Permission denied');
-        //                   }
-        //                   return;
-        //                 }
-        //                 final pickedFile = await _pickFile();
-        //                 if (pickedFile == null) {
-        //                   return;
-        //                 }
-        //                 setState(() {
-        //                   file = pickedFile;
-        //                 });
-        //                 field.didChange(file);
-        //               },
-        //               child: Text('Pick file'),
-        //             ),
-        //             if (field.hasError)
-        //               Text(
-        //                 'Select a file',
-        //                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-        //                       color: Theme.of(context).colorScheme.error,
-        //                     ),
-        //               ),
-        //           ],
-        //         );
-        //       },
-        //     ),
-        //   ),
-        // ),
+        Step(
+          state: currentStep >= 3 ? StepState.complete : StepState.indexed,
+          isActive: currentStep >= 2,
+          title: Text(''),
+          content: Form(
+            key: fileFormKey,
+            child: FormField<PlatformFile?>(
+              validator: (value) {
+                if (file == null) {
+                  return 'Select a file';
+                }
+                if (file!.size > 52428800) {
+                  return 'The file size exceeds the limit of 50 MB';
+                }
+                return null;
+              },
+              onSaved: (value) => file = value,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              builder: (field) {
+                return Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'File',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    (file == null)
+                        ? Center(child: Text('No file selected yet'))
+                        : Card(
+                            elevation: 0.1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(path.basename(file!.path!)),
+                            ),
+                          ),
+                    FilledButton(
+                      onPressed: () async {
+                        final pickedFile = await _pickFile();
+                        setState(() {
+                          file = pickedFile;
+                        });
+                        field.didChange(file);
+                      },
+                      child: Text('Pick ZIP file'),
+                    ),
+                    if (field.hasError)
+                      Text(
+                        field.errorText!,
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                      ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Only ZIP files with a maximum size of 50 MB are accepted',
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelSmall
+                          ?.copyWith(color: Theme.of(context).colorScheme.grey),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
       ];
 }
 
+Future<PlatformFile?> _pickFile() async {
+  FilePickerResult? res = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowMultiple: false,
+    withData: true,
+    allowedExtensions: ['zip'],
+  );
+
+  if (res != null) {
+    PlatformFile pickedFile = res.files.first;
+    return pickedFile;
+  }
+  return null;
+}

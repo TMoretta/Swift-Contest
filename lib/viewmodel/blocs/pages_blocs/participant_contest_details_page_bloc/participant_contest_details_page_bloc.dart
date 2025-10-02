@@ -23,10 +23,10 @@ class ParticipantContestDetailsPageBloc
   })  : _participantRepository = participantRepository,
         _storageRepository = storageRepository,
         super(ParticipantContestDetailsPageState(status: BlocStatus.initial)) {
-    // on<ParticipantContestDetailsPageInit>(_init);
     on<ParticipantContestDetailsPageFetch>(_fetch);
     on<ParticipantContestDetailsPageLeaveContest>(_leaveContest);
     on<ParticipantContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);
+    on<ParticipantContestDetailsPageGetWorkFileUrl>(_getWorkFileUrl);
   }
 
   FutureOr<void> _fetch(
@@ -83,4 +83,19 @@ class ParticipantContestDetailsPageBloc
       (success) => emit(state.copyWith(status: BlocStatus.success, rankingFileUrl: success)),
     );
   }
+
+  FutureOr<void> _getWorkFileUrl(
+    ParticipantContestDetailsPageGetWorkFileUrl event,
+    Emitter<ParticipantContestDetailsPageState> emit,
+  ) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final res =
+        await _storageRepository.getSignedUrl(bucket: StorageBucket.worksFiles, path: event.filePath);
+    res.fold(
+      (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+      (success) => emit(state.copyWith(status: BlocStatus.success, workFileUrl: success)),
+    );
+  }
+
 }

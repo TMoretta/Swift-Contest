@@ -5,7 +5,7 @@ BEGIN
     PERFORM storage.create_bucket(
       'contests-images',
       public => false,
-      file_size_limit => 5242880,
+      file_size_limit => 5242880, -- 5MB
       allowed_mime_types => ARRAY['image/jpeg', 'image/png', 'image/webp']
     );
   END IF;
@@ -15,7 +15,7 @@ BEGIN
     PERFORM storage.create_bucket(
       'works-images',
       public => false,
-      file_size_limit => 5242880,
+      file_size_limit => 5242880, -- 5MB
       allowed_mime_types => ARRAY['image/jpeg', 'image/png', 'image/webp']
     );
   END IF;

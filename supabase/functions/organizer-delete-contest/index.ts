@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -54,7 +54,6 @@ Deno.serve(async (req) => {
     }
 
     // 4. Send notifications (must be done before data is deleted)
-    // Notify participants
     const { data: participants } = await supabaseAdmin
       .from('participations')
       .select('participant_id')
@@ -69,7 +68,6 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from('messages').insert(participantMessages);
     }
 
-    // Notify jurors (using Set to avoid duplicate messages for jurors in multiple juries)
     const { data: jurors } = await supabaseAdmin
       .from('jurations')
       .select('juror_id')
@@ -84,21 +82,53 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from('messages').insert(jurorMessages);
     }
 
-    // 5. Delete associated images from storage
+    // 5a. Delete associated CONTEST images from storage
     if (contest.images_paths && contest.images_paths.length > 0) {
       const { error: storageError } = await supabaseAdmin.storage
         .from('contests-images')
         .remove(contest.images_paths);
 
       if (storageError) {
-        // Log the error but proceed with DB deletion to not block the user.
-        console.error("Storage deletion error:", storageError.message);
+        console.error("Contest images deletion error:", storageError.message);
+      }
+    }
+
+    // 5b. NEW: Delete associated WORK files from storage
+    const { data: participationsForContest } = await supabaseAdmin
+      .from('participations')
+      .select('id')
+      .eq('contest_id', contestId);
+
+    if (participationsForContest && participationsForContest.length > 0) {
+      const participationIds = participationsForContest.map(p => p.id);
+      const { data: worksInContest } = await supabaseAdmin
+        .from('works')
+        .select('images_paths, file_path')
+        .in('participation_id', participationIds);
+
+      if (worksInContest && worksInContest.length > 0) {
+        const workImagePaths = worksInContest
+          .map(w => w.images_paths)
+          .flat()
+          .filter(path => path) as string[];
+
+        const workFilePaths = worksInContest
+          .map(w => w.file_path)
+          .filter(path => path) as string[];
+
+        if (workImagePaths.length > 0) {
+          const { error: workImagesError } = await supabaseAdmin.storage.from('works-images').remove(workImagePaths);
+          if (workImagesError) console.error("Work images deletion error:", workImagesError.message);
+        }
+
+        if (workFilePaths.length > 0) {
+          const { error: workFilesError } = await supabaseAdmin.storage.from('works-files').remove(workFilePaths);
+          if (workFilesError) console.error("Work files deletion error:", workFilesError.message);
+        }
       }
     }
 
     // 6. Delete the contest record from the database.
-    // The `on_contest_delete` trigger will handle deleting the associated `place`.
-    // Other related data will be deleted via `ON DELETE CASCADE`.
     const { error: deleteError } = await supabaseAdmin
       .from('contests')
       .delete()
@@ -107,7 +137,6 @@ Deno.serve(async (req) => {
     if (deleteError) throw deleteError;
 
     // 7. Delete the associated place record.
-    // This is now handled here instead of a trigger for better control and error handling.
     if (contest.place_id) {
       const { error: placeDeleteError } = await supabaseAdmin
         .from('places')
@@ -115,8 +144,6 @@ Deno.serve(async (req) => {
         .eq('id', contest.place_id);
 
       if (placeDeleteError) {
-        // Log the error but don't fail the whole function,
-        // as the main contest deletion was successful.
         console.error("Place deletion error:", placeDeleteError.message);
       }
     }

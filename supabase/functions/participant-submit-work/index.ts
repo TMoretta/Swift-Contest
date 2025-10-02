@@ -13,6 +13,12 @@ interface ImagePayload {
   content: string; // Base64 encoded content
 }
 
+// NEW: Interface for the single file payload
+interface FilePayload {
+  name: string;
+  content: string;
+}
+
 // Helper function to get the MIME type from the file extension
 const getMimeType = (fileName: string): string => {
   const extension = fileName.split('.').pop()?.toLowerCase();
@@ -38,6 +44,7 @@ Deno.serve(async (req) => {
 
   let workId: string | null = null
   const uploadedImagePaths: string[] = []
+  let uploadedFilePath: string | null = null; // NEW: For file rollback
 
   // Supabase client with admin privileges
   const supabaseClient = createClient(
@@ -46,10 +53,12 @@ Deno.serve(async (req) => {
   )
 
   try {
-    const { contest_id, work, images } = await req.json() as {
+    // UPDATED: Destructure 'file' from the request body
+    const { contest_id, work, images, file } = await req.json() as {
       contest_id: string,
       work: WorkPayload,
-      images: ImagePayload[]
+      images: ImagePayload[],
+      file: FilePayload
     }
 
     // Verify the user (participant) performing the operation
@@ -101,11 +110,13 @@ Deno.serve(async (req) => {
     const participationId = participationData.id;
 
     // 5. Create the new record in the 'works' table.
+    // NOTE: Assumes you have added a 'file_path' TEXT column to your 'works' table.
     const workToInsert = {
       participation_id: participationId,
       name: work.name,
       description: work.description,
       images_paths: [], // Will be updated after upload
+      file_path: '',    // Will be updated after upload
     }
 
     const { data: workData, error: workError } = await supabaseClient
@@ -117,19 +128,35 @@ Deno.serve(async (req) => {
     if (workError || !workData) throw new Error(`Work insert error: ${workError?.message ?? 'No data returned'}`)
     workId = workData.id
 
-    // 6. Upload images with the correct server-generated path and collect the final URLs
+    // 6. Upload files
+    // 6a. NEW: Upload the main work file (ZIP)
+    const fileBucketName = 'works-files';
+    const fileContent = decode(file.content);
+    const finalFilePath = `${contest_id}/${workId}/${file.name}`;
+
+    const { error: fileUploadError } = await supabaseClient.storage
+      .from(fileBucketName)
+      .upload(finalFilePath, fileContent, {
+        contentType: 'application/zip',
+        upsert: false,
+      });
+
+    if (fileUploadError) {
+      throw new Error(`File upload error for ${file.name}: ${fileUploadError.message}`);
+    }
+    uploadedFilePath = finalFilePath; // For rollback
+
+    // 6b. Upload images with the correct server-generated path
     const finalImagePaths: string[] = []
-    const bucketName = 'works-images';
+    const imageBucketName = 'works-images';
 
     for (const image of images) {
-      const fileContent = decode(image.content)
-      // Generate a unique path on the server to prevent collisions.
-      // Format: {contest_id}/{work_id}/{uuid}/{original_file_name}
+      const imageContent = decode(image.content)
       const finalUploadPath = `${contest_id}/${workId}/${crypto.randomUUID()}/${image.name}`
 
       const { error: uploadError } = await supabaseClient.storage
-        .from(bucketName)
-        .upload(finalUploadPath, fileContent, {
+        .from(imageBucketName)
+        .upload(finalUploadPath, imageContent, {
           contentType: getMimeType(image.name),
           upsert: false,
         })
@@ -142,14 +169,16 @@ Deno.serve(async (req) => {
       finalImagePaths.push(finalUploadPath) // For the final update
     }
 
-    // 7. Update the 'works' table with the final image URLs.
-    await supabaseClient.from('works').update({ images_paths: finalImagePaths }).eq('id', workId);
+    // 7. UPDATED: Update the 'works' table with all the final file paths.
+    await supabaseClient.from('works').update({
+        images_paths: finalImagePaths,
+        file_path: finalFilePath
+    }).eq('id', workId);
 
     // 8. Update the 'participations' table to mark the work as submitted.
     await supabaseClient.from('participations').update({ has_submitted: true }).eq('id', participationId);
 
     // 9. Create a notification message for the organizer.
-    // This is a "fire-and-forget" operation; if it fails, it won't roll back the submission.
     try {
       const { data: profileData } = await supabaseClient
         .from('profiles')
@@ -184,6 +213,10 @@ Deno.serve(async (req) => {
     // --- ROLLBACK ON ERROR ---
     console.error("Error during work submission, starting rollback...", error)
 
+    // NEW: Rollback the main file if it was uploaded
+    if (uploadedFilePath) {
+      await supabaseClient.storage.from('works-files').remove([uploadedFilePath]);
+    }
     if (uploadedImagePaths.length > 0) {
       await supabaseClient.storage.from('works-images').remove(uploadedImagePaths)
     }

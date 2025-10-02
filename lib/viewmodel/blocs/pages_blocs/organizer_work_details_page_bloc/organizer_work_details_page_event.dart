@@ -12,3 +12,12 @@ final class OrganizerWorkDetailsPageFetch extends OrganizerWorkDetailsPageEvent 
   @override
   List<Object?> get props => [participationId];
 }
+
+final class OrganizerWorkDetailsPageGetWorkFileUrl extends OrganizerWorkDetailsPageEvent {
+  final String filePath;
+
+  const OrganizerWorkDetailsPageGetWorkFileUrl({required this.filePath});
+
+  @override
+  List<Object?> get props => [filePath];
+}

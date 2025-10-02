@@ -8,12 +8,14 @@ final class ParticipantWorkSubmitPageSubmitWork extends ParticipantWorkSubmitPag
   final String name;
   final String description;
   final List<XFile> images;
+  final PlatformFile file;
 
   ParticipantWorkSubmitPageSubmitWork({
     required this.contestId,
     required this.name,
     required this.description,
     required this.images,
+    required this.file,
   });
 
   @override
@@ -22,5 +24,6 @@ final class ParticipantWorkSubmitPageSubmitWork extends ParticipantWorkSubmitPag
         name,
         description,
         images,
+        file,
       ];
 }

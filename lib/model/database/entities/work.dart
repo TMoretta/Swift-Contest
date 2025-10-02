@@ -7,6 +7,7 @@ class Work extends Equatable {
   final String name;
   final String description;
   final List<String> imagesPaths;
+  final String? filePath;
 
   const Work({
     required this.id,
@@ -15,6 +16,7 @@ class Work extends Equatable {
     required this.name,
     required this.description,
     required this.imagesPaths,
+    required this.filePath,
   });
 
   factory Work.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class Work extends Equatable {
       name: json['name'] as String,
       description: json['description'] as String,
       imagesPaths: List<String>.from(json['images_paths']),
+      filePath: json['file_path'] as String,
     );
   }
 
@@ -36,6 +39,7 @@ class Work extends Equatable {
       'name': name,
       'description': description,
       'images_paths': imagesPaths,
+      if(filePath!=null) 'file_path': filePath,
     };
   }
 
@@ -46,6 +50,7 @@ class Work extends Equatable {
     String? name,
     String? description,
     List<String>? imagesPaths,
+    String? filePath,
   }) {
     return Work(
       id: id ?? this.id,
@@ -54,6 +59,7 @@ class Work extends Equatable {
       name: name ?? this.name,
       description: description ?? this.description,
       imagesPaths: imagesPaths ?? this.imagesPaths,
+      filePath: filePath ?? this.filePath,
     );
   }
 
@@ -65,5 +71,6 @@ class Work extends Equatable {
         name,
         description,
         imagesPaths,
+        filePath,
       ];
 }

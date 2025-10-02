@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
         id,
         participant:profiles!participant_id ( full_name ),
         contest:contests ( organizer_id, name ),
-        work:works ( images_paths )
+        work:works ( images_paths, file_path )
       `)
       .eq('contest_id', contestId)
       .eq('participant_id', user.id)
@@ -59,7 +59,8 @@ Deno.serve(async (req) => {
       body: `The participant "${participationData.participant!.full_name}" has left your contest "${participationData.contest!.name}".`
     });
 
-    // 5. Delete associated work images from storage, if they exist
+    // 5. Delete associated work files from storage
+    // 5a. Delete work images
     const workImages = participationData.work?.images_paths;
     if (workImages && workImages.length > 0) {
       const { error: storageError } = await supabaseAdmin.storage
@@ -71,8 +72,19 @@ Deno.serve(async (req) => {
       }
     }
 
+    // 5b. NEW: Delete work file (ZIP)
+    const workFile = participationData.work?.file_path;
+    if (workFile) {
+      const { error: fileStorageError } = await supabaseAdmin.storage
+        .from('works-files')
+        .remove([workFile]); // .remove() expects an array of paths
+
+      if (fileStorageError) {
+        console.error(`Work file deletion error for participation ${participationData.id}:`, fileStorageError.message);
+      }
+    }
+
     // 6. Delete the participation record.
-    // The `on_work_delete` trigger is no longer needed for storage, but ON DELETE CASCADE on `works` table is still active.
     const { error: deleteError } = await supabaseAdmin
       .from('participations')
       .delete()
