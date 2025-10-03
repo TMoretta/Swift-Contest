@@ -133,75 +133,75 @@ BEGIN
 END;
 $$;
 
---region ADMIN DELETE CONTEST BY ID
-CREATE OR REPLACE FUNCTION admin_delete_contest(p_contest_id uuid, p_reason text)
-RETURNS bool
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_contest contests;
-  v_participation participations;
-  v_juration jurations;
-  v_message_title text;
-  v_message_body text;
-BEGIN
-  IF session_user <> 'retool' THEN
-    RAISE EXCEPTION 'Permission denied: This function can only be called by the admin user.';
-  END IF;
-
-  -- Fetch contest details to use in notification messages
-  SELECT * INTO v_contest
-  FROM contests
-  WHERE id = p_contest_id;
-
-  IF NOT FOUND THEN
-    RAISE WARNING 'Contest with id % not found. Nothing to delete.', p_contest_id;
-    RETURN false;
-  END IF;
-
-  v_message_title := 'Contest deleted';
-  v_message_body := format('The contest "%s" has been deleted by an administrator. Reason: %s', v_contest.name, p_reason);
-
-  -- Notify the organizer
-  INSERT INTO messages (account_id, title, body)
-  VALUES (v_contest.organizer_id, v_message_title, v_message_body);
-
-  -- Notify all participants
-  FOR v_participation IN
-    SELECT *
-    FROM participations
-    WHERE contest_id = p_contest_id
-  LOOP
-    INSERT INTO messages (account_id, title, body)
-    VALUES (
-      v_participation.participant_id,
-      v_message_title,
-      v_message_body
-    );
-  END LOOP;
-
-  -- Notify all jurors
-  FOR v_juration IN
-    SELECT *
-    FROM jurations
-    WHERE contest_id = p_contest_id
-  LOOP
-    INSERT INTO messages (account_id, title, body)
-    VALUES (
-      v_juration.juror_id,
-      v_message_title,
-      v_message_body
-    );
-  END LOOP;
-
-  -- Delete the contest. Triggers will handle storage and place cleanup.
-  DELETE FROM contests WHERE id = p_contest_id;
-
-  RETURN true;
-END;
-$$;
+----region ADMIN DELETE CONTEST BY ID
+--CREATE OR REPLACE FUNCTION admin_delete_contest(p_contest_id uuid, p_reason text)
+--RETURNS bool
+--LANGUAGE plpgsql
+--SECURITY DEFINER
+--SET search_path = public
+--AS $$
+--DECLARE
+--  v_contest contests;
+--  v_participation participations;
+--  v_juration jurations;
+--  v_message_title text;
+--  v_message_body text;
+--BEGIN
+--  IF session_user <> 'retool' THEN
+--    RAISE EXCEPTION 'Permission denied: This function can only be called by the admin user.';
+--  END IF;
+--
+--  -- Fetch contest details to use in notification messages
+--  SELECT * INTO v_contest
+--  FROM contests
+--  WHERE id = p_contest_id;
+--
+--  IF NOT FOUND THEN
+--    RAISE WARNING 'Contest with id % not found. Nothing to delete.', p_contest_id;
+--    RETURN false;
+--  END IF;
+--
+--  v_message_title := 'Contest deleted';
+--  v_message_body := format('The contest "%s" has been deleted by an administrator. Reason: %s', v_contest.name, p_reason);
+--
+--  -- Notify the organizer
+--  INSERT INTO messages (account_id, title, body)
+--  VALUES (v_contest.organizer_id, v_message_title, v_message_body);
+--
+--  -- Notify all participants
+--  FOR v_participation IN
+--    SELECT *
+--    FROM participations
+--    WHERE contest_id = p_contest_id
+--  LOOP
+--    INSERT INTO messages (account_id, title, body)
+--    VALUES (
+--      v_participation.participant_id,
+--      v_message_title,
+--      v_message_body
+--    );
+--  END LOOP;
+--
+--  -- Notify all jurors
+--  FOR v_juration IN
+--    SELECT *
+--    FROM jurations
+--    WHERE contest_id = p_contest_id
+--  LOOP
+--    INSERT INTO messages (account_id, title, body)
+--    VALUES (
+--      v_juration.juror_id,
+--      v_message_title,
+--      v_message_body
+--    );
+--  END LOOP;
+--
+--  -- Delete the contest. Triggers will handle storage and place cleanup.
+--  DELETE FROM contests WHERE id = p_contest_id;
+--
+--  RETURN true;
+--END;
+--$$;
 
 ----region ADMIN DELETE ACCOUNT
 --CREATE OR REPLACE FUNCTION admin_delete_account(p_account_id uuid)
