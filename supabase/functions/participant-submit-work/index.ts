@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
     // 6a. NEW: Upload the main work file (ZIP)
     const fileBucketName = 'works-files';
     const fileContent = decode(file.content);
-    const finalFilePath = `${contest_id}/${workId}/${file.name}`;
+    const finalFilePath = `${contest_id}/${workId}/${crypto.randomUUID()}/${file.name}`;
 
     const { error: fileUploadError } = await supabaseClient.storage
       .from(fileBucketName)
