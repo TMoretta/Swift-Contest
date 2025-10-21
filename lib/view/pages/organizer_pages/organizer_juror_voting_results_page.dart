@@ -488,24 +488,26 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
   ) {
     final headerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
         .headerVotingFormSubmissionValuesBundles;
+    final headerFields = state.votingSessionJurorResultBundle!.votingFormBundle.headerVotingFormFields;
     return ListView.builder(
-      itemCount: headerValues.length,
+      itemCount: headerFields.length,
       itemBuilder: (context, index) {
-        final headerValue = headerValues[index];
+        final headerField = headerFields[index];
+        final headerValue = headerValues.where((e) => e.votingFormField == headerField).singleOrNull;
         return Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${headerValue.votingFormField.question} ${(headerValue.votingFormField.isRequired) ? '*' : ''}',
+                '${headerField.question} ${(headerField.isRequired) ? '*' : ''}',
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
-              Text((headerValue.votingFormSubmissionValue.value.isNotEmpty)
-                  ? headerValue.votingFormSubmissionValue.value
+              Text((headerValue?.votingFormSubmissionValue.value.isNotEmpty ?? false)
+                  ? headerValue!.votingFormSubmissionValue.value
                   : 'No answer')
             ],
           ),
@@ -520,24 +522,26 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
   ) {
     final footerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
         .footerVotingFormSubmissionValuesBundles;
+    final footerFields = state.votingSessionJurorResultBundle!.votingFormBundle.footerVotingFormFields;
     return ListView.builder(
-      itemCount: footerValues.length,
+      itemCount: footerFields.length,
       itemBuilder: (context, index) {
-        final footerValue = footerValues[index];
+        final footerField = footerFields[index];
+        final footerValue = footerValues.where((e) => e.votingFormField == footerField).singleOrNull;
         return Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${footerValue.votingFormField.question} ${(footerValue.votingFormField.isRequired) ? '*' : ''}',
+                '${footerField.question} ${(footerField.isRequired) ? '*' : ''}',
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
-              Text((footerValue.votingFormSubmissionValue.value.isNotEmpty)
-                  ? footerValue.votingFormSubmissionValue.value
+              Text((footerValue?.votingFormSubmissionValue.value.isNotEmpty ?? false)
+                  ? footerValue!.votingFormSubmissionValue.value
                   : 'No answer')
             ],
           ),
@@ -558,6 +562,7 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
         state.votingSessionJurorResultBundle!.excludedVotingSessionParticipantsIds;
     List<VotingFormSubmissionValueBundle>? participantValues =
         participantsValuesMap[chosenVotingSessionParticipant];
+    final participantFields = state.votingSessionJurorResultBundle!.votingFormBundle.participantVotingFormFields;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -581,26 +586,27 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
           ],
         ),
         SizedBox(height: 16),
-        if (excludedVotingSessionParticipantsIds.contains(chosenVotingSessionParticipant?.id!))
-          Text('Excluded from voting this participant')
-        else if (participantValues == null)
+        if (chosenVotingSessionParticipant == null)
           Text('Select a participant')
+        else if (excludedVotingSessionParticipantsIds.contains(chosenVotingSessionParticipant?.id!))
+          Text('Excluded from voting this participant')
         else
-          ...participantValues.map((participantValue) {
+          ...participantFields.map((participantField) {
+            final participantValue = participantValues?.where((e) => e.votingFormField == participantField).singleOrNull;
             return Padding(
               padding: EdgeInsets.only(top: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${participantValue.votingFormField.question} ${(participantValue.votingFormField.isRequired) ? '*' : ''}',
+                    '${participantField.question} ${(participantField.isRequired) ? '*' : ''}',
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
                         ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                   ),
-                  Text((participantValue.votingFormSubmissionValue.value.isNotEmpty)
-                      ? participantValue.votingFormSubmissionValue.value
+                  Text((participantValue?.votingFormSubmissionValue.value.isNotEmpty ?? false)
+                      ? participantValue!.votingFormSubmissionValue.value
                       : 'No answer')
                 ],
               ),
