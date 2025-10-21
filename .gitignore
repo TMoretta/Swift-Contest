@@ -49,3 +49,4 @@ app.*.map.json
 #*.exe
 /node_modules/
 .vercel
+seed.config.ts

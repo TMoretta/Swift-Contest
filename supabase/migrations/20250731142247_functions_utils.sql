@@ -6,6 +6,8 @@
 CREATE OR REPLACE FUNCTION public.gen_token(p_length int)
 RETURNS text
 LANGUAGE plpgsql
+-- Set search_path to ensure extensions are found, especially in SECURITY DEFINER contexts.
+SET search_path = extensions, public
 AS $$
 DECLARE
   token text := '';
@@ -16,7 +18,7 @@ BEGIN
   FOR i IN 1..p_length LOOP
     -- get_byte returns an integer from 0-255. We use the modulo operator
     -- to map this to an index in our character set.
-    random_byte := get_byte(gen_random_bytes(1), 0);
+    random_byte := get_byte(extensions.gen_random_bytes(1), 0);
     token := token || substr(chars, (random_byte % length(chars)) + 1, 1);
   END LOOP;
   RETURN token;
@@ -24,13 +26,15 @@ end;
 $$;
 
 -- GEN UNIQUE TOKEN
-CREATE OR REPLACE FUNCTION gen_unique_token (
+CREATE OR REPLACE FUNCTION public.gen_unique_token (
   p_table text,
   p_column text,
   p_length int
 )
 RETURNS text
 LANGUAGE plpgsql
+-- Set search_path for consistency and security.
+SET search_path = public
 AS $$
 DECLARE
   token text;
@@ -38,7 +42,7 @@ DECLARE
   qry text;
 BEGIN
   LOOP
-    token := gen_token(p_length);
+    token := public.gen_token(p_length);
     qry := format('SELECT EXISTS (SELECT 1 FROM %I WHERE %I = $1)', p_table, p_column);
     EXECUTE qry INTO token_exists USING token;
     IF NOT token_exists THEN

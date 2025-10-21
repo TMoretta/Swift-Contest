@@ -60,7 +60,7 @@ CREATE TABLE contests (
   works_submission_end timestamptz NOT NULL,
   place_id uuid NOT NULL UNIQUE REFERENCES places (id),
   images_paths text[] NOT NULL,
-  CHECK ( works_submission_start < works_submission_end AND works_submission_end <= date_time )
+  CHECK ( works_submission_start < works_submission_end AND works_submission_end < date_time )
 );
 
 CREATE TABLE participant_invitations (
