@@ -54,11 +54,11 @@ class _JurorRankingsTabState extends State<JurorRankingsTab> {
             onPressed: () async => context
                 .read<JurorContestDetailsPageBloc>()
                 .add(JurorContestDetailsPageFetch(contestId: contestId)),
-            child: Text('Retry'),
+            child: const Text('Retry'),
           ),
         );
       }
-      return VoidWidget();
+      return const VoidWidget();
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +71,7 @@ class _JurorRankingsTabState extends State<JurorRankingsTab> {
               .titleMedium
               ?.copyWith(color: Theme.of(context).colorScheme.secondary),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Expanded(
           child: RefreshIndicator.adaptive(
               onRefresh: () async => context
@@ -79,7 +79,7 @@ class _JurorRankingsTabState extends State<JurorRankingsTab> {
                   .add(JurorContestDetailsPageFetch(contestId: contestId)),
               child: (state.contestDetailsBundle!.contestRankings.isEmpty)
                   ? ListView(
-                      children: [
+                      children: const [
                         Text('No ranking published'),
                       ],
                     )
@@ -144,7 +144,7 @@ class _JurorRankingsTabState extends State<JurorRankingsTab> {
                                           JurorContestDetailsPageGetRankingFileUrl(
                                               filePath: ranking.filePath));
                                     },
-                                    icon: Icon(Icons.download),
+                                    icon: const Icon(Icons.download),
                                   ),
                                 ),
                               ],

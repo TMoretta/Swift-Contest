@@ -74,10 +74,10 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Ranking'),
+          appBar: const CustomAppBar(title: 'Ranking'),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(top: 16, left: 16, right: 16),
+              padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
               child: _buildBody(context, state),
             ),
           ),
@@ -94,18 +94,18 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           child: FilledButton(
             onPressed: () async => context.read<OrganizerJuryRankingGenerationPageBloc>().add(
                 OrganizerJuryRankingGenerationPageFetch(votingSessionJuryId: votingSessionJuryId)),
-            child: Text('Retry'),
+            child: const Text('Retry'),
           ),
         );
       }
-      return VoidWidget();
+      return const VoidWidget();
     }
 
     return ListView(
       children: [
-        Text(
+        const Text(
             'Only fields of type "slider" and in the "participant form" are valid for the ranking generation.'),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         DecoratedBox(
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.primary)),
@@ -120,13 +120,13 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
                 });
               }
             },
-            title: Text('Select jurors'),
-            trailing: Icon(Icons.arrow_downward),
+            title: const Text('Select jurors'),
+            trailing: const Icon(Icons.arrow_downward),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 200),
+          constraints: const BoxConstraints(maxHeight: 200),
           child: SingleChildScrollView(
             child: Wrap(
               // Spazio orizzontale tra i chip sulla stessa riga
@@ -170,13 +170,13 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
                 });
               }
             },
-            title: Text("Select participant's form fields"),
-            trailing: Icon(Icons.arrow_downward),
+            title: const Text("Select participant's form fields"),
+            trailing: const Icon(Icons.arrow_downward),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 200),
+          constraints: const BoxConstraints(maxHeight: 200),
           child: SingleChildScrollView(
             child: Wrap(
               // Spazio orizzontale tra i chip sulla stessa riga
@@ -193,7 +193,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
           ),
         ),
         if (_generatedRanking != null) _buildRankingDisplay(_generatedRanking!),
-        SizedBox(height: 200),
+        const SizedBox(height: 200),
       ],
     );
   }
@@ -325,7 +325,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Select jurors'),
+              title: const Text('Select jurors'),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 300,
@@ -383,13 +383,13 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
               actions: [
                 TextButton(
                   onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
                     context.router.pop(localSelectedVotingSessionJurors);
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             );
@@ -417,7 +417,7 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Select valid fields'),
+              title: const Text('Select valid fields'),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 300,
@@ -475,13 +475,13 @@ class _OrganizerJuryRankingGenerationPageState extends State<OrganizerJuryRankin
               actions: [
                 TextButton(
                   onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
                     context.router.pop(localSelectedVotingFormFields);
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             );

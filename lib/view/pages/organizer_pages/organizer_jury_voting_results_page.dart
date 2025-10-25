@@ -72,7 +72,7 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
                   ''),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+              padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
               child: Builder(
                 builder: (context) {
                   if (!state.isInitialized) {
@@ -83,11 +83,11 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
                               .read<OrganizerJuryVotingResultsPageBloc>()
                               .add(OrganizerJuryVotingResultsPageFetch(
                                   votingSessionJuryId: votingSessionJuryId)),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
 
                   final List<VotingSessionJuror> votingSessionJurors = state
@@ -117,8 +117,8 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
                           );
                         })
                       else
-                        Text('No one'),
-                      SizedBox(height: 24),
+                        const Text('No one'),
+                      const SizedBox(height: 24),
                       Text(
                         "Jurors that didn't submit",
                         style: Theme.of(context)
@@ -138,7 +138,7 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
                           );
                         })
                       else
-                        Text('No one'),
+                        const Text('No one'),
                     ],
                   );
                 },
@@ -169,23 +169,23 @@ class _OrganizerJuryVotingResultsPageState extends State<OrganizerJuryVotingResu
             },
       itemBuilder: (context) {
         return [
-          PopupMenuItem(
+          const PopupMenuItem(
             value: 'generateRanking',
             child: Text('Generate ranking'),
           ),
-          PopupMenuItem(
+          const PopupMenuItem(
             value: 'export',
             child: Text('Export'),
           ),
         ];
       },
-      shape: RoundedRectangleBorder(),
+      shape: const RoundedRectangleBorder(),
       iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
       icon: Card(
         color: Theme.of(context).colorScheme.primaryContainer,
         elevation: 0.5,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
+        child: const Padding(
+          padding: EdgeInsets.all(12),
           child: Icon(
             Icons.add,
             size: 32,

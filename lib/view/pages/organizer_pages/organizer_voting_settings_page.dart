@@ -120,7 +120,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Voting settings'),
+          appBar: const CustomAppBar(title: 'Voting settings'),
           body: SafeArea(
             child: Builder(
               builder: (context) {
@@ -133,11 +133,11 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                             .add(OrganizerVotingSettingsPageFetch(
                               contestId: contestId,
                             )),
-                        child: Text('Retry'),
+                        child: const Text('Retry'),
                       ),
                     );
                   }
-                  return VoidWidget();
+                  return const VoidWidget();
                 }
                 final contestDetailsBundle = state.contestDetailsBundle!;
                 if (!isPageInitialized) {
@@ -193,7 +193,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   controlsBuilder: (context, details) {
                     final isLastStep = details.currentStep == getSteps().length - 1;
                     return Container(
-                      margin: EdgeInsets.only(top: 64),
+                      margin: const EdgeInsets.only(top: 64),
                       child: Row(
                         mainAxisAlignment: (currentStep == 0)
                             ? MainAxisAlignment.end
@@ -203,7 +203,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                           if (details.currentStep != 0)
                             ElevatedButton(
                               onPressed: details.onStepCancel,
-                              child: Text('Back'),
+                              child: const Text('Back'),
                             ),
                           ElevatedButton(
                             onPressed: details.onStepContinue,
@@ -229,7 +229,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         Step(
           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 0,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: firstFormKey,
             child: FormField<List<ParticipationBundle>>(
@@ -273,7 +273,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                       onTap: () {},
                                       title: Text(participationsBundles[i].participantBundle.profile.fullName),
                                       subtitle: Text(participationsBundles[i].work!.name),
-                                      leading: Icon(Icons.swap_vert),
+                                      leading: const Icon(Icons.swap_vert),
                                       trailing: IconButton(
                                         onPressed: () {
                                           setState(() {
@@ -287,7 +287,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                             participationsBundles.removeAt(i);
                                           });
                                         },
-                                        icon: Icon(Icons.remove),
+                                        icon: const Icon(Icons.remove),
                                       ),
                                     ),
                                   ),
@@ -298,7 +298,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('No participant included'),
+                              const Text('No participant included'),
                               if (field.hasError)
                                 Text(
                                   'Select at least one participant',
@@ -309,7 +309,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                 ),
                             ],
                           ),
-                    SizedBox(height: 64),
+                    const SizedBox(height: 64),
                     //* Excluded participants
                     Text(
                       'Excluded participants',
@@ -338,13 +338,13 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                         excludedParticipationsBundles.removeAt(index);
                                       });
                                     },
-                                    icon: Icon(Icons.add),
+                                    icon: const Icon(Icons.add),
                                   ),
                                 ),
                               );
                             },
                           )
-                        : Text('No participant excluded'),
+                        : const Text('No participant excluded'),
                   ],
                 );
               },
@@ -453,7 +453,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         Step(
           state: currentStep >= 2 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 1,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: secondFormKey,
             child: Column(
@@ -471,7 +471,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     });
                   },
                   groupValue: isGeoRestricted,
-                  child: Column(
+                  child: const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       RadioListTile(
@@ -485,29 +485,29 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                     ],
                   ),
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 PlacePickerFormField(
                   controller: geoRestrictionPlaceController,
                   focusNode: geoRestrictionPlaceFocusNode,
                   label: 'Restricted location',
                   validator: (isGeoRestricted) ? noEmptyValidator : null,
-                  prefixIcon: Icon(Icons.place_outlined),
+                  prefixIcon: const Icon(Icons.place_outlined),
                   enabled: isGeoRestricted,
                   suffixIcon: TextButton(
                     onPressed: (isGeoRestricted)
                         ? () async {
                             geoRestrictionPlaceFocusNode.requestFocus();
-                            final Place? place = await context.router.push(PlaceSearchRoute());
+                            final Place? place = await context.router.push(const PlaceSearchRoute());
                             if (place != null) {
                               geoRestrictionPlaceController.text = place.address;
                               geoRestrictionPlace = place;
                             }
                           }
                         : null,
-                    child: Text('Select'),
+                    child: const Text('Select'),
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 CustomTextFormField(
                   borderType: InputBorderType.outlined,
                   enabled: isGeoRestricted,
@@ -524,7 +524,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
         Step(
           state: currentStep >= 3 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: thirdFormKey,
             child: Column(
@@ -535,7 +535,7 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                   'Voting exclusions',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 (votingExclusions.isNotEmpty)
                     ? ListView.builder(
                         shrinkWrap: true,
@@ -601,13 +601,13 @@ class _OrganizerVotingSettingsPageState extends State<OrganizerVotingSettingsPag
                                       votingExclusions.removeAt(index);
                                     });
                                   },
-                                  icon: Icon(Icons.remove)),
+                                  icon: const Icon(Icons.remove)),
                             ),
                           );
                         },
                       )
-                    : Text('No exclusion added'),
-                SizedBox(height: 12),
+                    : const Text('No exclusion added'),
+                const SizedBox(height: 12),
                 FilledButton(
                   onPressed: () async {
                     final ({
@@ -715,7 +715,7 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text('Exclusion'),
+            title: const Text('Exclusion'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -742,7 +742,7 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
                       ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Participant',
                   style: Theme.of(context).textTheme.titleMedium,
@@ -771,7 +771,7 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
                 onPressed: () {
                   context.router.pop();
                 },
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () {
@@ -784,7 +784,7 @@ Future<({JurationBundle jurationBundle, ParticipationBundle participationBundle}
                     participationBundle: chosenParticipationBundle
                   ));
                 },
-                child: Text('Add'),
+                child: const Text('Add'),
               ),
             ],
           );

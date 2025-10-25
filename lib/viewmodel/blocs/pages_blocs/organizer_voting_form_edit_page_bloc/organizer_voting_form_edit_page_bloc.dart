@@ -18,7 +18,7 @@ class OrganizerVotingFormEditPageBloc
   OrganizerVotingFormEditPageBloc({
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
-        super(OrganizerVotingFormEditPageState(status: BlocStatus.initial)) {
+        super(const OrganizerVotingFormEditPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingFormEditPageFetch>(_fetch);
     on<OrganizerVotingFormEditPageUpdateVotingForm>(_updateVotingForm);
   }

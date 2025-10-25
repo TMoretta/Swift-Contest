@@ -70,7 +70,7 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                   ''),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+              padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
               child: Builder(
                 builder: (context) {
                   if (!state.isInitialized) {
@@ -81,11 +81,11 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                               .read<OrganizerJurorVotingResultsPageBloc>()
                               .add(OrganizerJurorVotingResultsPageFetch(
                                   votingSessionJurorId: votingSessionJurorId)),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
 
                   final votingFormBundle = state.votingSessionJurorResultBundle!.votingFormBundle;
@@ -101,7 +101,7 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                   }
 
                   if (tabsCount == 0) {
-                    return Center(
+                    return const Center(
                       child: Text(
                         'No field was added to the form\nfor this jury',
                         textAlign: TextAlign.center,
@@ -116,14 +116,14 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                         TabBar(
                           tabs: [
                             if (votingFormBundle.headerVotingFormFields.isNotEmpty)
-                              Tab(text: 'Header'),
+                              const Tab(text: 'Header'),
                             if (votingFormBundle.participantVotingFormFields.isNotEmpty)
-                              Tab(text: 'Participants'),
+                              const Tab(text: 'Participants'),
                             if (votingFormBundle.footerVotingFormFields.isNotEmpty)
-                              Tab(text: 'Footer'),
+                              const Tab(text: 'Footer'),
                           ],
                         ),
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
                         Expanded(
                           child: TabBarView(children: [
                             if (votingFormBundle.headerVotingFormFields.isNotEmpty)
@@ -567,9 +567,9 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         DropdownMenu(
-          label: Text('Participant'),
+          label: const Text('Participant'),
           onSelected: (value) {
             setState(() {
               chosenVotingSessionParticipant = value!;
@@ -585,16 +585,16 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
             }),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         if (chosenVotingSessionParticipant == null)
-          Text('Select a participant')
+          const Text('Select a participant')
         else if (excludedVotingSessionParticipantsIds.contains(chosenVotingSessionParticipant?.id!))
-          Text('Excluded from voting this participant')
+          const Text('Excluded from voting this participant')
         else
           ...participantFields.map((participantField) {
             final participantValue = participantValues?.where((e) => e.votingFormField == participantField).singleOrNull;
             return Padding(
-              padding: EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(top: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

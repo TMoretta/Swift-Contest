@@ -32,7 +32,7 @@ class OrganizerContestEditPageBloc
     required StorageRepository storageRepository,
   })  : _organizerRepository = organizerRepository,
         _storageRepository = storageRepository,
-        super(OrganizerContestEditPageState(status: BlocStatus.initial)) {
+        super(const OrganizerContestEditPageState(status: BlocStatus.initial)) {
     on<OrganizerContestEditPageFetch>(_fetch);
     on<OrganizerContestEditPageEditContest>(_edit);
   }

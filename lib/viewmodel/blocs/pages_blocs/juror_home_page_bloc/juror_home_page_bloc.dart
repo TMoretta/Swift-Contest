@@ -17,7 +17,7 @@ class JurorHomePageBloc extends Bloc<JurorHomePageEvent, JurorHomePageState> {
   JurorHomePageBloc({
     required JurorRepository jurorRepository,
   })  : _jurorRepository = jurorRepository,
-        super(JurorHomePageState(status: BlocStatus.initial)) {
+        super(const JurorHomePageState(status: BlocStatus.initial)) {
     // on<JurorHomePageInit>(_init);
     on<JurorHomePageFetch>(_fetch);
     on<JurorHomePageFilterResults>(_filterResults);

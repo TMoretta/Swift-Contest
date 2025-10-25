@@ -129,11 +129,11 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                 onPressed: () async => context
                     .read<JurorVotingProcedurePageBloc>()
                     .add(JurorVotingProcedurePageFetch(votingSessionId: widget.votingSessionId)),
-                child: Text('Retry'),
+                child: const Text('Retry'),
               ),
             );
           }
-          return VoidWidget();
+          return const VoidWidget();
         }
         return PopScope(
           canPop: false,
@@ -148,7 +148,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
             }
           },
           child: Scaffold(
-            appBar: CustomAppBar(title: 'Voting'),
+            appBar: const CustomAppBar(title: 'Voting'),
             body: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -161,11 +161,11 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                             onPressed: () async => context.read<JurorVotingProcedurePageBloc>().add(
                                 JurorVotingProcedurePageFetch(
                                     votingSessionId: widget.votingSessionId)),
-                            child: Text('Retry'),
+                            child: const Text('Retry'),
                           ),
                         );
                       }
-                      return VoidWidget();
+                      return const VoidWidget();
                     }
                     final votingSessionProcedureBundle = state.votingSessionProcedureBundle!;
                     final votingSessionParticipants =
@@ -245,7 +245,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                   child: const Text('Previous'),
                                 )
                               else
-                                Visibility(
+                                const Visibility(
                                   visible: false,
                                   maintainSize: true,
                                   maintainAnimation: true,
@@ -268,7 +268,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                     foregroundColor:
                                         Theme.of(context).colorScheme.onSecondaryContainer,
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     'Verify\n Location',
                                     textAlign: TextAlign.center,
                                   ),
@@ -282,16 +282,16 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                                         context: context,
                                         builder: (_) {
                                           return AlertDialog(
-                                            title: Text('Submit'),
-                                            content: Text('Are you sure you want to submit?'),
+                                            title: const Text('Submit'),
+                                            content: const Text('Are you sure you want to submit?'),
                                             actions: [
                                               TextButton(
                                                 onPressed: () => context.router.pop(),
-                                                child: Text('Cancel'),
+                                                child: const Text('Cancel'),
                                               ),
                                               TextButton(
                                                 onPressed: () => context.router.pop(true),
-                                                child: Text('Confirm'),
+                                                child: const Text('Confirm'),
                                               ),
                                             ],
                                           );
@@ -413,7 +413,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                   .titleLarge
                   ?.copyWith(color: Theme.of(context).colorScheme.primary),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             //* Images carousel
             SizedBox(
               height: 180,
@@ -443,19 +443,19 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                               fit: BoxFit.contain,
                             ),
                           )
-                        : Icon(Icons.broken_image_outlined),
+                        : const Icon(Icons.broken_image_outlined),
                   );
                 },
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             //* Description
-            Text(
+            const Text(
               'Description',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            Text(votingSessionParticipant.workDescription, style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
+            Text(votingSessionParticipant.workDescription, style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
             //* Participant name
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -471,7 +471,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
                 Expanded(
                   child: Text(
                     votingSessionParticipant.participantFullName,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -481,7 +481,7 @@ class _JurorVotingProcedurePageState extends State<JurorVotingProcedurePage> {
         const Divider(height: 24),
         (isExcluded)
             ? Padding(
-                padding: EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   'You are excluded from voting this participant',
                   style: Theme.of(context)

@@ -127,7 +127,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Edit contest'),
+          appBar: const CustomAppBar(title: 'Edit contest'),
           body: Builder(
             builder: (context) {
               if (!state.isInitialized) {
@@ -137,11 +137,11 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                       onPressed: () async => context
                           .read<OrganizerContestEditPageBloc>()
                           .add(OrganizerContestEditPageFetch(contestId: contestId)),
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   );
                 }
-                return SizedBox();
+                return const SizedBox();
               }
               if (!isPageInitialized) {
                 final contestDetailsBundle = state.contestDetailsBundle!;
@@ -197,7 +197,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                 controlsBuilder: (context, details) {
                   final isLastStep = details.currentStep == getSteps().length - 1;
                   return Container(
-                    margin: EdgeInsets.only(top: 20),
+                    margin: const EdgeInsets.only(top: 20),
                     child: Row(
                       mainAxisAlignment: (currentStep == 0)
                           ? MainAxisAlignment.end
@@ -209,13 +209,13 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                             onPressed: () {
                               details.onStepCancel!();
                             },
-                            child: Text('Back'),
+                            child: const Text('Back'),
                           ),
                         ElevatedButton(
                           onPressed: () {
                             details.onStepContinue!();
                           },
-                          child: isLastStep ? Text('Edit') : Text('Next'),
+                          child: isLastStep ? const Text('Edit') : const Text('Next'),
                         ),
                       ],
                     ),
@@ -235,7 +235,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
         Step(
           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 0,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: firstFormKey,
             child: Column(
@@ -272,25 +272,25 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                       dateTime = value;
                     });
                   },
-                  prefixIcon: Icon(Icons.calendar_today_outlined),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
                 ),
                 PlacePickerFormField(
                   controller: placeController,
                   focusNode: placeFocusNode,
                   label: 'Location',
                   validator: noEmptyValidator,
-                  prefixIcon: Icon(Icons.place_outlined),
+                  prefixIcon: const Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
                       placeFocusNode.requestFocus();
-                      final Place? placeRes = await context.router.push(PlaceSearchRoute());
+                      final Place? placeRes = await context.router.push(const PlaceSearchRoute());
                       if (placeRes != null) {
                         placeController.text = placeRes.address;
                         place = place?.copyWith(
                             address: placeRes.address, lat: placeRes.lat, lon: placeRes.lon);
                       }
                     },
-                    child: Text('Select'),
+                    child: const Text('Select'),
                   ),
                 ),
               ],
@@ -301,7 +301,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
         Step(
           state: currentStep >= 2 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 1,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: secondFormKey,
             child: ImagesPickerFormField(
@@ -316,7 +316,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
         Step(
           state: currentStep >= 3 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: thirdFormKey,
             child: Column(
@@ -327,7 +327,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   'Work upload deadline for participants',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 DateTimePickerFormField(
                   controller: worksSubmissionStartController,
                   focusNode: worksSubmissionStartFocusNode,
@@ -338,7 +338,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   onSelected: (workDateStartValue) {
                     worksSubmissionStart = workDateStartValue;
                   },
-                  prefixIcon: Icon(Icons.calendar_today_outlined),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
                 ),
                 DateTimePickerFormField(
                   controller: worksSubmissionEndController,
@@ -350,7 +350,7 @@ class _OrganizerContestEditPageState extends State<OrganizerContestEditPage> {
                   onSelected: (workDateEndValue) {
                     worksSubmissionEnd = workDateEndValue;
                   },
-                  prefixIcon: Icon(Icons.calendar_today_outlined),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
                 ),
               ],
             ),

@@ -58,7 +58,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: HomePageAppBar(contestRole: ContestRole.organizer),
+          appBar: const HomePageAppBar(contestRole: ContestRole.organizer),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
@@ -73,11 +73,11 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                             _searchFocusNode.unfocus();
                             context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
                           },
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   return Column(
                     children: [
@@ -90,7 +90,7 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                               .add(OrganizerHomePageFilterResults(query: value));
                         },
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Expanded(
                         child: RefreshIndicator.adaptive(
                           onRefresh: () async {
@@ -123,13 +123,13 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
                                           },
                                         ),
                                         (index == state.filteredContestsBundles!.length - 1)
-                                            ? SizedBox(height: 72)
-                                            : SizedBox(height: 8),
+                                            ? const SizedBox(height: 72)
+                                            : const SizedBox(height: 8),
                                       ],
                                     );
                                   },
                                 )
-                              : ListViewWithCentralLabel(label: 'No contest'),
+                              : const ListViewWithCentralLabel(label: 'No contest'),
                         ),
                       ),
                     ],
@@ -141,17 +141,17 @@ class _OrganizerHomePageState extends State<OrganizerHomePage> {
           floatingActionButton: (state.isInitialized)
               ? FloatingActionButton.extended(
                   onPressed: () async {
-                    final bool? res = await context.router.push(OrganizerContestCreationRoute());
+                    final bool? res = await context.router.push(const OrganizerContestCreationRoute());
                     if (res == true) {
                       if (context.mounted) {
                         context.read<OrganizerHomePageBloc>().add(OrganizerHomePageFetch());
                       }
                     }
                   },
-                  icon: Icon(Icons.create),
-                  label: Text('Create contest'),
+                  icon: const Icon(Icons.create),
+                  label: const Text('Create contest'),
                 )
-              : VoidWidget(),
+              : const VoidWidget(),
         );
       },
     );

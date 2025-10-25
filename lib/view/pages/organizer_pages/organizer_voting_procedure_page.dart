@@ -99,7 +99,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Voting'),
+          appBar: const CustomAppBar(title: 'Voting'),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
@@ -114,11 +114,11 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                 OrganizerVotingProcedurePageFetch(
                                     votingSessionId: votingSessionId));
                           },
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   return RefreshIndicator.adaptive(
                     onRefresh: () async => context
@@ -137,7 +137,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                         return ListView(
                           children: [
                             Center(child: Text('Voting Session is Live', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.secondary),),),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             if(tokensForSimpleJuries.isNotEmpty)
                               ...tokensForSimpleJuries.map((e) {
                                 final name = e.name;
@@ -159,12 +159,12 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                                               name,
                                               style: Theme.of(context).textTheme.titleLarge,
                                             ),
-                                            SizedBox(height: 4),
+                                            const SizedBox(height: 4),
                                             QrImageView(
                                                 data: token,
                                                 size: 250,
                                                 backgroundColor: Theme.of(context).colorScheme.white),
-                                            SizedBox(height: 4),
+                                            const SizedBox(height: 4),
                                             Text(
                                               token,
                                               style: Theme.of(context).textTheme.titleMedium,
@@ -330,21 +330,21 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                               context: context,
                               builder: (_) {
                                 return AlertDialog(
-                                  title: Text('Cancel voting session'),
-                                  content: Text(
+                                  title: const Text('Cancel voting session'),
+                                  content: const Text(
                                       'Are you sure you want to cancel this voting session? This action cannot be undone.'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
                                         context.router.pop(false);
                                       },
-                                      child: Text('No'),
+                                      child: const Text('No'),
                                     ),
                                     TextButton(
                                       onPressed: () {
                                         context.router.pop(true);
                                       },
-                                      child: Text('Yes'),
+                                      child: const Text('Yes'),
                                     ),
                                   ],
                                 );
@@ -379,21 +379,21 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                               context: context,
                               builder: (_) {
                                 return AlertDialog(
-                                  title: Text('End voting session'),
-                                  content: Text(
+                                  title: const Text('End voting session'),
+                                  content: const Text(
                                       'Are you sure you want to end this voting session? Only already submitted votes will be counted.'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
                                         context.router.pop(false);
                                       },
-                                      child: Text('No'),
+                                      child: const Text('No'),
                                     ),
                                     TextButton(
                                       onPressed: () {
                                         context.router.pop(true);
                                       },
-                                      child: Text('Yes'),
+                                      child: const Text('Yes'),
                                     ),
                                   ],
                                 );
@@ -424,7 +424,7 @@ class _OrganizerVotingProcedurePageState extends State<OrganizerVotingProcedureP
                     ),
                   ],
                 )
-              : VoidWidget(),
+              : const VoidWidget(),
         );
       },
     );

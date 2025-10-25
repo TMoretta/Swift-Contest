@@ -36,12 +36,12 @@ Failure authExceptionToFailure(AuthException exception) {
     case 'weak_password':
       return AuthenticationFailure(exception.message);
     case 'otp_disabled':
-      return AuthenticationFailure('User not found, sign up instead');
+      return const AuthenticationFailure('User not found, sign up instead');
     case 'over_email_send_rate_limit':
       return AuthenticationFailure(exception.message);
     case 'otp_expired':
       return AuthenticationFailure(exception.message);
     default:
-      return AuthenticationFailure();
+      return const AuthenticationFailure();
   }
 }

@@ -16,7 +16,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
 
   InboxBloc({required AuthRepository authRepository})
       : _authRepository = authRepository,
-        super(InboxState(status: BlocStatus.initial)) {
+        super(const InboxState(status: BlocStatus.initial)) {
     on<InboxGetStream>(_getStream);
     on<InboxMarkMessageAsRead>(_markMessageAsRead);
     on<InboxDeleteMessage>(_deleteMessage);
@@ -112,6 +112,6 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
     InboxClear event,
     Emitter<InboxState> emit,
   ) {
-    emit(InboxState(status: BlocStatus.initial));
+    emit(const InboxState(status: BlocStatus.initial));
   }
 }

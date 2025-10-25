@@ -88,7 +88,7 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                 child: Column(
                   children: [
                     if (state.isInitialized)
-                      TabBar(
+                      const TabBar(
                         isScrollable: true,
                         tabAlignment: TabAlignment.center,
                         indicatorSize: TabBarIndicatorSize.label,
@@ -98,10 +98,10 @@ class _JurorContestDetailsPageState extends State<JurorContestDetailsPage> {
                           Tab(text: 'Rankings'),
                         ],
                       ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Expanded(
                       child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         children: [
                           JurorDetailsTab(contestId: contestId),
                           // JurorVotingTab(contestId: contestId),
@@ -129,7 +129,7 @@ class _Menu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
-      menuPadding: EdgeInsets.symmetric(vertical: 4),
+      menuPadding: const EdgeInsets.symmetric(vertical: 4),
       onSelected: (option) async {
         switch (option) {
           case 'Leave':
@@ -149,15 +149,15 @@ class _Menu extends StatelessWidget {
                     },
                     builder: (context, state) {
                       return AlertDialog(
-                        title: Text('Leave contest'),
-                        content: Text('Are you sure you want to leave the contest? '
+                        title: const Text('Leave contest'),
+                        content: const Text('Are you sure you want to leave the contest? '
                             'The organizer will be notified'),
                         actions: [
                           TextButton(
                             onPressed: () {
                               context.router.pop();
                             },
-                            child: Text('Cancel'),
+                            child: const Text('Cancel'),
                           ),
                           TextButton(
                             onPressed: () {
@@ -165,7 +165,7 @@ class _Menu extends StatelessWidget {
                                   .read<JurorContestDetailsPageBloc>()
                                   .add(JurorContestDetailsPageLeaveContest(contestId: contestId));
                             },
-                            child: Text('Proceed'),
+                            child: const Text('Proceed'),
                           ),
                         ],
                       );

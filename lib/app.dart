@@ -105,7 +105,7 @@ class _AppState extends State<App> {
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 1000),
+              constraints: const BoxConstraints(maxWidth: 1000),
               child: MaterialApp.router(
                 routerConfig: _appRouter.config(),
                 scrollBehavior: CustomScrollBehavior(),

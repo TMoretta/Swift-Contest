@@ -49,9 +49,9 @@ class _InboxPageState extends State<InboxPage> {
                       onPressed: () {
                         _showDeleteAllMessagesDialog(context);
                       },
-                      child: Text('Delete all'),
+                      child: const Text('Delete all'),
                     )
-                  : VoidWidget(),
+                  : const VoidWidget(),
             ],
           ),
           body: Builder(
@@ -61,20 +61,20 @@ class _InboxPageState extends State<InboxPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('An error occurred'),
+                      const Text('An error occurred'),
                       FilledButton(
                         onPressed: () async => context.read<InboxBloc>().add(InboxGetStream()),
-                        child: Text('Refresh'),
+                        child: const Text('Refresh'),
                       ),
                     ],
                   ),
                 );
               }
               if (!state.isInitialized) {
-                return VoidWidget();
+                return const VoidWidget();
               }
               return (state.messages!.isEmpty)
-                  ? ListViewWithCentralLabel(label: 'No message')
+                  ? const ListViewWithCentralLabel(label: 'No message')
                   : ListView.builder(
                       itemCount: state.messages!.length,
                       itemBuilder: (context, index) {
@@ -109,16 +109,16 @@ class _InboxPageState extends State<InboxPage> {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      title: Text('Delete message'),
+                                      title: const Text('Delete message'),
                                       content:
-                                          Text('Are you sure you want to delete this message?'),
+                                          const Text('Are you sure you want to delete this message?'),
                                       actions: [
                                         TextButton(
                                             onPressed: () => context.router.pop(),
-                                            child: Text('Cancel')),
+                                            child: const Text('Cancel')),
                                         TextButton(
                                             onPressed: () => context.router.pop(true),
-                                            child: Text('Proceed')),
+                                            child: const Text('Proceed')),
                                       ],
                                     );
                                   },
@@ -130,7 +130,7 @@ class _InboxPageState extends State<InboxPage> {
                                       .add(InboxDeleteMessage(messageId: message.id!));
                                 }
                               },
-                              icon: Icon(Icons.delete)),
+                              icon: const Icon(Icons.delete)),
                         );
                       },
                     );
@@ -158,16 +158,16 @@ void _showDeleteAllMessagesDialog(BuildContext context) {
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Delete all messages'),
-              content: Text('Are you sure you want to delete all messages?'),
+              title: const Text('Delete all messages'),
+              content: const Text('Are you sure you want to delete all messages?'),
               actions: [
                 TextButton(
                   onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () => context.read<InboxBloc>().add(InboxDeleteAllMessages()),
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             );

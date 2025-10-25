@@ -18,7 +18,7 @@ class OrganizerVotingProcedurePageBloc
   OrganizerVotingProcedurePageBloc({
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
-        super(OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
+        super(const OrganizerVotingProcedurePageState(status: BlocStatus.initial)) {
     on<OrganizerVotingProcedurePageFetch>(_fetch);
     on<OrganizerVotingProcedurePageCancelVotingSessionProcedure>(_cancelVotingSessionProcedure);
     on<OrganizerVotingProcedurePageEndVotingSessionProcedure>(_endVotingSessionProcedure);

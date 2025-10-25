@@ -20,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: (!kIsWeb),
       leading: (kIsWeb)
           ? IconButton(
-              onPressed: () => context.router.replaceAll([RootRoute()]),
+              onPressed: () => context.router.replaceAll([const RootRoute()]),
               icon: Icon(
                 Icons.home_rounded,
                 color: Theme.of(context).colorScheme.primary,

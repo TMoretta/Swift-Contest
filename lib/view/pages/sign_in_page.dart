@@ -67,9 +67,9 @@ class _SignInPageState extends State<SignInPage> {
         return Scaffold(
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: RefreshIndicator.adaptive(
-                onRefresh: () => context.router.replaceAll([RootRoute()]),
+                onRefresh: () => context.router.replaceAll([const RootRoute()]),
                 child: LayoutBuilder(builder: (context, constraints) {
                   return ListView(
                     children: [
@@ -100,7 +100,7 @@ class _SignInPageState extends State<SignInPage> {
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                               ),
-                              SizedBox(height: 24),
+                              const SizedBox(height: 24),
                               //* Form
                               Form(
                                 key: _formKey,
@@ -108,7 +108,7 @@ class _SignInPageState extends State<SignInPage> {
                                   children: [
                                     //* Email text field
                                     ConstrainedBox(
-                                      constraints: BoxConstraints(maxWidth: 420),
+                                      constraints: const BoxConstraints(maxWidth: 420),
                                       child: CustomTextFormField(
                                         borderType: InputBorderType.outlined,
                                         controller: _emailController,
@@ -116,10 +116,10 @@ class _SignInPageState extends State<SignInPage> {
                                         // onEditingComplete: () => _passwordFocusNode.requestFocus(),
                                         label: 'Email',
                                         validator: emailValidator,
-                                        prefixIcon: Icon(Icons.email_outlined),
+                                        prefixIcon: const Icon(Icons.email_outlined),
                                       ),
                                     ),
-                                    SizedBox(height: 12),
+                                    const SizedBox(height: 12),
                                     //* Sign in button
                                     FilledButton(
                                       onPressed: () {
@@ -128,19 +128,19 @@ class _SignInPageState extends State<SignInPage> {
                                               SignInWithEmail(email: _emailController.text.trim()));
                                         }
                                       },
-                                      child: Text('Sign in'),
+                                      child: const Text('Sign in'),
                                     ),
-                                    SizedBox(height: 12),
+                                    const SizedBox(height: 12),
                                     //* Sign up instead button
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text(
+                                        const Text(
                                           'Don\'t have an account?',
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            context.router.replace(SignUpRoute());
+                                            context.router.replace(const SignUpRoute());
                                           },
                                           child: DecoratedBox(
                                             decoration: BoxDecoration(
@@ -150,12 +150,12 @@ class _SignInPageState extends State<SignInPage> {
                                                 ),
                                               ),
                                             ),
-                                            child: Text('Sign up'),
+                                            child: const Text('Sign up'),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 24),
+                                    const SizedBox(height: 24),
                                     //* Vote as a simple juror
                                     TextButton(
                                       onPressed: () {
@@ -168,10 +168,10 @@ class _SignInPageState extends State<SignInPage> {
                                                 color: Theme.of(context).colorScheme.primary),
                                           ),
                                         ),
-                                        child: Text('Vote in a contest as a simple juror'),
+                                        child: const Text('Vote in a contest as a simple juror'),
                                       ),
                                     ),
-                                    SizedBox(height: 24),
+                                    const SizedBox(height: 24),
                                     if (kIsWeb)
                                       FilledButton.tonalIcon(
                                         onPressed: () {
@@ -182,8 +182,8 @@ class _SignInPageState extends State<SignInPage> {
                                               .read<SignInPageBloc>()
                                               .add(SignInPageDownloadLatestApk());
                                         },
-                                        icon: Icon(Icons.android),
-                                        label: Text('Download for Android'),
+                                        icon: const Icon(Icons.android),
+                                        label: const Text('Download for Android'),
                                         style: FilledButton.styleFrom(
                                             backgroundColor: Colors.green.shade200,
                                             foregroundColor: Colors.grey.shade900),
@@ -225,12 +225,12 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
               if (state.status.isSuccess &&
                   state.sourceEvent is SignInPageAuthenticateSimpleJuror) {
                 context.router.pop();
-                context.router.replaceAll([RootRoute()]);
+                context.router.replaceAll([const RootRoute()]);
               }
             },
             builder: (context, state) {
               return AlertDialog(
-                title: Text('Vote as simple juror'),
+                title: const Text('Vote as simple juror'),
                 content: Form(
                   key: accessVotingFormKey,
                   child: Column(
@@ -292,7 +292,7 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                     onPressed: () {
                       context.router.pop();
                     },
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                   TextButton(
                     onPressed: (isPrivacyAccepted)
@@ -303,7 +303,7 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                             }
                           }
                         : null,
-                    child: Text('Confirm'),
+                    child: const Text('Confirm'),
                   ),
                 ],
               );

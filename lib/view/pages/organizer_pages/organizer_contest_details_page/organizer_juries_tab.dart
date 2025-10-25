@@ -48,9 +48,9 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
                   if(state.status.isFailure) {
                     return Center(child: FilledButton(onPressed: ()async => context
                         .read<OrganizerContestDetailsPageBloc>()
-                        .add(OrganizerContestDetailsPageFetch(contestId: contestId)), child: Text('Retry'),),);
+                        .add(OrganizerContestDetailsPageFetch(contestId: contestId)), child: const Text('Retry'),),);
                   }
-                  return VoidWidget();
+                  return const VoidWidget();
                 }
                 final juriesBundles = state.contestDetailsBundle!.juriesBundles;
                 return RefreshIndicator.adaptive(
@@ -58,7 +58,7 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
                       .read<OrganizerContestDetailsPageBloc>()
                       .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                   child: (juriesBundles.isEmpty)
-                      ? ListViewWithCentralLabel(label: 'No jury added yet')
+                      ? const ListViewWithCentralLabel(label: 'No jury added yet')
                       : ListView.builder(
                     itemCount: juriesBundles.length,
                     itemBuilder: (context, index) {
@@ -76,7 +76,7 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
                                   OrganizerContestDetailsPageFetch(contestId: contestId));
                             }
                           },
-                          trailing: (juryBundle.jury.type.isAppointed) ? Icon(Icons.star) : Icon(Icons.star_border),
+                          trailing: (juryBundle.jury.type.isAppointed) ? const Icon(Icons.star) : const Icon(Icons.star_border),
                           title: Text(juryBundle.jury.name),
                           subtitle: (juryBundle.jury.type.isAppointed) ? Text(
                               'Joined: ${juryBundle.jurationsBundles.length}, Attended: ${juryBundle.jurorsInvitations.length}') : null,
@@ -92,8 +92,8 @@ class _OrganizerJuriesTabState extends State<OrganizerJuriesTab> {
             onPressed: () {
               _showCreateJuryDialog(context: context, contestId: contestId);
             },
-            icon: Icon(Icons.create),
-            label: Text('Create jury'),
+            icon: const Icon(Icons.create),
+            label: const Text('Create jury'),
           ),
         );
       },
@@ -127,7 +127,7 @@ void _showCreateJuryDialog({required BuildContext context, required String conte
             },
             builder: (context, state) {
               return AlertDialog(
-                title: Text(
+                title: const Text(
                   'New jury',
                 ),
                 content: Form(
@@ -143,9 +143,9 @@ void _showCreateJuryDialog({required BuildContext context, required String conte
                         label: 'Name',
                         validator: titleValidator,
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text('Jury type',style: Theme.of(context).textTheme.titleMedium,),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       RadioMenuButton<JuryType>(
                         value: JuryType.appointed,
                         groupValue: chosenJuryType,

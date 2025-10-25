@@ -23,7 +23,7 @@ class JurorContestDetailsPageBloc
     required StorageRepository storageRepository,
   })  : _jurorRepository = jurorRepository,
         _storageRepository = storageRepository,
-        super(JurorContestDetailsPageState(status: BlocStatus.initial)) {
+        super(const JurorContestDetailsPageState(status: BlocStatus.initial)) {
     on<JurorContestDetailsPageFetch>(_fetch);
     on<JurorContestDetailsPageLeaveContest>(_leaveContest);
     on<JurorContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);

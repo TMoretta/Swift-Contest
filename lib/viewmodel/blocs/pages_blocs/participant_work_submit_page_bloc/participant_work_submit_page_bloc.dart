@@ -17,7 +17,7 @@ class ParticipantWorkSubmitPageBloc
   ParticipantWorkSubmitPageBloc({
     required ParticipantRepository participantRepository,
   })  : _participantRepository = participantRepository,
-        super(ParticipantWorkSubmitPageState(status: BlocStatus.initial)) {
+        super(const ParticipantWorkSubmitPageState(status: BlocStatus.initial)) {
     on<ParticipantWorkSubmitPageSubmitWork>(_submitWork);
   }
 
@@ -35,7 +35,7 @@ class ParticipantWorkSubmitPageBloc
         participationId: null,
         name: event.name,
         description: event.description,
-        imagesPaths: [],
+        imagesPaths: const [],
         filePath: null,
       ),
       images: event.images,

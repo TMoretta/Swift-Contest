@@ -73,7 +73,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: HomePageAppBar(
+          appBar: const HomePageAppBar(
             contestRole: ContestRole.participant
           ),
           body: SafeArea(
@@ -86,15 +86,15 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                       return Center(
                         child: FilledButton(
                           onPressed: () async => context.read<ParticipantHomePageBloc>().add(ParticipantHomePageFetch()),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   return Column(
                     children: [
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       CustomSearchBar(
                         controller: _searchController,
                         focusNode: _searchFocusNode,
@@ -114,7 +114,7 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                           child: (state.filteredContestsBundles!.isNotEmpty)
                               ? ListView(
                             children: [
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               ...state.filteredContestsBundles!.map((homeContestBundle) {
                                 return Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -134,14 +134,14 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
                                         }
                                       },
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                   ],
                                 );
                               }),
-                              SizedBox(height: 64),
+                              const SizedBox(height: 64),
                             ],
                           )
-                              : ListViewWithCentralLabel(label: 'No contest'),
+                              : const ListViewWithCentralLabel(label: 'No contest'),
                         ),
                       ),
                     ],
@@ -154,8 +154,8 @@ class _ParticipantHomePageState extends State<ParticipantHomePage> {
             onPressed: () {
               _showJoinContestDialog(context: context);
             },
-            icon: Icon(Icons.login),
-            label: Text('Join contest'),
+            icon: const Icon(Icons.login),
+            label: const Text('Join contest'),
           ),
         );
       },
@@ -188,7 +188,7 @@ void _showJoinContestDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Join as participant'),
+              title: const Text('Join as participant'),
               content: Form(
                 key: joinContestFormKey,
                 child: Column(
@@ -210,7 +210,7 @@ void _showJoinContestDialog({
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -222,7 +222,7 @@ void _showJoinContestDialog({
                           );
                     }
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );

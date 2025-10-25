@@ -24,7 +24,7 @@ class JurorVotingProcedurePageBloc
   JurorVotingProcedurePageBloc({
     required JurorRepository jurorRepository,
   })  : _jurorRepository = jurorRepository,
-        super(JurorVotingProcedurePageState(status: BlocStatus.initial)) {
+        super(const JurorVotingProcedurePageState(status: BlocStatus.initial)) {
     on<JurorVotingProcedurePageFetch>(_fetch);
     on<JurorVotingProcedurePageSubmit>(_submit);
     on<JurorVotingProcedurePageCheckVotingLocation>(_checkVotingLocation);

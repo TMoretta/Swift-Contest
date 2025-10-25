@@ -54,11 +54,11 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                           onPressed: () async => context
                               .read<OrganizerContestDetailsPageBloc>()
                               .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   final participations = state.contestDetailsBundle!.participationsBundles;
                   final invitations = state.contestDetailsBundle!.participantsInvitations;
@@ -80,14 +80,14 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                               borderRadius: BorderRadius.circular(16),
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
-                            tabs: [
+                            tabs: const [
                               Tab(text: 'Joined'),
                               Tab(text: 'Attended'),
                             ],
                           ),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Expanded(
                         child: TabBarView(
                           children: [
@@ -97,7 +97,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                   .read<OrganizerContestDetailsPageBloc>()
                                   .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                               child: (participations.isEmpty)
-                                  ? ListViewWithCentralLabel(label: 'No participant joined yet')
+                                  ? const ListViewWithCentralLabel(label: 'No participant joined yet')
                                   : ListView.builder(
                                       itemCount: participations.length,
                                       itemBuilder: (context, index) {
@@ -132,7 +132,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                               ),
                                             ),
                                             if (index == participations.length - 1)
-                                              SizedBox(height: 72),
+                                              const SizedBox(height: 72),
                                           ],
                                         );
                                       },
@@ -144,7 +144,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                   .read<OrganizerContestDetailsPageBloc>()
                                   .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
                               child: (invitations.isEmpty)
-                                  ? ListViewWithCentralLabel(label: 'No participant attended')
+                                  ? const ListViewWithCentralLabel(label: 'No participant attended')
                                   : ListView.builder(
                                       itemCount: invitations.length,
                                       itemBuilder: (context, index) {
@@ -174,7 +174,7 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
                                               ),
                                             ),
                                             if (index == invitations.length - 1)
-                                              SizedBox(height: 72),
+                                              const SizedBox(height: 72),
                                           ],
                                         );
                                       },
@@ -193,8 +193,8 @@ class _OrganizerParticipantsTabState extends State<OrganizerParticipantsTab> {
             onPressed: () async {
               _showInviteDialog(context: context, contestId: contestId);
             },
-            icon: Icon(Icons.email),
-            label: Text('Invite'),
+            icon: const Icon(Icons.email),
+            label: const Text('Invite'),
           ),
         );
       },
@@ -226,7 +226,7 @@ void _showInviteDialog({required BuildContext context, required String contestId
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text(
+              title: const Text(
                 'Invite a participant',
               ),
               content: Form(
@@ -298,14 +298,14 @@ void _showRemoveParticipantDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Remove participant'),
-              content: Text('Are you sure you want to remove this participant?'),
+              title: const Text('Remove participant'),
+              content: const Text('Are you sure you want to remove this participant?'),
               actions: [
                 TextButton(
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -313,7 +313,7 @@ void _showRemoveParticipantDialog({
                         OrganizerContestDetailsPageRemoveParticipant(
                             participationId: participationId));
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );
@@ -346,14 +346,14 @@ void _showDeleteInvitationDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Delete invitation'),
-              content: Text('Are you sure you want to delete this invitation?'),
+              title: const Text('Delete invitation'),
+              content: const Text('Are you sure you want to delete this invitation?'),
               actions: [
                 TextButton(
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -361,7 +361,7 @@ void _showDeleteInvitationDialog({
                         OrganizerContestDetailsPageDeleteParticipantInvitation(
                             participantInvitationId: invitationId));
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );

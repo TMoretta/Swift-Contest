@@ -16,7 +16,7 @@ class OrganizerJuryVotingResultsPageBloc
 
   OrganizerJuryVotingResultsPageBloc({required OrganizerRepository organizerRepository})
       : _organizerRepository = organizerRepository,
-        super(OrganizerJuryVotingResultsPageState(status: BlocStatus.initial)) {
+        super(const OrganizerJuryVotingResultsPageState(status: BlocStatus.initial)) {
     on<OrganizerJuryVotingResultsPageFetch>(_fetch);
   }
 

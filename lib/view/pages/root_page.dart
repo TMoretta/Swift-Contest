@@ -46,7 +46,7 @@ class _RootPageState extends State<RootPage> {
         if (state.blocStatus.isSuccess) {
           if (state.authStatus.isAuthenticated) {
             if(state.account!.isAnonymous) {
-              context.router.replace(SimpleJurorHomeRoute());
+              context.router.replace(const SimpleJurorHomeRoute());
               return;
             }
 
@@ -56,18 +56,18 @@ class _RootPageState extends State<RootPage> {
             //* If success and authenticated go to home page of the pref contest role
             switch (state.profile!.prefRole) {
               case ContestRole.organizer:
-                context.router.replace(OrganizerHomeRoute());
+                context.router.replace(const OrganizerHomeRoute());
                 break;
               case ContestRole.participant:
-                context.router.replace(ParticipantHomeRoute());
+                context.router.replace(const ParticipantHomeRoute());
                 break;
               case ContestRole.juror:
-                context.router.replace(JurorHomeRoute());
+                context.router.replace(const JurorHomeRoute());
                 break;
             }
           } else if (state.authStatus.isUnauthenticated) {
             //* If success and not authenticated go to sign up page
-            context.router.replace(SignUpRoute());
+            context.router.replace(const SignUpRoute());
           }
         }
       },
@@ -80,11 +80,11 @@ class _RootPageState extends State<RootPage> {
                   return Center(
                     child: FilledButton(
                       onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   );
                 }
-                return VoidWidget();
+                return const VoidWidget();
               },
             ),
           ),

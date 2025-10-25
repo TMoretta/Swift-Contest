@@ -82,12 +82,12 @@ class _SignUpPageState extends State<SignUpPage> {
         return Scaffold(
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Center(
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    SizedBox(height: 72),
+                    const SizedBox(height: 72),
                     //* Title
                     FittedBox(
                       fit: BoxFit.scaleDown,
@@ -109,17 +109,17 @@ class _SignUpPageState extends State<SignUpPage> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     //* Form
                     Form(
                       key: _formKey,
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           children: [
                             //* Full name field
                             ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 420),
+                              constraints: const BoxConstraints(maxWidth: 420),
                               child: CustomTextFormField(
                                 borderType: InputBorderType.outlined,
                                 controller: _fullNameController,
@@ -127,13 +127,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                 onEditingComplete: () => _emailFocusNode.requestFocus(),
                                 label: 'Full name',
                                 validator: fullNameValidator,
-                                prefixIcon: Icon(Icons.person_outlined),
+                                prefixIcon: const Icon(Icons.person_outlined),
                               ),
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
                             //* Email field
                             ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 420),
+                              constraints: const BoxConstraints(maxWidth: 420),
                               child: CustomTextFormField(
                                 borderType: InputBorderType.outlined,
                                 controller: _emailController,
@@ -141,7 +141,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 // onEditingComplete: () => _passwordFocusNode.requestFocus(),
                                 label: 'Email',
                                 validator: emailValidator,
-                                prefixIcon: Icon(Icons.email_outlined),
+                                prefixIcon: const Icon(Icons.email_outlined),
                               ),
                             ),
                             // SizedBox(height: 5),
@@ -174,9 +174,9 @@ class _SignUpPageState extends State<SignUpPage> {
                             //     obscureText: true,
                             //   ),
                             // ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             ConstrainedBox(
-                              constraints: BoxConstraints(
+                              constraints: const BoxConstraints(
                                 maxWidth: 420,
                               ),
                               child: CheckboxListTile(
@@ -222,10 +222,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                 contentPadding: EdgeInsets.zero,
                               ),
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             //* Sign up button
                             ConstrainedBox(
-                              constraints: BoxConstraints(
+                              constraints: const BoxConstraints(
                                 maxWidth: 100,
                               ),
                               child: FilledButton(
@@ -238,20 +238,20 @@ class _SignUpPageState extends State<SignUpPage> {
                                         }
                                       }
                                     : null,
-                                child: Text('Sign up'),
+                                child: const Text('Sign up'),
                               ),
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             //* Sign in instead button
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text('Already have an account?'),
+                                const Text('Already have an account?'),
                                 TextButton(
                                   onPressed: () {
-                                    context.router.replace(SignInRoute());
+                                    context.router.replace(const SignInRoute());
                                   },
-                                  style: ButtonStyle(),
+                                  style: const ButtonStyle(),
                                   child: DecoratedBox(
                                     decoration: BoxDecoration(
                                       border: Border(
@@ -260,12 +260,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                         ),
                                       ),
                                     ),
-                                    child: Text('Sign in'),
+                                    child: const Text('Sign in'),
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 24),
+                            const SizedBox(height: 24),
                             //* Vote as a simple juror
                             TextButton(
                               onPressed: () {
@@ -278,10 +278,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                         BorderSide(color: Theme.of(context).colorScheme.primary),
                                   ),
                                 ),
-                                child: Text('Vote in a contest as a simple juror'),
+                                child: const Text('Vote in a contest as a simple juror'),
                               ),
                             ),
-                            SizedBox(height: 24),
+                            const SizedBox(height: 24),
                             // Download for Android if on web
                             if (kIsWeb)
                               FilledButton.tonalIcon(
@@ -290,8 +290,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                       context: context, text: 'Download started, please wait...');
                                   context.read<SignUpPageBloc>().add(SignUpPageDownloadLatestApk());
                                 },
-                                icon: Icon(Icons.android),
-                                label: Text('Download for Android'),
+                                icon: const Icon(Icons.android),
+                                label: const Text('Download for Android'),
                                 style: FilledButton.styleFrom(
                                     backgroundColor: Colors.green.shade200,
                                     foregroundColor: Colors.grey.shade900),
@@ -329,12 +329,12 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
               if (state.status.isSuccess &&
                   state.sourceEvent is SignUpPageAuthenticateSimpleJuror) {
                 context.router.pop();
-                context.router.replaceAll([RootRoute()]);
+                context.router.replaceAll([const RootRoute()]);
               }
             },
             builder: (context, state) {
               return AlertDialog(
-                title: Text('Vote as simple juror'),
+                title: const Text('Vote as simple juror'),
                 content: Form(
                   key: accessVotingFormKey,
                   child: Column(
@@ -396,7 +396,7 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                     onPressed: () {
                       context.router.pop();
                     },
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                   TextButton(
                     onPressed: (isPrivacyAccepted)
@@ -407,7 +407,7 @@ void _showVoteAsSimpleJurorDialog({required BuildContext context}) {
                             }
                           }
                         : null,
-                    child: Text('Confirm'),
+                    child: const Text('Confirm'),
                   ),
                 ],
               );

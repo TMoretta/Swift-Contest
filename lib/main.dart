@@ -48,7 +48,7 @@ void main() async {
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
-    authOptions: FlutterAuthClientOptions(autoRefreshToken: true, detectSessionInUri: true),
+    authOptions: const FlutterAuthClientOptions(autoRefreshToken: true, detectSessionInUri: true),
     realtimeClientOptions: const RealtimeClientOptions(
       timeout: Duration(days: 1),
     ),
@@ -115,7 +115,7 @@ void main() async {
             create: (context) => ThemeBloc(themeRepository: context.read()),
           ),
         ],
-        child: App(),
+        child: const App(),
       ),
     ),
   );

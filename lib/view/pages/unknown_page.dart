@@ -10,7 +10,7 @@ class UnknownPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Error'),
+      appBar: const CustomAppBar(title: 'Error'),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -28,7 +28,7 @@ class UnknownPage extends StatelessWidget {
               const Text('The page you were looking for does not exist.', textAlign: TextAlign.center),
               const SizedBox(height: 30),
               FilledButton(
-                onPressed: () => context.router.replace(RootRoute()),
+                onPressed: () => context.router.replace(const RootRoute()),
                 child: const Text('Go to Home'),
               ),
             ],

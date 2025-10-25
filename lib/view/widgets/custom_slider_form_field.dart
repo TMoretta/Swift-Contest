@@ -69,7 +69,7 @@ class _CustomSliderFormFieldState extends State<CustomSliderFormField> {
                             activeColor: Theme.of(context).colorScheme.tertiary,
                             value: '',
                           ),
-                          Text('None'),
+                          const Text('None'),
                         ],
                       ),
                     for (int i = votingFormField.sliderMinValue!;
@@ -91,7 +91,7 @@ class _CustomSliderFormFieldState extends State<CustomSliderFormField> {
             ),
             if (field.hasError)
               Padding(
-                padding: EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   field.errorText!,
                   style: Theme.of(context)

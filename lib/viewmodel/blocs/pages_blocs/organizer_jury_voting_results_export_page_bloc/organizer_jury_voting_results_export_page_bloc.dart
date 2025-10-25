@@ -15,7 +15,7 @@ class OrganizerJuryVotingResultsExportPageBloc extends Bloc<OrganizerJuryVotingR
 
   OrganizerJuryVotingResultsExportPageBloc({required OrganizerRepository organizerRepository})
       : _organizerRepository = organizerRepository,
-        super(OrganizerJuryVotingResultsExportPageState(status: BlocStatus.initial)) {
+        super(const OrganizerJuryVotingResultsExportPageState(status: BlocStatus.initial)) {
     on<OrganizerJuryVotingResultsExportPageFetch>(_fetch);
   }
 

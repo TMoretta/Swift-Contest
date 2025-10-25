@@ -23,7 +23,7 @@ class OrganizerWorkDetailsPageBloc
     required StorageRepository storageRepository,
   })  : _organizerRepository = organizerRepository,
         _storageRepository = storageRepository,
-        super(OrganizerWorkDetailsPageState(status: BlocStatus.initial)) {
+        super(const OrganizerWorkDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerWorkDetailsPageFetch>(_fetch);
     on<OrganizerWorkDetailsPageGetWorkFileUrl>(_getWorkFileUrl);
   }

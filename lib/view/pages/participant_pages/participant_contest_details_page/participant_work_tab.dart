@@ -57,11 +57,11 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                       onPressed: () async => context
                           .read<ParticipantContestDetailsPageBloc>()
                           .add(ParticipantContestDetailsPageFetch(contestId: contestId)),
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   );
                 }
-                return VoidWidget();
+                return const VoidWidget();
               }
               return LayoutBuilder(
                 builder: (context, constraints) {
@@ -81,7 +81,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                     .titleLarge
                                     ?.copyWith(color: Theme.of(context).colorScheme.primary),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               //* Images carousel
                               SizedBox(
                                 height: 180,
@@ -111,12 +111,12 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                                 fit: BoxFit.cover,
                                               ),
                                             )
-                                          : Icon(Icons.broken_image_outlined),
+                                          : const Icon(Icons.broken_image_outlined),
                                     );
                                   },
                                 ),
                               ),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               //* Description
                               Text(
                                 'Description',
@@ -126,7 +126,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                               ),
                               Text(work.description),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               //* File
                               Text(
                                 'File',
@@ -193,7 +193,7 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                                                 ParticipantContestDetailsPageGetWorkFileUrl(
                                                     filePath: work.filePath!));
                                           },
-                                          icon: Icon(Icons.download),
+                                          icon: const Icon(Icons.download),
                                           color: Theme.of(context).colorScheme.onTertiaryContainer,
                                         ),
                                       ),
@@ -240,10 +240,10 @@ class _ParticipantWorkTabState extends State<ParticipantWorkTab> {
                     }
                   },
                   elevation: 1,
-                  label: Text('Submit work'),
+                  label: const Text('Submit work'),
                 );
               }
-              return VoidWidget();
+              return const VoidWidget();
             },
           ),
         );

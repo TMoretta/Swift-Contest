@@ -29,7 +29,7 @@ class OrganizerContestDetailsPageBloc
     required StorageRepository storageRepository,
   })  : _organizerRepository = organizerRepository,
         _storageRepository = storageRepository,
-        super(OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
+        super(const OrganizerContestDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerContestDetailsPageFetch>(_fetch);
     on<OrganizerContestDetailsPageSendParticipantInvite>(_sendParticipantInvite);
     on<OrganizerContestDetailsPageSendJurorInvite>(_sendJurorInvite);

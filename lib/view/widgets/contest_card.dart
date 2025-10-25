@@ -27,7 +27,7 @@ class _ContestCardState extends State<ContestCard> {
     final place = homeContestBundle.contestBundle.place;
 
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 600),
+      constraints: const BoxConstraints(maxWidth: 600),
       child: Card(
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -35,7 +35,7 @@ class _ContestCardState extends State<ContestCard> {
             widget.onTap();
           },
           child: Padding(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             //* Card internal
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -66,7 +66,7 @@ class _ContestCardState extends State<ContestCard> {
                                   path: contest.imagesPaths[0],
                                   fit: BoxFit.cover,
                                 )
-                              : Icon(Icons.broken_image_outlined),
+                              : const Icon(Icons.broken_image_outlined),
                         ),
                       ),
                     ),

@@ -78,7 +78,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
           ),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
               child: Builder(
                 builder: (context) {
                   if (!state.isInitialized) {
@@ -88,11 +88,11 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                           onPressed: () async => context
                               .read<OrganizerWorkDetailsPageBloc>()
                               .add(OrganizerWorkDetailsPageFetch(participationId: participationId)),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   final participationBundle = state.participationBundle!;
                   final work = participationBundle.work!;
@@ -131,12 +131,12 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                                           fit: BoxFit.cover,
                                         ),
                                       )
-                                    : Icon(Icons.broken_image_outlined),
+                                    : const Icon(Icons.broken_image_outlined),
                               );
                             },
                           ),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         //* Description
                         Text(
                           'Description',
@@ -146,7 +146,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                               ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                         ),
                         Text(work.description),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         //* Participant name
                         Row(
                           mainAxisSize: MainAxisSize.min,
@@ -158,7 +158,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                               size: 24,
                               color: Theme.of(context).colorScheme.secondary,
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 participationBundle.participantBundle.profile.fullName,
@@ -169,7 +169,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         //* File
                         Text(
                           'File',
@@ -236,7 +236,7 @@ class _OrganizerWorkDetailsPageState extends State<OrganizerWorkDetailsPage> {
                                           OrganizerWorkDetailsPageGetWorkFileUrl(
                                               filePath: work.filePath!));
                                     },
-                                    icon: Icon(Icons.download),
+                                    icon: const Icon(Icons.download),
                                     color: Theme.of(context).colorScheme.onTertiaryContainer,
                                   ),
                                 ),

@@ -51,11 +51,11 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                       onPressed: () async => context
                           .read<JurorContestDetailsPageBloc>()
                           .add(JurorContestDetailsPageFetch(contestId: contestId)),
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   );
                 }
-                return VoidWidget();
+                return const VoidWidget();
               }
               return RefreshIndicator.adaptive(
                 onRefresh: () async => context
@@ -68,14 +68,14 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                       state.contestDetailsBundle!.contestBundle.contest.name,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     //* Images carousel
                     SizedBox(
                       height: 180,
                       child: (state.contestDetailsBundle!.contestBundle.contest.imagesPaths.isEmpty)
                           ? ListView(
                               scrollDirection: Axis.horizontal,
-                              children: [
+                              children: const [
                                 Icon(Icons.broken_image_outlined),
                               ],
                             )
@@ -128,7 +128,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                               },
                             ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Description
                     Text(
                       'Description',
@@ -140,7 +140,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                     Text(
                       state.contestDetailsBundle!.contestBundle.contest.description,
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     //* Info
                     Text(
                       'Info',
@@ -159,7 +159,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             state.contestDetailsBundle!.contestBundle.organizer.fullName,
@@ -167,7 +167,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Members
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -178,7 +178,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                               'Participants: ${state.contestDetailsBundle!.participantsNumber} | '
@@ -186,7 +186,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Place
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -197,7 +197,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: GestureDetector(
                             onLongPress: () {
@@ -216,7 +216,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         )
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* DateTime
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -227,7 +227,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm')
@@ -236,7 +236,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     //* Participations
                     Text(
                       'Participation',
@@ -253,7 +253,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           'Start:',
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm').format(state
@@ -262,7 +262,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -271,7 +271,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                           'End:',
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm').format(state
@@ -280,7 +280,7 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 100),
+                    const SizedBox(height: 100),
                   ],
                 ),
               );
@@ -311,14 +311,14 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                       context: context,
                       builder: (_) {
                         return AlertDialog(
-                          title: Text('Geo locate'),
-                          content: Text(
+                          title: const Text('Geo locate'),
+                          content: const Text(
                               'This voting session is restricted to a specific geographic area. '
                               'It is recommended to verify location before proceed.'),
                           actions: [
                             TextButton(
                               onPressed: () => context.pop(),
-                              child: Text('Cancel'),
+                              child: const Text('Cancel'),
                             ),
                             TextButton(
                               onPressed: () async {
@@ -326,11 +326,11 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
                                     .read<JurorContestDetailsPageBloc>()
                                     .add(JurorContestDetailsPageCheckVotingLocation());
                               },
-                              child: Text('Verify'),
+                              child: const Text('Verify'),
                             ),
                             TextButton(
                               onPressed: () => context.router.pop(true),
-                              child: Text('Proceed'),
+                              child: const Text('Proceed'),
                             ),
                           ],
                         );
@@ -352,8 +352,8 @@ class _JurorDetailsTabState extends State<JurorDetailsTab> {
           backgroundColor:
               (liveVotingSessionBundle == null) ? Theme.of(context).disabledColor : null,
           foregroundColor: (liveVotingSessionBundle == null) ? Colors.white : null,
-          icon: Icon(Icons.text_snippet),
-          label: Text('Vote'),
+          icon: const Icon(Icons.text_snippet),
+          label: const Text('Vote'),
         ),
       ],
     );

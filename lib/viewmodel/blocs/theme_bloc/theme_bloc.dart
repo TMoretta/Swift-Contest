@@ -19,7 +19,7 @@ class ThemeBloc extends HydratedBloc<ThemeEvent, ThemeState> {
   ThemeBloc({
     required ThemeRepository themeRepository,
   })  : _themeRepository = themeRepository,
-        super(ThemeState(status: BlocStatus.initial)) {
+        super(const ThemeState(status: BlocStatus.initial)) {
     on<LoadTheme>(_loadTheme);
     on<SaveTheme>(_saveTheme);
     on<ClearTheme>(_clearTheme);

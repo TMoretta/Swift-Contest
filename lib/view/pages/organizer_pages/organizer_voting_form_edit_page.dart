@@ -117,9 +117,9 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                         style: FilledButton.styleFrom(
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         ),
-                        child: Text('Save'),
+                        child: const Text('Save'),
                       )
-                    : VoidWidget(),
+                    : const VoidWidget(),
               ),
             ],
           ),
@@ -137,11 +137,11 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                                 .read<OrganizerVotingFormEditPageBloc>()
                                 .add(OrganizerVotingFormEditPageFetch(votingFormId: votingFormId));
                           },
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
 
                   if (!isPageInitialized) {
@@ -158,7 +158,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                     length: 4,
                     child: Column(
                       children: [
-                        TabBar(
+                        const TabBar(
                           isScrollable: true,
                           tabAlignment: TabAlignment.center,
                           tabs: [
@@ -168,7 +168,7 @@ class _OrganizerVotingFormEditPageState extends State<OrganizerVotingFormEditPag
                             Tab(text: 'Footer'),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Expanded(
                           child: TabBarView(
                             children: [
@@ -268,7 +268,7 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
     builder: (context) {
       return StatefulBuilder(builder: (context, setState) {
         return AlertDialog(
-          title: Text('Add textual field'),
+          title: const Text('Add textual field'),
           content: Form(
             key: formKey,
             child: SingleChildScrollView(
@@ -276,8 +276,8 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Required'),
-                  SizedBox(height: 2),
+                  const Text('Required'),
+                  const SizedBox(height: 2),
                   RadioMenuButton<bool>(
                     value: true,
                     groupValue: isRequired,
@@ -300,7 +300,7 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   CustomTextFormField(
                     borderType: InputBorderType.underlined,
                     controller: questionController,
@@ -319,7 +319,7 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
               onPressed: () {
                 context.router.pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -339,7 +339,7 @@ Future<VotingFormField?> _showAddTextualFieldDialog({
                   context.router.pop(newField);
                 }
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -511,7 +511,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
     builder: (context) {
       return StatefulBuilder(builder: (context, setState) {
         return AlertDialog(
-          title: Text('Add slider'),
+          title: const Text('Add slider'),
           content: Form(
             key: formKey,
             child: SingleChildScrollView(
@@ -519,8 +519,8 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Required'),
-                  SizedBox(height: 2),
+                  const Text('Required'),
+                  const SizedBox(height: 2),
                   RadioMenuButton<bool>(
                     value: true,
                     groupValue: isRequired,
@@ -551,7 +551,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
                     label: 'Question',
                   ),
                   DropdownButtonFormField<int>(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       label: Text('Min value'),
                     ),
                     onChanged: (value) {
@@ -567,7 +567,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
                     ],
                   ),
                   DropdownButtonFormField<int>(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       label: Text('Max value'),
                     ),
                     onChanged: (value) {
@@ -591,7 +591,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
               onPressed: () {
                 context.router.pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -611,7 +611,7 @@ Future<VotingFormField?> _showAddSliderFieldDialog({
                   context.router.pop(newField);
                 }
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );

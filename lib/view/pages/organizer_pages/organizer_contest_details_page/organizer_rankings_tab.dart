@@ -57,11 +57,11 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
             onPressed: () async => context
                 .read<OrganizerContestDetailsPageBloc>()
                 .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-            child: Text('Retry'),
+            child: const Text('Retry'),
           ),
         );
       }
-      return VoidWidget();
+      return const VoidWidget();
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +74,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
               .titleMedium
               ?.copyWith(color: Theme.of(context).colorScheme.secondary),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Expanded(
           child: RefreshIndicator.adaptive(
               onRefresh: () async => context
@@ -82,7 +82,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                   .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
               child: (state.contestDetailsBundle!.contestRankings.isEmpty)
                   ? ListView(
-                      children: [
+                      children: const [
                         Text('No ranking published'),
                       ],
                     )
@@ -146,13 +146,13 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                                           OrganizerContestDetailsPageGetRankingFileUrl(
                                               filePath: ranking.filePath));
                                     },
-                                    icon: Icon(Icons.download),
+                                    icon: const Icon(Icons.download),
                                   ),
                                 ),
                                 IconButton(
                                   onPressed: () => _showUnpublishRankingDialog(
                                       context: context, contestRankingId: ranking.id!),
-                                  icon: Icon(Icons.remove),
+                                  icon: const Icon(Icons.remove),
                                 ),
                               ],
                             ),
@@ -171,7 +171,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
       onPressed: () {
         _showPublishRankingDialog(context);
       },
-      label: Text('Publish ranking'),
+      label: const Text('Publish ranking'),
     );
   }
 
@@ -199,15 +199,15 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
               },
               builder: (context, state) {
                 return AlertDialog(
-                  title: Text('Select file'),
+                  title: const Text('Select file'),
                   content: Form(
                     key: formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        const Text(
                             'Published rankings will be available for all jurors and participants in the contest. Only PDF format is allowed.'),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         FormField<PlatformFile>(
                           initialValue: selectedFile,
                           validator: (value) => (value == null) ? 'Select a file' : null,
@@ -272,7 +272,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                   actions: [
                     TextButton(
                       onPressed: () => context.router.pop(),
-                      child: Text('Cancel'),
+                      child: const Text('Cancel'),
                     ),
                     TextButton(
                       onPressed: () {
@@ -285,7 +285,7 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
                               );
                         }
                       },
-                      child: Text('Confirm'),
+                      child: const Text('Confirm'),
                     ),
                   ],
                 );
@@ -321,19 +321,19 @@ class _OrganizerRankingsTabState extends State<OrganizerRankingsTab> {
             },
             builder: (context, state) {
               return AlertDialog(
-                title: Text('Unpublish ranking'),
-                content: Text(
+                title: const Text('Unpublish ranking'),
+                content: const Text(
                     'Are you sure you want to unpublish this ranking? It will not be available neither for participants nor for jurors.'),
                 actions: [
                   TextButton(
                     onPressed: () => context.pop(),
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                   TextButton(
                     onPressed: () => context.read<OrganizerContestDetailsPageBloc>().add(
                         OrganizerContestDetailsPageUnpublishRanking(
                             contestRankingId: contestRankingId)),
-                    child: Text('Confirm'),
+                    child: const Text('Confirm'),
                   ),
                 ],
               );

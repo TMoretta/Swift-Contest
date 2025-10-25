@@ -59,11 +59,11 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
             onPressed: () async => context
                 .read<OrganizerContestDetailsPageBloc>()
                 .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-            child: Text('Retry'),
+            child: const Text('Retry'),
           ),
         );
       }
-      return VoidWidget();
+      return const VoidWidget();
     }
     final endedVotingSessions = state.contestDetailsBundle!.votingSessionsBundles
         .map((e) => e.votingSession)
@@ -80,7 +80,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
               .titleMedium
               ?.copyWith(color: Theme.of(context).colorScheme.secondary),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Expanded(
           child: RefreshIndicator.adaptive(
             onRefresh: () async => context
@@ -116,13 +116,13 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
                               ),
                             ),
                           ),
-                          if (index == endedVotingSessions.length - 1) SizedBox(height: 72),
+                          if (index == endedVotingSessions.length - 1) const SizedBox(height: 72),
                         ],
                       );
                     },
                   )
                 : ListView(
-                    children: [
+                    children: const [
                       Text(
                         'No result yet',
                       ),
@@ -197,7 +197,7 @@ class _OrganizerVotingTabState extends State<OrganizerVotingTab> {
         context.router.push(OrganizerVotingSettingsRoute(contestId: contestId));
       },
       elevation: 1,
-      label: (liveVotingSession == null) ? Text('Start voting') : Text('Manage voting'),
+      label: (liveVotingSession == null) ? const Text('Start voting') : const Text('Manage voting'),
     );
   }
 }

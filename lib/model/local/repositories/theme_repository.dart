@@ -25,7 +25,7 @@ class ThemeRepositoryImpl implements ThemeRepository {
       await _preferences.setString(_key, theme.name);
       return Either.right(unit);
     } catch (e) {
-      return Either.left(Failure());
+      return Either.left(const Failure());
     }
   }
 

@@ -14,7 +14,7 @@ class SignUpVerifyPageBloc extends Bloc<SignUpVerifyPageEvent, SignUpVerifyPageS
 
   SignUpVerifyPageBloc({required AuthRepository authRepository})
       : _authRepository = authRepository,
-        super(SignUpVerifyPageState(status: BlocStatus.initial)) {
+        super(const SignUpVerifyPageState(status: BlocStatus.initial)) {
     on<SignUpVerifyOtp>(_verifyOtp);
   }
 

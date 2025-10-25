@@ -71,15 +71,15 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
           context.hideLoader();
         }
         if (state.status.isSuccess && state.sourceEvent is SignUpVerifyOtp) {
-          context.router.replaceAll([RootRoute()]);
+          context.router.replaceAll([const RootRoute()]);
         }
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Verify account'),
+          appBar: const CustomAppBar(title: 'Verify account'),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Center(
                 child: ListView(
                   shrinkWrap: true,
@@ -89,7 +89,7 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -103,7 +103,7 @@ class _SignUpVerifyPageState extends State<SignUpVerifyPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 72),
+                    const SizedBox(height: 72),
                   ],
                 ),
               ),

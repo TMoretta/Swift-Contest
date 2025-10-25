@@ -16,7 +16,7 @@ class ParticipantHomePageBloc extends Bloc<ParticipantHomePageEvent, Participant
   ParticipantHomePageBloc({
     required ParticipantRepository participantRepository,
   })  : _participantRepository = participantRepository,
-        super(ParticipantHomePageState(status: BlocStatus.initial)) {
+        super(const ParticipantHomePageState(status: BlocStatus.initial)) {
     on<ParticipantHomePageFetch>(_fetch);
     on<ParticipantHomePageFilterResults>(_filterResults);
     on<ParticipantHomePageJoinContest>(_joinContest);

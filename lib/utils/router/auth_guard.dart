@@ -38,7 +38,7 @@ class AuthGuard extends AutoRouteGuard {
           targetPath != '/simple-juror-home' &&
           targetPath != '/juror-qr-scanner' &&
           targetPath != '/juror-voting-procedure') {
-        resolver.redirectUntil(RootRoute());
+        resolver.redirectUntil(const RootRoute());
         return;
       }
       resolver.next();
@@ -46,12 +46,12 @@ class AuthGuard extends AutoRouteGuard {
     }
 
     if (authStatus.isAuthenticated && authPaths.contains(targetPath)) {
-      resolver.redirectUntil(RootRoute());
+      resolver.redirectUntil(const RootRoute());
       return;
     }
 
     if (authStatus.isUnauthenticated && !authPaths.contains(targetPath)) {
-      resolver.redirectUntil(SignInRoute());
+      resolver.redirectUntil(const SignInRoute());
       return;
     }
 

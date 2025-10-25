@@ -118,7 +118,7 @@ class JurorRepositoryImpl implements JurorRepository {
             .from('voting_sessions')
             .stream(primaryKey: ['id']) // Specifica la chiave primaria della tabella
             .eq('id', votingSessionId) // Filtra per ricevere aggiornamenti solo per questa sessione
-            .timeout(Duration(days: 1))
+            .timeout(const Duration(days: 1))
             .map((listOfMaps) {
               // La stream emette una lista di mappe.
               try {

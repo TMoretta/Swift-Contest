@@ -67,8 +67,8 @@ class PlacePickerFormField extends StatelessWidget {
         suffix: suffix,
         suffixStyle: suffixStyle,
         helperText: '',
-        helperStyle: TextStyle(height: 1),
-        errorStyle: TextStyle(height: 1),
+        helperStyle: const TextStyle(height: 1),
+        errorStyle: const TextStyle(height: 1),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         border: OutlineInputBorder(
           borderSide: BorderSide(

@@ -73,7 +73,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: HomePageAppBar(contestRole: ContestRole.juror),
+          appBar: const HomePageAppBar(contestRole: ContestRole.juror),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -85,15 +85,15 @@ class _JurorHomePageState extends State<JurorHomePage> {
                         child: FilledButton(
                           onPressed: () async =>
                               context.read<JurorHomePageBloc>().add(JurorHomePageFetch()),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   return Column(
                     children: [
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       CustomSearchBar(
                         controller: _searchController,
                         focusNode: _searchFocusNode,
@@ -111,7 +111,7 @@ class _JurorHomePageState extends State<JurorHomePage> {
                           child: (state.filteredContestsBundles!.isNotEmpty)
                               ? ListView(
                                   children: [
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     ...state.filteredContestsBundles!.map((homeContestBundle) {
                                       return Column(
                                         mainAxisSize: MainAxisSize.min,
@@ -132,14 +132,14 @@ class _JurorHomePageState extends State<JurorHomePage> {
                                               }
                                             },
                                           ),
-                                          SizedBox(height: 8),
+                                          const SizedBox(height: 8),
                                         ],
                                       );
                                     }),
-                                    SizedBox(height: 64),
+                                    const SizedBox(height: 64),
                                   ],
                                 )
-                              : ListViewWithCentralLabel(label: 'No contest'),
+                              : const ListViewWithCentralLabel(label: 'No contest'),
                         ),
                       ),
                     ],
@@ -161,19 +161,19 @@ class _JurorHomePageState extends State<JurorHomePage> {
                       },
                       backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
                       foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                      label: Text('Vote as simple juror'),
+                      label: const Text('Vote as simple juror'),
                     ),
                     FloatingActionButton.extended(
                       heroTag: 'joinContest',
                       onPressed: () {
                         _showJoinContestDialog(context: context);
                       },
-                      icon: Icon(Icons.login),
-                      label: Text('Join contest'),
+                      icon: const Icon(Icons.login),
+                      label: const Text('Join contest'),
                     ),
                   ],
                 )
-              : VoidWidget(),
+              : const VoidWidget(),
         );
       },
     );
@@ -203,7 +203,7 @@ void _showJoinContestDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Join as juror'),
+              title: const Text('Join as juror'),
               content: Form(
                 key: joinContestFormKey,
                 child: Column(
@@ -226,7 +226,7 @@ void _showJoinContestDialog({
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -238,7 +238,7 @@ void _showJoinContestDialog({
                           );
                     }
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );
@@ -270,16 +270,16 @@ void _showVoteAsSimpleJurorDialog({
             }
           },
           child: AlertDialog(
-            title: Text('Voting Access'),
+            title: const Text('Voting Access'),
             content: Form(
               key: formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                       'You are about to access a voting session as a simple juror. '
                           'Insert the token or scan the QR code provided by the organizer.'),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   CustomTextFormField(
                     borderType: InputBorderType.underlined,
                     label: 'Token',
@@ -295,14 +295,14 @@ void _showVoteAsSimpleJurorDialog({
                 onPressed: () {
                   dialogContext.pop();
                 },
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () {
                   dialogContext.pop();
-                  context.router.push(JurorVotingQrScannerRoute());
+                  context.router.push(const JurorVotingQrScannerRoute());
                 },
-                child: Text('Scan QR'),
+                child: const Text('Scan QR'),
               ),
               TextButton(
                 onPressed: () {
@@ -312,7 +312,7 @@ void _showVoteAsSimpleJurorDialog({
                             token: tokenController.text.trim()));
                   }
                 },
-                child: Text('Insert'),
+                child: const Text('Insert'),
               ),
             ],
           ),

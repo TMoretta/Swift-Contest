@@ -68,13 +68,13 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Search place'),
+          appBar: const CustomAppBar(title: 'Search place'),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   CustomSearchBar(
                     controller: _searchController,
                     focusNode: _searchFocusNode,
@@ -114,7 +114,7 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
                                   onPressed: () {
                                     _searchController.text = suggestion.address;
                                   },
-                                  icon: Icon(Icons.north_west_rounded),
+                                  icon: const Icon(Icons.north_west_rounded),
                                 ),
                               );
                             },

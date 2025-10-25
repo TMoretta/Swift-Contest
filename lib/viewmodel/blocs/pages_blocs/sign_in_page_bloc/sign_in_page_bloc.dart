@@ -18,7 +18,7 @@ class SignInPageBloc extends Bloc<SignInPageEvent, SignInPageState> {
   SignInPageBloc({
     required AuthRepository authRepository,
   })  : _authRepository = authRepository,
-        super(SignInPageState(status: BlocStatus.initial)) {
+        super(const SignInPageState(status: BlocStatus.initial)) {
     on<SignInWithEmailAndPassword>(_signInWithEmailAndPassword);
     on<SignInWithEmail>(_signInWithEmail);
     on<SignInPageAuthenticateSimpleJuror>(_authenticateSimpleJuror);

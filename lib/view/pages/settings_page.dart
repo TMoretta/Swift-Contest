@@ -51,7 +51,7 @@ class _AuthState extends State<SettingsPage> {
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
               context.read<InboxBloc>().add(InboxClear());
               context.read<ThemeBloc>().add(ClearTheme());
-              context.router.replaceAll([RootRoute()]);
+              context.router.replaceAll([const RootRoute()]);
             }
           },
         ),
@@ -71,7 +71,7 @@ class _AuthState extends State<SettingsPage> {
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           return Scaffold(
-            appBar: CustomAppBar(title: 'Settings'),
+            appBar: const CustomAppBar(title: 'Settings'),
             body: Builder(
               builder: (context) {
                 if (!state.isInitialized) {
@@ -79,11 +79,11 @@ class _AuthState extends State<SettingsPage> {
                     return Center(
                       child: FilledButton(
                         onPressed: () => context.read<AuthBloc>().add(AuthFetch()),
-                        child: Text('Retry'),
+                        child: const Text('Retry'),
                       ),
                     );
                   }
-                  return VoidWidget();
+                  return const VoidWidget();
                 }
 
                 final profile = state.profile ??
@@ -100,13 +100,13 @@ class _AuthState extends State<SettingsPage> {
                       //* Account option
                       ListTile(
                         onTap: () {
-                          context.router.push(AccountRoute());
+                          context.router.push(const AccountRoute());
                         },
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.person,
                           size: 28,
                         ),
-                        title: Text(
+                        title: const Text(
                           'Account',
                         ),
                         titleTextStyle: Theme.of(context).textTheme.titleMedium,
@@ -120,11 +120,11 @@ class _AuthState extends State<SettingsPage> {
                               _showEditThemeDialog(context: context, currentTheme: theme);
                             },
                             child: ListTile(
-                              leading: Icon(
+                              leading: const Icon(
                                 Icons.contrast,
                                 size: 28,
                               ),
-                              title: Text('Theme'),
+                              title: const Text('Theme'),
                               titleTextStyle: Theme.of(context).textTheme.titleMedium,
                               subtitle: Text(theme.name.capitalize()),
                               subtitleTextStyle: Theme.of(context)
@@ -141,11 +141,11 @@ class _AuthState extends State<SettingsPage> {
                           _showEditPrefRoleDialog(
                               context: context, currentPrefRole: profile.prefRole);
                         },
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.face,
                           size: 28,
                         ),
-                        title: Text(
+                        title: const Text(
                           'Preferred role',
                         ),
                         titleTextStyle: Theme.of(context).textTheme.titleMedium,
@@ -160,11 +160,11 @@ class _AuthState extends State<SettingsPage> {
                         onTap: () {
                           showTermsOfServiceDialog(context);
                         },
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.gavel_outlined,
                           size: 28,
                         ),
-                        title: Text(
+                        title: const Text(
                           'Terms of Service',
                         ),
                         titleTextStyle: Theme.of(context).textTheme.titleMedium,
@@ -173,11 +173,11 @@ class _AuthState extends State<SettingsPage> {
                         onTap: () {
                           showPrivacyPolicyDialog(context);
                         },
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.privacy_tip_outlined,
                           size: 28,
                         ),
-                        title: Text('Privacy Policy'),
+                        title: const Text('Privacy Policy'),
                         titleTextStyle: Theme.of(context).textTheme.titleMedium,
                       ),
                       //* Logout option
@@ -189,7 +189,7 @@ class _AuthState extends State<SettingsPage> {
                           color: Theme.of(context).colorScheme.error,
                         ),
                         iconColor: Theme.of(context).colorScheme.error,
-                        title: Text(
+                        title: const Text(
                           'Logout',
                         ),
                         titleTextStyle: Theme.of(context)
@@ -232,7 +232,7 @@ void _showEditThemeDialog({
               },
               builder: (context, state) {
                 return AlertDialog(
-                  title: Text('Theme'),
+                  title: const Text('Theme'),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +242,7 @@ void _showEditThemeDialog({
                           setState(() => selectedTheme = value!);
                         },
                         groupValue: selectedTheme,
-                        child: Column(
+                        child: const Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             RadioListTile(
@@ -265,13 +265,13 @@ void _showEditThemeDialog({
                   actions: [
                     TextButton(
                       onPressed: () => context.router.pop(),
-                      child: Text('Cancel'),
+                      child: const Text('Cancel'),
                     ),
                     TextButton(
                       onPressed: () {
                         context.read<ThemeBloc>().add(SaveTheme(theme: selectedTheme));
                       },
-                      child: Text('Proceed'),
+                      child: const Text('Proceed'),
                     ),
                   ],
                 );
@@ -307,7 +307,7 @@ void _showEditPrefRoleDialog({
               },
               builder: (context, state) {
                 return AlertDialog(
-                  title: Text('Preferred role'),
+                  title: const Text('Preferred role'),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,7 +317,7 @@ void _showEditPrefRoleDialog({
                           setState(() => selectedRole = value!);
                         },
                         groupValue: selectedRole,
-                        child: Column(
+                        child: const Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             RadioListTile(
@@ -340,13 +340,13 @@ void _showEditPrefRoleDialog({
                   actions: [
                     TextButton(
                       onPressed: () => context.router.pop(),
-                      child: Text('Cancel'),
+                      child: const Text('Cancel'),
                     ),
                     TextButton(
                       onPressed: () {
                         context.read<AuthBloc>().add(AuthEditPrefRole(prefRole: selectedRole));
                       },
-                      child: Text('Proceed'),
+                      child: const Text('Proceed'),
                     ),
                   ],
                 );

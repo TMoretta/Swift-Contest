@@ -51,11 +51,11 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                           onPressed: () async => context
                               .read<OrganizerContestDetailsPageBloc>()
                               .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   final participationsWithWorksBundles =
                   state.contestDetailsBundle!.participationsBundles.where((e) => e.work !=null).toList(growable: false);
@@ -79,14 +79,14 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                               borderRadius: BorderRadius.circular(16),
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
-                            tabs: [
+                            tabs: const [
                               Tab(text: 'Submitted'),
                               Tab(text: 'Attended'),
                             ],
                           ),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Expanded(
                         child: TabBarView(
                           children: [
@@ -97,7 +97,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                   .add(
                                   OrganizerContestDetailsPageFetch(contestId: contestId)),
                               child: (participationsWithWorksBundles.isEmpty)
-                                  ? ListViewWithCentralLabel(label: 'No work submitted yet')
+                                  ? const ListViewWithCentralLabel(label: 'No work submitted yet')
                                   : ListView.builder(
                                 itemCount: participationsWithWorksBundles.length,
                                 itemBuilder: (context, index) {
@@ -123,7 +123,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                             width: 65,
                                             height: 65,
                                             child: ClipRRect(
-                                              borderRadius: BorderRadius.all(
+                                              borderRadius: const BorderRadius.all(
                                                 Radius.circular(12),
                                               ),
                                               clipBehavior: Clip.hardEdge,
@@ -145,7 +145,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                                 children: [
                                                   Text(
                                                     participationBundle.work!.name,
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                         fontSize: 16,
                                                         fontWeight: FontWeight.w500),
                                                   ),
@@ -169,7 +169,7 @@ class _OrganizerWorksTabState extends State<OrganizerWorksTab> {
                                   .add(
                                   OrganizerContestDetailsPageFetch(contestId: contestId)),
                               child: (participationsWithoutWorksBundles.isEmpty)
-                                  ? ListViewWithCentralLabel(
+                                  ? const ListViewWithCentralLabel(
                                   label: 'No work attended from joined participants')
                                   : ListView.builder(
                                 itemCount: participationsWithoutWorksBundles.length,

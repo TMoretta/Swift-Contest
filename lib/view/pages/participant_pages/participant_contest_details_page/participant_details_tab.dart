@@ -52,11 +52,11 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                       onPressed: () async => context.read<ParticipantContestDetailsPageBloc>().add(
                           ParticipantContestDetailsPageFetch(
                               contestId: contestId)),
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   );
                 }
-                return VoidWidget();
+                return const VoidWidget();
               }
               return RefreshIndicator.adaptive(
                 onRefresh: () async => context.read<ParticipantContestDetailsPageBloc>().add(
@@ -69,7 +69,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                       state.contestDetailsBundle!.contestBundle.contest.name,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     //* Images carousel
                     SizedBox(
                       height: 180,
@@ -77,7 +77,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                       (state.contestDetailsBundle!.contestBundle.contest.imagesPaths.isEmpty)
                           ? ListView(
                         scrollDirection: Axis.horizontal,
-                        children: [
+                        children: const [
                           Icon(Icons.broken_image_outlined),
                         ],
                       )
@@ -130,7 +130,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         },
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Description
                     Text(
                       'Description',
@@ -142,7 +142,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                     Text(
                       state.contestDetailsBundle!.contestBundle.contest.description,
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     //* Info
                     Text(
                       'Info',
@@ -161,7 +161,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             state.contestDetailsBundle!.contestBundle.organizer.fullName,
@@ -169,7 +169,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Members
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -180,7 +180,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                               'Participants: ${state.contestDetailsBundle!.participantsNumber} | '
@@ -188,7 +188,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Place
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -199,7 +199,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: GestureDetector(
                             onLongPress: () {
@@ -218,7 +218,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         )
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* DateTime
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -229,7 +229,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm')
@@ -238,7 +238,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     //* Participations
                     Text(
                       'Participation',
@@ -255,7 +255,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           'Start:',
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm').format(state
@@ -264,7 +264,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -273,7 +273,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                           'End:',
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm').format(state
@@ -282,7 +282,7 @@ class _ParticipantDetailsTabState extends State<ParticipantDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 72),
+                    const SizedBox(height: 72),
                   ],
                 ),
               );

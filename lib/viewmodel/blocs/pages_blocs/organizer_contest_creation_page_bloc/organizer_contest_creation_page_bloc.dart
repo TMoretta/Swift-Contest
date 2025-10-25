@@ -19,7 +19,7 @@ class OrganizerContestCreationPageBloc
   OrganizerContestCreationPageBloc({
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
-        super(OrganizerContestCreationPageState(status: BlocStatus.initial)) {
+        super(const OrganizerContestCreationPageState(status: BlocStatus.initial)) {
     on<OrganizerContestCreationPageCreateContest>(_createContest);
   }
 
@@ -47,7 +47,7 @@ class OrganizerContestCreationPageBloc
       dateTime: event.dateTime,
       worksSubmissionStart: event.worksSubmissionStart,
       worksSubmissionEnd: event.worksSubmissionEnd,
-      imagesPaths: [],
+      imagesPaths: const [],
     );
 
     final eitherCreateContest = await _organizerRepository.createContest(

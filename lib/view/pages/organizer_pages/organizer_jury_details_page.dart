@@ -103,7 +103,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
             ),
             body: SafeArea(
               child: Padding(
-                padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
                 child: Builder(
                   builder: (context) {
                     if (!state.isInitialized) {
@@ -115,11 +115,11 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                   .read<OrganizerJuryDetailsPageBloc>()
                                   .add(OrganizerJuryDetailsPageFetch(juryId: juryId));
                             },
-                            child: Text('Retry'),
+                            child: const Text('Retry'),
                           ),
                         );
                       }
-                      return VoidWidget();
+                      return const VoidWidget();
                     }
                     final juryBundle = state.juryBundle!;
                     final jurationsBundles = juryBundle.jurationsBundles;
@@ -136,13 +136,13 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                           TabBar(
                             isScrollable: false,
                             tabs: [
-                              if (state.juryBundle!.jury.type.isAppointed) Tab(text: 'Joined'),
-                              if (state.juryBundle!.jury.type.isAppointed) Tab(text: 'Attended'),
-                              if (state.juryBundle!.jury.type.isSimple) Tab(text: 'Token'),
-                              Tab(text: 'Form'),
+                              if (state.juryBundle!.jury.type.isAppointed) const Tab(text: 'Joined'),
+                              if (state.juryBundle!.jury.type.isAppointed) const Tab(text: 'Attended'),
+                              if (state.juryBundle!.jury.type.isSimple) const Tab(text: 'Token'),
+                              const Tab(text: 'Form'),
                             ],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Expanded(
                             child: TabBarView(
                               children: [
@@ -154,7 +154,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                           .read<OrganizerJuryDetailsPageBloc>()
                                           .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
                                       child: (jurationsBundles.isEmpty)
-                                          ? ListViewWithCentralLabel(label: 'No juror joined yet')
+                                          ? const ListViewWithCentralLabel(label: 'No juror joined yet')
                                           : ListView.builder(
                                               itemCount: jurationsBundles.length,
                                               itemBuilder: (context, index) {
@@ -192,7 +192,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                                       ),
                                                     ),
                                                     if (index == jurationsBundles.length - 1)
-                                                      SizedBox(height: 72),
+                                                      const SizedBox(height: 72),
                                                   ],
                                                 );
                                               },
@@ -206,8 +206,8 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                                   contestId: contestId,
                                                   juryId: juryId);
                                             },
-                                            icon: Icon(Icons.email),
-                                            label: Text('Invite'),
+                                            icon: const Icon(Icons.email),
+                                            label: const Text('Invite'),
                                           )
                                         : null,
                                   ),
@@ -219,7 +219,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                           .read<OrganizerJuryDetailsPageBloc>()
                                           .add(OrganizerJuryDetailsPageFetch(juryId: juryId)),
                                       child: (invitations.isEmpty)
-                                          ? ListViewWithCentralLabel(label: 'No juror attended')
+                                          ? const ListViewWithCentralLabel(label: 'No juror attended')
                                           : ListView.builder(
                                               itemCount: invitations.length,
                                               itemBuilder: (context, index) {
@@ -251,7 +251,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                                       ),
                                                     ),
                                                     if (index == invitations.length - 1)
-                                                      SizedBox(height: 72),
+                                                      const SizedBox(height: 72),
                                                   ],
                                                 );
                                               },
@@ -263,8 +263,8 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                                 context: context,
                                                 contestId: contestId,
                                                 juryId: juryId),
-                                            icon: Icon(Icons.email),
-                                            label: Text('Invite'),
+                                            icon: const Icon(Icons.email),
+                                            label: const Text('Invite'),
                                           )
                                         : null,
                                   ),
@@ -394,7 +394,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                                 juryBundle.votingFormBundle.votingForm.description),
                                           ),
                                         ),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         if (headerVotingFormFields.isNotEmpty)
                                           Text(
                                             'Header form',
@@ -407,9 +407,9 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                             child: ListTile(
                                               leading: switch (field.type) {
                                                 VotingFormFieldType.textual =>
-                                                  Icon(Icons.text_fields),
+                                                  const Icon(Icons.text_fields),
                                                 VotingFormFieldType.slider =>
-                                                  Icon(Icons.horizontal_distribute),
+                                                  const Icon(Icons.horizontal_distribute),
                                               },
                                               title: (field.isRequired)
                                                   ? Text('${field.question} *')
@@ -422,7 +422,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                             ),
                                           );
                                         }),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         if (participantVotingFormFields.isNotEmpty)
                                           Text(
                                             'Form for each participant',
@@ -435,9 +435,9 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                             child: ListTile(
                                               leading: switch (field.type) {
                                                 VotingFormFieldType.textual =>
-                                                  Icon(Icons.text_fields),
+                                                  const Icon(Icons.text_fields),
                                                 VotingFormFieldType.slider =>
-                                                  Icon(Icons.horizontal_distribute),
+                                                  const Icon(Icons.horizontal_distribute),
                                               },
                                               title: (field.isRequired)
                                                   ? Text('${field.question} *')
@@ -450,7 +450,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                             ),
                                           );
                                         }),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         if (footerVotingFormFields.isNotEmpty)
                                           Text(
                                             'Footer form',
@@ -463,9 +463,9 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                             child: ListTile(
                                               leading: switch (field.type) {
                                                 VotingFormFieldType.textual =>
-                                                  Icon(Icons.text_fields),
+                                                  const Icon(Icons.text_fields),
                                                 VotingFormFieldType.slider =>
-                                                  Icon(Icons.horizontal_distribute),
+                                                  const Icon(Icons.horizontal_distribute),
                                               },
                                               title: (field.isRequired)
                                                   ? Text('${field.question} *')
@@ -478,7 +478,7 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                             ),
                                           );
                                         }),
-                                        SizedBox(height: 72),
+                                        const SizedBox(height: 72),
                                       ],
                                     ),
                                     // child: (votingFormFields.isEmpty)
@@ -530,10 +530,10 @@ class _OrganizerJuryDetailsPageState extends State<OrganizerJuryDetailsPage> {
                                               Theme.of(context).colorScheme.tertiaryContainer,
                                           foregroundColor:
                                               Theme.of(context).colorScheme.onTertiaryContainer,
-                                          icon: Icon(Icons.edit),
-                                          label: Text('Edit form'),
+                                          icon: const Icon(Icons.edit),
+                                          label: const Text('Edit form'),
                                         )
-                                      : VoidWidget(),
+                                      : const VoidWidget(),
                                 ),
                               ],
                             ),
@@ -582,7 +582,7 @@ void _showInviteDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text(
+              title: const Text(
                 'Invite a juror',
               ),
               content: Form(
@@ -696,14 +696,14 @@ void _showRemoveJurorDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Remove juror'),
-              content: Text('Are you sure you want to remove this juror?'),
+              title: const Text('Remove juror'),
+              content: const Text('Are you sure you want to remove this juror?'),
               actions: [
                 TextButton(
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -711,7 +711,7 @@ void _showRemoveJurorDialog({
                         .read<OrganizerJuryDetailsPageBloc>()
                         .add(OrganizerJuryDetailsPageRemoveJuror(jurationId: jurationId));
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );
@@ -744,14 +744,14 @@ void _showDeleteInvitationDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Delete invitation'),
-              content: Text('Are you sure you want to delete this invitation?'),
+              title: const Text('Delete invitation'),
+              content: const Text('Are you sure you want to delete this invitation?'),
               actions: [
                 TextButton(
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -759,7 +759,7 @@ void _showDeleteInvitationDialog({
                         OrganizerJuryDetailsPageDeleteJurorInvitation(
                             jurorInvitationId: jurorInvitationId));
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );
@@ -852,7 +852,7 @@ void _showDeleteJuryDialog({
                     .read<OrganizerJuryDetailsPageBloc>()
                     .add(OrganizerJuryDetailsPageDeleteJury(juryId: juryId));
               },
-              child: Text('Proceed'),
+              child: const Text('Proceed'),
             ),
           ],
         ),
@@ -915,7 +915,7 @@ void _showEditJuryDialog({
                             juryId: juryId, name: nameController.text.trim()));
                   }
                 },
-                child: Text('Edit'),
+                child: const Text('Edit'),
               ),
             ],
           ),

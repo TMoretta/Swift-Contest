@@ -51,33 +51,33 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
         }
         if (state.status.isSuccess && state.sourceEvent is SimpleJurorHomePageSignOut) {
           context.read<ThemeBloc>().add(ClearTheme());
-          context.router.replaceAll([RootRoute()]);
+          context.router.replaceAll([const RootRoute()]);
         }
       },
       child: Scaffold(
-        appBar: CustomAppBar(title: 'Simple Juror'),
+        appBar: const CustomAppBar(title: 'Simple Juror'),
         body: Padding(
           padding: const EdgeInsets.only(top: 16, left:16, right: 16),
           child: ListView(
             children: [
               Text('Actions', style: Theme.of(context).textTheme.titleMedium,),
               ListTile(
-                onTap: () => context.router.push(JurorVotingQrScannerRoute()),
-                leading: Icon(
+                onTap: () => context.router.push(const JurorVotingQrScannerRoute()),
+                leading: const Icon(
                   Icons.qr_code_2,
                   size: 28,
                 ),
-                title: Text('Scan jury QR token'),
+                title: const Text('Scan jury QR token'),
               ),
               ListTile(
                 onTap: () => _showInsertJuryTokenDialog(context),
-                leading: Icon(
+                leading: const Icon(
                   Icons.abc,
                   size: 28,
                 ),
-                title: Text('Insert jury token manually'),
+                title: const Text('Insert jury token manually'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Settings',
                 style: Theme.of(context).textTheme.titleMedium,
@@ -89,7 +89,7 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                       title: Text(
                         state.profile?.fullName ?? 'Unknown',
                       ),
-                      leading: Icon(
+                      leading: const Icon(
                         Icons.person,
                         size: 28,
                       ),
@@ -117,11 +117,11 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                       _showEditThemeDialog(context: context, currentTheme: theme);
                     },
                     child: ListTile(
-                      leading: Icon(
+                      leading: const Icon(
                         Icons.contrast,
                         size: 28,
                       ),
-                      title: Text('Theme'),
+                      title: const Text('Theme'),
                       subtitle: Text(theme.name.capitalize()),
                       subtitleTextStyle: Theme.of(context)
                           .textTheme
@@ -136,11 +136,11 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                 onTap: () {
                   showTermsOfServiceDialog(context);
                 },
-                leading: Icon(
+                leading: const Icon(
                   Icons.gavel_outlined,
                   size: 28,
                 ),
-                title: Text(
+                title: const Text(
                   'Terms of Service',
                 ),
                 titleTextStyle: Theme.of(context).textTheme.titleMedium,
@@ -149,11 +149,11 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                 onTap: () {
                   showPrivacyPolicyDialog(context);
                 },
-                leading: Icon(
+                leading: const Icon(
                   Icons.privacy_tip_outlined,
                   size: 28,
                 ),
-                title: Text('Privacy Policy'),
+                title: const Text('Privacy Policy'),
                 titleTextStyle: Theme.of(context).textTheme.titleMedium,
               ),
               ListTile(
@@ -162,20 +162,20 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                         context: context,
                         builder: (_) {
                           return AlertDialog(
-                            title: Text('Logout'),
-                            content: Text('Are you sure you want to logout?'),
+                            title: const Text('Logout'),
+                            content: const Text('Are you sure you want to logout?'),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   context.router.pop(false);
                                 },
-                                child: Text('Cancel'),
+                                child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () {
                                   context.router.pop(true);
                                 },
-                                child: Text('Logout'),
+                                child: const Text('Logout'),
                               ),
                             ],
                           );
@@ -280,7 +280,7 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                 },
                 builder: (context, state) {
                   return AlertDialog(
-                    title: Text('Theme'),
+                    title: const Text('Theme'),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +290,7 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                             setState(() => selectedTheme = value!);
                           },
                           groupValue: selectedTheme,
-                          child: Column(
+                          child: const Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               RadioListTile(
@@ -313,13 +313,13 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
                     actions: [
                       TextButton(
                         onPressed: () => context.router.pop(),
-                        child: Text('Cancel'),
+                        child: const Text('Cancel'),
                       ),
                       TextButton(
                         onPressed: () {
                           context.read<ThemeBloc>().add(SaveTheme(theme: selectedTheme));
                         },
-                        child: Text('Proceed'),
+                        child: const Text('Proceed'),
                       ),
                     ],
                   );

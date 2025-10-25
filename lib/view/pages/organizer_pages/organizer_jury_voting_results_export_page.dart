@@ -73,10 +73,10 @@ class _OrganizerJuryVotingResultsExportPageState
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Export'),
+          appBar: const CustomAppBar(title: 'Export'),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(top: 16, left: 16, right: 16),
+              padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
               child: _buildBody(context, state),
             ),
           ),
@@ -94,11 +94,11 @@ class _OrganizerJuryVotingResultsExportPageState
             onPressed: () async => context.read<OrganizerJuryVotingResultsExportPageBloc>().add(
                 OrganizerJuryVotingResultsExportPageFetch(
                     votingSessionJuryId: votingSessionJuryId)),
-            child: Text('Retry'),
+            child: const Text('Retry'),
           ),
         );
       }
-      return VoidWidget();
+      return const VoidWidget();
     }
 
     final allHeaderFields = state.votingSessionJuryResultBundle!.votingSessionJuryBundle
@@ -124,13 +124,13 @@ class _OrganizerJuryVotingResultsExportPageState
                 });
               }
             },
-            title: Text('Select jurors'),
-            trailing: Icon(Icons.arrow_downward),
+            title: const Text('Select jurors'),
+            trailing: const Icon(Icons.arrow_downward),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 200),
+          constraints: const BoxConstraints(maxHeight: 200),
           child: SingleChildScrollView(
             child: Wrap(
               spacing: 8.0,
@@ -271,7 +271,7 @@ class _OrganizerJuryVotingResultsExportPageState
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         DecoratedBox(
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.primary)),
@@ -279,12 +279,12 @@ class _OrganizerJuryVotingResultsExportPageState
           child: ListTile(
             onTap: onTap,
             title: Text(title),
-            trailing: Icon(Icons.arrow_downward),
+            trailing: const Icon(Icons.arrow_downward),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 200),
+          constraints: const BoxConstraints(maxHeight: 200),
           child: SingleChildScrollView(
             child: Wrap(
               spacing: 8.0,
@@ -466,8 +466,8 @@ class _OrganizerJuryVotingResultsExportPageState
           showSnackBar(context: context, text: message ?? 'File operation completed.');
         }
       },
-      icon: Icon(Icons.download),
-      label: Text('Export to Excel'),
+      icon: const Icon(Icons.download),
+      label: const Text('Export to Excel'),
     );
   }
 
@@ -490,7 +490,7 @@ class _OrganizerJuryVotingResultsExportPageState
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Select jurors'),
+              title: const Text('Select jurors'),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 300,
@@ -548,13 +548,13 @@ class _OrganizerJuryVotingResultsExportPageState
               actions: [
                 TextButton(
                   onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
                     context.router.pop(localSelectedVotingSessionJurors);
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             );
@@ -636,13 +636,13 @@ class _OrganizerJuryVotingResultsExportPageState
               actions: [
                 TextButton(
                   onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
                     context.router.pop(localSelectedVotingFormFields);
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             );

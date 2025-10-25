@@ -18,7 +18,7 @@ class JurorVotingQrScannerPageBloc
 
   JurorVotingQrScannerPageBloc({required JurorRepository jurorRepository})
       : _jurorRepository = jurorRepository,
-        super(JurorVotingQrScannerPageState(status: BlocStatus.initial)) {
+        super(const JurorVotingQrScannerPageState(status: BlocStatus.initial)) {
     on<JurorVotingQrScannerPageAccessVotingAsSimpleJuror>(_accessVotingAsSimpleJuror);
     on<JurorVotingQrScannerPageCheckCameraPermission>(_checkCameraPermissionStatus);
   }

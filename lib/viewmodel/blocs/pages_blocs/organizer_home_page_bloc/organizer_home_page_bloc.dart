@@ -17,7 +17,7 @@ class OrganizerHomePageBloc extends Bloc<OrganizerHomePageEvent, OrganizerHomePa
   OrganizerHomePageBloc({
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
-        super(OrganizerHomePageState(status: BlocStatus.initial)) {
+        super(const OrganizerHomePageState(status: BlocStatus.initial)) {
     on<OrganizerHomePageFetch>(_fetch);
     on<OrganizerHomePageFilterResults>(_filterResults);
   }

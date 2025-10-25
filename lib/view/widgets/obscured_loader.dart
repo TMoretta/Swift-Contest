@@ -10,7 +10,7 @@ class ObscuredLoader extends StatelessWidget {
       color: (Theme.of(context).brightness == Brightness.light)
           ? Colors.black.withAlpha(10)
           : Colors.black.withAlpha(40),
-      child: Loader(),
+      child: const Loader(),
     );
   }
 }

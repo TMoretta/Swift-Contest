@@ -18,7 +18,7 @@ class PlaceSearchPageBloc extends Bloc<PlaceSearchPageEvent, PlaceSearchPageStat
   PlaceSearchPageBloc({
     required GooglePlaceRepository googlePlaceRepository,
   })  : _googlePlaceRepository = googlePlaceRepository,
-        super(PlaceSearchPageState(status: BlocStatus.initial)) {
+        super(const PlaceSearchPageState(status: BlocStatus.initial)) {
     on<PlaceSearchPageSearchPlaceSuggestions>(
       _searchPlaceSuggestion,
       transformer: debounce(const Duration(milliseconds: 500)),

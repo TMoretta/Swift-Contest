@@ -49,11 +49,11 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                       onPressed: () async => context
                           .read<OrganizerContestDetailsPageBloc>()
                           .add(OrganizerContestDetailsPageFetch(contestId: contestId)),
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   );
                 }
-                return VoidWidget();
+                return const VoidWidget();
               }
               return RefreshIndicator.adaptive(
                 onRefresh: () async => context
@@ -66,14 +66,14 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                       state.contestDetailsBundle!.contestBundle.contest.name,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     //* Images carousel
                     SizedBox(
                       height: 200,
                       child: (state.contestDetailsBundle!.contestBundle.contest.imagesPaths.isEmpty)
                           ? ListView(
                               scrollDirection: Axis.horizontal,
-                              children: [
+                              children: const [
                                 Icon(Icons.broken_image_outlined),
                               ],
                             )
@@ -126,7 +126,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                               },
                             ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Description
                     Text(
                       'Description',
@@ -135,11 +135,11 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           .titleMedium
                           ?.copyWith(color: Theme.of(context).colorScheme.secondary),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       state.contestDetailsBundle!.contestBundle.contest.description,
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     //* Info
                     Text(
                       'Info',
@@ -158,7 +158,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                               'Participants: ${state.contestDetailsBundle!.participationsBundles.length} | '
@@ -166,7 +166,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* Place
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -177,7 +177,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: GestureDetector(
                             onLongPress: () {
@@ -196,7 +196,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         )
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     //* DateTime
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -207,7 +207,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           size: 24,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm')
@@ -216,7 +216,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     //* Participations
                     Text(
                       'Participation',
@@ -233,7 +233,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           'Start:',
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm').format(state
@@ -242,7 +242,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -251,7 +251,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                           'End:',
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM, yyyy | HH:mm').format(state
@@ -260,7 +260,7 @@ class _OrganizerDetailsTabState extends State<OrganizerDetailsTab> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 72),
+                    const SizedBox(height: 72),
                   ],
                 ),
               );

@@ -45,7 +45,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                     size: 24,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
-                  SizedBox(width: 2),
+                  const SizedBox(width: 2),
                   Text(
                     'Switch',
                     style: Theme.of(context)
@@ -61,7 +61,7 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
                 final messagesCount = state.messages?.where((e) => !e.isRead).length;
                 return IconButton(
                   onPressed: () {
-                    context.router.push(InboxRoute());
+                    context.router.push(const InboxRoute());
                   },
                   icon: Badge.count(
                     count: messagesCount ?? 0,
@@ -77,9 +77,9 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
             ),
             IconButton(
               onPressed: () {
-                context.router.push(SettingsRoute());
+                context.router.push(const SettingsRoute());
               },
-              icon: Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert),
               color: Theme.of(context).colorScheme.secondary,
             ),
           ],
@@ -109,7 +109,7 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                     setState(() => selectedRole = value!);
                   },
                   groupValue: selectedRole,
-                  child: Column(
+                  child: const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       RadioListTile(
@@ -140,13 +140,13 @@ void _showSwitchRoleDialog({required BuildContext context, required ContestRole 
                 onPressed: () {
                   switch (selectedRole) {
                     case ContestRole.organizer:
-                      context.router.replaceAll([OrganizerHomeRoute()]);
+                      context.router.replaceAll([const OrganizerHomeRoute()]);
                       break;
                     case ContestRole.participant:
-                      context.router.replaceAll([ParticipantHomeRoute()]);
+                      context.router.replaceAll([const ParticipantHomeRoute()]);
                       break;
                     case ContestRole.juror:
-                      context.router.replaceAll([JurorHomeRoute()]);
+                      context.router.replaceAll([const JurorHomeRoute()]);
                       break;
                   }
                   context.router.pop();

@@ -22,7 +22,7 @@ class ParticipantContestDetailsPageBloc
     required StorageRepository storageRepository,
   })  : _participantRepository = participantRepository,
         _storageRepository = storageRepository,
-        super(ParticipantContestDetailsPageState(status: BlocStatus.initial)) {
+        super(const ParticipantContestDetailsPageState(status: BlocStatus.initial)) {
     on<ParticipantContestDetailsPageFetch>(_fetch);
     on<ParticipantContestDetailsPageLeaveContest>(_leaveContest);
     on<ParticipantContestDetailsPageGetRankingFileUrl>(_getRankingFileUrl);

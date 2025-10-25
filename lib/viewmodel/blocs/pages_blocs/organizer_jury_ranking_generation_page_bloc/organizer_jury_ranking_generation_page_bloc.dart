@@ -17,7 +17,7 @@ class OrganizerJuryRankingGenerationPageBloc
 
   OrganizerJuryRankingGenerationPageBloc({required OrganizerRepository organizerRepository})
       : _organizerRepository = organizerRepository,
-        super(OrganizerJuryRankingGenerationPageState(status: BlocStatus.initial)) {
+        super(const OrganizerJuryRankingGenerationPageState(status: BlocStatus.initial)) {
     on<OrganizerJuryRankingGenerationPageFetch>(_fetch);
   }
 

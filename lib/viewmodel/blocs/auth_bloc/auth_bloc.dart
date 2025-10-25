@@ -23,7 +23,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   AuthBloc({
     required AuthRepository authRepository,
   })  : _authRepository = authRepository,
-        super(AuthState(blocStatus: BlocStatus.initial, authStatus: AuthStatus.initial)) {
+        super(const AuthState(blocStatus: BlocStatus.initial, authStatus: AuthStatus.initial)) {
     on<AuthFetch>(_fetch);
     on<AuthSignOut>(_signOut);
     on<AuthDeleteAccount>(_deleteAccount);

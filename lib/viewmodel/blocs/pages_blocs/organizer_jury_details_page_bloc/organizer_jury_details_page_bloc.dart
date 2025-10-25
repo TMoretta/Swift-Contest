@@ -18,7 +18,7 @@ class OrganizerJuryDetailsPageBloc
   OrganizerJuryDetailsPageBloc({
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
-        super(OrganizerJuryDetailsPageState(status: BlocStatus.initial)) {
+        super(const OrganizerJuryDetailsPageState(status: BlocStatus.initial)) {
     on<OrganizerJuryDetailsPageFetch>(_fetch);
     on<OrganizerJuryDetailsPageInviteJuror>(_inviteJuror);
     on<OrganizerJuryDetailsPageDeleteJurorInvitation>(_deleteJurorInvitation);

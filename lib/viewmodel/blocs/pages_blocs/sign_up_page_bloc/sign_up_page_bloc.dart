@@ -17,7 +17,7 @@ class SignUpPageBloc extends Bloc<SignUpPageEvent, SignUpPageState> {
   SignUpPageBloc({
     required AuthRepository authRepository,
   })  : _authRepository = authRepository,
-        super(SignUpPageState(status: BlocStatus.initial)) {
+        super(const SignUpPageState(status: BlocStatus.initial)) {
     on<SignUpWithEmailAndPassword>(_signUpWithEmailAndPassword);
     on<SignUpWithEmail>(_signUpWithEmail);
     on<SignUpPageAuthenticateSimpleJuror>(_authenticateSimpleJuror);

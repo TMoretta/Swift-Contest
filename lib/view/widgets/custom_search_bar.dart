@@ -34,7 +34,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     return SearchBar(
       controller: controller,
       focusNode: focusNode,
-      leading: Icon(Icons.search),
+      leading: const Icon(Icons.search),
       elevation: WidgetStateProperty.resolveWith(
         (states) {
           if (states.contains(WidgetState.focused)) {
@@ -55,7 +55,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                 onChanged('');
               });
             },
-            icon: Icon(Icons.clear),
+            icon: const Icon(Icons.clear),
           ),
       ],
     );

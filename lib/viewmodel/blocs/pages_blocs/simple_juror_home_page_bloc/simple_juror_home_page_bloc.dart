@@ -21,7 +21,7 @@ class SimpleJurorHomePageBloc extends Bloc<SimpleJurorHomePageEvent, SimpleJuror
     required JurorRepository jurorRepository,
   })  : _authRepository = authRepository,
         _jurorRepository = jurorRepository,
-        super(SimpleJurorHomePageState(status: BlocStatus.initial)) {
+        super(const SimpleJurorHomePageState(status: BlocStatus.initial)) {
     on<SimpleJurorHomePageSignOut>(_signOut);
     on<SimpleJurorHomePageAccessVoting>(_accessVoting);
   }

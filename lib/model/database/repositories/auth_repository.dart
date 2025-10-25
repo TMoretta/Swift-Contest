@@ -109,7 +109,7 @@ class AuthRepositoryImpl implements AuthRepository {
       () async {
         final userId = _supabase.auth.currentUser?.id;
         if (userId == null) {
-          return Either.left(Failure('User not authenticated to get messages.'));
+          return Either.left(const Failure('User not authenticated to get messages.'));
         }
 
         final Stream<List<Message>> stream = _supabase
@@ -233,7 +233,7 @@ class AuthRepositoryImpl implements AuthRepository {
         final response = await _supabase.auth.signInWithPassword(email: email, password: password);
         final session = response.session;
         if (session == null) {
-          return Either.left(Failure('No valid session found'));
+          return Either.left(const Failure('No valid session found'));
         }
         return Either.right(unit);
       },
@@ -257,7 +257,7 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         final user = response.user;
         if (user == null) {
-          return Either.left(Failure('No valid session found'));
+          return Either.left(const Failure('No valid session found'));
         }
         return Either.right(unit);
       },
@@ -274,7 +274,7 @@ class AuthRepositoryImpl implements AuthRepository {
           (failure) => Either.left(failure),
           (exists) async {
             if (!exists) {
-              return Either.left(Failure('Account does not exist. Please sign up first.'));
+              return Either.left(const Failure('Account does not exist. Please sign up first.'));
             }
             // If account exists, proceed with sign-in.
             await _supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
@@ -298,7 +298,7 @@ class AuthRepositoryImpl implements AuthRepository {
           (failure) => Either.left(failure),
           (exists) async {
             if (exists) {
-              return Either.left(Failure('An account with this email already exists.'));
+              return Either.left(const Failure('An account with this email already exists.'));
             }
             // If account does not exist, proceed with sign-up.
             await _supabase.auth.signInWithOtp(
@@ -329,7 +329,7 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         final session = response.session;
         if (session == null) {
-          return Either.left(Failure('No valid session found'));
+          return Either.left(const Failure('No valid session found'));
         }
         return Either.right(unit);
       },
@@ -350,7 +350,7 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         final session = response.session;
         if (session == null) {
-          return left(Failure('No valid session found'));
+          return left(const Failure('No valid session found'));
         }
         return Either.right(unit);
       },
@@ -387,7 +387,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Either.right(response.data as List<int>);
       }
 
-      return Either.left(ServerFailure('Failed to download APK.'));
+      return Either.left(const ServerFailure('Failed to download APK.'));
     });
   }
 }

@@ -22,7 +22,7 @@ class OrganizerVotingSettingsPageBloc
   OrganizerVotingSettingsPageBloc({
     required OrganizerRepository organizerRepository,
   })  : _organizerRepository = organizerRepository,
-        super(OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
+        super(const OrganizerVotingSettingsPageState(status: BlocStatus.initial)) {
     on<OrganizerVotingSettingsPageFetch>(_fetch);
     on<OrganizerVotingSettingsPageStartVotingSession>(_startVotingSession);
   }

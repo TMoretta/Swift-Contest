@@ -40,12 +40,12 @@ class _AccountPageState extends State<AccountPage> {
         }
         if (state.blocStatus.isSuccess && state.sourceEvent is AuthDeleteAccount) {
           showSnackBar(context: context, text: 'Account deleted successfully');
-          context.router.replaceAll([RootRoute()]);
+          context.router.replaceAll([const RootRoute()]);
         }
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Account'),
+          appBar: const CustomAppBar(title: 'Account'),
           body: Builder(
             builder: (context) {
               if (!state.isInitialized) {
@@ -53,11 +53,11 @@ class _AccountPageState extends State<AccountPage> {
                   return Center(
                     child: FilledButton(
                       onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   );
                 }
-                return VoidWidget();
+                return const VoidWidget();
               }
               final account = state.account!;
               final profile = state.profile!;
@@ -66,7 +66,7 @@ class _AccountPageState extends State<AccountPage> {
                 child: ListView(
                   children: [
                     ListTile(
-                      title: Text('Email'),
+                      title: const Text('Email'),
                       titleTextStyle: Theme.of(context)
                           .textTheme
                           .labelLarge
@@ -75,7 +75,7 @@ class _AccountPageState extends State<AccountPage> {
                       subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
                     ),
                     ListTile(
-                      title: Text('Full name'),
+                      title: const Text('Full name'),
                       titleTextStyle: Theme.of(context)
                           .textTheme
                           .labelLarge
@@ -86,7 +86,7 @@ class _AccountPageState extends State<AccountPage> {
                         onPressed: () {
                           _showEditFullNameDialog(context: context);
                         },
-                        icon: Icon(Icons.edit),
+                        icon: const Icon(Icons.edit),
                       ),
                     ),
                     ListTile(
@@ -95,17 +95,17 @@ class _AccountPageState extends State<AccountPage> {
                           context: context,
                           builder: (context) {
                             return AlertDialog(
-                              title: Text('Delete account'),
-                              content: Text(
+                              title: const Text('Delete account'),
+                              content: const Text(
                                   'Are you sure you want to delete your account? This action is irreversible'),
                               actions: [
                                 TextButton(
                                   onPressed: () => context.router.pop(),
-                                  child: Text('Cancel'),
+                                  child: const Text('Cancel'),
                                 ),
                                 TextButton(
                                   onPressed: () => context.router.pop(true),
-                                  child: Text('Proceed'),
+                                  child: const Text('Proceed'),
                                 ),
                               ],
                             );
@@ -159,7 +159,7 @@ void _showEditFullNameDialog({required BuildContext context}) {
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Edit full name'),
+              title: const Text('Edit full name'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +175,7 @@ void _showEditFullNameDialog({required BuildContext context}) {
               actions: [
                 TextButton(
                   onPressed: () => context.router.pop(),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -183,7 +183,7 @@ void _showEditFullNameDialog({required BuildContext context}) {
                         .read<AuthBloc>()
                         .add(AuthEditFullName(fullName: fullNameController.text.trim()));
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );

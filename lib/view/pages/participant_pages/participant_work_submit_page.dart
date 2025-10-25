@@ -91,7 +91,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Submit work'),
+          appBar: const CustomAppBar(title: 'Submit work'),
           body: Stepper(
             type: StepperType.horizontal,
             elevation: 0,
@@ -125,7 +125,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
             controlsBuilder: (context, details) {
               final isLastStep = details.currentStep == getSteps().length - 1;
               return Container(
-                margin: EdgeInsets.only(top: 20),
+                margin: const EdgeInsets.only(top: 20),
                 child: Row(
                   mainAxisAlignment:
                       (currentStep == 0) ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
@@ -134,11 +134,11 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                     if (details.currentStep != 0)
                       ElevatedButton(
                         onPressed: details.onStepCancel,
-                        child: Text('Back'),
+                        child: const Text('Back'),
                       ),
                     ElevatedButton(
                       onPressed: details.onStepContinue,
-                      child: isLastStep ? Text('Submit') : Text('Next'),
+                      child: isLastStep ? const Text('Submit') : const Text('Next'),
                     ),
                   ],
                 ),
@@ -156,7 +156,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
         Step(
           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 0,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: detailsFormKey,
             child: Column(
@@ -189,7 +189,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
         Step(
           state: currentStep >= 2 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 1,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: imagesFormKey,
             child: ImagesPickerFormField(
@@ -203,7 +203,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
         Step(
           state: currentStep >= 3 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: fileFormKey,
             child: FormField<PlatformFile?>(
@@ -231,9 +231,9 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                             ?.copyWith(color: Theme.of(context).colorScheme.primary),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     (file == null)
-                        ? Center(child: Text('No file selected yet'))
+                        ? const Center(child: Text('No file selected yet'))
                         : Card(
                             elevation: 0.1,
                             child: Padding(
@@ -249,7 +249,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                         });
                         field.didChange(file);
                       },
-                      child: Text('Pick ZIP file'),
+                      child: const Text('Pick ZIP file'),
                     ),
                     if (field.hasError)
                       Text(
@@ -258,7 +258,7 @@ class _ParticipantWorkSubmitPageState extends State<ParticipantWorkSubmitPage> {
                               color: Theme.of(context).colorScheme.error,
                             ),
                       ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       'Only ZIP files with a maximum size of 50 MB are accepted',
                       style: Theme.of(context)

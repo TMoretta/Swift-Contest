@@ -107,7 +107,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: CustomAppBar(title: 'Create contest'),
+          appBar: const CustomAppBar(title: 'Create contest'),
           body: Builder(
             builder: (context) {
               return Stepper(
@@ -147,7 +147,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                 controlsBuilder: (context, details) {
                   final isLastStep = details.currentStep == getSteps().length - 1;
                   return Container(
-                    margin: EdgeInsets.only(top: 20),
+                    margin: const EdgeInsets.only(top: 20),
                     child: Row(
                       mainAxisAlignment: (currentStep == 0)
                           ? MainAxisAlignment.end
@@ -157,11 +157,11 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                         if (details.currentStep != 0)
                           ElevatedButton(
                             onPressed: details.onStepCancel,
-                            child: Text('Back'),
+                            child: const Text('Back'),
                           ),
                         ElevatedButton(
                           onPressed: details.onStepContinue,
-                          child: isLastStep ? Text('Create') : Text('Next'),
+                          child: isLastStep ? const Text('Create') : const Text('Next'),
                         ),
                       ],
                     ),
@@ -181,7 +181,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
         Step(
           state: currentStep >= 1 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 0,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: firstFormKey,
             child: Column(
@@ -218,24 +218,24 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                       dateTime = dateValue;
                     });
                   },
-                  prefixIcon: Icon(Icons.calendar_today_outlined),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
                 ),
                 PlacePickerFormField(
                   controller: placeController,
                   focusNode: placeFocusNode,
                   label: 'Location',
                   validator: noEmptyValidator,
-                  prefixIcon: Icon(Icons.place_outlined),
+                  prefixIcon: const Icon(Icons.place_outlined),
                   suffixIcon: TextButton(
                     onPressed: () async {
                       placeFocusNode.requestFocus();
-                      final Place? res = await context.router.push(PlaceSearchRoute());
+                      final Place? res = await context.router.push(const PlaceSearchRoute());
                       if (res != null) {
                         placeController.text = res.address;
                         place = res;
                       }
                     },
-                    child: Text('Select'),
+                    child: const Text('Select'),
                   ),
                 ),
               ],
@@ -246,7 +246,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
         Step(
           state: currentStep >= 2 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 1,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: secondFormKey,
             child: ImagesPickerFormField(
@@ -260,7 +260,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
         Step(
           state: currentStep >= 3 ? StepState.complete : StepState.indexed,
           isActive: currentStep >= 2,
-          title: Text(''),
+          title: const Text(''),
           content: Form(
             key: thirdFormKey,
             child: Column(
@@ -271,7 +271,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                   'Work upload deadline for participants',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 DateTimePickerFormField(
                   controller: worksSubmissionStartController,
                   focusNode: worksSubmissionStartFocusNode,
@@ -284,7 +284,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                       worksSubmissionStart = workDateStartValue;
                     });
                   },
-                  prefixIcon: Icon(Icons.calendar_today_outlined),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
                 ),
                 DateTimePickerFormField(
                   controller: worksSubmissionEndController,
@@ -298,7 +298,7 @@ class _OrganizerContestCreationPageState extends State<OrganizerContestCreationP
                       worksSubmissionEnd = workDateEndValue;
                     });
                   },
-                  prefixIcon: Icon(Icons.calendar_today_outlined),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
                 ),
               ],
             ),

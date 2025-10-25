@@ -84,7 +84,7 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                 child: Column(
                   children: [
                     if(state.isInitialized)
-                      TabBar(
+                      const TabBar(
                         isScrollable: true,
                         tabAlignment: TabAlignment.center,
                         tabs: [
@@ -96,10 +96,10 @@ class _OrganizerContestDetailsPageState extends State<OrganizerContestDetailsPag
                           Tab(text: 'Rankings'),
                         ],
                       ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Expanded(
                       child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         children: [
                           OrganizerDetailsTab(contestId: contestId),
                           OrganizerParticipantsTab(contestId: contestId),
@@ -207,15 +207,15 @@ void _showDeleteContestDialog({required BuildContext context, required String co
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Delete contest'),
-              content: Text('Are you sure you want to delete this contest? '
+              title: const Text('Delete contest'),
+              content: const Text('Are you sure you want to delete this contest? '
                   'All related info will be lost and members will be notified'),
               actions: [
                 TextButton(
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -223,7 +223,7 @@ void _showDeleteContestDialog({required BuildContext context, required String co
                         .read<OrganizerContestDetailsPageBloc>()
                         .add(OrganizerContestDetailsPageDeleteContest(contestId: contestId));
                   },
-                  child: Text('Proceed'),
+                  child: const Text('Proceed'),
                 ),
               ],
             );

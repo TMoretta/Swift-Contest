@@ -83,7 +83,7 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
               title: state.votingSessionResultBundle?.votingSessionBundle.votingSession.name ?? ''),
           body: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(left: 16, top: 16, right: 16),
+              padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
               child: Builder(
                 builder: (context) {
                   if (!state.isInitialized) {
@@ -92,11 +92,11 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
                         child: FilledButton(
                           onPressed: () async => context.read<OrganizerVotingResultsPageBloc>().add(
                               OrganizerVotingResultsPageFetch(votingSessionId: votingSessionId)),
-                          child: Text('Retry'),
+                          child: const Text('Retry'),
                         ),
                       );
                     }
-                    return VoidWidget();
+                    return const VoidWidget();
                   }
                   final votingSession =
                       state.votingSessionResultBundle!.votingSessionBundle.votingSession;
@@ -153,7 +153,7 @@ class _OrganizerVotingResultsPageState extends State<OrganizerVotingResultsPage>
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           'Juries',
                           style: Theme.of(context).textTheme.titleMedium,
@@ -197,20 +197,20 @@ void _showDeleteVotingSessionDialog({
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text('Delete Voting Session'),
-        content: Text(
+        title: const Text('Delete Voting Session'),
+        content: const Text(
             'Are you sure you want to delete this voting session? This action cannot be undone and all related data will be lost.'),
         actions: [
           TextButton(
             onPressed: () => context.router.pop(),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               organizerVotingResultsPageBloc
                   .add(OrganizerVotingResultsPageDeleteVotingSession(votingSessionId: votingSessionId));
             },
-            child: Text('Delete'),
+            child: const Text('Delete'),
           ),
         ],
       );
@@ -244,7 +244,7 @@ void _showEditVotingSessionNameDialog({
           },
           builder: (context, state) {
             return AlertDialog(
-              title: Text('Edit name'),
+              title: const Text('Edit name'),
               content: Form(
                 key: formKey,
                 child: Column(
@@ -265,7 +265,7 @@ void _showEditVotingSessionNameDialog({
                   onPressed: () {
                     context.router.pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -275,7 +275,7 @@ void _showEditVotingSessionNameDialog({
                               votingSessionId: votingSessionId, name: nameController.text.trim()));
                     }
                   },
-                  child: Text('Edit'),
+                  child: const Text('Edit'),
                 ),
               ],
             );
