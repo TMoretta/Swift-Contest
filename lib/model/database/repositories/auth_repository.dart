@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/account_bundle.dart';
 import 'package:swift_contest/model/database/entities/message.dart';
 import 'package:swift_contest/model/database/types/contest_role.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class AuthRepository {
@@ -68,7 +68,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, AccountBundle?>> getAccountBundle() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final Map<String, dynamic>? res =
             await _supabase.rpc('auth_get_account_bundle').maybeSingle();
@@ -82,7 +82,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, List<Message>>> getMessages() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final List<Map<String, dynamic>> res = await _supabase.rpc('auth_get_messages');
         return Either.right(res.map((e) => Message.fromJson(e)).toList(growable: false));
@@ -92,7 +92,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, bool>> checkAccountExists({required String email}) {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final bool exists = await _supabase.rpc(
           'auth_check_account_exists',
@@ -105,7 +105,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Stream<List<Message>>>> getMessagesStream() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final userId = _supabase.auth.currentUser?.id;
         if (userId == null) {
@@ -158,7 +158,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteAccount() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.functions.invoke('user-delete-account');
         if (res.status != 200) {
@@ -172,7 +172,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> markMessageAsRead({required String messageId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('auth_mark_message_as_read', params: {'p_message_id': messageId});
         return Either.right(unit);
@@ -182,7 +182,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteMessage({required String messageId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('auth_delete_message', params: {'p_message_id': messageId});
         return Either.right(unit);
@@ -192,7 +192,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteAllAccountMessages() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('auth_delete_all_account_messages');
         return Either.right(unit);
@@ -202,7 +202,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> updateProfileFullName({required String fullName}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('auth_update_profile_full_name', params: {'p_full_name': fullName});
         return Either.right(unit);
@@ -214,7 +214,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> updateProfilePrefRole({
     required ContestRole prefRole,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase
             .rpc('auth_update_profile_pref_role', params: {'p_pref_role': prefRole.name});
@@ -228,7 +228,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final response = await _supabase.auth.signInWithPassword(email: email, password: password);
         final session = response.session;
@@ -246,7 +246,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
     required String fullName,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final response = await _supabase.auth.signUp(
           email: email,
@@ -266,7 +266,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> signInWithEmail({required String email}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         // First, check if the account exists.
         final eitherExists = await checkAccountExists(email: email);
@@ -290,7 +290,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String fullName,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         // First, check if the account already exists.
         final eitherExists = await checkAccountExists(email: email);
@@ -320,7 +320,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String otp,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final response = await _supabase.auth.verifyOTP(
           type: OtpType.email,
@@ -341,7 +341,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String otp,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final response = await _supabase.auth.verifyOTP(
           type: OtpType.signup,
@@ -359,7 +359,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> signOut() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.auth.signOut();
         return Either.right(unit);
@@ -369,7 +369,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> anonSignIn({required String fullName}) {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.auth.signInAnonymously(data: {'full_name': fullName});
         return Either.right(unit);
@@ -379,7 +379,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, List<int>>> getLatestApk() {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       // Invoke the Edge Function which acts as a secure proxy to GitHub.
       final response = await _supabase.functions.invoke('get-latest-apk');
 

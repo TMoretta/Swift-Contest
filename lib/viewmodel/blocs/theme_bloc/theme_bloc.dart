@@ -22,6 +22,7 @@ class ThemeBloc extends HydratedBloc<ThemeEvent, ThemeState> {
         super(ThemeState(status: BlocStatus.initial)) {
     on<LoadTheme>(_loadTheme);
     on<SaveTheme>(_saveTheme);
+    on<ClearTheme>(_clearTheme);
 
     add(LoadTheme());
   }
@@ -66,6 +67,16 @@ class ThemeBloc extends HydratedBloc<ThemeEvent, ThemeState> {
     eitherSaveTheme.fold(
       (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
       (success) => emit(state.copyWith(status: BlocStatus.success, theme: event.theme)),
+    );
+  }
+
+  Future<void> _clearTheme(ClearTheme event, Emitter<ThemeState> emit) async {
+    emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
+
+    final eitherSaveTheme = await _themeRepository.saveTheme(AppTheme.system);
+    eitherSaveTheme.fold(
+          (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
+          (success) => emit(state.copyWith(status: BlocStatus.success, theme: AppTheme.system)),
     );
   }
 }

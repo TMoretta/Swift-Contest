@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/entities/account.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class AccountDao {
@@ -17,7 +17,7 @@ class AccountDaoImpl implements AccountDao {
 
   @override
   Future<Either<Failure, Account>> updateCurrent({required UserAttributes userAttributes}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.auth.updateUser(userAttributes);
         return Either.right(Account.fromJson(res.user!.toJson()));
@@ -27,7 +27,7 @@ class AccountDaoImpl implements AccountDao {
 
   @override
   Future<Either<Failure, Account>> getCurrent() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final response = await _supabase.auth.getUser();
         return Either.right(Account.fromJson(response.user!.toJson()));

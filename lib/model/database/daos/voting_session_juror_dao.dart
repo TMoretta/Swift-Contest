@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/database/entities/voting_session_juror.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 
@@ -15,7 +15,7 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurorDao {
 
   @override
   Future<Either<Failure, VotingSessionJuror>> create({required VotingSessionJuror entity}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_session_jurors').insert(entity.toJson()).select().single();
       return Either.right(VotingSessionJuror.fromJson(res));
     });
@@ -23,7 +23,7 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurorDao {
 
   @override
   Future<Either<Failure, VotingSessionJuror>> update({required VotingSessionJuror entity}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_session_jurors').update(entity.toJson()).eq('id', entity.id!).select().single();
       return Either.right(VotingSessionJuror.fromJson(res));
     });
@@ -31,7 +31,7 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurorDao {
 
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       await _supabase.from('voting_session_jurors').delete().eq('id', id);
       return Either.right(unit);
     });
@@ -39,7 +39,7 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurorDao {
 
   @override
   Future<Either<Failure, VotingSessionJuror>> getById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_session_jurors').select().eq('id', id).limit(1).single();
       return Either.right(VotingSessionJuror.fromJson(res));
     });
@@ -47,7 +47,7 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurorDao {
 
   @override
   Future<Either<Failure, VotingSessionJuror?>> getNullableById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_session_jurors').select().eq('id', id).limit(1).maybeSingle();
       return Either.right(res != null ? VotingSessionJuror.fromJson(res) : null);
     });
@@ -55,7 +55,7 @@ class VotingSessionJurationDaoImpl implements VotingSessionJurorDao {
 
   @override
   Future<Either<Failure, List<VotingSessionJuror>>> getAll() {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_session_jurors').select();
       return Either.right(res.map((e) => VotingSessionJuror.fromJson(e)).toList(growable: false));
     });

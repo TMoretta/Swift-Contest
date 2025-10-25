@@ -22,7 +22,7 @@ import 'package:swift_contest/model/database/entities/participation.dart';
 import 'package:swift_contest/model/database/entities/place.dart';
 import 'package:swift_contest/model/database/entities/voting_form_field.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class OrganizerRepository {
@@ -157,7 +157,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getCreatedContests() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final List<Map<String, dynamic>> res =
             await _supabase.rpc('organizer_get_created_contests');
@@ -170,7 +170,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, OrganizerContestDetailsBundle>> getContestDetails({
     required String contestId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase
             .rpc('organizer_get_contest_details', params: {'p_contest_id': contestId}).single();
@@ -185,7 +185,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required Place place,
     required List<XFile> images,
   }) async {
-    return handleDatabaseCall<Contest>(() async {
+    return handleBackendCall<Contest>(() async {
       final List<Map<String, String>> imagesPayload = [];
       for (final imageFile in images) {
         final fileBytes = await imageFile.readAsBytes();
@@ -216,7 +216,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required Place place,
     required List<XFile>? images,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         // Prepara il corpo base della richiesta
         final Map<String, dynamic> body = {
@@ -251,7 +251,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteContest({required String contestId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.functions.invoke(
           'organizer-delete-contest',
@@ -266,7 +266,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Jury>> createJury({
     required Jury jury,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase
             .rpc('organizer_create_jury', params: {'p_jury': jury.toJson()}).single();
@@ -277,7 +277,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteJurorInvitation({required String jurorInvitationId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('organizer_delete_juror_invitation',
             params: {'p_juror_invitation_id': jurorInvitationId});
@@ -288,7 +288,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteJury({required String juryId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('organizer_delete_jury', params: {'p_jury_id': juryId});
         return Either.right(unit);
@@ -300,7 +300,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> deleteParticipantInvitation({
     required String participantInvitationId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('organizer_delete_participant_invitation',
             params: {'p_participant_invitation_id': participantInvitationId});
@@ -313,7 +313,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, ParticipationBundle>> getParticipationBundle({
     required String participationId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final Map<String, dynamic> res = await _supabase.rpc('organizer_get_participation_bundle',
             params: {'p_participation_id': participationId}).single();
@@ -324,7 +324,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> inviteJuror({required JurorInvitation jurorInvitation}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.functions
             .invoke('organizer-invite-juror', body: {'juror_invitation': jurorInvitation.toJson()});
@@ -340,7 +340,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Unit>> inviteParticipant({
     required ParticipantInvitation participantInvitation,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.functions.invoke('organizer-invite-participant',
             body: {'participant_invitation': participantInvitation.toJson()});
@@ -354,7 +354,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> removeJuror({required String jurationId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('organizer_remove_juror', params: {'p_juration_id': jurationId});
         return Either.right(unit);
@@ -364,7 +364,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> removeParticipant({required String participationId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.functions.invoke(
           'organizer-remove-participant',
@@ -380,7 +380,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required String juryId,
     required String name,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.rpc(
           'organizer_update_jury_name',
@@ -401,7 +401,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required String? name,
     required String? description,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final votingFormFieldsJson =
             votingFormFields.map((e) => e.toJson()).toList(growable: false);
@@ -418,7 +418,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, JuryBundle>> getJuryBundle({required String juryId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase
             .rpc('organizer_get_jury_bundle', params: {'p_jury_id': juryId}).single();
@@ -431,7 +431,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, VotingFormBundle>> getVotingFormBundle({
     required String votingFormId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.rpc('organizer_get_voting_form_bundle',
             params: {'p_voting_form_id': votingFormId}).single();
@@ -448,7 +448,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required VotingSession votingSession,
     required Place? geoResPlace,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         // Estrai solo gli ID dei partecipanti.
         final participationsIds = participations.map((p) => p.id!).toList();
@@ -481,7 +481,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, OrganizerVotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         // 1. Chiama la funzione RPC.
         //    La funzione restituisce un singolo oggetto JSON, quindi usiamo .single().
@@ -500,7 +500,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, Stream<VotingSession?>>> getVotingSessionStream({
     required String votingSessionId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final Stream<VotingSession?> stream = _supabase
             .from('voting_sessions')
@@ -520,7 +520,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> endVotingSession({required String votingSessionId}) {
     // Implementazione simile per chiamare 'organizer_end_voting_session'
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc(
           'organizer_end_voting_session',
@@ -534,7 +534,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   @override
   Future<Either<Failure, Unit>> cancelVotingSession({required String votingSessionId}) {
     // Implementazione simile per chiamare 'organizer_cancel_voting_session'
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc(
           'organizer_cancel_voting_session',
@@ -550,7 +550,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required String votingSessionId,
     required String name,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc(
           'organizer_update_voting_session_name',
@@ -568,7 +568,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, VotingSessionResultBundle>> getVotingSessionResultDetails({
     required String votingSessionId,
   }) {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final result = await _supabase.rpc(
           'organizer_get_voting_session_result_bundle',
@@ -585,7 +585,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, VotingSessionJuryResultBundle>> getVotingSessionJuryResultDetails({
     required String votingSessionJuryId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         // Esegue la chiamata alla funzione RPC sul database.
         final result = await _supabase.rpc(
@@ -603,7 +603,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
   Future<Either<Failure, VotingSessionJurorResultBundle>> getVotingSessionJurorResultDetails({
     required String votingSessionJurorId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         // Esegue la chiamata alla funzione RPC sul database.
         final result = await _supabase.rpc(
@@ -622,7 +622,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
     required String contestId,
     required PlatformFile file,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final String fileBase64 = base64Encode(file.bytes!);
 
@@ -642,7 +642,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> unpublishRanking({required String contestRankingId}) {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.functions.invoke(
           'organizer-unpublish-ranking',
@@ -657,7 +657,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, String>> regenerateJuryToken({required String juryId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final newToken = await _supabase.rpc(
           'organizer_regenerate_jury_token',
@@ -671,7 +671,7 @@ class OrganizerRepositoryImpl implements OrganizerRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteVotingSession({required String votingSessionId}) {
-    return handleDatabaseCall(
+    return handleBackendCall(
           () async {
         await _supabase
             .rpc(

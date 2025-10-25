@@ -106,31 +106,4 @@ extension ColorSchemeX on ColorScheme {
 
   Color get greyE =>
       brightness == Brightness.light ? const Color(0xFFEEEEEE) : const Color(0xFFEEEEEE);
-
-  Color get statusGreen =>
-      brightness == Brightness.light ? const Color(0xFF4CAF50) : const Color(0xFF81C784);
-
-  Color get statusTeal =>
-      brightness == Brightness.light ? const Color(0xff06debe) : const Color(0xff06debe);
-
-  Color get statusOrange =>
-      brightness == Brightness.light ? const Color(0xFFe98e36) : const Color(0xFFe98e36);
-
-  Color get statusRed =>
-      brightness == Brightness.light ? const Color(0xFFD32F2F) : const Color(0xFFEF5350);
-
-  Color get statusPreparation =>
-      brightness == Brightness.light ? const Color(0xFF3434CC) : const Color(0xFF3434CC);
-
-  Color get statusParticipation =>
-      brightness == Brightness.light ? const Color(0xFFe98e36) : const Color(0xFFe98e36);
-
-  Color get statusVoting =>
-      brightness == Brightness.light ? const Color(0xff06debe) : const Color(0xff06debe);
-
-  Color get statusTerminated =>
-      brightness == Brightness.light ? const Color(0xff505050) : const Color(0xff505050);
-
-  Color get statusDeleted =>
-      brightness == Brightness.light ? const Color(0xFFD32F2F) : const Color(0xFFEF5350);
 }

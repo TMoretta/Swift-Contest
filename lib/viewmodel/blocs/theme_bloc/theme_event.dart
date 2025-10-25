@@ -17,3 +17,8 @@ final class SaveTheme extends ThemeEvent {
   @override
   List<Object?> get props => [theme];
 }
+
+final class ClearTheme extends ThemeEvent {
+  @override
+  List<Object?> get props => [];
+}

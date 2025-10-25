@@ -7,7 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/bundles/participant_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/entities/work.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class ParticipantRepository {
@@ -42,7 +42,7 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
 
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final List<Map<String, dynamic>> res =
             await _supabase.rpc('participant_get_joined_contests');
@@ -55,7 +55,7 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
   Future<Either<Failure, ParticipantContestDetailsBundle>> getContestDetails({
     required String contestId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final Map<String, dynamic> res = await _supabase
             .rpc('participant_get_contest_details', params: {'p_contest_id': contestId}).single();
@@ -68,7 +68,7 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
   Future<Either<Failure, Unit>> joinContest({
     required String token,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('participant_join_contest', params: {
           'p_token': token,
@@ -82,7 +82,7 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
   Future<Either<Failure, Unit>> leaveContest({
     required String contestId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.functions.invoke(
           'participant-leave-contest',
@@ -100,7 +100,7 @@ class ParticipantRepositoryImpl implements ParticipantRepository {
     required List<XFile> images,
     required PlatformFile file,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final List<Map<String, String>> imagesPayload = [];
         for (final imageFile in images) {

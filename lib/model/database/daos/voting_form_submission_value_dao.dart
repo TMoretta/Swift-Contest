@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/entities/voting_form_submission_values.dart';
 import 'package:swift_contest/model/utils/dao.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 
@@ -15,7 +15,7 @@ class VotingFormSubmissionValueDaoImpl implements VotingFormSubmissionValueDao {
 
   @override
   Future<Either<Failure, VotingFormSubmissionValue>> create({required VotingFormSubmissionValue entity}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_form_submission_values').insert(entity.toJson()).select().single();
       return Either.right(VotingFormSubmissionValue.fromJson(res));
     });
@@ -23,7 +23,7 @@ class VotingFormSubmissionValueDaoImpl implements VotingFormSubmissionValueDao {
 
   @override
   Future<Either<Failure, VotingFormSubmissionValue>> update({required VotingFormSubmissionValue entity}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_form_submission_values').update(entity.toJson()).eq('id', entity.id!).select().single();
       return Either.right(VotingFormSubmissionValue.fromJson(res));
     });
@@ -31,7 +31,7 @@ class VotingFormSubmissionValueDaoImpl implements VotingFormSubmissionValueDao {
 
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       await _supabase.from('voting_form_submission_values').delete().eq('id', id);
       return Either.right(unit);
     });
@@ -39,7 +39,7 @@ class VotingFormSubmissionValueDaoImpl implements VotingFormSubmissionValueDao {
 
   @override
   Future<Either<Failure, VotingFormSubmissionValue>> getById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_form_submission_values').select().eq('id', id).limit(1).single();
       return Either.right(VotingFormSubmissionValue.fromJson(res));
     });
@@ -47,7 +47,7 @@ class VotingFormSubmissionValueDaoImpl implements VotingFormSubmissionValueDao {
 
   @override
   Future<Either<Failure, VotingFormSubmissionValue?>> getNullableById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_form_submission_values').select().eq('id', id).limit(1).maybeSingle();
       return Either.right(res != null ? VotingFormSubmissionValue.fromJson(res) : null);
     });
@@ -55,7 +55,7 @@ class VotingFormSubmissionValueDaoImpl implements VotingFormSubmissionValueDao {
 
   @override
   Future<Either<Failure, List<VotingFormSubmissionValue>>> getAll() async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('voting_form_submission_values').select();
       return Either.right(res.map((e) => VotingFormSubmissionValue.fromJson(e)).toList(growable: false));
     });

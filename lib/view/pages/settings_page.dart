@@ -50,6 +50,7 @@ class _AuthState extends State<SettingsPage> {
             }
             if (state.blocStatus.isSuccess && state.sourceEvent is AuthSignOut) {
               context.read<InboxBloc>().add(InboxClear());
+              context.read<ThemeBloc>().add(ClearTheme());
               context.router.replaceAll([RootRoute()]);
             }
           },

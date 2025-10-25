@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/database/entities/participant_invitation.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 
@@ -15,7 +15,7 @@ class ParticipantInvitationDaoImpl implements ParticipantInvitationDao {
 
   @override
   Future<Either<Failure, ParticipantInvitation>> create({required ParticipantInvitation entity}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('participant_invitations').insert(entity.toJson()).select().single();
       return Either.right(ParticipantInvitation.fromJson(res));
     });
@@ -23,7 +23,7 @@ class ParticipantInvitationDaoImpl implements ParticipantInvitationDao {
 
   @override
   Future<Either<Failure, ParticipantInvitation>> update({required ParticipantInvitation entity}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('participant_invitations').update(entity.toJson()).eq('id', entity.id!).select().single();
       return Either.right(ParticipantInvitation.fromJson(res));
     });
@@ -31,7 +31,7 @@ class ParticipantInvitationDaoImpl implements ParticipantInvitationDao {
 
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       await _supabase.from('participant_invitations').delete().eq('id', id);
       return Either.right(unit);
     });
@@ -39,7 +39,7 @@ class ParticipantInvitationDaoImpl implements ParticipantInvitationDao {
 
   @override
   Future<Either<Failure, ParticipantInvitation>> getById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('participant_invitations').select().eq('id', id).limit(1).single();
       return Either.right(ParticipantInvitation.fromJson(res));
     });
@@ -47,7 +47,7 @@ class ParticipantInvitationDaoImpl implements ParticipantInvitationDao {
 
   @override
   Future<Either<Failure, ParticipantInvitation?>> getNullableById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('participant_invitations').select().eq('id', id).limit(1).maybeSingle();
       return Either.right(res != null ? ParticipantInvitation.fromJson(res) : null);
     });
@@ -55,7 +55,7 @@ class ParticipantInvitationDaoImpl implements ParticipantInvitationDao {
 
   @override
   Future<Either<Failure, List<ParticipantInvitation>>> getAll() async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('participant_invitations').select();
       return Either.right(res.map((e) => ParticipantInvitation.fromJson(e)).toList(growable: false));
     });

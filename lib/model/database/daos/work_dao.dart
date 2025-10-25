@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/database/entities/work.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class WorkDao implements Dao<Work> {
@@ -16,7 +16,7 @@ class WorkDaoImpl implements WorkDao {
 
   @override
   Future<Either<Failure, Work>> create({required Work entity}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('works').insert(entity.toJson()).select().single();
       return Either.right(Work.fromJson(res));
     });
@@ -24,7 +24,7 @@ class WorkDaoImpl implements WorkDao {
 
   @override
   Future<Either<Failure, Work>> update({required Work entity}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase
           .from('works')
           .update(entity.toJson())
@@ -37,7 +37,7 @@ class WorkDaoImpl implements WorkDao {
 
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       await _supabase.from('works').delete().eq('id', id);
       return Either.right(unit);
     });
@@ -45,7 +45,7 @@ class WorkDaoImpl implements WorkDao {
 
   @override
   Future<Either<Failure, Work>> getById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('works').select().eq('id', id).limit(1).single();
       return Either.right(Work.fromJson(res));
     });
@@ -53,7 +53,7 @@ class WorkDaoImpl implements WorkDao {
 
   @override
   Future<Either<Failure, Work?>> getNullableById({required String id}) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('works').select().eq('id', id).limit(1).maybeSingle();
       return Either.right(res != null ? Work.fromJson(res) : null);
     });
@@ -61,7 +61,7 @@ class WorkDaoImpl implements WorkDao {
 
   @override
   Future<Either<Failure, List<Work>>> getAll() async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('works').select();
       return Either.right(res.map((e) => Work.fromJson(e)).toList(growable: false));
     });
@@ -71,7 +71,7 @@ class WorkDaoImpl implements WorkDao {
   Future<Either<Failure, Work?>> getNullableByParticipationId({
     required String participationId,
   }) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase
           .from('works')
           .select()

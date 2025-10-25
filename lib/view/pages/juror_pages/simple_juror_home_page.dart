@@ -50,6 +50,7 @@ class _SimpleJurorHomePageState extends State<SimpleJurorHomePage> {
           context.hideLoader();
         }
         if (state.status.isSuccess && state.sourceEvent is SimpleJurorHomePageSignOut) {
+          context.read<ThemeBloc>().add(ClearTheme());
           context.router.replaceAll([RootRoute()]);
         }
       },

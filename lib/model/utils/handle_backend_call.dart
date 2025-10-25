@@ -9,11 +9,11 @@ import 'package:swift_contest/model/utils/storage_exception_to_failure.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/utils/logger/logger.dart';
 
-Future<Either<Failure, T>> handleDatabaseCall<T>(Future<Either<Failure, T>> Function() function) async {
+Future<Either<Failure, T>> handleBackendCall<T>(Future<Either<Failure, T>> Function() function) async {
   try {
     return await function();
   } on SocketException catch (e) {
-    Logger.error('Network error: $e');
+    Logger.warning('Network error: $e');
     return Either.left(const NetworkFailure());
   } on AuthException catch (e) {
     Logger.warning('Auth error: $e');

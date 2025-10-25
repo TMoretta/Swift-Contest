@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/types/storage_bucket.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 import 'package:swift_contest/utils/functions/gen_uuid.dart';
 
@@ -44,7 +44,7 @@ class StorageRepositoryImpl implements StorageRepository {
     required String pathPrefix,
     required List<XFile> images,
   }) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       // Esegui tutti gli upload in parallelo per efficienza.
       final uploadTasks = images.map((image) async {
         final fileName = image.name;
@@ -78,7 +78,7 @@ class StorageRepositoryImpl implements StorageRepository {
     required String pathPrefix,
     required File file,
   }) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final fileName = p.basename(file.path);
       final uploadPath = '$pathPrefix/${genUuid()}/$fileName';
 
@@ -97,7 +97,7 @@ class StorageRepositoryImpl implements StorageRepository {
     required StorageBucket bucket,
     required String path,
   }) async {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       // Dato che i tuoi bucket sono privati per sicurezza (ottima scelta!),
       // dobbiamo sempre generare una URL firmata.
       // Questa URL concede un accesso temporaneo al file.

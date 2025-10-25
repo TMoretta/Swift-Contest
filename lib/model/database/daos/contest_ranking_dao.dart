@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/database/entities/contest_ranking.dart';
 import 'package:swift_contest/model/utils/dao.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class ContestRankingDao implements Dao<ContestRanking> {
@@ -16,7 +16,7 @@ class ContestRankingDaoImpl implements ContestRankingDao {
 
   @override
   Future<Either<Failure, ContestRanking>> create({required ContestRanking entity}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contest_rankings').insert(entity.toJson()).select().single();
       return Either.right(ContestRanking.fromJson(res));
     });
@@ -24,7 +24,7 @@ class ContestRankingDaoImpl implements ContestRankingDao {
 
   @override
   Future<Either<Failure, ContestRanking>> update({required ContestRanking entity}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase
           .from('contest_rankings')
           .update(entity.toJson())
@@ -38,7 +38,7 @@ class ContestRankingDaoImpl implements ContestRankingDao {
 
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       await _supabase.from('contest_rankings').delete().eq('id', id);
       return Either.right(unit);
     });
@@ -46,7 +46,7 @@ class ContestRankingDaoImpl implements ContestRankingDao {
 
   @override
   Future<Either<Failure, ContestRanking>> getById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contest_rankings').select().eq('id', id).limit(1).single();
       return Either.right(ContestRanking.fromJson(res));
     });
@@ -54,7 +54,7 @@ class ContestRankingDaoImpl implements ContestRankingDao {
 
   @override
   Future<Either<Failure, ContestRanking?>> getNullableById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contest_rankings').select().eq('id', id).limit(1).maybeSingle();
       return Either.right(res != null ? ContestRanking.fromJson(res) : null);
     });
@@ -62,7 +62,7 @@ class ContestRankingDaoImpl implements ContestRankingDao {
 
   @override
   Future<Either<Failure, List<ContestRanking>>> getAll() {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contest_rankings').select().order('created_at');
       return Either.right(res.map((e) => ContestRanking.fromJson(e)).toList(growable: false));
     });
@@ -70,7 +70,7 @@ class ContestRankingDaoImpl implements ContestRankingDao {
 
   @override
   Future<Either<Failure, List<ContestRanking>>> getByContestId({required String contestId}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase
           .from('contest_rankings')
           .select()

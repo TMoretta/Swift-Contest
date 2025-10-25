@@ -4,7 +4,7 @@ import 'package:swift_contest/model/database/bundles/home_contest_bundle.dart';
 import 'package:swift_contest/model/database/bundles/juror_contest_details_bundle.dart';
 import 'package:swift_contest/model/database/bundles/juror_voting_session_procedure_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_session.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class JurorRepository {
@@ -47,7 +47,7 @@ class JurorRepositoryImpl implements JurorRepository {
 
   @override
   Future<Either<Failure, List<HomeContestBundle>>> getJoinedContests() async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final List<Map<String, dynamic>> res = await _supabase.rpc('juror_get_joined_contests');
         return Either.right(res.map((e) => HomeContestBundle.fromJson(e)).toList(growable: false));
@@ -59,7 +59,7 @@ class JurorRepositoryImpl implements JurorRepository {
   Future<Either<Failure, JurorContestDetailsBundle>> getContestDetails({
     required String contestId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final Map<String, dynamic> res = await _supabase
             .rpc('juror_get_contest_details', params: {'p_contest_id': contestId}).single();
@@ -70,7 +70,7 @@ class JurorRepositoryImpl implements JurorRepository {
 
   @override
   Future<Either<Failure, Unit>> joinContest({required String token}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('juror_join_contest', params: {
           'p_token': token,
@@ -82,7 +82,7 @@ class JurorRepositoryImpl implements JurorRepository {
 
   @override
   Future<Either<Failure, Unit>> leaveContest({required String contestId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('juror_leave_contest', params: {
           'p_contest_id': contestId,
@@ -96,7 +96,7 @@ class JurorRepositoryImpl implements JurorRepository {
   Future<Either<Failure, JurorVotingSessionProcedureBundle>> getVotingSessionProcedureBundle({
     required String votingSessionId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.rpc(
           'juror_get_voting_session_procedure_bundle',
@@ -112,7 +112,7 @@ class JurorRepositoryImpl implements JurorRepository {
   Future<Either<Failure, Stream<Either<Failure, VotingSession?>>>> getVotingSessionStream({
     required String votingSessionId,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final Stream<Either<Failure, VotingSession?>> stream = _supabase
             .from('voting_sessions')
@@ -145,7 +145,7 @@ class JurorRepositoryImpl implements JurorRepository {
     required double? jurorLat,
     required double? jurorLon,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         await _supabase.rpc('juror_submit_votes', params: {
           'p_voting_session_id': votingSessionId,
@@ -162,7 +162,7 @@ class JurorRepositoryImpl implements JurorRepository {
   Future<Either<Failure, VotingSession>> accessVotingAsSimpleJuror({
     required String token,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase
             .rpc('juror_access_voting_as_simple_juror', params: {'p_token': token}).single();

@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/utils/dao.dart';
 import 'package:swift_contest/model/database/entities/contest.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 abstract interface class ContestDao implements Dao<Contest> {
@@ -16,7 +16,7 @@ class ContestDaoImpl implements ContestDao {
 
   @override
   Future<Either<Failure, Contest>> create({required Contest entity}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contests').insert(entity.toJson()).select().single();
       return Either.right(Contest.fromJson(res));
     });
@@ -24,7 +24,7 @@ class ContestDaoImpl implements ContestDao {
 
   @override
   Future<Either<Failure, Contest>> update({required Contest entity}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase
           .from('contests')
           .update(entity.toJson())
@@ -38,7 +38,7 @@ class ContestDaoImpl implements ContestDao {
 
   @override
   Future<Either<Failure, Unit>> deleteById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       await _supabase.from('contests').delete().eq('id', id);
       return Either.right(unit);
     });
@@ -46,7 +46,7 @@ class ContestDaoImpl implements ContestDao {
 
   @override
   Future<Either<Failure, Contest>> getById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contests').select().eq('id', id).limit(1).single();
       return Either.right(Contest.fromJson(res));
     });
@@ -54,7 +54,7 @@ class ContestDaoImpl implements ContestDao {
 
   @override
   Future<Either<Failure, Contest?>> getNullableById({required String id}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contests').select().eq('id', id).limit(1).maybeSingle();
       return Either.right(res != null ? Contest.fromJson(res) : null);
     });
@@ -62,7 +62,7 @@ class ContestDaoImpl implements ContestDao {
 
   @override
   Future<Either<Failure, List<Contest>>> getAll() {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase.from('contests').select().order('created_at');
       return Either.right(res.map((e) => Contest.fromJson(e)).toList(growable: false));
     });
@@ -70,7 +70,7 @@ class ContestDaoImpl implements ContestDao {
 
   @override
   Future<Either<Failure, List<Contest>>> getByOrganizerId({required String organizerId}) {
-    return handleDatabaseCall(() async {
+    return handleBackendCall(() async {
       final res = await _supabase
           .from('contests')
           .select()

@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:swift_contest/model/google_place/entities/google_place.dart';
 import 'package:swift_contest/model/google_place/entities/google_place_suggestion.dart';
-import 'package:swift_contest/model/utils/handle_database_call.dart';
+import 'package:swift_contest/model/utils/handle_backend_call.dart';
 import 'package:swift_contest/utils/failures/failures.dart';
 
 //* Interface
@@ -24,7 +24,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
   Future<Either<Failure, List<GooglePlaceSuggestion>>> searchPlaceSuggestions({
     required String query,
   }) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         if (query.isEmpty) {
           return Either.right([]);
@@ -51,7 +51,7 @@ class GooglePlaceRepositoryImpl implements GooglePlaceRepository {
 
   @override
   Future<Either<Failure, GooglePlace>> fetchPlace({required String placeId}) async {
-    return handleDatabaseCall(
+    return handleBackendCall(
       () async {
         final res = await _supabase.functions
             .invoke('google-places-fetch-place', body: {'place_id': placeId});

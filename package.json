@@ -14,12 +14,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@snaplet/copycat": "^6.0.0",
-    "@snaplet/seed": "^0.98.0",
-    "@types/pg": "^8.15.5",
     "pg": "^8.16.3",
     "supabase": "^2.33.9",
-    "tsx": "^4.20.6",
     "typescript": "^5.9.2"
   }
 }
