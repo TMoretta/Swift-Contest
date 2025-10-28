@@ -34,7 +34,7 @@ Data la natura prototipale del progetto, si è evitato il complesso processo di 
     \item L'APK viene caricato come \emph{release asset} su un repository GitHub privato.
     \item Un'apposita Edge Function, \texttt{get-latest-apk}, è stata creata su Supabase per fungere da proxy sicuro.
     Questa funzione utilizza un Personal Access Token (PAT) di GitHub, memorizzato in modo sicuro in Supabase, per autenticarsi all'API di GitHub e scaricare l'asset.
-    \item L'applicazione web offre un pulsante "Download for Android" che invoca questa Edge Function.
+    \item L'applicazione web offre un pulsante ``Download for Android'' che invoca questa Edge Function.
     L'utente riceve così l'ultima versione dell'APK direttamente dal backend, senza che il repository GitHub o le credenziali di accesso vengano mai esposte.
 \end{enumerate}
 Questa soluzione rappresenta un eccellente compromesso tra sicurezza, controllo delle versioni e facilità di distribuzione per un contesto non commerciale.

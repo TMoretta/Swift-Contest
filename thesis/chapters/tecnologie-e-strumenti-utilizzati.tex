@@ -1,11 +1,11 @@
 %!TeX root=../main.tex
 
-\chapter{Tecnologie e Strumenti Utilizzati}\label{ch:tecnologie-e-strumenti-utilizzati}
+\chapter{Tecnologie e strumenti utilizzati}\label{ch:tecnologie-e-strumenti-utilizzati}
 
 La realizzazione del progetto \textbf{Swift Contest} è stata resa possibile dall'adozione di un insieme di tecnologie, piattaforme e strumenti moderni, selezionati per soddisfare i requisiti di cross-platform, sicurezza, scalabilità e velocità di sviluppo.
 Questo capitolo descrive lo stack tecnologico utilizzato, giustificando le scelte chiave in relazione agli obiettivi del progetto.
 
-\section{Stack Tecnologico Principale}\label{sec:stack-tecnologico-principale}
+\section{Stack tecnologico principale}\label{sec:stack-tecnologico-principale}
 Questa sezione descrive i linguaggi e i framework utilizzati per la scrittura del codice sorgente dell'applicazione, sia lato client che lato server.
 
 \subsection{Frontend: Flutter e Dart}\label{subsec:frontend:-flutter-e-dart}
@@ -34,14 +34,15 @@ Questa sezione descrive le piattaforme di terze parti e gli strumenti che hanno 
 
 \subsection{Piattaforme di Deployment e Servizi Cloud}\label{subsec:piattaforme-di-deployment-e-servizi-cloud}
 \begin{itemize}
-	\item \textbf{Vercel}: È la piattaforma serverless utilizzata per il deployment e l'hosting della versione \textbf{Web} dell'applicazione Flutter.
-	È stata scelta per la sua integrazione nativa con i framework frontend moderni, la sua pipeline di CI/CD automatizzata e la sua capacità di gestire in modo ottimale le Single Page Applications (SPA) come Flutter Web.
+    \item \textbf{Vercel}: È la piattaforma serverless utilizzata per il deployment e l'hosting della versione \textbf{Web} dell'applicazione Flutter.
+    La scelta è ricaduta su Vercel principalmente per il suo \textbf{piano gratuito}, che ha permesso di distribuire l'applicazione senza sostenere costi.
+    Oltre a questo, Vercel è stato preferito per le sue caratteristiche tecniche di alto livello, come l'integrazione nativa con i framework frontend moderni e una pipeline di CI/CD completamente automatizzata.
 	
 	\item \textbf{Resend}: È il servizio transazionale di invio \textbf{email} utilizzato dal sistema.
-	È stato integrato tramite la sua API REST, invocata da una Edge Function, per gestire l'invio di tutte le email automatiche, come gli inviti per partecipanti e giurati.
+	È stato integrato tramite la propria API REST, invocata da una Edge Function, per gestire l'invio di tutte le email automatiche, come gli inviti per partecipanti e giurati.
 	
 	\item \textbf{Google Cloud}: Sebbene il progetto non sia ospitato su Google Cloud, è stato utilizzato uno dei suoi servizi API: la \textbf{Google Places API}.
-	Questo servizio è stato integrato per fornire la funzionalità di ricerca e autocompletamento degli indirizzi nella creazione dei contest e nella configurazione delle sessioni di voto per la geo-localizzazione.
+	Questo servizio è stato integrato per fornire la funzionalità di ricerca e autocompletamento degli indirizzi nella creazione dei contest e nella configurazione delle sessioni di voto per la geolocalizzazione.
 \end{itemize}
 
 \subsection{Strumenti di Sviluppo e Amministrazione}\label{subsec:strumenti-di-sviluppo-e-amministrazione}

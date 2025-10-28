@@ -3,31 +3,31 @@
 \contentsline {chapter}{\numberline {1}Introduzione}{4}{}%
 \contentsline {section}{\numberline {1.1}Motivazioni e contesto}{4}{}%
 \contentsline {section}{\numberline {1.2}Obiettivi del progetto}{4}{}%
-\contentsline {section}{\numberline {1.3}Convenzioni Linguistiche}{5}{}%
-\contentsline {section}{\numberline {1.4}Contributi Progettuali e Ingegneristici}{5}{}%
+\contentsline {section}{\numberline {1.3}Convenzioni linguistiche}{5}{}%
+\contentsline {section}{\numberline {1.4}Contributi progettuali e ingegneristici}{5}{}%
 \contentsline {section}{\numberline {1.5}Struttura del documento}{6}{}%
-\contentsline {chapter}{\numberline {2}Contesto e Analisi del sistema}{7}{}%
-\contentsline {section}{\numberline {2.1}Il problema: frammentazione e inefficienza nella gestione dei concorsi}{7}{}%
-\contentsline {section}{\numberline {2.2}Stato dell’arte e Analisi delle Alternative}{8}{}%
-\contentsline {subsection}{\numberline {2.2.1}Strumenti Generici Adattati: lo "Status Quo"}{8}{}%
-\contentsline {subsection}{\numberline {2.2.2}Piattaforme per Domini Correlati (ma Differenti)}{9}{}%
+\contentsline {chapter}{\numberline {2}Contesto e analisi del sistema}{7}{}%
+\contentsline {section}{\numberline {2.1}Il problema: frammentazione e inefficienza nella gestione dei contest}{7}{}%
+\contentsline {section}{\numberline {2.2}Stato dell’arte e analisi delle alternative}{8}{}%
+\contentsline {subsection}{\numberline {2.2.1}Strumenti generici adattati: lo ``Status Quo''}{8}{}%
+\contentsline {subsection}{\numberline {2.2.2}Piattaforme per domini correlati}{9}{}%
 \contentsline {subsubsection}{Piattaforme di e-voting}{9}{}%
 \contentsline {subsubsection}{Piattaforme per la gestione di eventi}{9}{}%
 \contentsline {subsection}{\numberline {2.2.3}Posizionamento di Swift Contest}{9}{}%
 \contentsline {section}{\numberline {2.3}Attori e casi d’uso}{10}{}%
-\contentsline {subsection}{\numberline {2.3.1}Attori del Sistema}{10}{}%
+\contentsline {subsection}{\numberline {2.3.1}Attori del sistema}{10}{}%
 \contentsline {subsection}{\numberline {2.3.2}Casi d'Uso: Gestione Account e Funzionalità Generali}{10}{}%
-\contentsline {subsection}{\numberline {2.3.3}Casi d'Uso: Gestione del Ciclo di Vita del Contest}{11}{}%
+\contentsline {subsection}{\numberline {2.3.3}Casi d'Uso: Gestione del Ciclo di Vita del contest}{11}{}%
 \contentsline {subsection}{\numberline {2.3.4}Casi d'Uso: Gestione delle Votazioni e dei Risultati}{12}{}%
 \contentsline {subsection}{\numberline {2.3.5}Casi d'Uso: Amministrazione del Sistema}{13}{}%
 \contentsline {section}{\numberline {2.4}Requisiti del sistema}{13}{}%
 \contentsline {subsection}{\numberline {2.4.1}Requisiti funzionali (Functionality)}{14}{}%
-\contentsline {subsection}{\numberline {2.4.2}Requisiti Non Funzionali}{14}{}%
+\contentsline {subsection}{\numberline {2.4.2}Requisiti non funzionali}{15}{}%
 \contentsline {section}{\numberline {2.5}Modello del dominio}{16}{}%
-\contentsline {subsection}{\numberline {2.5.1}Entità Fondamentali}{18}{}%
-\contentsline {subsection}{\numberline {2.5.2}Vincoli Chiave del Dominio}{18}{}%
-\contentsline {chapter}{\numberline {3}Tecnologie e Strumenti Utilizzati}{20}{}%
-\contentsline {section}{\numberline {3.1}Stack Tecnologico Principale}{20}{}%
+\contentsline {subsection}{\numberline {2.5.1}Entità fondamentali}{18}{}%
+\contentsline {subsection}{\numberline {2.5.2}Vincoli chiave del dominio}{18}{}%
+\contentsline {chapter}{\numberline {3}Tecnologie e strumenti utilizzati}{20}{}%
+\contentsline {section}{\numberline {3.1}Stack tecnologico principale}{20}{}%
 \contentsline {subsection}{\numberline {3.1.1}Frontend: Flutter e Dart}{20}{}%
 \contentsline {subsection}{\numberline {3.1.2}Backend: Supabase, PL/pgSQL e TypeScript}{21}{}%
 \contentsline {section}{\numberline {3.2}Piattaforme, Strumenti e Servizi}{21}{}%
@@ -35,33 +35,33 @@
 \contentsline {subsection}{\numberline {3.2.2}Strumenti di Sviluppo e Amministrazione}{22}{}%
 \contentsline {subsection}{\numberline {3.2.3}Version Control e Code Hosting}{22}{}%
 \contentsline {subsection}{\numberline {3.2.4}Strumenti di Documentazione e Modellazione}{23}{}%
-\contentsline {chapter}{\numberline {4}Progettazione e Implementazione del sistema}{24}{}%
+\contentsline {chapter}{\numberline {4}Progettazione e implementazione del sistema}{24}{}%
 \contentsline {section}{\numberline {4.1}Linee guida progettuali}{24}{}%
 \contentsline {section}{\numberline {4.2}Architettura del frontend: il pattern MVVM con BLoC}{25}{}%
 \contentsline {subsection}{\numberline {4.2.1}Implementazione del ViewModel: il pattern BLoC}{26}{}%
-\contentsline {subsubsection}{Gestione Centralizzata degli Errori nel Repository}{27}{}%
-\contentsline {subsubsection}{Gestione dell'Uguaglianza degli Oggetti con Equatable}{28}{}%
+\contentsline {subsubsection}{Gestione centralizzata degli errori nel repository}{27}{}%
+\contentsline {subsubsection}{Gestione dell'uguaglianza degli oggetti con Equatable}{28}{}%
 \contentsline {subsection}{\numberline {4.2.2}Navigazione con AutoRoute}{28}{}%
-\contentsline {subsection}{\numberline {4.2.3}Strategia di Navigazione e Passaggio dei Dati}{30}{}%
-\contentsline {subsubsection}{Validazione dell'Input Utente e Gestione dei Form}{31}{}%
-\contentsline {subsection}{\numberline {4.2.4}Design System e Theming con Estensioni}{32}{}%
-\contentsline {subsubsection}{Gestione del Feedback di Caricamento: l'OverlayLoader}{33}{}%
-\contentsline {paragraph}{Gestione del Ciclo di Vita e Prevenzione dei "Leak"}{33}{}%
-\contentsline {section}{\numberline {4.3}Progettazione del Database}{35}{}%
-\contentsline {subsection}{\numberline {4.3.1}Schema Fisico e Tabelle Principali}{35}{}%
-\contentsline {subsection}{\numberline {4.3.2}Scelte di Design Chiave}{36}{}%
-\contentsline {subsubsection}{Integrità Referenziale e Strategia di Cancellazione}{36}{}%
-\contentsline {paragraph}{Cancellazione a Cascata tramite \texttt {ON DELETE CASCADE}}{36}{}%
-\contentsline {paragraph}{Cancellazione tramite Trigger per Relazioni Uno-a-Uno}{37}{}%
-\contentsline {paragraph}{Cancellazione di Dati Esterni tramite Edge Functions}{37}{}%
-\contentsline {subsubsection}{Snapshot dei Dati tramite Denormalizzazione Controllata}{37}{}%
-\contentsline {subsection}{\numberline {4.3.3}Implicazioni del Design del Form di Voto sull'Aggregazione dei Risultati}{39}{}%
+\contentsline {subsection}{\numberline {4.2.3}Strategia di navigazione e passaggio dei dati}{30}{}%
+\contentsline {subsubsection}{Validazione dell'input utente e gestione dei form}{31}{}%
+\contentsline {subsection}{\numberline {4.2.4}Design system e theming}{32}{}%
+\contentsline {subsubsection}{Gestione del feedback di caricamento: l'OverlayLoader}{33}{}%
+\contentsline {paragraph}{Gestione del ciclo di vita e prevenzione dei ``leak''}{33}{}%
+\contentsline {section}{\numberline {4.3}Progettazione del database}{34}{}%
+\contentsline {subsection}{\numberline {4.3.1}Schema fisico e tabelle principali}{35}{}%
+\contentsline {subsection}{\numberline {4.3.2}Scelte di design chiave}{36}{}%
+\contentsline {subsubsection}{Integrità referenziale e strategia di cancellazione}{36}{}%
+\contentsline {paragraph}{Cancellazione a cascata tramite \texttt {ON DELETE CASCADE}}{36}{}%
+\contentsline {paragraph}{Cancellazione tramite trigger per relazioni uno-a-uno}{37}{}%
+\contentsline {paragraph}{Cancellazione di dati esterni tramite Edge Functions}{37}{}%
+\contentsline {subsubsection}{Snapshot dei dati tramite denormalizzazione controllata}{37}{}%
+\contentsline {subsection}{\numberline {4.3.3}Implicazioni del design del form di voto sull'aggregazione dei risultati}{39}{}%
 \contentsline {section}{\numberline {4.4}Architettura del backend}{40}{}%
 \contentsline {subsection}{\numberline {4.4.1}Funzioni RPC (Remote Procedure Call)}{40}{}%
 \contentsline {subsection}{\numberline {4.4.2}Edge Functions}{42}{}%
-\contentsline {section}{\numberline {4.5}Architettura di Sicurezza: Principio del Minimo Privilegio e Accesso Mediato}{44}{}%
+\contentsline {section}{\numberline {4.5}Architettura di sicurezza: Principio del Minimo Privilegio e Accesso Mediato}{44}{}%
 \contentsline {subsection}{\numberline {4.5.1}Il Principio del Minimo Privilegio e l'API come Gatekeeper}{44}{}%
-\contentsline {subsection}{\numberline {4.5.2}L'Eccezione Necessaria: le Policy RLS per il Servizio Realtime}{45}{}%
+\contentsline {subsection}{\numberline {4.5.2}L'Eccezione Necessaria: le Policy RLS per il Servizio Realtime}{44}{}%
 \contentsline {subsection}{\numberline {4.5.3}Misure di Sicurezza Aggiuntive}{45}{}%
 \contentsline {subsubsection}{Gestione dei Giurati Semplici: il Pattern dell'Autenticazione Anonima}{46}{}%
 \contentsline {section}{\numberline {4.6}Progettazione e Implementazione degli Strumenti di Amministrazione}{47}{}%

@@ -1,7 +1,6 @@
 %!TeX root=../main.tex
 
-\chapter{Progettazione e Implementazione del sistema}\label{ch:progettazione-e-implementazione-del-sistema}
-
+\chapter{Progettazione e implementazione del sistema}\label{ch:progettazione-e-implementazione-del-sistema}
 
 \section{Linee guida progettuali}\label{sec:linee-guida-progettuali}
 La progettazione di \textbf{Swift Contest} è stata guidata da principi di ingegneria del software moderni, volti a garantire un sistema robusto, sicuro e manutenibile, anche in un contesto di sviluppo rapido.
@@ -10,21 +9,21 @@ Le linee guida principali sono state:
     \item \textbf{Separazione delle responsabilità (SoC)}: è stata applicata una netta separazione tra il livello di presentazione (UI), la logica di presentazione (ViewModel) e il livello di accesso ai dati (Model/Repository), fondamentale per la testabilità e la manutenibilità del codice.
     \item \textbf{Sicurezza come requisito primario}: è stato adottato un modello di accesso ai dati basato sul \textbf{Principio del Minimo Privilegio (Principle of Least Privilege)}, dove il client è considerato intrinsecamente non sicuro.
     L'accesso al database è negato per default e concesso selettivamente solo tramite un'API sicura.
-    \item \textbf{Architettura Client-Server con Backend BaaS}: è stata adottata una moderna architettura Client-Server.
+    \item \textbf{Architettura Client-Server con backend BaaS}: è stata adottata una moderna architettura Client-Server.
     Il client (sviluppato in Flutter) gestisce la presentazione e la logica di UI, mentre il server è rappresentato da una piattaforma \textbf{Backend-as-a-Service (BaaS)} come Supabase.
     Questo approccio permette di delegare la gestione dell'infrastruttura (database, autenticazione, storage) e di distribuire la logica di business in modo flessibile tra il client e le funzioni serverless (RPC ed Edge Functions).
-    \item \textbf{Sviluppo Cross-Platform}: la scelta di un framework come Flutter ha permesso di massimizzare il riuso del codice tra le piattaforme target (Android e Web), ottimizzando i tempi di sviluppo.
+    \item \textbf{Sviluppo cross-platform}: la scelta di un framework come Flutter ha permesso di massimizzare il riuso del codice tra le piattaforme target (Android e Web), ottimizzando i tempi di sviluppo.
 \end{itemize}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{diagrams/client-server-architecture}
     \caption{Architettura Client-Server del sistema Swift Contest con backend BaaS.}
-    \label{fig:client_server_architecture}
+    \label{fig:client-server-architecture}
 \end{figure}
 
 \section{Architettura del frontend: il pattern MVVM con BLoC}
-\label{sec:frontend_architecture}
+\label{sec:frontend-architecture}
 Il frontend è stato sviluppato in Flutter seguendo i principi dell'architettura \textbf{MVVM (Model-View-ViewModel)}, implementata attraverso il pattern \textbf{BLoC (Business Logic Component)}.
 Questa scelta permette di ottenere una netta separazione delle responsabilità, garantendo testabilità e manutenibilità.
 La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
@@ -42,7 +41,7 @@ La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
 	\centering
 	\includegraphics[width=0.8\textwidth]{diagrams/client-architecture}
 	\caption{Architettura del Client MVVM con BLoC.}
-	\label{fig:client_architecture}
+	\label{fig:client-architecture}
 \end{figure}
 
 \subsection{Implementazione del ViewModel: il pattern BLoC}\label{subsec:implementazione-del-viewmodel:-il-pattern-bloc}
@@ -57,7 +56,7 @@ Questo pattern impone un flusso di dati unidirezionale e prevedibile:
 Questo approccio garantisce che la logica di business sia completamente disaccoppiata dalla UI, rendendola facilmente testabile in isolamento.
 I BLoC sono stati organizzati in due categorie: \textbf{globali} (es. \texttt{AuthBloc}, \texttt{InboxBloc}) e \textbf{di pagina} (es. \texttt{JurorVotingProcedurePageBloc}).
 
-\subsubsection{Gestione Centralizzata degli Errori nel Repository}
+\subsubsection{Gestione centralizzata degli errori nel repository}
 Una delle responsabilità principali del livello \emph{Model} (e in particolare dei \emph{Repository}) è quella di agire come un robusto intermediario tra la logica di business e il backend.
 Questo include non solo il recupero dei dati, ma anche una \textbf{gestione centralizzata e sicura degli errori}.
 
@@ -109,7 +108,7 @@ Il tipo di ritorno \texttt{Either<Failure, T>} permette al BLoC di gestire in mo
 	}
 \end{lstlisting}
 
-\subsubsection{Gestione dell'uguaglianza degli Oggetti con Equatable}
+\subsubsection{Gestione dell'uguaglianza degli oggetti con Equatable}
 Per ottimizzare le performance e garantire un comportamento prevedibile nella gestione dello stato, tutte le entità, i bundle e gli stati dei BLoC estendono la classe fornita dal pacchetto \texttt{equatable}.
 
 Questa scelta implementativa è cruciale per due motivi principali.
@@ -198,7 +197,7 @@ Un elemento chiave è l'\texttt{AuthGuard}, una classe che intercetta le richies
 	}
 \end{lstlisting}
 
-\subsection{Strategia di Navigazione e Passaggio dei Dati}\label{subsec:strategia-di-navigazione-e-passaggio-dei-dati}
+\subsection{Strategia di navigazione e passaggio dei dati}\label{subsec:strategia-di-navigazione-e-passaggio-dei-dati}
 Una scelta architetturale fondamentale, dettata dalla necessità di una perfetta integrazione con il web, riguarda la modalità di passaggio dei dati tra le pagine.
 A differenza di un'applicazione puramente mobile, dove è comune passare interi oggetti in memoria durante la navigazione, in un'applicazione web questo approccio è insostenibile: l'utente può ricaricare la pagina o accedere a un URL diretto, perdendo qualsiasi stato tenuto in memoria.
 
@@ -212,7 +211,7 @@ Questa scelta, sebbene aumenti il numero di chiamate al database, garantisce eno
     \item Il comportamento dell'applicazione è prevedibile e consistente tra la navigazione interna e l'accesso diretto a un URL\@.
 \end{itemize}
 
-\subsubsection{Validazione dell'Input Utente e Gestione dei Form}
+\subsubsection{Validazione dell'input utente e gestione dei form}
 Per garantire l'integrità dei dati e fornire un feedback immediato all'utente, è stata implementata una robusta strategia di validazione dell'input direttamente a livello client, prima che i dati vengano inviati al BLoC e, successivamente, al backend.
 
 Invece di definire la logica di validazione all'interno dei singoli widget, \textbf{tutte le funzioni di validazione sono state centralizzate} in un unico file, \texttt{lib/utils/validators/validators.dart}.
@@ -263,16 +262,22 @@ Il listato seguente mostra un esempio di un validatore complesso e il suo utiliz
 	);
 \end{lstlisting}
 
-\subsection{Design System e Theming con Estensioni}\label{subsec:design-system-e-theming-con-estensioni}
+\subsection{Design system e theming}\label{subsec:design-system-e-theming}
 Per garantire un'interfaccia utente coerente e facilmente manutenibile, è stato definito un design system centralizzato basato sul \textbf{Material Design 3}.
 La scelta di \texttt{MaterialTheme} come base è stata strategica, in quanto è lo standard de facto per le applicazioni Android e garantisce un'esperienza utente nativa e riconoscibile.
 
-Tuttavia, il \texttt{ColorScheme} standard di Material (con colori come \texttt{primary}, \texttt{secondary}, \texttt{surface}, ecc.) non è sufficiente per coprire tutte le esigenze di un'applicazione complessa, che richiede colori personalizzati.
+Il cuore del sistema di theming di Material Design è il \textbf{\texttt{ColorScheme}}, un oggetto che definisce una palette di colori predefinita e semanticamente organizzata.
+Invece di usare colori specifici i widget fanno riferimento a ruoli di colore come \texttt{primary} (per elementi principali), \texttt{secondary} (per elementi di supporto), \texttt{surface} (per gli sfondi), \texttt{onPrimary} (per il testo da mostrare sopra un colore primario), ecc\@.
+Questo approccio permette di cambiare l'intera palette di colori dell'applicazione (ad esempio, passando dal tema chiaro a quello scuro) modificando unicamente l'oggetto \texttt{ColorScheme}, senza dover alterare il codice dei singoli widget.
 
-Per risolvere questo problema in modo pulito e scalabile, invece di definire colori statici sparsi nel codice, è stata creata un'\textbf{estensione Dart} sulla classe \texttt{ColorScheme}.
-Questa tecnica permette di ``arricchire'' il tema esistente con nuovi colori personalizzati.
+Tuttavia, il \texttt{ColorScheme} standard non è sufficiente per coprire tutte le esigenze di un'applicazione complessa, che richiede colori semantici personalizzati (es.\ per stati di successo, errore, warning).
 
-Questi colori personalizzati diventano così parte integrante del tema e possono essere richiamati in qualsiasi punto dell'applicazione in modo sicuro e coerente tramite \texttt{Theme.of(context).colorScheme.success}, ereditando automaticamente i cambiamenti tra tema chiaro e scuro.
+Per risolvere questo problema in modo pulito e scalabile, invece di definire colori statici sparsi nel codice, si è fatto ricorso a una funzionalità del linguaggio Dart: le \textbf{estensioni}.
+Un'estensione (\emph{extension}) permette di \textbf{aggiungere nuove funzionalità a una classe esistente}, anche se non si ha accesso al suo codice sorgente.
+In questo caso, è stata creata un'estensione sulla classe \texttt{ColorScheme} di Flutter per "arricchirla" con i colori semantici personalizzati richiesti dall'applicazione.
+
+Come mostrato nel listato seguente, l'estensione \texttt{ColorSchemeX} aggiunge nuovi \emph{getter} (es. \texttt{success}, \texttt{warning}) alla classe \texttt{ColorScheme}.
+Questi nuovi colori diventano così parte integrante del tema e possono essere richiamati in qualsiasi punto dell'applicazione in modo sicuro e coerente tramite \texttt{Theme.of(context).colorScheme.success}, ereditando automaticamente i cambiamenti tra tema chiaro e scuro.
 
 % LISTATO: Estensione ColorSchemeX
 \begin{lstlisting}[language=Dart, caption={Definizione dell'estensione \texttt{ColorSchemeX} per aggiungere colori personalizzati al tema.}, label={lst:colorscheme_extension}]
@@ -291,7 +296,7 @@ Questi colori personalizzati diventano così parte integrante del tema e possono
 	}
 \end{lstlisting}
 
-\subsubsection{Gestione del Feedback di Caricamento: l'OverlayLoader}
+\subsubsection{Gestione del feedback di caricamento: l'OverlayLoader}
 Per fornire un feedback visivo all'utente durante le operazioni asincrone, è stato implementato un sistema di caricamento personalizzato, \texttt{OverlayLoader}.
 Questo sistema utilizza l'Overlay di Flutter per mostrare un indicatore di progresso con uno sfondo semitrasparente e sfocato, permettendo all'utente di mantenere il contesto visivo della schermata sottostante.
 
@@ -301,7 +306,7 @@ L'implementazione si basa su due scelte di design chiave per garantire robustezz
 	\item \textbf{Dart Extensions}: Per semplificare l'invocazione del loader, è stata creata un'estensione sulla classe \texttt{BuildContext}, che permette di usare una sintassi pulita e intuitiva come \texttt{context.showLoader()} e \texttt{context.hideLoader()}.
 \end{itemize}
 
-\paragraph{Gestione del Ciclo di Vita e Prevenzione dei "Leak"}
+\paragraph{Gestione del ciclo di vita e prevenzione dei ``leak''}
 Un aspetto cruciale per la robustezza di questo sistema è la gestione del suo ciclo di vita.
 Per evitare che l'overlay del loader rimanga ``bloccato'' sullo schermo se una pagina viene chiusa (\emph{disposed}) durante un'operazione di caricamento (ad esempio, a causa di un errore o della navigazione dell'utente), è stata adottata una pratica difensiva: \textbf{il metodo \texttt{context.hideLoader()} viene sistematicamente invocato all'interno del metodo \texttt{dispose} di ogni pagina} che utilizza il loader.
 Questo garantisce che, indipendentemente da come o perché la pagina viene distrutta, qualsiasi overlay di caricamento attivo venga sempre rimosso, prevenendo ``leak'' visuali e garantendo la stabilità dell'interfaccia utente.
@@ -342,26 +347,9 @@ Questo garantisce che, indipendentemente da come o perché la pagina viene distr
 		void showLoader() => OverlayLoader().show(this);
 		void hideLoader() => OverlayLoader().hide();
 	}
-	
-	// 3. Utilizzo difensivo nel ciclo di vita di un widget di pagina
-	class MyPage extends StatefulWidget { // ... }
-	
-	class _MyPageState extends State<MyPage> {
-		// ...
-		
-		@override
-		void dispose() {
-			// Garantisce che il loader venga sempre rimosso quando la pagina
-			// viene distrutta, prevenendo "leak" visuali.
-			context.hideLoader();
-			super.dispose();
-		}
-		
-		// ...
-	}
 \end{lstlisting}
 
-\section{Progettazione del Database}\label{sec:progettazione-del-database}
+\section{Progettazione del database}\label{sec:progettazione-del-database}
 Il modello concettuale del dominio, descritto nel Capitolo 2, è stato tradotto in un modello logico e fisico implementato su un database \textbf{PostgreSQL}, gestito tramite la piattaforma Supabase.
 La progettazione si è concentrata su tre pilastri: integrità dei dati, sicurezza e performance.
 
@@ -372,7 +360,7 @@ La progettazione si è concentrata su tre pilastri: integrità dei dati, sicurez
 	\label{fig:database}
 \end{figure}
 
-\subsection{Schema Fisico e Tabelle Principali}\label{subsec:schema-fisico-e-tabelle-principali}
+\subsection{Schema fisico e tabelle principali}\label{subsec:schema-fisico-e-tabelle-principali}
 Lo schema del database è composto da una serie di tabelle che implementano le entità del dominio.
 Le tabelle cardine includono:
 \begin{itemize}
@@ -390,22 +378,22 @@ Le tabelle cardine includono:
 	\item \texttt{voting\_form\_submissions} e \texttt{voting\_form\_submission\_values}: memorizzano i voti inviati dai giurati.
 \end{itemize}
 
-\subsection{Scelte di Design Chiave}\label{subsec:scelte-di-design-chiave}
+\subsection{Scelte di design chiave}\label{subsec:scelte-di-design-chiave}
 Oltre alla semplice mappatura delle entità, sono state prese decisioni di design cruciali per garantire la robustezza del sistema.
 
-\subsubsection{Integrità Referenziale e Strategia di Cancellazione}
+\subsubsection{Integrità referenziale e strategia di cancellazione}
 Per garantire la consistenza del database, è stato fatto un uso estensivo dei vincoli di chiave esterna.
 Una decisione di design fondamentale è stata quella di adottare una strategia di \textbf{cancellazione fisica (hard delete)} piuttosto che una di \textbf{cancellazione logica (soft delete)}, principalmente per ottimizzare l'uso delle risorse (spazio su database e storage) e per semplificare la logica delle query di lettura.
 
 Data questa scelta, la gestione della cancellazione dei dati correlati è diventata un aspetto critico, risolto con un approccio a più livelli.
 
-\paragraph{Cancellazione a Cascata tramite \texttt{ON DELETE CASCADE}}
+\paragraph{Cancellazione a cascata tramite \texttt{ON DELETE CASCADE}}
 Per le relazioni di composizione forte e dirette, dove l'entità ``figlia'' non ha dipendenze esterne come file nello Storage, è stata utilizzata la politica \textbf{\texttt{ON DELETE CASCADE}}.
 L'esempio più calzante è la relazione tra \texttt{voting\_forms} e \texttt{voting\_form\_fields}.
 Poiché i campi di un form non hanno senso di esistere senza il form stesso, l'eliminazione di un record in \texttt{voting\_forms} provoca la cancellazione automatica e a cascata di tutti i record correlati in \texttt{voting\_form\_fields}.
 Questo approccio delega interamente la logica di pulizia al database, garantendo massima efficienza e consistenza dei dati con il minimo sforzo implementativo.
 
-\paragraph{Cancellazione tramite Trigger per Relazioni Uno-a-Uno}
+\paragraph{Cancellazione tramite trigger per relazioni uno-a-uno}
 In alcune relazioni uno-a-uno, la chiave esterna è stata posizionata nella tabella concettualmente ``principale'' per motivi di design.
 L'esempio più significativo è la relazione tra \texttt{contests} e \texttt{places}: è la tabella \texttt{contests} a contenere il riferimento \texttt{place\_id} con un vincolo \texttt{UNIQUE}.
 
@@ -414,12 +402,12 @@ Per risolvere questo problema e automatizzare la pulizia dei dati, è stato impl
 Questo trigger si attiva \emph{dopo} (\texttt{AFTER}) l'eliminazione di un record dalla tabella \texttt{contests} ed esegue esplicitamente la cancellazione del record corrispondente nella tabella \texttt{places}, utilizzando l'ID del luogo del contest appena eliminato.
 In questo modo, si garantisce l'integrità referenziale e si evita di lasciare record \texttt{places} orfani, delegando anche in questo caso la logica di pulizia al database.
 
-\paragraph{Cancellazione di Dati Esterni tramite Edge Functions}
+\paragraph{Cancellazione di dati esterni tramite Edge Functions}
 La cancellazione a cascata del database non può gestire dati esterni, come i file memorizzati in Supabase Storage.
 Per questo motivo, le operazioni di cancellazione più complesse, come l'eliminazione di un utente o di un contest, non vengono eseguite direttamente dal client, ma sono gestite da \textbf{Edge Functions} dedicate (es.\ \texttt{user-delete-account}, \texttt{admin-delete-contest}). Queste funzioni agiscono da orchestratori: dopo aver eliminato i record dal database (che a loro volta attivano le cancellazioni a cascata e i trigger), invocano l'API di Supabase Storage per \textbf{eliminare tutti i file associati} (es.\ immagini del profilo, file dei \emph{Work}), garantendo una pulizia completa e prevenendo la creazione di file ``orfani''.
 Questa logica non poteva essere implementata in una funzione RPC, poiché queste non hanno accesso all'API dello Storage.
 
-\subsubsection{Snapshot dei Dati tramite Denormalizzazione Controllata}
+\subsubsection{Snapshot dei dati tramite denormalizzazione controllata}
 Per garantire l'immutabilità e l'auditabilità del processo di voto, è stato implementato un meccanismo di \textbf{snapshot dei dati}, una delle scelte architetturali più importanti del backend.
 
 Quando un organizzatore avvia una \emph{VotingSession} tramite la funzione RPC \texttt{organizer\_start\_voting\_session}, il sistema non si limita a collegare le entità esistenti, ma esegue una forma di \textbf{denormalizzazione controllata}.
@@ -488,7 +476,7 @@ Questa tecnica garantisce:
 	);
 \end{lstlisting}
 
-\subsection{Implicazioni del Design del Form di Voto sull'Aggregazione dei Risultati}\label{subsec:implicazioni-del-design-del-form-di-voto-sull'aggregazione-dei-risultati}
+\subsection{Implicazioni del design del form di voto sull'aggregazione dei risultati}\label{subsec:implicazioni-del-design-del-form-di-voto-sull'aggregazione-dei-risultati}
 Una scelta di design fondamentale, visibile nello schema del database, è che \textbf{ogni giuria è associata a un unico e specifico form di voto}.
 Questa flessibilità permette all'organizzatore di creare criteri di valutazione diversi per giurie diverse (es.\ una giuria tecnica con campi slider complessi e una giuria popolare con un singolo campo di preferenza).
 
@@ -696,7 +684,7 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
 	}
 \end{lstlisting}
 
-\section{Architettura di Sicurezza: Principio del Minimo Privilegio e Accesso Mediato}\label{sec:architettura-di-sicurezza:-principio-del-minimo-privilegio-e-accesso-mediato}
+\section{Architettura di sicurezza: Principio del Minimo Privilegio e Accesso Mediato}\label{sec:architettura-di-sicurezza:-principio-del-minimo-privilegio-e-accesso-mediato}
 La sicurezza è un requisito trasversale che ha guidato l'intera progettazione del backend.
 È stato adottato un rigoroso modello basato sul \textbf{Principio del Minimo Privilegio (PoLP)}, il cui assunto fondamentale è negare l'accesso per default e concederlo solo in modo esplicito e controllato.
 
