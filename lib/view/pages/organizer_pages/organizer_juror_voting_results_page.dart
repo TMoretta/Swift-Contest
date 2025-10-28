@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swift_contest/model/database/bundles/voting_form_submission_value_bundle.dart';
 import 'package:swift_contest/model/database/entities/voting_session_participant.dart';
+import 'package:swift_contest/model/database/types/voting_form_field_type.dart';
+import 'package:swift_contest/utils/themes/color_scheme_x.dart';
 import 'package:swift_contest/view/widgets/custom_app_bar.dart';
 import 'package:swift_contest/view/widgets/overlay_loader.dart';
 import 'package:swift_contest/view/widgets/show_snack_bar.dart';
@@ -137,342 +139,6 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
                       ],
                     ),
                   );
-
-                  // return ListView(
-                  //   children: [
-                  //     if (votingSessionJurors.where((e) => e.hasSubmitted).isNotEmpty)
-                  //       Column(
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           Text('Jurors that submitted'),
-                  //           ...votingSessionJurors
-                  //               .where((e) => e.hasSubmitted)
-                  //               .map((votingSessionJuror) {
-                  //             return ListTile(
-                  //               onTap: () {},
-                  //               title: Text(votingSessionJuror.jurorFullName),
-                  //             );
-                  //           }),
-                  //         ],
-                  //       ),
-                  //     if (votingSessionJurors.where((e) => !e.hasSubmitted).isNotEmpty)
-                  //       Column(
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           Text("Jurors that didn't submit"),
-                  //           ...votingSessionJurors
-                  //               .where((e) => !e.hasSubmitted)
-                  //               .map((votingSessionJuror) {
-                  //             return Card(
-                  //               elevation: 0,
-                  //               child: ListTile(
-                  //                 onTap: () {},
-                  //                 title: Text(votingSessionJuror.jurorFullName),
-                  //               ),
-                  //             );
-                  //           }),
-                  //         ],
-                  //       ),
-                  //   ],
-                  // );
-                  // switch (state.status) {
-                  //   case BlocStatus.initial:
-                  //     return VoidWidget();
-                  //   case BlocStatus.loading:
-                  //     if (!state.isInitialized) {
-                  //       return VoidWidget();
-                  //     } else {
-                  //       continue successCase;
-                  //     }
-                  //   case BlocStatus.failure:
-                  //     if (!state.isInitialized) {
-                  //       return RefreshIndicator.adaptive(
-                  //         onRefresh: () async => context
-                  //             .read<OrganizerJurorVotingResultsPageBloc>()
-                  //             .add(OrganizerJurorVotingResultsPageFetch(
-                  //                 votingSessionJurorId: votingSessionJurorId)),
-                  //         child: ListViewWithCentralLabel(
-                  //           label: Labels.anErrorOccurred,
-                  //         ),
-                  //       );
-                  //     } else {
-                  //       continue successCase;
-                  //     }
-                  //   successCase:
-                  //   case BlocStatus.success:
-                  //   // List<DataColumn> columnsHeaders = [];
-                  //   // List<DataRow> rows = [];
-                  //   //
-                  //   // if (participantsVotingsPerJurorMap.isEmpty) {
-                  //   //   return Center(
-                  //   //     child: Text('No vote submitted'),
-                  //   //   );
-                  //   // }
-                  //   //
-                  //   // //* Table headers
-                  //   // if (chosenVotingSessionParticipation != null) {
-                  //   //   columnsHeaders = <DataColumn>[
-                  //   //     DataColumn(label: VoidWidget()),
-                  //   //     for (var field in votingFormFields)
-                  //   //       DataColumn(
-                  //   //         columnWidth: FixedColumnWidth(200),
-                  //   //         label: Column(
-                  //   //           mainAxisSize: MainAxisSize.min,
-                  //   //           children: [
-                  //   //             Text(
-                  //   //               chosenVotingSessionParticipation!.participantFullName,
-                  //   //               style: Theme.of(context)
-                  //   //                   .textTheme
-                  //   //                   .titleMedium
-                  //   //                   ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                  //   //             ),
-                  //   //             Text(
-                  //   //               field.name,
-                  //   //               style: Theme.of(context).textTheme.labelLarge,
-                  //   //             ),
-                  //   //           ],
-                  //   //         ),
-                  //   //       ),
-                  //   //   ];
-                  //   // } else {
-                  //   //   columnsHeaders = <DataColumn>[
-                  //   //     DataColumn(label: VoidWidget()),
-                  //   //     for (var participationBundle in participationsBundles)
-                  //   //       for (var field in votingFormFields)
-                  //   //         DataColumn(
-                  //   //           columnWidth: FixedColumnWidth(200),
-                  //   //           label: Column(
-                  //   //             mainAxisSize: MainAxisSize.min,
-                  //   //             children: [
-                  //   //               Text(
-                  //   //                 participationBundle.participantFullName,
-                  //   //                 style: Theme.of(context)
-                  //   //                     .textTheme
-                  //   //                     .titleMedium
-                  //   //                     ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                  //   //               ),
-                  //   //               Text(
-                  //   //                 field.name,
-                  //   //                 style: Theme.of(context).textTheme.labelLarge,
-                  //   //               ),
-                  //   //             ],
-                  //   //           ),
-                  //   //         ),
-                  //   //   ];
-                  //   // }
-                  //   //
-                  //   // //* Table rows
-                  //   // if (chosenVotingSessionJuration == null &&
-                  //   //     chosenVotingSessionParticipation == null) {
-                  //   //   rows.clear();
-                  //   //   for (var jurationBundle in votingSessionJurors) {
-                  //   //     rows.add(
-                  //   //       DataRow(
-                  //   //         cells: [
-                  //   //           DataCell(
-                  //   //             Text(
-                  //   //               jurationBundle.jurorFullName,
-                  //   //               style: Theme.of(context)
-                  //   //                   .textTheme
-                  //   //                   .titleMedium
-                  //   //                   ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                  //   //             ),
-                  //   //           ),
-                  //   //           for (var participationBundle in participationsBundles)
-                  //   //             for (int i = 0; i < votingFormFields.length; i++)
-                  //   //               DataCell(
-                  //   //                 Text(
-                  //   //                   (participantsVotingsPerJurorMap[jurationBundle]![
-                  //   //                               participationBundle] !=
-                  //   //                           null)
-                  //   //                       ? participantsVotingsPerJurorMap[jurationBundle]![
-                  //   //                               participationBundle]![i]
-                  //   //                           .jurorVote
-                  //   //                           .value
-                  //   //                           .toString()
-                  //   //                       : 'Excluded',
-                  //   //                 ),
-                  //   //               ),
-                  //   //         ],
-                  //   //       ),
-                  //   //     );
-                  //   //   }
-                  //   // }
-                  //   //
-                  //   // if (chosenVotingSessionJuration != null &&
-                  //   //     chosenVotingSessionParticipation != null) {
-                  //   //   rows.clear();
-                  //   //   rows.add(
-                  //   //     DataRow(
-                  //   //       cells: [
-                  //   //         DataCell(
-                  //   //           Text(
-                  //   //             chosenVotingSessionJuration!.jurorFullName,
-                  //   //             style: Theme.of(context)
-                  //   //                 .textTheme
-                  //   //                 .titleMedium
-                  //   //                 ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                  //   //           ),
-                  //   //         ),
-                  //   //         for (int i = 0; i < votingFormFields.length; i++)
-                  //   //           DataCell(
-                  //   //             Text(
-                  //   //               (participantsVotingsPerJurorMap[chosenVotingSessionJuration!]![
-                  //   //                           chosenVotingSessionParticipation!] !=
-                  //   //                       null)
-                  //   //                   ? participantsVotingsPerJurorMap[
-                  //   //                               chosenVotingSessionJuration!]![
-                  //   //                           chosenVotingSessionParticipation!]![i]
-                  //   //                       .jurorVote
-                  //   //                       .value
-                  //   //                       .toString()
-                  //   //                   : 'Excluded',
-                  //   //             ),
-                  //   //           ),
-                  //   //       ],
-                  //   //     ),
-                  //   //   );
-                  //   // }
-                  //   //
-                  //   // if (chosenVotingSessionJuration != null &&
-                  //   //     chosenVotingSessionParticipation == null) {
-                  //   //   rows.clear();
-                  //   //   rows.add(
-                  //   //     DataRow(
-                  //   //       cells: [
-                  //   //         DataCell(
-                  //   //           Text(
-                  //   //             chosenVotingSessionJuration!.jurorFullName,
-                  //   //             style: Theme.of(context)
-                  //   //                 .textTheme
-                  //   //                 .titleMedium
-                  //   //                 ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                  //   //           ),
-                  //   //         ),
-                  //   //         for (var participationBundle in participationsBundles)
-                  //   //           for (int i = 0; i < votingFormFields.length; i++)
-                  //   //             DataCell(
-                  //   //               Text(
-                  //   //                 (participantsVotingsPerJurorMap[
-                  //   //                                 chosenVotingSessionJuration!]![
-                  //   //                             participationBundle] !=
-                  //   //                         null)
-                  //   //                     ? participantsVotingsPerJurorMap[
-                  //   //                                 chosenVotingSessionJuration!]![
-                  //   //                             participationBundle]![i]
-                  //   //                         .jurorVote
-                  //   //                         .value
-                  //   //                         .toString()
-                  //   //                     : 'Excluded',
-                  //   //               ),
-                  //   //             ),
-                  //   //       ],
-                  //   //     ),
-                  //   //   );
-                  //   // }
-                  //   //
-                  //   // if (chosenVotingSessionJuration == null &&
-                  //   //     chosenVotingSessionParticipation != null) {
-                  //   //   rows.clear();
-                  //   //   for (var jurationBundle in votingSessionJurors) {
-                  //   //     rows.add(
-                  //   //       DataRow(
-                  //   //         cells: [
-                  //   //           DataCell(
-                  //   //             Text(
-                  //   //               jurationBundle.jurorFullName,
-                  //   //               style: Theme.of(context)
-                  //   //                   .textTheme
-                  //   //                   .titleMedium
-                  //   //                   ?.copyWith(color: Theme.of(context).colorScheme.primary),
-                  //   //             ),
-                  //   //           ),
-                  //   //           for (int i = 0; i < votingFormFields.length; i++)
-                  //   //             DataCell(
-                  //   //               Text(
-                  //   //                 (participantsVotingsPerJurorMap[jurationBundle]![
-                  //   //                             chosenVotingSessionParticipation!] !=
-                  //   //                         null)
-                  //   //                     ? participantsVotingsPerJurorMap[jurationBundle]![
-                  //   //                             chosenVotingSessionParticipation!]![i]
-                  //   //                         .jurorVote
-                  //   //                         .value
-                  //   //                         .toString()
-                  //   //                     : 'Excluded',
-                  //   //               ),
-                  //   //             ),
-                  //   //         ],
-                  //   //       ),
-                  //   //     );
-                  //   //   }
-                  //   // }
-                  //   //
-                  //   // return ListView(
-                  //   //   children: [
-                  //   //     SizedBox(height: 16),
-                  //   //     DropdownMenu(
-                  //   //       label: Text('Juror'),
-                  //   //       enableSearch: false,
-                  //   //       maxLines: 1,
-                  //   //       textStyle: Theme.of(context).textTheme.labelLarge,
-                  //   //       onSelected: (value) {
-                  //   //         setState(() {
-                  //   //           chosenVotingSessionJuration = value;
-                  //   //         });
-                  //   //       },
-                  //   //       dropdownMenuEntries: [
-                  //   //         DropdownMenuEntry(
-                  //   //           value: null,
-                  //   //           label: 'All',
-                  //   //         ),
-                  //   //         for (var jurationBundle in votingSessionJurors)
-                  //   //           DropdownMenuEntry(
-                  //   //             value: jurationBundle,
-                  //   //             label: jurationBundle.jurorFullName,
-                  //   //           ),
-                  //   //       ],
-                  //   //     ),
-                  //   //     SizedBox(height: 20),
-                  //   //     DropdownMenu(
-                  //   //       label: Text('Participant'),
-                  //   //       enableSearch: false,
-                  //   //       maxLines: 1,
-                  //   //       textStyle: Theme.of(context).textTheme.labelLarge,
-                  //   //       onSelected: (value) {
-                  //   //         setState(() {
-                  //   //           chosenVotingSessionParticipation = value;
-                  //   //         });
-                  //   //       },
-                  //   //       dropdownMenuEntries: [
-                  //   //         DropdownMenuEntry(
-                  //   //           value: null,
-                  //   //           label: 'All',
-                  //   //         ),
-                  //   //         for (var participationBundle in participationsBundles)
-                  //   //           DropdownMenuEntry(
-                  //   //             value: participationBundle,
-                  //   //             label: participationBundle.participantFullName,
-                  //   //           ),
-                  //   //       ],
-                  //   //     ),
-                  //   //     SizedBox(height: 24),
-                  //   //     SingleChildScrollView(
-                  //   //       scrollDirection: Axis.horizontal,
-                  //   //       child: DataTable(
-                  //   //         headingRowHeight: 80,
-                  //   //         border:
-                  //   //             TableBorder.all(color: Theme.of(context).colorScheme.onSurface),
-                  //   //         dataRowMaxHeight: double.infinity,
-                  //   //         columns: columnsHeaders,
-                  //   //         rows: rows,
-                  //   //       ),
-                  //   //     ),
-                  //   //     SizedBox(height: 72),
-                  //   //   ],
-                  //   // );
-                  // }
                 },
               ),
             ),
@@ -488,23 +154,31 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
   ) {
     final headerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
         .headerVotingFormSubmissionValuesBundles;
-    final headerFields = state.votingSessionJurorResultBundle!.votingFormBundle.headerVotingFormFields;
+    final headerFields =
+        state.votingSessionJurorResultBundle!.votingFormBundle.headerVotingFormFields;
     return ListView.builder(
       itemCount: headerFields.length,
       itemBuilder: (context, index) {
         final headerField = headerFields[index];
-        final headerValue = headerValues.where((e) => e.votingFormField == headerField).singleOrNull;
+        final headerValue =
+            headerValues.where((e) => e.votingFormField == headerField).singleOrNull;
+        final requiredSymbol = headerField.isRequired ? '*' : '';
+        final sliderRange = headerField.type.isSlider
+            ? '[${headerField.sliderMinValue}-${headerField.sliderMaxValue}]'
+            : '';
         return Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${headerField.question} ${(headerField.isRequired) ? '*' : ''}',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(text: headerField.question, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.teal)),
+                    const TextSpan(text: ' '),
+                    TextSpan(text: '$sliderRange $requiredSymbol', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.teal)),
+                  ],
+                ),
               ),
               Text((headerValue?.votingFormSubmissionValue.value.isNotEmpty ?? false)
                   ? headerValue!.votingFormSubmissionValue.value
@@ -522,23 +196,31 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
   ) {
     final footerValues = state.votingSessionJurorResultBundle!.votingFormSubmissionBundle
         .footerVotingFormSubmissionValuesBundles;
-    final footerFields = state.votingSessionJurorResultBundle!.votingFormBundle.footerVotingFormFields;
+    final footerFields =
+        state.votingSessionJurorResultBundle!.votingFormBundle.footerVotingFormFields;
     return ListView.builder(
       itemCount: footerFields.length,
       itemBuilder: (context, index) {
         final footerField = footerFields[index];
-        final footerValue = footerValues.where((e) => e.votingFormField == footerField).singleOrNull;
+        final footerValue =
+            footerValues.where((e) => e.votingFormField == footerField).singleOrNull;
+        final requiredSymbol = footerField.isRequired ? '*' : '';
+        final sliderRange = footerField.type.isSlider
+            ? '[${footerField.sliderMinValue}-${footerField.sliderMaxValue}]'
+            : '';
         return Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${footerField.question} ${(footerField.isRequired) ? '*' : ''}',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(text: footerField.question, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.teal)),
+                    const TextSpan(text: ' '),
+                    TextSpan(text: '$sliderRange $requiredSymbol', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.teal)),
+                  ],
+                ),
               ),
               Text((footerValue?.votingFormSubmissionValue.value.isNotEmpty ?? false)
                   ? footerValue!.votingFormSubmissionValue.value
@@ -562,10 +244,11 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
         state.votingSessionJurorResultBundle!.excludedVotingSessionParticipantsIds;
     List<VotingFormSubmissionValueBundle>? participantValues =
         participantsValuesMap[chosenVotingSessionParticipant];
-    final participantFields = state.votingSessionJurorResultBundle!.votingFormBundle.participantVotingFormFields;
+    final participantFields =
+        state.votingSessionJurorResultBundle!.votingFormBundle.participantVotingFormFields;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return ListView(
+      // crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
         DropdownMenu(
@@ -593,25 +276,32 @@ class _OrganizerJurorVotingResultsPageState extends State<OrganizerJurorVotingRe
         else
           ...participantFields.map((participantField) {
             final participantValue = participantValues?.where((e) => e.votingFormField == participantField).singleOrNull;
+            final requiredSymbol = participantField.isRequired ? '*' : '';
+            final sliderRange = participantField.type.isSlider
+                ? '[${participantField.sliderMinValue}-${participantField.sliderMaxValue}]'
+                : '';
             return Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${participantField.question} ${(participantField.isRequired) ? '*' : ''}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(text: participantField.question, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.teal)),
+                        const TextSpan(text: ' '),
+                        TextSpan(text: '$sliderRange $requiredSymbol', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.teal)),
+                      ],
+                    ),
                   ),
                   Text((participantValue?.votingFormSubmissionValue.value.isNotEmpty ?? false)
                       ? participantValue!.votingFormSubmissionValue.value
-                      : 'No answer')
+                      : 'No answer', style: Theme.of(context).textTheme.bodyLarge,)
                 ],
               ),
             );
           }),
+        const SizedBox(height: 72),
       ],
     );
   }

@@ -1,0 +1,79 @@
+%!TeX root=../main.tex
+
+\chapter{Tecnologie e Strumenti Utilizzati}\label{ch:tecnologie-e-strumenti-utilizzati}
+
+La realizzazione del progetto \textbf{Swift Contest} è stata resa possibile dall'adozione di un insieme di tecnologie, piattaforme e strumenti moderni, selezionati per soddisfare i requisiti di cross-platform, sicurezza, scalabilità e velocità di sviluppo.
+Questo capitolo descrive lo stack tecnologico utilizzato, giustificando le scelte chiave in relazione agli obiettivi del progetto.
+
+\section{Stack Tecnologico Principale}\label{sec:stack-tecnologico-principale}
+Questa sezione descrive i linguaggi e i framework utilizzati per la scrittura del codice sorgente dell'applicazione, sia lato client che lato server.
+
+\subsection{Frontend: Flutter e Dart}\label{subsec:frontend:-flutter-e-dart}
+\begin{itemize}
+	\item \textbf{Flutter}: È il framework UI open-source di Google scelto per lo sviluppo dell'applicazione client.
+	La sua caratteristica principale è la capacità di generare applicazioni compilate nativamente per mobile, web e desktop da un'unica codebase.
+	Questa scelta è stata fondamentale per soddisfare il requisito di \textbf{sviluppo cross-platform}, garantendo un'esperienza utente coerente e riducendo drasticamente i tempi e i costi di sviluppo e manutenzione.
+	
+	\item \textbf{Dart}: È il linguaggio di programmazione su cui si basa Flutter.
+	È un linguaggio moderno, orientato agli oggetti e fortemente tipizzato, ottimizzato per la creazione di interfacce utente.
+	La sua architettura, che supporta sia la compilazione Just-In-Time (JIT) per uno sviluppo rapido (con hot reload) sia la compilazione Ahead-Of-Time (AOT) per performance elevate in produzione, lo ha reso la scelta naturale per questo progetto.
+\end{itemize}
+
+\subsection{Backend: Supabase, PL/pgSQL e TypeScript}\label{subsec:backend:-supabase-pl/pgsql-e-typescript}
+\begin{itemize}
+	\item \textbf{Supabase}: È la piattaforma open-source \textbf{Backend-as-a-Service (BaaS)} che costituisce il cuore dell'infrastruttura server.
+	È stata scelta perché offre, in un'unica soluzione integrata, tutti i servizi necessari: un database \textbf{PostgreSQL} completo, un sistema di autenticazione, uno storage per i file, API auto-generate e servizi serverless (RPC ed Edge Functions).
+	\item \textbf{PL/pgSQL}: È il linguaggio procedurale di PostgreSQL. È stato utilizzato per scrivere tutte le \textbf{Funzioni RPC (Remote Procedure Call)} del sistema.
+	La scelta di implementare la logica di accesso ai dati direttamente a livello di database tramite questo linguaggio ha permesso di ottenere performance elevate e di garantire l'atomicità delle operazioni, sfruttando al contempo il potente sistema di sicurezza di PostgreSQL\@.
+	\item \textbf{TypeScript}: È stato scelto come linguaggio per lo sviluppo delle \textbf{Edge Functions}, eseguite sul runtime Deno di Supabase.
+	La sua natura fortemente tipizzata, unita alla vasta disponibilità di librerie dell'ecosistema JavaScript/TypeScript, lo ha reso ideale per gestire logiche complesse, transazioni multi-step e, soprattutto, per orchestrare le interazioni sicure con le API di servizi esterni.
+\end{itemize}
+
+\section{Piattaforme, Strumenti e Servizi}\label{sec:piattaforme-strumenti-e-servizi}
+Questa sezione descrive le piattaforme di terze parti e gli strumenti che hanno supportato il ciclo di vita del progetto, dal development al deployment, fino alla documentazione.
+
+\subsection{Piattaforme di Deployment e Servizi Cloud}\label{subsec:piattaforme-di-deployment-e-servizi-cloud}
+\begin{itemize}
+	\item \textbf{Vercel}: È la piattaforma serverless utilizzata per il deployment e l'hosting della versione \textbf{Web} dell'applicazione Flutter.
+	È stata scelta per la sua integrazione nativa con i framework frontend moderni, la sua pipeline di CI/CD automatizzata e la sua capacità di gestire in modo ottimale le Single Page Applications (SPA) come Flutter Web.
+	
+	\item \textbf{Resend}: È il servizio transazionale di invio \textbf{email} utilizzato dal sistema.
+	È stato integrato tramite la sua API REST, invocata da una Edge Function, per gestire l'invio di tutte le email automatiche, come gli inviti per partecipanti e giurati.
+	
+	\item \textbf{Google Cloud}: Sebbene il progetto non sia ospitato su Google Cloud, è stato utilizzato uno dei suoi servizi API: la \textbf{Google Places API}.
+	Questo servizio è stato integrato per fornire la funzionalità di ricerca e autocompletamento degli indirizzi nella creazione dei contest e nella configurazione delle sessioni di voto per la geo-localizzazione.
+\end{itemize}
+
+\subsection{Strumenti di Sviluppo e Amministrazione}\label{subsec:strumenti-di-sviluppo-e-amministrazione}
+\begin{itemize}
+	\item \textbf{IntelliJ IDEA}: È l'Integrated Development Environment (IDE) di JetBrains utilizzato per la scrittura del codice.
+	Sebbene lo sviluppo iniziale fosse stato avviato su \textbf{Android Studio}, si è scelto di migrare a \textbf{IntelliJ IDEA Community Edition}.
+	Questa decisione è stata motivata da una maggiore stabilità, una minore incidenza di bug e una superiore reattività dell'IDE, specialmente nel caricamento iniziale del progetto.
+	Grazie alla possibilità di integrare il supporto completo per lo sviluppo in Flutter e Dart tramite plugin ufficiali, IntelliJ IDEA ha offerto un ambiente di sviluppo più performante e affidabile.
+	
+	\item \textbf{Material Theme Builder}: È uno strumento ufficiale di Google (disponibile online e su Figma) utilizzato per generare la base del tema Material Design 3.
+	A partire da un singolo colore ``seme'' (seed color), lo strumento genera automaticamente l'intera palette di colori (\texttt{ColorScheme}) per il tema chiaro e scuro, garantendo coerenza cromatica e accessibilità.
+	Il codice Dart generato da questo strumento è stato poi utilizzato come base per il \texttt{MaterialTheme} dell'applicazione.
+	
+	\item \textbf{Node Package Manager (npm)}: È il gestore di pacchetti dell'ecosistema JavaScript/Node.js.
+	Sebbene il progetto non sia basato su Node.js, \texttt{npm} è stato uno strumento indispensabile per l'installazione e la gestione di dipendenze di sviluppo, prima tra tutte la \textbf{CLI di Supabase}, utilizzata per gestire le migrazioni del database e il deployment delle Edge Functions.
+	
+	\item \textbf{Retool}: È la piattaforma low-code utilizzata per costruire rapidamente la \textbf{dashboard di amministrazione} interna.
+	La sua capacità di interfacciarsi in modo nativo e sicuro con database PostgreSQL e API REST ha permesso di creare uno strumento di moderazione funzionale in poche ore, senza sottrarre tempo allo sviluppo dell'applicazione principale.
+\end{itemize}
+
+\subsection{Version Control e Code Hosting}\label{subsec:version-control-e-code-hosting}
+\begin{itemize}
+	\item \textbf{Git}: È il sistema di \textbf{controllo di versione distribuito} utilizzato per tracciare ogni modifica al codice sorgente del progetto.
+	La sua adozione è stata fondamentale per gestire lo sviluppo in modo strutturato, permettendo la creazione di branch per nuove funzionalità, la gestione dei merge e la possibilità di tornare a versioni precedenti del codice.
+	
+	\item \textbf{GitHub}: È la piattaforma di \textbf{code hosting} che ospita il repository Git del progetto.
+	Oltre al semplice hosting, è stata utilizzata per la sua integrazione con la pipeline di CI/CD di Vercel e, come descritto nel capitolo sulla distribuzione, per ospitare in modo sicuro le release dell'applicazione Android (APK).
+\end{itemize}
+
+\subsection{Strumenti di Documentazione e Modellazione}\label{subsec:strumenti-di-documentazione-e-modellazione}
+\begin{itemize}
+	\item \textbf{PlantUML}: È lo strumento open-source utilizzato per creare tutti i diagrammi UML e architetturali.
+	La sua caratteristica distintiva è l'approccio ``diagrams as code'': invece di disegnare manualmente i diagrammi, questi vengono descritti attraverso un \textbf{linguaggio DSL (Domain-Specific Language)} testuale.
+	Questa scelta ha permesso di creare diagrammi versionabili, facilmente modificabili e stilisticamente coerenti.
+\end{itemize}

@@ -210,53 +210,8 @@ class _OrganizerJuryVotingResultsExportPageState
             selectedFields: selectedFooterFields,
           ),
         ],
-        // MultiSelectDialogField<VotingSessionJuror>(
-        //   items: votingSessionJurors
-        //       .map((e) => MultiSelectItem(e, e.jurorFullName))
-        //       .toList(growable: false),
-        //   title: Row(
-        //     mainAxisSize: MainAxisSize.min,
-        //     children: [
-        //       Text('Jurors'),
-        //       TextButton(onPressed: (){}, child: Text('Select all'),),
-        //     ],
-        //   ),
-        //   buttonText: Text('Select jurors'),
-        //   initialValue: selectedVotingSessionJurors,
-        //   onSelectionChanged: (p0) {
-        //
-        //   },
-        //   onConfirm: (values) {
-        //     setState(() {
-        //       selectedVotingSessionJurors = values;
-        //     });
-        //   },
-        //   listType: MultiSelectListType.LIST,
-        //   dialogHeight: 250,
-        //   selectedColor: Theme.of(context).colorScheme.primary,
-        //   itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   checkColor: Theme.of(context).colorScheme.onPrimary,
-        // ),
-        // SizedBox(height: 20),
-        // MultiSelectDialogField<VotingFormField>(
-        //   items:
-        //       votingFormFields.map((f) => MultiSelectItem(f, f.question)).toList(growable: false),
-        //   title: Text('Fields'),
-        //   buttonText: Text('Select fields'),
-        //   initialValue: selectedVotingFormFields,
-        //   onConfirm: (values) {
-        //     setState(() {
-        //       selectedVotingFormFields = values;
-        //     });
-        //   },
-        //   listType: MultiSelectListType.LIST,
-        //   dialogHeight: 250,
-        //   selectedColor: Theme.of(context).colorScheme.primary,
-        //   itemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   selectedItemsTextStyle: Theme.of(context).textTheme.bodyMedium,
-        //   checkColor: Theme.of(context).colorScheme.onPrimary,
-        // ),
+
+        const SizedBox(height: 72),
       ],
     );
   }

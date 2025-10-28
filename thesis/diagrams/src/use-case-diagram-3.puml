@@ -1,0 +1,78 @@
+@startuml
+
+!theme sunlust
+left to right direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam usecase {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' =======================================
+' Attori
+' =======================================
+actor Guest
+actor Authenticated
+actor Organizer
+actor Juror
+
+Authenticated <|-- Organizer
+Authenticated <|-- Juror
+
+' =======================================
+' Packages e Casi d'Uso
+' =======================================
+
+package "Voting & Ranking Management" {
+  usecase "Vote in Session" as UC_VoteInSession
+  
+  usecase "Start voting session" as UC_StartVotingSession
+  usecase "Cancel voting session" as UC_CancelVotingSession
+  usecase "End voting session" as UC_EndVotingSession
+  usecase "Apply Geo-Restriction" as UC_ApplyGeoRestriction
+
+  usecase "Edit voting form" as UC_EditJuryForm
+
+  usecase "Generate ranking" as UC_GenerateRanking
+  usecase "Publish ranking" as UC_PublishRanking
+  usecase "Unpublish ranking" as UC_UnpublishRanking
+  usecase "Download ranking" as UC_DownloadRanking
+  
+  usecase "Export voting results" as UC_ExportVotingResults
+}
+
+' =======================================
+' Connessioni
+' =======================================
+
+' Guest
+Guest --> UC_VoteInSession : (as Simple Juror)
+
+' Juror
+Juror --> UC_VoteInSession : (as Appointed or Simple Juror)
+
+' Organizer
+Organizer --> UC_EditJuryForm
+Organizer --> UC_StartVotingSession
+Organizer --> UC_CancelVotingSession
+Organizer --> UC_EndVotingSession
+Organizer --> UC_GenerateRanking
+Organizer --> UC_PublishRanking
+Organizer --> UC_UnpublishRanking
+Organizer --> UC_DownloadRanking
+Organizer --> UC_ExportVotingResults
+
+' =======================================
+' Relazioni tra Casi d'Uso
+' =======================================
+(UC_StartVotingSession) .> (UC_ApplyGeoRestriction) : <<extend>>
+
+@enduml

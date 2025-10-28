@@ -1,0 +1,121 @@
+%!TeX root=../main.tex
+
+\chapter{Distribuzione e Prodotto finale}\label{ch:distribuzione-e-prodotto-finale}
+
+
+\section{Strategia di distribuzione}\label{sec:strategia-di-distribuzione}
+La fase di distribuzione ha avuto come obiettivo non solo il rilascio tecnico dell’applicazione, ma anche la validazione della sua utilizzabilità in un ambiente che simula condizioni reali di produzione.
+Per \textbf{Swift Contest} è stato scelto un approccio multipiattaforma che copre i principali punti di accesso per i diversi tipi di utenti:
+\begin{itemize}
+    \item \textbf{Applicazione Web}: distribuita su \textbf{Vercel}, per garantire accessibilità universale da qualsiasi browser moderno, sia desktop che mobile.
+    \item \textbf{Applicazione Android}: distribuita come pacchetto APK, reso disponibile tramite un meccanismo di download sicuro per un'esperienza d'uso ottimizzata su dispositivi mobili.
+    \item \textbf{Infrastruttura Backend}: interamente gestita su \textbf{Supabase Cloud}, che ospita il database, lo storage, le funzioni serverless e i servizi realtime.
+    \item \textbf{Pannello di Amministrazione}: sviluppato come strumento interno su \textbf{Retool} e interfacciato in modo sicuro con il backend, per le attività di moderazione e manutenzione.
+\end{itemize}
+Questa strategia ibrida consente di bilanciare la facilità di accesso (garantita dalla versione Web) con un'esperienza d'uso ottimizzata (offerta dalla versione Android), mantenendo al contempo un backend centralizzato, sicuro e scalabile.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{diagrams/deployment-diagram}
+    \caption{Diagramma di Deployment dell'architettura completa di Swift Contest.}
+    \label{fig:deployment_diagram}
+\end{figure}
+
+\section{Distribuzione Web su Vercel}\label{sec:distribuzione-web-su-vercel}
+La versione Web dell'applicazione Flutter è stata distribuita su Vercel, una piattaforma serverless ottimizzata per la distribuzione di frontend moderni.
+Il processo è completamente automatizzato tramite una pipeline di CI/CD (Continuous Integration/Continuous Deployment) integrata con il repository Git del progetto. Ogni \emph{push} sul branch \texttt{main} innesca automaticamente una nuova build dell'applicazione Flutter in modalità \emph{release} e un conseguente deploy sulla piattaforma.
+
+Per garantire il corretto funzionamento di una Single Page Application (SPA) come Flutter Web, è stato configurato un file \texttt{vercel.json} che gestisce il rewrite di tutte le rotte verso il file \texttt{index.html}, permettendo al router di Flutter (\texttt{auto\_route}) di gestire la navigazione lato client.
+
+\section{Distribuzione Android}\label{sec:distribuzione-android}
+Per la piattaforma Android, è stata prodotta una \textbf{release in formato APK}.
+Data la natura prototipale del progetto, si è evitato il complesso processo di pubblicazione sul Google Play Store, optando per un approccio di distribuzione controllata che garantisce comunque sicurezza e facilità di aggiornamento:
+\begin{enumerate}
+    \item L'APK viene caricato come \emph{release asset} su un repository GitHub privato.
+    \item Un'apposita Edge Function, \texttt{get-latest-apk}, è stata creata su Supabase per fungere da proxy sicuro.
+    Questa funzione utilizza un Personal Access Token (PAT) di GitHub, memorizzato in modo sicuro in Supabase, per autenticarsi all'API di GitHub e scaricare l'asset.
+    \item L'applicazione web offre un pulsante "Download for Android" che invoca questa Edge Function.
+    L'utente riceve così l'ultima versione dell'APK direttamente dal backend, senza che il repository GitHub o le credenziali di accesso vengano mai esposte.
+\end{enumerate}
+Questa soluzione rappresenta un eccellente compromesso tra sicurezza, controllo delle versioni e facilità di distribuzione per un contesto non commerciale.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/web_download_for_android}
+    \caption{Pagina di accesso dell'applicazione web distribuita su Vercel con pulsante di download.}
+    \label{fig:web_download_for_android}
+\end{figure}
+
+\section{Backend e Supabase}\label{sec:backend-e-supabase}
+L'intera infrastruttura backend è gestita su Supabase.
+Il processo di deployment del database è basato su migrazioni SQL, seguendo le pratiche di \textbf{Infrastructure as Code (IaC)}.
+Ogni modifica allo schema del database, alle policy RLS o alle funzioni RPC è definita in un file \texttt{.sql} all'interno della cartella \texttt{supabase/migrations}.
+La CLI di Supabase viene utilizzata per applicare queste migrazioni in modo sequenziale e versionato, garantendo che l'ambiente di produzione sia sempre allineato con la definizione del codice.
+Le Edge Functions, scritte in TypeScript, vengono anch'esse deployate tramite la CLI\@.
+
+% TODO TABELLA: Inserire qui una tabella riassuntiva delle componenti Supabase e del loro utilizzo nel progetto (es. Database -> Dati applicativi; Auth -> Gestione utenti; Storage -> File; Edge Functions -> Logica server-side; Realtime -> Notifiche live).
+
+\section{Dashboard amministrativa (Retool)}\label{sec:dashboard-amministrativa-(retool)}
+Per le attività di amministrazione avanzata, come la moderazione degli utenti e la gestione dei contenuti, è stata creata una dashboard interna utilizzando \textbf{Retool}.
+Questa interfaccia, non esposta agli utenti finali, comunica con il backend Supabase attraverso l'API sicura descritta nel capitolo precedente, utilizzando un utente di database dedicato per le letture e Edge Functions protette da API-Key per le operazioni di scrittura.
+
+% TODO FIGURA: Inserire qui uno screenshot della dashboard Retool che mostra, ad esempio, la lista degli utenti registrati con la possibilità di eliminarli.
+
+\section{Prodotto finale: Flussi Operativi e Interfaccia Utente}\label{sec:prodotto-finale:-flussi-operativi-e-interfaccia-utente}
+Il prodotto finale offre interfacce e flussi operativi specifici e ottimizzati per ogni attore del sistema, garantendo un'esperienza utente coerente tra la versione web e quella Android.
+Le sezioni seguenti descrivono il ciclo di vita completo di un contest attraverso i percorsi dei suoi protagonisti.
+
+\subsection{Flusso dell'Organizzatore}\label{subsec:flusso-dell'organizzatore}
+L'organizzatore è l'utente con il set di funzionalità più ricco, responsabile dell'intero ciclo di vita del contest.
+
+\paragraph{Creazione e Configurazione}
+Dopo l'autenticazione, l'organizzatore accede a una dashboard personale dove può visualizzare e gestire i contest da lui creati.
+Il flusso principale lo guida attraverso la creazione di un nuovo contest tramite un form multi-step in cui inserisce dati principali (nome, descrizione, data), periodo di sottomissione, luogo e immagini rappresentative.
+Una volta creato il contest, accede a un pannello di gestione dettagliato dove può:
+\begin{itemize}
+	\item \textbf{Creare le giurie}, specificando se sono di tipo \emph{appointed} (per giurati nominati) o \emph{simple} (per giurati semplici con token).
+	\item \textbf{Invitare i partecipanti e i giurati nominati}, inserendo i loro indirizzi email.
+	Apposite Edge Functions gestiscono l'invio sicuro delle email di invito.
+	\item \textbf{Configurare il form di voto} associato a ciascuna giuria, definendo i campi testuali e slider con i relativi scope (header, participant, footer).
+\end{itemize}
+
+% TODO FIGURA: Inserire qui uno screenshot della dashboard dell'organizzatore con l'elenco dei suoi contest.
+% TODO FIGURA: Inserire qui uno screenshot della pagina di configurazione di un VotingForm.
+
+\paragraph{Gestione della Votazione e dei Risultati}
+Terminato il periodo di sottomissione, l'organizzatore avvia una \emph{VotingSession}, creando lo snapshot immutabile dei dati.
+Una volta che tutti i giurati hanno votato, chiude la sessione.
+Ora ha a disposizione i risultati per ciascuna giuria, che può esportare in formato Excel (xlsx).
+Ha inoltre la possibilità di generare una classifica per ciascuna giuria selezionando i campi required, di tipo slider, e con scope participant, che desidera considerare.
+La classifica viene visualizzata in app e può essere scaricata in formato PDF\@.
+A questo punto l'organizzatore può raffinare le classifiche esternamente, ad esempio può generare un'unica classifica considerando quelle di tutte le giurie, e pubblicarla in formato pdf, rendendola disponibile per il download per i partecipanti e giurati nominati facenti parte del contest.
+%Durante la sessione, può monitorarne l'andamento in tempo reale.
+
+% TODO FIGURA: Inserire qui uno screenshot della pagina di monitoraggio di una sessione di voto.
+
+\subsection{Flusso del Partecipante}\label{subsec:flusso-del-partecipante}
+Il partecipante, una volta accettato l'invito a un concorso, ha un percorso chiaro e focalizzato.
+La sua azione principale è la \textbf{sottomissione del proprio \emph{Work}}.
+Un form dedicato lo guida nel caricamento di un pacchetto \texttt{.zip} contenente il materiale principale e delle immagini di anteprima, che verranno usate durante la votazione.
+Al termine del concorso, può accedere alla sezione dei risultati per visualizzare la classifica finale, se pubblicata dall'organizzatore.
+
+% TODO FIGURA: Inserire qui uno screenshot della pagina di sottomissione del Work.
+
+\subsection{Flusso del Giurato (Nominato e Semplice)}\label{subsec:flusso-del-giurato-(nominato-e-semplice)}
+Il sistema supporta due modalità di accesso per i giurati, garantendo flessibilità.
+\begin{itemize}
+	\item Il \textbf{giurato nominato (\emph{appointed})} accede alla sua dashboard personale e visualizza l'elenco dei contest a cui è stato assegnato.
+	\item Il \textbf{giurato semplice (\emph{simple juror})}, invece, accede direttamente alla procedura di voto tramite un token fornito dall'organizzatore, senza bisogno di un account.
+\end{itemize}
+Per entrambi, l'interfaccia di voto è identica e li guida attraverso una procedura strutturata: per ogni \emph{Work} in gara, viene presentato il materiale di anteprima e il \emph{VotingForm} da compilare.
+Il sistema garantisce che i voti possano essere inviati una sola volta per sessione.
+
+% TODO FIGURA: Inserire qui uno screenshot della procedura di voto del giurato, evidenziando la visualizzazione di un'opera e la compilazione di un campo slider.
+
+\subsection{Flusso delle Notifiche}\label{subsec:flusso-delle-notifiche}
+Per mantenere tutti gli utenti informati, il sistema include una \textbf{inbox} interna, accessibile dalla barra di navigazione principale.
+Qui, tutti gli utenti autenticati ricevono notifiche generate automaticamente per eventi rilevanti, come la ricezione di un invito, la cancellazione di un contest o la pubblicazione di una classifica.
+La ricezione di nuovi messaggi avviene in tempo reale, segnalata da un indicatore visivo sull'icona della inbox, grazie all'integrazione con il servizio Realtime di Supabase.
+
+% TODO FIGURA: Inserire qui uno screenshot della pagina Inbox con un elenco di messaggi di notifica.
+
