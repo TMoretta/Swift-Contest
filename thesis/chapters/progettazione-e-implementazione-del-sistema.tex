@@ -517,7 +517,6 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 
 % Elenco delle principali Funzioni RPC del sistema.
 \begin{longtable}{p{0.3\textwidth} p{0.4\textwidth} p{0.25\textwidth}}
-	\caption{Elenco esemplificativo delle Funzioni RPC del sistema.}
 	\toprule
 	\textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza Esempio} \\
 	\midrule
@@ -563,6 +562,7 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 	Il token della giuria deve essere valido. \\
 
 	\bottomrule
+    \caption{Elenco esemplificativo delle Funzioni RPC del sistema.}
 	\label{tab:rpc_functions}
 \end{longtable}
 
@@ -610,29 +610,29 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
 
 % Elenco delle principali Edge Functions del sistema.
 \begin{longtable}{p{0.25\textwidth} p{0.4\textwidth} p{0.25\textwidth}}
-\caption{Elenco esemplificativo delle Edge Functions del sistema.}
-\toprule
-\textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione / Dipendenze} \\
-\midrule
-\endfirsthead
-\toprule
-\textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione / Dipendenze} \\
-\midrule
-\endhead
-\texttt{organizer-invite-juror} & Invia un'email di invito a un giurato.
-& JWT + Ownership del contest; \textbf{Resend API}. \\
-\texttt{participant-submit-work} & Gestisce il caricamento del file \texttt{.zip} del Work e delle immagini di anteprima.
-& JWT + Appartenenza al contest. \\
-\texttt{user-delete-account} & Elimina un utente e tutti i suoi dati e file associati.
-& JWT (self-service). \\
-\texttt{admin-delete-account} & Versione amministrativa dell'eliminazione account.
-& \textbf{X-API-Key} (per Retool). \\
-\texttt{google-places-search-suggestions} & Funge da proxy sicuro per l'API di Google Places.
-& JWT; \textbf{Google Places API}. \\
-\texttt{get-latest-apk} & Proxy sicuro per il download dell'APK da un repository GitHub privato.
-& JWT; \textbf{GitHub API}. \\
-\bottomrule
-\label{tab:edge_functions}
+    \toprule
+    \textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione / Dipendenze} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione / Dipendenze} \\
+    \midrule
+    \endhead
+    \texttt{organizer-invite-juror} & Invia un'email di invito a un giurato.
+    & JWT + Ownership del contest; \textbf{Resend API}. \\
+    \texttt{participant-submit-work} & Gestisce il caricamento del file \texttt{.zip} del Work e delle immagini di anteprima.
+    & JWT + Appartenenza al contest. \\
+    \texttt{user-delete-account} & Elimina un utente e tutti i suoi dati e file associati.
+    & JWT (self-service). \\
+    \texttt{admin-delete-account} & Versione amministrativa dell'eliminazione account.
+    & \textbf{X-API-Key} (per Retool). \\
+    \texttt{google-places-search-suggestions} & Funge da proxy sicuro per l'API di Google Places.
+    & JWT; \textbf{Google Places API}. \\
+    \texttt{get-latest-apk} & Proxy sicuro per il download dell'APK da un repository GitHub privato.
+    & JWT; \textbf{GitHub API}. \\
+    \bottomrule
+    \caption{Elenco esemplificativo delle Edge Functions del sistema.}
+    \label{tab:edge_functions}
 \end{longtable}
 
 % Inserire qui un estratto di codice TypeScript dalla Edge Function `organizer-invite-juror` che mostra l'invocazione dell'API di Resend.
