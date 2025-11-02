@@ -1,0 +1,63 @@
+@startuml
+
+!theme sunlust
+top to bottom direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam rectangle {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' =======================================
+' Definizione dei Componenti dell'Architettura (usando sintassi base)
+' =======================================
+
+package "Flutter Client Architecture (MVVM/BLoC)" {
+
+    ' --- View Layer ---
+    rectangle "**View**\n(UI Widgets)" as View
+
+    ' --- ViewModel Layer ---
+    rectangle "**ViewModel**\n(BLoC)" as BLoC
+
+    ' --- Model Layer ---
+    rectangle "**Model**\n(Repository)" as Repository
+
+    ' --- Backend (esterno al client) ---
+    database "Backend\n(Supabase RPC/Edge)" as Backend
+}
+
+' =======================================
+' Definizione del Flusso di Dati e di Eventi
+' =======================================
+
+' 1. User interaction triggers an Event
+View -> BLoC : 1. Notifies **Event**\n(e.g., Button Pressed)
+
+' 2. BLoC processes the event, calls Repository
+BLoC -> Repository : 2. Calls method\n(e.g., fetchData())
+
+' 3. Repository fetches data from the backend
+Repository -> Backend : 3. Makes API call
+
+' 4. Repository returns data to BLoC
+Backend --> Repository : 4. Returns Data
+Repository --> BLoC : 5. Returns Data (Entities/Bundles)
+
+' 5. BLoC creates a new State and emits it
+' La freccia tratteggiata indica una dipendenza di "ascolto"
+View <.. BLoC : 7. Listens to **State** stream
+
+' La freccia che torna indietro indica l'emissione dello stato
+BLoC -> BLoC : 6. Creates new **State**
+note right of BLoC : Processes logic and\nemits a new State
+
+@enduml

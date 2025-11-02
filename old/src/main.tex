@@ -1,0 +1,128 @@
+\documentclass[12pt]{book}
+
+\usepackage[english, italian]{babel} % per lingua
+\usepackage{fontspec} % per font family
+\setmainfont{Times New Roman} % per font family
+\usepackage[a4paper,margin=2.5cm]{geometry} % per margini
+\usepackage[onehalfspacing]{setspace} % per interlinea
+\usepackage{graphicx} % per inserire immagini
+\usepackage{parskip} % per lo spazio tra i paragrafi
+\usepackage{float} % per un corretto positioning delle immagini (H)
+\usepackage{longtable} % per tabelle più complesse
+\usepackage{booktabs}
+\usepackage{seqsplit} % per sillabare parole con underscore
+\usepackage{subcaption} % Per avere didascalie separate per immagini affiancate
+
+\usepackage{xcolor} % per definire colori
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.98,0.98,0.97}
+
+% --- Personalizzazione delle Note a Piè di Pagina ---
+\addtolength{\skip\footins}{2pc plus 5pt} % distanza dal testo
+\setlength{\footnotesep}{1.5pc} % spazio prima di una nota
+
+\usepackage{listings} % per snippet di codice
+
+% --- Definizione del linguaggio Dart per il pacchetto listings ---
+\lstdefinelanguage{Dart}{
+	morekeywords={abstract, as, assert, async, await, break, case, catch, class, const, continue, covariant, default, deferred, do, dynamic, else, enum, export, extends, extension, external, factory, false, final, finally, for, Function, get, hide, if, implements, import, in, inout, interface, is, late, library, mixin, new, null, on, operator, part, required, rethrow, return, set, show, static, super, switch, sync, this, throw, true, try, typedef, var, void, while, with, yield},
+	sensitive=true,
+	morecomment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]",
+	morestring=[b]',
+	morestring=[s]{"""}{"""},
+	morestring=[s]{'''}{'''},
+}
+
+% --- Definizione del linguaggio TypeScript per il pacchetto listings ---
+\lstdefinelanguage{TypeScript}{
+	keywords={abstract, any, as, async, await, boolean, break, case, catch, class, const, constructor, continue, debugger, declare, default, delete, do, else, enum, export, extends, false, finally, for, from, function, get, if, implements, import, in, instanceof, interface, let, module, new, null, number, of, package, private, protected, public, require, return, set, static, string, super, switch, symbol, this, throw, true, try, type, typeof, var, void, while, with, yield},
+	morekeywords={Array, Date, |},
+	sensitive=true,
+	morecomment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]",
+	morestring=[b]',
+	morestring=[b]`,
+}
+
+% --- Stile globale per tutti i listati di codice ---
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2,
+	literate={\_}{{\_}}{1}
+}
+\lstset{style=mystyle} % Applica lo stile a tutti i blocchi lstlisting
+
+%\usepackage[none]{hyphenat} % per non troncare le parole ma farle andare a capo
+%\usepackage{ragged2e} % per left to right
+%\usepackage{polyglossia} % per la gestione corretta del linguaggio
+%\setmainlanguage{italian}
+
+
+
+
+\title{Tesi}
+\author{Tommaso Moretta}
+\date{Settembre 2025}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\input{chapters/introduzione}
+\input{chapters/contesto-e-analisi-del-sistema}
+\input{chapters/tecnologie-e-strumenti-utilizzati}
+\input{chapters/progettazione-e-implementazione-del-sistema}
+\input{chapters/distribuzione-e-prodotto-finale}
+\input{chapters/conclusioni}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

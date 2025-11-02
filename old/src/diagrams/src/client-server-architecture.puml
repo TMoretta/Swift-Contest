@@ -1,0 +1,65 @@
+@startuml
+
+!theme sunlust
+top to bottom direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam rectangle {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' =======================================
+' Definizione dei Componenti Logici
+' =======================================
+
+' --- Il Client ---
+actor User
+rectangle "**Flutter Client**\n(Web & Android)" as Client
+
+' --- Il Server (rappresentato come un Backend BaaS) ---
+package "Backend (Supabase BaaS)" {
+  rectangle "Authentication" as Auth
+  rectangle "Database (PostgreSQL)" as DB
+  rectangle "Storage" as Store
+  rectangle "Edge Functions" as Edge
+  rectangle "Realtime" as RT
+  rectangle "RPC API" as RPC
+}
+
+' --- Servizi Esterni ---
+package "External Services" {
+  rectangle "Resend API" as Resend
+  rectangle "Google Places API" as GooglePlaces
+  rectangle "GitHub API" as GitHub
+}
+
+
+' =======================================
+' Definizione delle Interazioni
+' =======================================
+
+User --> Client : Interacts with
+
+' --- Interazioni Client -> Backend ---
+Client --> Auth : Authenticates (HTTPS)
+Client --> RPC : Invokes procedures (HTTPS)
+RPC --> DB : (internal)
+Client --> Store : Uploads/Downloads files\n(via signed URLs, HTTPS)
+Client --> Edge : Triggers complex operations (HTTPS)
+Client --> RT : Subscribes to live events (WSS)
+
+' --- Interazioni Backend -> Servizi Esterni ---
+' Solo le Edge Functions comunicano con l'esterno, mai il client.
+Edge --> Resend : Sends emails (HTTPS)
+Edge --> GooglePlaces : Proxies API Calls (HTTPS)
+Edge --> GitHub : Fetches APK (HTTPS)
+
+@enduml

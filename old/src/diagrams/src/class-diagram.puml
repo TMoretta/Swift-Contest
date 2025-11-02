@@ -1,0 +1,153 @@
+@startuml
+
+!theme sunlust
+top to bottom direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam class {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' =======================================
+' Definizione delle Classi
+' =======================================
+
+class User {
+  fullName: String
+  preferredRole: ContestRole
+}
+
+class Message {
+  title: String
+  body: String
+  isRead: Boolean
+}
+
+class Contest {
+  name: String
+  description: String
+  date: DateTime
+  submissionStartDate: DateTime
+  submissionEndDate: DateTime
+  imagesPaths: String[1..*]
+}
+
+class Place {
+  address: String
+  latitude: Float
+  longitude: Float
+}
+
+class Work {
+  name: String
+  description: String
+  imagesPaths: String[1..*]
+  filePath: String
+}
+
+class Jury {
+  name: String
+  type: JuryType
+  token: String ' For simple juries
+}
+
+class VotingForm {
+  name: String
+  description: String
+}
+
+class VotingFormField {
+  question: String
+  order: Int
+  type: VotingFormFieldType
+  scope: VotingFormFieldScope
+  isRequired: Boolean
+}
+
+class VotingSession {
+  name: String
+  isGeoRestricted: Boolean
+  status: VotingSessionStatus
+}
+
+class ContestRanking {
+  filePath: String
+}
+
+class VotingSubmission {
+  submittedAt: DateTime
+}
+
+class VotingSubmissionValue {
+  value: String
+}
+
+' --- Classi di Associazione e Invito ---
+class ParticipantMembership {
+  hasSubmitted: Boolean
+}
+
+class JurorMembership {
+}
+
+class ParticipantInvitation {
+  email: String
+  token: String
+}
+
+class JurorInvitation {
+  email: String
+  token: String
+}
+
+' --- Nota Esplicativa per la logica dello Scope ---
+note "The 'scope' attribute determines how the field is rendered:\n- **HEADER**: Displayed once at the top of the form.\n- **PARTICIPANT**: Repeated for each participant being judged.\n- **FOOTER**: Displayed once at the bottom of the form." as NOTE_VotingFormField
+NOTE_VotingFormField .- VotingFormField
+
+' =======================================
+' Definizione delle Relazioni
+' =======================================
+
+' --- Relazioni Principali ---
+User "1" -- "0..*" Message : receives
+User "1" -- "0..*" Contest : organizes
+
+Contest "0..1" -- "1" Place : takes_place_at
+Contest "1" -- "0..*" Jury : has
+Contest "1" -- "0..*" ContestRanking : results_in
+Contest "1" -- "0..*" VotingSession : holds
+
+' --- Relazioni per Inviti ---
+Contest "1" -- "0..*" ParticipantInvitation : sends
+Jury "1" -- "0..*" JurorInvitation : sends
+ParticipantInvitation ..> ParticipantMembership : creates
+JurorInvitation ..> JurorMembership : creates
+
+' --- Relazioni per le Classi di Associazione ---
+(User, Contest) .. ParticipantMembership
+(User, Jury) .. JurorMembership
+
+ParticipantMembership "1" -- "0..1" Work : submits
+
+' --- Relazioni per il Processo di Voto ---
+Jury "1" -- "1" VotingForm : uses
+VotingForm "1" *-- "0..*" VotingFormField : contains
+
+VotingSession "0..1" -- "0..1" Place : restricted_to
+
+' --- Relazioni Molti-a-Molti per le Sessioni ---
+VotingSession "0..*" -- "1..*" JurorMembership : includes
+VotingSession "0..*" -- "1..*" ParticipantMembership : judges
+
+' --- Relazioni per la Sottomissione dei Voti ---
+JurorMembership "1" -- "1" VotingSubmission : submits
+VotingSubmission "1" *-- "0..*" VotingSubmissionValue : consists_of
+VotingSubmissionValue "1" -- "1" VotingFormField : answers
+' Un valore è associato a un partecipante SOLO se il campo è di scope PARTICIPANT
+VotingSubmissionValue "0..*" -- "0..1" ParticipantMembership : evaluates
+
+@enduml

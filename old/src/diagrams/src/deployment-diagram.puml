@@ -1,0 +1,94 @@
+@startuml
+
+!theme sunlust
+left to right direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+' --- Palette di Colori Professionale ---
+skinparam node {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+
+' =======================================
+' Definizione dei Nodi e degli Artefatti
+' =======================================
+
+' --- Attori ---
+actor User
+actor Admin
+
+' --- Nodo Client ---
+node "User's Device" as UserDevice {
+    artifact "Flutter App" as App
+}
+
+' --- Piattaforme Cloud ---
+node "Supabase Platform" as SupabaseNode {
+    database "PostgreSQL DB" as DB
+    component [RPC API] as RPC
+    component [Edge Functions Runtime] as EdgeRuntime
+    component [Storage Service] as Store
+    component [Realtime Service] as RT
+    component [Auth Service] as Auth
+    
+    artifact "SQL Migrations" as SQLScripts
+    artifact "TypeScript Functions" as TSCode
+}
+
+node "Vercel Platform" as VercelNode {
+    artifact "Static Web Build" as WebApp
+}
+
+node "GitHub Platform" as GitHubNode {
+    artifact "Android APK" as APK
+}
+
+node "Retool Platform" as RetoolNode {
+    artifact "Admin Dashboard" as RetoolApp
+}
+
+' --- Servizi Esterni ---
+node "Google Cloud Platform" as GoogleNode {
+    component [Google Places API] as GooglePlaces
+}
+
+node "Resend Platform" as ResendNode {
+    component [Resend API] as Resend
+}
+
+
+' =======================================
+' Definizione delle Relazioni
+' =======================================
+
+' --- Flussi di Comunicazione ---
+User --> App : Interacts with
+Admin --> RetoolApp : Manages system
+
+' Il client carica l'app da Vercel
+App <.. WebApp : Loads
+
+' Comunicazioni dell'App Flutter
+App --> Auth : Authenticates (HTTPS)
+App --> RPC : Invokes RPCs (HTTPS)
+RPC --> DB
+App --> Store : Uploads/Downloads Files (HTTPS)
+App --> EdgeRuntime : Triggers Functions (HTTPS)
+App --> RT : Subscribes (WSS)
+
+' Comunicazioni delle Edge Functions
+EdgeRuntime --> DB : Accesses Data
+' CORREZIONE: Le frecce ora puntano ai componenti specifici
+EdgeRuntime --> Resend : Sends Emails (HTTPS)
+EdgeRuntime --> GooglePlaces : Proxies API Calls (HTTPS)
+EdgeRuntime --> GitHubNode : Fetches APK (HTTPS)
+
+' Comunicazioni della Dashboard Admin
+RetoolApp --> DB : Invokes Admin RPCs (HTTPS)
+RetoolApp --> EdgeRuntime : Triggers Admin Functions (HTTPS)
+
+@enduml

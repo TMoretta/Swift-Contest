@@ -1,0 +1,234 @@
+%!TeX root=../main.tex
+
+\chapter{Contesto e analisi del sistema}\label{ch:contesto-e-analisi-del-sistema}
+
+\section{Il problema: frammentazione e inefficienza nella gestione dei contest}\label{sec:problema-frammentazione-inefficienza}
+La gestione di un contest, specialmente in ambiti creativi, è un processo che coinvolge una molteplicità di attori (organizzatori, partecipanti, giurati) e fasi operative sequenziali e dipendenti.
+L'approccio tradizionale si affida a un assemblaggio di strumenti generici e non integrati, creando un flusso di lavoro discontinuo, inefficiente e soggetto a errori.
+
+Le criticità di questo modello possono essere analizzate nel dettaglio:
+\begin{itemize}
+    \item \textbf{Frammentazione del processo e dei dati}: la comunicazione degli inviti avviene tramite servizi di posta elettronica, la sottomissione dei lavori tramite posta elettronica o piattaforme di cloud storage (es.\ Google Drive) e la tabulazione dei voti tramite fogli di calcolo (es.\ Microsoft Excel).
+    Questo approccio disperde le informazioni, rende difficile avere una visione d'insieme e richiede un costante lavoro manuale di organizzazione dei dati.
+    \item \textbf{Mancanza di integrità e consistenza dei dati}: la gestione manuale aumenta esponenzialmente il rischio di errori.
+    Esempi comuni includono la perdita di iscrizioni, l'errata trascrizione dei punteggi o l'inclusione di partecipanti non idonei.
+    Non esiste un'unica ``fonte di verità'' per i dati del contest.
+    \item \textbf{Carenza di strumenti in tempo reale}: l'assenza di un sistema centralizzato impedisce di gestire sessioni di voto live in modo coordinato e trasparente.
+    \item \textbf{Rischi di sicurezza e potenziale di abuso}: la sottomissione di voti multipli, la partecipazione di utenti non invitati e la gestione di conflitti di interesse diventano problemi concreti e di difficile gestione.
+\end{itemize}
+
+L’obiettivo primario del sistema \textbf{Swift Contest} è superare queste criticità strutturali, fornendo un ambiente end-to-end integrato, sicuro e automatizzato, che funga da unica fonte di verità per l'intero ciclo di vita del contest.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{diagrammi//traditional-vs-swiftcontest-flow}
+    \caption{Confronto tra il flusso di lavoro tradizionale e l'approccio integrato di Swift Contest.}
+    \label{fig:flow-comparison}
+\end{figure}
+
+\section{Stato dell’arte e analisi delle alternative}\label{sec:stato-dellarte-e-analisi-delle-alternative}
+L'analisi dello stato dell'arte ha rivelato un'interessante lacuna nel panorama software attuale: \textbf{non esistono soluzioni verticali e accessibili che coprano in modo integrato l'intero ciclo di vita di un contest}.
+Le pratiche correnti si affidano a due approcci principali, entrambi inadeguati.
+
+\subsection{Strumenti generici adattati: lo ``Status Quo''}\label{subsec:strumenti-generici-adattati-lo-status-quo}
+Questa è la pratica più diffusa e rappresenta il problema fondamentale che \textbf{Swift Contest} si propone di risolvere.
+Consiste nell'utilizzare una combinazione di strumenti generici, non pensati per questo scopo, creando un flusso di lavoro frammentato e di difficile gestione, ad esempio:
+\begin{itemize}
+    \item \textbf{Google Forms} per la raccolta delle iscrizioni e la sottomissione dei voti.
+    \item \textbf{Google Drive} per la sottomissione dei lavori.
+    \item \textbf{Google Sheets} per la tabulazione manuale dei voti.
+    \item \textbf{Email} per tutte le comunicazioni.
+\end{itemize}
+Come già analizzato, questo approccio soffre di gravi criticità in termini di sicurezza, integrità dei dati ed efficienza operativa, che hanno motivato la nascita del progetto.
+
+\subsection{Piattaforme per domini correlati}\label{subsec:piattaforme-per-domini-correlati}
+Sono state analizzate anche piattaforme software specializzate in domini vicini a quello dei contest, per verificare la possibilità di un loro adattamento.
+Tuttavia, nessuna di esse si è rivelata una soluzione praticabile.
+
+\subsubsection{Piattaforme di e-voting}
+Sistemi come \textit{Helios Voting} sono progettati per il \textbf{voto politico o assembleare}.
+Il loro focus è sulla crittografia e sull'anonimato del votante.
+Di conseguenza, mancano completamente delle funzionalità necessarie per un contest, quali:
+\begin{itemize}
+    \item La possibilità di invitare partecipanti e creare giurie.
+    \item La sottomissione e gestione di opere digitali.
+    \item La creazione di form di voto personalizzati con campi testuali e numerici.
+\end{itemize}
+Il loro scopo è intrinsecamente diverso e non sono in alcun modo utilizzabili.
+
+\subsubsection{Piattaforme per la gestione di eventi}
+Soluzioni commerciali come \textit{Eventbrite} sono focalizzate sulla \textbf{gestione logistica di eventi e sulla vendita di biglietti}.
+Sebbene eccellano nella gestione delle registrazioni, non offrono alcuna funzionalità specifica per il dominio dei contest, come:
+\begin{itemize}
+    \item La sottomissione di opere digitali.
+    \item La creazione di giurie con ruoli definiti.
+    \item La configurazione di form di valutazione strutturati.
+    \item La gestione di sessioni di voto in tempo reale.
+\end{itemize}
+Il loro scopo è completamente diverso e non risultano realisticamente adattabili ai requisiti di un contest.
+
+\subsection{Posizionamento di Swift Contest}\label{subsec:posizionamento-di-swift-contest}
+L'analisi conferma che Swift Contest si posiziona in un \textbf{vuoto di mercato e tecnologico}.
+Non mira a competere con le piattaforme di e-voting o di gestione eventi, ma a creare una \textbf{nuova categoria di prodotto}: una soluzione verticale, integrata e accessibile, progettata specificamente per le esigenze di organizzatori, partecipanti e giurati di un contest.
+
+\section{Attori e casi d’uso}\label{sec:attori-e-casi-duso}
+Il sistema è progettato per servire diversi tipi di utenti, ciascuno con un ruolo e un insieme di permessi ben definiti.
+L'interazione tra questi attori e le funzionalità del sistema è stata modellata attraverso una serie di diagrammi dei Casi d'Uso, suddivisi in pacchetti logici (packages) che legano funzionalità della stessa categoria per migliorarne leggibilità e modularità.
+
+\subsection{Attori del sistema}\label{subsec:attori-del-sistema}
+L'analisi del dominio ha permesso di identificare i seguenti attori principali:
+\begin{itemize}
+    \item \textbf{Guest}: rappresenta un utente non autenticato.
+    In questo sistema, che non prevede contenuti pubblici, un \emph{Guest} non ha privilegi di visualizzazione.
+    Le sue uniche capacità sono quelle di \textbf{autenticarsi} (tramite registrazione o login) o di agire come \textbf{Simple Juror} se in possesso di un token di accesso.
+    \item \textbf{Authenticated}: è un attore astratto che rappresenta un utente che ha completato l'autenticazione.
+    Funge da base per i ruoli operativi, che ne ereditano le funzionalità comuni come la gestione del proprio profilo e delle notifiche.
+    \item \textbf{Organizer}: è un utente autenticato responsabile della creazione e della gestione completa di un contest.
+    \item \textbf{Participant}: è un utente autenticato che si iscrive a un contest per sottoporre il proprio lavoro.
+    \item \textbf{Juror}: è un utente autenticato il cui ruolo primario è quello di far parte di una giuria nominata (\emph{appointed jury}), oppure votare come \emph{Simple Juror} se in possesso di un token per la votazione.
+    \item \textbf{Admin}: è un ruolo di amministrazione, gestito tramite una dashboard esterna (Retool), con privilegi elevati per la manutenzione del sistema.
+\end{itemize}
+
+\subsection{Casi d'Uso: Gestione Account e Funzionalità Generali}\label{subsec:casi-uso-gestione-account-funzionalita}
+Questa area copre le funzionalità di base legate all'accesso e alla gestione dell'account utente.
+Include i processi di autenticazione, la modifica del profilo personale e la gestione delle notifiche interne.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{diagrammi/use-case-diagram-1}
+    \caption{Diagramma dei Casi d'Uso: Gestione Account e Funzionalità Generali.}
+    \label{fig:uc-account}
+\end{figure}
+
+\subsection{Casi d'Uso: Gestione del Ciclo di Vita del contest}\label{subsec:casi-uso-gestione-ciclo-vita-contest}
+Questa è l'area funzionale più vasta e descrive il cuore del processo organizzativo.
+Copre la creazione di un contest, la gestione dei suoi membri (partecipanti e giurati) e la sottomissione dei lavori.
+Gli attori principali in questo contesto sono l'\emph{Organizer} e il \emph{Participant}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{diagrammi/use-case-diagram-2}
+    \caption{Diagramma dei Casi d'Uso: Gestione del Ciclo di Vita del contest.}
+    \label{fig:uc-contest}
+\end{figure}
+
+\subsection{Casi d'Uso: Gestione delle Votazioni e dei Risultati}\label{subsec:casi-uso-gestione-votazioni-risultati}
+Questa sezione si concentra interamente sul processo critico della votazione.
+Include la configurazione del form di voto, la conduzione della sessione di voto (anche con restrizioni di geolocalizzazione) e la generazione e pubblicazione delle classifiche.
+Gli attori principali qui sono l'\emph{Organizer} e l'\emph{Juror}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{diagrammi/use-case-diagram-3}
+    \caption{Diagramma dei Casi d'Uso: Gestione delle Votazioni e dei Risultati.}
+    \label{fig:uc-voting}
+\end{figure}
+
+\subsection{Casi d'Uso: Amministrazione del Sistema}\label{subsec:casi-uso-amministrazione-sistema}
+Quest'ultima area isola le funzionalità di amministrazione, che non sono accessibili tramite l'applicazione principale ma attraverso una dashboard esterna.
+Queste operazioni sono riservate all'attore \emph{Admin} e sono fondamentali per la manutenzione e la moderazione della piattaforma.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{diagrammi/use-case-diagram-4}
+    \caption{Diagramma dei Casi d'Uso: Amministrazione del Sistema.}
+    \label{fig:uc-admin}
+\end{figure}
+
+\section{Requisiti del sistema}\label{sec:requisiti-del-sistema}
+I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS+}, un'estensione del modello FURPS che include categorie aggiuntive per coprire in modo esaustivo tutti i vincoli di un progetto software.
+
+\subsection{Requisiti funzionali (Functionality)}\label{subsec:requisiti-funzionali}
+\begin{itemize}
+    \item \textbf{RF-01: Gestione Account Utente}: Il sistema deve permettere a un utente di registrarsi (\emph{Sign Up}) e autenticarsi (\emph{Sign In}).
+    \item \textbf{RF-02: Gestione del Profilo Personale}: Ogni utente autenticato deve poter visualizzare e modificare i dati del proprio profilo (es.\ nome completo).
+    Deve inoltre essere garantita la possibilità di eliminare il proprio account in modo autonomo (\emph{self-service deletion}).
+    \item \textbf{RF-03: Gestione Contest}: Il sistema deve permettere a un \emph{Organizer} di creare, modificare e cancellare i propri contest.
+    \item \textbf{RF-04: Gestione Giurie e Form di Voto}: Il sistema deve permettere a un \emph{Organizer} di creare giurie (di tipo \emph{appointed} o \emph{simple}) e di configurare un \emph{VotingForm} associato, con campi organizzati secondo il loro \textbf{scope} e tipo.
+    \item \textbf{RF-05: Gestione Iscrizioni}: Il sistema deve permettere a un \emph{Organizer} di invitare partecipanti e giurati nominati tramite email con token univoci.
+    \item \textbf{RF-06: Gestione Esclusioni di Voto}: Il sistema deve permettere a un \emph{Organizer} di configurare delle esclusioni, impedendo a specifici \emph{Appointed Juror} di valutare determinati \emph{Participant} all'interno di una sessione di voto.
+    \item \textbf{RF-07: Accettazione Inviti e Accesso al contest}: Il sistema deve permettere a un utente di utilizzare un token di invito per formalizzare la propria iscrizione a un contest, sia come \emph{Participant} che come \emph{Appointed Juror}.
+    \item \textbf{RF-08: Sottomissione Lavori}: Il sistema deve permettere a un \emph{Participant} di sottomettere un proprio \emph{Work} (Lavoro Digitale) per un contest a cui è iscritto.
+    \item \textbf{RF-09: Restrizione Geografica della Votazione}: Il sistema deve permettere a un \emph{Organizer} di imporre una restrizione geografica a una sessione di voto, richiedendo ai giurati di trovarsi entro un raggio specifico da un luogo predefinito.
+    \item \textbf{RF-10: Processo di Votazione}: Il sistema deve permettere a un utente autorizzato (sia \emph{Appointed Juror} che \emph{Simple Juror}) di inviare i propri voti durante una sessione di voto attiva, rispettando le eventuali esclusioni configurate.
+    \item \textbf{RF-11: Gestione Classifiche e Risultati}: Il sistema deve permettere all'\emph{Organizer} di generare una classifica per ogni singola giuria, di esportare i risultati grezzi in formato Excel e di pubblicare una classifica finale in formato PDF\@.
+    \item \textbf{RF-12: Visualizzazione dei Risultati}: Il sistema deve permettere a \emph{Participant} e \emph{Juror} di un contest di visualizzare e scaricare le classifiche finali pubblicate dall'organizzatore.
+    \item \textbf{RF-13: Notifiche Inbox}: Il sistema deve fornire a ogni utente autenticato una inbox per ricevere notifiche generate automaticamente da eventi di sistema.
+    \item \textbf{RF-14: Amministrazione del Sistema}: Il sistema deve esporre un'interfaccia sicura per permettere a un \emph{Admin} di eseguire operazioni di alto livello, come la visualizzazione di tutti gli utenti o la rimozione forzata di un contest.
+\end{itemize}
+
+\subsection{Requisiti non funzionali}\label{subsec:requisiti-non-funzionali}
+\begin{itemize}
+    \item \textbf{Usabilità (Usability)}: L'interfaccia utente deve essere intuitiva, facile da apprendere e coerente tra la versione mobile e quella web.
+    \item \textbf{Affidabilità (Reliability)}: Il sistema deve essere robusto e garantire l'integrità dei dati.
+    La logica di \emph{snapshot} delle sessioni di voto è un requisito chiave per assicurare che il processo di valutazione sia immune da modifiche ai dati.
+    \item \textbf{Performance}: L'applicazione deve essere reattiva, con tempi di caricamento inferiori ai 3 secondi.
+    %L'uso mirato del servizio Realtime è una scelta progettuale per minimizzare il traffico di rete.
+    \item \textbf{Manutenibilità (Supportability)}: L'architettura software deve essere modulare.
+    L'adozione del pattern MVVM/BLoC per il frontend garantisce una netta separazione delle responsabilità, facilitando futuri interventi.
+    \item \textbf{Implementazione (Implementation)}:
+    \begin{itemize}
+        \item Il client deve essere sviluppato in \textbf{Dart} con il framework \textbf{Flutter} per le piattaforme Android e Web.
+        \item Il backend deve basarsi sulla piattaforma \textbf{Supabase}, utilizzando \textbf{PostgreSQL}, \textbf{PL/pgSQL} per le RPC e \textbf{TypeScript} per le Edge Functions.
+        \item La gestione dello stato nel client deve seguire il pattern \textbf{BLoC}.
+    \end{itemize}
+    \item \textbf{Interfaccia (Interface)}:
+    \begin{itemize}
+        \item Il sistema deve interfacciarsi in modo sicuro con servizi esterni come \textbf{Resend} (per le email) e \textbf{Google Places} (per la geolocalizzazione).
+        \item Deve essere prevista un'API sicura per l'interfacciamento con strumenti di amministrazione esterni (\textbf{Retool}).
+    \end{itemize}
+    \item \textbf{Operativi (Operation)}:
+    \begin{itemize}
+        \item Il deployment del backend deve essere tracciabile tramite migrazioni SQL gestite dalla CLI di Supabase.
+        \item Il deployment del frontend web deve essere automatizzato tramite una pipeline di CI/CD\@.
+        \item I segreti (API keys) devono essere gestiti in modo sicuro, senza essere esposti nel codice sorgente.
+    \end{itemize}
+    \item \textbf{Distribuzione (Packaging)}:
+    \begin{itemize}
+        \item L'applicazione web deve essere accessibile tramite URL pubblico.
+        \item L'applicazione Android deve essere distribuita come pacchetto \textbf{APK}, tramite un meccanismo di download sicuro.
+    \end{itemize}
+    \item \textbf{Legali (Legal)}:
+    \begin{itemize}
+        \item Il sistema deve essere sviluppato utilizzando principalmente tecnologie con licenze open-source permissive.
+        \item La gestione dei dati personali deve essere orientata ai principi del GDPR, che garantisce all'utente il diritto alla cancellazione.
+    \end{itemize}
+\end{itemize}
+
+\section{Modello del dominio}\label{sec:modello-del-dominio}
+Il dominio applicativo è stato modellato a partire dalle entità fondamentali e dalle loro relazioni.
+Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi e si focalizza sui concetti di business e sui vincoli che li governano.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{diagrammi/class-diagram}
+    \caption{Diagramma delle classi}
+    \label{fig:class-diagram}
+\end{figure}
+
+\subsection{Entità fondamentali}\label{subsec:entita-fondamentali}
+\begin{itemize}
+    \item \textbf{User}: l'utente del sistema, contenente informazioni del profilo.
+    \item \textbf{Contest}: l'entità centrale, che aggrega tutte le informazioni relative a un concorso.
+    \item \textbf{ParticipantMembership} e \textbf{JurorMembership}: classi associative che risolvono le relazioni ``molti-a-molti'' tra utenti e contest/giurie.
+    \item \textbf{Work}: l'elaborato unico caricato da un partecipante.
+    È legato a una \emph{ParticipantMembership}.
+    \item \textbf{Jury}: una giuria all'interno di un contest, che può essere di tipo \emph{appointed} o \emph{simple}.
+    \item \textbf{VotingForm} e \textbf{VotingFormField}: la struttura del form di votazione.
+    L'attributo \emph{scope} del campo ne determina il comportamento.
+    \item \textbf{VotingSession}: una sessione di voto live.
+    Al suo avvio, il sistema ``congela'' lo stato del contest creando delle righe dedicate in tabelle di sessione (es.\ \texttt{voting\_session\_participants}), che contengono non solo i riferimenti alle entità originali, ma anche una copia di \textbf{attributi di snapshot} (es.\ il nome del partecipante, il nome dell'opera) per garantire l'immutabilità del processo.
+    \item \textbf{ContestRanking}: la classifica finale, rappresentata come un riferimento a un file nello storage.
+    \item \textbf{Message}: una notifica di sistema inviata a un utente.
+\end{itemize}
+
+\subsection{Vincoli chiave del dominio}\label{subsec:vincoli-chiave-del-dominio}
+Il modello dati è stato progettato per far rispettare programmaticamente alcune regole di business fondamentali:
+\begin{enumerate}
+    \item \textbf{Unicità del Work}: un partecipante può sottomettere un solo \emph{Work} per ogni concorso a cui è iscritto, garantito da un vincolo di unicità a livello di database.
+    \item \textbf{Calcolo della Classifica Semplice}: la classifica viene generata esclusivamente sulla base dei campi di tipo \emph{slider} con scope \emph{participant}.
+    I campi testuali non contribuiscono al punteggio.
+    \item \textbf{Immutabilità della Votazione}: il meccanismo di snapshot garantisce che una volta avviata una sessione di voto, i dati rilevanti dei partecipanti, dei giurati e la struttura del form vengano ``congelati''.
+    Questo avviene tramite la copia di attributi chiave in tabelle di sessione dedicate, rendendo il processo di valutazione immune da modifiche successive ai dati originali.
+    \item \textbf{Accesso Ospite Controllato}: l'accesso come \emph{Simple Juror} è strettamente controllato da un token associato a una specifica giuria di tipo semplice (simple jury).
+\end{enumerate}

@@ -1,0 +1,86 @@
+@startuml
+
+!theme sunlust
+left to right direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam usecase {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' =======================================
+' Attori
+' =======================================
+actor Authenticated
+actor Organizer
+actor Participant
+
+Authenticated <|-- Organizer
+Authenticated <|-- Participant
+
+' =======================================
+' Packages e Casi d'Uso
+' =======================================
+
+package "Contest Management" {
+  usecase "Create contest" as UC_CreateContest
+  usecase "Edit contest" as UC_EditContest
+  usecase "Delete contest" as UC_DeleteContest
+}
+
+package "Membership Management" {
+  usecase "Join contest" as UC_JoinContest
+  usecase "Leave contest" as UC_LeaveContest
+  
+  usecase "Invite Participant" as UC_InviteParticipant
+  usecase "Remove Participant" as UC_RemoveParticipant
+
+  usecase "Create Jury" as UC_CreateJury
+  usecase "Edit Jury" as UC_EditJury
+  usecase "Delete Jury" as UC_DeleteJury
+  usecase "Invite Appointed Juror" as UC_InviteAppointedJuror
+  usecase "Remove Appointed Juror" as UC_RemoveAppointedJuror
+  
+  usecase "Delete Invitation" as UC_DeleteInvitation
+}
+
+package "Work Management" {
+  usecase "Submit work" as UC_SubmitWork
+  usecase "Download work" as UC_DownloadWork
+}
+
+' =======================================
+' Connessioni
+' =======================================
+
+' Authenticated
+Authenticated --> UC_JoinContest
+Authenticated --> UC_LeaveContest
+
+' Organizer
+Organizer --> UC_CreateContest
+Organizer --> UC_EditContest
+Organizer --> UC_DeleteContest
+Organizer --> UC_InviteParticipant
+Organizer --> UC_RemoveParticipant
+Organizer --> UC_DeleteInvitation
+Organizer --> UC_CreateJury
+Organizer --> UC_EditJury
+Organizer --> UC_DeleteJury
+Organizer --> UC_InviteAppointedJuror
+Organizer --> UC_RemoveAppointedJuror
+Organizer --> UC_DownloadWork
+
+' Participant
+Participant --> UC_SubmitWork
+Participant --> UC_DownloadWork : (own work)
+
+@enduml
