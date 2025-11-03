@@ -30,7 +30,7 @@ La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
 \begin{itemize}
     \item \textbf{View (\texttt{/view})}: il livello di presentazione, composto dai Widget di Flutter che costituiscono l'interfaccia utente.
     Questo livello si limita a mostrare i dati ricevuti dal suo ViewModel (il BLoC) e a notificare gli eventi di interazione dell'utente (es.\ la pressione di un pulsante).
-    \item \textbf{ViewModel (\texttt{/viewmodel}, implementato come BLoC)}: il cuore della logica di presentazione.
+    \item \textbf{ViewModel (\texttt{/viewmodel}, implementato come \textbf{BLoC})}: il cuore della logica di presentazione.
     Ogni BLoC riceve eventi dalla View, esegue la logica di business (spesso invocando un metodo del Model/Repository), e produce uno stream di stati a cui la View reagisce per aggiornarsi.
     \item \textbf{Model (\texttt{/model})}: il livello di accesso ai dati.
     È composto dai \emph{Repository}, che fungono da unica interfaccia verso il backend, astraendo le chiamate a RPC ed Edge Functions.
@@ -38,10 +38,10 @@ La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
 \end{itemize}
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/client-architecture}
-	\caption{Architettura del Client MVVM con BLoC.}
-	\label{fig:client-architecture}
+    \centering
+    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/client-architecture}
+    \caption{Architettura del Client MVVM con BLoC.}
+    \label{fig:client-architecture}
 \end{figure}
 
 \subsection{Implementazione del ViewModel: il pattern BLoC}\label{subsec:implementazione-del-viewmodel:-il-pattern-bloc}
@@ -49,8 +49,8 @@ Per la gestione dello stato e l'implementazione del ViewModel, è stato adottato
 La scelta di BLoC è motivata dalla sua natura reattiva e basata su stream, che si integra perfettamente con il paradigma dichiarativo di Flutter.
 Questo pattern impone un flusso di dati unidirezionale e prevedibile:
 \begin{enumerate}
-    \item La \textbf{View} notifica un \textbf{Evento} (es. \texttt{LoginButtonPressed}).
-    \item Il \textbf{BLoC} riceve l'evento, esegue la logica di business (es.\ chiama \texttt{authRepository.login()}) e, al termine, emette un nuovo \textbf{Stato} (es. \texttt{LoginSuccess} o \texttt{LoginFailure}).
+    \item La \textbf{View} notifica un \emph{Evento} (es. \texttt{LoginButtonPressed}).
+    \item Il \textbf{BLoC} riceve l'evento, esegue la logica di business (es.\ chiama \texttt{authRepository.login()}) e, al termine, emette un nuovo \emph{Stato} (es. \texttt{LoginSuccess} o \texttt{LoginFailure}).
     \item La \textbf{View}, tramite un widget come \texttt{BlocBuilder}, si mette in ascolto dello stream di stati e si ridisegna per riflettere il nuovo stato.
 \end{enumerate}
 Questo approccio garantisce che la logica di business sia completamente disaccoppiata dalla UI, rendendola facilmente testabile in isolamento.
@@ -62,7 +62,7 @@ Questo include non solo il recupero dei dati, ma anche una \textbf{gestione cent
 
 Le chiamate a un backend come Supabase possono fallire in molti modi: problemi di rete (\texttt{SocketException}), errori di autenticazione (\texttt{AuthException}), errori del database (\texttt{PostgrestException}), ecc.\ Esporre queste eccezioni direttamente al livello del BLoC o della UI sarebbe problematico per due motivi:
 \begin{enumerate}
-	\item Creerebbe un forte accoppiamento tra la logica di presentazione e le librerie specifiche del backend.
+    \item Creerebbe un forte accoppiamento tra la logica di presentazione e le librerie specifiche del backend.
     \item Potrebbe esporre all'utente finale messaggi di errore tecnici e potenzialmente sensibili.
 \end{enumerate}
 
@@ -70,7 +70,7 @@ Per risolvere questo problema, è stata creata una funzione di ordine superiore,
 Come mostrato nel listato seguente, questa funzione utilizza un blocco \texttt{try...catch} per intercettare le eccezioni specifiche di Supabase e mapparle in classi di \textbf{Failure} personalizzate e sicure.
 Queste \emph{Failure} sono oggetti semplici che rappresentano un fallimento in modo astratto (es. \texttt{NetworkFailure}, \texttt{ServerFailure}), senza contenere dettagli tecnici.
 
-Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \textbf{\texttt{Either}}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}. \texttt{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra' (\emph{Right}), che rappresenta il successo.
+Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \textbf{\texttt{Either}}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}. \texttt{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra'' (\emph{Right}), che rappresenta il successo.
 
 Il tipo di ritorno \texttt{Either<Failure, T>} formalizza quindi questo contratto: la funzione restituirà o un oggetto di tipo \texttt{Failure} (a sinistra) o il dato atteso di tipo \texttt{T} (a destra).
 Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usare blocchi \texttt{try...catch}, permettendogli di gestire in modo pulito, dichiarativo e fortemente tipizzato sia il caso di successo che quello di fallimento, semplicemente ispezionando il contenuto di \texttt{Either}.
@@ -115,43 +115,6 @@ Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usar
     \label{lst:handle-backend-call}
 \end{longlisting}
 
-% LISTATO: Funzione di gestione centralizzata degli errori.
-%\begin{lstlisting}[language=Dart, caption={Funzione helper per la gestione sicura delle chiamate al backend.}, label={lst:handle-backend-call}]
-%	/// Avvolge una chiamata al backend, gestendo e mappando le eccezioni.
-%	Future<Either<Failure, T>> handleBackendCall<T>(
-%	Future<Either<Failure, T>> Function() function,
-%	) async {
-%		try {
-%			// Esegue la funzione che contiene la chiamata al backend.
-%			return await function();
-%		} on SocketException catch (e) {
-%			// Errore di rete (es. no internet).
-%			Logger.warning('Network error: $e');
-%			return Either.left(const NetworkFailure());
-%		} on AuthException catch (e) {
-%			// Errore di autenticazione di Supabase.
-%			Logger.warning('Auth error: $e');
-%			return Either.left(authExceptionToFailure(e));
-%		} on PostgrestException catch (e) {
-%			// Errore del database PostgreSQL.
-%			Logger.warning('Postgrest error: $e');
-%			return Either.left(postgrestExceptionToFailure(e));
-%		} on FunctionException catch (e) {
-%			// Errore durante l'invocazione di una Edge Function.
-%			Logger.warning('Edge function error: $e');
-%			return Either.left(edgeFunctionExceptionToFailure(e));
-%		} on StorageException catch (e) {
-%			// Errore nello Storage (es. upload fallito).
-%			Logger.warning('Storage error: $e');
-%			return Either.left(storageExceptionToFailure(e));
-%		} catch (e) {
-%			// Qualsiasi altro errore non previsto.
-%			Logger.error('Unknown error: $e');
-%			return Either.left(const Failure());
-%		}
-%	}
-%\end{lstlisting}
-
 \subsubsection{Gestione dell'uguaglianza degli oggetti con Equatable}
 Per ottimizzare le performance e garantire un comportamento prevedibile nella gestione dello stato, tutte le entità, i bundle e gli stati dei BLoC estendono la classe fornita dal pacchetto \texttt{equatable}.
 
@@ -161,9 +124,9 @@ Il primo riguarda il corretto funzionamento del pattern BLoC. Di default, Dart c
 Ciò significa che due istanze di un oggetto, anche se contengono dati identici, vengono considerate diverse.
 Senza \texttt{Equatable}, un BLoC potrebbe emettere un nuovo stato identico al precedente, causando una ricostruzione non necessaria e dispendiosa dell'interfaccia utente.
 Utilizzando \texttt{Equatable}, invece, il confronto avviene basandosi sul valore degli attributi dell'oggetto.
-Questo permette ai widget di Flutter, come \texttt{BlocBuilder}, di determinare in modo efficiente se uno stato è \emph{realmente} cambiato prima di procedere con la ricostruzione, prevenendo refresh superflui della UI e migliorando significativamente la reattività dell'applicazione.
+Questo permette ai widget di Flutter, come \texttt{BlocBuilder}, di determinare in modo efficiente se uno stato è \textbf{realmente} cambiato prima di procedere con la ricostruzione, prevenendo refresh superflui della UI e migliorando significativamente la reattività dell'applicazione.
 
-Il secondo motivo, altrettanto importante, riguarda la \textbf{robustezza e la chiarezza della logica di business}.
+Il secondo motivo, altrettanto importante, riguarda la \emph{robustezza e la chiarezza della logica di business}.
 Spesso, durante lo sviluppo, sorge la necessità di confrontare due oggetti per verificare se rappresentano la stessa entità concettuale, anche se sono istanze diverse in memoria.
 Estendendo \texttt{Equatable}, si ottiene un'implementazione standard e priva di errori dell'uguaglianza basata sul valore, semplificando la logica di confronto all'interno dei BLoC e dei Repository e riducendo il rischio di bug sottili legati al confronto per riferimento.
 
@@ -240,7 +203,7 @@ Un elemento chiave è l'\texttt{AuthGuard}, una classe che intercetta le richies
             }
         }
     \end{minted}
-    \caption{Estratto del sistema di routing protetto con \texttt{AuthGuard}.}
+    \caption{Estratto del sistema di routing protetto con ``AuthGuard''.}
     \label{lst:auth_guard}
 \end{longlisting}
 
@@ -253,9 +216,9 @@ Quando una pagina viene caricata, il BLoC associato riceve l'ID dai parametri de
 
 Questa scelta, sebbene aumenti il numero di chiamate al database, garantisce vantaggi in termini di robustezza e coerenza con il paradigma web:
 \begin{itemize}
-	\item Ogni pagina è \textbf{ricaricabile} in modo indipendente.
-    \item Ogni pagina ha un \textbf{URL univoco e condivisibile} (deep linking).
-    \item Il comportamento dell'applicazione è prevedibile e consistente tra la navigazione interna e l'accesso diretto a un URL\@.
+    \item \textbf{Ogni pagina è ricaricabile} in modo indipendente.
+    \item \textbf{Ogni pagina ha un URL univoco} e condivisibile (deep linking).
+    \item \textbf{Il comportamento dell'applicazione è prevedibile} e consistente tra la navigazione interna e l'accesso diretto a un URL\@.
 \end{itemize}
 
 \subsubsection{Validazione dell'input utente e gestione dei form}
@@ -264,14 +227,12 @@ Per garantire l'integrità dei dati e fornire un feedback immediato all'utente, 
 Invece di definire la logica di validazione all'interno dei singoli widget, \textbf{tutte le funzioni di validazione sono state centralizzate} in un unico file, \texttt{lib/utils/validators/validators.dart}.
 Questo approccio, basato su funzioni pure, offre due vantaggi significativi:
 \begin{itemize}
-	\item \textbf{Riutilizzabilità}: La stessa funzione, ad esempio \texttt{emailValidator}, può essere riutilizzata in più punti dell'applicazione (es.\ pagina di login, registrazione, modifica profilo) senza duplicazione di codice.
-	\item \textbf{Manutenibilità}: Se una regola di validazione deve essere modificata (es.\ la complessità minima di una password), la modifica viene effettuata in un unico punto, garantendo coerenza in tutta l'applicazione.
+    \item \textbf{Riutilizzabilità}: La stessa funzione, ad esempio \texttt{emailValidator}, può essere riutilizzata in più punti dell'applicazione (es.\ pagina di login, registrazione, modifica profilo) senza duplicazione di codice.
+    \item \textbf{Manutenibilità}: Se una regola di validazione deve essere modificata (es.\ la complessità minima di una password), la modifica viene effettuata in un unico punto, garantendo coerenza in tutta l'applicazione.
 \end{itemize}
 
 Il listato seguente mostra un esempio di un \emph{validator} e il suo utilizzo all'interno di un widget \texttt{TextFormField}.
 
-% LISTATO: Esempio di validator centralizzato.
-% --- LISTATO: Esempio di validatore centralizzato con minted ---
 \begin{longlisting}
     \begin{minted}{dart}
         // 1. Definizione della funzione di validazione pura
@@ -300,14 +261,14 @@ Il listato seguente mostra un esempio di un \emph{validator} e il suo utilizzo a
         // 2. Utilizzo del validatore in un widget della UI
 
         TextFormField(
-          // ... altre proprietà come controller, decoration, etc.
+            // ... altre proprietà come controller, decoration, etc.
 
-          // La funzione di validazione viene passata come riferimento.
-          validator: passwordValidator,
+            // La funzione di validazione viene passata come riferimento.
+            validator: passwordValidator,
 
-          // La validazione viene attivata automaticamente al momento
-          // del submit del form o in base all'autovalidateMode.
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+            // La validazione viene attivata automaticamente al momento
+            // del submit del form o in base all'autovalidateMode.
+            autovalidateMode: AutovalidateMode.onUserInteraction,
         );
     \end{minted}
     \caption{Esempio di validatore centralizzato e suo utilizzo in un widget.}
@@ -331,7 +292,6 @@ In questo caso, è stata creata un'estensione sulla classe \texttt{ColorScheme} 
 Come mostrato nel listato seguente, l'estensione \texttt{ColorSchemeX} aggiunge nuovi \emph{getter} (es. \texttt{success}, \texttt{warning}) alla classe \texttt{ColorScheme}.
 Questi nuovi colori diventano così parte integrante del tema e possono essere richiamati in qualsiasi punto dell'applicazione in modo sicuro e coerente tramite \texttt{Theme.of(context).colorScheme.success}, ereditando automaticamente i cambiamenti tra tema chiaro e scuro.
 
-% LISTATO: Estensione ColorSchemeX
 \begin{longlisting}
     \begin{minted}{dart}
     // in lib/utils/themes/color_scheme_x.dart
@@ -348,7 +308,7 @@ Questi nuovi colori diventano così parte integrante del tema e possono essere r
     // Altri colori personalizzati...
     }
     \end{minted}
-    \caption{Definizione dell'estensione \texttt{ColorSchemeX} per aggiungere colori personalizzati al tema.}
+    \caption{Definizione dell'estensione ``ColorSchemeX'' per aggiungere colori personalizzati al tema.}
     \label{lst:colorscheme_extension}
 \end{longlisting}
 
@@ -358,8 +318,8 @@ Questo sistema utilizza l'Overlay di Flutter per mostrare un indicatore di progr
 
 L'implementazione si basa su due scelte di design chiave per garantire robustezza e facilità d'uso:
 \begin{itemize}
-	\item \textbf{Singleton Pattern}: La classe \texttt{OverlayLoader} è implementata come un singleton per garantire che esista una sola istanza del gestore del loader, prevenendo la visualizzazione di più overlay contemporaneamente.
-	\item \textbf{Dart Extensions}: Per semplificare l'invocazione del loader, è stata creata un'estensione sulla classe \texttt{BuildContext}, che permette di usare una sintassi pulita e intuitiva come \texttt{context.showLoader()} e \texttt{context.hideLoader()}.
+    \item \textbf{Singleton Pattern}: La classe \texttt{OverlayLoader} è implementata come un singleton per garantire che esista una sola istanza del gestore del loader, prevenendo la visualizzazione di più overlay contemporaneamente.
+    \item \textbf{Dart Extensions}: Per semplificare l'invocazione del loader, è stata creata un'estensione sulla classe \texttt{BuildContext}, che permette di usare una sintassi pulita e intuitiva come \texttt{context.showLoader()} e \texttt{context.hideLoader()}.
 \end{itemize}
 
 \paragraph{Gestione del ciclo di vita e prevenzione dei ``leak''}
@@ -367,7 +327,6 @@ Un aspetto cruciale per la robustezza di questo sistema è la gestione del suo c
 Per evitare che l'overlay del loader rimanga ``bloccato'' sullo schermo se una pagina viene chiusa (\emph{disposed}) durante un'operazione di caricamento (ad esempio, a causa di un errore o della navigazione dell'utente), è stata adottata una pratica difensiva: \textbf{il metodo \texttt{context.hideLoader()} viene sistematicamente invocato all'interno del metodo \texttt{dispose} di ogni pagina} che utilizza il loader.
 Questo garantisce che, indipendentemente da come o perché la pagina viene distrutta, qualsiasi overlay di caricamento attivo venga sempre rimosso, prevenendo ``leak'' visuali e garantendo la stabilità dell'interfaccia utente.
 
-% LISTATO: Implementazione del loader non-intrusivo.
 \begin{longlisting}
     \begin{minted}{dart}
     // 1. Classe Singleton per la gestione dell'overlay
@@ -414,27 +373,27 @@ Il modello concettuale del dominio, descritto nel Capitolo 2, è stato tradotto 
 La progettazione si è concentrata su tre pilastri: integrità dei dati, sicurezza e performance.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=\textwidth]{capitoli/figure/diagrams/database}
-	\caption{Diagramma Entità-Relazioni (ERD) dello schema del database.}
-	\label{fig:database}
+    \centering
+    \includegraphics[width=\textwidth]{capitoli/figure/diagrams/database}
+    \caption{Diagramma Entità-Relazioni (ERD) dello schema del database.}
+    \label{fig:database}
 \end{figure}
 
 \subsection{Schema fisico e tabelle principali}\label{subsec:schema-fisico-e-tabelle-principali}
 Lo schema del database è composto da una serie di tabelle che implementano le entità del dominio.
 Le tabelle cardine includono:
 \begin{itemize}
-	\item \texttt{profiles}: Questa tabella estende la tabella \texttt{auth.users} gestita internamente da Supabase.
-	Poiché lo schema \texttt{auth} è protetto e non modificabile, per aggiungere attributi personalizzati (es.\ \texttt{full\_name}, \texttt{pref\_role}) è stata creata una tabella parallela nello schema \texttt{public}.
-	La colonna \texttt{id} di \texttt{profiles} funge sia da chiave primaria che da chiave esterna verso \texttt{auth.users(id)}, stabilendo una relazione uno-a-uno.
-	La creazione del profilo è automatizzata tramite un \textbf{trigger} a livello di database, che inserisce un nuovo record in \texttt{profiles} ogni volta che un utente completa la registrazione.
-	\item \texttt{contests}: memorizza le informazioni principali di un concorso.
-	\item \texttt{participations} e \texttt{jurations}: implementano le classi di associazione che legano utenti, contest e giurie.
-	\item \texttt{works}: contiene i metadati delle opere sottomesse dai partecipanti.
-	\item \texttt{voting\_forms} e \texttt{voting\_form\_fields}: definiscono la struttura dei moduli di voto.
-	\item \texttt{voting\_sessions}: rappresenta una sessione di voto.
-	\item \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}: rappresentano i membri coinvolti in una specifica sessione di voto, oltre a contenere gli snapshot dei dati per quella sessione.
-	\item \texttt{voting\_form\_submissions} e \texttt{voting\_form\_submission\_values}: memorizzano i voti inviati dai giurati.
+    \item \texttt{profiles}: Questa tabella estende la tabella \texttt{auth.users} gestita internamente da Supabase.
+    Poiché lo schema \texttt{auth} è protetto e non modificabile, per aggiungere attributi personalizzati (es.\ \texttt{full\_name}, \texttt{pref\_role}) è stata creata una tabella parallela nello schema \texttt{public}.
+    La colonna \texttt{id} di \texttt{profiles} funge sia da chiave primaria che da chiave esterna verso \texttt{auth.users(id)}, stabilendo una relazione uno-a-uno.
+    La creazione del profilo è automatizzata tramite un \textbf{trigger di database}, che inserisce un nuovo record in \texttt{profiles} ogni volta che un utente completa la registrazione.
+    \item \texttt{contests}: memorizza le informazioni principali di un concorso.
+    \item \texttt{participations} e \texttt{jurations}: implementano le classi di associazione che legano utenti, contest e giurie.
+    \item \texttt{works}: contiene i metadati delle opere sottomesse dai partecipanti.
+    \item \texttt{voting\_forms} e \texttt{voting\_form\_fields}: definiscono la struttura dei moduli di voto.
+    \item \texttt{voting\_sessions}: rappresenta una sessione di voto.
+    \item \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}: rappresentano i membri coinvolti in una specifica sessione di voto, oltre a contenere gli snapshot dei dati per quella sessione.
+    \item \texttt{voting\_form\_submissions} e \texttt{voting\_form\_submission\_values}: memorizzano i voti inviati dai giurati.
 \end{itemize}
 
 \subsection{Scelte di design chiave}\label{subsec:scelte-di-design-chiave}
@@ -447,7 +406,7 @@ Una decisione di design fondamentale è stata quella di adottare una strategia d
 Data questa scelta, la gestione della cancellazione dei dati correlati è diventata un aspetto critico, risolto con un approccio a più livelli.
 
 \paragraph{Cancellazione a cascata tramite \texttt{ON DELETE CASCADE}}
-Per le relazioni di composizione forte e dirette, dove l'entità ``figlia'' non ha dipendenze esterne come file nello Storage, è stata utilizzata la politica \textbf{\texttt{ON DELETE CASCADE}}.
+Per le relazioni di composizione forte e dirette, dove l'entità ``figlia'' non ha dipendenze esterne come \emph{file nello Storage}, è stata utilizzata la politica \textbf{\texttt{ON DELETE CASCADE}}.
 L'esempio più calzante è la relazione tra \texttt{voting\_forms} e \texttt{voting\_form\_fields}.
 Poiché i campi di un form non hanno senso di esistere senza il form stesso, l'eliminazione di un record in \texttt{voting\_forms} provoca la cancellazione automatica e a cascata di tutti i record correlati in \texttt{voting\_form\_fields}.
 Questo approccio delega interamente la logica di pulizia al database, garantendo massima efficienza e consistenza dei dati con il minimo sforzo implementativo.
@@ -467,9 +426,9 @@ Per questo motivo, le operazioni di cancellazione più complesse, come l'elimina
 Questa logica non poteva essere implementata in una funzione RPC, poiché queste non hanno accesso all'API dello Storage.
 
 \subsubsection{Snapshot dei dati tramite denormalizzazione controllata}
-Per garantire l'immutabilità e l'auditabilità del processo di voto, è stato implementato un meccanismo di \textbf{snapshot dei dati}, una delle scelte architetturali più importanti del backend.
+Per garantire l'immutabilità e l'auditabilità del processo di voto, è stato implementato un \textbf{meccanismo di snapshot dei dati}, una delle scelte architetturali più importanti del backend.
 
-Quando un organizzatore avvia una \emph{VotingSession} tramite la funzione RPC \texttt{organizer\_start\_voting\_session}, il sistema non si limita a collegare le entità esistenti, ma esegue una forma di \textbf{denormalizzazione controllata} (si aggiungono volutamente informazioni ridondanti nel database).
+Quando un organizzatore avvia una \emph{VotingSession} tramite la funzione RPC \texttt{organizer\_start\_voting\_session}, il sistema non si limita a collegare le entità esistenti, ma esegue una forma di \textbf{denormalizzazione controllata}.
 Per ogni partecipante e giurato coinvolto, vengono create nuove righe in tabelle di sessione dedicate (es.\ \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}).
 
 Queste nuove righe contengono non solo le chiavi esterne ai record originali, ma anche una copia statica degli attributi più importanti al momento dell'avvio.
@@ -483,9 +442,9 @@ Lo stesso principio si applica a \texttt{voting\_session\_jurors}, dove \texttt{
 
 Questa tecnica garantisce:
 \begin{enumerate}
-	\item \textbf{Integrità della sessione}: se un utente cambia nome, il nome ``congelato'' nello snapshot rimane invariato.
-	\item \textbf{Auditabilità e resilienza}: i voti rimangono validi e associati ai dati di snapshot anche se i record originali vengono eliminati.
-	\item \textbf{Performance ottimizzate}: i dati di snapshot vengono letti direttamente, evitando query con join.
+    \item \textbf{Integrità della sessione}: se un utente cambia nome, il nome ``congelato'' nello snapshot rimane invariato.
+    \item \textbf{Auditabilità e resilienza}: i voti rimangono validi e associati ai dati di snapshot anche se i record originali vengono eliminati.
+    \item \textbf{Performance ottimizzate}: i dati di snapshot vengono letti direttamente, evitando query con join.
 \end{enumerate}
 
 % Estratto del DDL SQL che mostra la definizione degli attributi di snapshot.
@@ -547,7 +506,7 @@ Tuttavia, questa decisione architetturale ha un'implicazione diretta e important
 
 Di conseguenza, tutte le operazioni di analisi dei risultati, sia a livello di logica di backend (RPC) che di interfaccia utente (frontend), sono state progettate per operare a livello della singola giuria:
 \begin{itemize}
-	\item La \textbf{generazione della classifica} avviene per ogni singola giuria.
+    \item La \textbf{generazione della classifica} avviene per ogni singola giuria.
     \item L'\textbf{esportazione dei risultati} in formato Excel è granulare e produce un file per ciascuna giuria.
 \end{itemize}
 Se l'organizzatore desidera creare una classifica ``globale'' che combini i risultati di più giurie, deve farlo esternamente, utilizzando i dati esportati.
@@ -577,53 +536,53 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 
 % Elenco delle principali Funzioni RPC del sistema.
 \begin{longtable}{p{0.3\textwidth} p{0.4\textwidth} p{0.25\textwidth}}
-	\toprule
-	\textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza Esempio} \\
-	\midrule
-	\endfirsthead
-	\toprule
-	\textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza Esempio} \\
-	\midrule
-	\endhead
+    \toprule
+    \textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza Esempio} \\
+    \midrule
+    \endfirsthead
+    \toprule
+    \textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza Esempio} \\
+    \midrule
+    \endhead
 
-	\texttt{\seqsplit{auth\_get\_account\_bundle}} &
-	Ottiene i dati completi dell'utente autenticato.
-	&
-	\texttt{auth.uid() = id} \\
-	\addlinespace % Aggiunge un piccolo spazio tra le righe
-
-	\texttt{\seqsplit{organizer\_create\_contest}} &
-	Crea un nuovo contest e il luogo associato.
-	&
-	Verifica che l'utente sia autenticato. \\
-	\addlinespace
-
-	\texttt{\seqsplit{organizer\_start\_voting\_session}} &
-	Avvia una sessione di voto, creando lo snapshot dei dati.
+    \texttt{\seqsplit{auth\_get\_account\_bundle}} &
+    Ottiene i dati completi dell'utente autenticato.
     &
-	L'utente deve essere l'organizzatore del contest. \\
-	\addlinespace
+    \texttt{auth.uid() = id} \\
+    \addlinespace % Aggiunge un piccolo spazio tra le righe
 
-	\texttt{\seqsplit{participant\_join\_contest}} &
-	Associa un partecipante a un contest tramite un token di invito.
+    \texttt{\seqsplit{organizer\_create\_contest}} &
+    Crea un nuovo contest e il luogo associato.
     &
-	Il token deve essere valido e non utilizzato. \\
-	\addlinespace
+    Verifica che l'utente sia autenticato. \\
+    \addlinespace
 
-	\texttt{\seqsplit{juror\_submit\_votes}} &
-	Salva i voti di un giurato per una sessione.
+    \texttt{\seqsplit{organizer\_start\_voting\_session}} &
+    Avvia una sessione di voto, creando lo snapshot dei dati.
     &
-	La sessione deve essere `live' e il giurato non deve aver già votato. \\
-	\addlinespace
+    L'utente deve essere l'organizzatore del contest. \\
+    \addlinespace
 
-	\texttt{\seqsplit{juror\_access\_voting\_as\_simple\_juror}} &
-	Fornisce l'accesso a un giurato ospite tramite il token della giuria.
+    \texttt{\seqsplit{participant\_join\_contest}} &
+    Associa un partecipante a un contest tramite un token di invito.
     &
-	Il token della giuria deve essere valido. \\
+    Il token deve essere valido e non utilizzato. \\
+    \addlinespace
 
-	\bottomrule
+    \texttt{\seqsplit{juror\_submit\_votes}} &
+    Salva i voti di un giurato per una sessione.
+    &
+    La sessione deve essere `live' e il giurato non deve aver già votato. \\
+    \addlinespace
+
+    \texttt{\seqsplit{juror\_access\_voting\_as\_simple\_juror}} &
+    Fornisce l'accesso a un giurato ospite tramite il token della giuria.
+    &
+    Il token della giuria deve essere valido. \\
+
+    \bottomrule
     \caption{Elenco esemplificativo delle Funzioni RPC del sistema.}
-	\label{tab:rpc_functions}
+    \label{tab:rpc_functions}
 \end{longtable}
 
 % Inserire qui un estratto significativo dalla funzione PL/pgSQL `juror_submit_votes`, mostrando la validazione di un campo slider prima dell'inserimento.
@@ -665,7 +624,7 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 
     -- Se la validazione passa, la funzione procede con l'inserimento dei voti...
     \end{minted}
-    \caption{Estratto dalla funzione \texttt{juror\_submit\_votes} che mostra la validazione server-side dei valori degli slider.}
+    \caption{Estratto dalla funzione ``juror\_submit\_votes'' che mostra la validazione server-side dei valori degli slider.}
     \label{lst:juror_submit_votes_validation}
 \end{longlisting}
 
@@ -759,7 +718,7 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
         });
     }
     \end{minted}
-    \caption{Estratto dalla Edge Function \texttt{organizer-invite-juror} che mostra l'invocazione dell'API di Resend per l'invio di email.}
+    \caption{Estratto dalla Edge Function ``organizer-invite-juror'' che mostra l'invocazione dell'API di Resend.}
     \label{lst:resend_invocation}
 \end{longlisting}
 
@@ -776,7 +735,7 @@ Per implementare il Principio del Minimo Privilegio, si sarebbero potute seguire
 
 Sebbene un approccio ibrido con un doppio livello di controllo (sia RLS che controlli nell'API) rappresenti la massima sicurezza teorica, per questo progetto è stata adottata la \textbf{seconda strategia}.
 La logica di autorizzazione è stata interamente centralizzata all'interno delle Funzioni RPC e delle Edge Functions.
-Questa scelta è stata motivata dalla necessità di ottimizzare i tempi di sviluppo e la manutenibilità: gestire una logica di autorizzazione complessa in un unico punto (il codice della funzione) è risultato più rapido e meno prono a errori rispetto a dover mantenere sincronizzate decine di policy RLS scritte in SQL.
+Questa scelta è stata un \textbf{compromesso consapevole}, motivato dalla necessità di ottimizzare i tempi di sviluppo e la manutenibilità: gestire una logica di autorizzazione complessa in un unico punto (il codice della funzione) è risultato più rapido e meno prono a errori rispetto a dover mantenere sincronizzate decine di policy RLS scritte in SQL.
 
 \subsection{Il Ruolo della RLS e dell'API come "Gatekeeper"}\label{subsec:il-ruolo-della-rls-e-dell'api-come-gatekeeper}
 In questo modello, la RLS gioca comunque un ruolo fondamentale, ma più semplice: \textbf{agisce come un "firewall" di default}.
@@ -820,16 +779,16 @@ Il seguente listato mostra la policy implementata per la tabella \texttt{voting\
       ))
     );
     \end{minted}
-    \caption{Policy RLS di tipo SELECT per la tabella \texttt{voting\_sessions}, necessaria per il servizio Realtime.}
+    \caption{Policy RLS di tipo SELECT per la tabella ``voting\_sessions'', necessaria per il servizio Realtime.}
     \label{lst:rls_realtime_policy}
 \end{longlisting}
 
 \subsection{Misure di Sicurezza Aggiuntive}\label{subsec:misure-di-sicurezza-aggiuntive}
 Oltre al modello ibrido RLS/RPC, la sicurezza del sistema è rafforzata da altre misure:
 \begin{itemize}
-	\item \textbf{Protezione delle API Esterne}: le chiavi segrete per servizi come Resend e Google Places sono memorizzate in Supabase e accessibili solo dalle Edge Functions.
-	\item \textbf{Protezione dei file}: nessun file nello Storage è pubblico.
-	L'accesso avviene solo tramite \emph{signed URL} temporanei generati lato server.
+    \item \textbf{Protezione delle API Esterne}: le chiavi segrete per servizi come Resend e Google Places sono memorizzate in Supabase e accessibili solo dalle Edge Functions.
+    \item \textbf{Protezione dei file}: nessun file nello Storage è pubblico.
+    L'accesso avviene solo tramite \emph{signed URL} temporanei generati lato server.
 \end{itemize}
 
 \subsubsection{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}
@@ -903,10 +862,10 @@ Per le operazioni che richiedono solo l'accesso al database (es.\ visualizzare l
 Le query da Retool invocano funzioni RPC con prefisso \texttt{admin\_*}, che al loro interno verificano che il chiamante (\texttt{session\_user}) sia esattamente \texttt{retool}, bloccando qualsiasi altro tentativo di accesso.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-rpc-call}
-	\caption{}
-	\label{fig:retool_rpc_call}
+    \centering
+    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-rpc-call}
+    \caption{Flusso di una chiamata sicura da Retool a una Funzione RPC.}
+    \label{fig:retool_rpc_call}
 \end{figure}
 
 % Inserire qui un estratto di codice PL/pgSQL che mostra la validazione del session_user in una funzione RPC amministrativa.
@@ -959,10 +918,10 @@ Queste funzioni sono protette da un meccanismo di autenticazione server-to-serve
 Questo approccio garantisce che solo un'applicazione autorizzata possa invocare queste funzioni, proteggendo il sistema da accessi impropri.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-edge-call}
-	\caption{}
-	\label{fig:retool_edge_call}
+    \centering
+    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-edge-call}
+    \caption{Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}
+    \label{fig:retool_edge_call}
 \end{figure}
 
 % Inserire qui un estratto di codice TypeScript che mostra la validazione della X-API-Key in una Edge Function amministrativa.
@@ -1016,8 +975,8 @@ Questo approccio garantisce che solo un'applicazione autorizzata possa invocare 
 \subsection{Funzionalità Implementate nel Pannello}\label{subsec:funzionalita-implementate-nel-pannello}
 La dashboard sviluppata in Retool fornisce all'amministratore le seguenti funzionalità chiave:
 \begin{itemize}
-    \item Una tabella per la visualizzazione e la ricerca di tutti gli utenti registrati.
-    \item Una vista di dettaglio per un singolo utente, che mostra i contest a cui è associato e i suoi ruoli.
-    \item Un pulsante ``Elimina Utente'', che invoca in modo sicuro la Edge Function \texttt{admin-delete-account}.
-    \item Una tabella di tutti i contest, con un pulsante ``Elimina Contest'' che invoca la Edge Function \texttt{admin-delete-contest}.
+    \item \textbf{Una tabella} per la visualizzazione e la ricerca di tutti gli utenti registrati.
+    \item \textbf{Una vista di dettaglio} per un singolo utente, che mostra i contest a cui è associato e i suoi ruoli.
+    \item \textbf{Un pulsante ``Elimina Utente''}, che invoca in modo sicuro la Edge Function \texttt{admin-delete-account}.
+    \item \textbf{Una tabella di tutti i contest}, con un pulsante ``Elimina Contest'' che invoca la Edge Function \texttt{admin-delete-contest}.
 \end{itemize}

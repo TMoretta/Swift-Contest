@@ -74,7 +74,7 @@
 \contentsline {subsection}{\numberline {4.6.3}Architettura di Comunicazione Sicura tra Retool e Supabase}{55}{subsection.4.6.3}%
 \contentsline {subsubsection}{Accesso tramite Utente Dedicato e Funzioni RPC}{55}{section*.47}%
 \contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{56}{section*.50}%
-\contentsline {subsection}{\numberline {4.6.4}Funzionalità Implementate nel Pannello}{58}{subsection.4.6.4}%
+\contentsline {subsection}{\numberline {4.6.4}Funzionalità Implementate nel Pannello}{59}{subsection.4.6.4}%
 \contentsline {chapter}{\numberline {5}Distribuzione e Prodotto finale}{60}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Strategia di distribuzione}{60}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Distribuzione Web su Vercel}{61}{section.5.2}%
