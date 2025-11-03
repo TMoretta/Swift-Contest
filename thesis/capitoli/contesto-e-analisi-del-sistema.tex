@@ -4,7 +4,7 @@
 
 \section{Il problema: frammentazione e inefficienza nella gestione dei contest}\label{sec:problema-frammentazione-inefficienza}
 La gestione di un contest, specialmente in ambiti creativi, è un processo che coinvolge una molteplicità di attori (organizzatori, partecipanti, giurati) e fasi operative sequenziali e dipendenti.
-L'approccio tradizionale si affida a un assemblaggio di strumenti generici e non integrati, creando un flusso di lavoro discontinuo, inefficiente e soggetto a errori.
+L'approccio tradizionale si affida a un assemblaggio di strumenti generici e non integrati, creando un flusso di lavoro \emph{discontinuo}, \emph{inefficiente} e \emph{soggetto a errori}.
 
 Le criticità di questo modello possono essere analizzate nel dettaglio:
 \begin{itemize}
@@ -12,12 +12,12 @@ Le criticità di questo modello possono essere analizzate nel dettaglio:
     Questo approccio disperde le informazioni, rende difficile avere una visione d'insieme e richiede un costante lavoro manuale di organizzazione dei dati.
     \item \textbf{Mancanza di integrità e consistenza dei dati}: la gestione manuale aumenta esponenzialmente il rischio di errori.
     Esempi comuni includono la perdita di iscrizioni, l'errata trascrizione dei punteggi o l'inclusione di partecipanti non idonei.
-    Non esiste un'unica ``fonte di verità'' per i dati del contest.
+    Non esiste un'unica \textbf{``fonte di verità''} per i dati del contest.
     \item \textbf{Carenza di strumenti in tempo reale}: l'assenza di un sistema centralizzato impedisce di gestire sessioni di voto live in modo coordinato e trasparente.
     \item \textbf{Rischi di sicurezza e potenziale di abuso}: la sottomissione di voti multipli, la partecipazione di utenti non invitati e la gestione di conflitti di interesse diventano problemi concreti e di difficile gestione.
 \end{itemize}
 
-L’obiettivo primario del sistema \textbf{Swift Contest} è superare queste criticità strutturali, fornendo un ambiente end-to-end integrato, sicuro e automatizzato, che funga da unica fonte di verità per l'intero ciclo di vita del contest.
+L’obiettivo primario del sistema \textbf{Swift Contest} è superare queste criticità strutturali, fornendo un ambiente \emph{end-to-end} integrato, sicuro e automatizzato, che funga da unica fonte di verità per l'intero ciclo di vita del contest.
 
 \begin{figure}[H]
     \centering
@@ -27,7 +27,7 @@ L’obiettivo primario del sistema \textbf{Swift Contest} è superare queste cri
 \end{figure}
 
 \section{Stato dell’arte e analisi delle alternative}\label{sec:stato-dellarte-e-analisi-delle-alternative}
-L'analisi dello stato dell'arte ha rivelato un'interessante lacuna nel panorama software attuale: \textbf{non esistono soluzioni verticali e accessibili che coprano in modo integrato l'intero ciclo di vita di un contest}.
+L'analisi dello stato dell'arte ha rivelato un'interessante lacuna nel panorama software attuale: \textbf{non esistono soluzioni \emph{verticali} e accessibili che coprano in modo integrato l'intero ciclo di vita di un contest}.
 Le pratiche correnti si affidano a due approcci principali, entrambi inadeguati.
 
 \subsection{Strumenti generici adattati: lo ``Status Quo''}\label{subsec:strumenti-generici-adattati-lo-status-quo}
@@ -80,7 +80,7 @@ L'analisi del dominio ha permesso di identificare i seguenti attori principali:
 \begin{itemize}
     \item \textbf{Guest}: rappresenta un utente non autenticato.
     In questo sistema, che non prevede contenuti pubblici, un \emph{Guest} non ha privilegi di visualizzazione.
-    Le sue uniche capacità sono quelle di \textbf{autenticarsi} (tramite registrazione o login) o di agire come Simple Juror se in possesso di un token di accesso.
+    Le sue uniche capacità sono quelle di \emph{autenticarsi} (tramite registrazione o login) o di \emph{agire come Simple Juror} se in possesso di un token di accesso.
     \item \textbf{Authenticated}: è un attore astratto che rappresenta un utente che ha completato l'autenticazione.
     Funge da base per i ruoli operativi, che ne ereditano le funzionalità comuni come la gestione del proprio profilo e delle notifiche.
     \item \textbf{Organizer}: è un utente autenticato responsabile della creazione e della gestione completa di un contest.
@@ -179,7 +179,7 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
     \item \textbf{Operativi (Operation)}:
     \begin{itemize}
         \item Il deployment del backend deve essere tracciabile tramite migrazioni SQL gestite dalla CLI di Supabase.
-        \item Il deployment del frontend web deve essere automatizzato tramite una pipeline di CI/CD\@.
+        \item Il deployment del frontend web deve essere automatizzato tramite una pipeline di \textbf{CI/CD}\@.
         \item I segreti (API keys) devono essere gestiti in modo sicuro, senza essere esposti nel codice sorgente.
     \end{itemize}
     \item \textbf{Distribuzione (Packaging)}:
@@ -209,7 +209,7 @@ Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi
 \begin{itemize}
     \item \textbf{User}: l'utente del sistema, contenente informazioni del profilo.
     \item \textbf{Contest}: l'entità centrale, che aggrega tutte le informazioni relative a un concorso.
-    \item \textbf{ParticipantMembership} e \textbf{JurorMembership}: classi associative che risolvono le relazioni ``molti-a-molti'' tra utenti e contest/giurie.
+    \item \textbf{ParticipantMembership} e \textbf{JurorMembership}: \emph{classi associative} che risolvono le relazioni ``molti-a-molti'' tra utenti e contest/giurie.
     \item \textbf{Work}: l'elaborato unico caricato da un partecipante.
     È legato a una \emph{ParticipantMembership}.
     \item \textbf{Jury}: una giuria all'interno di un contest, che può essere di tipo \emph{appointed} o \emph{simple}.
@@ -224,10 +224,10 @@ Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi
 \subsection{Vincoli chiave del dominio}\label{subsec:vincoli-chiave-del-dominio}
 Il modello dati è stato progettato per far rispettare programmaticamente alcune regole di business fondamentali:
 \begin{enumerate}
-    \item \textbf{Unicità del Work}: un partecipante può sottomettere un solo \emph{Work} per ogni concorso a cui è iscritto, garantito da un vincolo di unicità a livello di database.
+    \item \textbf{Unicità del Work}: un partecipante può sottomettere un solo \emph{Work} per ogni concorso a cui è iscritto, garantito da un \emph{vincolo di unicità} a livello di database.
     \item \textbf{Calcolo della Classifica Semplice}: la classifica viene generata esclusivamente sulla base dei campi di tipo \emph{slider} con scope \emph{participant}.
     I campi testuali non contribuiscono al punteggio.
-    \item \textbf{Immutabilità della Votazione}: il meccanismo di snapshot garantisce che una volta avviata una sessione di voto, i dati rilevanti dei partecipanti, dei giurati e la struttura del form vengano ``congelati''.
+    \item \textbf{Immutabilità della Votazione}: il \textbf{meccanismo di snapshot} garantisce che una volta avviata una sessione di voto, i dati rilevanti dei partecipanti, dei giurati e la struttura del form vengano ``congelati''.
     Questo avviene tramite la copia di attributi chiave in tabelle di sessione dedicate, rendendo il processo di valutazione immune da modifiche successive ai dati originali.
     \item \textbf{Accesso Ospite Controllato}: l'accesso come \emph{Simple Juror} è strettamente controllato da un token associato a una specifica giuria di tipo semplice (simple jury).
 \end{enumerate}
