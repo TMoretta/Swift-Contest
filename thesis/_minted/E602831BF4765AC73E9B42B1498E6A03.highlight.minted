@@ -1,0 +1,15 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{// in lib/utils/themes/color\PYGZus{}scheme\PYGZus{}x.dart}
+
+\PYG{k+kd}{extension}\PYG{+w}{ }\PYG{n+nc}{ColorSchemeX}\PYG{+w}{ }\PYG{k+kd}{on}\PYG{+w}{ }\PYG{n}{ColorScheme}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{c+c1}{// Colore per indicare successo (es. notifiche positive)}
+\PYG{n}{Color}\PYG{+w}{ }\PYG{k+kd}{get}\PYG{+w}{ }\PYG{n}{success}\PYG{+w}{ }\PYG{o}{=\PYGZgt{}}\PYG{+w}{ }\PYG{k}{const}\PYG{+w}{ }\PYG{n}{Color}\PYG{p}{(}\PYG{l+m+mh}{0xFF28a745}\PYG{p}{);}
+\PYG{n}{Color}\PYG{+w}{ }\PYG{k+kd}{get}\PYG{+w}{ }\PYG{n}{onSuccess}\PYG{+w}{ }\PYG{o}{=\PYGZgt{}}\PYG{+w}{ }\PYG{k}{const}\PYG{+w}{ }\PYG{n}{Color}\PYG{p}{(}\PYG{l+m+mh}{0xFFFFFFFF}\PYG{p}{);}
+
+\PYG{c+c1}{// Colore per avvisi}
+\PYG{n}{Color}\PYG{+w}{ }\PYG{k+kd}{get}\PYG{+w}{ }\PYG{n}{warning}\PYG{+w}{ }\PYG{o}{=\PYGZgt{}}\PYG{+w}{ }\PYG{k}{const}\PYG{+w}{ }\PYG{n}{Color}\PYG{p}{(}\PYG{l+m+mh}{0xFFffc107}\PYG{p}{);}
+\PYG{n}{Color}\PYG{+w}{ }\PYG{k+kd}{get}\PYG{+w}{ }\PYG{n}{onWarning}\PYG{+w}{ }\PYG{o}{=\PYGZgt{}}\PYG{+w}{ }\PYG{k}{const}\PYG{+w}{ }\PYG{n}{Color}\PYG{p}{(}\PYG{l+m+mh}{0xFF212529}\PYG{p}{);}
+
+\PYG{c+c1}{// Altri colori personalizzati...}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

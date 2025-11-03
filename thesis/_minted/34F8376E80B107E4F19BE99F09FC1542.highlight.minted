@@ -1,0 +1,58 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{// Import e inizializzazione del client di Resend.}
+\PYG{c+c1}{// La chiave API viene letta in modo sicuro dai segreti di Supabase.}
+\PYG{k}{import}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{Resend}\PYG{+w}{ }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{k+kr}{from}\PYG{+w}{ }\PYG{l+s+s1}{\PYGZsq{}npm:resend\PYGZsq{}}\PYG{p}{;}
+\PYG{k+kd}{const}\PYG{+w}{ }\PYG{n+nx}{resend}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{o+ow}{new}\PYG{+w}{ }\PYG{n+nx}{Resend}\PYG{p}{(}\PYG{n+nx}{Deno}\PYG{p}{.}\PYG{n+nx}{env}\PYG{p}{.}\PYG{n+nx}{get}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}RESEND\PYGZus{}API\PYGZus{}KEY\PYGZsq{}}\PYG{p}{));}
+
+\PYG{c+c1}{// ... (all\PYGZsq{}interno della funzione Deno.serve, dopo aver validato l\PYGZsq{}input}
+\PYG{c+c1}{// e aver creato il record di invito nel database)}
+
+\PYG{k}{try}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+c1}{// ...}
+\PYG{+w}{    }\PYG{c+c1}{// Passaggio 5: Inserisce il nuovo invito nel DB e ottiene il token generato.}
+\PYG{+w}{    }\PYG{k+kd}{const}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{data}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{newInvitation}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{error}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{insertError}\PYG{+w}{ }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k}{await}\PYG{+w}{ }\PYG{n+nx}{supabaseAdmin}
+\PYG{+w}{        }\PYG{p}{.}\PYG{k+kr}{from}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}juror\PYGZus{}invitations\PYGZsq{}}\PYG{p}{)}
+\PYG{+w}{        }\PYG{p}{.}\PYG{n+nx}{insert}\PYG{p}{(\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{contest\PYGZus{}id}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{jury\PYGZus{}id}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{email}\PYG{+w}{ }\PYG{p}{\PYGZcb{})}
+\PYG{+w}{        }\PYG{p}{.}\PYG{n+nx}{select}\PYG{p}{()}
+\PYG{+w}{        }\PYG{p}{.}\PYG{n+nx}{single}\PYG{p}{();}
+
+\PYG{+w}{    }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{insertError}\PYG{p}{)}\PYG{+w}{ }\PYG{k}{throw}\PYG{+w}{ }\PYG{n+nx}{insertError}\PYG{p}{;}
+
+\PYG{+w}{    }\PYG{c+c1}{// Passaggio 6: Recupera i nomi del contest e della giuria per personalizzare l\PYGZsq{}email.}
+\PYG{+w}{    }\PYG{k+kd}{const}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{data}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{contest}\PYG{+w}{ }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k}{await}\PYG{+w}{ }\PYG{n+nx}{supabaseAdmin}\PYG{p}{.}\PYG{k+kr}{from}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}contests\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{select}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}name\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{eq}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}id\PYGZsq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{contest\PYGZus{}id}\PYG{p}{).}\PYG{n+nx}{single}\PYG{p}{();}
+\PYG{+w}{    }\PYG{k+kd}{const}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{data}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{jury}\PYG{+w}{ }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k}{await}\PYG{+w}{ }\PYG{n+nx}{supabaseAdmin}\PYG{p}{.}\PYG{k+kr}{from}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}juries\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{select}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}name\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{eq}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}id\PYGZsq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{jury\PYGZus{}id}\PYG{p}{).}\PYG{n+nx}{single}\PYG{p}{();}
+
+\PYG{+w}{    }\PYG{c+c1}{// Passaggio 7: Invia l\PYGZsq{}email di invito utilizzando il client di Resend.}
+\PYG{+w}{    }\PYG{c+c1}{// L\PYGZsq{}operazione è asincrona.}
+\PYG{+w}{    }\PYG{k}{await}\PYG{+w}{ }\PYG{n+nx}{resend}\PYG{p}{.}\PYG{n+nx}{emails}\PYG{p}{.}\PYG{n+nx}{send}\PYG{p}{(\PYGZob{}}
+\PYG{+w}{        }\PYG{k+kr}{from}\PYG{o}{:}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Swift Contest \PYGZlt{}noreply@swiftcontest.com\PYGZgt{}\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{        }\PYG{n+nx}{to}\PYG{o}{:}\PYG{+w}{ }\PYG{p}{[}\PYG{n+nx}{email}\PYG{p}{],}
+\PYG{+w}{        }\PYG{n+nx}{subject}\PYG{o}{:}\PYG{+w}{ }\PYG{l+s+sb}{`Invitation to join the jury for \PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nx}{contest}\PYG{p}{.}\PYG{n+nx}{name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+sb}{\PYGZdq{}`}\PYG{p}{,}
+\PYG{+w}{        }\PYG{c+c1}{// Il corpo dell\PYGZsq{}email è un template HTML che include i dati dinamici.}
+\PYG{+w}{        }\PYG{n+nx}{html}\PYG{o}{:}\PYG{+w}{ }\PYG{l+s+sb}{`}
+\PYG{l+s+sb}{        \PYGZlt{}div\PYGZgt{}}
+\PYG{l+s+sb}{        \PYGZlt{}h1\PYGZgt{}Invitation to Swift Contest\PYGZlt{}/h1\PYGZgt{}}
+\PYG{l+s+sb}{        \PYGZlt{}p\PYGZgt{}You have received an invitation to join the \PYGZdq{}\PYGZlt{}strong\PYGZgt{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nx}{jury}\PYG{p}{.}\PYG{n+nx}{name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+sb}{\PYGZlt{}/strong\PYGZgt{}\PYGZdq{} jury for the contest \PYGZdq{}\PYGZlt{}strong\PYGZgt{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nx}{contest}\PYG{p}{.}\PYG{n+nx}{name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+sb}{\PYGZlt{}/strong\PYGZgt{}\PYGZdq{}.\PYGZlt{}/p\PYGZgt{}}
+\PYG{l+s+sb}{        \PYGZlt{}p\PYGZgt{}Use this token in the app to accept:\PYGZlt{}br\PYGZgt{}}
+\PYG{l+s+sb}{        \PYGZlt{}strong\PYGZgt{}}\PYG{l+s+si}{\PYGZdl{}\PYGZob{}}\PYG{n+nx}{newInvitation}\PYG{p}{.}\PYG{n+nx}{token}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+sb}{\PYGZlt{}/strong\PYGZgt{}}
+\PYG{l+s+sb}{        \PYGZlt{}/p\PYGZgt{}}
+\PYG{l+s+sb}{        \PYGZlt{}/div\PYGZgt{}}
+\PYG{l+s+sb}{        `}\PYG{p}{,}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{});}
+
+\PYG{+w}{    }\PYG{c+c1}{// Passaggio 8: Se l\PYGZsq{}invio ha successo, restituisce l\PYGZsq{}invito creato al client.}
+\PYG{+w}{    }\PYG{k}{return}\PYG{+w}{ }\PYG{o+ow}{new}\PYG{+w}{ }\PYG{n+nx}{Response}\PYG{p}{(}\PYG{n+nb}{JSON}\PYG{p}{.}\PYG{n+nx}{stringify}\PYG{p}{(}\PYG{n+nx}{newInvitation}\PYG{p}{),}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{n+nx}{headers}\PYG{o}{:}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{p}{...}\PYG{n+nx}{corsHeaders}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Content\PYGZhy{}Type\PYGZdq{}}\PYG{o}{:}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}application/json\PYGZdq{}}\PYG{+w}{ }\PYG{p}{\PYGZcb{},}
+\PYG{+w}{        }\PYG{n+nx}{status}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{201}\PYG{p}{,}\PYG{+w}{ }\PYG{c+c1}{// Created}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{});}
+
+\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{k}{catch}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{error}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+c1}{// Se l\PYGZsq{}invio dell\PYGZsq{}email o qualsiasi operazione precedente fallisce,}
+\PYG{+w}{    }\PYG{c+c1}{// l\PYGZsq{}errore viene catturato e registrato, e viene restituita una risposta di errore.}
+\PYG{+w}{    }\PYG{n+nx}{console}\PYG{p}{.}\PYG{n+nx}{error}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Error sending invitation:\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{error}\PYG{p}{.}\PYG{n+nx}{message}\PYG{p}{);}
+\PYG{+w}{    }\PYG{k}{return}\PYG{+w}{ }\PYG{o+ow}{new}\PYG{+w}{ }\PYG{n+nx}{Response}\PYG{p}{(}\PYG{n+nb}{JSON}\PYG{p}{.}\PYG{n+nx}{stringify}\PYG{p}{(\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{error}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{error.message}\PYG{+w}{ }\PYG{p}{\PYGZcb{}),}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{n+nx}{headers}\PYG{o}{:}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{p}{...}\PYG{n+nx}{corsHeaders}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Content\PYGZhy{}Type\PYGZdq{}}\PYG{o}{:}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}application/json\PYGZdq{}}\PYG{+w}{ }\PYG{p}{\PYGZcb{},}
+\PYG{+w}{        }\PYG{n+nx}{status}\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{500}\PYG{p}{,}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{});}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

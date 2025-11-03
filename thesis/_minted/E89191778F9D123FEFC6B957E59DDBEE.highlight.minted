@@ -1,0 +1,20 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Abilita l\PYGZsq{}accesso in lettura alla tabella `voting\PYGZus{}sessions`}
+\PYG{c+c1}{\PYGZhy{}\PYGZhy{} solo per gli utenti autorizzati a ricevere aggiornamenti in tempo reale.}
+\PYG{k}{CREATE}\PYG{+w}{ }\PYG{k}{POLICY}\PYG{+w}{ }\PYG{l+s+sName}{\PYGZdq{}Allow read access to organizers and involved jurors\PYGZdq{}}
+\PYG{k}{ON}\PYG{+w}{ }\PYG{n}{public}\PYG{l+m+mf}{.}\PYG{n}{voting\PYGZus{}sessions}
+\PYG{k}{FOR}\PYG{+w}{ }\PYG{k}{SELECT}
+\PYG{k}{USING}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{  }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Condizione 1: L\PYGZsq{}utente è l\PYGZsq{}organizzatore del contest a cui la sessione appartiene.}
+\PYG{+w}{  }\PYG{p}{(}\PYG{k}{EXISTS}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{    }\PYG{k}{SELECT}\PYG{+w}{ }\PYG{l+m+mf}{1}\PYG{+w}{ }\PYG{k}{FROM}\PYG{+w}{ }\PYG{n}{public}\PYG{l+m+mf}{.}\PYG{n}{contests}\PYG{+w}{ }\PYG{n}{c}
+\PYG{+w}{    }\PYG{k}{WHERE}\PYG{+w}{ }\PYG{n}{c}\PYG{l+m+mf}{.}\PYG{n}{id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{voting\PYGZus{}sessions}\PYG{l+m+mf}{.}\PYG{n}{contest\PYGZus{}id}\PYG{+w}{ }\PYG{k}{AND}\PYG{+w}{ }\PYG{n}{c}\PYG{l+m+mf}{.}\PYG{n}{organizer\PYGZus{}id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{auth}\PYG{l+m+mf}{.}\PYG{n}{uid}\PYG{p}{()}
+\PYG{+w}{  }\PYG{p}{))}
+\PYG{+w}{  }\PYG{k}{OR}
+\PYG{+w}{  }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Condizione 2: L\PYGZsq{}utente è un giurato che partecipa a questa specifica sessione di voto.}
+\PYG{+w}{  }\PYG{p}{(}\PYG{k}{EXISTS}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{    }\PYG{k}{SELECT}\PYG{+w}{ }\PYG{l+m+mf}{1}\PYG{+w}{ }\PYG{k}{FROM}\PYG{+w}{ }\PYG{n}{public}\PYG{l+m+mf}{.}\PYG{n}{voting\PYGZus{}session\PYGZus{}jurors}\PYG{+w}{ }\PYG{n}{vsj}
+\PYG{+w}{    }\PYG{k}{WHERE}\PYG{+w}{ }\PYG{n}{vsj}\PYG{l+m+mf}{.}\PYG{n}{voting\PYGZus{}session\PYGZus{}id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{voting\PYGZus{}sessions}\PYG{l+m+mf}{.}\PYG{n}{id}\PYG{+w}{ }\PYG{k}{AND}\PYG{+w}{ }\PYG{n}{vsj}\PYG{l+m+mf}{.}\PYG{n}{juror\PYGZus{}id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{auth}\PYG{l+m+mf}{.}\PYG{n}{uid}\PYG{p}{()}
+\PYG{+w}{  }\PYG{p}{))}
+\PYG{p}{);}
+\end{MintedVerbatim}

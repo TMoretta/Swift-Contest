@@ -1,0 +1,68 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{// \PYGZhy{}\PYGZhy{}\PYGZhy{} 1. Definizione della rotta protetta (in app\PYGZus{}router.dart) \PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+\PYG{n+nd}{@AutoRouterConfig}\PYG{p}{()}
+\PYG{k+kd}{class}\PYG{+w}{ }\PYG{n+nc}{AppRouter}\PYG{+w}{ }\PYG{k+kd}{extends}\PYG{+w}{ }\PYG{n}{RootStackRouter}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+c1}{// ...}
+\PYG{+w}{    }\PYG{n+nd}{@override}
+\PYG{+w}{    }\PYG{n}{List}\PYG{o}{\PYGZlt{}}\PYG{n}{AutoRoute}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{k+kd}{get}\PYG{+w}{ }\PYG{n}{routes}\PYG{+w}{ }\PYG{o}{=\PYGZgt{}}\PYG{+w}{ }\PYG{p}{[}
+
+\PYG{+w}{    }\PYG{c+c1}{// ... altre rotte pubbliche o di autenticazione}
+
+\PYG{+w}{    }\PYG{c+c1}{// Esempio di rotta protetta: solo gli utenti autenticati}
+\PYG{+w}{    }\PYG{c+c1}{// possono accedere alla dashboard dell\PYGZsq{}organizzatore.}
+\PYG{+w}{    }\PYG{n}{AutoRoute}\PYG{p}{(}
+\PYG{+w}{    }\PYG{n+nl}{path:}\PYG{+w}{ }\PYG{l+s+s1}{\PYGZsq{}/organizer\PYGZhy{}home\PYGZsq{}}\PYG{p}{,}
+\PYG{+w}{    }\PYG{n+nl}{page:}\PYG{+w}{ }\PYG{n}{OrganizerHomeRoute}\PYG{p}{.}\PYG{n}{page}\PYG{p}{,}
+\PYG{+w}{    }\PYG{n+nl}{guards:}\PYG{+w}{ }\PYG{p}{[}\PYG{n}{AuthGuard}\PYG{p}{(}\PYG{n+nl}{authBloc:}\PYG{+w}{ }\PYG{n}{authBloc}\PYG{p}{)],}\PYG{+w}{ }\PYG{c+c1}{// Applica la guardia}
+\PYG{+w}{    }\PYG{p}{),}
+
+\PYG{+w}{    }\PYG{c+c1}{// ... altre rotte protette}
+\PYG{+w}{    }\PYG{p}{];}
+\PYG{p}{\PYGZcb{}}
+
+
+\PYG{c+c1}{// \PYGZhy{}\PYGZhy{}\PYGZhy{} 2. Implementazione della guardia (in auth\PYGZus{}guard.dart) \PYGZhy{}\PYGZhy{}\PYGZhy{}}
+
+\PYG{k+kd}{class}\PYG{+w}{ }\PYG{n+nc}{AuthGuard}\PYG{+w}{ }\PYG{k+kd}{extends}\PYG{+w}{ }\PYG{n}{AutoRouteGuard}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{k+kd}{final}\PYG{+w}{ }\PYG{n}{AuthBloc}\PYG{+w}{ }\PYG{n}{authBloc}\PYG{p}{;}
+
+\PYG{+w}{    }\PYG{n}{AuthGuard}\PYG{p}{(\PYGZob{}}\PYG{k+kd}{required}\PYG{+w}{ }\PYG{k}{this}\PYG{p}{.}\PYG{n}{authBloc}\PYG{p}{\PYGZcb{});}
+
+\PYG{+w}{    }\PYG{n+nd}{@override}
+\PYG{+w}{    }\PYG{k+kt}{void}\PYG{+w}{ }\PYG{n}{onNavigation}\PYG{p}{(}\PYG{n}{NavigationResolver}\PYG{+w}{ }\PYG{n}{resolver}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{StackRouter}\PYG{+w}{ }\PYG{n}{router}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{c+c1}{// Controlla lo stato di autenticazione tramite l\PYGZsq{}AuthBloc}
+\PYG{+w}{        }\PYG{k+kd}{final}\PYG{+w}{ }\PYG{n}{isAuthenticated}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{authBloc}\PYG{p}{.}\PYG{n}{state}\PYG{p}{.}\PYG{n}{authStatus}\PYG{p}{.}\PYG{n}{isAuthenticated}\PYG{p}{;}
+
+\PYG{+w}{        }\PYG{c+c1}{// Elenco completo delle rotte pubbliche (di autenticazione)}
+\PYG{+w}{        }\PYG{k}{const}\PYG{+w}{ }\PYG{n}{authPaths}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{p}{[}
+\PYG{+w}{        }\PYG{l+s+s1}{\PYGZsq{}/sign\PYGZhy{}in\PYGZsq{}}\PYG{p}{,}
+\PYG{+w}{        }\PYG{l+s+s1}{\PYGZsq{}/sign\PYGZhy{}in\PYGZhy{}verify\PYGZsq{}}\PYG{p}{,}
+\PYG{+w}{        }\PYG{l+s+s1}{\PYGZsq{}/sign\PYGZhy{}up\PYGZsq{}}\PYG{p}{,}
+\PYG{+w}{        }\PYG{l+s+s1}{\PYGZsq{}/sign\PYGZhy{}up\PYGZhy{}verify\PYGZsq{}}
+\PYG{+w}{        }\PYG{p}{];}
+\PYG{+w}{        }\PYG{k+kd}{final}\PYG{+w}{ }\PYG{n}{targetPath}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{resolver}\PYG{p}{.}\PYG{n}{route}\PYG{p}{.}\PYG{n}{path}\PYG{p}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/:\PYGZsq{}}\PYG{p}{).}\PYG{n}{first}\PYG{p}{;}
+
+\PYG{+w}{        }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{isAuthenticated}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{            }\PYG{c+c1}{// Se l\PYGZsq{}utente è autenticato e cerca di andare a una pagina di login/registrazione,}
+\PYG{+w}{            }\PYG{c+c1}{// lo reindirizzo alla sua home page.}
+\PYG{+w}{            }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{authPaths}\PYG{p}{.}\PYG{n}{contains}\PYG{p}{(}\PYG{n}{targetPath}\PYG{p}{))}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                }\PYG{n}{resolver}\PYG{p}{.}\PYG{n}{redirect}\PYG{p}{(}\PYG{k}{const}\PYG{+w}{ }\PYG{n}{RootRoute}\PYG{p}{());}
+\PYG{+w}{            }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{k}{else}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                }\PYG{c+c1}{// Altrimenti, può procedere verso la rotta protetta.}
+\PYG{+w}{                }\PYG{n}{resolver}\PYG{p}{.}\PYG{n}{next}\PYG{p}{(}\PYG{k+kc}{true}\PYG{p}{);}
+\PYG{+w}{            }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{        }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{k}{else}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{            }\PYG{c+c1}{// Se l\PYGZsq{}utente NON è autenticato...}
+\PYG{+w}{            }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{!}\PYG{n}{authPaths}\PYG{p}{.}\PYG{n}{contains}\PYG{p}{(}\PYG{n}{targetPath}\PYG{p}{))}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                }\PYG{c+c1}{// ...e sta cercando di accedere a una rotta protetta,}
+\PYG{+w}{                }\PYG{c+c1}{// lo reindirizzo alla pagina di login.}
+\PYG{+w}{                }\PYG{n}{resolver}\PYG{p}{.}\PYG{n}{redirect}\PYG{p}{(}\PYG{n}{SignInRoute}\PYG{p}{());}
+\PYG{+w}{            }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{k}{else}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                }\PYG{c+c1}{// ...e sta già andando a una pagina di login/registrazione, lo lascio procedere.}
+\PYG{+w}{                }\PYG{n}{resolver}\PYG{p}{.}\PYG{n}{next}\PYG{p}{(}\PYG{k+kc}{true}\PYG{p}{);}
+\PYG{+w}{            }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{        }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

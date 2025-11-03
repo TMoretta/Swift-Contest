@@ -17,7 +17,7 @@ Le linee guida principali sono state:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/client-server-architecture}
+    \includegraphics[width=0.8\textwidth]{diagrammi/client-server-architecture}
     \caption{Architettura Client-Server del sistema Swift Contest con backend BaaS.}
     \label{fig:client-server-architecture}
 \end{figure}
@@ -39,7 +39,7 @@ La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/client-architecture}
+	\includegraphics[width=0.8\textwidth]{diagrammi/client-architecture}
 	\caption{Architettura del Client MVVM con BLoC.}
 	\label{fig:client-architecture}
 \end{figure}
@@ -75,82 +75,42 @@ Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \t
 Il tipo di ritorno \texttt{Either<Failure, T>} formalizza quindi questo contratto: la funzione restituirà o un oggetto di tipo \texttt{Failure} (a sinistra) o il dato atteso di tipo \texttt{T} (a destra).
 Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usare blocchi \texttt{try...catch}, permettendogli di gestire in modo pulito, dichiarativo e fortemente tipizzato sia il caso di successo che quello di fallimento, semplicemente ispezionando il contenuto di \texttt{Either}.
 
-\begin{longlisting}
-    \begin{minted}{dart}
-        /// Avvolge una chiamata al backend, gestendo e mappando le eccezioni.
-        Future<Either<Failure, T>> handleBackendCall<T>(
-          Future<Either<Failure, T>> Function() function,
-        ) async {
-          try {
-            // Esegue la funzione che contiene la chiamata al backend.
-            return await function();
-          } on SocketException catch (e) {
-            // Errore di rete (es. no internet).
-            Logger.warning('Network error: $e');
-            return Either.left(const NetworkFailure());
-          } on AuthException catch (e) {
-            // Errore di autenticazione di Supabase.
-            Logger.warning('Auth error: $e');
-            return Either.left(authExceptionToFailure(e));
-          } on PostgrestException catch (e) {
-            // Errore del database PostgreSQL.
-            Logger.warning('Postgrest error: $e');
-            return Either.left(postgrestExceptionToFailure(e));
-          } on FunctionException catch (e) {
-            // Errore durante l'invocazione di una Edge Function.
-            Logger.warning('Edge function error: $e');
-            return Either.left(edgeFunctionExceptionToFailure(e));
-          } on StorageException catch (e) {
-            // Errore nello Storage (es. upload fallito).
-            Logger.warning('Storage error: $e');
-            return Either.left(storageExceptionToFailure(e));
-          } catch (e) {
-            // Qualsiasi altro errore non previsto.
-            Logger.error('Unknown error: $e');
-            return Either.left(const Failure());
-          }
-        }
-    \end{minted}
-    \caption{Funzione helper per la gestione sicura delle chiamate al backend.}
-    \label{lst:handle-backend-call}
-\end{longlisting}
-
 % LISTATO: Funzione di gestione centralizzata degli errori.
-%\begin{lstlisting}[language=Dart, caption={Funzione helper per la gestione sicura delle chiamate al backend.}, label={lst:handle-backend-call}]
-%	/// Avvolge una chiamata al backend, gestendo e mappando le eccezioni.
-%	Future<Either<Failure, T>> handleBackendCall<T>(
-%	Future<Either<Failure, T>> Function() function,
-%	) async {
-%		try {
-%			// Esegue la funzione che contiene la chiamata al backend.
-%			return await function();
-%		} on SocketException catch (e) {
-%			// Errore di rete (es. no internet).
-%			Logger.warning('Network error: $e');
-%			return Either.left(const NetworkFailure());
-%		} on AuthException catch (e) {
-%			// Errore di autenticazione di Supabase.
-%			Logger.warning('Auth error: $e');
-%			return Either.left(authExceptionToFailure(e));
-%		} on PostgrestException catch (e) {
-%			// Errore del database PostgreSQL.
-%			Logger.warning('Postgrest error: $e');
-%			return Either.left(postgrestExceptionToFailure(e));
-%		} on FunctionException catch (e) {
-%			// Errore durante l'invocazione di una Edge Function.
-%			Logger.warning('Edge function error: $e');
-%			return Either.left(edgeFunctionExceptionToFailure(e));
-%		} on StorageException catch (e) {
-%			// Errore nello Storage (es. upload fallito).
-%			Logger.warning('Storage error: $e');
-%			return Either.left(storageExceptionToFailure(e));
-%		} catch (e) {
-%			// Qualsiasi altro errore non previsto.
-%			Logger.error('Unknown error: $e');
-%			return Either.left(const Failure());
-%		}
-%	}
-%\end{lstlisting}
+\begin{lstlisting}[language=Dart, caption={Funzione helper per la gestione sicura delle chiamate al backend.}, label={lst:handle-backend-call}]
+	/// Avvolge una chiamata al backend, gestendo e mappando le eccezioni.
+	Future<Either<Failure, T>> handleBackendCall<T>(
+	Future<Either<Failure, T>> Function() function,
+	) async {
+		try {
+			// Esegue la funzione che contiene la chiamata al backend.
+			return await function();
+		} on SocketException catch (e) {
+			// Errore di rete (es. no internet).
+			Logger.warning('Network error: $e');
+			return Either.left(const NetworkFailure());
+		} on AuthException catch (e) {
+			// Errore di autenticazione di Supabase.
+			Logger.warning('Auth error: $e');
+			return Either.left(authExceptionToFailure(e));
+		} on PostgrestException catch (e) {
+			// Errore del database PostgreSQL.
+			Logger.warning('Postgrest error: $e');
+			return Either.left(postgrestExceptionToFailure(e));
+		} on FunctionException catch (e) {
+			// Errore durante l'invocazione di una Edge Function.
+			Logger.warning('Edge function error: $e');
+			return Either.left(edgeFunctionExceptionToFailure(e));
+		} on StorageException catch (e) {
+			// Errore nello Storage (es. upload fallito).
+			Logger.warning('Storage error: $e');
+			return Either.left(storageExceptionToFailure(e));
+		} catch (e) {
+			// Qualsiasi altro errore non previsto.
+			Logger.error('Unknown error: $e');
+			return Either.left(const Failure());
+		}
+	}
+\end{lstlisting}
 
 \subsubsection{Gestione dell'uguaglianza degli oggetti con Equatable}
 Per ottimizzare le performance e garantire un comportamento prevedibile nella gestione dello stato, tutte le entità, i bundle e gli stati dei BLoC estendono la classe fornita dal pacchetto \texttt{equatable}.
@@ -171,78 +131,75 @@ Estendendo \texttt{Equatable}, si ottiene un'implementazione standard e priva di
 La gestione della navigazione è stata affidata al pacchetto \texttt{auto\_route}, che genera un router fortemente tipizzato, eliminando l'uso di stringhe per le rotte e riducendo il rischio di errori a runtime.
 Un elemento chiave è l'\texttt{AuthGuard}, una classe che intercetta le richieste di navigazione e verifica lo stato di autenticazione dell'utente tramite l'\texttt{AuthBloc}, reindirizzandolo alla pagina di login se tenta di accedere a una rotta protetta.
 
-\begin{longlisting}
-    \begin{minted}{dart}
-        // --- 1. Definizione della rotta protetta (in app_router.dart) ---
-
-        @AutoRouterConfig()
-        class AppRouter extends RootStackRouter {
-            // ...
-            @override
-            List<AutoRoute> get routes => [
-
-            // ... altre rotte pubbliche o di autenticazione
-
-            // Esempio di rotta protetta: solo gli utenti autenticati
-            // possono accedere alla dashboard dell'organizzatore.
-            AutoRoute(
-            path: '/organizer-home',
-            page: OrganizerHomeRoute.page,
-            guards: [AuthGuard(authBloc: authBloc)], // Applica la guardia
-            ),
-
-            // ... altre rotte protette
-            ];
-        }
-
-
-        // --- 2. Implementazione della guardia (in auth_guard.dart) ---
-
-        class AuthGuard extends AutoRouteGuard {
-            final AuthBloc authBloc;
-
-            AuthGuard({required this.authBloc});
-
-            @override
-            void onNavigation(NavigationResolver resolver, StackRouter router) {
-                // Controlla lo stato di autenticazione tramite l'AuthBloc
-                final isAuthenticated = authBloc.state.authStatus.isAuthenticated;
-
-                // Elenco completo delle rotte pubbliche (di autenticazione)
-                const authPaths = [
-                '/sign-in',
-                '/sign-in-verify',
-                '/sign-up',
-                '/sign-up-verify'
-                ];
-                final targetPath = resolver.route.path.split('/:').first;
-
-                if (isAuthenticated) {
-                    // Se l'utente è autenticato e cerca di andare a una pagina di login/registrazione,
-                    // lo reindirizzo alla sua home page.
-                    if (authPaths.contains(targetPath)) {
-                        resolver.redirect(const RootRoute());
-                    } else {
-                        // Altrimenti, può procedere verso la rotta protetta.
-                        resolver.next(true);
-                    }
-                } else {
-                    // Se l'utente NON è autenticato...
-                    if (!authPaths.contains(targetPath)) {
-                        // ...e sta cercando di accedere a una rotta protetta,
-                        // lo reindirizzo alla pagina di login.
-                        resolver.redirect(SignInRoute());
-                    } else {
-                        // ...e sta già andando a una pagina di login/registrazione, lo lascio procedere.
-                        resolver.next(true);
-                    }
-                }
-            }
-        }
-    \end{minted}
-    \caption{Estratto del sistema di routing protetto con \texttt{AuthGuard}.}
-    \label{lst:auth_guard}
-\end{longlisting}
+% Inserire qui un breve estratto di codice Dart che mostra la definizione di una rotta protetta con l'AuthGuard all'interno del file del router.
+\begin{lstlisting}[language=Dart, caption={Estratto del sistema di routing protetto con \texttt{AuthGuard}.}, label={lst:auth_guard}]
+	// --- 1. Definizione della rotta protetta (in app_router.dart) ---
+	
+	@AutoRouterConfig()
+	class AppRouter extends RootStackRouter {
+		// ...
+		@override
+		List<AutoRoute> get routes => [
+		
+		// ... altre rotte pubbliche o di autenticazione
+		
+		// Esempio di rotta protetta: solo gli utenti autenticati
+		// possono accedere alla dashboard dell'organizzatore.
+		AutoRoute(
+		path: '/organizer-home',
+		page: OrganizerHomeRoute.page,
+		guards: [AuthGuard(authBloc: authBloc)], // Applica la guardia
+		),
+		
+		// ... altre rotte protette
+		];
+	}
+	
+	
+	// --- 2. Implementazione della guardia (in auth_guard.dart) ---
+	
+	class AuthGuard extends AutoRouteGuard {
+		final AuthBloc authBloc;
+		
+		AuthGuard({required this.authBloc});
+		
+		@override
+		void onNavigation(NavigationResolver resolver, StackRouter router) {
+			// Controlla lo stato di autenticazione tramite l'AuthBloc
+			final isAuthenticated = authBloc.state.authStatus.isAuthenticated;
+			
+			// Elenco completo delle rotte pubbliche (di autenticazione)
+			const authPaths = [
+			'/sign-in', 
+			'/sign-in-verify', 
+			'/sign-up', 
+			'/sign-up-verify'
+			];
+			final targetPath = resolver.route.path.split('/:').first;
+			
+			if (isAuthenticated) {
+				// Se l'utente è autenticato e cerca di andare a una pagina di login/registrazione,
+				// lo reindirizzo alla sua home page.
+				if (authPaths.contains(targetPath)) {
+					resolver.redirect(const RootRoute());
+				} else {
+					// Altrimenti, può procedere verso la rotta protetta.
+					resolver.next(true);
+				}
+			} else {
+				// Se l'utente NON è autenticato...
+				if (!authPaths.contains(targetPath)) {
+					// ...e sta cercando di accedere a una rotta protetta,
+					// lo reindirizzo alla pagina di login.
+					resolver.redirect(SignInRoute());
+				} else {
+					// ...e sta già andando a una pagina di login/registrazione, lo lascio procedere.
+					resolver.next(true);
+				}
+			}
+		}
+	}
+\end{lstlisting}
 
 \subsection{Strategia di navigazione e passaggio dei dati}\label{subsec:strategia-di-navigazione-e-passaggio-dei-dati}
 Una scelta architetturale fondamentale, dettata dalla necessità di una perfetta integrazione con il web, riguarda la modalità di passaggio dei dati tra le pagine.
@@ -271,48 +228,43 @@ Questo approccio, basato su funzioni pure, offre due vantaggi significativi:
 Il listato seguente mostra un esempio di un \emph{validator} e il suo utilizzo all'interno di un widget \texttt{TextFormField}.
 
 % LISTATO: Esempio di validator centralizzato.
-% --- LISTATO: Esempio di validatore centralizzato con minted ---
-\begin{longlisting}
-    \begin{minted}{dart}
-        // 1. Definizione della funzione di validazione pura
-        // in lib/utils/validators/validators.dart
+\begin{lstlisting}[language=Dart, caption={Esempio di validatore centralizzato e suo utilizzo in un widget.}, label={lst:validators}]
+	// 1. Definizione della funzione di validazione pura
+	// in lib/utils/validators/validators.dart
+	
+	String? passwordValidator(String? value) {
+		if (value == null || value.isEmpty) {
+			return 'Required';
+		}
+		if (value.length < 8) {
+			return 'Must contain at least 8 characters';
+		}
+		if (!RegExp(r'[A-Z]').hasMatch(value)) {
+			return 'Must contain at least one uppercase letter';
+		}
+		if (!RegExp(r'[0-9]').hasMatch(value)) {
+			return 'Must contain at least one number';
+		}
+		if (!RegExp(r'[!@#$&*~%^()\[\]\-_=+{};:,.<>?/\\|]').hasMatch(value)) {
+			return 'Must contain at least one special character';
+		}
+		
+		return null; // La validazione ha successo
+	}
+	
+	// 2. Utilizzo del validatore in un widget della UI
+	
+	TextFormField(
+        // ... altre proprietà come controller, decoration, etc.
 
-        String? passwordValidator(String? value) {
-            if (value == null || value.isEmpty) {
-                return 'Required';
-            }
-            if (value.length < 8) {
-                return 'Must contain at least 8 characters';
-            }
-            if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                return 'Must contain at least one uppercase letter';
-            }
-            if (!RegExp(r'[0-9]').hasMatch(value)) {
-                return 'Must contain at least one number';
-            }
-            if (!RegExp(r'[!@#$&*~%^()\[\]\-_=+{};:,.<>?/\\|]').hasMatch(value)) {
-                return 'Must contain at least one special character';
-            }
+        // La funzione di validazione viene passata come riferimento.
+        validator: passwordValidator,
 
-            return null; // La validazione ha successo
-        }
-
-        // 2. Utilizzo del validatore in un widget della UI
-
-        TextFormField(
-          // ... altre proprietà come controller, decoration, etc.
-
-          // La funzione di validazione viene passata come riferimento.
-          validator: passwordValidator,
-
-          // La validazione viene attivata automaticamente al momento
-          // del submit del form o in base all'autovalidateMode.
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-        );
-    \end{minted}
-    \caption{Esempio di validatore centralizzato e suo utilizzo in un widget.}
-    \label{lst:validators}
-\end{longlisting}
+        // La validazione viene attivata automaticamente al momento
+        // del submit del form o in base all'autovalidateMode.
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+	);
+\end{lstlisting}
 
 \subsection{Design system e theming}\label{subsec:design-system-e-theming}
 Per garantire un'interfaccia utente coerente e facilmente manutenibile, è stato definito un design system centralizzato basato sul \textbf{Material Design 3}.
@@ -332,25 +284,21 @@ Come mostrato nel listato seguente, l'estensione \texttt{ColorSchemeX} aggiunge 
 Questi nuovi colori diventano così parte integrante del tema e possono essere richiamati in qualsiasi punto dell'applicazione in modo sicuro e coerente tramite \texttt{Theme.of(context).colorScheme.success}, ereditando automaticamente i cambiamenti tra tema chiaro e scuro.
 
 % LISTATO: Estensione ColorSchemeX
-\begin{longlisting}
-    \begin{minted}{dart}
-    // in lib/utils/themes/color_scheme_x.dart
-
-    extension ColorSchemeX on ColorScheme {
-    // Colore per indicare successo (es. notifiche positive)
-    Color get success => const Color(0xFF28a745);
-    Color get onSuccess => const Color(0xFFFFFFFF);
-
-    // Colore per avvisi
-    Color get warning => const Color(0xFFffc107);
-    Color get onWarning => const Color(0xFF212529);
-
-    // Altri colori personalizzati...
-    }
-    \end{minted}
-    \caption{Definizione dell'estensione \texttt{ColorSchemeX} per aggiungere colori personalizzati al tema.}
-    \label{lst:colorscheme_extension}
-\end{longlisting}
+\begin{lstlisting}[language=Dart, caption={Definizione dell'estensione \texttt{ColorSchemeX} per aggiungere colori personalizzati al tema.}, label={lst:colorscheme_extension}]
+	// in lib/utils/themes/color_scheme_x.dart
+	
+	extension ColorSchemeX on ColorScheme {
+		// Colore per indicare successo (es. notifiche positive)
+		Color get success => const Color(0xFF28a745);
+		Color get onSuccess => const Color(0xFFFFFFFF);
+		
+		// Colore per avvisi
+		Color get warning => const Color(0xFFffc107);
+		Color get onWarning => const Color(0xFF212529);
+		
+		// Altri colori personalizzati...
+	}
+\end{lstlisting}
 
 \subsubsection{Gestione del feedback di caricamento: l'OverlayLoader}
 Per fornire un feedback visivo all'utente durante le operazioni asincrone, è stato implementato un sistema di caricamento personalizzato, \texttt{OverlayLoader}.
@@ -368,46 +316,42 @@ Per evitare che l'overlay del loader rimanga ``bloccato'' sullo schermo se una p
 Questo garantisce che, indipendentemente da come o perché la pagina viene distrutta, qualsiasi overlay di caricamento attivo venga sempre rimosso, prevenendo ``leak'' visuali e garantendo la stabilità dell'interfaccia utente.
 
 % LISTATO: Implementazione del loader non-intrusivo.
-\begin{longlisting}
-    \begin{minted}{dart}
-    // 1. Classe Singleton per la gestione dell'overlay
-    class OverlayLoader {
-        OverlayEntry? _entry;
-
-        // Singleton pattern per garantire un'unica istanza
-        OverlayLoader._();
-        static final OverlayLoader _instance = OverlayLoader._();
-        factory OverlayLoader() => _instance;
-
-        void show(BuildContext context) {
-            if (_entry != null) return; // Evita di mostrare più loader
-
-            _entry = OverlayEntry(
-              builder: (_) => const Positioned.fill(
-                // ObscuredLoader è un widget custom con sfondo sfocato
-                child: ObscuredLoader(),
-              ),
-            );
-
-            // Inserisce l'entry nell'overlay radice per essere sempre in cima
-            Overlay.of(context, rootOverlay: true).insert(_entry!);
-        }
-
-        void hide() {
-            _entry?.remove();
-            _entry = null;
-        }
-    }
-
-    // 2. Estensione su BuildContext per un'API pulita e intuitiva
-    extension OverlayLoaderX on BuildContext {
-        void showLoader() => OverlayLoader().show(this);
-        void hideLoader() => OverlayLoader().hide();
-    }
-    \end{minted}
-    \caption{Implementazione del loader non-intrusivo tramite Overlay e Dart Extensions.}
-    \label{lst:overlay_loader}
-\end{longlisting}
+\begin{lstlisting}[language=Dart, caption={Implementazione del loader non-intrusivo tramite Overlay e Dart Extensions.}, label={lst:overlay_loader}]
+	// 1. Classe Singleton per la gestione dell'overlay
+	class OverlayLoader {
+		OverlayEntry? _entry;
+		
+		// Singleton pattern per garantire un'unica istanza
+		OverlayLoader._();
+		static final OverlayLoader _instance = OverlayLoader._();
+		factory OverlayLoader() => _instance;
+		
+		void show(BuildContext context) {
+			if (_entry != null) return; // Evita di mostrare più loader
+			
+			_entry = OverlayEntry(
+			builder: (_) => const Positioned.fill(
+			// ObscuredLoader è un widget custom con sfondo sfocato
+			child: ObscuredLoader(), 
+			),
+			);
+			
+			// Inserisce l'entry nell'overlay radice per essere sempre in cima
+			Overlay.of(context, rootOverlay: true).insert(_entry!);
+		}
+		
+		void hide() {
+			_entry?.remove();
+			_entry = null;
+		}
+	}
+	
+	// 2. Estensione su BuildContext per un'API pulita e intuitiva
+	extension OverlayLoaderX on BuildContext {
+		void showLoader() => OverlayLoader().show(this);
+		void hideLoader() => OverlayLoader().hide();
+	}
+\end{lstlisting}
 
 \section{Progettazione del database}\label{sec:progettazione-del-database}
 Il modello concettuale del dominio, descritto nel Capitolo 2, è stato tradotto in un modello logico e fisico implementato su un database \textbf{PostgreSQL}, gestito tramite la piattaforma Supabase.
@@ -415,7 +359,7 @@ La progettazione si è concentrata su tre pilastri: integrità dei dati, sicurez
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{capitoli/figure/diagrams/database}
+	\includegraphics[width=\textwidth]{diagrammi/database}
 	\caption{Diagramma Entità-Relazioni (ERD) dello schema del database.}
 	\label{fig:database}
 \end{figure}
@@ -489,55 +433,51 @@ Questa tecnica garantisce:
 \end{enumerate}
 
 % Estratto del DDL SQL che mostra la definizione degli attributi di snapshot.
-\begin{longlisting}
-    \begin{minted}{postgresql}
-    -- Definizione della tabella `voting_session_participants`
-
-    CREATE TABLE public.voting_session_participants (
-    id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-    voting_session_id uuid NOT NULL REFERENCES public.voting_sessions(id) ON DELETE CASCADE,
-
-    -- Riferimento opzionale al record di partecipazione originale.
-    -- ON DELETE SET NULL: se il partecipante viene rimosso dal contest,
-    -- lo snapshot sopravvive, garantendo l'integrità dei voti.
-    participation_id uuid REFERENCES public.participations(id) ON DELETE SET NULL,
-
-    order_index int NOT NULL,
-
-    -- --- Attributi di Snapshot ---
-    -- Dati "congelati" al momento dell'avvio della sessione.
-    participant_full_name varchar(70) NOT NULL,
-    work_name varchar(50) NOT NULL,
-    work_description varchar(1000) NOT NULL,
-    work_images_paths text[] NOT NULL,
-
-    UNIQUE (voting_session_id, participation_id),
-    UNIQUE (voting_session_id, order_index)
-    );
-
-    -- Definizione della tabella `voting_session_jurors`
-
-    CREATE TABLE public.voting_session_jurors (
-    id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-    voting_session_id uuid NOT NULL REFERENCES public.voting_sessions(id) ON DELETE CASCADE,
-    voting_session_jury_id uuid NOT NULL REFERENCES public.voting_session_juries(id) ON DELETE CASCADE,
-
-    -- Riferimento opzionale al giurato.
-    -- ON DELETE SET NULL: se l'account del giurato viene eliminato,
-    -- il suo voto rimane registrato ma anonimizzato.
-    juror_id uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
-
-    has_submitted bool NOT NULL DEFAULT false,
-
-    -- --- Attributo di Snapshot ---
-    juror_full_name varchar(70) NOT NULL,
-
-    UNIQUE (voting_session_jury_id, juror_id)
-    );
-    \end{minted}
-    \caption{Definizione delle tabelle di sessione con attributi di snapshot e gestione della cancellazione.}
-    \label{lst:snapshot_attributes}
-\end{longlisting}
+\begin{lstlisting}[language=SQL, caption={Definizione delle tabelle di sessione con attributi di snapshot e gestione della cancellazione.}, label={lst:snapshot_attributes}]
+	-- Definizione della tabella `voting_session_participants`
+	
+	CREATE TABLE public.voting_session_participants (
+	id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+	voting_session_id uuid NOT NULL REFERENCES public.voting_sessions(id) ON DELETE CASCADE,
+	
+	-- Riferimento opzionale al record di partecipazione originale.
+	-- ON DELETE SET NULL: se il partecipante viene rimosso dal contest,
+	-- lo snapshot sopravvive, garantendo l'integrità dei voti.
+	participation_id uuid REFERENCES public.participations(id) ON DELETE SET NULL,
+	
+	order_index int NOT NULL,
+	
+	-- --- Attributi di Snapshot ---
+	-- Dati "congelati" al momento dell'avvio della sessione.
+	participant_full_name varchar(70) NOT NULL,
+	work_name varchar(50) NOT NULL,
+	work_description varchar(1000) NOT NULL,
+	work_images_paths text[] NOT NULL,
+	
+	UNIQUE (voting_session_id, participation_id),
+	UNIQUE (voting_session_id, order_index)
+	);
+	
+	-- Definizione della tabella `voting_session_jurors`
+	
+	CREATE TABLE public.voting_session_jurors (
+	id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+	voting_session_id uuid NOT NULL REFERENCES public.voting_sessions(id) ON DELETE CASCADE,
+	voting_session_jury_id uuid NOT NULL REFERENCES public.voting_session_juries(id) ON DELETE CASCADE,
+	
+	-- Riferimento opzionale al giurato.
+	-- ON DELETE SET NULL: se l'account del giurato viene eliminato,
+	-- il suo voto rimane registrato ma anonimizzato.
+	juror_id uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
+	
+	has_submitted bool NOT NULL DEFAULT false,
+	
+	-- --- Attributo di Snapshot ---
+	juror_full_name varchar(70) NOT NULL,
+	
+	UNIQUE (voting_session_jury_id, juror_id)
+	);
+\end{lstlisting}
 
 \subsection{Implicazioni del design del form di voto sull'aggregazione dei risultati}\label{subsec:implicazioni-del-design-del-form-di-voto-sull'aggregazione-dei-risultati}
 Una scelta di design fondamentale, visibile nello schema del database, è che \textbf{ogni giuria è associata a un unico e specifico form di voto}.
@@ -627,47 +567,43 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 \end{longtable}
 
 % Inserire qui un estratto significativo dalla funzione PL/pgSQL `juror_submit_votes`, mostrando la validazione di un campo slider prima dell'inserimento.
-\begin{longlisting}
-    \begin{minted}{postgresql}
-    -- STEP 2.5: VALIDATE VOTE VALUES
-    -- Controlla in modo efficiente se qualche valore di tipo 'slider' nel payload JSON
-    -- è al di fuori del suo range min/max definito o non è un numero valido.
-    IF EXISTS (
-      -- Utilizza una Common Table Expression (CTE) per "spacchettare" il payload JSON
-      -- in una tabella temporanea di righe e colonne.
-      WITH unpacked_votes AS (
-        SELECT
-          (value->>'voting_form_field_id')::uuid as field_id,
-          (value->>'value')::text as value
-        FROM jsonb_array_elements(p_votes_payload)
-      )
-      -- Seleziona le righe che violano le regole di validazione.
-      SELECT 1
-      FROM unpacked_votes uv
-      -- Unisce i voti spacchettati con la tabella dei campi del form
-      -- per ottenere i metadati di ogni campo (tipo, min, max).
-      JOIN public.voting_form_fields vff ON vff.id = uv.field_id
-      WHERE
-        -- Applica il controllo solo ai campi di tipo 'slider'.
-        vff.type = 'slider'
-        AND (
-          -- Condizione 1: Il valore non è una stringa di un numero intero.
-          NOT (uv.value ~ '^-?\d+$')
-          -- Condizione 2: Oppure, se è un intero, è fuori dai limiti.
-          OR uv.value::integer < vff.slider_min_value
-          OR uv.value::integer > vff.slider_max_value
-        )
-    ) THEN
-      -- Se anche solo una riga viola le condizioni, solleva un'eccezione
-      -- e interrompe la transazione, impedendo l'inserimento dei dati.
-      RAISE EXCEPTION 'Invalid vote value: A slider value is outside its allowed range or is not a valid number.';
-    END IF;
-
-    -- Se la validazione passa, la funzione procede con l'inserimento dei voti...
-    \end{minted}
-    \caption{Estratto dalla funzione \texttt{juror\_submit\_votes} che mostra la validazione server-side dei valori degli slider.}
-    \label{lst:juror_submit_votes_validation}
-\end{longlisting}
+\begin{lstlisting}[language=SQL, caption={Estratto dalla funzione juror\_submit\_votes che mostra la validazione server-side dei valori degli slider.}, label={lst:juror_submit_votes_validation}]
+	-- STEP 2.5: VALIDATE VOTE VALUES
+	-- Controlla in modo efficiente se qualche valore di tipo 'slider' nel payload JSON
+	-- è al di fuori del suo range min/max definito o non è un numero valido.
+	IF EXISTS (
+	-- Utilizza una Common Table Expression (CTE) per "spacchettare" il payload JSON
+	-- in una tabella temporanea di righe e colonne.
+	WITH unpacked_votes AS (
+	SELECT
+	(value->>'voting_form_field_id')::uuid as field_id,
+	(value->>'value')::text as value
+	FROM jsonb_array_elements(p_votes_payload)
+	)
+	-- Seleziona le righe che violano le regole di validazione.
+	SELECT 1
+	FROM unpacked_votes uv
+	-- Unisce i voti spacchettati con la tabella dei campi del form
+	-- per ottenere i metadati di ogni campo (tipo, min, max).
+	JOIN public.voting_form_fields vff ON vff.id = uv.field_id
+	WHERE
+	-- Applica il controllo solo ai campi di tipo 'slider'.
+	vff.type = 'slider'
+	AND (
+	-- Condizione 1: Il valore non è una stringa di un numero intero.
+	NOT (uv.value ~ '^-?\d+$')
+	-- Condizione 2: Oppure, se è un intero, è fuori dai limiti.
+	OR uv.value::integer < vff.slider_min_value
+	OR uv.value::integer > vff.slider_max_value
+	)
+	) THEN
+	-- Se anche solo una riga viola le condizioni, solleva un'eccezione
+	-- e interrompe la transazione, impedendo l'inserimento dei dati.
+	RAISE EXCEPTION 'Invalid vote value: A slider value is outside its allowed range or is not a valid number.';
+	END IF;
+	
+	-- Se la validazione passa, la funzione procede con l'inserimento dei voti...
+\end{lstlisting}
 
 \subsection{Edge Functions}\label{subsec:edge-functions}
 Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazioni complesse, transazioni multi-step e integrazioni con servizi esterni che non sarebbero possibili o sicure da eseguire in una semplice RPC\@.
@@ -700,68 +636,64 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
 \end{longtable}
 
 % Inserire qui un estratto di codice TypeScript dalla Edge Function `organizer-invite-juror` che mostra l'invocazione dell'API di Resend.
-\begin{longlisting}
-    \begin{minted}{typescript}
-    // Import e inizializzazione del client di Resend.
-    // La chiave API viene letta in modo sicuro dai segreti di Supabase.
-    import { Resend } from 'npm:resend';
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-
-    // ... (all'interno della funzione Deno.serve, dopo aver validato l'input
-    // e aver creato il record di invito nel database)
-
-    try {
-        // ...
-        // Passaggio 5: Inserisce il nuovo invito nel DB e ottiene il token generato.
-        const { data: newInvitation, error: insertError } = await supabaseAdmin
-            .from('juror_invitations')
-            .insert({ contest_id, jury_id, email })
-            .select()
-            .single();
-
-        if (insertError) throw insertError;
-
-        // Passaggio 6: Recupera i nomi del contest e della giuria per personalizzare l'email.
-        const { data: contest } = await supabaseAdmin.from('contests').select('name').eq('id', contest_id).single();
-        const { data: jury } = await supabaseAdmin.from('juries').select('name').eq('id', jury_id).single();
-
-        // Passaggio 7: Invia l'email di invito utilizzando il client di Resend.
-        // L'operazione è asincrona.
-        await resend.emails.send({
-            from: "Swift Contest <noreply@swiftcontest.com>",
-            to: [email],
-            subject: `Invitation to join the jury for "${contest.name}"`,
-            // Il corpo dell'email è un template HTML che include i dati dinamici.
-            html: `
-            <div>
-            <h1>Invitation to Swift Contest</h1>
-            <p>You have received an invitation to join the "<strong>${jury.name}</strong>" jury for the contest "<strong>${contest.name}</strong>".</p>
-            <p>Use this token in the app to accept:<br>
-            <strong>${newInvitation.token}</strong>
-            </p>
-            </div>
-            `,
-        });
-
-        // Passaggio 8: Se l'invio ha successo, restituisce l'invito creato al client.
-        return new Response(JSON.stringify(newInvitation), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-            status: 201, // Created
-        });
-
-    } catch (error) {
-        // Se l'invio dell'email o qualsiasi operazione precedente fallisce,
-        // l'errore viene catturato e registrato, e viene restituita una risposta di errore.
-        console.error("Error sending invitation:", error.message);
-        return new Response(JSON.stringify({ error: error.message }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-            status: 500,
-        });
-    }
-    \end{minted}
-    \caption{Estratto dalla Edge Function \texttt{organizer-invite-juror} che mostra l'invocazione dell'API di Resend per l'invio di email.}
-    \label{lst:resend_invocation}
-\end{longlisting}
+\begin{lstlisting}[language=TypeScript, caption={Estratto dalla Edge Function \texttt{organizer-invite-juror} che mostra l'invocazione dell'API di Resend per l'invio di email.}, label={lst:resend_invocation}]
+	// Import e inizializzazione del client di Resend.
+	// La chiave API viene letta in modo sicuro dai segreti di Supabase.
+	import { Resend } from 'npm:resend';
+	const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+	
+	// ... (all'interno della funzione Deno.serve, dopo aver validato l'input
+	// e aver creato il record di invito nel database)
+	
+	try {
+		// ...
+		// Passaggio 5: Inserisce il nuovo invito nel DB e ottiene il token generato.
+		const { data: newInvitation, error: insertError } = await supabaseAdmin
+		.from('juror_invitations')
+		.insert({ contest_id, jury_id, email })
+		.select()
+		.single();
+		
+		if (insertError) throw insertError;
+		
+		// Passaggio 6: Recupera i nomi del contest e della giuria per personalizzare l'email.
+		const { data: contest } = await supabaseAdmin.from('contests').select('name').eq('id', contest_id).single();
+		const { data: jury } = await supabaseAdmin.from('juries').select('name').eq('id', jury_id).single();
+		
+		// Passaggio 7: Invia l'email di invito utilizzando il client di Resend.
+		// L'operazione è asincrona.
+		await resend.emails.send({
+			from: "Swift Contest <noreply@swiftcontest.com>",
+			to: [email],
+			subject: `Invitation to join the jury for "${contest.name}"`,
+			// Il corpo dell'email è un template HTML che include i dati dinamici.
+			html: `
+			<div>
+			<h1>Invitation to Swift Contest</h1>
+			<p>You have received an invitation to join the "<strong>${jury.name}</strong>" jury for the contest "<strong>${contest.name}</strong>".</p>
+			<p>Use this token in the app to accept:<br>
+			<strong>${newInvitation.token}</strong>
+			</p>
+			</div>
+			`,
+		});
+		
+		// Passaggio 8: Se l'invio ha successo, restituisce l'invito creato al client.
+		return new Response(JSON.stringify(newInvitation), {
+			headers: { ...corsHeaders, "Content-Type": "application/json" },
+			status: 201, // Created
+		});
+		
+	} catch (error) {
+		// Se l'invio dell'email o qualsiasi operazione precedente fallisce,
+		// l'errore viene catturato e registrato, e viene restituita una risposta di errore.
+		console.error("Error sending invitation:", error.message);
+		return new Response(JSON.stringify({ error: error.message }), {
+			headers: { ...corsHeaders, "Content-Type": "application/json" },
+			status: 500,
+		});
+	}
+\end{lstlisting}
 
 \section{Architettura di Sicurezza: Principio del Minimo Privilegio e Accesso Mediato}\label{sec:architettura-di-sicurezza:-principio-del-minimo-privilegio-e-accesso-mediato}
 La sicurezza è un requisito trasversale che ha guidato l'intera progettazione del backend.
@@ -799,30 +731,26 @@ Questo è stato un adattamento necessario per integrare una funzionalità chiave
 Il seguente listato mostra la policy implementata per la tabella \texttt{voting\_sessions}.
 
 % Esempio di policy RLS per il servizio Realtime.
-\begin{longlisting}
-    \begin{minted}{postgresql}
-    -- Abilita l'accesso in lettura alla tabella `voting_sessions`
-    -- solo per gli utenti autorizzati a ricevere aggiornamenti in tempo reale.
-    CREATE POLICY "Allow read access to organizers and involved jurors"
-    ON public.voting_sessions
-    FOR SELECT
-    USING (
-      -- Condizione 1: L'utente è l'organizzatore del contest a cui la sessione appartiene.
-      (EXISTS (
-        SELECT 1 FROM public.contests c
-        WHERE c.id = voting_sessions.contest_id AND c.organizer_id = auth.uid()
-      ))
-      OR
-      -- Condizione 2: L'utente è un giurato che partecipa a questa specifica sessione di voto.
-      (EXISTS (
-        SELECT 1 FROM public.voting_session_jurors vsj
-        WHERE vsj.voting_session_id = voting_sessions.id AND vsj.juror_id = auth.uid()
-      ))
-    );
-    \end{minted}
-    \caption{Policy RLS di tipo SELECT per la tabella \texttt{voting\_sessions}, necessaria per il servizio Realtime.}
-    \label{lst:rls_realtime_policy}
-\end{longlisting}
+\begin{lstlisting}[language=SQL, caption={Policy RLS di tipo SELECT per la tabella \texttt{voting\_sessions}, necessaria per il servizio Realtime.}, label={lst:rls_realtime_policy}]
+	-- Abilita l'accesso in lettura alla tabella `voting_sessions`
+	-- solo per gli utenti autorizzati a ricevere aggiornamenti in tempo reale.
+	CREATE POLICY "Allow read access to organizers and involved jurors"
+	ON public.voting_sessions
+	FOR SELECT
+	USING (
+	-- Condizione 1: L'utente è l'organizzatore del contest a cui la sessione appartiene.
+	(EXISTS (
+	SELECT 1 FROM public.contests c
+	WHERE c.id = voting_sessions.contest_id AND c.organizer_id = auth.uid()
+	))
+	OR
+	-- Condizione 2: L'utente è un giurato che partecipa a questa specifica sessione di voto.
+	(EXISTS (
+	SELECT 1 FROM public.voting_session_jurors vsj
+	WHERE vsj.voting_session_id = voting_sessions.id AND vsj.juror_id = auth.uid()
+	))
+	);
+\end{lstlisting}
 
 \subsection{Misure di Sicurezza Aggiuntive}\label{subsec:misure-di-sicurezza-aggiuntive}
 Oltre al modello ibrido RLS/RPC, la sicurezza del sistema è rafforzata da altre misure:
@@ -904,46 +832,42 @@ Le query da Retool invocano funzioni RPC con prefisso \texttt{admin\_*}, che al 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-rpc-call}
+	\includegraphics[width=0.8\textwidth]{diagrammi/retool-rpc-call}
 	\caption{}
 	\label{fig:retool_rpc_call}
 \end{figure}
 
 % Inserire qui un estratto di codice PL/pgSQL che mostra la validazione del session_user in una funzione RPC amministrativa.
-\begin{longlisting}
-    \begin{minted}{postgresql}
-    -- Estratto da una funzione come 'admin_get_all_accounts()'
-
-    CREATE OR REPLACE FUNCTION admin_get_all_accounts()
-    RETURNS SETOF profiles -- o un altro tipo di ritorno
-    LANGUAGE plpgsql
-    SECURITY DEFINER
-    SET search_path = public
-    AS $$
-    BEGIN
-      -- --- 1. CONTROLLO DI SICUREZZA ---
-      -- Questa è la prima operazione eseguita dalla funzione.
-      -- 'session_user' è una variabile speciale di PostgreSQL che contiene
-      -- il nome dell'utente della connessione corrente (in questo caso, 'retool').
-
-      IF session_user <> 'retool' THEN
-        -- Se il chiamante non è l'utente 'retool' designato,
-        -- la funzione solleva un'eccezione e interrompe immediatamente l'esecuzione.
-        RAISE EXCEPTION 'Permission denied: This function can only be called by the admin user.';
-      END IF;
-
-      -- --- 2. ESECUZIONE DELLA LOGICA ---
-      -- Se il controllo di sicurezza passa, la funzione procede
-      -- con l'esecuzione della query per recuperare i dati.
-      RETURN QUERY
-        SELECT * FROM public.profiles;
-
-    END;
-    $$;
-    \end{minted}
-    \caption{Validazione del chiamante all'interno di una funzione RPC per l'amministrazione.}
-    \label{lst:rpc_admin_validation}
-\end{longlisting}
+\begin{lstlisting}[language=SQL, caption={Validazione del chiamante all'interno di una funzione RPC per l'amministrazione.}, label={lst:rpc_admin_validation}]
+	-- Estratto da una funzione come 'admin_get_all_accounts()'
+	
+	CREATE OR REPLACE FUNCTION admin_get_all_accounts()
+	RETURNS SETOF profiles -- o un altro tipo di ritorno
+	LANGUAGE plpgsql
+	SECURITY DEFINER
+	SET search_path = public;
+	AS $$
+	BEGIN
+	-- --- 1. CONTROLLO DI SICUREZZA ---
+	-- Questa è la prima operazione eseguita dalla funzione.
+	-- 'session_user' è una variabile speciale di PostgreSQL che contiene
+	-- il nome dell'utente della connessione corrente (in questo caso, 'retool_user').
+	
+	IF session_user <> 'retool' THEN
+	-- Se il chiamante non è l'utente 'retool' designato,
+	-- la funzione solleva un'eccezione e interrompe immediatamente l'esecuzione.
+	RAISE EXCEPTION 'Permission denied: This function can only be called by the admin user.';
+	END IF;
+	
+	-- --- 2. ESECUZIONE DELLA LOGICA ---
+	-- Se il controllo di sicurezza passa, la funzione procede
+	-- con l'esecuzione della query per recuperare i dati.
+	RETURN QUERY
+	SELECT * FROM public.profiles;
+	
+	END;
+	$$;
+\end{lstlisting}
 
 \subsubsection{Accesso tramite Edge Functions e API Key}
 Per le operazioni che richiedono un'orchestrazione complessa o l'interazione con servizi esterni al database, come l'invio di email o la manipolazione di file nello Storage, sono state implementate delle \textbf{Edge Functions}.
@@ -960,32 +884,31 @@ Questo approccio garantisce che solo un'applicazione autorizzata possa invocare 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-edge-call}
+	\includegraphics[width=0.8\textwidth]{diagrammi/retool-edge-call}
 	\caption{}
 	\label{fig:retool_edge_call}
 \end{figure}
 
 % Inserire qui un estratto di codice TypeScript che mostra la validazione della X-API-Key in una Edge Function amministrativa.
-\begin{longlisting}
-    \begin{minted}{typescript}
-    // Estratto da una Edge Function come 'admin-delete-account/index.ts'
-
+\begin{lstlisting}[language=TypeScript, caption={Validazione della chiave API all'interno di una Edge Function amministrativa.}, label={lst:api_key_validation}]
+	// Estratto da una Edge Function come 'admin-delete-account/index.ts'
+	
 	// ... (all'interno della funzione Deno.serve)
 	try {
 		// --- 1. API KEY AUTHORIZATION ---
 		// Questo pattern è usato per tutte le chiamate server-to-server da Retool.
-
+		
 		// Legge la chiave API inviata dal client (Retool) nell'header.
 		const apiKey = req.headers.get('X-API-Key');
-
+		
 		// Recupera la chiave segreta memorizzata in modo sicuro nel Vault di Supabase.
 		const secretKey = Deno.env.get('RETOOL_API_KEY');
-
+		
 		// Primo controllo: verifica che il segreto sia stato configurato.
 		if (!secretKey) {
 			throw new Error("RETOOL_API_KEY is not set in Supabase secrets.");
 		}
-
+		
 		// Secondo controllo: confronta la chiave ricevuta con il segreto.
 		// Se non corrispondono, la richiesta viene immediatamente respinta.
 		if (apiKey !== secretKey) {
@@ -997,20 +920,17 @@ Questo approccio garantisce che solo un'applicazione autorizzata possa invocare 
 			}
 			);
 		}
-
+		
 		// --- 2. PROSECUZIONE DELLA LOGICA ---
 		// Se la validazione ha successo, la funzione procede con
 		// l'esecuzione delle operazioni amministrative.
-
+		
 		// ... (logica per eliminare l'utente, i file, ecc.)
-
+		
 	} catch (error) {
 		// ... (gestione degli errori)
 	}
-    \end{minted}
-    \caption{Validazione della chiave API all'interno di una Edge Function amministrativa.}
-    \label{lst:api_key_validation}
-\end{longlisting}
+\end{lstlisting}
 
 
 \subsection{Funzionalità Implementate nel Pannello}\label{subsec:funzionalita-implementate-nel-pannello}

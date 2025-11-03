@@ -10,9 +10,9 @@
       <envs />
       <expand-macros-in-environment-variables>false</expand-macros-in-environment-variables>
       <before-run-command />
-      <main-file>$PROJECT_DIR$/template/main.tex</main-file>
-      <output-path>$PROJECT_DIR$/template/out</output-path>
-      <auxil-path>$PROJECT_DIR$/template</auxil-path>
+      <main-file>$PROJECT_DIR$/thesis/main.tex</main-file>
+      <output-path>$PROJECT_DIR$/thesis/out</output-path>
+      <auxil-path>$PROJECT_DIR$/thesis</auxil-path>
       <compile-twice>false</compile-twice>
       <output-format>PDF</output-format>
       <latex-distribution>MIKTEX</latex-distribution>
