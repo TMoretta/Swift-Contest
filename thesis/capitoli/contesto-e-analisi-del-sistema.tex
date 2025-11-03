@@ -80,12 +80,12 @@ L'analisi del dominio ha permesso di identificare i seguenti attori principali:
 \begin{itemize}
     \item \textbf{Guest}: rappresenta un utente non autenticato.
     In questo sistema, che non prevede contenuti pubblici, un \emph{Guest} non ha privilegi di visualizzazione.
-    Le sue uniche capacità sono quelle di \textbf{autenticarsi} (tramite registrazione o login) o di agire come \textbf{Simple Juror} se in possesso di un token di accesso.
+    Le sue uniche capacità sono quelle di \textbf{autenticarsi} (tramite registrazione o login) o di agire come Simple Juror se in possesso di un token di accesso.
     \item \textbf{Authenticated}: è un attore astratto che rappresenta un utente che ha completato l'autenticazione.
     Funge da base per i ruoli operativi, che ne ereditano le funzionalità comuni come la gestione del proprio profilo e delle notifiche.
     \item \textbf{Organizer}: è un utente autenticato responsabile della creazione e della gestione completa di un contest.
     \item \textbf{Participant}: è un utente autenticato che si iscrive a un contest per sottoporre il proprio lavoro.
-    \item \textbf{Juror}: è un utente autenticato il cui ruolo primario è quello di far parte di una giuria nominata (\emph{appointed jury}), oppure votare come \emph{Simple Juror} se in possesso di un token per la votazione.
+    \item \textbf{Juror}: è un utente autenticato il cui ruolo primario è quello di far parte di una giuria nominata (\emph{appointed jury}), oppure votare come Simple Juror se in possesso di un token per la votazione.
     \item \textbf{Admin}: è un ruolo di amministrazione, gestito tramite una dashboard esterna (Retool), con privilegi elevati per la manutenzione del sistema.
 \end{itemize}
 
@@ -96,7 +96,7 @@ Include i processi di autenticazione, la modifica del profilo personale e la ges
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{capitoli/figure/diagrams/use-case-diagram-1}
-    \caption{Diagramma dei Casi d'Uso: Gestione Account e Funzionalità Generali.}
+    \caption{Diagramma dei casi d'uso: gestione account e funzionalità generali.}
     \label{fig:uc-account}
 \end{figure}
 
@@ -108,7 +108,7 @@ Gli attori principali in questo contesto sono l'\emph{Organizer} e il \emph{Part
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{capitoli/figure/diagrams/use-case-diagram-2}
-    \caption{Diagramma dei Casi d'Uso: Gestione del Ciclo di Vita del contest.}
+    \caption{Diagramma dei casi d'uso: gestione del ciclo di vita del contest.}
     \label{fig:uc-contest}
 \end{figure}
 
@@ -120,7 +120,7 @@ Gli attori principali qui sono l'\emph{Organizer} e l'\emph{Juror}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{capitoli/figure/diagrams/use-case-diagram-3}
-    \caption{Diagramma dei Casi d'Uso: Gestione delle Votazioni e dei Risultati.}
+    \caption{Diagramma dei casi d'uso: gestione delle votazioni e dei risultati.}
     \label{fig:uc-voting}
 \end{figure}
 
@@ -131,7 +131,7 @@ Queste operazioni sono riservate all'attore \emph{Admin} e sono fondamentali per
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{capitoli/figure/diagrams/use-case-diagram-4}
-    \caption{Diagramma dei Casi d'Uso: Amministrazione del Sistema.}
+    \caption{Diagramma dei casi d'uso: amministrazione del sistema.}
     \label{fig:uc-admin}
 \end{figure}
 
@@ -163,7 +163,6 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
     \item \textbf{Affidabilità (Reliability)}: Il sistema deve essere robusto e garantire l'integrità dei dati.
     La logica di \emph{snapshot} delle sessioni di voto è un requisito chiave per assicurare che il processo di valutazione sia immune da modifiche ai dati.
     \item \textbf{Performance}: L'applicazione deve essere reattiva, con tempi di caricamento inferiori ai 3 secondi.
-    %L'uso mirato del servizio Realtime è una scelta progettuale per minimizzare il traffico di rete.
     \item \textbf{Manutenibilità (Supportability)}: L'architettura software deve essere modulare.
     L'adozione del pattern MVVM/BLoC per il frontend garantisce una netta separazione delle responsabilità, facilitando futuri interventi.
     \item \textbf{Implementazione (Implementation)}:
@@ -202,7 +201,7 @@ Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/class-diagram}
-    \caption{Diagramma delle classi}
+    \caption{Diagramma delle classi concettuale.}
     \label{fig:class-diagram}
 \end{figure}
 
