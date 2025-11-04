@@ -389,7 +389,7 @@ Le tabelle cardine includono:
     La creazione del profilo è automatizzata tramite un \textbf{trigger di database}, che inserisce un nuovo record in \texttt{profiles} ogni volta che un utente completa la registrazione.
     \item \texttt{contests}: memorizza le informazioni principali di un concorso.
     \item \texttt{participations} e \texttt{jurations}: implementano le classi di associazione che legano utenti, contest e giurie.
-    \item \texttt{works}: contiene i metadati delle opere sottomesse dai partecipanti.
+    \item \texttt{works}: contiene i dati dei lavori sottomessi dai partecipanti.
     \item \texttt{voting\_forms} e \texttt{voting\_form\_fields}: definiscono la struttura dei moduli di voto.
     \item \texttt{voting\_sessions}: rappresenta una sessione di voto.
     \item \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}: rappresentano i membri coinvolti in una specifica sessione di voto, oltre a contenere gli snapshot dei dati per quella sessione.
@@ -422,7 +422,7 @@ In questo modo, si garantisce l'integrità referenziale e si evita di lasciare r
 
 \paragraph{Cancellazione di dati esterni tramite Edge Functions}
 La cancellazione a cascata del database non può gestire dati esterni, come i file memorizzati in Supabase Storage.
-Per questo motivo, le operazioni di cancellazione più complesse, come l'eliminazione di un utente o di un contest, sono gestite da \textbf{Edge Functions} dedicate (es.\ \texttt{user-delete-account}, \texttt{admin-delete-contest}). Queste funzioni agiscono da orchestratori: dopo aver eliminato i record dal database (che a loro volta attivano le cancellazioni a cascata e i trigger), invocano l'API di Supabase Storage per \textbf{eliminare tutti i file associati} (es.\ immagini del contest, file dei \emph{Work}), garantendo una pulizia completa e prevenendo la comparsa di file ``orfani''.
+Per questo motivo, le operazioni di cancellazione più complesse, come l'eliminazione di un utente o di un contest, sono gestite da \textbf{Edge Functions} dedicate (es.\ \texttt{user-delete-account}, \texttt{admin-delete-contest}). Queste funzioni agiscono da orchestratori: dopo aver eliminato i record dal database (che a loro volta attivano le cancellazioni a cascata e i trigger), invocano l'API di Supabase Storage per \textbf{eliminare tutti i file associati} (es.\ immagini del contest, file dei lavori), garantendo una pulizia completa e prevenendo la comparsa di file ``orfani''.
 Questa logica non poteva essere implementata in una funzione RPC, poiché queste non hanno accesso all'API dello Storage.
 
 \subsubsection{Snapshot dei dati tramite denormalizzazione controllata}
@@ -643,7 +643,7 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
     \endhead
     \texttt{organizer-invite-juror} & Invia un'email di invito a un giurato.
     & JWT + Ownership del contest; \textbf{Resend API}. \\
-    \texttt{participant-submit-work} & Gestisce il caricamento del file \texttt{.zip} del Work e delle immagini di anteprima.
+    \texttt{participant-submit-work} & Gestisce il caricamento del file \texttt{.zip} del lavoro e delle immagini di anteprima.
     & JWT + Appartenenza al contest. \\
     \texttt{user-delete-account} & Elimina un utente e tutti i suoi dati e file associati.
     & JWT (self-service). \\

@@ -148,7 +148,7 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
     \item \textbf{RF-05: Gestione Iscrizioni}: Il sistema deve permettere a un \emph{Organizer} di invitare partecipanti e giurati nominati tramite email con token univoci.
     \item \textbf{RF-06: Gestione Esclusioni di Voto}: Il sistema deve permettere a un \emph{Organizer} di configurare delle esclusioni, impedendo a specifici \emph{Appointed Juror} di valutare determinati \emph{Participant} all'interno di una sessione di voto.
     \item \textbf{RF-07: Accettazione Inviti e Accesso al contest}: Il sistema deve permettere a un utente di utilizzare un token di invito per formalizzare la propria iscrizione a un contest, sia come \emph{Participant} che come \emph{Appointed Juror}.
-    \item \textbf{RF-08: Sottomissione Lavori}: Il sistema deve permettere a un \emph{Participant} di sottomettere un proprio \emph{Work} (Lavoro Digitale) per un contest a cui è iscritto.
+    \item \textbf{RF-08: Sottomissione Lavori}: Il sistema deve permettere a un \emph{Participant} di sottomettere un proprio lavoro per un contest a cui è iscritto.
     \item \textbf{RF-09: Restrizione Geografica della Votazione}: Il sistema deve permettere a un \emph{Organizer} di imporre una restrizione geografica a una sessione di voto, richiedendo ai giurati di trovarsi entro un raggio specifico da un luogo predefinito.
     \item \textbf{RF-10: Processo di Votazione}: Il sistema deve permettere a un utente autorizzato (sia \emph{Appointed Juror} che \emph{Simple Juror}) di inviare i propri voti durante una sessione di voto attiva, rispettando le eventuali esclusioni configurate.
     \item \textbf{RF-11: Gestione Classifiche e Risultati}: Il sistema deve permettere all'\emph{Organizer} di generare una classifica per ogni singola giuria, di esportare i risultati grezzi in formato Excel e di pubblicare una classifica finale in formato PDF\@.
@@ -224,7 +224,7 @@ Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi
 \subsection{Vincoli chiave del dominio}\label{subsec:vincoli-chiave-del-dominio}
 Il modello dati è stato progettato per far rispettare programmaticamente alcune regole di business fondamentali:
 \begin{enumerate}
-    \item \textbf{Unicità del Work}: un partecipante può sottomettere un solo \emph{Work} per ogni concorso a cui è iscritto, garantito da un \emph{vincolo di unicità} a livello di database.
+    \item \textbf{Unicità del lavoro}: un partecipante può sottomettere un solo lavoro per ogni concorso a cui è iscritto, garantito da un \emph{vincolo di unicità} a livello di database.
     \item \textbf{Calcolo della Classifica Semplice}: la classifica viene generata esclusivamente sulla base dei campi di tipo \emph{slider} con scope \emph{participant}.
     I campi testuali non contribuiscono al punteggio.
     \item \textbf{Immutabilità della Votazione}: il \textbf{meccanismo di snapshot} garantisce che una volta avviata una sessione di voto, i dati rilevanti dei partecipanti, dei giurati e la struttura del form vengano ``congelati''.

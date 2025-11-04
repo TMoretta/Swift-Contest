@@ -25,13 +25,13 @@
 \PYG{c+c1}{// 2. Utilizzo del validatore in un widget della UI}
 
 \PYG{n}{TextFormField}\PYG{p}{(}
-\PYG{+w}{  }\PYG{c+c1}{// ... altre proprietà come controller, decoration, etc.}
+\PYG{+w}{    }\PYG{c+c1}{// ... altre proprietà come controller, decoration, etc.}
 
-\PYG{+w}{  }\PYG{c+c1}{// La funzione di validazione viene passata come riferimento.}
-\PYG{+w}{  }\PYG{n+nl}{validator:}\PYG{+w}{ }\PYG{n}{passwordValidator}\PYG{p}{,}
+\PYG{+w}{    }\PYG{c+c1}{// La funzione di validazione viene passata come riferimento.}
+\PYG{+w}{    }\PYG{n+nl}{validator:}\PYG{+w}{ }\PYG{n}{passwordValidator}\PYG{p}{,}
 
-\PYG{+w}{  }\PYG{c+c1}{// La validazione viene attivata automaticamente al momento}
-\PYG{+w}{  }\PYG{c+c1}{// del submit del form o in base all\PYGZsq{}autovalidateMode.}
-\PYG{+w}{  }\PYG{n+nl}{autovalidateMode:}\PYG{+w}{ }\PYG{n}{AutovalidateMode}\PYG{p}{.}\PYG{n}{onUserInteraction}\PYG{p}{,}
+\PYG{+w}{    }\PYG{c+c1}{// La validazione viene attivata automaticamente al momento}
+\PYG{+w}{    }\PYG{c+c1}{// del submit del form o in base all\PYGZsq{}autovalidateMode.}
+\PYG{+w}{    }\PYG{n+nl}{autovalidateMode:}\PYG{+w}{ }\PYG{n}{AutovalidateMode}\PYG{p}{.}\PYG{n}{onUserInteraction}\PYG{p}{,}
 \PYG{p}{);}
 \end{MintedVerbatim}
