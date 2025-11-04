@@ -216,7 +216,7 @@ Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi
     \item \textbf{VotingForm} e \textbf{VotingFormField}: la struttura del form di votazione.
     L'attributo \emph{scope} del campo ne determina il comportamento.
     \item \textbf{VotingSession}: una sessione di voto live.
-    Al suo avvio, il sistema ``congela'' lo stato del contest creando delle righe dedicate in tabelle di sessione (es.\ \texttt{voting\_session\_participants}), che contengono non solo i riferimenti alle entità originali, ma anche una copia di \textbf{attributi di snapshot} (es.\ il nome del partecipante, il nome dell'opera) per garantire l'immutabilità del processo.
+    Al suo avvio, il sistema ``congela'' lo stato del contest creando delle righe dedicate in tabelle di sessione (es.\ \texttt{voting\_session\_participants}), che contengono non solo i riferimenti alle entità originali, ma anche una copia di \textbf{attributi di snapshot} (es.\ il nome del partecipante, il nome del lavoro) per garantire l'immutabilità del processo.
     \item \textbf{ContestRanking}: la classifica finale, rappresentata come un riferimento a un file nello storage.
     \item \textbf{Message}: una notifica di sistema inviata a un utente.
 \end{itemize}
