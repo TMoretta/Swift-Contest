@@ -144,7 +144,7 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
     \item \textbf{RF-02: Gestione del Profilo Personale}: Ogni utente autenticato deve poter visualizzare e modificare i dati del proprio profilo (es.\ nome completo).
     Deve inoltre essere garantita la possibilità di eliminare il proprio account in modo autonomo (\emph{self-service deletion}).
     \item \textbf{RF-03: Gestione Contest}: Il sistema deve permettere a un \emph{Organizer} di creare, modificare e cancellare i propri contest.
-    \item \textbf{RF-04: Gestione Giurie e Form di Voto}: Il sistema deve permettere a un \emph{Organizer} di creare giurie (di tipo \emph{appointed} o \emph{simple}) e di configurare un \emph{VotingForm} associato, con campi organizzati secondo il loro \textbf{scope} e tipo.
+    \item \textbf{RF-04: Gestione Giurie e Form di Voto}: Il sistema deve permettere a un \emph{Organizer} di creare giurie (di tipo \emph{appointed} o \emph{simple}) e di configurare un form di votazione associato.
     \item \textbf{RF-05: Gestione Iscrizioni}: Il sistema deve permettere a un \emph{Organizer} di invitare partecipanti e giurati nominati tramite email con token univoci.
     \item \textbf{RF-06: Gestione Esclusioni di Voto}: Il sistema deve permettere a un \emph{Organizer} di configurare delle esclusioni, impedendo a specifici \emph{Appointed Juror} di valutare determinati \emph{Participant} all'interno di una sessione di voto.
     \item \textbf{RF-07: Accettazione Inviti e Accesso al contest}: Il sistema deve permettere a un utente di utilizzare un token di invito per formalizzare la propria iscrizione a un contest, sia come \emph{Participant} che come \emph{Appointed Juror}.
@@ -178,8 +178,8 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
     \end{itemize}
     \item \textbf{Operativi (Operation)}:
     \begin{itemize}
-        \item Il deployment del backend deve essere tracciabile tramite migrazioni SQL gestite dalla CLI di Supabase.
-        \item Il deployment del frontend web deve essere automatizzato tramite una pipeline di \textbf{CI/CD}\@.
+        \item La distribuzione del backend deve essere tracciabile tramite migrazioni SQL gestite dalla CLI di Supabase.
+        \item La distribuzione del frontend web deve essere automatizzata tramite una pipeline di \textbf{CI/CD}\@.
         \item I segreti (API keys) devono essere gestiti in modo sicuro, senza essere esposti nel codice sorgente.
     \end{itemize}
     \item \textbf{Distribuzione (Packaging)}:

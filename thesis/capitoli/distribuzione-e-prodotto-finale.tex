@@ -1,6 +1,6 @@
 %!TeX root=../main.tex
 
-\chapter{Distribuzione e Prodotto finale}\label{ch:distribuzione-e-prodotto-finale}
+\chapter{Distribuzione e prodotto finale}\label{ch:distribuzione-e-prodotto-finale}
 
 \section{Strategia di distribuzione}\label{sec:strategia-di-distribuzione}
 La fase di distribuzione ha avuto come obiettivo non solo il rilascio tecnico dell’applicazione, ma anche la validazione della sua utilizzabilità in un ambiente che simula condizioni reali di produzione.
@@ -16,14 +16,14 @@ Questa strategia ibrida consente di bilanciare la facilità di accesso (garantit
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{capitoli/figure/diagrams/deployment-diagram}
-    \caption{Diagramma di deployment dell'architettura completa di Swift Contest.}
+    \caption{Diagramma di distribuzione dell'architettura completa di Swift Contest.}
     \label{fig:deployment_diagram}
 \end{figure}
 
-\section{Distribuzione Web su Vercel}\label{sec:distribuzione-web-su-vercel}
+\section{Distribuzione web su Vercel}\label{sec:distribuzione-web-su-vercel}
 La versione Web dell'applicazione Flutter è stata distribuita su Vercel, una piattaforma serverless ottimizzata per la distribuzione di frontend moderni.
 Il processo è completamente automatizzato tramite una pipeline di \textbf{CI/CD (Continuous Integration/Continuous Deployment)} integrata con il repository Git del progetto.
-Ogni \emph{push} sul branch \texttt{main} innesca automaticamente una nuova build dell'applicazione Flutter in modalità \emph{release} e un conseguente deploy sulla piattaforma.
+Ogni \emph{push} sul branch \texttt{main} innesca automaticamente una nuova build dell'applicazione Flutter in modalità \emph{release} e una conseguente distribuzione sulla piattaforma.
 
 Per garantire il corretto funzionamento di una \emph{Single Page Application (SPA)} come Flutter Web, è stato configurato un file \texttt{vercel.json} che gestisce il rewrite di tutte le rotte verso il file \texttt{index.html}, permettendo al router di Flutter (\texttt{auto\_route}) di gestire la navigazione lato client.
 
@@ -47,10 +47,10 @@ Data la natura prototipale del progetto, si è evitato il complesso processo di 
 
 \section{Backend e Supabase}\label{sec:backend-e-supabase}
 L'intera infrastruttura backend è gestita su Supabase.
-Il processo di deployment del database è basato su migrazioni SQL, seguendo le pratiche di \textbf{Infrastructure as Code (IaC)}.
+Il processo di distribuzione del database è basato su migrazioni SQL, seguendo le pratiche di \textbf{Infrastructure as Code (IaC)}.
 Ogni modifica allo schema del database, alle policy RLS o alle funzioni RPC è definita in un file \texttt{.sql} all'interno della cartella \texttt{supabase/migrations}.
 La CLI di Supabase viene utilizzata per applicare queste migrazioni in modo sequenziale e versionato, garantendo che l'ambiente di produzione sia sempre allineato con la definizione del codice.
-Le Edge Functions, scritte in TypeScript, vengono anch'esse deployate tramite la CLI\@.
+Le Edge Functions, scritte in TypeScript, vengono anch'esse distribuite tramite la CLI\@.
 
 \begin{longtable}{p{0.2\textwidth} p{0.45\textwidth} p{0.3\textwidth}}
     \toprule
@@ -85,7 +85,7 @@ Le Edge Functions, scritte in TypeScript, vengono anch'esse deployate tramite la
     \textbf{Edge Functions} &
     Esecuzione di logica server-side complessa, orchestrazione di operazioni multi-servizio e interazione con API esterne.
     &
-    Scritte in TypeScript (runtime Deno) e deployate dalla cartella \texttt{supabase/functions}. \\
+    Scritte in TypeScript (runtime Deno) e distribuite dalla cartella \texttt{supabase/functions}. \\
     \midrule
 
     \textbf{Funzioni RPC} &
@@ -115,13 +115,13 @@ Questa interfaccia, non esposta agli utenti finali, comunica con il backend Supa
     \label{fig:retool-dashboard}
 \end{figure}
 
-\section{Prodotto finale: Interfaccia Utente e Flussi Operativi}\label{sec:prodotto-finale}
+\section{Prodotto finale: interfaccia utente e flussi operativi}\label{sec:prodotto-finale}
 In questa sezione viene presentato il prodotto finale attraverso un'analisi visuale dei suoi \textbf{flussi operativi principali}.
 L'obiettivo non è quello di documentare ogni singola schermata dell'applicazione, ma di illustrare, tramite l'interfaccia utente (UI), i percorsi più significativi per ciascuno degli attori del sistema.
 
 Partendo dalle schermate di base, come l'autenticazione e le impostazioni, verranno poi illustrati i flussi specifici per l'\textbf{Organizzatore}, il \textbf{Partecipante}, il \textbf{Giurato Nominato} e il \textbf{Giurato Semplice} (ospite).
 
-\subsection{Accesso e Autenticazione}\label{subsec:accesso-e-autenticazione}
+\subsection{Accesso e autenticazione}\label{subsec:accesso-e-autenticazione}
 L'accesso all'applicazione inizia con una \textbf{Splash Screen} che gestisce l'inizializzazione dei servizi principali.
 Successivamente, l'utente viene indirizzato al flusso di autenticazione, che comprende le pagine di \textbf{Sign In} (per l'accesso) e \textbf{Sign Up} (per la registrazione di un nuovo account).
 
@@ -136,20 +136,20 @@ Successivamente, l'utente viene indirizzato al flusso di autenticazione, che com
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/auth/sign-in}
-        \subcaption{Sign in}
+        \subcaption{Pagina di sign in}
         \label{fig:signin}
     \end{minipage}\hfill
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/auth/sign-up}
-        \subcaption{Sign up}
+        \subcaption{Pagina di sign up}
         \label{fig:signup}
     \end{minipage}
     \caption{Le schermate del flusso di autenticazione dell'applicazione.}
     \label{fig:auth-flow}
 \end{figure}
 
-\subsection{Gestione delle Impostazioni}\label{subsec:gestione-impostazioni}
+\subsection{Gestione delle impostazioni}\label{subsec:gestione-impostazioni}
 Una volta autenticato, ogni utente ha accesso a una sezione dedicata alle impostazioni.
 La pagina delle \textbf{Impostazioni Generali} offre diverse funzionalità:
 \begin{itemize}
@@ -165,32 +165,32 @@ Da qui, l'utente può inoltre navigare alla pagina \textbf{Impostazioni Account}
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/settings}
-        \subcaption{Impostazioni generali}
+        \subcaption{Pagina delle impostazioni generali}
         \label{fig:settings}
     \end{minipage}
     \quad
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/account-settings}
-        \subcaption{Impostazioni account}
+        \subcaption{Pagina impostazioni account}
         \label{fig:account_settings}
     \end{minipage}
     \caption{Le schermate per la gestione delle impostazioni dell'app e dell'account utente.}
     \label{fig:settings-flow}
 \end{figure}
 
-\subsection{Flusso dell'Organizzatore}\label{subsec:flusso-organizzatore}
+\subsection{Flusso dell'organizzatore}\label{subsec:flusso-organizzatore}
 L'organizzatore è l'attore con il set di funzionalità più ricco.
 Il suo percorso inizia dalla \textbf{Home Page}, che funge da dashboard principale, mostrando l'elenco dei contest da lui creati.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.30\textwidth]{capitoli/figure/organizer/home}
-    \caption{Home page organizzatore.}
+    \caption{La home page dell'organizzatore.}
     \label{fig:organizer_home}
 \end{figure}
 
-\paragraph{Creazione di un Nuovo Contest}
+\paragraph{Creazione di un nuovo contest}
 Dalla home page, l'organizzatore può avviare la creazione di un nuovo contest tramite un \textbf{form multi-step} che semplifica l'inserimento delle informazioni, suddivise in tre passaggi logici:
 \begin{enumerate}
     \item \textbf{Dati Principali}: nome, descrizione, data e luogo del contest.
@@ -222,7 +222,7 @@ Dalla home page, l'organizzatore può avviare la creazione di un nuovo contest t
     \label{fig:create_contest_flow}
 \end{figure}
 
-\paragraph{Configurazione dei Dettagli del Contest}
+\paragraph{Configurazione dei dettagli del contest}
 Selezionando un contest, l'organizzatore accede al pannello di gestione, organizzato in tab, da cui può configurare ogni aspetto:
 \begin{itemize}
     \item La tab \textbf{Details} mostra un riepilogo delle informazioni generali.
@@ -295,7 +295,7 @@ Per entrambe, è possibile accedere alla configurazione del \textbf{Voting Form}
     \label{fig:jury_and_form_views}
 \end{figure}
 
-\paragraph{Gestione della Sessione di Voto}
+\paragraph{Gestione della sessione di voto}
 La tab \textbf{Voting} permette di avviare una nuova sessione tramite un form a tre passaggi:
 \begin{enumerate}
     \item \textbf{Selezione dei partecipanti}.
@@ -335,10 +335,14 @@ Una volta avviata, la schermata mostra lo stato \textbf{Live} della sessione e i
     \label{fig:voting-session-live}
 \end{figure}
 
-\paragraph{Analisi dei Risultati e Classifiche}
-Terminata la votazione, la pagina dei risultati permette all'organizzatore di analizzare i dati.
-Può esplorare le \textbf{sottomissioni dei voti} di ciascun giurato, visualizzando le risposte fornite per ogni sezione del form (header, participant, footer).
-Successivamente può \textbf{generare una classifica} per una specifica giuria, selezionando i campi di tipo slider da includere nel calcolo.
+\paragraph{Analisi dei risultati e classifiche}
+Una volta che una sessione di voto è terminata, dalla tab \textbf{Voting} l'organizzatore può:
+\begin{itemize}
+    \item \textbf{Visualizzare i risultati aggregati} per ciascuna giuria che ha partecipato alla sessione.
+    \item \textbf{Esplorare i dettagli} di ogni sottomissione, visualizzando i voti specifici inviati da ciascun giurato per ogni sezione del form (header, participant, footer).
+    \item \textbf{Generare una classifica} per una specifica giuria, selezionando i campi di tipo slider da includere nel calcolo del punteggio.
+    \item \textbf{Esportare i risultati grezzi} in formato Excel.
+\end{itemize}
 
 \begin{figure}[H]
     \centering
@@ -371,7 +375,7 @@ Successivamente può \textbf{generare una classifica} per una specifica giuria, 
     \label{fig:ranking-generation}
 \end{figure}
 
-\subsection{Flusso del Partecipante}\label{subsec:flusso-del-partecipante}
+\subsection{Flusso del partecipante}\label{subsec:flusso-del-partecipante}
 Il percorso del partecipante è focalizzato sulla \textbf{sottomissione del proprio lavoro} prima della scadenza, tramite un form guidato a tre passaggi.
 Una volta completata, può visualizzare un riepilogo del lavoro caricato nella tab \textbf{Work}.
 
@@ -406,7 +410,7 @@ Una volta completata, può visualizzare un riepilogo del lavoro caricato nella t
     \label{fig:participant_work_submitted}
 \end{figure}
 
-\subsection{Flusso del Giurato}\label{subsec:flusso-del-giurato}
+\subsection{Flusso del giurato}\label{subsec:flusso-del-giurato}
 Un \textbf{giurato nominato}, dopo l'autenticazione, accede alla sua \textbf{Home Page}, dove visualizza i contest a cui è stato assegnato.
 Quando una sessione di voto è attiva, riceve una notifica nella sua \textbf{Inbox} e può accedere alla votazione dalla pagina di dettaglio del contest.
 
@@ -434,7 +438,7 @@ Quando una sessione di voto è attiva, riceve una notifica nella sua \textbf{Inb
     \label{fig:juror_flow}
 \end{figure}
 
-\paragraph{Procedura di Votazione}
+\paragraph{Procedura di votazione}
 La procedura di votazione guida il giurato attraverso una serie di schermate strutturate: una \textbf{introduzione}, i campi \textbf{Header}, i campi \textbf{Participant} (uno per ogni opera) e i campi \textbf{Footer}.
 
 \begin{figure}[H]
@@ -470,7 +474,7 @@ La procedura di votazione guida il giurato attraverso una serie di schermate str
     \label{fig:voting_procedure_flow}
 \end{figure}
 
-\subsection{Flusso del Giurato Semplice (Ospite)}\label{subsec:flusso-giurato-semplice}
+\subsection{Flusso del giurato semplice (ospite)}\label{subsec:flusso-giurato-semplice}
 Il flusso ``ospite'' è progettato per essere il più rapido possibile.
 Dalla pagina di \textbf{Sign Up} o \textbf{Sign In}, un pulsante dedicato apre un popup per l'inserimento di \textbf{nome e cognome}.
 Una volta confermato, l'utente atterra su una \textbf{Home Page minimale}, da cui può accedere alla votazione tramite QR code o token.

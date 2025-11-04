@@ -537,11 +537,11 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 % Elenco delle principali Funzioni RPC del sistema.
 \begin{longtable}{p{0.3\textwidth} p{0.4\textwidth} p{0.25\textwidth}}
     \toprule
-    \textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza Esempio} \\
+    \textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza} \\
     \midrule
     \endfirsthead
     \toprule
-    \textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza Esempio} \\
+    \textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza} \\
     \midrule
     \endhead
 
@@ -549,31 +549,31 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
     Ottiene i dati completi dell'utente autenticato.
     &
     \texttt{auth.uid() = id} \\
-    \addlinespace % Aggiunge un piccolo spazio tra le righe
+    \midrule
 
     \texttt{\seqsplit{organizer\_create\_contest}} &
     Crea un nuovo contest e il luogo associato.
     &
     Verifica che l'utente sia autenticato. \\
-    \addlinespace
+    \midrule
 
     \texttt{\seqsplit{organizer\_start\_voting\_session}} &
     Avvia una sessione di voto, creando lo snapshot dei dati.
     &
     L'utente deve essere l'organizzatore del contest. \\
-    \addlinespace
+    \midrule
 
     \texttt{\seqsplit{participant\_join\_contest}} &
     Associa un partecipante a un contest tramite un token di invito.
     &
     Il token deve essere valido e non utilizzato. \\
-    \addlinespace
+    \midrule
 
     \texttt{\seqsplit{juror\_submit\_votes}} &
     Salva i voti di un giurato per una sessione.
     &
     La sessione deve essere `live' e il giurato non deve aver già votato. \\
-    \addlinespace
+    \midrule
 
     \texttt{\seqsplit{juror\_access\_voting\_as\_simple\_juror}} &
     Fornisce l'accesso a un giurato ospite tramite il token della giuria.
@@ -634,25 +634,37 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
 % Elenco delle principali Edge Functions del sistema.
 \begin{longtable}{p{0.25\textwidth} p{0.4\textwidth} p{0.25\textwidth}}
     \toprule
-    \textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione / Dipendenze} \\
+    \textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione} \\
     \midrule
     \endfirsthead
     \toprule
-    \textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione / Dipendenze} \\
+    \textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione} \\
     \midrule
     \endhead
-    \texttt{organizer-invite-juror} & Invia un'email di invito a un giurato.
-    & JWT + Ownership del contest; \textbf{Resend API}. \\
-    \texttt{participant-submit-work} & Gestisce il caricamento del file \texttt{.zip} del lavoro e delle immagini di anteprima.
+
+    \texttt{\seqsplit{organizer-invite-juror}} & Invia un'email di invito a un giurato.
+    & JWT + Ownership del contest. \\
+    \midrule
+
+    \texttt{\seqsplit{participant-submit-work}} & Gestisce il caricamento del file \texttt{.zip} del lavoro e delle immagini di anteprima.
     & JWT + Appartenenza al contest. \\
-    \texttt{user-delete-account} & Elimina un utente e tutti i suoi dati e file associati.
+    \midrule
+
+    \texttt{\seqsplit{user-delete-account}} & Elimina un utente e tutti i suoi dati e file associati.
     & JWT (self-service). \\
-    \texttt{admin-delete-account} & Versione amministrativa dell'eliminazione account.
+    \midrule
+
+    \texttt{\seqsplit{admin-delete-account}} & Versione amministrativa dell'eliminazione account.
     & \textbf{X-API-Key} (per Retool). \\
-    \texttt{google-places-search-suggestions} & Funge da proxy sicuro per l'API di Google Places.
-    & JWT; \textbf{Google Places API}. \\
-    \texttt{get-latest-apk} & Proxy sicuro per il download dell'APK da un repository GitHub privato.
-    & JWT; \textbf{GitHub API}. \\
+    \midrule
+
+    \texttt{\seqsplit{google-places-search-suggestions}} & Funge da proxy sicuro per l'API di Google Places.
+    & JWT. \\
+    \midrule
+
+    \texttt{\seqsplit{get-latest-apk}} & Proxy sicuro per il download dell'APK da un repository GitHub privato.
+    & JWT. \\
+
     \bottomrule
     \caption{Elenco esemplificativo delle Edge Functions del sistema.}
     \label{tab:edge_functions}

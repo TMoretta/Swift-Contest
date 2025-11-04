@@ -16,12 +16,12 @@
 \contentsline {figure}{\numberline {4.4}{\ignorespaces Flusso di una chiamata sicura da Retool a una Funzione RPC.}}{55}{figure.caption.48}%
 \contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{57}{figure.caption.51}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Diagramma di deployment dell'architettura completa di Swift Contest.}}{61}{figure.caption.53}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Diagramma di distribuzione dell'architettura completa di Swift Contest.}}{61}{figure.caption.53}%
 \contentsline {figure}{\numberline {5.2}{\ignorespaces Pagina di accesso dell'applicazione web distribuita su Vercel.}}{63}{figure.caption.54}%
 \contentsline {figure}{\numberline {5.3}{\ignorespaces La dashboard di amministrazione sviluppata in Retool, che mostra l'elenco degli utenti registrati.}}{65}{figure.caption.55}%
 \contentsline {figure}{\numberline {5.4}{\ignorespaces Le schermate del flusso di autenticazione dell'applicazione.}}{66}{figure.caption.56}%
 \contentsline {figure}{\numberline {5.5}{\ignorespaces Le schermate per la gestione delle impostazioni dell'app e dell'account utente.}}{67}{figure.caption.57}%
-\contentsline {figure}{\numberline {5.6}{\ignorespaces Home page organizzatore.}}{68}{figure.caption.58}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces La home page dell'organizzatore.}}{68}{figure.caption.58}%
 \contentsline {figure}{\numberline {5.7}{\ignorespaces Le tre schermate del form guidato per la creazione di un nuovo contest.}}{69}{figure.caption.60}%
 \contentsline {figure}{\numberline {5.8}{\ignorespaces Le principali tab di gestione all'interno di un contest.}}{70}{figure.caption.62}%
 \contentsline {figure}{\numberline {5.9}{\ignorespaces Le viste di dettaglio per i due tipi di giuria e la configurazione del Voting Form.}}{71}{figure.caption.63}%
