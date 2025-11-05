@@ -1,84 +1,15 @@
-This is BibTeX, Version 0.99d
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
-The top-level auxiliary file: main.aux
-Reallocating 'name_of_file' (item size: 1) to 29 items.
-A level-1 auxiliary file: covermatter/frontespizio.aux
-Reallocating 'name_of_file' (item size: 1) to 23 items.
-A level-1 auxiliary file: covermatter/dedica.aux
-Reallocating 'name_of_file' (item size: 1) to 22 items.
-A level-1 auxiliary file: capitoli/abstract.aux
-Reallocating 'name_of_file' (item size: 1) to 23 items.
-A level-1 auxiliary file: covermatter/indici.aux
-Reallocating 'name_of_file' (item size: 1) to 26 items.
-A level-1 auxiliary file: capitoli/introduzione.aux
-Reallocating 'name_of_file' (item size: 1) to 44 items.
-A level-1 auxiliary file: capitoli/contesto-e-analisi-del-sistema.aux
-Reallocating 'name_of_file' (item size: 1) to 47 items.
-A level-1 auxiliary file: capitoli/tecnologie-e-strumenti-utilizzati.aux
-Reallocating 'name_of_file' (item size: 1) to 57 items.
-A level-1 auxiliary file: capitoli/progettazione-e-implementazione-del-sistema.aux
-Reallocating 'name_of_file' (item size: 1) to 45 items.
-A level-1 auxiliary file: capitoli/distribuzione-e-prodotto-finale.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
-A level-1 auxiliary file: capitoli/conclusioni.aux
-Reallocating 'name_of_file' (item size: 1) to 9 items.
-The style file: IEEEtran.bst
-Reallocating 'name_of_file' (item size: 1) to 11 items.
-Reallocating 'name_of_file' (item size: 1) to 27 items.
-A level-1 auxiliary file: covermatter/disclaimer.aux
-Reallocating 'name_of_file' (item size: 1) to 31 items.
-A level-1 auxiliary file: covermatter/ringraziamenti.aux
-I found no \citation commands---while reading file main.aux
-Reallocating 'singl_function' (item size: 4) to 100 items.
-Reallocating 'singl_function' (item size: 4) to 100 items.
-Reallocating 'singl_function' (item size: 4) to 100 items.
-Reallocating 'wiz_functions' (item size: 4) to 6000 items.
-Reallocating 'singl_function' (item size: 4) to 100 items.
-Database file #1: references.bib
--- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
--- http://www.michaelshell.org/tex/ieeetran/bibtex/
--- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
-
-Done.
-You've used 0 entries,
-            4087 wiz_defined-function locations,
-            833 strings with 7674 characters,
-and the built_in function-call counts, 104 in all, are:
-= -- 0
-> -- 0
-< -- 0
-+ -- 0
-- -- 0
-* -- 19
-:= -- 27
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
-chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 3
-int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 23
-num.names$ -- 0
-pop$ -- 0
-preamble$ -- 1
-purify$ -- 0
-quote$ -- 2
-skip$ -- 1
-stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
-text.prefix$ -- 0
-top$ -- 5
-type$ -- 0
-warning$ -- 0
-while$ -- 0
-width$ -- 0
-write$ -- 22
-(There was 1 error message)
+[0] Config.pm:328> INFO - This is Biber 2.21
+[0] Config.pm:331> INFO - Logfile is 'main.blg'
+[54] biber-MSWIN64:342> INFO - === 
+[73] Biber.pm:421> INFO - Reading 'C:\Users\Tommaso\Desktop\Swift-Contest\thesis\main.bcf'
+[126] Biber.pm:1002> INFO - Found 3 citekeys in bib section 0
+[134] Biber.pm:4487> INFO - Processing section 0
+[140] Biber.pm:4678> INFO - Looking for bibtex file 'references.bib' for section 0
+[167] bibtex.pm:1713> INFO - LaTeX decoding ...
+[174] bibtex.pm:1519> INFO - Found BibTeX data source 'C:\Users\Tommaso\Desktop\Swift-Contest\thesis\references.bib'
+[198] UCollate.pm:68> INFO - Overriding locale 'it-IT' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[198] UCollate.pm:68> INFO - Overriding locale 'it-IT' defaults 'variable = shifted' with 'variable = non-ignorable'
+[198] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'it-IT'
+[198] Biber.pm:4313> INFO - No sort tailoring available for locale 'it-IT'
+[201] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
+[202] bbl.pm:779> INFO - Output to main.bbl

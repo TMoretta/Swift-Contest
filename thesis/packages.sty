@@ -15,10 +15,21 @@
 \renewcommand{\listlistingname}{Elenco dei listati}
 \renewcommand{\listingscaption}{Listato}
 
+%\usepackage{multibib}
+%\newcites{web}{Sitografia}
 
-
-
-
+\usepackage[backend=biber, style=ieee, sorting=none]{biblatex}
+\addbibresource{references.bib}
+% Crea un filtro per le fonti "scritte" (tutto ciò che NON è @online o @misc)
+\defbibfilter{written}{
+    not type=online and
+    not type=misc
+}
+% Crea un filtro per le fonti "web" (solo @online o @misc)
+\defbibfilter{web}{
+    type=online or
+    type=misc
+}
 
 
 

@@ -97,9 +97,31 @@
 \backmatter
 
 % bibliografia in stile IEEE
-\addcontentsline{toc}{chapter}{\bibname}
-\bibliographystyle{IEEEtran}
-\bibliography{references}
+
+% --- 1. Stampa la Bibliografia (fonti scritte) ---
+%\addcontentsline{toc}{chapter}{Bibliografia}
+\printbibliography[
+    title={Bibliografia},
+    filter=written, % Applica il filtro per le fonti scritte
+    heading=bibintoc    % Aggiunge il titolo all'indice dei contenuti
+]
+\clearpage
+% --- 2. Stampa la Sitografia (fonti web) ---
+%\addcontentsline{toc}{chapter}{Sitografia}
+\printbibliography[
+    title={Sitografia},
+    filter=web,         % Applica il filtro per le fonti web
+    heading=bibintoc    % Aggiunge il titolo all'indice dei contenuti
+]
+
+%\addcontentsline{toc}{chapter}{\bibname}
+%\bibliographystyle{IEEEtran}
+%\bibliography{references}
+
+% Stampa la Sitografia (fonti web) ---
+%\addcontentsline{toc}{chapter}{Sitografia}
+%\bibliographystyleweb{IEEEtran} % Usa lo stesso stile (o uno diverso se vuoi)
+%\bibliographyweb{references} % Cerca le voci citate con \citeweb nello stesso file
 
 % ringraziamenti
 \include{covermatter/disclaimer}
