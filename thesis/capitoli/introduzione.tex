@@ -32,17 +32,17 @@ Questa decisione riflette lo standard de facto della comunità informatica inter
 Nel testo descrittivo, termini italiani e inglesi potranno essere usati come sinonimi dove appropriato (es.\ contest/concorso).
 
 \section{Contributi progettuali e ingegneristici}\label{sec:contributi-progettuali-e-ingegneristici}
-Il valore principale di questo lavoro di tesi risiede nell'applicazione rigorosa di principi di ingegneria del software moderni per risolvere un problema pratico.
-Il contributo non è di natura teorica, ma \textbf{progettuale e architetturale}.
+L'obiettivo primario di questo lavoro di tesi non è di natura teorica, ma \textbf{pratica e orientata al prodotto}: la creazione di una soluzione completa e funzionante per un problema reale e non indirizzato dal mercato attuale.
+Il valore del progetto risiede quindi nella dimostrazione di come, partendo da un'esigenza concreta, sia stato possibile progettare e realizzare un sistema software complesso, utilizzando principi di ingegneria moderni come mezzo per garantire la qualità e la robustezza del risultato finale.
 
-Il progetto \textbf{Swift Contest} si presenta come un \emph{blueprint}, ovvero un modello di riferimento, per la creazione di applicazioni collaborative complesse e sicure.
-I contributi specifici sono:
+Il progetto \textbf{Swift Contest} si presenta quindi come un \emph{blueprint}, ovvero un modello di riferimento, per la creazione di applicazioni collaborative complesse e sicure.
+I contributi specifici possono essere così riassunti:
 \begin{itemize}
-    \item \textbf{Proposta di una nuova categoria di prodotto}: data l'assenza di soluzioni verticali, il progetto stesso si configura come un caso di studio per una nuova categoria di software dedicato alla gestione dei \emph{contest}, colmando un vuoto di mercato.
-    \item \textbf{Dimostrazione di un'architettura sicura su Backend-as-a-Service (BaaS)}: il sistema mostra come implementare un'architettura basata sul Principio del Minimo Privilegio utilizzando una piattaforma BaaS come Supabase, con una logica di autorizzazione centralizzata in API serverless.
-    \item \textbf{Modello dati robusto per processi immutabili}: viene presentato un design del database che garantisce l'integrità e l'attendibilità dei processi di voto tramite l'uso di ``attributi di snapshot'' e denormalizzazione controllata.
+    \item \textbf{Proposta e validazione di una nuova categoria di prodotto}: data l'assenza di soluzioni verticali, il progetto stesso si configura come un caso di studio e una validazione pratica per una nuova categoria di software dedicato alla gestione dei \emph{contest}.
+    \item \textbf{Dimostrazione di un'architettura sicura su BaaS}: il sistema dimostra come implementare un'architettura basata sul Principio del Minimo Privilegio su una piattaforma \textbf{Backend-as-a-Service (BaaS)}, ma \textbf{centralizzando la logica di autorizzazione in API serverless (RPC e Edge Functions)}.
+    \item \textbf{Modello dati robusto per processi immutabili}: viene presentato un design del database che garantisce l'integrità e l'attendibilità dei processi di voto tramite l'uso di \emph{attributi di snapshot} e denormalizzazione controllata.
 \end{itemize}
-In sintesi, il valore della tesi è nel dimostrare come, partendo da un'esigenza reale, sia stato possibile progettare e realizzare una soluzione \emph{completa}, \emph{sicura} e \emph{ben ingegnerizzata}, utilizzando strumenti accessibili e seguendo le best practice del settore.
+In sintesi, il valore della tesi è nel dimostrare l'intero processo ingegneristico, dall'analisi di un vuoto di mercato alla progettazione e realizzazione di una soluzione \emph{completa}, \emph{sicura} e \emph{ben ingegnerizzata}.
 
 \section{Struttura del documento}\label{sec:struttura-del-documento}
 Il presente elaborato è organizzato in sei capitoli principali, che guidano il lettore attraverso le fasi di analisi, selezione tecnologica, progettazione, implementazione e valutazione del progetto.

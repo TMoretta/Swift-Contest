@@ -98,5 +98,5 @@
 \contentsline {section}{\numberline {6.2}Limiti e analisi critica}{80}{section.6.2}%
 \contentsline {section}{\numberline {6.3}Prospettive e sviluppi futuri}{81}{section.6.3}%
 \contentsline {section}{\numberline {6.4}Considerazioni finali}{82}{section.6.4}%
-\contentsline {chapter}{Disclaimer sui Marchi Registrati}{83}{section.6.4}%
 \contentsline {chapter}{Bibliografia}{83}{section.6.4}%
+\contentsline {chapter}{Disclaimer sui Marchi Registrati}{84}{section.6.4}%
