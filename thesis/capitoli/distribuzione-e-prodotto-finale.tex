@@ -21,7 +21,7 @@ Questa strategia ibrida consente di bilanciare la facilità di accesso (garantit
 \end{figure}
 
 \section{Distribuzione web su Vercel}\label{sec:distribuzione-web-su-vercel}
-La versione Web dell'applicazione Flutter è stata distribuita su Vercel, una piattaforma serverless ottimizzata per la distribuzione di frontend moderni.
+La versione Web dell'applicazione Flutter è stata distribuita su Vercel~\cite{vercel_website}, una piattaforma serverless ottimizzata per la distribuzione di frontend moderni.
 Il processo è completamente automatizzato tramite una pipeline di \textbf{CI/CD (Continuous Integration/Continuous Deployment)} integrata con il repository Git del progetto.
 Ogni \emph{push} sul branch \texttt{main} innesca automaticamente una nuova build dell'applicazione Flutter in modalità \emph{release} e una conseguente distribuzione sulla piattaforma.
 
@@ -31,7 +31,7 @@ Per garantire il corretto funzionamento di una \emph{Single Page Application (SP
 Per la piattaforma Android, è stata prodotta una \textbf{release in formato APK}.
 Data la natura prototipale del progetto, si è evitato il complesso processo di pubblicazione sul Google Play Store, optando per un approccio di distribuzione controllata che garantisce comunque sicurezza e facilità di aggiornamento:
 \begin{enumerate}
-    \item L'APK viene caricato come \emph{release asset} su un repository GitHub privato.
+    \item L'APK viene caricato come \emph{release asset} (un file allegato a una specifica versione del software) su un repository GitHub~\cite{github_website} privato.
     \item Un'apposita Edge Function, \texttt{get-latest-apk}, è stata creata su Supabase per fungere da proxy sicuro.
     Questa funzione utilizza un \textbf{Personal Access Token (PAT)} di GitHub, memorizzato in modo sicuro in Supabase, per autenticarsi all'API di GitHub e scaricare l'asset.
     \item L'applicazione web offre un pulsante ``Download for Android'' che invoca questa Edge Function.
@@ -105,7 +105,7 @@ Le Edge Functions, scritte in TypeScript, vengono anch'esse distribuite tramite 
 \end{longtable}
 
 \section{Dashboard amministrativa (Retool)}\label{sec:dashboard-amministrativa-(retool)}
-Per le attività di amministrazione avanzata, come la moderazione degli utenti e la gestione dei contenuti, è stata creata una dashboard interna utilizzando \textbf{Retool}.
+Per le attività di amministrazione avanzata, come la moderazione degli utenti e la gestione dei contenuti, è stata creata una dashboard interna utilizzando \textbf{Retool}~\cite{retool_website}.
 Questa interfaccia, non esposta agli utenti finali, comunica con il backend Supabase attraverso un'API sicura, come descritto nel capitolo precedente.
 
 \begin{figure}[H]
@@ -299,7 +299,7 @@ Per entrambe, è possibile accedere alla configurazione del \textbf{Voting Form}
 La tab \textbf{Voting} permette di avviare una nuova sessione tramite un form a tre passaggi:
 \begin{enumerate}
     \item \textbf{Selezione dei partecipanti}.
-    \item \textbf{Restrizione geografica} (opzionale).
+    \item \textbf{Restrizione geografica (geo-restriction)} (opzionale).
     \item \textbf{Gestione esclusioni} per i giurati nominati.
 \end{enumerate}
 Una volta avviata, la schermata mostra lo stato \textbf{Live} della sessione e il token per i giurati semplici.

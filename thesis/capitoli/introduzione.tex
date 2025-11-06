@@ -16,8 +16,8 @@ L’obiettivo primario di questo lavoro è stato quello di \textbf{progettare e 
 
 Gli obiettivi specifici, che hanno guidato la progettazione, possono essere così sintetizzati:
 \begin{itemize}
-    \item \textbf{Sviluppo cross-platform}: garantire un'esperienza utente fluida e unificata su più piattaforme (mobile e web) attraverso lo sviluppo di un client basato su un'unica codebase, un obiettivo reso possibile dall'adozione del framework Flutter\cite{flutter_docs}.
-    \item \textbf{Sicurezza ``\emph{by design}''}: adottare un'architettura di sicurezza basata sul \textbf{Principio del Minimo Privilegio (Principle of Least Privilege)}\cite{saltzer1975protection}, dove l'accesso al database è negato per default e concesso selettivamente solo tramite un'API controllata.
+    \item \textbf{Sviluppo cross-platform}: garantire un'esperienza utente fluida e unificata su più piattaforme (mobile e web) attraverso lo sviluppo di un client basato su un'unica codebase, un obiettivo reso possibile dall'adozione del framework Flutter~\cite{flutter_docs}.
+    \item \textbf{Sicurezza ``\emph{by design}''}: adottare un'architettura di sicurezza basata sul \textbf{Principio del Minimo Privilegio (Principle of Least Privilege)}~\cite{saltzer1975protection}, dove l'accesso al database è negato per default e concesso selettivamente solo tramite un'API controllata.
     \item \textbf{Esperienza utente mirata}: progettare interfacce utente intuitive e funzionali, modellate sui ruoli specifici dei diversi attori del sistema (organizzatore, partecipante, giurato).
     \item \textbf{Accesso flessibile alla votazione}: implementare un sistema di voto che supporti due modalità di accesso per i giurati.
     Oltre ai giurati nominati (utenti registrati e invitati), il sistema deve permettere la partecipazione di \textbf{giurati semplici} tramite un token di accesso sicuro, abbassando così la barriera d'ingresso per i giurati occasionali.
@@ -39,7 +39,7 @@ Il progetto \textbf{Swift Contest} si presenta quindi come un \emph{blueprint}, 
 I contributi specifici possono essere così riassunti:
 \begin{itemize}
     \item \textbf{Proposta e validazione di una nuova categoria di prodotto}: data l'assenza di soluzioni verticali, il progetto stesso si configura come un caso di studio e una validazione pratica per una nuova categoria di software dedicato alla gestione dei \emph{contest}.
-    \item \textbf{Dimostrazione di un'architettura sicura su BaaS}: il sistema dimostra come implementare un'architettura basata sul Principio del Minimo Privilegio su una piattaforma \textbf{Backend-as-a-Service (BaaS)} come Supabase\cite{supabase_docs}, ma \textbf{centralizzando la logica di autorizzazione in API serverless (RPC ed Edge Functions) invece di affidarsi unicamente a regole a livello di database (RLS)}.
+    \item \textbf{Dimostrazione di un'architettura sicura su BaaS}: il sistema dimostra come implementare un'architettura basata sul Principio del Minimo Privilegio su una piattaforma \textbf{Backend-as-a-Service (BaaS)} come Supabase~\cite{supabase_docs}, ma \textbf{centralizzando la logica di autorizzazione in API serverless (RPC ed Edge Functions) invece di affidarsi unicamente a regole a livello di database (RLS)}.
     \item \textbf{Modello dati robusto per processi immutabili}: viene presentato un design del database che garantisce l'integrità e l'attendibilità dei processi di voto tramite l'uso di \emph{attributi di snapshot} e denormalizzazione controllata.
 \end{itemize}
 In sintesi, il valore della tesi è nel dimostrare l'intero processo ingegneristico, dall'analisi di un vuoto di mercato alla progettazione e realizzazione di una soluzione \emph{completa}, \emph{sicura} e \emph{ben ingegnerizzata}.
