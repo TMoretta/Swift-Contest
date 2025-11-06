@@ -45,7 +45,7 @@ La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
 \end{figure}
 
 \subsection{Implementazione del ViewModel: il pattern BLoC}\label{subsec:implementazione-del-viewmodel:-il-pattern-bloc}
-Per la gestione dello stato e l'implementazione del ViewModel, è stato adottato il pattern BLoC, utilizzando il pacchetto \texttt{flutter\_bloc}.
+Per la gestione dello stato e l'implementazione del ViewModel, è stato adottato il pattern BLoC, utilizzando il pacchetto \texttt{flutter\_bloc}\cite{bloc_docs}.
 La scelta di BLoC è motivata dalla sua natura reattiva e basata su stream, che si integra perfettamente con il paradigma dichiarativo di Flutter.
 Questo pattern impone un flusso di dati unidirezionale e prevedibile:
 \begin{enumerate}
@@ -70,7 +70,7 @@ Per risolvere questo problema, è stata creata una funzione di ordine superiore,
 Come mostrato nel listato seguente, questa funzione utilizza un blocco \texttt{try...catch} per intercettare le eccezioni specifiche di Supabase e mapparle in classi di \textbf{Failure} personalizzate e sicure.
 Queste \emph{Failure} sono oggetti semplici che rappresentano un fallimento in modo astratto (es. \texttt{NetworkFailure}, \texttt{ServerFailure}), senza contenere dettagli tecnici.
 
-Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \textbf{\texttt{Either}}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}. \texttt{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra'' (\emph{Right}), che rappresenta il successo.
+Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \textbf{\texttt{Either}}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}\cite{fpdart_package}. \texttt{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra'' (\emph{Right}), che rappresenta il successo.
 
 Il tipo di ritorno \texttt{Either<Failure, T>} formalizza quindi questo contratto: la funzione restituirà o un oggetto di tipo \texttt{Failure} (a sinistra) o il dato atteso di tipo \texttt{T} (a destra).
 Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usare blocchi \texttt{try...catch}, permettendogli di gestire in modo pulito, dichiarativo e fortemente tipizzato sia il caso di successo che quello di fallimento, semplicemente ispezionando il contenuto di \texttt{Either}.
@@ -104,7 +104,7 @@ Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usar
 \end{longlisting}
 
 \subsubsection{Gestione dell'uguaglianza degli oggetti con Equatable}
-Per ottimizzare le performance e garantire un comportamento prevedibile nella gestione dello stato, tutte le entità, i bundle e gli stati dei BLoC estendono la classe fornita dal pacchetto \texttt{equatable}.
+Per ottimizzare le performance e garantire un comportamento prevedibile nella gestione dello stato, tutte le entità, i bundle e gli stati dei BLoC estendono la classe fornita dal pacchetto \texttt{equatable}\cite{equatable_package}.
 
 Questa scelta implementativa è cruciale per due motivi principali.
 
@@ -119,7 +119,7 @@ Spesso, durante lo sviluppo, sorge la necessità di confrontare due oggetti per 
 Estendendo \texttt{Equatable}, si ottiene un'implementazione standard e priva di errori dell'uguaglianza basata sul valore, semplificando la logica di confronto all'interno dei BLoC e dei Repository e riducendo il rischio di bug sottili legati al confronto per riferimento.
 
 \subsection{Navigazione con AutoRoute}\label{subsec:navigazione-con-autoroute}
-La gestione della navigazione è stata affidata al pacchetto \texttt{auto\_route}, che genera un router fortemente tipizzato, eliminando l'uso di stringhe per le rotte.
+La gestione della navigazione è stata affidata al pacchetto \texttt{auto\_route}\cite{auto_route_package}, che genera un router fortemente tipizzato, eliminando l'uso di stringhe per le rotte.
 Questo approccio trasforma potenziali errori di runtime (es.\ un errore di battitura nel nome di una rotta) in \textbf{errori di compilazione}, aumentando significativamente la robustezza dell'applicazione.
 Un elemento chiave è l'\texttt{AuthGuard}, una classe che intercetta le richieste di navigazione e verifica lo stato di autenticazione dell'utente tramite l'\texttt{AuthBloc}, reindirizzandolo alla pagina di login se tenta di accedere a una rotta protetta.
 
@@ -254,7 +254,7 @@ Questo sistema utilizza l'Overlay di Flutter per mostrare un indicatore di progr
 
 L'implementazione si basa su due scelte di design chiave per garantire robustezza e facilità d'uso:
 \begin{itemize}
-    \item \textbf{Singleton Pattern}: La classe \texttt{OverlayLoader} è implementata come un singleton per garantire che esista una sola istanza del gestore del loader, prevenendo la visualizzazione di più overlay contemporaneamente.
+    \item \textbf{Singleton Pattern}\cite{gamma1995design}: La classe \texttt{OverlayLoader} è implementata come un singleton per garantire che esista una sola istanza del gestore del loader, prevenendo la visualizzazione di più overlay contemporaneamente.
     \item \textbf{Dart Extensions}: Per semplificare l'invocazione del loader, è stata creata un'estensione sulla classe \texttt{BuildContext}, che permette di usare una sintassi pulita e intuitiva come \texttt{context.showLoader()} e \texttt{context.hideLoader()}.
 \end{itemize}
 
@@ -677,7 +677,7 @@ La sicurezza è un requisito trasversale che ha guidato l'intera progettazione d
 \subsection{Strategia di Implementazione: Centralizzazione della Logica di Autorizzazione}\label{subsec:strategia-di-implementazione:-centralizzazione-della-logica-di-autorizzazione}
 Per implementare il Principio del Minimo Privilegio, si sarebbero potute seguire due strategie principali:
 \begin{enumerate}
-    \item Definire policy di \textbf{Row Level Security (RLS)} granulari per ogni tabella e per ogni operazione (SELECT, INSERT, UPDATE, DELETE).
+    \item Definire policy di \textbf{Row Level Security (RLS)}\cite{postgresql_docs} granulari per ogni tabella e per ogni operazione (SELECT, INSERT, UPDATE, DELETE).
     \item Centralizzare tutti i controlli di autorizzazione all'interno di un'API di accesso ai dati (RPC e Edge Functions).
 \end{enumerate}
 
