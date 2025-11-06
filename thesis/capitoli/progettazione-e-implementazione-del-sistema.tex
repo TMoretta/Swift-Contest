@@ -25,7 +25,7 @@ Le linee guida principali sono state:
 \section{Architettura del frontend: il pattern MVVM con BLoC}
 \label{sec:frontend-architecture}
 Il frontend è stato sviluppato in Flutter seguendo i principi dell'architettura \textbf{MVVM (Model-View-ViewModel)}, implementata attraverso il pattern \textbf{BLoC (Business Logic Component)}.
-Questa scelta permette di ottenere una netta separazione delle responsabilità, garantendo testabilità e manutenibilità.
+Questa scelta permette di ottenere una netta separazione delle responsabilità, garantendo non solo \textbf{testabilità} e \textbf{manutenibilità}, ma anche la possibilità di \textbf{sviluppare la UI e la logica di business in parallelo}.
 La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
 \begin{itemize}
     \item \textbf{View (\texttt{/view})}: il livello di presentazione, composto dai Widget di Flutter che costituiscono l'interfaccia utente.
@@ -34,7 +34,7 @@ La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
     Ogni BLoC riceve eventi dalla View, esegue la logica di business (spesso invocando un metodo del Model/Repository), e produce uno stream di stati a cui la View reagisce per aggiornarsi.
     \item \textbf{Model (\texttt{/model})}: il livello di accesso ai dati.
     È composto dai \emph{Repository}, che fungono da unica interfaccia verso il backend, astraendo le chiamate a RPC ed Edge Functions.
-    Include anche le \emph{Entities} (le rappresentazioni dei dati del dominio) e i \emph{Bundles} (oggetti aggregati per ridurre il numero di chiamate di rete).
+    Include anche le \emph{Entities} (le rappresentazioni dei dati del dominio) e i \emph{Bundles}, ovvero oggetti aggregati che raggruppano dati correlati (es.\ un contest e i suoi partecipanti) in un'unica struttura, \textbf{ottimizzando il numero di chiamate di rete necessarie} per popolare una schermata.
 \end{itemize}
 
 \begin{figure}[H]
@@ -63,7 +63,7 @@ Questo include non solo il recupero dei dati, ma anche una \textbf{gestione cent
 Le chiamate a un backend come Supabase possono fallire in molti modi: problemi di rete (\texttt{SocketException}), errori di autenticazione (\texttt{AuthException}), errori del database (\texttt{PostgrestException}), ecc.\ Esporre queste eccezioni direttamente al livello del BLoC o della UI sarebbe problematico per due motivi:
 \begin{enumerate}
     \item Creerebbe un forte accoppiamento tra la logica di presentazione e le librerie specifiche del backend.
-    \item Potrebbe esporre all'utente finale messaggi di errore tecnici e potenzialmente sensibili.
+    \item Potrebbe esporre all'utente finale messaggi di errore tecnici che, oltre a essere incomprensibili, rappresentano un \textbf{rischio per la sicurezza} (information leakage), rivelando dettagli sull'implementazione del database o del backend.
 \end{enumerate}
 
 Per risolvere questo problema, è stata creata una funzione di ordine superiore, \texttt{handleBackendCall}, che ``avvolge'' ogni chiamata al backend.
@@ -77,38 +77,26 @@ Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usar
 
 \begin{longlisting}
     \begin{minted}{dart}
-        /// Avvolge una chiamata al backend, gestendo e mappando le eccezioni.
         Future<Either<Failure, T>> handleBackendCall<T>(
           Future<Either<Failure, T>> Function() function,
         ) async {
-          try {
-            // Esegue la funzione che contiene la chiamata al backend.
-            return await function();
-          } on SocketException catch (e) {
-            // Errore di rete (es. no internet).
-            Logger.warning('Network error: $e');
-            return Either.left(const NetworkFailure());
-          } on AuthException catch (e) {
-            // Errore di autenticazione di Supabase.
-            Logger.warning('Auth error: $e');
-            return Either.left(authExceptionToFailure(e));
-          } on PostgrestException catch (e) {
-            // Errore del database PostgreSQL.
-            Logger.warning('Postgrest error: $e');
-            return Either.left(postgrestExceptionToFailure(e));
-          } on FunctionException catch (e) {
-            // Errore durante l'invocazione di una Edge Function.
-            Logger.warning('Edge function error: $e');
-            return Either.left(edgeFunctionExceptionToFailure(e));
-          } on StorageException catch (e) {
-            // Errore nello Storage (es. upload fallito).
-            Logger.warning('Storage error: $e');
-            return Either.left(storageExceptionToFailure(e));
-          } catch (e) {
-            // Qualsiasi altro errore non previsto.
-            Logger.error('Unknown error: $e');
-            return Either.left(const Failure());
-          }
+            try {
+                return await function();
+            } on SocketException catch (e) {
+                // Errore di rete (es. no internet).
+                Logger.warning('Network error: $e');
+                return Either.left(const NetworkFailure());
+            } on PostgrestException catch (e) {
+                // Errore del database PostgreSQL.
+                Logger.warning('Postgrest error: $e');
+                return Either.left(postgrestExceptionToFailure(e));
+            }
+            // ... altri catch specifici per le eccezioni di Supabase ...
+            catch (e) {
+                // Qualsiasi altro errore non previsto.
+                Logger.error('Unknown error: $e');
+                return Either.left(const Failure());
+            }
         }
     \end{minted}
     \caption{Funzione helper per la gestione sicura delle chiamate al backend.}
@@ -131,39 +119,24 @@ Spesso, durante lo sviluppo, sorge la necessità di confrontare due oggetti per 
 Estendendo \texttt{Equatable}, si ottiene un'implementazione standard e priva di errori dell'uguaglianza basata sul valore, semplificando la logica di confronto all'interno dei BLoC e dei Repository e riducendo il rischio di bug sottili legati al confronto per riferimento.
 
 \subsection{Navigazione con AutoRoute}\label{subsec:navigazione-con-autoroute}
-La gestione della navigazione è stata affidata al pacchetto \texttt{auto\_route}, che genera un router fortemente tipizzato, eliminando l'uso di stringhe per le rotte e riducendo il rischio di errori a runtime.
+La gestione della navigazione è stata affidata al pacchetto \texttt{auto\_route}, che genera un router fortemente tipizzato, eliminando l'uso di stringhe per le rotte.
+Questo approccio trasforma potenziali errori di runtime (es.\ un errore di battitura nel nome di una rotta) in \textbf{errori di compilazione}, aumentando significativamente la robustezza dell'applicazione.
 Un elemento chiave è l'\texttt{AuthGuard}, una classe che intercetta le richieste di navigazione e verifica lo stato di autenticazione dell'utente tramite l'\texttt{AuthBloc}, reindirizzandolo alla pagina di login se tenta di accedere a una rotta protetta.
 
 \begin{longlisting}
     \begin{minted}{dart}
         // --- 1. Definizione della rotta protetta (in app_router.dart) ---
-
-        @AutoRouterConfig()
-        class AppRouter extends RootStackRouter {
-            // ...
-            @override
-            List<AutoRoute> get routes => [
-
-            // ... altre rotte pubbliche o di autenticazione
-
-            // Esempio di rotta protetta: solo gli utenti autenticati
-            // possono accedere alla dashboard dell'organizzatore.
-            AutoRoute(
+        AutoRoute(
             path: '/organizer-home',
             page: OrganizerHomeRoute.page,
             guards: [AuthGuard(authBloc: authBloc)], // Applica la guardia
-            ),
+        ),
 
-            // ... altre rotte protette
-            ];
-        }
-
+        // ...
 
         // --- 2. Implementazione della guardia (in auth_guard.dart) ---
-
         class AuthGuard extends AutoRouteGuard {
             final AuthBloc authBloc;
-
             AuthGuard({required this.authBloc});
 
             @override
@@ -171,34 +144,12 @@ Un elemento chiave è l'\texttt{AuthGuard}, una classe che intercetta le richies
                 // Controlla lo stato di autenticazione tramite l'AuthBloc
                 final isAuthenticated = authBloc.state.authStatus.isAuthenticated;
 
-                // Elenco completo delle rotte pubbliche (di autenticazione)
-                const authPaths = [
-                '/sign-in',
-                '/sign-in-verify',
-                '/sign-up',
-                '/sign-up-verify'
-                ];
-                final targetPath = resolver.route.path.split('/:').first;
-
+                // Logica di base: se l'utente non è autenticato,
+                // viene reindirizzato alla pagina di login.
                 if (isAuthenticated) {
-                    // Se l'utente è autenticato e cerca di andare a una pagina di login/registrazione,
-                    // lo reindirizzo alla sua home page.
-                    if (authPaths.contains(targetPath)) {
-                        resolver.redirect(const RootRoute());
-                    } else {
-                        // Altrimenti, può procedere verso la rotta protetta.
-                        resolver.next(true);
-                    }
+                    resolver.next(true); // Procede alla rotta protetta
                 } else {
-                    // Se l'utente NON è autenticato...
-                    if (!authPaths.contains(targetPath)) {
-                        // ...e sta cercando di accedere a una rotta protetta,
-                        // lo reindirizzo alla pagina di login.
-                        resolver.redirect(SignInRoute());
-                    } else {
-                        // ...e sta già andando a una pagina di login/registrazione, lo lascio procedere.
-                        resolver.next(true);
-                    }
+                    resolver.redirect(SignInRoute()); // Reindirizza al login
                 }
             }
         }
@@ -206,6 +157,7 @@ Un elemento chiave è l'\texttt{AuthGuard}, una classe che intercetta le richies
     \caption{Estratto del sistema di routing protetto con ``AuthGuard''.}
     \label{lst:auth_guard}
 \end{longlisting}
+
 
 \subsection{Strategia di navigazione e passaggio dei dati}\label{subsec:strategia-di-navigazione-e-passaggio-dei-dati}
 Una scelta architetturale fondamentale, dettata dalla necessità di una perfetta integrazione con il web, riguarda la modalità di passaggio dei dati tra le pagine.
@@ -236,8 +188,6 @@ Il listato seguente mostra un esempio di un \emph{validator} e il suo utilizzo a
 \begin{longlisting}
     \begin{minted}{dart}
         // 1. Definizione della funzione di validazione pura
-        // in lib/utils/validators/validators.dart
-
         String? passwordValidator(String? value) {
             if (value == null || value.isEmpty) {
                 return 'Required';
@@ -245,30 +195,16 @@ Il listato seguente mostra un esempio di un \emph{validator} e il suo utilizzo a
             if (value.length < 8) {
                 return 'Must contain at least 8 characters';
             }
-            if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                return 'Must contain at least one uppercase letter';
-            }
-            if (!RegExp(r'[0-9]').hasMatch(value)) {
-                return 'Must contain at least one number';
-            }
-            if (!RegExp(r'[!@#$&*~%^()\[\]\-_=+{};:,.<>?/\\|]').hasMatch(value)) {
-                return 'Must contain at least one special character';
-            }
+            // ... altre regole di validazione (maiuscole, numeri, etc.) ...
 
             return null; // La validazione ha successo
         }
 
         // 2. Utilizzo del validatore in un widget della UI
-
         TextFormField(
-            // ... altre proprietà come controller, decoration, etc.
-
-            // La funzione di validazione viene passata come riferimento.
             validator: passwordValidator,
-
-            // La validazione viene attivata automaticamente al momento
-            // del submit del form o in base all'autovalidateMode.
             autovalidateMode: AutovalidateMode.onUserInteraction,
+            // ...
         );
     \end{minted}
     \caption{Esempio di validatore centralizzato e suo utilizzo in un widget.}
@@ -294,19 +230,19 @@ Questi nuovi colori diventano così parte integrante del tema e possono essere r
 
 \begin{longlisting}
     \begin{minted}{dart}
-    // in lib/utils/themes/color_scheme_x.dart
+        // in lib/utils/themes/color_scheme_x.dart
 
-    extension ColorSchemeX on ColorScheme {
-    // Colore per indicare successo (es. notifiche positive)
-    Color get success => const Color(0xFF28a745);
-    Color get onSuccess => const Color(0xFFFFFFFF);
+        extension ColorSchemeX on ColorScheme {
+            // Colore per indicare successo (es. notifiche positive)
+            Color get success => const Color(0xFF28a745);
+            Color get onSuccess => const Color(0xFFFFFFFF);
 
-    // Colore per avvisi
-    Color get warning => const Color(0xFFffc107);
-    Color get onWarning => const Color(0xFF212529);
+            // Colore per avvisi
+            Color get warning => const Color(0xFFffc107);
+            Color get onWarning => const Color(0xFF212529);
 
-    // Altri colori personalizzati...
-    }
+            // Altri colori personalizzati...
+        }
     \end{minted}
     \caption{Definizione dell'estensione ``ColorSchemeX'' per aggiungere colori personalizzati al tema.}
     \label{lst:colorscheme_extension}
@@ -388,7 +324,7 @@ Le tabelle cardine includono:
     La colonna \texttt{id} di \texttt{profiles} funge sia da chiave primaria che da chiave esterna verso \texttt{auth.users(id)}, stabilendo una relazione uno-a-uno.
     La creazione del profilo è automatizzata tramite un \textbf{trigger di database}, che inserisce un nuovo record in \texttt{profiles} ogni volta che un utente completa la registrazione.
     \item \texttt{contests}: memorizza le informazioni principali di un concorso.
-    \item \texttt{participations} e \texttt{jurations}: implementano le classi di associazione che legano utenti, contest e giurie.
+    \item \texttt{participations} e \texttt{jurations}: implementano le classi di associazione che legano, rispettivamente, un utente a un contest (\emph{partecipazione}) e un utente a una giuria (\emph{appartenenza a una giuria}).
     \item \texttt{works}: contiene i dati dei lavori sottomessi dai partecipanti.
     \item \texttt{voting\_forms} e \texttt{voting\_form\_fields}: definiscono la struttura dei moduli di voto.
     \item \texttt{voting\_sessions}: rappresenta una sessione di voto.
@@ -428,7 +364,7 @@ Questa logica non poteva essere implementata in una funzione RPC, poiché queste
 \subsubsection{Snapshot dei dati tramite denormalizzazione controllata}
 Per garantire l'immutabilità e l'auditabilità del processo di voto, è stato implementato un \textbf{meccanismo di snapshot dei dati}, una delle scelte architetturali più importanti del backend.
 
-Quando un organizzatore avvia una \emph{VotingSession} tramite la funzione RPC \texttt{organizer\_start\_voting\_session}, il sistema non si limita a collegare le entità esistenti, ma esegue una forma di \textbf{denormalizzazione controllata}.
+Quando un organizzatore avvia una \emph{VotingSession} tramite la funzione RPC \texttt{organizer\_start\_voting\_session}, il sistema non si limita a collegare le entità esistenti, ma esegue una forma di \textbf{denormalizzazione controllata}, \emph{duplicando intenzionalmente} alcuni dati per disaccoppiare il processo di voto dallo stato corrente del contest.
 Per ogni partecipante e giurato coinvolto, vengono create nuove righe in tabelle di sessione dedicate (es.\ \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}).
 
 Queste nuove righe contengono non solo le chiavi esterne ai record originali, ma anche una copia statica degli attributi più importanti al momento dell'avvio.
@@ -651,7 +587,7 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
     \midrule
 
     \texttt{\seqsplit{user-delete-account}} & Elimina un utente e tutti i suoi dati e file associati.
-    & JWT (self-service). \\
+    & JWT (invocata dall'utente stesso). \\
     \midrule
 
     \texttt{\seqsplit{admin-delete-account}} & Versione amministrativa dell'eliminazione account.
@@ -800,7 +736,7 @@ Oltre al modello ibrido RLS/RPC, la sicurezza del sistema è rafforzata da altre
 \begin{itemize}
     \item \textbf{Protezione delle API Esterne}: le chiavi segrete per servizi come Resend e Google Places sono memorizzate in Supabase e accessibili solo dalle Edge Functions.
     \item \textbf{Protezione dei file}: nessun file nello Storage è pubblico.
-    L'accesso avviene solo tramite \emph{signed URL} temporanei generati lato server.
+    L'accesso avviene solo tramite \emph{signed URL} (URL firmati), ovvero link \textbf{a tempo limitato e con permessi specifici}, generati dinamicamente lato server per ogni singola richiesta.
 \end{itemize}
 
 \subsubsection{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}
@@ -847,7 +783,7 @@ I vantaggi principali di questo approccio sono:
 \label{sec:admin_tools}
 
 Oltre all'applicazione destinata agli utenti finali, un sistema software robusto richiede strumenti adeguati per la sua gestione, moderazione e manutenzione.
-Per Swift Contest, si è deciso di non sviluppare un'applicazione admin da zero, ma di utilizzare \textbf{Retool}, una piattaforma low-code specializzata nella creazione rapida di strumenti interni.
+In linea con l'obiettivo di concentrare le risorse di sviluppo sull'applicazione principale destinata agli utenti finali, per la gestione del sistema si è adottata una \textbf{strategia di sviluppo rapido}: invece di investire tempo nella creazione di un pannello di amministrazione da zero, si è scelto di utilizzare \textbf{Retool}, una piattaforma low-code specializzata nella creazione rapida di strumenti interni.
 
 \subsection{Esigenza di un Pannello di Amministrazione}\label{subsec:esigenza-di-un-pannello-di-amministrazione}
 Sebbene la dashboard di Supabase offra un accesso completo al database, essa è uno strumento pensato per gli sviluppatori, non per gli amministratori di sistema.

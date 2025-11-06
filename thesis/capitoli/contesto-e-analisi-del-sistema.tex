@@ -8,7 +8,7 @@ L'approccio tradizionale si affida a un assemblaggio di strumenti generici e non
 
 Le criticità di questo modello possono essere analizzate nel dettaglio:
 \begin{itemize}
-    \item \textbf{Frammentazione del processo e dei dati}: la comunicazione degli inviti avviene tramite servizi di posta elettronica, la sottomissione dei lavori tramite posta elettronica o piattaforme di cloud storage (es.\ Google Drive) e la tabulazione dei voti tramite fogli di calcolo (es.\ Microsoft Excel).
+    \item \textbf{Frammentazione del processo e dei dati}: la comunicazione degli inviti avviene tramite servizi di posta elettronica, la sottomissione dei lavori tramite posta elettronica o piattaforme di cloud storage (es.\ Google Drive) e la tabulazione dei voti tramite fogli di calcolo (es.\ Google Sheets).
     Questo approccio disperde le informazioni, rende difficile avere una visione d'insieme e richiede un costante lavoro manuale di organizzazione dei dati.
     \item \textbf{Mancanza di integrità e consistenza dei dati}: la gestione manuale aumenta esponenzialmente il rischio di errori.
     Esempi comuni includono la perdita di iscrizioni, l'errata trascrizione dei punteggi o l'inclusione di partecipanti non idonei.
@@ -46,7 +46,7 @@ Sono state analizzate anche piattaforme software specializzate in domini vicini 
 Tuttavia, nessuna di esse si è rivelata una soluzione praticabile.
 
 \subsubsection{Piattaforme di e-voting}
-Sistemi come \textit{Helios Voting} sono progettati per il \textbf{voto politico o assembleare}.
+Sistemi come \textit{Helios Voting}\cite{helios_voting} sono progettati per il \textbf{voto politico o assembleare}.
 Il loro focus è sulla crittografia e sull'anonimato del votante.
 Di conseguenza, mancano completamente delle funzionalità necessarie per un contest, quali:
 \begin{itemize}
@@ -57,7 +57,7 @@ Di conseguenza, mancano completamente delle funzionalità necessarie per un cont
 Il loro scopo è intrinsecamente diverso e non sono in alcun modo utilizzabili.
 
 \subsubsection{Piattaforme per la gestione di eventi}
-Soluzioni commerciali come \textit{Eventbrite} sono focalizzate sulla \textbf{gestione logistica di eventi e sulla vendita di biglietti}.
+Soluzioni commerciali come \textit{Eventbrite}\cite{eventbrite_website} sono focalizzate sulla \textbf{gestione logistica di eventi e sulla vendita di biglietti}.
 Sebbene eccellano nella gestione delle registrazioni, non offrono alcuna funzionalità specifica per il dominio dei contest, come:
 \begin{itemize}
     \item La sottomissione di opere digitali.
@@ -136,7 +136,7 @@ Queste operazioni sono riservate all'attore \emph{Admin} e sono fondamentali per
 \end{figure}
 
 \section{Requisiti del sistema}\label{sec:requisiti-del-sistema}
-I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS+}, un'estensione del modello FURPS che include categorie aggiuntive per coprire in modo esaustivo tutti i vincoli di un progetto software.
+I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS+}\cite{grady1992furps}, un'estensione del modello FURPS che include categorie aggiuntive per coprire in modo esaustivo tutti i vincoli di un progetto software.
 
 \subsection{Requisiti funzionali (Functionality)}\label{subsec:requisiti-funzionali}
 \begin{itemize}
