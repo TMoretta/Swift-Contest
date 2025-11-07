@@ -62,13 +62,14 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"> 
    <dc:format>application/pdf</dc:format> 
-   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">TODO Titolo del documento PDF</rdf:li></rdf:Alt></dc:title>
+   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Gestione di Contest</rdf:li></rdf:Alt></dc:title>
    <dc:creator><rdf:Seq><rdf:li>Tommaso Moretta</rdf:li></rdf:Seq></dc:creator>
    <dc:language><rdf:Bag><rdf:li>it</rdf:li></rdf:Bag></dc:language>
-   <dc:description><rdf:Alt><rdf:li xml:lang="x-default">TODO Breve frase descrittiva</rdf:li></rdf:Alt></dc:description>
-   <dc:subject><rdf:Bag><rdf:li>TODO</rdf:li>
-     <rdf:li>keyword2</rdf:li>
-     <rdf:li>keyword3</rdf:li></rdf:Bag></dc:subject>
+   <dc:description><rdf:Alt><rdf:li xml:lang="x-default">Progettazione e implementazione di una piattaforma cross-platform per la gestione di contest, basata su Flutter e Supabase.</rdf:li></rdf:Alt></dc:description>
+   <dc:subject><rdf:Bag><rdf:li>Swift Contest</rdf:li>
+     <rdf:li>Flutter</rdf:li>
+     <rdf:li>Supabase</rdf:li>
+     <rdf:li>Contest Management</rdf:li></rdf:Bag></dc:subject>
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:prism="http://prismstandard.org/namespaces/basic/2.2/"> 
   </rdf:Description> 
@@ -80,15 +81,15 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/"> 
    <xmp:CreatorTool>LaTeX with hyperref</xmp:CreatorTool> 
-   <xmp:ModifyDate>2025-11-05T23:16:04+01:00</xmp:ModifyDate> 
-   <xmp:CreateDate>2025-11-05T23:16:04+01:00</xmp:CreateDate> 
-   <xmp:MetadataDate>2025-11-05T23:16:04+01:00</xmp:MetadataDate> 
+   <xmp:ModifyDate>2025-11-07T16:39:53+01:00</xmp:ModifyDate> 
+   <xmp:CreateDate>2025-11-07T16:39:53+01:00</xmp:CreateDate> 
+   <xmp:MetadataDate>2025-11-07T16:39:53+01:00</xmp:MetadataDate> 
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpRights = "http://ns.adobe.com/xap/1.0/rights/"> 
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"> 
    <xmpMM:DocumentID>uuid:DF005B57-2A06-8753-7167-92D8CE935460</xmpMM:DocumentID> 
-   <xmpMM:InstanceID>uuid:53BA23E1-70DA-7E45-8ABB-941408745500</xmpMM:InstanceID> 
+   <xmpMM:InstanceID>uuid:FDC0BA8A-8B6D-1C9E-077D-07061287FF5F</xmpMM:InstanceID> 
   </rdf:Description> 
  </rdf:RDF> 
 </x:xmpmeta> 

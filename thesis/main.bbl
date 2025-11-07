@@ -19,7 +19,7 @@
 
 \refsection{0}
   \datalist[entry]{none/global//global/global/global}
-    \entry{flutter_docs}{online}{}{}
+    \entry{flutter_docs}{misc}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
            family={{Google}},
@@ -33,22 +33,13 @@
       \strng{authornamehash}{8b36e9207c24c76e6719268e49201d94}
       \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
       \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \field{extraname}{1}
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{Flutter documentation}
-      \field{urlday}{26}
-      \field{urlmonth}{5}
-      \field{urlyear}{2025}
-      \field{year}{2025}
-      \field{urldateera}{ce}
-      \verb{urlraw}
-      \verb https://docs.flutter.dev/
-      \endverb
-      \verb{url}
-      \verb https://docs.flutter.dev/
-      \endverb
+      \field{note}{\url{https://docs.flutter.dev/}}
+      \field{title}{Flutter documentation, 2025}
     \endentry
     \entry{saltzer1975protection}{article}{}{}
       \name{author}{2}{}{%
@@ -83,10 +74,10 @@
       \field{title}{The protection of information in computer systems}
       \field{volume}{63}
       \field{year}{1975}
-      \field{pages}{1278\bibrangedash 1308}
-      \range{pages}{31}
+      \field{pages}{1278\bibrangedash 1338}
+      \range{pages}{61}
     \endentry
-    \entry{supabase_docs}{online}{}{}
+    \entry{supabase_docs}{misc}{}{}
       \name{author}{1}{}{%
         {{hash=af07a053f31f1c94fcf389327c68f6dd}{%
            family={{Supabase}},
@@ -104,18 +95,590 @@
       \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{Supabase documentation}
-      \field{urlday}{26}
-      \field{urlmonth}{5}
-      \field{urlyear}{2025}
-      \field{year}{2025}
-      \field{urldateera}{ce}
-      \verb{urlraw}
-      \verb https://supabase.com/docs
-      \endverb
-      \verb{url}
-      \verb https://supabase.com/docs
-      \endverb
+      \field{note}{\url{https://supabase.com/docs}}
+      \field{title}{Supabase documentation, 2025}
+    \endentry
+    \entry{helios_voting}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=a3135dc5bf7e2ee920303f432709675e}{%
+           family={{Ben Adida}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{fullhash}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{fullhashraw}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{bibnamehash}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{authorbibnamehash}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{authornamehash}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{authorfullhash}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{authorfullhashraw}{a3135dc5bf7e2ee920303f432709675e}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://heliosvoting.org/}}
+      \field{title}{Helios Voting, 2025}
+    \endentry
+    \entry{eventbrite_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=7314785d652ebc067604e72e3d80884a}{%
+           family={{Eventbrite, Inc.}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{fullhash}{7314785d652ebc067604e72e3d80884a}
+      \strng{fullhashraw}{7314785d652ebc067604e72e3d80884a}
+      \strng{bibnamehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authorbibnamehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authornamehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authorfullhash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authorfullhashraw}{7314785d652ebc067604e72e3d80884a}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://www.eventbrite.com/}}
+      \field{title}{Eventbrite, 2025}
+    \endentry
+    \entry{grady1992furps}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=6ab08b7ad8238226f8f8179df7d6cde9}{%
+           family={Grady},
+           familyi={G\bibinitperiod},
+           given={Robert\bibnamedelima B.},
+           giveni={R\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Prentice-Hall, Inc.}%
+      }
+      \strng{namehash}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \strng{fullhash}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \strng{fullhashraw}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \strng{bibnamehash}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \strng{authorbibnamehash}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \strng{authornamehash}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \strng{authorfullhash}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \strng{authorfullhashraw}{6ab08b7ad8238226f8f8179df7d6cde9}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Practical software metrics for project management and process improvement}
+      \field{year}{1992}
+    \endentry
+    \entry{dart_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=8b36e9207c24c76e6719268e49201d94}{%
+           family={{Google}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \strng{bibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorbibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authornamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \field{extraname}{2}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://dart.dev/}}
+      \field{title}{Dart documentation, 2025}
+    \endentry
+    \entry{firebase_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=8b36e9207c24c76e6719268e49201d94}{%
+           family={{Google}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \strng{bibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorbibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authornamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \field{extraname}{3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://firebase.google.com/docs}}
+      \field{title}{Firebase documentation, 2025}
+    \endentry
+    \entry{postgresql_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=917cf2b2062aec0c604dbecc106084cd}{%
+           family={{The PostgreSQL Global Development Group}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{917cf2b2062aec0c604dbecc106084cd}
+      \strng{fullhash}{917cf2b2062aec0c604dbecc106084cd}
+      \strng{fullhashraw}{917cf2b2062aec0c604dbecc106084cd}
+      \strng{bibnamehash}{917cf2b2062aec0c604dbecc106084cd}
+      \strng{authorbibnamehash}{917cf2b2062aec0c604dbecc106084cd}
+      \strng{authornamehash}{917cf2b2062aec0c604dbecc106084cd}
+      \strng{authorfullhash}{917cf2b2062aec0c604dbecc106084cd}
+      \strng{authorfullhashraw}{917cf2b2062aec0c604dbecc106084cd}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://www.postgresql.org/docs/}}
+      \field{title}{PostgreSQL documentation, 2025}
+    \endentry
+    \entry{typescript_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=140864078aeca1c7c35b4beb33c53c34}{%
+           family={{Microsoft}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{140864078aeca1c7c35b4beb33c53c34}
+      \strng{fullhash}{140864078aeca1c7c35b4beb33c53c34}
+      \strng{fullhashraw}{140864078aeca1c7c35b4beb33c53c34}
+      \strng{bibnamehash}{140864078aeca1c7c35b4beb33c53c34}
+      \strng{authorbibnamehash}{140864078aeca1c7c35b4beb33c53c34}
+      \strng{authornamehash}{140864078aeca1c7c35b4beb33c53c34}
+      \strng{authorfullhash}{140864078aeca1c7c35b4beb33c53c34}
+      \strng{authorfullhashraw}{140864078aeca1c7c35b4beb33c53c34}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://www.typescriptlang.org/docs/}}
+      \field{title}{TypeScript documentation, 2025}
+    \endentry
+    \entry{vercel_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=a5ffd881cacb3404ccac7e94415ab626}{%
+           family={{Vercel Inc.}},
+           familyi={V\bibinitperiod}}}%
+      }
+      \strng{namehash}{a5ffd881cacb3404ccac7e94415ab626}
+      \strng{fullhash}{a5ffd881cacb3404ccac7e94415ab626}
+      \strng{fullhashraw}{a5ffd881cacb3404ccac7e94415ab626}
+      \strng{bibnamehash}{a5ffd881cacb3404ccac7e94415ab626}
+      \strng{authorbibnamehash}{a5ffd881cacb3404ccac7e94415ab626}
+      \strng{authornamehash}{a5ffd881cacb3404ccac7e94415ab626}
+      \strng{authorfullhash}{a5ffd881cacb3404ccac7e94415ab626}
+      \strng{authorfullhashraw}{a5ffd881cacb3404ccac7e94415ab626}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://vercel.com/}}
+      \field{title}{Vercel, 2025}
+    \endentry
+    \entry{resend_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=021b87605fb5ac7f53f71a0d645793da}{%
+           family={{Resend, Inc.}},
+           familyi={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{021b87605fb5ac7f53f71a0d645793da}
+      \strng{fullhash}{021b87605fb5ac7f53f71a0d645793da}
+      \strng{fullhashraw}{021b87605fb5ac7f53f71a0d645793da}
+      \strng{bibnamehash}{021b87605fb5ac7f53f71a0d645793da}
+      \strng{authorbibnamehash}{021b87605fb5ac7f53f71a0d645793da}
+      \strng{authornamehash}{021b87605fb5ac7f53f71a0d645793da}
+      \strng{authorfullhash}{021b87605fb5ac7f53f71a0d645793da}
+      \strng{authorfullhashraw}{021b87605fb5ac7f53f71a0d645793da}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://resend.com/}}
+      \field{title}{Resend, 2025}
+    \endentry
+    \entry{google_places_api_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=8b36e9207c24c76e6719268e49201d94}{%
+           family={{Google}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \strng{bibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorbibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authornamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \field{extraname}{4}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://developers.google.com/maps/documentation/places/web-service/overview}}
+      \field{title}{Google Places API documentation, 2025}
+    \endentry
+    \entry{intellij_idea_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=b6a77f3f5bead76a495a90d63703e1f9}{%
+           family={{JetBrains}},
+           familyi={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{fullhash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{fullhashraw}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{bibnamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorbibnamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authornamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorfullhash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorfullhashraw}{b6a77f3f5bead76a495a90d63703e1f9}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://www.jetbrains.com/idea/}}
+      \field{title}{IntelliJ IDEA, 2025}
+    \endentry
+    \entry{material_theme_builder_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=8b36e9207c24c76e6719268e49201d94}{%
+           family={{Google}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \strng{bibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorbibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authornamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \field{extraname}{5}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://m3.material.io/theme-builder}}
+      \field{title}{Material Theme Builder, 2025}
+    \endentry
+    \entry{npm_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=2f9460ae749ef6058f17e6e8222ea878}{%
+           family={{npm, Inc.}},
+           familyi={n\bibinitperiod}}}%
+      }
+      \strng{namehash}{2f9460ae749ef6058f17e6e8222ea878}
+      \strng{fullhash}{2f9460ae749ef6058f17e6e8222ea878}
+      \strng{fullhashraw}{2f9460ae749ef6058f17e6e8222ea878}
+      \strng{bibnamehash}{2f9460ae749ef6058f17e6e8222ea878}
+      \strng{authorbibnamehash}{2f9460ae749ef6058f17e6e8222ea878}
+      \strng{authornamehash}{2f9460ae749ef6058f17e6e8222ea878}
+      \strng{authorfullhash}{2f9460ae749ef6058f17e6e8222ea878}
+      \strng{authorfullhashraw}{2f9460ae749ef6058f17e6e8222ea878}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://www.npmjs.com/}}
+      \field{title}{npm, 2025}
+    \endentry
+    \entry{retool_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=75880a77ee945aba35088c9c47b18d08}{%
+           family={{Retool, Inc.}},
+           familyi={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{75880a77ee945aba35088c9c47b18d08}
+      \strng{fullhash}{75880a77ee945aba35088c9c47b18d08}
+      \strng{fullhashraw}{75880a77ee945aba35088c9c47b18d08}
+      \strng{bibnamehash}{75880a77ee945aba35088c9c47b18d08}
+      \strng{authorbibnamehash}{75880a77ee945aba35088c9c47b18d08}
+      \strng{authornamehash}{75880a77ee945aba35088c9c47b18d08}
+      \strng{authorfullhash}{75880a77ee945aba35088c9c47b18d08}
+      \strng{authorfullhashraw}{75880a77ee945aba35088c9c47b18d08}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://retool.com/}}
+      \field{title}{Retool, 2025}
+    \endentry
+    \entry{git_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=336d2eb17dd063dccbbe6a669a498f8a}{%
+           family={{Software Freedom Conservancy}},
+           familyi={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{336d2eb17dd063dccbbe6a669a498f8a}
+      \strng{fullhash}{336d2eb17dd063dccbbe6a669a498f8a}
+      \strng{fullhashraw}{336d2eb17dd063dccbbe6a669a498f8a}
+      \strng{bibnamehash}{336d2eb17dd063dccbbe6a669a498f8a}
+      \strng{authorbibnamehash}{336d2eb17dd063dccbbe6a669a498f8a}
+      \strng{authornamehash}{336d2eb17dd063dccbbe6a669a498f8a}
+      \strng{authorfullhash}{336d2eb17dd063dccbbe6a669a498f8a}
+      \strng{authorfullhashraw}{336d2eb17dd063dccbbe6a669a498f8a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://git-scm.com/}}
+      \field{title}{Git, 2025}
+    \endentry
+    \entry{github_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=9b127eb47f59d27ace73783046da8889}{%
+           family={{GitHub, Inc.}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{9b127eb47f59d27ace73783046da8889}
+      \strng{fullhash}{9b127eb47f59d27ace73783046da8889}
+      \strng{fullhashraw}{9b127eb47f59d27ace73783046da8889}
+      \strng{bibnamehash}{9b127eb47f59d27ace73783046da8889}
+      \strng{authorbibnamehash}{9b127eb47f59d27ace73783046da8889}
+      \strng{authornamehash}{9b127eb47f59d27ace73783046da8889}
+      \strng{authorfullhash}{9b127eb47f59d27ace73783046da8889}
+      \strng{authorfullhashraw}{9b127eb47f59d27ace73783046da8889}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://github.com/}}
+      \field{title}{GitHub, 2025}
+    \endentry
+    \entry{plantuml_website}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=9e991784a7de86b867cc684c4745f4dd}{%
+           family={{PlantUML}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{9e991784a7de86b867cc684c4745f4dd}
+      \strng{fullhash}{9e991784a7de86b867cc684c4745f4dd}
+      \strng{fullhashraw}{9e991784a7de86b867cc684c4745f4dd}
+      \strng{bibnamehash}{9e991784a7de86b867cc684c4745f4dd}
+      \strng{authorbibnamehash}{9e991784a7de86b867cc684c4745f4dd}
+      \strng{authornamehash}{9e991784a7de86b867cc684c4745f4dd}
+      \strng{authorfullhash}{9e991784a7de86b867cc684c4745f4dd}
+      \strng{authorfullhashraw}{9e991784a7de86b867cc684c4745f4dd}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://plantuml.com/}}
+      \field{title}{PlantUML, 2025}
+    \endentry
+    \entry{bloc_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=5d2978284b6f9083df0d0a765fd8e2c4}{%
+           family={{Felix Angelov}},
+           familyi={F\bibinitperiod}}}%
+      }
+      \strng{namehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{fullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{fullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{bibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authorbibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authornamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authorfullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authorfullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \field{extraname}{1}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://bloclibrary.dev/}}
+      \field{title}{BLoC Library documentation, 2025}
+    \endentry
+    \entry{fpdart_package}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=e54eeda5f79ca599089087082b764d94}{%
+           family={{Sandro Maglione}},
+           familyi={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{e54eeda5f79ca599089087082b764d94}
+      \strng{fullhash}{e54eeda5f79ca599089087082b764d94}
+      \strng{fullhashraw}{e54eeda5f79ca599089087082b764d94}
+      \strng{bibnamehash}{e54eeda5f79ca599089087082b764d94}
+      \strng{authorbibnamehash}{e54eeda5f79ca599089087082b764d94}
+      \strng{authornamehash}{e54eeda5f79ca599089087082b764d94}
+      \strng{authorfullhash}{e54eeda5f79ca599089087082b764d94}
+      \strng{authorfullhashraw}{e54eeda5f79ca599089087082b764d94}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://pub.dev/packages/fpdart}}
+      \field{title}{fpdart package documentation, 2025}
+    \endentry
+    \entry{equatable_package}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=5d2978284b6f9083df0d0a765fd8e2c4}{%
+           family={{Felix Angelov}},
+           familyi={F\bibinitperiod}}}%
+      }
+      \strng{namehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{fullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{fullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{bibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authorbibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authornamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authorfullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{authorfullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://pub.dev/packages/equatable}}
+      \field{title}{equatable package documentation, 2025}
+    \endentry
+    \entry{auto_route_package}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=6ff8d5c15a49f5bd13a5b82898d6b045}{%
+           family={{Milad Akar}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{fullhash}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{fullhashraw}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{bibnamehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{authorbibnamehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{authornamehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{authorfullhash}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{authorfullhashraw}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://pub.dev/packages/auto_route}}
+      \field{title}{auto\_route package documentation, 2025}
+    \endentry
+    \entry{material_design_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=8b36e9207c24c76e6719268e49201d94}{%
+           family={{Google}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \strng{bibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorbibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authornamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \field{extraname}{6}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://m3.material.io/}}
+      \field{title}{Material Design 3 documentation, 2025}
+    \endentry
+    \entry{gamma1995design}{book}{}{}
+      \name{author}{4}{}{%
+        {{hash=abd927bf30d6566be0ac66a66e893fdd}{%
+           family={Gamma},
+           familyi={G\bibinitperiod},
+           given={Erich},
+           giveni={E\bibinitperiod}}}%
+        {{hash=233f891813bda0f3920985f97a4a7554}{%
+           family={Helm},
+           familyi={H\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+        {{hash=fd79e5e249b219ff553fc2d811104d78}{%
+           family={Johnson},
+           familyi={J\bibinitperiod},
+           given={Ralph},
+           giveni={R\bibinitperiod}}}%
+        {{hash=e032589f0b9a38804483ab7cf5ccad7f}{%
+           family={Vlissides},
+           familyi={V\bibinitperiod},
+           given={John},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Addison-Wesley}%
+      }
+      \strng{namehash}{4d2492409a24d4ed208ae6670cb91945}
+      \strng{fullhash}{5cb4a6d7baf30d11bae6682eca698b4f}
+      \strng{fullhashraw}{5cb4a6d7baf30d11bae6682eca698b4f}
+      \strng{bibnamehash}{5cb4a6d7baf30d11bae6682eca698b4f}
+      \strng{authorbibnamehash}{5cb4a6d7baf30d11bae6682eca698b4f}
+      \strng{authornamehash}{4d2492409a24d4ed208ae6670cb91945}
+      \strng{authorfullhash}{5cb4a6d7baf30d11bae6682eca698b4f}
+      \strng{authorfullhashraw}{5cb4a6d7baf30d11bae6682eca698b4f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Design patterns: elements of reusable object-oriented software}
+      \field{year}{1995}
+    \endentry
+    \entry{compose_multiplatform_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=b6a77f3f5bead76a495a90d63703e1f9}{%
+           family={{JetBrains}},
+           familyi={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{fullhash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{fullhashraw}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{bibnamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorbibnamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authornamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorfullhash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorfullhashraw}{b6a77f3f5bead76a495a90d63703e1f9}
+      \field{extraname}{2}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://www.jetbrains.com/lp/compose-multiplatform/}}
+      \field{title}{Compose Multiplatform documentation, 2025}
+    \endentry
+    \entry{kotlin_multiplatform_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=b6a77f3f5bead76a495a90d63703e1f9}{%
+           family={{JetBrains}},
+           familyi={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{fullhash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{fullhashraw}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{bibnamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorbibnamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authornamehash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorfullhash}{b6a77f3f5bead76a495a90d63703e1f9}
+      \strng{authorfullhashraw}{b6a77f3f5bead76a495a90d63703e1f9}
+      \field{extraname}{3}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://kotlinlang.org/docs/multiplatform-mobile-overview.html}}
+      \field{title}{Kotlin Multiplatform documentation, 2025}
+    \endentry
+    \entry{jetpack_compose_docs}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=8b36e9207c24c76e6719268e49201d94}{%
+           family={{Google}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{fullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \strng{bibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorbibnamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authornamehash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
+      \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
+      \field{extraname}{7}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://developer.android.com/jetpack/compose}}
+      \field{title}{Jetpack Compose documentation, 2025}
     \endentry
   \enddatalist
 \endrefsection

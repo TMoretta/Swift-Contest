@@ -1,5 +1,5 @@
-\Title{TODO Titolo del documento PDF}
+\Title{Gestione di Contest}
 \Author{Tommaso Moretta}
 \Language{it}
-\Subject{TODO Breve frase descrittiva}
-\Keywords{TODO\sep keyword2\sep keyword3}
+\Subject{Progettazione e implementazione di una piattaforma cross-platform per la gestione di contest, basata su Flutter e Supabase.}
+\Keywords{Swift Contest\sep Flutter\sep Supabase\sep Contest Management}

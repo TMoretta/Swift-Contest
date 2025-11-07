@@ -1,6 +1,5 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
-\contentsline {chapter}{Indice}{i}{section*.1}%
 \contentsline {chapter}{Elenco delle figure}{v}{section*.1}%
 \contentsline {chapter}{Elenco delle tabelle}{vii}{section*.1}%
 \contentsline {chapter}{Elenco dei listati}{viii}{section*.1}%
@@ -36,69 +35,70 @@
 \contentsline {subsection}{\numberline {3.1.2}Backend: Supabase, PL/pgSQL e TypeScript}{22}{subsection.3.1.2}%
 \contentsline {section}{\numberline {3.2}Piattaforme, Strumenti e Servizi}{23}{section.3.2}%
 \contentsline {subsection}{\numberline {3.2.1}Piattaforme di distribuzione e Servizi Cloud}{23}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}Strumenti di Sviluppo e Amministrazione}{24}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.2}Strumenti di Sviluppo e Amministrazione}{23}{subsection.3.2.2}%
 \contentsline {subsection}{\numberline {3.2.3}Version Control e Code Hosting}{24}{subsection.3.2.3}%
-\contentsline {subsection}{\numberline {3.2.4}Strumenti di Documentazione e Modellazione}{25}{subsection.3.2.4}%
-\contentsline {chapter}{\numberline {4}Progettazione e implementazione del sistema}{26}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Linee guida progettuali}{26}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Architettura del frontend: il pattern MVVM con BLoC}{27}{section.4.2}%
+\contentsline {subsection}{\numberline {3.2.4}Strumenti di Documentazione e Modellazione}{24}{subsection.3.2.4}%
+\contentsline {chapter}{\numberline {4}Progettazione e implementazione del sistema}{25}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Linee guida progettuali}{25}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Architettura del frontend: il pattern MVVM con BLoC}{26}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}Implementazione del ViewModel: il pattern BLoC}{28}{subsection.4.2.1}%
-\contentsline {subsubsection}{Gestione centralizzata degli errori nel repository}{29}{section*.26}%
-\contentsline {subsubsection}{Gestione dell'uguaglianza degli oggetti con Equatable}{31}{section*.28}%
-\contentsline {subsection}{\numberline {4.2.2}Navigazione con AutoRoute}{32}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Strategia di navigazione e passaggio dei dati}{33}{subsection.4.2.3}%
-\contentsline {subsubsection}{Validazione dell'input utente e gestione dei form}{34}{section*.30}%
-\contentsline {subsection}{\numberline {4.2.4}Design system e theming}{35}{subsection.4.2.4}%
-\contentsline {subsubsection}{Gestione del feedback di caricamento: l'OverlayLoader}{37}{section*.33}%
-\contentsline {paragraph}{Gestione del ciclo di vita e prevenzione dei ``leak''}{37}{section*.34}%
-\contentsline {section}{\numberline {4.3}Progettazione del database}{38}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Schema fisico e tabelle principali}{39}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Scelte di design chiave}{40}{subsection.4.3.2}%
-\contentsline {subsubsection}{Integrità referenziale e strategia di cancellazione}{40}{section*.37}%
-\contentsline {paragraph}{Cancellazione a cascata tramite \texttt {ON DELETE CASCADE}}{41}{section*.38}%
-\contentsline {paragraph}{Cancellazione tramite trigger per relazioni uno-a-uno}{41}{section*.39}%
-\contentsline {paragraph}{Cancellazione di dati esterni tramite Edge Functions}{41}{section*.40}%
-\contentsline {subsubsection}{Snapshot dei dati tramite denormalizzazione controllata}{42}{section*.41}%
-\contentsline {subsection}{\numberline {4.3.3}Implicazioni del design del form di voto sull'aggregazione dei risultati}{44}{subsection.4.3.3}%
-\contentsline {section}{\numberline {4.4}Architettura del backend}{45}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Funzioni RPC (Remote Procedure Call)}{45}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}Edge Functions}{48}{subsection.4.4.2}%
-\contentsline {section}{\numberline {4.5}Architettura di Sicurezza: Principio del Minimo Privilegio e Accesso Mediato}{50}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}Strategia di Implementazione: Centralizzazione della Logica di Autorizzazione}{51}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Il Ruolo della RLS e dell'API come "Gatekeeper"}{51}{subsection.4.5.2}%
-\contentsline {subsection}{\numberline {4.5.3}L'Eccezione Necessaria: le Policy RLS per il Servizio Realtime}{52}{subsection.4.5.3}%
-\contentsline {subsection}{\numberline {4.5.4}Misure di Sicurezza Aggiuntive}{53}{subsection.4.5.4}%
-\contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{53}{section*.46}%
-\contentsline {section}{\numberline {4.6}Progettazione e Implementazione degli Strumenti di Amministrazione}{55}{section.4.6}%
-\contentsline {subsection}{\numberline {4.6.1}Esigenza di un Pannello di Amministrazione}{55}{subsection.4.6.1}%
-\contentsline {subsection}{\numberline {4.6.2}Scelta di Retool per lo Sviluppo Rapido}{55}{subsection.4.6.2}%
-\contentsline {subsection}{\numberline {4.6.3}Architettura di Comunicazione Sicura tra Retool e Supabase}{56}{subsection.4.6.3}%
-\contentsline {subsubsection}{Accesso tramite Utente Dedicato e Funzioni RPC}{56}{section*.47}%
-\contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{57}{section*.50}%
-\contentsline {subsection}{\numberline {4.6.4}Funzionalità Implementate nel Pannello}{60}{subsection.4.6.4}%
-\contentsline {chapter}{\numberline {5}Distribuzione e prodotto finale}{61}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Strategia di distribuzione}{61}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Distribuzione web su Vercel}{62}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Distribuzione Android}{63}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Backend e Supabase}{64}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Dashboard amministrativa (Retool)}{66}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Prodotto finale: interfaccia utente e flussi operativi}{66}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Accesso e autenticazione}{67}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}Gestione delle impostazioni}{67}{subsection.5.6.2}%
-\contentsline {subsection}{\numberline {5.6.3}Flusso dell'organizzatore}{68}{subsection.5.6.3}%
-\contentsline {paragraph}{Creazione di un nuovo contest}{69}{section*.59}%
-\contentsline {paragraph}{Configurazione dei dettagli del contest}{70}{section*.61}%
-\contentsline {paragraph}{Gestione della sessione di voto}{72}{section*.64}%
-\contentsline {paragraph}{Analisi dei risultati e classifiche}{74}{section*.67}%
-\contentsline {subsection}{\numberline {5.6.4}Flusso del partecipante}{75}{subsection.5.6.4}%
-\contentsline {subsection}{\numberline {5.6.5}Flusso del giurato}{77}{subsection.5.6.5}%
-\contentsline {paragraph}{Procedura di votazione}{77}{section*.73}%
-\contentsline {subsection}{\numberline {5.6.6}Flusso del giurato semplice (ospite)}{79}{subsection.5.6.6}%
-\contentsline {chapter}{\numberline {6}Conclusioni}{80}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Sintesi del lavoro svolto e risultati ottenuti}{80}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limiti e analisi critica}{81}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Prospettive e sviluppi futuri}{82}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Considerazioni finali}{83}{section.6.4}%
-\contentsline {chapter}{Bibliografia}{84}{section.6.4}%
-\contentsline {chapter}{Sitografia}{85}{section.6.4}%
-\contentsline {chapter}{Disclaimer sui Marchi Registrati}{86}{section.6.4}%
+\contentsline {subsubsection}{Gestione centralizzata degli errori nel repository}{28}{section*.26}%
+\contentsline {subsubsection}{Gestione dell'uguaglianza degli oggetti con Equatable}{30}{section*.28}%
+\contentsline {subsection}{\numberline {4.2.2}Navigazione con AutoRoute}{31}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Strategia di navigazione e passaggio dei dati}{32}{subsection.4.2.3}%
+\contentsline {subsubsection}{Validazione dell'input utente e gestione dei form}{32}{section*.30}%
+\contentsline {subsection}{\numberline {4.2.4}Design system e theming}{33}{subsection.4.2.4}%
+\contentsline {subsubsection}{Gestione del feedback di caricamento: l'OverlayLoader}{35}{section*.33}%
+\contentsline {paragraph}{Gestione del ciclo di vita e prevenzione dei ``leak''}{35}{section*.34}%
+\contentsline {section}{\numberline {4.3}Progettazione del database}{36}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Schema fisico e tabelle principali}{37}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Scelte di design chiave}{38}{subsection.4.3.2}%
+\contentsline {subsubsection}{Integrità referenziale e strategia di cancellazione}{38}{section*.37}%
+\contentsline {paragraph}{Cancellazione a cascata tramite \texttt {ON DELETE CASCADE}}{39}{section*.38}%
+\contentsline {paragraph}{Cancellazione tramite trigger per relazioni uno-a-uno}{39}{section*.39}%
+\contentsline {paragraph}{Cancellazione di dati esterni tramite Edge Functions}{39}{section*.40}%
+\contentsline {subsubsection}{Snapshot dei dati tramite denormalizzazione controllata}{40}{section*.41}%
+\contentsline {subsection}{\numberline {4.3.3}Implicazioni del design del form di voto sull'aggregazione dei risultati}{42}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Architettura del backend}{43}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Funzioni RPC (Remote Procedure Call)}{43}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Edge Functions}{46}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Architettura di Sicurezza: Principio del Minimo Privilegio e Accesso Mediato}{48}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Strategia di Implementazione: Centralizzazione della Logica di Autorizzazione}{49}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Il Ruolo della RLS e dell'API come "Gatekeeper"}{49}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}L'Eccezione Necessaria: le Policy RLS per il Servizio Realtime}{50}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Misure di Sicurezza Aggiuntive}{51}{subsection.4.5.4}%
+\contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{51}{section*.46}%
+\contentsline {section}{\numberline {4.6}Progettazione e Implementazione degli Strumenti di Amministrazione}{53}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Esigenza di un Pannello di Amministrazione}{53}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Scelta di Retool per lo Sviluppo Rapido}{54}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Architettura di Comunicazione Sicura tra Retool e Supabase}{54}{subsection.4.6.3}%
+\contentsline {subsubsection}{Accesso tramite Utente Dedicato e Funzioni RPC}{54}{section*.47}%
+\contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{56}{section*.50}%
+\contentsline {subsection}{\numberline {4.6.4}Funzionalità Implementate nel Pannello}{58}{subsection.4.6.4}%
+\contentsline {chapter}{\numberline {5}Distribuzione e prodotto finale}{59}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Strategia di distribuzione}{59}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Distribuzione web su Vercel}{60}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Distribuzione Android}{61}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Backend e Supabase}{62}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Dashboard amministrativa (Retool)}{64}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Prodotto finale: interfaccia utente e flussi operativi}{64}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Accesso e autenticazione}{65}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}Gestione delle impostazioni}{65}{subsection.5.6.2}%
+\contentsline {subsection}{\numberline {5.6.3}Flusso dell'organizzatore}{66}{subsection.5.6.3}%
+\contentsline {paragraph}{Creazione di un nuovo contest}{67}{section*.59}%
+\contentsline {paragraph}{Configurazione dei dettagli del contest}{68}{section*.61}%
+\contentsline {paragraph}{Gestione della sessione di voto}{70}{section*.64}%
+\contentsline {paragraph}{Analisi dei risultati e classifiche}{72}{section*.67}%
+\contentsline {subsection}{\numberline {5.6.4}Flusso del partecipante}{73}{subsection.5.6.4}%
+\contentsline {subsection}{\numberline {5.6.5}Flusso del giurato}{75}{subsection.5.6.5}%
+\contentsline {paragraph}{Procedura di votazione}{75}{section*.73}%
+\contentsline {subsection}{\numberline {5.6.6}Flusso del giurato semplice (ospite)}{77}{subsection.5.6.6}%
+\contentsline {chapter}{\numberline {6}Conclusioni}{78}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Sintesi del lavoro svolto}{78}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Risultati ottenuti}{78}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Conoscenze acquisite}{79}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Valutazione personale}{80}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Considerazioni finali}{81}{section.6.5}%
+\contentsline {chapter}{Bibliografia}{82}{section.6.5}%
+\contentsline {chapter}{Sitografia}{83}{section.6.5}%
+\contentsline {chapter}{Disclaimer sui Marchi Registrati}{85}{section.6.5}%
