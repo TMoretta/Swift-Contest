@@ -2,11 +2,11 @@
 
 \chapter{Conclusioni}\label{ch:conclusioni}
 
-
-\section{Sintesi del lavoro svolto e risultati ottenuti}\label{sec:sintesi-del-lavoro-svolto-e-risultati-ottenuti}
+\section{Sintesi del lavoro svolto}\label{sec:sintesi-del-lavoro-svolto}
 Il progetto di tesi ha portato alla progettazione, implementazione e distribuzione di \textbf{Swift Contest}, una piattaforma software completa e funzionante per la gestione di concorsi, che raggiunge con successo tutti gli obiettivi prefissati in fase di analisi.
 È stato dimostrato come, attraverso l'integrazione di un ecosistema tecnologico moderno e accessibile, sia possibile costruire un sistema complesso, sicuro e scalabile, capace di risolvere le inefficienze e le criticità dei processi di gestione tradizionali.
 
+\section{Risultati ottenuti}\label{sec:risultati-ottenuti}
 I principali risultati ottenuti possono essere riassunti come segue:
 \begin{itemize}
     \item \textbf{Realizzazione di un'applicazione cross-platform unificata}: utilizzando Flutter, è stato sviluppato un unico client che offre un'esperienza utente coerente e funzionale sia su piattaforme web che mobile (Android), validando l'efficacia di un approccio a codebase singola per ridurre i tempi di sviluppo e la complessità di manutenzione.
@@ -16,35 +16,37 @@ I principali risultati ottenuti possono essere riassunti come segue:
 \end{itemize}
 Il prototipo realizzato non è solo una dimostrazione tecnica, ma si presenta come un prodotto maturo e coeso, già utilizzabile in contesti reali a piccola e media scala.
 
-\section{Limiti e analisi critica}\label{sec:limiti-e-analisi-critica}
-Un'analisi critica e onesta del lavoro svolto è fondamentale per comprenderne appieno il valore e i margini di miglioramento.
-Nonostante i risultati positivi, il progetto presenta alcuni limiti, intrinseci a un elaborato sviluppato in un contesto accademico con vincoli temporali definiti.
+\section{Conoscenze acquisite}\label{sec:conoscenze-acquisite}
+Durante lo sviluppo del progetto Swift Contest, ho avuto l'opportunità di approfondire e consolidare una vasta gamma di conoscenze e competenze, sia a livello tecnico che metodologico.
+In particolare, ho acquisito una solida padronanza di:
 \begin{itemize}
-    \item \textbf{Logica di ranking semplificata}: l'attuale meccanismo di calcolo delle classifiche, basato sulla semplice somma dei punteggi dei campi \emph{slider}, è funzionale ma basilare.
-    Manca la possibilità di introdurre regole più complesse, come l'assegnazione di pesi diversi ai campi di voto o l'applicazione di algoritmi di scarto per i voti estremi (es.
-    eliminare il voto più alto e più basso), limitandone l'applicabilità in contesti con regolamenti di valutazione più sofisticati.
-    \item \textbf{Assenza di versioning dei form di voto}: la stabilità delle votazioni è garantita tramite snapshot, ma non esiste un vero sistema di versionamento per i \emph{VotingForm}.
-    Una volta che un form è stato usato, modificarlo potrebbe creare incongruenze se lo si volesse riutilizzare in futuro.
-    Una gestione delle versioni permetterebbe agli organizzatori di creare e archiviare template di form riutilizzabili.
-    \item \textbf{Osservabilità e monitoraggio limitati}: il sistema non integra strumenti avanzati di logging, metriche o tracing distribuito.
-    In un ambiente di produzione su larga scala, l'assenza di questi strumenti renderebbe più complessa l'analisi delle performance, il debug di errori specifici e il monitoraggio proattivo della salute del sistema.
-    \item \textbf{Test automatici non esaustivi}: sebbene la logica di business nei BLoC sia stata coperta da test di unità, il progetto beneficerebbe enormemente dall'aggiunta di una suite di test più completa, includendo test di integrazione per verificare l'interazione tra client e backend e test end-to-end per simulare i flussi utente completi.
+    \item \textbf{Sviluppo Frontend con Flutter e Dart}: Ho imparato a progettare e implementare interfacce utente complesse e reattive, gestendo lo stato dell'applicazione tramite il pattern BLoC e ottimizzando l'esperienza utente su diverse piattaforme.
+    Ho approfondito l'uso di Dart Extensions per estendere le funzionalità di classi esistenti e la gestione della navigazione con AutoRoute.
+    \item \textbf{Architetture Backend-as-a-Service (BaaS) con Supabase}: Ho compreso i vantaggi e le sfide di un'architettura BaaS, imparando a configurare e gestire un database PostgreSQL, a implementare logiche di business complesse tramite Funzioni RPC (PL/pgSQL) ed Edge Functions (TypeScript), e a sfruttare servizi come l'autenticazione, lo storage e il realtime.
+    \item \textbf{Principi di Sicurezza del Software}: Ho applicato concretamente il Principio del Minimo Privilegio, progettando un accesso ai dati mediato da API e implementando meccanismi di autorizzazione robusti, inclusa la gestione dell'autenticazione anonima.
+    \item \textbf{Design Pattern e Best Practice}: Ho utilizzato e compreso l'importanza di pattern come MVVM, BLoC, Singleton e la gestione centralizzata degli errori tramite il tipo Either, che contribuiscono a creare codice manutenibile e testabile.
+    \item \textbf{Processi di Distribuzione e CI/CD}: Ho acquisito esperienza nella configurazione di pipeline di Continuous Integration/Continuous Deployment per applicazioni web e nella gestione sicura della distribuzione di APK Android tramite GitHub.
+    \item \textbf{Modellazione del Dominio e Design del Database}: Ho imparato a tradurre requisiti complessi in un modello dati robusto, implementando strategie di integrità referenziale, cancellazione e snapshot dei dati per garantire consistenza e auditabilità.
 \end{itemize}
+Questa esperienza mi ha fornito una visione completa del ciclo di vita dello sviluppo software, dalla concezione all'implementazione e distribuzione.
 
-\section{Prospettive e sviluppi futuri}\label{sec:prospettive-e-sviluppi-futuri}
-Il progetto attuale costituisce una solida base per numerosi e interessanti sviluppi futuri, che potrebbero trasformare Swift Contest da un prototipo avanzato a un prodotto commerciale completo e competitivo.
-\begin{itemize}
-    \item \textbf{Ranking avanzati e configurabili}: lo sviluppo più immediato e di maggior valore sarebbe l'introduzione di un sistema che permetta agli organizzatori di definire regole di calcolo personalizzate per le classifiche, aumentando la flessibilità della piattaforma.
-    \item \textbf{Supporto per sottomissioni multiple (Multi-Work)}: estendere il modello dati per permettere ai partecipanti di inviare più di un \emph{Work} all'interno dello stesso concorso è una funzionalità molto richiesta, specialmente in ambiti come la fotografia o la poesia.
-    \item \textbf{Integrazione di notifiche push}: affiancare alle notifiche inbox un sistema di notifiche push (es.\ tramite Firebase Cloud Messaging o un altro provider) aumenterebbe significativamente il coinvolgimento e la reattività degli utenti, notificandoli istantaneamente di eventi importanti.
-    \item \textbf{Hardening della sicurezza}: sebbene l'architettura sia sicura, potrebbe essere ulteriormente rafforzata con meccanismi di \emph{rate limiting} sulle Edge Functions per prevenire abusi e attacchi di tipo DoS, e con policy RLS ancora più granulari.
-    \item \textbf{Internazionalizzazione (i18n) e accessibilità (a11y)}: la traduzione dell'interfaccia utente in più lingue e il miglioramento del supporto per le tecnologie assistive (es.\ screen reader) sono passi fondamentali per rendere l'applicazione accessibile a un pubblico globale e inclusivo.
-    \item \textbf{Distribuzione ufficiale su App Store}: per completare la visione cross-platform, un passo futuro sarebbe quello di creare una versione per iOS e pubblicare entrambe le applicazioni mobile sugli store ufficiali (Google Play Store e Apple App Store), semplificandone la distribuzione e gli aggiornamenti.
-\end{itemize}
+\section{Valutazione personale}\label{sec:valutazione-personale}
+La realizzazione di Swift Contest ha rappresentato un percorso di crescita significativo, non solo dal punto di vista tecnico, ma anche personale e progettuale.
+Affrontare la sfida di costruire un sistema completo da zero mi ha permesso di apprezzare l'importanza di un'architettura ben ponderata fin dalle prime fasi.
+In questo contesto, ho deliberatamente scelto di non integrare funzionalità legate all'intelligenza artificiale, pur riconoscendone l'enorme importanza nel panorama tecnologico attuale.
+Per me era cruciale padroneggiare i principi fondamentali di un software ``tradizionale'' prima di aggiungere strati di complessità legati all'AI\@.
+
+Se dovessi ripensare al progetto oggi, con l'esperienza maturata, dedicherei molta più attenzione alla fase di progettazione iniziale.
+All'inizio del percorso, non possedevo la base di conoscenze che ho oggi sulle strategie moderne per affrontare problemi complessi come la gestione dello stato, la sicurezza delle API o la distribuzione.
+Ho imparato sul campo che per progettare un sistema al meglio è fondamentale conoscere a fondo le alternative e i pattern consolidati.
+
+Per questo motivo, sono estremamente soddisfatto del lavoro svolto, non solo per il risultato finale, ma soprattutto per il valore formativo del processo.
+Questo progetto mi ha insegnato a valutare i trade-off e a scegliere gli strumenti giusti per il problema giusto.
+Le competenze acquisite, in particolare nell'ambito dello sviluppo mobile e delle architetture backend, sono ora un bagaglio che posso trasferire con sicurezza nello sviluppo di qualsiasi software, sia che si tratti di utilizzare framework cross-platform alternativi come \textbf{Jetpack Compose Multiplatform} e \textbf{Kotlin Multiplatform}, sia che si tratti di approfondire lo sviluppo nativo, in particolare Android con \textbf{Jetpack Compose}.
 
 \section{Considerazioni finali}\label{sec:considerazioni-finali}
 Swift Contest rappresenta un esempio concreto di come un'architettura software ben ponderata, unita a un ecosistema tecnologico moderno e accessibile, possa portare alla creazione di un sistema complesso, sicuro e di valore.
 La scelta di combinare la flessibilità di Flutter con la potenza e la sicurezza di Supabase si è rivelata vincente, permettendo di raggiungere un ottimo equilibrio tra rapidità di sviluppo, ricchezza funzionale e sostenibilità dei costi.
 
 Il progetto non si esaurisce con la presente tesi; esso costituisce una base di partenza robusta e scalabile per future iterazioni e, potenzialmente, per applicazioni in contesti reali.
-Il lavoro svolto conferma la validità dell'approccio architetturale adottato e apre prospettive interessanti nel campo delle piattaforme collaborative e dei sistemi di votazione digitale, dimostrando che è possibile realizzare prototipi di alta qualità anche con le risorse a disposizione di uno studente o di un piccolo team di sviluppo.
+Il lavoro svolto conferma la validità dell'approccio architetturale adottato e apre prospettive interessanti nel campo delle piattaforme collaborative e dei sistemi di votazione digitale.
