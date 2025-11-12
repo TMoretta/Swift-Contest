@@ -1,0 +1,252 @@
+@startuml
+
+!theme sunlust
+left to right direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+skinparam linetype ortho
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam class {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' =======================================
+' Definizione delle Entità (Tabelle)
+' =======================================
+
+' --- Package: Core Entities ---
+package "Core" {
+    entity "profiles" as Profiles {
+        #id : uuid
+        *full_name : varchar
+        *pref_role : contest_role
+    }
+    entity "contests" as Contests {
+        #id : uuid
+        *organizer_id : uuid
+        *name : varchar
+        *description : varchar
+        *date_time : timestamptz
+        *works_submission_start : timestamptz
+        *works_submission_end : timestamptz
+        *place_id : uuid
+        *images_paths : text[]
+    }
+    entity "places" as Places {
+        #id : uuid
+        *address : varchar
+        *lat : float
+        *lon : float
+    }
+    entity "messages" as Messages {
+        #id : uuid
+        *account_id : uuid
+        *title : varchar
+        *body : varchar
+        *is_read : bool
+    }
+}
+
+' --- Package: Membership & Invitations ---
+package "Membership & Invitations" {
+    entity "participations" as Participations {
+        #id : uuid
+        *contest_id : uuid
+        *participant_id : uuid
+        *invitation_email : varchar
+        *has_submitted : bool
+    }
+    entity "juries" as Juries {
+        #id : uuid
+        *contest_id : uuid
+        *voting_form_id : uuid
+        *token : varchar
+        *name : varchar
+        *type : jury_type
+    }
+    entity "jurations" as Jurations {
+        #id : uuid
+        *contest_id : uuid
+        *jury_id : uuid
+        *juror_id : uuid
+        *invitation_email : varchar
+    }
+    entity "participant_invitations" as ParticipantInvitations {
+        #id : uuid
+        *contest_id : uuid
+        *token : varchar
+        *email : varchar
+    }
+    entity "juror_invitations" as JurorInvitations {
+        #id : uuid
+        *contest_id : uuid
+        *jury_id : uuid
+        *token : varchar
+        *email : varchar
+    }
+}
+
+' --- Package: Works ---
+package "Works" {
+    entity "works" as Works {
+        #id : uuid
+        *participation_id : uuid
+        *name : varchar
+        *description : varchar
+        *images_paths : text[]
+        *file_path : text
+    }
+}
+
+' --- Package: Voting ---
+package "Voting" {
+    ' Voting Forms
+    entity "voting_forms" as VotingForms {
+        #id : uuid
+        *name : varchar
+        *description : varchar
+    }
+    entity "voting_form_fields" as VotingFormFields {
+        #id : uuid
+        *voting_form_id : uuid
+        *question : varchar
+        *order_index : int
+        *type : voting_form_field_type
+        slider_min_value : int
+        slider_max_value : int
+        *is_required : bool
+        *scope : voting_form_field_scope
+    }
+
+    ' Voting Process
+    entity "voting_sessions" as VotingSessions {
+        #id : uuid
+        *name : varchar
+        *contest_id : uuid
+        *is_geo_restricted : bool
+        geo_res_place_id : uuid
+        geo_res_radius : int
+        *session_status : voting_session_status
+    }
+    entity "voting_form_submissions" as Submissions {
+        #id : uuid
+        *voting_session_id : uuid
+        voting_session_juror_id : uuid
+    }
+    entity "voting_form_submission_values" as SubmissionValues {
+        #id : uuid
+        *voting_form_submission_id : uuid
+        *voting_form_field_id : uuid
+        *value : text
+        voting_session_participant_id : uuid
+    }
+
+    ' Snapshot Tables
+    entity "voting_session_juries" as VSJuries {
+        #id : uuid
+        *voting_session_id : uuid
+        jury_id : uuid
+        *jury_name : varchar
+        *jury_type : jury_type
+        *voting_form_id : uuid
+        *jury_token : varchar
+    }
+    entity "voting_session_jurors" as VSJurors {
+        #id : uuid
+        *voting_session_id : uuid
+        *voting_session_jury_id : uuid
+        juration_id : uuid
+        juror_id : uuid
+        *has_submitted : bool
+        *juror_full_name : varchar
+    }
+    entity "voting_session_participants" as VSParticipants {
+        #id : uuid
+        *voting_session_id : uuid
+        participation_id : uuid
+        *order_index : int
+        *participant_full_name : varchar
+        *work_name : varchar
+        *work_description : varchar
+        *work_images_paths : text[]
+    }
+    entity "voting_session_exclusions" as VSExclusions {
+        #id : uuid
+        *voting_session_id : uuid
+        *voting_session_juror_id : uuid
+        *voting_session_participant_id : uuid
+    }
+}
+
+' --- Package: Results ---
+package "Results" {
+    entity "contest_rankings" as Rankings {
+        #id : uuid
+        *contest_id : uuid
+        *file_path : text
+    }
+}
+
+' =======================================
+' Definizione delle Relazioni
+' =======================================
+
+' --- Core Relationships ---
+Profiles ||--o{ Messages
+Profiles ||--o{ Contests
+Contests |o--|| Places
+
+' --- Membership & Invitations ---
+Contests ||--o{ Participations
+Profiles ||--o{ Participations
+Contests ||--o{ ParticipantInvitations
+
+Contests ||--o{ Juries
+Juries ||--o{ Jurations
+Profiles ||--o{ Jurations
+Juries ||--o{ JurorInvitations
+
+' --- Works ---
+' CORREZIONE FINALE: Una partecipazione ha 0 o 1 lavoro.
+Participations ||--o| Works
+
+' --- Voting Forms ---
+Juries ||--|| VotingForms
+VotingForms ||--o{ VotingFormFields
+
+' --- Voting Process ---
+Contests ||--o{ VotingSessions
+VotingSessions |o--o| Places
+VotingSessions ||--o{ Submissions
+VSJurors ||--o| Submissions
+Submissions ||--o{ SubmissionValues
+VotingFormFields ||--o{ SubmissionValues
+
+' --- Snapshot Relationships ---
+VotingSessions ||--|{ VSJuries
+VotingSessions ||--o{ VSJurors
+VotingSessions ||--|{ VSParticipants
+VSJuries ||--o{ VSJurors
+
+' Dotted lines for optional/SET NULL relationships
+Juries ..> VSJuries
+Jurations ..> VSJurors
+Profiles ..> VSJurors
+Participations ..> VSParticipants
+SubmissionValues }o--o| VSParticipants
+
+' --- Exclusions ---
+VSJurors ||--o{ VSExclusions
+VSParticipants ||--o{ VSExclusions
+
+' --- Rankings ---
+Contests ||--o{ Rankings
+
+@enduml

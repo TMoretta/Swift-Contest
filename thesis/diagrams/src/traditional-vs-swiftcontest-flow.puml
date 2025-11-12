@@ -1,0 +1,76 @@
+@startuml
+
+!theme sunlust
+top to bottom direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam rectangle {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' --- Palette di Colori ---
+' skinparam package {
+    
+' }
+' skinparam rectangle {
+'     BackgroundColor #E6F3FF
+' }
+' skinparam actor {
+'     BackgroundColor #LightSkyBlue
+' }
+
+' =======================================
+' Definizione dei Diagrammi
+' =======================================
+
+' --- Processo Tradizionale ---
+package "Processo Tradizionale (Frammentato)" as Traditional {
+    actor Organizer as Org_T
+    actor Participant as Part_T
+    actor Juror as Jur_T
+
+    rectangle "Email" as Email
+    rectangle "Cloud Storage\n(es. Drive)" as Storage
+    rectangle "Spreadsheet\n(es. Excel)" as Sheet
+
+    Org_T --> Email : (Invia inviti)
+    Org_T --> Storage : (Crea cartelle)
+    Org_T --> Sheet : (Prepara tabelle voti)
+
+    Part_T --> Email : (Riceve invito)
+    Part_T --> Storage : (Carica lavoro)
+
+    Jur_T --> Email : (Riceve materiali)
+    Jur_T --> Sheet : (Inserisce voti)
+}
+
+' --- Processo Swift Contest ---
+package "Processo Integrato (Swift Contest)" as SwiftContest {
+    actor Organizer as Org_S
+    actor Participant as Part_S
+    actor Juror as Jur_S
+
+    package "**Swift Contest App**" as App {
+        rectangle "Gestione Inviti" as Invites
+        rectangle "Gestione Lavori" as Works
+        rectangle "Gestione Voti" as Votes
+    }
+
+    Org_S --> App
+    Part_S --> App
+    Jur_S --> App
+}
+
+' --- Layout Hint ---
+' Posiziona i due processi uno sotto l'altro
+Traditional -[hidden]- SwiftContest
+
+@enduml

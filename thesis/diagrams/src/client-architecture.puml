@@ -1,0 +1,54 @@
+@startuml
+
+!theme sunlust
+top to bottom direction
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam rectangle {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' =======================================
+' Definizione dei Componenti
+' =======================================
+
+package "Flutter Client Architecture (MVVM/BLoC)" {
+
+    rectangle "**View**\n(UI Widgets)" as View
+    rectangle "**ViewModel**\n(BLoC)" as BLoC
+    rectangle "**Model**\n(Repository)" as Repository
+
+    database "Backend\n(Supabase API)" as Backend
+}
+
+' =======================================
+' Definizione del Flusso di Dati
+' =======================================
+
+' --- Flusso di Interazione dell'Utente (Command) ---
+View -> BLoC : 1. Notifies **Event** (e.g., Button Pressed)
+BLoC -> Repository : 2. Invokes method (e.g., fetchData())
+Repository -> Backend : 3. Makes API call
+Backend --> Repository : 4. Returns raw data
+
+' --- Flusso di Ritorno dei Dati (Processing) ---
+Repository --> BLoC : 5. Returns result (e.g., Either<Failure, Data>)
+
+' --- Flusso Reattivo dello Stato (State Stream) ---
+' Il BLoC processa il risultato e emette un nuovo stato
+BLoC --> View : 6. Emits new **State**
+note on link: BLoC processes logic\nand pushes a new State
+
+' La View si ricostruisce in base al nuovo stato
+View -> View : 7. Rebuilds UI based on State
+note on link: (e.g., via BlocBuilder)
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+
+!theme sunlust
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam actorStyle awesome
+skinparam shadowing false
+
+autonumber
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam rectangle {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+}
+
+' skinparam sequence {
+'     ParticipantBackgroundColor #E6F3FF
+'     ParticipantBorderColor #00529B
+'     ActorBackgroundColor #D1E8FF
+'     ActorBorderColor #0065D1
+'     ArrowColor #555555
+'     LifeLineBorderColor #7A869A
+' }
+' skinparam shadowing true
+
+' =======================================
+' Definizione dei Partecipanti
+' =======================================
+actor Admin
+participant "Retool Dashboard" as Retool
+participant "Edge Function\n(es. admin-delete-account)" as Edge
+participant "Supabase Vault" as Vault
+participant "Supabase Services\n(DB, Storage, etc.)" as Supabase
+
+' =======================================
+' Flusso della Chiamata Sicura
+' =======================================
+Admin -> Retool : Clicca su "Elimina Utente"
+
+Retool -> Edge : Invia richiesta POST\n(include header 'X-API-Key')
+
+group Validazione Sicurezza
+    Edge -> Vault : Richiede segreto 'RETOOL_API_KEY'
+    Vault --> Edge : Restituisce il segreto
+    Edge -> Edge : Confronta la chiave ricevuta con il segreto
+    alt Chiave non valida
+        Edge --> Retool : Restituisce Errore 401 (Unauthorized)
+        destroy Edge
+    end
+end
+
+' Se la chiave è valida, procede
+Edge -> Supabase : Esegue operazioni amministrative\n(es. delete user, remove files)
+Supabase --> Edge : Conferma operazioni
+
+Edge --> Retool : Restituisce Risposta 200 (OK)
+
+@enduml
