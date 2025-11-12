@@ -26,8 +26,8 @@ actor Admin
 ' =======================================
 
 package "Administration" {
-  usecase "Manage users" as UC_AdminManageUsers
   usecase "Manage contests" as UC_AdminManageContests
+  usecase "Manage users" as UC_AdminManageUsers
 }
 
 ' =======================================

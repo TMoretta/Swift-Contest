@@ -6,7 +6,7 @@ skinparam backgroundColor transparent
 skinparam actorStyle awesome
 skinparam shadowing false
 
-autonumber
+autonumber "<b>[0]"
 
 skinparam package {
     backgroundColor #FFFFFF
@@ -17,47 +17,33 @@ skinparam participant {
   borderColor #3995D7
 }
 
-' skinparam actor {
-'     BackgroundColor #LightSkyBlue
-' }
-' skinparam participant {
-'     BackgroundColor #E6F3FF
-' }
-' skinparam database {
-'     BackgroundColor #E6F3FF
-' }
-
 ' =======================================
 ' Definizione dei Partecipanti
 ' =======================================
 actor Admin
 participant "Retool Dashboard" as Retool
-database "PostgreSQL DB" as DB
 participant "RPC Function\n(es. admin_get_all_accounts)" as RPC
+database "PostgreSQL DB" as DB
 
 ' =======================================
 ' Flusso della Chiamata Sicura
 ' =======================================
 Admin -> Retool : Carica la pagina "Gestione Utenti"
 
-Retool -> DB : Esegue query:\n`SELECT * FROM ...`\n(autenticato come 'retool_user')
+Retool -> RPC : Invoca la funzione
+activate RPC
+RPC -> RPC : Controlla: `session_user = 'retool'`
 
-DB -> RPC : Invoca la funzione
-
-group Validazione Sicurezza
-    RPC -> RPC : Controlla: `session_user = 'retool_user'`
-    alt Utente non autorizzato
-        RPC --> DB : Solleva un'eccezione\n'Permission denied'
-        DB --> Retool : Restituisce Errore
-        destroy RPC
-    end
+alt <color:#006400>Security Check: Success</color>
+    RPC -> DB : Esegue la query sui dati richiesti
+    activate DB
+    DB --> RPC : Restituisce i dati
+    deactivate DB
+    RPC --> Retool : Restituisce i dati (JSON)
+else <color:red>Security Check: Failure</color>
+    RPC --> Retool : Error: 'Permission Denied'
 end
 
-' Se l'utente è autorizzato, procede
-RPC -> DB : Esegue la query di SELECT\nsui dati richiesti
-DB --> RPC : Restituisce i risultati
-
-RPC --> DB : Inoltra i risultati
-DB --> Retool : Restituisce i dati (JSON)
+deactivate RPC
 
 @enduml

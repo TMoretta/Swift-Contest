@@ -17,15 +17,17 @@ skinparam usecase {
 }
 
 ' =======================================
-' Attori
+' Attori (Gerarchia Completa)
 ' =======================================
 actor Guest
 actor Authenticated
-actor Organizer
 actor Juror
+actor Participant
+actor Organizer
 
-Authenticated <|-- Organizer
 Authenticated <|-- Juror
+Authenticated <|-- Organizer
+Authenticated <|-- Participant
 
 ' =======================================
 ' Packages e Casi d'Uso
@@ -33,7 +35,7 @@ Authenticated <|-- Juror
 
 package "Voting & Ranking Management" {
   usecase "Vote in Session" as UC_VoteInSession
-  
+
   usecase "Start voting session" as UC_StartVotingSession
   usecase "Cancel voting session" as UC_CancelVotingSession
   usecase "End voting session" as UC_EndVotingSession
@@ -45,7 +47,7 @@ package "Voting & Ranking Management" {
   usecase "Publish ranking" as UC_PublishRanking
   usecase "Unpublish ranking" as UC_UnpublishRanking
   usecase "Download ranking" as UC_DownloadRanking
-  
+
   usecase "Export voting results" as UC_ExportVotingResults
 }
 
@@ -53,11 +55,12 @@ package "Voting & Ranking Management" {
 ' Connessioni
 ' =======================================
 
-' Guest
-Guest --> UC_VoteInSession : (as Simple Juror)
+' Guest (come Giurato Semplice)
+Guest --> UC_VoteInSession : {as Simple Juror}
 
-' Juror
-Juror --> UC_VoteInSession : (as Appointed or Simple Juror)
+' Juror (sia Nominato che Semplice)
+Juror --> UC_VoteInSession
+Juror --> UC_DownloadRanking
 
 ' Organizer
 Organizer --> UC_EditJuryForm
@@ -69,6 +72,8 @@ Organizer --> UC_PublishRanking
 Organizer --> UC_UnpublishRanking
 Organizer --> UC_DownloadRanking
 Organizer --> UC_ExportVotingResults
+
+Participant --> UC_DownloadRanking
 
 ' =======================================
 ' Relazioni tra Casi d'Uso

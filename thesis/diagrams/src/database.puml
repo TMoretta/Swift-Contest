@@ -1,7 +1,7 @@
 @startuml
 
 !theme sunlust
-left to right direction
+top to bottom direction
 skinparam dpi 300
 skinparam backgroundColor transparent
 skinparam actorStyle awesome
@@ -30,14 +30,15 @@ package "Core" {
     }
     entity "contests" as Contests {
         #id : uuid
-        *organizer_id : uuid
         *name : varchar
         *description : varchar
         *date_time : timestamptz
         *works_submission_start : timestamptz
         *works_submission_end : timestamptz
-        *place_id : uuid
         *images_paths : text[]
+        --
+        *organizer_id : uuid <<FK>>
+        *place_id : uuid <<FK, UNIQUE>>
     }
     entity "places" as Places {
         #id : uuid
@@ -47,10 +48,11 @@ package "Core" {
     }
     entity "messages" as Messages {
         #id : uuid
-        *account_id : uuid
         *title : varchar
         *body : varchar
         *is_read : bool
+        --
+        *account_id : uuid <<FK>>
     }
 }
 
@@ -58,38 +60,43 @@ package "Core" {
 package "Membership & Invitations" {
     entity "participations" as Participations {
         #id : uuid
-        *contest_id : uuid
-        *participant_id : uuid
         *invitation_email : varchar
         *has_submitted : bool
+        --
+        *contest_id : uuid <<FK>>
+        *participant_id : uuid <<FK>>
     }
     entity "juries" as Juries {
         #id : uuid
-        *contest_id : uuid
-        *voting_form_id : uuid
-        *token : varchar
+        *token : varchar <<UNIQUE>>
         *name : varchar
         *type : jury_type
+        --
+        *contest_id : uuid <<FK>>
+        *voting_form_id : uuid <<FK, UNIQUE>>
     }
     entity "jurations" as Jurations {
         #id : uuid
-        *contest_id : uuid
-        *jury_id : uuid
-        *juror_id : uuid
         *invitation_email : varchar
+        --
+        *contest_id : uuid <<FK>>
+        *jury_id : uuid <<FK>>
+        *juror_id : uuid <<FK>>
     }
     entity "participant_invitations" as ParticipantInvitations {
         #id : uuid
-        *contest_id : uuid
-        *token : varchar
+        *token : varchar <<UNIQUE>>
         *email : varchar
+        --
+        *contest_id : uuid <<FK>>
     }
     entity "juror_invitations" as JurorInvitations {
         #id : uuid
-        *contest_id : uuid
-        *jury_id : uuid
-        *token : varchar
+        *token : varchar <<UNIQUE>>
         *email : varchar
+        --
+        *contest_id : uuid <<FK>>
+        *jury_id : uuid <<FK>>
     }
 }
 
@@ -97,11 +104,12 @@ package "Membership & Invitations" {
 package "Works" {
     entity "works" as Works {
         #id : uuid
-        *participation_id : uuid
         *name : varchar
         *description : varchar
         *images_paths : text[]
         *file_path : text
+        --
+        *participation_id : uuid <<FK, UNIQUE>>
     }
 }
 
@@ -115,7 +123,6 @@ package "Voting" {
     }
     entity "voting_form_fields" as VotingFormFields {
         #id : uuid
-        *voting_form_id : uuid
         *question : varchar
         *order_index : int
         *type : voting_form_field_type
@@ -123,65 +130,72 @@ package "Voting" {
         slider_max_value : int
         *is_required : bool
         *scope : voting_form_field_scope
+        --
+        *voting_form_id : uuid <<FK>>
     }
 
     ' Voting Process
     entity "voting_sessions" as VotingSessions {
         #id : uuid
         *name : varchar
-        *contest_id : uuid
         *is_geo_restricted : bool
-        geo_res_place_id : uuid
         geo_res_radius : int
         *session_status : voting_session_status
+        --
+        *contest_id : uuid <<FK>>
+        geo_res_place_id : uuid <<FK, UNIQUE>>
     }
     entity "voting_form_submissions" as Submissions {
         #id : uuid
-        *voting_session_id : uuid
-        voting_session_juror_id : uuid
+        *voting_session_id : uuid <<FK>>
+        voting_session_juror_id : uuid <<FK, UNIQUE>>
     }
     entity "voting_form_submission_values" as SubmissionValues {
         #id : uuid
-        *voting_form_submission_id : uuid
-        *voting_form_field_id : uuid
         *value : text
-        voting_session_participant_id : uuid
+        --
+        *voting_form_submission_id : uuid <<FK>>
+        *voting_form_field_id : uuid <<FK>>
+        voting_session_participant_id : uuid <<FK>>
     }
 
     ' Snapshot Tables
     entity "voting_session_juries" as VSJuries {
         #id : uuid
-        *voting_session_id : uuid
-        jury_id : uuid
         *jury_name : varchar
         *jury_type : jury_type
         *voting_form_id : uuid
         *jury_token : varchar
+        --
+        *voting_session_id : uuid <<FK>>
+        jury_id : uuid <<FK>>
     }
     entity "voting_session_jurors" as VSJurors {
         #id : uuid
-        *voting_session_id : uuid
-        *voting_session_jury_id : uuid
-        juration_id : uuid
-        juror_id : uuid
         *has_submitted : bool
         *juror_full_name : varchar
+        --
+        *voting_session_id : uuid <<FK>>
+        *voting_session_jury_id : uuid <<FK>>
+        juration_id : uuid <<FK>>
+        juror_id : uuid <<FK>>
     }
     entity "voting_session_participants" as VSParticipants {
         #id : uuid
-        *voting_session_id : uuid
-        participation_id : uuid
         *order_index : int
         *participant_full_name : varchar
         *work_name : varchar
         *work_description : varchar
         *work_images_paths : text[]
+        --
+        *voting_session_id : uuid <<FK>>
+        participation_id : uuid <<FK>>
     }
     entity "voting_session_exclusions" as VSExclusions {
         #id : uuid
-        *voting_session_id : uuid
-        *voting_session_juror_id : uuid
-        *voting_session_participant_id : uuid
+        *voting_session_id : uuid <<FK>>
+        *voting_session_juror_id : uuid <<FK>>
+        *voting_session_participant_id : uuid <<FK>>
     }
 }
 
@@ -189,8 +203,9 @@ package "Voting" {
 package "Results" {
     entity "contest_rankings" as Rankings {
         #id : uuid
-        *contest_id : uuid
         *file_path : text
+        --
+        *contest_id : uuid <<FK>>
     }
 }
 
@@ -214,7 +229,6 @@ Profiles ||--o{ Jurations
 Juries ||--o{ JurorInvitations
 
 ' --- Works ---
-' CORREZIONE FINALE: Una partecipazione ha 0 o 1 lavoro.
 Participations ||--o| Works
 
 ' --- Voting Forms ---

@@ -20,10 +20,12 @@ skinparam usecase {
 ' Attori
 ' =======================================
 actor Authenticated
-actor Organizer
 actor Participant
+actor Organizer
+actor Juror
 
 Authenticated <|-- Organizer
+Authenticated <|-- Juror
 Authenticated <|-- Participant
 
 ' =======================================
@@ -39,7 +41,7 @@ package "Contest Management" {
 package "Membership Management" {
   usecase "Join contest" as UC_JoinContest
   usecase "Leave contest" as UC_LeaveContest
-  
+
   usecase "Invite Participant" as UC_InviteParticipant
   usecase "Remove Participant" as UC_RemoveParticipant
 
@@ -48,7 +50,7 @@ package "Membership Management" {
   usecase "Delete Jury" as UC_DeleteJury
   usecase "Invite Appointed Juror" as UC_InviteAppointedJuror
   usecase "Remove Appointed Juror" as UC_RemoveAppointedJuror
-  
+
   usecase "Delete Invitation" as UC_DeleteInvitation
 }
 
@@ -81,6 +83,6 @@ Organizer --> UC_DownloadWork
 
 ' Participant
 Participant --> UC_SubmitWork
-Participant --> UC_DownloadWork : (own work)
+Participant --> UC_DownloadWork : {own work only}
 
 @enduml

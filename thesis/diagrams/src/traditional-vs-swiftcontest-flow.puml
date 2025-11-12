@@ -1,7 +1,7 @@
 @startuml
 
 !theme sunlust
-top to bottom direction
+left to right direction
 skinparam dpi 300
 skinparam backgroundColor transparent
 skinparam actorStyle awesome
@@ -16,17 +16,6 @@ skinparam rectangle {
   borderColor #3995D7
 }
 
-' --- Palette di Colori ---
-' skinparam package {
-    
-' }
-' skinparam rectangle {
-'     BackgroundColor #E6F3FF
-' }
-' skinparam actor {
-'     BackgroundColor #LightSkyBlue
-' }
-
 ' =======================================
 ' Definizione dei Diagrammi
 ' =======================================
@@ -38,39 +27,52 @@ package "Processo Tradizionale (Frammentato)" as Traditional {
     actor Juror as Jur_T
 
     rectangle "Email" as Email
-    rectangle "Cloud Storage\n(es. Drive)" as Storage
-    rectangle "Spreadsheet\n(es. Excel)" as Sheet
+    rectangle "Cloud Storage" as Storage
+    rectangle "Forms" as Forms
+    rectangle "Spreadsheet" as Sheet
 
-    Org_T --> Email : (Invia inviti)
-    Org_T --> Storage : (Crea cartelle)
-    Org_T --> Sheet : (Prepara tabelle voti)
+    ' Flusso di dati frammentato
+    Org_T --> Email : Invia inviti
+    Email ..> Part_T : (Riceve invito)
+    Email ..> Jur_T : (Riceve invito)
 
-    Part_T --> Email : (Riceve invito)
-    Part_T --> Storage : (Carica lavoro)
+    Part_T --> Storage : Carica lavoro
+    Jur_T --> Forms : Inserisce voti
+    Forms ..> Sheet : (Esportazione dati)
 
-    Jur_T --> Email : (Riceve materiali)
-    Jur_T --> Sheet : (Inserisce voti)
+    ' Lavoro manuale dell'organizzatore per collegare tutto
+    Org_T .[#red].> Email : (Controlla\niscrizioni)
+    Org_T .[#red].> Storage : (Associa lavori\nai partecipanti)
+    Org_T .[#red].> Sheet : (Analizza e\nconsolida risultati)
 }
 
 ' --- Processo Swift Contest ---
 package "Processo Integrato (Swift Contest)" as SwiftContest {
-    actor Organizer as Org_S
-    actor Participant as Part_S
     actor Juror as Jur_S
+    actor Participant as Part_S
+    actor Organizer as Org_S
 
-    package "**Swift Contest App**" as App {
-        rectangle "Gestione Inviti" as Invites
+    package "**Swift Contest Platform**" as App {
+        rectangle "Gestione Risultati" as Results
+        rectangle "Gestione Votazioni" as Votes
         rectangle "Gestione Lavori" as Works
-        rectangle "Gestione Voti" as Votes
+        rectangle "Gestione Membri\ne Inviti" as Users
+        database "Single Source of Truth" as SSoT
     }
 
-    Org_S --> App
-    Part_S --> App
+    ' Tutti gli attori interagiscono con un'unica piattaforma
     Jur_S --> App
+    Part_S --> App
+    Org_S --> App
+
+    ' Tutti i moduli sono integrati e condividono gli stessi dati
+    Users -- SSoT
+    Works -- SSoT
+    Votes -- SSoT
+    Results -- SSoT
 }
 
 ' --- Layout Hint ---
-' Posiziona i due processi uno sotto l'altro
 Traditional -[hidden]- SwiftContest
 
 @enduml
