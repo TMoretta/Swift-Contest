@@ -1,0 +1,62 @@
+\glossaryentry{SoC?\glossentry{soc}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{PoLP?\glossentry{polp}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{MVVM?\glossentry{mvvm}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{BLoC?\glossentry{bloc}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{BaaS?\glossentry{baas}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{API?\glossentry{api}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{RPC?\glossentry{rpc}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{JWT?\glossentry{jwt}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{CI/CD?\glossentry{cicd}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{IaC?\glossentry{iac}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{ERD?\glossentry{erd}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{UML?\glossentry{uml}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{RLS?\glossentry{rls}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{FURPS+?\glossentry{furps}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{APK?\glossentry{apk}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{GDPR?\glossentry{gdpr}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{JIT?\glossentry{jit}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{AOT?\glossentry{aot}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{DSL?\glossentry{dsl}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{SPA?\glossentry{spa}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{PAT?\glossentry{pat}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{SSoT?\glossentry{ssot}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{MVVM (Model-View-ViewModel)?\glossentry{mvvm_pattern}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{BLoC (Business Logic Component)?\glossentry{bloc_pattern}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Repository Pattern?\glossentry{repository_pattern}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Singleton Pattern?\glossentry{singleton_pattern}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Hard Delete vs Soft Delete?\glossentry{hard_soft_delete}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Cross-Platform?\glossentry{crossplatform}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Edge Function?\glossentry{edgefunctions}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Snapshot (dei dati)?\glossentry{snapshot}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{End-to-end?\glossentry{e2e}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Soluzione Verticale?\glossentry{verticalsolution}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Classe Associativa?\glossentry{associativeclass}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Denormalizzazione?\glossentry{denormalization}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Token?\glossentry{token}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Either (Tipo di Dato)?\glossentry{either_type}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Equatable?\glossentry{equatable}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Trigger (di Database)?\glossentry{db_trigger}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Signed URL?\glossentry{signed_url}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Autenticazione Anonima?\glossentry{anonymous_auth}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Stream?\glossentry{stream}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Dart Extension?\glossentry{dart_extension}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Deep Linking?\glossentry{deeplinking}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Low-code?\glossentry{lowcode}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Hot Reload?\glossentry{hotreload}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Dart?\glossentry{dart}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{PL/pgSQL?\glossentry{plpgsql}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{TypeScript?\glossentry{typescript}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Deno?\glossentry{deno}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Flutter?\glossentry{flutter}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Supabase?\glossentry{supabase}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Firebase?\glossentry{firebase}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{PostgreSQL?\glossentry{postgresql}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Git?\glossentry{git}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Vercel?\glossentry{vercel}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Resend?\glossentry{resend}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Retool?\glossentry{retool}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Jetpack Compose?\glossentry{jetpackcompose}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Kotlin Multiplatform (KMP)?\glossentry{kmp}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Jetpack Compose Multiplatform?\glossentry{composemultiplatform}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Giurato Semplice (Simple Juror)?\glossentry{simplejuror}|setentrycounter[]{page}"\glsnumberformat}{82}
+\glossaryentry{Giurato Nominato (Appointed Juror)?\glossentry{appointedjuror}|setentrycounter[]{page}"\glsnumberformat}{82}

@@ -11,14 +11,14 @@
 \contentsline {section}{\numberline {1.5}Struttura del documento}{4}{section.1.5}%
 \contentsline {chapter}{\numberline {2}Contesto e analisi del sistema}{6}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Il problema: frammentazione e inefficienza nella gestione dei contest}{6}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Stato dell’arte e analisi delle alternative}{7}{section.2.2}%
+\contentsline {section}{\numberline {2.2}Stato dell’arte e analisi delle alternative}{8}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Strumenti generici adattati: lo ``Status Quo''}{8}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Piattaforme per domini correlati}{8}{subsection.2.2.2}%
 \contentsline {subsubsection}{Piattaforme di e-voting}{8}{section*.3}%
 \contentsline {subsubsection}{Piattaforme per la gestione di eventi}{9}{section*.4}%
 \contentsline {subsection}{\numberline {2.2.3}Posizionamento di Swift Contest}{9}{subsection.2.2.3}%
 \contentsline {section}{\numberline {2.3}Attori e casi d’uso}{9}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Attori del sistema}{9}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.1}Attori del sistema}{10}{subsection.2.3.1}%
 \contentsline {subsection}{\numberline {2.3.2}Casi d'Uso: Gestione Account e Funzionalità Generali}{10}{subsection.2.3.2}%
 \contentsline {subsection}{\numberline {2.3.3}Casi d'Uso: Gestione del Ciclo di Vita del contest}{11}{subsection.2.3.3}%
 \contentsline {subsection}{\numberline {2.3.4}Casi d'Uso: Gestione delle Votazioni e dei Risultati}{13}{subsection.2.3.4}%
@@ -80,9 +80,9 @@
 \contentsline {section}{\numberline {5.2}Distribuzione web su Vercel}{60}{section.5.2}%
 \contentsline {section}{\numberline {5.3}Distribuzione Android}{61}{section.5.3}%
 \contentsline {section}{\numberline {5.4}Backend e Supabase}{62}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Dashboard amministrativa (Retool)}{64}{section.5.5}%
+\contentsline {section}{\numberline {5.5}Dashboard amministrativa (Retool)}{63}{section.5.5}%
 \contentsline {section}{\numberline {5.6}Prodotto finale: interfaccia utente e flussi operativi}{64}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Accesso e autenticazione}{65}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.1}Accesso e autenticazione}{64}{subsection.5.6.1}%
 \contentsline {subsection}{\numberline {5.6.2}Gestione delle impostazioni}{65}{subsection.5.6.2}%
 \contentsline {subsection}{\numberline {5.6.3}Flusso dell'organizzatore}{66}{subsection.5.6.3}%
 \contentsline {paragraph}{Creazione di un nuovo contest}{67}{section*.59}%
@@ -99,6 +99,7 @@
 \contentsline {section}{\numberline {6.3}Conoscenze acquisite}{79}{section.6.3}%
 \contentsline {section}{\numberline {6.4}Valutazione personale}{80}{section.6.4}%
 \contentsline {section}{\numberline {6.5}Considerazioni finali}{81}{section.6.5}%
-\contentsline {chapter}{Bibliografia}{82}{section.6.5}%
-\contentsline {chapter}{Sitografia}{83}{section.6.5}%
-\contentsline {chapter}{Disclaimer sui Marchi Registrati}{85}{section.6.5}%
+\contentsline {chapter}{Glossario}{83}{section*.76}%
+\contentsline {chapter}{Bibliografia}{89}{section*.76}%
+\contentsline {chapter}{Sitografia}{90}{section*.76}%
+\contentsline {chapter}{Disclaimer sui Marchi Registrati}{92}{section*.76}%

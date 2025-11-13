@@ -17,7 +17,7 @@
 \contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{57}{figure.caption.51}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {5.1}{\ignorespaces Diagramma di distribuzione dell'architettura completa di Swift Contest.}}{60}{figure.caption.53}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Pagina di accesso dell'applicazione web distribuita su Vercel.}}{62}{figure.caption.54}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Pagina di accesso dell'applicazione web distribuita su Vercel.}}{61}{figure.caption.54}%
 \contentsline {figure}{\numberline {5.3}{\ignorespaces La dashboard di amministrazione sviluppata in Retool, che mostra l'elenco degli utenti registrati.}}{64}{figure.caption.55}%
 \contentsline {figure}{\numberline {5.4}{\ignorespaces Le schermate del flusso di autenticazione dell'applicazione.}}{65}{figure.caption.56}%
 \contentsline {figure}{\numberline {5.5}{\ignorespaces Le schermate per la gestione delle impostazioni dell'app e dell'account utente.}}{66}{figure.caption.57}%

@@ -1,0 +1,261 @@
+% capitoli/glossario.tex
+
+% =======================================
+% ACRONIMI
+% =======================================
+
+\newacronym{soc}{SoC}{Separation of Concerns (Separazione delle Responsabilità)}
+\newacronym{polp}{PoLP}{Principle of Least Privilege (Principio del Minimo Privilegio)}
+\newacronym{mvvm}{MVVM}{Model-View-ViewModel}
+\newacronym{bloc}{BLoC}{Business Logic Component}
+\newacronym{baas}{BaaS}{Backend-as-a-Service}
+\newacronym{api}{API}{Application Programming Interface}
+\newacronym[plural=RPCs, firstplural=Remote Procedure Calls (RPCs)]{rpc}{RPC}{Remote Procedure Call}
+\newacronym{jwt}{JWT}{JSON Web Token}
+\newacronym{cicd}{CI/CD}{Continuous Integration/Continuous Deployment}
+\newacronym{iac}{IaC}{Infrastructure as Code}
+\newacronym{erd}{ERD}{Entity-Relationship Diagram}
+\newacronym[plural=UML, firstplural=Unified Modeling Language (UML)]{uml}{UML}{Unified Modeling Language}
+\newacronym{rls}{RLS}{Row Level Security}
+\newacronym{furps}{FURPS+}{Functionality, Usability, Reliability, Performance, Supportability+}
+\newacronym{apk}{APK}{Android Package Kit}
+\newacronym{gdpr}{GDPR}{General Data Protection Regulation}
+\newacronym{jit}{JIT}{Just-In-Time Compilation}
+\newacronym{aot}{AOT}{Ahead-Of-Time Compilation}
+\newacronym{dsl}{DSL}{Domain-Specific Language}
+\newacronym{spa}{SPA}{Single Page Application}
+\newacronym{pat}{PAT}{Personal Access Token}
+
+% MODIFICA: Unita la definizione di SSoT nell'acronimo
+\newacronym[
+    description={Un principio di progettazione dei sistemi informativi secondo cui ogni dato deve avere un'unica, autorevole e ufficiale fonte di origine. L'architettura di Swift Contest è progettata per agire come SSoT, eliminando la frammentazione dei dati tipica dei processi tradizionali}
+]{ssot}{SSoT}{Single Source of Truth (Unica Fonte di Verità)}
+
+
+% =======================================
+% PATTERN E PRINCIPI ARCHITETTURALI
+% =======================================
+
+\newglossaryentry{mvvm_pattern}{
+    name={MVVM (Model-View-ViewModel)},
+    description={Un pattern architetturale per la progettazione di interfacce utente che separa la logica di presentazione (ViewModel) dalla UI (View). La View "osserva" i dati esposti dal ViewModel e si aggiorna automaticamente quando cambiano}
+}
+
+\newglossaryentry{bloc_pattern}{
+    name={BLoC (Business Logic Component)},
+    description={Un design pattern per la gestione dello stato in Flutter, che implementa il pattern ViewModel. Utilizza un flusso reattivo basato su stream, dove la UI notifica Eventi e il BLoC emette Stati in risposta}
+}
+
+\newglossaryentry{repository_pattern}{
+    name={Repository Pattern},
+    description={Un design pattern che media tra il dominio e i livelli di mappatura dei dati, agendo come una collezione di oggetti di dominio in memoria. Nel progetto, astrae l'accesso ai dati del backend, fornendo un'unica interfaccia pulita al resto dell'applicazione}
+}
+
+\newglossaryentry{singleton_pattern}{
+    name={Singleton Pattern},
+    description={Un design pattern creazionale che garantisce che una classe abbia una sola istanza e fornisce un punto di accesso globale a tale istanza. Nel progetto, è usato per la classe OverlayLoader}
+}
+
+\newglossaryentry{hard_soft_delete}{
+    name={Hard Delete vs Soft Delete},
+    description={Due strategie per la cancellazione dei dati. L'Hard Delete rimuove fisicamente il record dal database. Il Soft Delete si limita a marcare il record come "cancellato" (es. con un flag is\_deleted), mantenendolo nel database. Il progetto adotta la strategia di Hard Delete}
+}
+
+
+% =======================================
+% TERMINI TECNICI E CONCETTI
+% =======================================
+
+\newglossaryentry{crossplatform}{
+    name={Cross-Platform},
+    description={Un approccio di sviluppo software che permette di scrivere un'unica codebase per creare applicazioni che funzionano nativamente su più sistemi operativi. In questo progetto, è stato realizzato tramite il framework Flutter}
+}
+
+\newglossaryentry{edgefunctions}{
+    name={Edge Function},
+    plural={Edge Functions},
+    description={Funzione serverless eseguita geograficamente vicina all'utente (sull'edge della rete) per ridurre la latenza. Nel progetto, vengono usate per orchestrare operazioni complesse e interagire con servizi esterni}
+}
+
+\newglossaryentry{snapshot}{
+    name={Snapshot (dei dati)},
+    description={Una tecnica di progettazione del database che consiste nel "congelare" lo stato dei dati in un determinato momento, copiandoli in tabelle dedicate. Nel progetto, viene usata per garantire l'immutabilità e l'auditabilità delle sessioni di voto}
+}
+
+\newglossaryentry{e2e}{
+    name={End-to-end},
+    description={Un termine che descrive un processo o un sistema che copre tutte le fasi di un'operazione, dall'inizio alla fine, senza richiedere l'intervento di sistemi esterni}
+}
+
+\newglossaryentry{verticalsolution}{
+    name={Soluzione Verticale},
+    description={Nel contesto del software, si riferisce a una soluzione progettata per soddisfare le esigenze specifiche di un singolo settore o nicchia di mercato, in contrapposizione a una soluzione "orizzontale"}
+}
+
+\newglossaryentry{associativeclass}{
+    name={Classe Associativa},
+    plural={Classi Associative},
+    description={In un modello dati, è una classe (o entità) utilizzata per modellare una relazione "molti-a-molti" tra due o più altre classi, spesso contenendo attributi propri della relazione stessa}
+}
+
+\newglossaryentry{denormalization}{
+    name={Denormalizzazione},
+    description={Una strategia di progettazione del database in cui si introducono deliberatamente dati ridondanti per ottimizzare le performance in lettura, evitando join complessi}
+}
+
+\newglossaryentry{token}{
+    name={Token},
+    description={Una stringa di caratteri generata da un sistema per rappresentare un'autorizzazione o un'identità. Nel progetto, i token vengono usati per garantire un accesso sicuro e univoco per gli inviti e per la partecipazione dei Giurati Semplici}
+}
+
+\newglossaryentry{either_type}{
+    name={Either (Tipo di Dato)},
+    description={Un tipo di dato funzionale che può contenere uno di due possibili valori: un Left (che per convenzione rappresenta un errore) o un Right (che rappresenta un successo). Permette di gestire i fallimenti in modo esplicito e dichiarativo, senza l'uso di eccezioni}
+}
+
+\newglossaryentry{equatable}{
+    name={Equatable},
+    description={Un pacchetto Dart che semplifica l'implementazione dell'uguaglianza basata sul valore per gli oggetti. Permette di confrontare due istanze di una classe in base ai loro attributi invece che al loro riferimento in memoria}
+}
+
+\newglossaryentry{db_trigger}{
+    name={Trigger (di Database)},
+    description={Una procedura memorizzata in un database che viene eseguita automaticamente in risposta a specifici eventi su una tabella (es. INSERT, UPDATE, DELETE). Utilizzato nel progetto per automatizzare la creazione del profilo utente}
+}
+
+\newglossaryentry{signed_url}{
+    name={Signed URL},
+    description={Un URL che fornisce un accesso a tempo limitato e con permessi specifici a una risorsa privata (es. un file in uno storage cloud). Viene generato dinamicamente lato server per ogni singola richiesta}
+}
+
+\newglossaryentry{anonymous_auth}{
+    name={Autenticazione Anonima},
+    description={Un meccanismo di autenticazione che crea un account utente temporaneo e anonimo, senza richiedere credenziali. Fornisce una sessione utente valida e un ID univoco, utile per gestire utenti ospiti in modo sicuro}
+}
+
+\newglossaryentry{stream}{
+    name={Stream},
+    description={In Dart, una sequenza di eventi asincroni. Uno Stream può essere "ascoltato" per reagire ai dati o agli errori man mano che arrivano. È il concetto alla base del pattern BLoC}
+}
+
+\newglossaryentry{dart_extension}{
+    name={Dart Extension},
+    description={Una funzionalità del linguaggio Dart che permette di aggiungere nuovi metodi, getter o setter a classi esistenti, anche senza avere accesso al loro codice sorgente}
+}
+
+\newglossaryentry{deeplinking}{
+    name={Deep Linking},
+    description={La capacità di un URL di portare un utente direttamente a una schermata o a un contenuto specifico all'interno di un'applicazione (web o mobile), invece che alla sua pagina iniziale}
+}
+
+\newglossaryentry{lowcode}{
+    name={Low-code},
+    description={Un approccio allo sviluppo software che permette di creare applicazioni con una minima quantità di codice scritto a mano, utilizzando invece interfacce grafiche, configurazioni e componenti pre-costruiti. Retool è un esempio di piattaforma low-code}
+}
+
+\newglossaryentry{hotreload}{
+    name={Hot Reload},
+    description={Una funzionalità del framework Flutter (abilitata dalla compilazione JIT) che permette agli sviluppatori di vedere quasi istantaneamente gli effetti delle modifiche al codice nell'applicazione in esecuzione, senza doverla riavviare}
+}
+
+
+% =======================================
+% LINGUAGGI E RUNTIME
+% =======================================
+
+\newglossaryentry{dart}{
+    name={Dart},
+    description={Il linguaggio di programmazione orientato agli oggetti e fortemente tipizzato su cui si basa Flutter, ottimizzato per la creazione di interfacce utente reattive}
+}
+
+\newglossaryentry{plpgsql}{
+    name={PL/pgSQL},
+    description={Un linguaggio procedurale sviluppato da PostgreSQL che permette di scrivere logica complessa, come funzioni e trigger, direttamente all'interno del database. Nel progetto, è stato utilizzato per implementare le Funzioni RPC}
+}
+
+\newglossaryentry{typescript}{
+    name={TypeScript},
+    description={Un linguaggio di programmazione open-source sviluppato da Microsoft che estende JavaScript aggiungendo la tipizzazione statica. Utilizzato nel progetto per lo sviluppo delle Edge Functions}
+}
+
+\newglossaryentry{deno}{
+    name={Deno},
+    description={Un runtime moderno e sicuro per JavaScript e TypeScript. È l'ambiente di esecuzione utilizzato da Supabase per le Edge Functions}
+}
+
+
+% =======================================
+% FRAMEWORK, PIATTAFORME E STRUMENTI
+% =======================================
+
+\newglossaryentry{flutter}{
+    name={Flutter},
+    description={Un framework UI open-source sviluppato da Google per creare applicazioni compilate nativamente per mobile, web e desktop da un'unica codebase}
+}
+
+\newglossaryentry{supabase}{
+    name={Supabase},
+    description={Una piattaforma open-source Backend-as-a-Service (BaaS) che fornisce un backend completo basato su PostgreSQL, offrendo servizi come autenticazione, database, storage e API}
+}
+
+\newglossaryentry{firebase}{
+    name={Firebase},
+    description={La piattaforma di sviluppo di applicazioni di Google, principale alternativa a Supabase. A differenza di Supabase, il suo database primario (Firestore) è di tipo NoSQL}
+}
+
+\newglossaryentry{postgresql}{
+    name={PostgreSQL},
+    description={Un potente sistema open-source per la gestione di database relazionali a oggetti (ORDBMS), noto per la sua robustezza, estensibilità e aderenza agli standard SQL}
+}
+
+\newglossaryentry{git}{
+    name={Git},
+    description={Un sistema di controllo di versione distribuito, standard de facto nel mondo dello sviluppo software, utilizzato per tracciare le modifiche al codice sorgente}
+}
+
+\newglossaryentry{vercel}{
+    name={Vercel},
+    description={Una piattaforma cloud specializzata nell'hosting di applicazioni frontend e serverless, nota per le sue pipeline di CI/CD automatizzate}
+}
+
+\newglossaryentry{resend}{
+    name={Resend},
+    description={Un servizio API per l'invio di email transazionali, progettato per gli sviluppatori}
+}
+
+\newglossaryentry{retool}{
+    name={Retool},
+    description={Una piattaforma low-code che permette di costruire rapidamente strumenti interni e dashboard amministrative, interfacciandosi con database e API esistenti}
+}
+
+\newglossaryentry{jetpackcompose}{
+    name={Jetpack Compose},
+    description={Il moderno toolkit UI dichiarativo di Google per lo sviluppo di applicazioni native Android. Semplifica e accelera lo sviluppo dell'interfaccia utente, sostituendo il precedente sistema basato su View e XML}
+}
+
+\newglossaryentry{kmp}{
+    name={Kotlin Multiplatform (KMP)},
+    description={Un framework di JetBrains che permette di condividere la logica di business, la connettività e altre parti non-UI di un'applicazione tra diverse piattaforme (come iOS, Android, Web), scrivendo il codice una sola volta in Kotlin}
+}
+
+\newglossaryentry{composemultiplatform}{
+    name={Jetpack Compose Multiplatform},
+    description={Un'estensione di Jetpack Compose, mantenuta da JetBrains, che permette di utilizzare lo stesso codice UI dichiarativo scritto per Android per creare interfacce utente anche per desktop (Windows, macOS, Linux) e web}
+}
+
+
+% =======================================
+% TERMINI DEL DOMINIO
+% =======================================
+
+\newglossaryentry{simplejuror}{
+    name={Giurato Semplice (Simple Juror)},
+    plural={Giurati Semplici (Simple Jurors)},
+    description={Un utente ospite, non registrato sulla piattaforma, che partecipa a una sessione di voto in modo occasionale tramite un token di accesso sicuro, senza la necessità di creare un account permanente}
+}
+
+\newglossaryentry{appointedjuror}{
+    name={Giurato Nominato (Appointed Juror)},
+    plural={Giurati Nominati (Appointed Jurors)},
+    description={Un utente registrato sulla piattaforma che viene invitato esplicitamente da un organizzatore a far parte di una giuria specifica, con privilegi di accesso legati al proprio account}
+}
