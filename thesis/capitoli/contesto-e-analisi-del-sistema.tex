@@ -89,16 +89,20 @@ L'analisi del dominio ha permesso di identificare i seguenti attori principali:
     \item \textbf{Admin}: è un ruolo di amministrazione, gestito tramite una dashboard esterna (Retool), con privilegi elevati per la manutenzione del sistema.
 \end{itemize}
 
+\newpage
+
 \subsection{Casi d'Uso: Gestione Account e Funzionalità Generali}\label{subsec:casi-uso-gestione-account-funzionalita}
 Questa area copre le funzionalità di base legate all'accesso e alla gestione dell'account utente.
 Include i processi di autenticazione, la modifica del profilo personale e la gestione delle notifiche interne.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{capitoli/figure/diagrams/use-case-diagram-1}
+    \includegraphics[width=0.55\textwidth]{capitoli/figure/diagrams/use-case-diagram-1}
     \caption{Diagramma dei casi d'uso: gestione account e funzionalità generali.}
     \label{fig:uc-account}
 \end{figure}
+
+\newpage
 
 \subsection{Casi d'Uso: Gestione del Ciclo di Vita del contest}\label{subsec:casi-uso-gestione-ciclo-vita-contest}
 Questa è l'area funzionale più vasta e descrive il cuore del processo organizzativo.
@@ -107,10 +111,12 @@ Gli attori principali in questo contesto sono l'\emph{Organizer} e il \emph{Part
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{capitoli/figure/diagrams/use-case-diagram-2}
+    \includegraphics[width=0.65\textwidth]{capitoli/figure/diagrams/use-case-diagram-2}
     \caption{Diagramma dei casi d'uso: gestione del ciclo di vita del contest.}
     \label{fig:uc-contest}
 \end{figure}
+
+\newpage
 
 \subsection{Casi d'Uso: Gestione delle Votazioni e dei Risultati}\label{subsec:casi-uso-gestione-votazioni-risultati}
 Questa sezione si concentra interamente sul processo critico della votazione.
@@ -119,10 +125,12 @@ Gli attori principali qui sono l'\emph{Organizer} e l'\emph{Juror}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{capitoli/figure/diagrams/use-case-diagram-3}
+    \includegraphics[width=0.70\textwidth]{capitoli/figure/diagrams/use-case-diagram-3}
     \caption{Diagramma dei casi d'uso: gestione delle votazioni e dei risultati.}
     \label{fig:uc-voting}
 \end{figure}
+
+\newpage
 
 \subsection{Casi d'Uso: Amministrazione del Sistema}\label{subsec:casi-uso-amministrazione-sistema}
 Quest'ultima area isola le funzionalità di amministrazione, che non sono accessibili tramite l'applicazione principale ma attraverso una dashboard esterna.
@@ -130,7 +138,7 @@ Queste operazioni sono riservate all'attore \emph{Admin} e sono fondamentali per
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.4\textwidth]{capitoli/figure/diagrams/use-case-diagram-4}
+    \includegraphics[width=0.40\textwidth]{capitoli/figure/diagrams/use-case-diagram-4}
     \caption{Diagramma dei casi d'uso: amministrazione del sistema.}
     \label{fig:uc-admin}
 \end{figure}
@@ -194,13 +202,15 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
     \end{itemize}
 \end{itemize}
 
+\newpage
+
 \section{Modello del dominio}\label{sec:modello-del-dominio}
 Il dominio applicativo è stato modellato a partire dalle entità fondamentali e dalle loro relazioni.
 Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi e si focalizza sui concetti di business e sui vincoli che li governano.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/class-diagram}
+    \includegraphics[width=0.70\textwidth]{capitoli/figure/diagrams/class-diagram}
     \caption{Diagramma delle classi concettuale.}
     \label{fig:class-diagram}
 \end{figure}

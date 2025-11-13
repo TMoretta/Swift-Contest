@@ -10,138 +10,84 @@ Questa sezione descrive i linguaggi e i framework utilizzati per la scrittura de
 
 \subsection{Frontend: Flutter e Dart}\label{subsec:frontend:-flutter-e-dart}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/flutter}
-\end{wrapfigure}
-\textbf{Flutter}~\cite{flutter_docs} è il framework UI open-source di Google scelto per lo sviluppo dell'applicazione client.
-La sua caratteristica principale è la capacità di generare applicazioni compilate nativamente per mobile, web e desktop da un'unica codebase.
-Questa scelta è stata fondamentale per soddisfare il requisito di \textbf{sviluppo cross-platform}, garantendo un'esperienza utente coerente e riducendo drasticamente i tempi e i costi di sviluppo e manutenzione.
-\vspace{1em}
+\techitem{capitoli/figure/logos/flutter}{Flutter~\cite{flutter_docs}}{
+    è il framework UI open-source di Google scelto per lo sviluppo dell'applicazione client.
+    La sua caratteristica principale è la capacità di generare applicazioni compilate nativamente per mobile, web e desktop da un'unica codebase.
+    Questa scelta è stata fondamentale per soddisfare il requisito di \textbf{sviluppo cross-platform}, garantendo un'esperienza utente coerente e riducendo drasticamente i tempi e i costi di sviluppo e manutenzione.
+}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/dart}
-\end{wrapfigure}
-\textbf{Dart}~\cite{dart_docs} è il linguaggio di programmazione su cui si basa Flutter.
-È un linguaggio moderno, orientato agli oggetti e fortemente tipizzato, ottimizzato per la creazione di interfacce utente.
-La sua architettura, che supporta sia la compilazione \emph{Just-In-Time (JIT)} per uno sviluppo rapido (con \emph{hot reload}) sia la compilazione \emph{Ahead-Of-Time (AOT)} per performance elevate in produzione, lo ha reso la scelta naturale per questo progetto.
+\techitem{capitoli/figure/logos/dart}{Dart~\cite{dart_docs}}{
+    è il linguaggio di programmazione su cui si basa Flutter.
+    È un linguaggio moderno, orientato agli oggetti e fortemente tipizzato, ottimizzato per la creazione di interfacce utente.
+    La sua architettura, che supporta sia la compilazione \emph{Just-In-Time (JIT)} per uno sviluppo rapido (con \emph{hot reload}) sia la compilazione \emph{Ahead-Of-Time (AOT)} per performance elevate in produzione, lo ha reso la scelta naturale per questo progetto.
+}
 
 \subsection{Backend: Supabase, PL/pgSQL e TypeScript}\label{subsec:backend:-supabase-pl/pgsql-e-typescript}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/supabase}
-\end{wrapfigure}
-\textbf{Supabase}~\cite{supabase_docs} è la piattaforma open-source \textbf{Backend-as-a-Service (BaaS)} che costituisce il cuore dell'infrastruttura server.
-La scelta è ricaduta su Supabase dopo un'attenta valutazione delle principali alternative, in particolare \textbf{Firebase}~\cite{firebase_docs} di Google.
-Sebbene entrambe le piattaforme offrano un set di funzionalità simile, Supabase è stato preferito per una ragione architetturale fondamentale: il suo database è \textbf{PostgreSQL}, un sistema \emph{SQL} maturo e relazionale.
-Questa caratteristica è stata ritenuta cruciale per un'applicazione con un modello dati complesso e interconnesso, dove la garanzia di integrità referenziale e la possibilità di eseguire query complesse sono requisiti fondamentali.
-\vspace{1em}
+\techitem{capitoli/figure/logos/supabase}{Supabase~\cite{supabase_docs}}{
+    è la piattaforma open-source \textbf{Backend-as-a-Service (BaaS)} che costituisce il cuore dell'infrastruttura server.
+    La scelta è ricaduta su Supabase dopo un'attenta valutazione delle principali alternative, in particolare \textbf{Firebase}~\cite{firebase_docs} di Google.
+    Sebbene entrambe le piattaforme offrano un set di funzionalità simile, Supabase è stato preferito per una ragione architetturale fondamentale: il suo database è \textbf{PostgreSQL}, un sistema \emph{SQL} maturo e relazionale.
+    Questa caratteristica è stata ritenuta cruciale per un'applicazione con un modello dati complesso e interconnesso, dove la garanzia di integrità referenziale e la possibilità di eseguire query complesse sono requisiti fondamentali.
+}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/postgresql}
-\end{wrapfigure}
-\textbf{PL/pgSQL}~\cite{postgresql_docs} è il linguaggio procedurale di PostgreSQL. È stato utilizzato per scrivere tutte le \textbf{Funzioni RPC (Remote Procedure Call)} del sistema.
-La scelta di implementare la logica di accesso ai dati direttamente a livello di database ha permesso di ottenere performance elevate e di garantire l'atomicità delle operazioni.
-\vspace{1em}
+\techitem{capitoli/figure/logos/postgresql}{PL/pgSQL~\cite{postgresql_docs}}{
+    è il linguaggio procedurale di PostgreSQL. È stato utilizzato per scrivere tutte le \textbf{Funzioni RPC (Remote Procedure Call)} del sistema.
+    La scelta di implementare la logica di accesso ai dati direttamente a livello di database ha permesso di ottenere performance elevate e di garantire l'atomicità delle operazioni.
+}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/typescript}
-\end{wrapfigure}
-\textbf{TypeScript}~\cite{typescript_docs} è stato scelto come linguaggio per lo sviluppo delle \textbf{Edge Functions}, eseguite sul \emph{runtime Deno} di Supabase.
-La sua natura fortemente tipizzata, unita alla vasta disponibilità di librerie dell'ecosistema JavaScript/TypeScript, lo ha reso ideale per orchestrare le interazioni sicure con le API di servizi esterni.
+\techitem{capitoli/figure/logos/typescript}{TypeScript~\cite{typescript_docs}}{
+    è stato scelto come linguaggio per lo sviluppo delle \textbf{Edge Functions}, eseguite sul \emph{runtime Deno} di Supabase.
+    La sua natura fortemente tipizzata, unita alla vasta disponibilità di librerie dell'ecosistema JavaScript/TypeScript, lo ha reso ideale per orchestrare le interazioni sicure con le API di servizi esterni.
+}
 
 \section{Piattaforme, Strumenti e Servizi}\label{sec:piattaforme-strumenti-e-servizi}
 Questa sezione descrive le piattaforme di terze parti e gli strumenti che hanno supportato il ciclo di vita del progetto.
 
 \subsection{Piattaforme di distribuzione e Servizi Cloud}\label{subsec:piattaforme-di-distribuzione-e-servizi-cloud}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/vercel}
-\end{wrapfigure}
-\textbf{Vercel}~\cite{vercel_website} è la piattaforma serverless utilizzata per la distribuzione e l'hosting della versione \textbf{Web} dell'applicazione Flutter.
-La scelta è ricaduta su Vercel principalmente per il suo \textbf{piano gratuito} e per una pipeline di \textbf{CI/CD} completamente automatizzata.
-\vspace{1em}
+\techitem{capitoli/figure/logos/vercel}{Vercel~\cite{vercel_website}}{
+    è la piattaforma serverless utilizzata per la distribuzione e l'hosting della versione \textbf{Web} dell'applicazione Flutter.
+    La scelta è ricaduta su Vercel principalmente per il suo \textbf{piano gratuito} e per una pipeline di \textbf{CI/CD} completamente automatizzata.
+}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/resend}
-\end{wrapfigure}
-\textbf{Resend}~\cite{resend_website} è il servizio transazionale di invio \textbf{email} utilizzato dal sistema, integrato tramite la propria API REST per gestire l'invio di tutte le email automatiche.
-\vspace{1em}
+\techitem{capitoli/figure/logos/resend}{Resend~\cite{resend_website}}{
+    è il servizio transazionale di invio \textbf{email} utilizzato dal sistema, integrato tramite la propria API REST per gestire l'invio di tutte le email automatiche.
+}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/google-cloud}
-\end{wrapfigure}
-\textbf{Google Cloud} è stato utilizzato per uno dei suoi servizi API: la \textbf{Google Places API}~\cite{google_places_api_docs}.
-Questo servizio è stato integrato per fornire la funzionalità di ricerca e autocompletamento degli indirizzi.
+\techitem{capitoli/figure/logos/google-cloud}{Google Cloud}{
+    è stato utilizzato per uno dei suoi servizi API: la \textbf{Google Places API}~\cite{google_places_api_docs}.
+    Questo servizio è stato integrato per fornire la funzionalità di ricerca e autocompletamento degli indirizzi.
+}
 
 \subsection{Strumenti di Sviluppo e Amministrazione}\label{subsec:strumenti-di-sviluppo-e-amministrazione}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/intellij}
-\end{wrapfigure}
-\textbf{IntelliJ IDEA}~\cite{intellij_idea_website} è l'IDE di JetBrains utilizzato per la scrittura del codice.
-Si è scelto di migrare da \textbf{Android Studio} a \textbf{IntelliJ IDEA Community Edition} per una maggiore stabilità e reattività.
-\vspace{1em}
+\techitem{capitoli/figure/logos/intellij}{IntelliJ IDEA~\cite{intellij_idea_website}}{
+    è l'IDE di JetBrains utilizzato per la scrittura del codice.
+    Si è scelto di migrare da \textbf{Android Studio} a \textbf{IntelliJ IDEA Community Edition} per una maggiore stabilità e reattività.
+}
 
-\textbf{Material Theme Builder}~\cite{material_theme_builder_website} è uno strumento ufficiale di Google che è stato utilizzato per generare la base del tema Material Design 3.
-A partire da un singolo colore ``seme'', genera automaticamente l'intera palette di colori (\texttt{ColorScheme}) per il tema chiaro e scuro.
-\vspace{1em}
+\techitem{capitoli/figure/logos/npm}{Node Package Manager (npm)~\cite{npm_website}}{
+    è stato uno strumento indispensabile per l'installazione e la gestione di dipendenze di sviluppo, prima tra tutte la \textbf{CLI di Supabase}.
+}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/npm}
-\end{wrapfigure}
-\textbf{Node Package Manager (npm)}~\cite{npm_website} è stato uno strumento indispensabile per l'installazione e la gestione di dipendenze di sviluppo, prima tra tutte la \textbf{CLI di Supabase}.
-\vspace{1em}
-
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/retool}
-\end{wrapfigure}
-\textbf{Retool}~\cite{retool_website} è la piattaforma \emph{low-code} utilizzata per costruire rapidamente la \textbf{dashboard di amministrazione} interna.
+\techitem{capitoli/figure/logos/retool}{Retool~\cite{retool_website}}{
+    è la piattaforma \emph{low-code} utilizzata per costruire rapidamente la \textbf{dashboard di amministrazione} interna.
+}
 
 \subsection{Version Control e Code Hosting}\label{subsec:version-control-e-code-hosting}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/git}
-\end{wrapfigure}
-\textbf{Git}~\cite{git_website} è il sistema di \textbf{controllo di versione distribuito} utilizzato per tracciare ogni modifica al codice sorgente del progetto.
-\vspace{1em}
+\techitem{capitoli/figure/logos/git}{Git~\cite{git_website}}{
+    è il sistema di \textbf{controllo di versione distribuito} utilizzato per tracciare ogni modifica al codice sorgente del progetto.
+}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/github}
-\end{wrapfigure}
-\textbf{GitHub}~\cite{github_website} è la piattaforma di \textbf{code hosting} che ospita il repository Git del progetto, integrata con la pipeline di CI/CD di Vercel.
+\techitem{capitoli/figure/logos/github}{GitHub~\cite{github_website}}{
+    è la piattaforma di \textbf{code hosting} che ospita il repository Git del progetto, integrata con la pipeline di CI/CD di Vercel.
+}
 
 \subsection{Strumenti di Documentazione e Modellazione}\label{subsec:strumenti-di-documentazione-e-modellazione}
 
-\begin{wrapfigure}{l}{0.15\textwidth}
-    \centering
-    \vspace{-\intextsep}
-    \includegraphics[width=0.9\linewidth]{capitoli/figure/logos/plantuml}
-\end{wrapfigure}
-\textbf{PlantUML}~\cite{plantuml_website} è lo strumento open-source utilizzato per creare tutti i diagrammi UML e architetturali.
-La sua caratteristica distintiva è l'approccio ``diagrams as code'': i diagrammi vengono descritti attraverso un \textbf{linguaggio DSL (Domain-Specific Language)} testuale.
+\techitem{capitoli/figure/logos/plantuml}{PlantUML~\cite{plantuml_website}}{
+    è lo strumento open-source utilizzato per creare tutti i diagrammi UML e architetturali.
+    La sua caratteristica distintiva è l'approccio ``diagrams as code'': i diagrammi vengono descritti attraverso un \textbf{linguaggio DSL (Domain-Specific Language)} testuale.
+}

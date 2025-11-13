@@ -1,11 +1,12 @@
 @startuml
 
 !theme sunlust
-top to bottom direction
 skinparam dpi 300
+top to bottom direction
 skinparam backgroundColor transparent
 skinparam actorStyle awesome
 skinparam shadowing false
+skinparam ranksep 40
 
 skinparam class {
   backgroundColor #E6F3FF

@@ -32,3 +32,34 @@
 \renewcommand{\arraystretch}{1.15} % change table cell vertical padding
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% --- Comando per descrivere una tecnologia con logo a fianco ---
+% Uso: \techitem{path/to/logo}{Nome Tecnologia}{Testo della descrizione}
+\newcommand{\techitem}[3]{
+    \vspace{1.5em}
+    \begin{center}
+    % MODIFICA: Prima la minipage del logo
+    \begin{minipage}[c]{0.15\textwidth}
+    \centering
+    \includegraphics[width=2cm, height=2cm, keepaspectratio]{#1}
+    \end{minipage}%
+    \hspace{0.05\textwidth}%
+    % MODIFICA: Poi la minipage del testo
+    \begin{minipage}[c]{0.75\textwidth}
+    \textbf{#2} #3
+    \end{minipage}
+    \end{center}
+    \vspace{1em}
+}
+
+% --- Comando per inserire una figura standard, scalata alla larghezza del testo ---
+% Uso: \myfigure{path/to/image}{caption}{label}{scale_factor}
+% es. \myfigure{capitoli/figure/my-img}{La mia figura}{fig:my-img}{0.8}
+\newcommand{\myfigure}[4]{%
+    \begin{figure}[htbp] % Posizionamento flessibile
+    \centering % Centra l'immagine
+    \includegraphics[width=#4\textwidth]{#1} % Scala l'immagine
+    \caption{#2} % Aggiunge la didascalia
+    \label{#3} % Aggiunge l'etichetta per i riferimenti
+    \end{figure}%
+}

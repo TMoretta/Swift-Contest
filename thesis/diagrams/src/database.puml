@@ -1,12 +1,12 @@
 @startuml
 
 !theme sunlust
-top to bottom direction
 skinparam dpi 300
+top to bottom direction
 skinparam backgroundColor transparent
 skinparam actorStyle awesome
 skinparam shadowing false
-skinparam linetype ortho
+skinparam ranksep 40
 
 skinparam package {
     backgroundColor #FFFFFF
@@ -22,7 +22,7 @@ skinparam class {
 ' =======================================
 
 ' --- Package: Core Entities ---
-package "Core" {
+'package "Core" {
     entity "profiles" as Profiles {
         #id : uuid
         *full_name : varchar
@@ -54,10 +54,10 @@ package "Core" {
         --
         *account_id : uuid <<FK>>
     }
-}
+'}
 
 ' --- Package: Membership & Invitations ---
-package "Membership & Invitations" {
+'package "Membership & Invitations" {
     entity "participations" as Participations {
         #id : uuid
         *invitation_email : varchar
@@ -98,11 +98,11 @@ package "Membership & Invitations" {
         *contest_id : uuid <<FK>>
         *jury_id : uuid <<FK>>
     }
-}
+'}
 
 ' --- Package: Works ---
-package "Works" {
-    entity "works" as Works {
+'package "Works" {
+    entity "works" as WorksE {
         #id : uuid
         *name : varchar
         *description : varchar
@@ -111,10 +111,10 @@ package "Works" {
         --
         *participation_id : uuid <<FK, UNIQUE>>
     }
-}
+'}
 
 ' --- Package: Voting ---
-package "Voting" {
+'package "Voting" {
     ' Voting Forms
     entity "voting_forms" as VotingForms {
         #id : uuid
@@ -197,17 +197,14 @@ package "Voting" {
         *voting_session_juror_id : uuid <<FK>>
         *voting_session_participant_id : uuid <<FK>>
     }
-}
 
-' --- Package: Results ---
-package "Results" {
     entity "contest_rankings" as Rankings {
-        #id : uuid
-        *file_path : text
-        --
-        *contest_id : uuid <<FK>>
-    }
-}
+            #id : uuid
+            *file_path : text
+            --
+            *contest_id : uuid <<FK>>
+        }
+'}
 
 ' =======================================
 ' Definizione delle Relazioni
@@ -229,7 +226,7 @@ Profiles ||--o{ Jurations
 Juries ||--o{ JurorInvitations
 
 ' --- Works ---
-Participations ||--o| Works
+Participations ||--o| WorksE
 
 ' --- Voting Forms ---
 Juries ||--|| VotingForms

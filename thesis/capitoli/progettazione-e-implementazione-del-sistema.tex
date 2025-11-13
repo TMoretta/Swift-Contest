@@ -17,10 +17,12 @@ Le linee guida principali sono state:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/client-server-architecture}
+    \includegraphics[width=\textwidth]{capitoli/figure/diagrams/client-server-architecture}
     \caption{Architettura Client-Server del sistema Swift Contest con backend BaaS.}
     \label{fig:client-server-architecture}
 \end{figure}
+
+\newpage
 
 \section{Architettura del frontend: il pattern MVVM con BLoC}
 \label{sec:frontend-architecture}
@@ -303,6 +305,8 @@ Questo garantisce che, indipendentemente da come o perché la pagina viene distr
     \label{lst:overlay_loader}
 \end{longlisting}
 
+\newpage
+
 \section{Progettazione del database}\label{sec:progettazione-del-database}
 Il modello concettuale del dominio, descritto nel Capitolo 2, è stato tradotto in un modello logico e fisico implementato su un database \textbf{PostgreSQL}, gestito tramite la piattaforma Supabase.
 La progettazione si è concentrata su tre pilastri: integrità dei dati, sicurezza e performance.
@@ -470,7 +474,7 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 \end{enumerate}
 
 % Elenco delle principali Funzioni RPC del sistema.
-\begin{longtable}{p{0.3\textwidth} p{0.4\textwidth} p{0.25\textwidth}}
+\begin{longtable}{p{0.25\textwidth} p{0.40\textwidth} p{0.25\textwidth}}
     \toprule
     \textbf{Nome Funzione} & \textbf{Scopo Principale} & \textbf{Controllo di Sicurezza} \\
     \midrule
@@ -567,7 +571,7 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
 Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazioni complesse, transazioni multi-step e integrazioni con servizi esterni che non sarebbero possibili o sicure da eseguire in una semplice RPC\@.
 
 % Elenco delle principali Edge Functions del sistema.
-\begin{longtable}{p{0.25\textwidth} p{0.4\textwidth} p{0.25\textwidth}}
+\begin{longtable}{p{0.25\textwidth} p{0.40\textwidth} p{0.25\textwidth}}
     \toprule
     \textbf{Nome Funzione} & \textbf{Scopo} & \textbf{Autorizzazione} \\
     \midrule

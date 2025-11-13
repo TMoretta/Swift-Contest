@@ -57,8 +57,11 @@
 
 \linespread{1.5}
 
+\sloppy
+
 \makeglossaries
 \usepackage{glossary}
+\glsaddall
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,9 +100,8 @@
 \include{capitoli/distribuzione-e-prodotto-finale}
 \include{capitoli/conclusioni}
 
-\backmatter
 
-\glsaddall
+\backmatter
 \printglossary
 
 % bibliografia in stile IEEE
@@ -111,7 +113,7 @@
     filter=written, % Applica il filtro per le fonti scritte
     heading=bibintoc    % Aggiunge il titolo all'indice dei contenuti
 ]
-\clearpage
+%\clearpage
 % --- 2. Stampa la Sitografia (fonti web) ---
 %\addcontentsline{toc}{chapter}{Sitografia}
 \printbibliography[
