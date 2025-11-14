@@ -78,15 +78,15 @@ L'interazione tra questi attori e le funzionalità del sistema è stata modellat
 \subsection{Attori del sistema}\label{subsec:attori-del-sistema}
 L'analisi del dominio ha permesso di identificare i seguenti attori principali:
 \begin{itemize}
-    \item \textbf{Guest}: rappresenta un utente non autenticato.
-    In questo sistema, che non prevede contenuti pubblici, un \emph{Guest} non ha privilegi di visualizzazione.
-    Le sue uniche capacità sono quelle di \emph{autenticarsi} (tramite registrazione o login) o di \emph{agire come Simple Juror} se in possesso di un token di accesso.
-    \item \textbf{Authenticated}: è un attore astratto che rappresenta un utente che ha completato l'autenticazione.
+    \item \textbf{Ospite}: rappresenta un utente non autenticato.
+    In questo sistema, che non prevede contenuti pubblici, un \emph{Ospite} non ha privilegi di visualizzazione.
+    Le sue uniche capacità sono quelle di \emph{autenticarsi} (tramite registrazione o login) o di \emph{agire come Giurato Semplice} se in possesso di un token di accesso.
+    \item \textbf{Utente Autenticato}: è un attore astratto che rappresenta un utente che ha completato l'autenticazione.
     Funge da base per i ruoli operativi, che ne ereditano le funzionalità comuni come la gestione del proprio profilo e delle notifiche.
-    \item \textbf{Organizer}: è un utente autenticato responsabile della creazione e della gestione completa di un contest.
-    \item \textbf{Participant}: è un utente autenticato che si iscrive a un contest per sottoporre il proprio lavoro.
-    \item \textbf{Juror}: è un utente autenticato il cui ruolo primario è quello di far parte di una giuria nominata (\emph{appointed jury}), oppure votare come Simple Juror se in possesso di un token per la votazione.
-    \item \textbf{Admin}: è un ruolo di amministrazione, gestito tramite una dashboard esterna (Retool), con privilegi elevati per la manutenzione del sistema.
+    \item \textbf{Organizzatore}: è un utente autenticato responsabile della creazione e della gestione completa di un contest.
+    \item \textbf{Partecipante}: è un utente autenticato che si iscrive a un contest per sottoporre il proprio lavoro.
+    \item \textbf{Giurato}: è un utente autenticato il cui ruolo primario è quello di far parte di una giuria nominata, oppure votare come Giurato Semplice se in possesso di un token per la votazione.
+    \item \textbf{Amministratore}: è un ruolo di amministrazione, gestito tramite una dashboard esterna (Retool), con privilegi elevati per la manutenzione del sistema.
 \end{itemize}
 
 \newpage
@@ -97,7 +97,7 @@ Include i processi di autenticazione, la modifica del profilo personale e la ges
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.55\textwidth]{capitoli/figure/diagrams/use-case-diagram-1}
+    \includegraphics[width=0.50\textwidth]{capitoli/figure/diagrams/use-case-diagram-1}
     \caption{Diagramma dei casi d'uso: gestione account e funzionalità generali.}
     \label{fig:uc-account}
 \end{figure}
@@ -107,11 +107,11 @@ Include i processi di autenticazione, la modifica del profilo personale e la ges
 \subsection{Casi d'Uso: Gestione del Ciclo di Vita del contest}\label{subsec:casi-uso-gestione-ciclo-vita-contest}
 Questa è l'area funzionale più vasta e descrive il cuore del processo organizzativo.
 Copre la creazione di un contest, la gestione dei suoi membri (partecipanti e giurati) e la sottomissione dei lavori.
-Gli attori principali in questo contesto sono l'\emph{Organizer} e il \emph{Participant}.
+Gli attori principali in questo contesto sono l'\emph{Organizzatore} e il \emph{Partecipante}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{capitoli/figure/diagrams/use-case-diagram-2}
+    \includegraphics[width=0.70\textwidth]{capitoli/figure/diagrams/use-case-diagram-2}
     \caption{Diagramma dei casi d'uso: gestione del ciclo di vita del contest.}
     \label{fig:uc-contest}
 \end{figure}
@@ -121,11 +121,11 @@ Gli attori principali in questo contesto sono l'\emph{Organizer} e il \emph{Part
 \subsection{Casi d'Uso: Gestione delle Votazioni e dei Risultati}\label{subsec:casi-uso-gestione-votazioni-risultati}
 Questa sezione si concentra interamente sul processo critico della votazione.
 Include la configurazione del form di voto, la conduzione della sessione di voto (anche con restrizioni di geolocalizzazione) e la generazione e pubblicazione delle classifiche.
-Gli attori principali qui sono l'\emph{Organizer} e l'\emph{Juror}.
+Gli attori principali qui sono l'\emph{Organizzatore} e il \emph{Giurato}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.70\textwidth]{capitoli/figure/diagrams/use-case-diagram-3}
+    \includegraphics[width=0.80\textwidth]{capitoli/figure/diagrams/use-case-diagram-3}
     \caption{Diagramma dei casi d'uso: gestione delle votazioni e dei risultati.}
     \label{fig:uc-voting}
 \end{figure}
@@ -134,11 +134,11 @@ Gli attori principali qui sono l'\emph{Organizer} e l'\emph{Juror}.
 
 \subsection{Casi d'Uso: Amministrazione del Sistema}\label{subsec:casi-uso-amministrazione-sistema}
 Quest'ultima area isola le funzionalità di amministrazione, che non sono accessibili tramite l'applicazione principale ma attraverso una dashboard esterna.
-Queste operazioni sono riservate all'attore \emph{Admin} e sono fondamentali per la manutenzione e la moderazione della piattaforma.
+Queste operazioni sono riservate all'attore \emph{Amministratore} e sono fondamentali per la manutenzione e la moderazione della piattaforma.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.40\textwidth]{capitoli/figure/diagrams/use-case-diagram-4}
+    \includegraphics[width=0.45\textwidth]{capitoli/figure/diagrams/use-case-diagram-4}
     \caption{Diagramma dei casi d'uso: amministrazione del sistema.}
     \label{fig:uc-admin}
 \end{figure}
@@ -148,21 +148,21 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
 
 \subsection{Requisiti funzionali (Functionality)}\label{subsec:requisiti-funzionali}
 \begin{itemize}
-    \item \textbf{RF-01: Gestione Account Utente}: Il sistema deve permettere a un utente di registrarsi (\emph{Sign Up}) e autenticarsi (\emph{Sign In}).
+    \item \textbf{RF-01: Gestione Account Utente}: Il sistema deve permettere a un utente di registrarsi e autenticarsi.
     \item \textbf{RF-02: Gestione del Profilo Personale}: Ogni utente autenticato deve poter visualizzare e modificare i dati del proprio profilo (es.\ nome completo).
-    Deve inoltre essere garantita la possibilità di eliminare il proprio account in modo autonomo (\emph{self-service deletion}).
-    \item \textbf{RF-03: Gestione Contest}: Il sistema deve permettere a un \emph{Organizer} di creare, modificare e cancellare i propri contest.
-    \item \textbf{RF-04: Gestione Giurie e Form di Voto}: Il sistema deve permettere a un \emph{Organizer} di creare giurie (di tipo \emph{appointed} o \emph{simple}) e di configurare un form di votazione associato.
-    \item \textbf{RF-05: Gestione Iscrizioni}: Il sistema deve permettere a un \emph{Organizer} di invitare partecipanti e giurati nominati tramite email con token univoci.
-    \item \textbf{RF-06: Gestione Esclusioni di Voto}: Il sistema deve permettere a un \emph{Organizer} di configurare delle esclusioni, impedendo a specifici \emph{Appointed Juror} di valutare determinati \emph{Participant} all'interno di una sessione di voto.
-    \item \textbf{RF-07: Accettazione Inviti e Accesso al contest}: Il sistema deve permettere a un utente di utilizzare un token di invito per formalizzare la propria iscrizione a un contest, sia come \emph{Participant} che come \emph{Appointed Juror}.
-    \item \textbf{RF-08: Sottomissione Lavori}: Il sistema deve permettere a un \emph{Participant} di sottomettere un proprio lavoro per un contest a cui è iscritto.
-    \item \textbf{RF-09: Restrizione Geografica della Votazione}: Il sistema deve permettere a un \emph{Organizer} di imporre una restrizione geografica a una sessione di voto, richiedendo ai giurati di trovarsi entro un raggio specifico da un luogo predefinito.
-    \item \textbf{RF-10: Processo di Votazione}: Il sistema deve permettere a un utente autorizzato (sia \emph{Appointed Juror} che \emph{Simple Juror}) di inviare i propri voti durante una sessione di voto attiva, rispettando le eventuali esclusioni configurate.
-    \item \textbf{RF-11: Gestione Classifiche e Risultati}: Il sistema deve permettere all'\emph{Organizer} di generare una classifica per ogni singola giuria, di esportare i risultati grezzi in formato Excel e di pubblicare una classifica finale in formato PDF\@.
-    \item \textbf{RF-12: Visualizzazione dei Risultati}: Il sistema deve permettere a \emph{Participant} e \emph{Juror} di un contest di visualizzare e scaricare le classifiche finali pubblicate dall'organizzatore.
+    Deve inoltre essere garantita la possibilità di eliminare il proprio account in modo autonomo.
+    \item \textbf{RF-03: Gestione Contest}: Il sistema deve permettere a un \emph{Organizzatore} di creare, modificare e cancellare i propri contest.
+    \item \textbf{RF-04: Gestione Giurie e Form di Voto}: Il sistema deve permettere a un \emph{Organizzatore} di creare giurie (di tipo \emph{nominata} o \emph{semplice}) e di configurare un form di votazione associato.
+    \item \textbf{RF-05: Gestione Iscrizioni}: Il sistema deve permettere a un \emph{Organizzatore} di invitare partecipanti e giurati nominati tramite email con token univoci.
+    \item \textbf{RF-06: Gestione Esclusioni di Voto}: Il sistema deve permettere a un \emph{Organizzatore} di configurare delle esclusioni, impedendo a specifici \emph{Giurati Nominati} di valutare determinati \emph{Partecipanti} all'interno di una sessione di voto.
+    \item \textbf{RF-07: Accettazione Inviti e Accesso al contest}: Il sistema deve permettere a un utente di utilizzare un token di invito per formalizzare la propria iscrizione a un contest, sia come \emph{Partecipante} che come \emph{Giurato Nominato}.
+    \item \textbf{RF-08: Sottomissione Lavori}: Il sistema deve permettere a un \emph{Partecipante} di sottomettere un proprio lavoro per un contest a cui è iscritto.
+    \item \textbf{RF-09: Restrizione Geografica della Votazione}: Il sistema deve permettere a un \emph{Organizzatore} di imporre una restrizione geografica a una sessione di voto, richiedendo ai giurati di trovarsi entro un raggio specifico da un luogo predefinito.
+    \item \textbf{RF-10: Processo di Votazione}: Il sistema deve permettere a un utente autorizzato (sia \emph{Giurato Nominato} che \emph{Giurato Semplice}) di inviare i propri voti durante una sessione di voto attiva, rispettando le eventuali esclusioni configurate.
+    \item \textbf{RF-11: Gestione Classifiche e Risultati}: Il sistema deve permettere all'\emph{Organizzatore} di generare una classifica per ogni singola giuria, di esportare i risultati grezzi in formato Excel e di pubblicare una classifica finale in formato PDF\@.
+    \item \textbf{RF-12: Visualizzazione dei Risultati}: Il sistema deve permettere a \emph{Partecipanti} e \emph{Giurati} di un contest di visualizzare e scaricare le classifiche finali pubblicate dall'organizzatore.
     \item \textbf{RF-13: Notifiche Inbox}: Il sistema deve fornire a ogni utente autenticato una inbox per ricevere notifiche generate automaticamente da eventi di sistema.
-    \item \textbf{RF-14: Amministrazione del Sistema}: Il sistema deve esporre un'interfaccia sicura per permettere a un \emph{Admin} di eseguire operazioni di alto livello, come la visualizzazione di tutti gli utenti o la rimozione forzata di un contest.
+    \item \textbf{RF-14: Amministrazione del Sistema}: Il sistema deve esporre un'interfaccia sicura per permettere a un \emph{Amministratore} di eseguire operazioni di alto livello, come la visualizzazione di tutti gli utenti o la rimozione forzata di un contest.
 \end{itemize}
 
 \subsection{Requisiti non funzionali}\label{subsec:requisiti-non-funzionali}
@@ -210,7 +210,7 @@ Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.70\textwidth]{capitoli/figure/diagrams/class-diagram}
+    \includegraphics[width=0.80\textwidth]{capitoli/figure/diagrams/class-diagram}
     \caption{Diagramma delle classi concettuale.}
     \label{fig:class-diagram}
 \end{figure}
@@ -222,7 +222,7 @@ Il Diagramma di Classe Concettuale (UML) è astratto dai dettagli implementativi
     \item \textbf{ParticipantMembership} e \textbf{JurorMembership}: \emph{classi associative} che risolvono le relazioni ``molti-a-molti'' tra utenti e contest/giurie.
     \item \textbf{Work}: l'elaborato unico caricato da un partecipante.
     È legato a una \emph{ParticipantMembership}.
-    \item \textbf{Jury}: una giuria all'interno di un contest, che può essere di tipo \emph{appointed} o \emph{simple}.
+    \item \textbf{Jury}: una giuria all'interno di un contest, che può essere di tipo \emph{nominata} o \emph{semplice}.
     \item \textbf{VotingForm} e \textbf{VotingFormField}: la struttura del form di votazione.
     L'attributo \emph{scope} del campo ne determina il comportamento.
     \item \textbf{VotingSession}: una sessione di voto live.
@@ -239,5 +239,5 @@ Il modello dati è stato progettato per far rispettare programmaticamente alcune
     I campi testuali non contribuiscono al punteggio.
     \item \textbf{Immutabilità della Votazione}: il \textbf{meccanismo di snapshot} garantisce che una volta avviata una sessione di voto, i dati rilevanti dei partecipanti, dei giurati e la struttura del form vengano ``congelati''.
     Questo avviene tramite la copia di attributi chiave in tabelle di sessione dedicate, rendendo il processo di valutazione immune da modifiche successive ai dati originali.
-    \item \textbf{Accesso Ospite Controllato}: l'accesso come \emph{Simple Juror} è strettamente controllato da un token associato a una specifica giuria di tipo semplice (simple jury).
+    \item \textbf{Accesso Ospite Controllato}: l'accesso come \emph{Giurato Semplice} è strettamente controllato da un token associato a una specifica giuria di tipo semplice.
 \end{enumerate}

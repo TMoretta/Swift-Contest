@@ -18,63 +18,64 @@ skinparam usecase {
 }
 
 ' =======================================
-' Attori (Gerarchia Completa)
+' Attori
 ' =======================================
-actor Guest
-actor Authenticated
-actor Juror
-actor Participant
-actor Organizer
+actor Ospite
+actor Autenticato
+actor Giurato
+actor Partecipante
+actor Organizzatore
 
-Authenticated <|-- Juror
-Authenticated <|-- Organizer
-Authenticated <|-- Participant
+Autenticato <|-- Giurato
+Autenticato <|-- Organizzatore
+Autenticato <|-- Partecipante
 
 ' =======================================
 ' Packages e Casi d'Uso
 ' =======================================
 
-package "Voting & Ranking Management" {
-  usecase "Vote in Session" as UC_VoteInSession
+package "Gestione Votazioni e Classifiche" {
+  usecase "Vota in una sessione" as UC_VoteInSession
 
-  usecase "Start voting session" as UC_StartVotingSession
-  usecase "Cancel voting session" as UC_CancelVotingSession
-  usecase "End voting session" as UC_EndVotingSession
-  usecase "Apply Geo-Restriction" as UC_ApplyGeoRestriction
+  usecase "Avvia sessione di voto" as UC_StartVotingSession
+  usecase "Annulla sessione di voto" as UC_CancelVotingSession
+  usecase "Termina sessione di voto" as UC_EndVotingSession
+  usecase "Applica restrizione geografica" as UC_ApplyGeoRestriction
 
-  usecase "Edit voting form" as UC_EditJuryForm
+  usecase "Modifica form di voto" as UC_EditJuryForm
 
-  usecase "Generate ranking" as UC_GenerateRanking
-  usecase "Publish ranking" as UC_PublishRanking
-  usecase "Unpublish ranking" as UC_UnpublishRanking
-  usecase "Download ranking" as UC_DownloadRanking
+  usecase "Genera classifica" as UC_GenerateRanking
+  usecase "Pubblica classifica" as UC_PublishRanking
+  usecase "Ritira classifica" as UC_UnpublishRanking
+  usecase "Scarica classifica" as UC_DownloadRanking
 
-  usecase "Export voting results" as UC_ExportVotingResults
+  usecase "Esporta risultati\ndella votazione" as UC_ExportVotingResults
 }
 
 ' =======================================
 ' Connessioni
 ' =======================================
 
-' Guest (come Giurato Semplice)
-Guest --> UC_VoteInSession : {as Simple Juror}
+' Ospite (come Giurato Semplice)
+Ospite --> UC_VoteInSession : {come Giurato Semplice}
 
-' Juror (sia Nominato che Semplice)
-Juror --> UC_VoteInSession
-Juror --> UC_DownloadRanking
+' Giurato (sia Nominato che Semplice)
+Giurato --> UC_VoteInSession
+Giurato --> UC_DownloadRanking
 
-' Organizer
-Organizer --> UC_EditJuryForm
-Organizer --> UC_StartVotingSession
-Organizer --> UC_CancelVotingSession
-Organizer --> UC_EndVotingSession
-Organizer --> UC_GenerateRanking
-Organizer --> UC_PublishRanking
-Organizer --> UC_UnpublishRanking
-Organizer --> UC_DownloadRanking
-Organizer --> UC_ExportVotingResults
+' Organizzatore
+Organizzatore --> UC_EditJuryForm
+Organizzatore --> UC_StartVotingSession
+Organizzatore --> UC_CancelVotingSession
+Organizzatore --> UC_EndVotingSession
+Organizzatore --> UC_GenerateRanking
+Organizzatore --> UC_PublishRanking
+Organizzatore --> UC_UnpublishRanking
+Organizzatore --> UC_DownloadRanking
+Organizzatore --> UC_ExportVotingResults
 
-Participant --> UC_DownloadRanking
+' Partecipante
+Partecipante --> UC_DownloadRanking
 
 ' =======================================
 ' Relazioni tra Casi d'Uso

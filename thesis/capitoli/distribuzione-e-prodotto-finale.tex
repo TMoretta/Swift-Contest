@@ -122,27 +122,27 @@ L'obiettivo non è quello di documentare ogni singola schermata dell'applicazion
 Partendo dalle schermate di base, come l'autenticazione e le impostazioni, verranno poi illustrati i flussi specifici per l'\textbf{Organizzatore}, il \textbf{Partecipante}, il \textbf{Giurato Nominato} e il \textbf{Giurato Semplice} (ospite).
 
 \subsection{Accesso e autenticazione}\label{subsec:accesso-e-autenticazione}
-L'accesso all'applicazione inizia con una \textbf{Splash Screen} che gestisce l'inizializzazione dei servizi principali.
-Successivamente, l'utente viene indirizzato al flusso di autenticazione, che comprende le pagine di \textbf{Sign In} (per l'accesso) e \textbf{Sign Up} (per la registrazione di un nuovo account).
+L'accesso all'applicazione inizia con una \textbf{schermata di avvio (Splash Screen)} che gestisce l'inizializzazione dei servizi principali.
+Successivamente, l'utente viene indirizzato al flusso di autenticazione, che comprende le pagine di \textbf{Accesso} e \textbf{Registrazione}.
 
 \begin{figure}[H]
     \centering
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/splash}
-        \subcaption{Splash screen}
+        \subcaption{Schermata di avvio}
         \label{fig:splash}
     \end{minipage}\hfill
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/auth/sign-in}
-        \subcaption{Pagina di sign in}
+        \subcaption{Pagina di accesso}
         \label{fig:signin}
     \end{minipage}\hfill
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/auth/sign-up}
-        \subcaption{Pagina di sign up}
+        \subcaption{Pagina di registrazione}
         \label{fig:signup}
     \end{minipage}
     \caption{Le schermate del flusso di autenticazione dell'applicazione.}
@@ -266,10 +266,10 @@ Selezionando un contest, l'organizzatore accede al pannello di gestione, organiz
 
 In particolare, la gestione delle giurie prevede una schermata di dettaglio il cui contenuto \textbf{varia a seconda del tipo di giuria}:
 \begin{itemize}
-    \item Per una \textbf{giuria nominata (\emph{appointed})}, la pagina mostra l'elenco dei giurati.
-    \item Per una \textbf{giuria semplice (\emph{simple})}, la pagina espone il \textbf{token} di accesso.
+    \item Per una \textbf{giuria nominata}, la pagina mostra l'elenco dei giurati.
+    \item Per una \textbf{giuria semplice}, la pagina espone il \textbf{token} di accesso.
 \end{itemize}
-Per entrambe, è possibile accedere alla configurazione del \textbf{Voting Form} associato.
+Per entrambe, è possibile accedere alla configurazione del \textbf{form di voto} associato.
 
 \begin{figure}[H]
     \centering
@@ -282,7 +282,7 @@ Per entrambe, è possibile accedere alla configurazione del \textbf{Voting Form}
     \begin{minipage}[t]{0.30\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/organizer/jury-voting-form}
-        \subcaption{Configurazione voting form}
+        \subcaption{Configurazione form di voto}
         \label{fig:voting_form_edit}
     \end{minipage}\hfill
     \begin{minipage}[t]{0.30\textwidth}
@@ -291,7 +291,7 @@ Per entrambe, è possibile accedere alla configurazione del \textbf{Voting Form}
         \subcaption{Dettagli giuria semplice}
         \label{fig:jury_details_simple}
     \end{minipage}
-    \caption{Le viste di dettaglio per i due tipi di giuria e la configurazione del Voting Form.}
+    \caption{Le viste di dettaglio per i due tipi di giuria e la configurazione del form di voto.}
     \label{fig:jury_and_form_views}
 \end{figure}
 
@@ -299,7 +299,7 @@ Per entrambe, è possibile accedere alla configurazione del \textbf{Voting Form}
 La tab \textbf{Voting} permette di avviare una nuova sessione tramite un form a tre passaggi:
 \begin{enumerate}
     \item \textbf{Selezione dei partecipanti}.
-    \item \textbf{Restrizione geografica (geo-restriction)} (opzionale).
+    \item \textbf{Restrizione geografica} (opzionale).
     \item \textbf{Gestione esclusioni} per i giurati nominati.
 \end{enumerate}
 Una volta avviata, la schermata mostra lo stato \textbf{Live} della sessione e il token per i giurati semplici.
@@ -476,7 +476,7 @@ La procedura di votazione guida il giurato attraverso una serie di schermate str
 
 \subsection{Flusso del giurato semplice (ospite)}\label{subsec:flusso-giurato-semplice}
 Il flusso ``ospite'' è progettato per essere il più rapido possibile.
-Dalla pagina di \textbf{Sign Up} o \textbf{Sign In}, un pulsante dedicato apre un popup per l'inserimento di \textbf{nome e cognome}.
+Dalla pagina di \textbf{Registrazione} o \textbf{Accesso}, un pulsante dedicato apre un popup per l'inserimento di \textbf{nome e cognome}.
 Una volta confermato, l'utente atterra su una \textbf{Home Page minimale}, da cui può accedere alla votazione tramite QR code o token.
 
 \begin{figure}[H]

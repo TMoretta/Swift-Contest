@@ -22,35 +22,40 @@ skinparam rectangle {
 ' Definizione dei Componenti
 ' =======================================
 
-package "Flutter Client Architecture (MVVM/BLoC)" {
+package "Architettura Client Flutter (MVVM/BLoC)" {
 
-    rectangle "**View**\n(UI Widgets)" as View
+    rectangle "**View**\n(Widget UI)" as View
     rectangle "**ViewModel**\n(BLoC)" as BLoC
     rectangle "**Model**\n(Repository)" as Repository
 
-    database "Backend\n(Supabase API)" as Backend
+    database "Backend\n(API Supabase)" as Backend
 }
 
 ' =======================================
 ' Definizione del Flusso di Dati
 ' =======================================
 
-' --- Flusso di Interazione dell'Utente (Command) ---
-View -> BLoC : 1. Notifies **Event** (e.g., Button Pressed)
-BLoC -> Repository : 2. Invokes method (e.g., fetchData())
-Repository -> Backend : 3. Makes API call
-Backend --> Repository : 4. Returns raw data
+' --- Flusso di Interazione dell'Utente (Comando) ---
+View -> BLoC : 1. Notifica un **Evento**\n (es. pressione di un pulsante)
+BLoC -> Repository : 2. Invoca un metodo\n (es. fetchData())
+Repository -> Backend : 3. Esegue la chiamata API
+Backend --> Repository : 4. Restituisce i dati (JSON)
 
-' --- Flusso di Ritorno dei Dati (Processing) ---
-Repository --> BLoC : 5. Returns result (e.g., Either<Failure, Data>)
+' --- Flusso di Ritorno dei Dati (Elaborazione) ---
+Repository --> BLoC : 5. Restituisce il risultato\n (es. Either<Failure, Data>)
 
-' --- Flusso Reattivo dello Stato (State Stream) ---
-' Il BLoC processa il risultato e emette un nuovo stato
-BLoC --> View : 6. Emits new **State**
-note on link: BLoC processes logic\nand pushes a new State
+' --- Flusso Reattivo dello Stato (Stream di Stati) ---
+' Il BLoC elabora il risultato ed emette un nuovo stato
+BLoC --> View : 6. Emette un nuovo **Stato**
+note on link
+  Il BLoC elabora la logica
+  ed emette un nuovo Stato
+end note
 
 ' La View si ricostruisce in base al nuovo stato
-View -> View : 7. Rebuilds UI based on State
-note on link: (e.g., via BlocBuilder)
+View -> View : 7. Ricostruisce la UI in base allo Stato
+note on link
+  (es. tramite BlocBuilder)
+end note
 
 @enduml

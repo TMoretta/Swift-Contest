@@ -211,7 +211,7 @@ skinparam class {
 ' =======================================
 
 ' --- Core Relationships ---
-Profiles ||--o{ Messages
+Profiles ||-l-o{ Messages
 Profiles ||--o{ Contests
 Contests |o--|| Places
 
@@ -251,11 +251,11 @@ Juries ..> VSJuries
 Jurations ..> VSJurors
 Profiles ..> VSJurors
 Participations ..> VSParticipants
-SubmissionValues }o--o| VSParticipants
+SubmissionValues }o-u-o| VSParticipants
 
 ' --- Exclusions ---
-VSJurors ||--o{ VSExclusions
-VSParticipants ||--o{ VSExclusions
+VSJurors ||-d-o{ VSExclusions
+VSParticipants ||-r-o{ VSExclusions
 
 ' --- Rankings ---
 Contests ||--o{ Rankings

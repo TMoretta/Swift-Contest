@@ -20,7 +20,7 @@ skinparam participant {
 ' =======================================
 ' Definizione dei Partecipanti
 ' =======================================
-actor Admin
+actor Amministratore
 participant "Retool Dashboard" as Retool
 participant "RPC Function\n(es. admin_get_all_accounts)" as RPC
 database "PostgreSQL DB" as DB
@@ -32,15 +32,15 @@ Admin -> Retool : Carica la pagina "Gestione Utenti"
 
 Retool -> RPC : Invoca la funzione
 activate RPC
-RPC -> RPC : Controlla: `session_user = 'retool'`
+RPC -> RPC : Contollo di Sicurezza:\nVerifica: `session_user = 'retool'`
 
-alt <color:#006400>Security Check: Success</color>
+alt <color:#006400>Session User Valido</color>
     RPC -> DB : Esegue la query sui dati richiesti
     activate DB
     DB --> RPC : Restituisce i dati
     deactivate DB
     RPC --> Retool : Restituisce i dati (JSON)
-else <color:red>Security Check: Failure</color>
+else <color:red>Session User Non Valido</color>
     RPC --> Retool : Error: 'Permission Denied'
 end
 

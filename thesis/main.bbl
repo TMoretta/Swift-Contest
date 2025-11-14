@@ -19,7 +19,7 @@
 
 \refsection{0}
   \datalist[entry]{none/global//global/global/global}
-    \entry{flutter_docs}{misc}{}{}
+    \entry{flutter_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
            family={{Google}},
@@ -38,20 +38,30 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://docs.flutter.dev/}}
-      \field{title}{Flutter documentation, 2025}
+      \field{title}{Flutter documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://docs.flutter.dev/
+      \endverb
+      \verb{url}
+      \verb https://docs.flutter.dev/
+      \endverb
     \endentry
     \entry{saltzer1975protection}{article}{}{}
       \name{author}{2}{}{%
         {{hash=a719626d86148a18f531a22673403d68}{%
            family={Saltzer},
            familyi={S\bibinitperiod},
-           given={Jerome\bibnamedelima H},
+           given={Jerome\bibnamedelima H.},
            giveni={J\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
         {{hash=83b584ef97b412d31b5b98583e54ef92}{%
            family={Schroeder},
            familyi={S\bibinitperiod},
-           given={Michael\bibnamedelima D},
+           given={Michael\bibnamedelima D.},
            giveni={M\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
       }
       \list{publisher}{1}{%
@@ -77,7 +87,7 @@
       \field{pages}{1278\bibrangedash 1338}
       \range{pages}{61}
     \endentry
-    \entry{supabase_docs}{misc}{}{}
+    \entry{supabase_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=af07a053f31f1c94fcf389327c68f6dd}{%
            family={{Supabase}},
@@ -95,31 +105,53 @@
       \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://supabase.com/docs}}
-      \field{title}{Supabase documentation, 2025}
+      \field{title}{Supabase documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://supabase.com/docs
+      \endverb
+      \verb{url}
+      \verb https://supabase.com/docs
+      \endverb
     \endentry
-    \entry{helios_voting}{misc}{}{}
+    \entry{helios_voting}{online}{}{}
       \name{author}{1}{}{%
-        {{hash=a3135dc5bf7e2ee920303f432709675e}{%
-           family={{Ben Adida}},
-           familyi={B\bibinitperiod}}}%
+        {{hash=dc10b98d1ed54eb3a80022aa3b38e7ca}{%
+           family={Adida},
+           familyi={A\bibinitperiod},
+           given={Ben},
+           giveni={B\bibinitperiod}}}%
       }
-      \strng{namehash}{a3135dc5bf7e2ee920303f432709675e}
-      \strng{fullhash}{a3135dc5bf7e2ee920303f432709675e}
-      \strng{fullhashraw}{a3135dc5bf7e2ee920303f432709675e}
-      \strng{bibnamehash}{a3135dc5bf7e2ee920303f432709675e}
-      \strng{authorbibnamehash}{a3135dc5bf7e2ee920303f432709675e}
-      \strng{authornamehash}{a3135dc5bf7e2ee920303f432709675e}
-      \strng{authorfullhash}{a3135dc5bf7e2ee920303f432709675e}
-      \strng{authorfullhashraw}{a3135dc5bf7e2ee920303f432709675e}
+      \strng{namehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{fullhash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{fullhashraw}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{bibnamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authorbibnamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authornamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authorfullhash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authorfullhashraw}{dc10b98d1ed54eb3a80022aa3b38e7ca}
       \field{sortinit}{4}
       \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://heliosvoting.org/}}
-      \field{title}{Helios Voting, 2025}
+      \field{title}{Helios Voting}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://heliosvoting.org/
+      \endverb
+      \verb{url}
+      \verb https://heliosvoting.org/
+      \endverb
     \endentry
-    \entry{eventbrite_website}{misc}{}{}
+    \entry{eventbrite_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=7314785d652ebc067604e72e3d80884a}{%
            family={{Eventbrite, Inc.}},
@@ -137,8 +169,18 @@
       \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://www.eventbrite.com/}}
-      \field{title}{Eventbrite, 2025}
+      \field{title}{Eventbrite}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.eventbrite.com/
+      \endverb
+      \verb{url}
+      \verb https://www.eventbrite.com/
+      \endverb
     \endentry
     \entry{grady1992furps}{book}{}{}
       \name{author}{1}{}{%
@@ -166,7 +208,7 @@
       \field{title}{Practical software metrics for project management and process improvement}
       \field{year}{1992}
     \endentry
-    \entry{dart_docs}{misc}{}{}
+    \entry{dart_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
            family={{Google}},
@@ -185,10 +227,20 @@
       \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://dart.dev/}}
-      \field{title}{Dart documentation, 2025}
+      \field{title}{Dart documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://dart.dev/
+      \endverb
+      \verb{url}
+      \verb https://dart.dev/
+      \endverb
     \endentry
-    \entry{firebase_docs}{misc}{}{}
+    \entry{firebase_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
            family={{Google}},
@@ -207,10 +259,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://firebase.google.com/docs}}
-      \field{title}{Firebase documentation, 2025}
+      \field{title}{Firebase documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://firebase.google.com/docs
+      \endverb
+      \verb{url}
+      \verb https://firebase.google.com/docs
+      \endverb
     \endentry
-    \entry{postgresql_docs}{misc}{}{}
+    \entry{postgresql_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=917cf2b2062aec0c604dbecc106084cd}{%
            family={{The PostgreSQL Global Development Group}},
@@ -228,10 +290,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://www.postgresql.org/docs/}}
-      \field{title}{PostgreSQL documentation, 2025}
+      \field{title}{PostgreSQL documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.postgresql.org/docs/
+      \endverb
+      \verb{url}
+      \verb https://www.postgresql.org/docs/
+      \endverb
     \endentry
-    \entry{typescript_docs}{misc}{}{}
+    \entry{typescript_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=140864078aeca1c7c35b4beb33c53c34}{%
            family={{Microsoft}},
@@ -249,10 +321,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://www.typescriptlang.org/docs/}}
-      \field{title}{TypeScript documentation, 2025}
+      \field{title}{TypeScript documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.typescriptlang.org/docs/
+      \endverb
+      \verb{url}
+      \verb https://www.typescriptlang.org/docs/
+      \endverb
     \endentry
-    \entry{vercel_website}{misc}{}{}
+    \entry{vercel_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=a5ffd881cacb3404ccac7e94415ab626}{%
            family={{Vercel Inc.}},
@@ -270,10 +352,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://vercel.com/}}
-      \field{title}{Vercel, 2025}
+      \field{title}{Vercel}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://vercel.com/
+      \endverb
+      \verb{url}
+      \verb https://vercel.com/
+      \endverb
     \endentry
-    \entry{resend_website}{misc}{}{}
+    \entry{resend_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=021b87605fb5ac7f53f71a0d645793da}{%
            family={{Resend, Inc.}},
@@ -291,10 +383,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://resend.com/}}
-      \field{title}{Resend, 2025}
+      \field{title}{Resend}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://resend.com/
+      \endverb
+      \verb{url}
+      \verb https://resend.com/
+      \endverb
     \endentry
-    \entry{google_places_api_docs}{misc}{}{}
+    \entry{google_places_api_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
            family={{Google}},
@@ -313,10 +415,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://developers.google.com/maps/documentation/places/web-service/overview}}
-      \field{title}{Google Places API documentation, 2025}
+      \field{title}{Google Places API documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://developers.google.com/maps/documentation/places/web-service/overview
+      \endverb
+      \verb{url}
+      \verb https://developers.google.com/maps/documentation/places/web-service/overview
+      \endverb
     \endentry
-    \entry{intellij_idea_website}{misc}{}{}
+    \entry{intellij_idea_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=b6a77f3f5bead76a495a90d63703e1f9}{%
            family={{JetBrains}},
@@ -335,10 +447,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://www.jetbrains.com/idea/}}
-      \field{title}{IntelliJ IDEA, 2025}
+      \field{title}{IntelliJ IDEA}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.jetbrains.com/idea/
+      \endverb
+      \verb{url}
+      \verb https://www.jetbrains.com/idea/
+      \endverb
     \endentry
-    \entry{npm_website}{misc}{}{}
+    \entry{npm_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=2f9460ae749ef6058f17e6e8222ea878}{%
            family={{npm, Inc.}},
@@ -356,10 +478,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://www.npmjs.com/}}
-      \field{title}{npm, 2025}
+      \field{title}{npm}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.npmjs.com/
+      \endverb
+      \verb{url}
+      \verb https://www.npmjs.com/
+      \endverb
     \endentry
-    \entry{retool_website}{misc}{}{}
+    \entry{retool_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=75880a77ee945aba35088c9c47b18d08}{%
            family={{Retool, Inc.}},
@@ -377,10 +509,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://retool.com/}}
-      \field{title}{Retool, 2025}
+      \field{title}{Retool}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://retool.com/
+      \endverb
+      \verb{url}
+      \verb https://retool.com/
+      \endverb
     \endentry
-    \entry{git_website}{misc}{}{}
+    \entry{git_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=336d2eb17dd063dccbbe6a669a498f8a}{%
            family={{Software Freedom Conservancy}},
@@ -398,10 +540,20 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://git-scm.com/}}
-      \field{title}{Git, 2025}
+      \field{title}{Git}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://git-scm.com/
+      \endverb
+      \verb{url}
+      \verb https://git-scm.com/
+      \endverb
     \endentry
-    \entry{github_website}{misc}{}{}
+    \entry{github_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=9b127eb47f59d27ace73783046da8889}{%
            family={{GitHub, Inc.}},
@@ -419,10 +571,20 @@
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://github.com/}}
-      \field{title}{GitHub, 2025}
+      \field{title}{GitHub}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/
+      \endverb
+      \verb{url}
+      \verb https://github.com/
+      \endverb
     \endentry
-    \entry{plantuml_website}{misc}{}{}
+    \entry{plantuml_website}{online}{}{}
       \name{author}{1}{}{%
         {{hash=9e991784a7de86b867cc684c4745f4dd}{%
            family={{PlantUML}},
@@ -440,96 +602,154 @@
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://plantuml.com/}}
-      \field{title}{PlantUML, 2025}
+      \field{title}{PlantUML}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://plantuml.com/
+      \endverb
+      \verb{url}
+      \verb https://plantuml.com/
+      \endverb
     \endentry
-    \entry{bloc_docs}{misc}{}{}
+    \entry{bloc_docs}{online}{}{}
       \name{author}{1}{}{%
-        {{hash=5d2978284b6f9083df0d0a765fd8e2c4}{%
-           family={{Felix Angelov}},
-           familyi={F\bibinitperiod}}}%
+        {{hash=1fa4ae3ac795423df56a45630561839f}{%
+           family={Angelov},
+           familyi={A\bibinitperiod},
+           given={Felix},
+           giveni={F\bibinitperiod}}}%
       }
-      \strng{namehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{fullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{fullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{bibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authorbibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authornamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authorfullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authorfullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{namehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{fullhash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{fullhashraw}{1fa4ae3ac795423df56a45630561839f}
+      \strng{bibnamehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authorbibnamehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authornamehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authorfullhash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authorfullhashraw}{1fa4ae3ac795423df56a45630561839f}
       \field{extraname}{1}
       \field{sortinit}{2}
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://bloclibrary.dev/}}
-      \field{title}{BLoC Library documentation, 2025}
+      \field{title}{BLoC Library documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://bloclibrary.dev/
+      \endverb
+      \verb{url}
+      \verb https://bloclibrary.dev/
+      \endverb
     \endentry
-    \entry{fpdart_package}{misc}{}{}
+    \entry{fpdart_package}{online}{}{}
       \name{author}{1}{}{%
-        {{hash=e54eeda5f79ca599089087082b764d94}{%
-           family={{Sandro Maglione}},
-           familyi={S\bibinitperiod}}}%
+        {{hash=70a6d491c1af84b2579738b00530e7dc}{%
+           family={Maglione},
+           familyi={M\bibinitperiod},
+           given={Sandro},
+           giveni={S\bibinitperiod}}}%
       }
-      \strng{namehash}{e54eeda5f79ca599089087082b764d94}
-      \strng{fullhash}{e54eeda5f79ca599089087082b764d94}
-      \strng{fullhashraw}{e54eeda5f79ca599089087082b764d94}
-      \strng{bibnamehash}{e54eeda5f79ca599089087082b764d94}
-      \strng{authorbibnamehash}{e54eeda5f79ca599089087082b764d94}
-      \strng{authornamehash}{e54eeda5f79ca599089087082b764d94}
-      \strng{authorfullhash}{e54eeda5f79ca599089087082b764d94}
-      \strng{authorfullhashraw}{e54eeda5f79ca599089087082b764d94}
+      \strng{namehash}{70a6d491c1af84b2579738b00530e7dc}
+      \strng{fullhash}{70a6d491c1af84b2579738b00530e7dc}
+      \strng{fullhashraw}{70a6d491c1af84b2579738b00530e7dc}
+      \strng{bibnamehash}{70a6d491c1af84b2579738b00530e7dc}
+      \strng{authorbibnamehash}{70a6d491c1af84b2579738b00530e7dc}
+      \strng{authornamehash}{70a6d491c1af84b2579738b00530e7dc}
+      \strng{authorfullhash}{70a6d491c1af84b2579738b00530e7dc}
+      \strng{authorfullhashraw}{70a6d491c1af84b2579738b00530e7dc}
       \field{sortinit}{2}
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://pub.dev/packages/fpdart}}
-      \field{title}{fpdart package documentation, 2025}
+      \field{title}{fpdart package documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://pub.dev/packages/fpdart
+      \endverb
+      \verb{url}
+      \verb https://pub.dev/packages/fpdart
+      \endverb
     \endentry
-    \entry{equatable_package}{misc}{}{}
+    \entry{equatable_package}{online}{}{}
       \name{author}{1}{}{%
-        {{hash=5d2978284b6f9083df0d0a765fd8e2c4}{%
-           family={{Felix Angelov}},
-           familyi={F\bibinitperiod}}}%
+        {{hash=1fa4ae3ac795423df56a45630561839f}{%
+           family={Angelov},
+           familyi={A\bibinitperiod},
+           given={Felix},
+           giveni={F\bibinitperiod}}}%
       }
-      \strng{namehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{fullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{fullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{bibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authorbibnamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authornamehash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authorfullhash}{5d2978284b6f9083df0d0a765fd8e2c4}
-      \strng{authorfullhashraw}{5d2978284b6f9083df0d0a765fd8e2c4}
+      \strng{namehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{fullhash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{fullhashraw}{1fa4ae3ac795423df56a45630561839f}
+      \strng{bibnamehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authorbibnamehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authornamehash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authorfullhash}{1fa4ae3ac795423df56a45630561839f}
+      \strng{authorfullhashraw}{1fa4ae3ac795423df56a45630561839f}
       \field{extraname}{2}
       \field{sortinit}{2}
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://pub.dev/packages/equatable}}
-      \field{title}{equatable package documentation, 2025}
+      \field{title}{equatable package documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://pub.dev/packages/equatable
+      \endverb
+      \verb{url}
+      \verb https://pub.dev/packages/equatable
+      \endverb
     \endentry
-    \entry{auto_route_package}{misc}{}{}
+    \entry{auto_route_package}{online}{}{}
       \name{author}{1}{}{%
-        {{hash=6ff8d5c15a49f5bd13a5b82898d6b045}{%
-           family={{Milad Akar}},
-           familyi={M\bibinitperiod}}}%
+        {{hash=f8611682caa09731a30210ba1c7b6d54}{%
+           family={Akar},
+           familyi={A\bibinitperiod},
+           given={Milad},
+           giveni={M\bibinitperiod}}}%
       }
-      \strng{namehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
-      \strng{fullhash}{6ff8d5c15a49f5bd13a5b82898d6b045}
-      \strng{fullhashraw}{6ff8d5c15a49f5bd13a5b82898d6b045}
-      \strng{bibnamehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
-      \strng{authorbibnamehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
-      \strng{authornamehash}{6ff8d5c15a49f5bd13a5b82898d6b045}
-      \strng{authorfullhash}{6ff8d5c15a49f5bd13a5b82898d6b045}
-      \strng{authorfullhashraw}{6ff8d5c15a49f5bd13a5b82898d6b045}
+      \strng{namehash}{f8611682caa09731a30210ba1c7b6d54}
+      \strng{fullhash}{f8611682caa09731a30210ba1c7b6d54}
+      \strng{fullhashraw}{f8611682caa09731a30210ba1c7b6d54}
+      \strng{bibnamehash}{f8611682caa09731a30210ba1c7b6d54}
+      \strng{authorbibnamehash}{f8611682caa09731a30210ba1c7b6d54}
+      \strng{authornamehash}{f8611682caa09731a30210ba1c7b6d54}
+      \strng{authorfullhash}{f8611682caa09731a30210ba1c7b6d54}
+      \strng{authorfullhashraw}{f8611682caa09731a30210ba1c7b6d54}
       \field{sortinit}{2}
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://pub.dev/packages/auto_route}}
-      \field{title}{auto\_route package documentation, 2025}
+      \field{title}{auto\_route package documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://pub.dev/packages/auto_route
+      \endverb
+      \verb{url}
+      \verb https://pub.dev/packages/auto_route
+      \endverb
     \endentry
-    \entry{material_design_docs}{misc}{}{}
+    \entry{material_design_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
            family={{Google}},
@@ -548,8 +768,18 @@
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://m3.material.io/}}
-      \field{title}{Material Design 3 documentation, 2025}
+      \field{title}{Material Design 3 documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://m3.material.io/
+      \endverb
+      \verb{url}
+      \verb https://m3.material.io/
+      \endverb
     \endentry
     \entry{gamma1995design}{book}{}{}
       \name{author}{4}{}{%
@@ -592,7 +822,7 @@
       \field{title}{Design patterns: elements of reusable object-oriented software}
       \field{year}{1995}
     \endentry
-    \entry{compose_multiplatform_docs}{misc}{}{}
+    \entry{compose_multiplatform_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=b6a77f3f5bead76a495a90d63703e1f9}{%
            family={{JetBrains}},
@@ -611,10 +841,20 @@
       \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://www.jetbrains.com/lp/compose-multiplatform/}}
-      \field{title}{Compose Multiplatform documentation, 2025}
+      \field{title}{Compose Multiplatform documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.jetbrains.com/lp/compose-multiplatform/
+      \endverb
+      \verb{url}
+      \verb https://www.jetbrains.com/lp/compose-multiplatform/
+      \endverb
     \endentry
-    \entry{kotlin_multiplatform_docs}{misc}{}{}
+    \entry{kotlin_multiplatform_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=b6a77f3f5bead76a495a90d63703e1f9}{%
            family={{JetBrains}},
@@ -633,10 +873,20 @@
       \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://kotlinlang.org/docs/multiplatform-mobile-overview.html}}
-      \field{title}{Kotlin Multiplatform documentation, 2025}
+      \field{title}{Kotlin Multiplatform documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://kotlinlang.org/docs/multiplatform.html
+      \endverb
+      \verb{url}
+      \verb https://kotlinlang.org/docs/multiplatform.html
+      \endverb
     \endentry
-    \entry{jetpack_compose_docs}{misc}{}{}
+    \entry{jetpack_compose_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
            family={{Google}},
@@ -655,8 +905,18 @@
       \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{\url{https://developer.android.com/jetpack/compose}}
-      \field{title}{Jetpack Compose documentation, 2025}
+      \field{title}{Jetpack Compose documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{6}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://developer.android.com/jetpack/compose
+      \endverb
+      \verb{url}
+      \verb https://developer.android.com/jetpack/compose
+      \endverb
     \endentry
   \enddatalist
 \endrefsection

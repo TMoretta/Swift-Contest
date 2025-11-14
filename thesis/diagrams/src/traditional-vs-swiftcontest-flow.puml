@@ -24,14 +24,14 @@ skinparam rectangle {
 
 ' --- Processo Tradizionale ---
 package "Processo Tradizionale (Frammentato)" as Traditional {
-    actor Organizer as Org_T
-    actor Participant as Part_T
-    actor Juror as Jur_T
+    actor Organizzatore as Org_T
+    actor Partecipante as Part_T
+    actor Giurato as Jur_T
 
     rectangle "Email" as Email
-    rectangle "Cloud Storage" as Storage
-    rectangle "Forms" as Forms
-    rectangle "Spreadsheet" as Sheet
+    rectangle "Archivio Cloud" as Storage
+    rectangle "Moduli Online" as Forms
+    rectangle "Fogli di Calcolo" as Sheet
 
     ' Flusso di dati frammentato
     Org_T --> Email : Invia inviti
@@ -50,16 +50,16 @@ package "Processo Tradizionale (Frammentato)" as Traditional {
 
 ' --- Processo Swift Contest ---
 package "Processo Integrato (Swift Contest)" as SwiftContest {
-    actor Juror as Jur_S
-    actor Participant as Part_S
-    actor Organizer as Org_S
+    actor Giurato as Jur_S
+    actor Partecipante as Part_S
+    actor Organizzatore as Org_S
 
-    package "**Swift Contest Platform**" as App {
+    package "**Piattaforma Swift Contest**" as App {
         rectangle "Gestione Risultati" as Results
         rectangle "Gestione Votazioni" as Votes
         rectangle "Gestione Lavori" as Works
         rectangle "Gestione Membri\ne Inviti" as Users
-        database "Single Source of Truth" as SSoT
+        database "Unica Fonte di Verità" as SSoT
     }
 
     ' Tutti gli attori interagiscono con un'unica piattaforma

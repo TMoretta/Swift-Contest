@@ -22,25 +22,24 @@ skinparam rectangle {
 ' =======================================
 
 ' --- Il Client ---
-actor User
-rectangle "**Flutter Client**\n(Web & Android)" as Client
+actor Utente
+rectangle "**Client Flutter**\n(Web & Android)" as Client
 
 ' --- Il Server (rappresentato come un Backend BaaS) ---
 package "Backend (Supabase BaaS)" {
-  rectangle "Authentication" as Auth
-  ' MODIFICA: Usata la notazione 'database'
+  rectangle "Autenticazione" as Auth
   database "Database\n(PostgreSQL)" as DB
   rectangle "Storage" as Store
   rectangle "Edge Functions" as Edge
   rectangle "Realtime" as RT
-  rectangle "RPC API" as RPC
+  rectangle "API RPC" as RPC
 }
 
 ' --- Servizi Esterni ---
-package "External Services" {
-  rectangle "Resend API" as Resend
-  rectangle "Google Places API" as GooglePlaces
-  rectangle "GitHub API" as GitHub
+package "Servizi Esterni" {
+  rectangle "API Resend" as Resend
+  rectangle "API Google Places" as GooglePlaces
+  rectangle "API GitHub" as GitHub
 }
 
 
@@ -48,32 +47,32 @@ package "External Services" {
 ' Definizione delle Interazioni
 ' =======================================
 
-User --> Client : Interacts with
+Utente --> Client : Interagisce con
 
 ' --- Interazioni Client -> Backend ---
-Client --> Auth : Authenticates (HTTPS)
-Client --> RPC : Invokes procedures (HTTPS)
-Client --> Store : Uploads/Downloads files\n(via signed URLs, HTTPS)
-Client --> Edge : Triggers complex operations (HTTPS)
-Client --> RT : Subscribes to live events (WSS)
+Client --> Auth : Autentica (HTTPS)
+Client --> RPC : Invoca procedure (HTTPS)
+Client --> Store : Carica/Scarica file\n(tramite signed URL, HTTPS)
+Client --> Edge : Avvia operazioni complesse (HTTPS)
+Client --> RT : Si sottoscrive a eventi live (WSS)
 
 ' --- Interazioni interne a Supabase ---
 ' Mostra come i servizi Supabase interagiscono con il DB
-Auth --> DB : Manages users
-RPC --> DB : Executes queries
-Store --> DB : Stores metadata
-Edge --> DB : Accesses data
-RT ..> DB : Listens for changes
+Auth --> DB : Gestisce gli utenti
+RPC --> DB : Esegue query
+Store --> DB : Memorizza metadati
+Edge --> DB : Accede ai dati
+RT ..> DB : Ascolta le modifiche
 
 ' --- Interazioni Backend -> Servizi Esterni ---
 ' Solo le Edge Functions comunicano con l'esterno
-Edge --> Resend : Sends emails (HTTPS)
-Edge --> GooglePlaces : Proxies API Calls (HTTPS)
-Edge --> GitHub : Fetches APK (HTTPS)
+Edge --> Resend : Invia email (HTTPS)
+Edge --> GooglePlaces : Funge da proxy per le chiamate API (HTTPS)
+Edge --> GitHub : Recupera l'APK (HTTPS)
 
 ' --- Evidenziare la sicurezza ---
 ' Questa linea tratteggiata e rossa mostra che l'accesso diretto è bloccato
 Client -[#red,dashed]-> DB
-note on link: **Direct Access Denied**\n(Principle of Least Privilege)
+note on link: **Accesso Diretto Negato**\n(Principio del Minimo Privilegio)
 
 @enduml

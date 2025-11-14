@@ -106,7 +106,7 @@ class JurorInvitation {
 }
 
 ' --- Nota Esplicativa per la logica dello Scope ---
-note "The 'scope' attribute determines how the field is rendered:\n- **HEADER**: Displayed once at the top of the form.\n- **PARTICIPANT**: Repeated for each participant being judged.\n- **FOOTER**: Displayed once at the bottom of the form." as NOTE_VotingFormField
+note "L'attributo 'scope' determina come il campo viene renderizzato:\n- **Header**: Visualizzato una volta all'inizio del form.\n- **Participant**: Ripetuto per ogni partecipante da valutare.\n- **Footer**: Visualizzato una volta alla fine del form." as NOTE_VotingFormField
 NOTE_VotingFormField .- VotingFormField
 
 ' =======================================
@@ -114,43 +114,43 @@ NOTE_VotingFormField .- VotingFormField
 ' =======================================
 
 ' --- Relazioni Principali ---
-User "1" -r- "*" Message : receives\n
-User "1" -- "*" Contest : organizes
+User "1" -r- "*" Message : riceve\n
+User "1" -- "*" Contest : organizza
 
 ' MODIFICA: Usata la composizione
-Contest "1" *-- "0..1" Place : takes_place_at
-Contest "1" *-- "*" Jury : has
-Contest "1" -- "*" ContestRanking : results_in
-Contest "1" -- "*" VotingSession : holds
+Contest "1" *-- "0..1" Place : si_svolge_a
+Contest "1" *-- "*" Jury : ha
+Contest "1" -- "*" ContestRanking : produce
+Contest "1" -- "*" VotingSession : contiene
 
 ' --- Relazioni per Inviti ---
-Contest "1" -- "*" ParticipantInvitation : sends
-Jury "1" -- "*" JurorInvitation : sends
-ParticipantInvitation ..> ParticipantMembership : creates
-JurorInvitation ..> JurorMembership : creates
+Contest "1" -- "*" ParticipantInvitation : invia
+Jury "1" -- "*" JurorInvitation : invia
+ParticipantInvitation ..> ParticipantMembership : crea
+JurorInvitation ..> JurorMembership : crea
 
 ' --- Relazioni per le Classi di Associazione ---
 (User, Contest) .. ParticipantMembership
 (User, Jury) .. JurorMembership
 
 ' MODIFICA: Usata la composizione
-ParticipantMembership "1" *-r- "0..1" Work : submits\n
+ParticipantMembership "1" *-r- "0..1" Work : sottomette\n
 
 ' --- Relazioni per il Processo di Voto ---
-Jury "1\n" -- "1\n" VotingForm : uses
-VotingForm "1" *-- "*" VotingFormField : contains
+Jury "1\n" -- "1\n" VotingForm : usa
+VotingForm "1" *-- "*" VotingFormField : contiene
 
-VotingSession "0..1" -- "0..1" Place : restricted_to
+VotingSession "0..1" -- "0..1" Place : ristretta_a
 
 ' --- Relazioni Molti-a-Molti per le Sessioni ---
-VotingSession "*" -- "1..*" JurorMembership : includes
-VotingSession "*" -- "1..*" ParticipantMembership : judges
+VotingSession "*" -- "1..*" JurorMembership : include
+VotingSession "*" -- "1..*" ParticipantMembership : valuta
 
 ' --- Relazioni per la Sottomissione dei Voti ---
-JurorMembership "1" -- "1" VotingSubmission : submits
+JurorMembership "1" -- "1" VotingSubmission : sottomette
 ' MODIFICA: Usata la composizione
-VotingSubmission "1" *-- "*" VotingSubmissionValue : consists_of
-VotingSubmissionValue "1" -- "1" VotingFormField : answers
-VotingSubmissionValue "*" -- "0..1" ParticipantMembership : evaluates
+VotingSubmission "1" *-- "*" VotingSubmissionValue : consiste_di
+VotingSubmissionValue "1" -- "1" VotingFormField : risponde_a
+VotingSubmissionValue "*" -- "0..1" ParticipantMembership : valuta
 
 @enduml

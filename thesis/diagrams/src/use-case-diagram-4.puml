@@ -20,22 +20,22 @@ skinparam usecase {
 ' =======================================
 ' Attori
 ' =======================================
-actor Admin
+actor Amministratore
 
 ' =======================================
 ' Packages e Casi d'Uso
 ' =======================================
 
-package "Administration" {
-  usecase "Manage contests" as UC_AdminManageContests
-  usecase "Manage users" as UC_AdminManageUsers
+package "Amministrazione" {
+  usecase "Gestisci contest" as UC_AdminManageContests
+  usecase "Gestisci utenti" as UC_AdminManageUsers
 }
 
 ' =======================================
 ' Connessioni
 ' =======================================
 
-Admin --> UC_AdminManageUsers
-Admin --> UC_AdminManageContests
+Amministratore --> UC_AdminManageUsers
+Amministratore --> UC_AdminManageContests
 
 @enduml

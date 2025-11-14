@@ -22,8 +22,6 @@ Le linee guida principali sono state:
     \label{fig:client-server-architecture}
 \end{figure}
 
-\newpage
-
 \section{Architettura del frontend: il pattern MVVM con BLoC}
 \label{sec:frontend-architecture}
 Il frontend è stato sviluppato in Flutter seguendo i principi dell'architettura \textbf{MVVM (Model-View-ViewModel)}, implementata attraverso il pattern \textbf{BLoC (Business Logic Component)}.
@@ -41,7 +39,7 @@ La struttura del codice sorgente in \texttt{lib/} riflette questa suddivisione:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/client-architecture}
+    \includegraphics[width=0.70\textwidth]{capitoli/figure/diagrams/client-architecture}
     \caption{Architettura del Client MVVM con BLoC.}
     \label{fig:client-architecture}
 \end{figure}
@@ -743,7 +741,7 @@ Oltre al modello ibrido RLS/RPC, la sicurezza del sistema è rafforzata da altre
 \end{itemize}
 
 \subsubsection{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}
-Una delle sfide più complesse è stata quella di permettere a un \emph{Simple Juror} di votare in modo sicuro senza obbligarlo a creare un account permanente.
+Una delle sfide più complesse è stata quella di permettere a un \emph{Giurato Semplice} di votare in modo sicuro senza obbligarlo a creare un account permanente.
 Risolvere questo problema solo con un token temporaneo sarebbe stato insicuro, poiché non avrebbe permesso di tracciare in modo affidabile se l'utente avesse già votato.
 
 Per risolvere questa sfida, è stato implementato un pattern basato sull'\textbf{autenticazione anonima} offerta da Supabase.
@@ -814,7 +812,7 @@ Le query da Retool invocano funzioni RPC con prefisso \texttt{admin\_*}, che al 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-rpc-call}
+    \includegraphics[width=0.90\textwidth]{capitoli/figure/diagrams/retool-rpc-call}
     \caption{Flusso di una chiamata sicura da Retool a una Funzione RPC.}
     \label{fig:retool_rpc_call}
 \end{figure}
@@ -870,7 +868,7 @@ Questo approccio garantisce che solo un'applicazione autorizzata possa invocare 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{capitoli/figure/diagrams/retool-edge-call}
+    \includegraphics[width=0.90\textwidth]{capitoli/figure/diagrams/retool-edge-call}
     \caption{Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}
     \label{fig:retool_edge_call}
 \end{figure}

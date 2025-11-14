@@ -7,6 +7,7 @@ skinparam backgroundColor transparent
 skinparam actorStyle awesome
 skinparam shadowing false
 skinparam nodesep 25
+skinparam ranksep 25
 
 ' --- Palette di Colori ---
 skinparam node {
@@ -19,51 +20,48 @@ skinparam node {
 ' =======================================
 
 ' --- Attori ---
-actor User
-actor Admin
+actor Utente
+actor Amministratore
 
 ' --- Nodo Client ---
-node "User's Device" as UserDevice {
-    artifact "Flutter App" as App
+node "Dispositivo dell'Utente" as UserDevice {
+    artifact "App Flutter" as App
 }
 
 ' --- Piattaforme Cloud ---
-node "Supabase Platform" as SupabaseNode {
-    database "PostgreSQL DB" as DB
+node "Piattaforma Supabase" as SupabaseNode {
+    database "DB PostgreSQL" as DB
 
-    ' MODIFICA: Definiti come componenti
-    component [RPC API] as RPC
-    component [Storage Service] as Store
-    component [Realtime Service] as RT
-    component [Auth Service] as Auth
+    component [API RPC] as RPC
+    component [Servizio Storage] as Store
+    component [Servizio Realtime] as RT
+    component [Servizio Autenticazione] as Auth
 
-    ' MODIFICA: Definito come Execution Environment
-    node "Edge Functions Runtime" as EdgeRuntime <<executionEnvironment>>
+    node "Runtime Edge Functions" as EdgeRuntime <<executionEnvironment>>
 
-    ' MODIFICA: Definiti come artefatti
-    artifact "SQL Migrations" as SQLScripts
-    artifact "Edge Functions Code" as EFCode
+    artifact "Migrazioni SQL" as SQLScripts
+    artifact "Codice Edge Functions" as EFCode
 }
 
-node "Vercel Platform" as VercelNode {
-    artifact "Static Web Build" as WebApp
+node "Piattaforma Vercel" as VercelNode {
+    artifact "Build Web Statica" as WebApp
 }
 
-node "GitHub Platform" as GitHubNode {
-    artifact "Android APK" as APK
+node "Piattaforma GitHub" as GitHubNode {
+    artifact "APK Android" as APK
 }
 
-node "Retool Platform" as RetoolNode {
-    artifact "Admin Dashboard" as RetoolApp
+node "Piattaforma Retool" as RetoolNode {
+    artifact "Dashboard Admin" as RetoolApp
 }
 
 ' --- Servizi Esterni ---
-node "Google Cloud Platform" as GoogleNode {
-    component [Google Places API] as GooglePlaces
+node "Piattaforma Google Cloud" as GoogleNode {
+    component [API Google Places] as GooglePlaces
 }
 
-node "Resend Platform" as ResendNode {
-    component [Resend API] as Resend
+node "Piattaforma Resend" as ResendNode {
+    component [API Resend] as Resend
 }
 
 
@@ -72,31 +70,31 @@ node "Resend Platform" as ResendNode {
 ' =======================================
 
 ' --- Flussi di Comunicazione ---
-User --> App : Interacts with
-Admin --> RetoolApp : Manages system
+Utente --> App : Interagisce con
+Amministratore --> RetoolApp : Gestisce il sistema
 
 ' Il client carica l'app da Vercel
-App <.. WebApp : Loads
+App <.. WebApp : Carica
 
 ' Comunicazioni dell'App Flutter
-App --> Auth : Authenticates (HTTPS)
-App --> RPC : Invokes RPCs (HTTPS)
-App --> Store : Uploads/Downloads Files (HTTPS)
-App --> EdgeRuntime : Triggers Functions (HTTPS)
-App --> RT : Subscribes (WSS)
+App --> Auth : Autentica (HTTPS)
+App --> RPC : Invoca RPC (HTTPS)
+App --> Store : Carica/Scarica File (HTTPS)
+App --> EdgeRuntime : Invoca Funzioni (HTTPS)
+App --> RT : Si sottoscrive (WSS)
 
 ' Comunicazioni interne a Supabase
 RPC --> DB
-EdgeRuntime --> DB : Accesses Data
+EdgeRuntime --> DB : Accede ai Dati
 
 ' Comunicazioni delle Edge Functions verso l'esterno
-EdgeRuntime --> Resend : Sends Emails (HTTPS)
-EdgeRuntime --> GooglePlaces : Proxies API Calls (HTTPS)
-EdgeRuntime --> GitHubNode : Fetches APK (HTTPS)
+EdgeRuntime --> Resend : Invia Email (HTTPS)
+EdgeRuntime --> GooglePlaces : Funge da Proxy per API (HTTPS)
+EdgeRuntime --> GitHubNode : Recupera APK (HTTPS)
 
 ' Comunicazioni della Dashboard Admin
-RetoolApp --> RPC : Invokes Admin RPCs (HTTPS)
-RetoolApp --> EdgeRuntime : Triggers Admin Functions (HTTPS)
+RetoolApp --> RPC : Invoca RPC Admin (HTTPS)
+RetoolApp --> EdgeRuntime : Invoca Funzioni Admin (HTTPS)
 
 ' --- NUOVA SEZIONE: Relazioni di Deployment ---
 ' Mostra quali artefatti sono distribuiti su quali componenti
