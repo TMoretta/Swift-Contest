@@ -6,6 +6,8 @@ top to bottom direction
 skinparam backgroundColor transparent
 skinparam actorStyle awesome
 skinparam shadowing false
+skinparam ranksep 25
+'skinparam nodesep 25
 
 skinparam package {
     backgroundColor #FFFFFF

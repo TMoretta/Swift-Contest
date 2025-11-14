@@ -114,18 +114,18 @@ NOTE_VotingFormField .- VotingFormField
 ' =======================================
 
 ' --- Relazioni Principali ---
-User "1" -- "0..*" Message : receives
-User "1" -- "0..*" Contest : organizes
+User "1" -r- "*" Message : receives\n
+User "1" -- "*" Contest : organizes
 
 ' MODIFICA: Usata la composizione
 Contest "1" *-- "0..1" Place : takes_place_at
-Contest "1" *-- "0..*" Jury : has
-Contest "1" -- "0..*" ContestRanking : results_in
-Contest "1" -- "0..*" VotingSession : holds
+Contest "1" *-- "*" Jury : has
+Contest "1" -- "*" ContestRanking : results_in
+Contest "1" -- "*" VotingSession : holds
 
 ' --- Relazioni per Inviti ---
-Contest "1" -- "0..*" ParticipantInvitation : sends
-Jury "1" -- "0..*" JurorInvitation : sends
+Contest "1" -- "*" ParticipantInvitation : sends
+Jury "1" -- "*" JurorInvitation : sends
 ParticipantInvitation ..> ParticipantMembership : creates
 JurorInvitation ..> JurorMembership : creates
 
@@ -134,23 +134,23 @@ JurorInvitation ..> JurorMembership : creates
 (User, Jury) .. JurorMembership
 
 ' MODIFICA: Usata la composizione
-ParticipantMembership "1" *-- "0..1" Work : submits
+ParticipantMembership "1" *-r- "0..1" Work : submits\n
 
 ' --- Relazioni per il Processo di Voto ---
-Jury "1" -- "1" VotingForm : uses
-VotingForm "1" *-- "0..*" VotingFormField : contains
+Jury "1\n" -- "1\n" VotingForm : uses
+VotingForm "1" *-- "*" VotingFormField : contains
 
 VotingSession "0..1" -- "0..1" Place : restricted_to
 
 ' --- Relazioni Molti-a-Molti per le Sessioni ---
-VotingSession "0..*" -- "1..*" JurorMembership : includes
-VotingSession "0..*" -- "1..*" ParticipantMembership : judges
+VotingSession "*" -- "1..*" JurorMembership : includes
+VotingSession "*" -- "1..*" ParticipantMembership : judges
 
 ' --- Relazioni per la Sottomissione dei Voti ---
 JurorMembership "1" -- "1" VotingSubmission : submits
 ' MODIFICA: Usata la composizione
-VotingSubmission "1" *-- "0..*" VotingSubmissionValue : consists_of
+VotingSubmission "1" *-- "*" VotingSubmissionValue : consists_of
 VotingSubmissionValue "1" -- "1" VotingFormField : answers
-VotingSubmissionValue "0..*" -- "0..1" ParticipantMembership : evaluates
+VotingSubmissionValue "*" -- "0..1" ParticipantMembership : evaluates
 
 @enduml
