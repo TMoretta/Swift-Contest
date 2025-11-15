@@ -5,10 +5,10 @@
 La realizzazione del progetto \textbf{Swift Contest} è stata resa possibile dall'adozione di un insieme di tecnologie, piattaforme e strumenti moderni, selezionati per soddisfare i requisiti di cross-platform, sicurezza, scalabilità e velocità di sviluppo.
 Questo capitolo descrive lo stack tecnologico utilizzato, giustificando le scelte chiave in relazione agli obiettivi del progetto.
 
-\section{Stack tecnologico principale}\label{sec:stack-tecnologico-principale}
-Questa sezione descrive i linguaggi e i framework utilizzati per la scrittura del codice sorgente dell'applicazione, sia lato client che lato server.
+\section{Framework, piattaforme e linguaggi}\label{sec:linguaggi-framework-piattaforme}
+Questa sezione descrive le tecnologie fondamentali su cui si basa l'architettura software del progetto, partendo dal frontend fino ad arrivare ai linguaggi di programmazione utilizzati.
 
-\subsection{Frontend: Flutter e Dart}\label{subsec:frontend:-flutter-e-dart}
+\subsection{Framework Frontend}\label{subsec:framework-frontend}
 
 \techitem{capitoli/figure/logos/flutter}{Flutter~\cite{flutter_docs}}{
     è il framework UI open-source di Google scelto per lo sviluppo dell'applicazione client.
@@ -16,32 +16,40 @@ Questa sezione descrive i linguaggi e i framework utilizzati per la scrittura de
     Questa scelta è stata fondamentale per soddisfare il requisito di \textbf{sviluppo cross-platform}, garantendo un'esperienza utente coerente e riducendo drasticamente i tempi di sviluppo e manutenzione.
 }
 
-\techitem{capitoli/figure/logos/dart}{Dart~\cite{dart_docs}}{
-    è il linguaggio di programmazione su cui si basa Flutter.
-    È un linguaggio moderno, orientato agli oggetti e fortemente tipizzato, ottimizzato per la creazione di interfacce utente.
-    La sua architettura, che supporta sia la compilazione \emph{Just-In-Time (JIT)} per uno sviluppo rapido (con \emph{hot reload}) sia la compilazione \emph{Ahead-Of-Time (AOT)} per performance elevate in produzione, lo ha reso la scelta naturale per questo progetto.
-}
+\vspace{1em}
 
-\subsection{Backend: Supabase, PL/pgSQL e TypeScript}\label{subsec:backend:-supabase-pl/pgsql-e-typescript}
+\subsection{Framework e piattaforme Backend}\label{subsec:framework-e-piattaforme-backend}
 
 \techitem{capitoli/figure/logos/supabase}{Supabase~\cite{supabase_docs}}{
     è la piattaforma open-source \textbf{Backend-as-a-Service (BaaS)} che costituisce il cuore dell'infrastruttura server.
     La scelta è ricaduta su Supabase dopo un'attenta valutazione delle principali alternative, in particolare \textbf{Firebase}~\cite{firebase_docs} di Google.
-    Sebbene entrambe le piattaforme offrano un set di funzionalità simile, Supabase è stato preferito per una ragione architetturale fondamentale: il suo database è \textbf{PostgreSQL}, un sistema \emph{SQL} maturo e relazionale.
-    Questa caratteristica è stata ritenuta cruciale per un'applicazione con un modello dati complesso e interconnesso, dove la garanzia di integrità referenziale e la possibilità di eseguire query complesse sono requisiti fondamentali.
+    Supabase è stato preferito per una ragione architetturale fondamentale: il suo backend è interamente basato su \textbf{PostgreSQL}.
 }
 
-\techitem{capitoli/figure/logos/postgresql}{PL/pgSQL~\cite{postgresql_docs}}{
-    è il linguaggio procedurale di PostgreSQL. È stato utilizzato per scrivere tutte le \textbf{Funzioni RPC (Remote Procedure Call)} del sistema.
-    La scelta di implementare la logica di accesso ai dati direttamente a livello di database ha permesso di ottenere performance elevate e di garantire l'atomicità delle operazioni.
+\techitem{capitoli/figure/logos/postgresql}{PostgreSQL~\cite{postgresql_docs}}{
+    è il potente sistema open-source per la gestione di database relazionali su cui si basa l'intera piattaforma Supabase. La decisione di adottare un backend basato su SQL, e in particolare su PostgreSQL, è stata un fattore determinante nella scelta tecnologica, in quanto garantisce integrità referenziale e la possibilità di eseguire query complesse, a differenza delle alternative basate su database NoSQL come Firebase.
+}
+
+\vspace{1em}
+
+\subsection{Linguaggi di programmazione}\label{subsec:linguaggi-di-programmazione}
+
+\techitem{capitoli/figure/logos/dart}{Dart~\cite{dart_docs}}{
+    è il linguaggio di programmazione su cui si basa il framework Flutter. Essendo una conseguenza diretta della scelta di Flutter, le sue caratteristiche si sono rivelate ideali per gli obiettivi del progetto: è un linguaggio moderno, orientato agli oggetti e fortemente tipizzato, la cui architettura supporta sia la compilazione \emph{Just-In-Time (JIT)} per uno sviluppo rapido (con \emph{hot reload}), sia la compilazione \emph{Ahead-Of-Time (AOT)} per garantire performance elevate in produzione.
 }
 
 \techitem{capitoli/figure/logos/typescript}{TypeScript~\cite{typescript_docs}}{
-    è stato scelto come linguaggio per lo sviluppo delle \textbf{Edge Functions}, eseguite sul \emph{runtime Deno} di Supabase.
-    La sua natura fortemente tipizzata, unita alla vasta disponibilità di librerie dell'ecosistema JavaScript/TypeScript, lo ha reso ideale per orchestrare le interazioni sicure con le API di servizi esterni.
+    è il linguaggio richiesto dal runtime Deno per lo sviluppo delle \textbf{Edge Functions} su Supabase.
+    Sebbene non sia stata una scelta attiva, la sua natura fortemente tipizzata, unita alla vasta disponibilità di librerie dell'ecosistema JavaScript, si è rivelata ideale per orchestrare le interazioni sicure con le API di servizi esterni.
 }
 
-\section{Piattaforme, strumenti e servizi}\label{sec:piattaforme-strumenti-e-servizi}
+\techitem{capitoli/figure/logos/postgresql}{PL/pgSQL~\cite{postgresql_docs}}{
+    è il linguaggio procedurale nativo di PostgreSQL. È stato utilizzato per scrivere tutte le \textbf{Funzioni RPC (Remote Procedure Call)} del sistema, una scelta che si è rivelata fondamentale per garantire l'atomicità delle operazioni complesse e per ottenere performance elevate.
+}
+
+\vspace{1em}
+
+\section{Strumenti, servizi e piattaforme di supporto}\label{sec:strumenti-servizi-piattaforme-supporto}
 Questa sezione descrive le piattaforme di terze parti e gli strumenti che hanno supportato il ciclo di vita del progetto.
 
 \subsection{Piattaforme di distribuzione e servizi Cloud}\label{subsec:piattaforme-di-distribuzione-e-servizi-cloud}
@@ -60,6 +68,8 @@ Questa sezione descrive le piattaforme di terze parti e gli strumenti che hanno 
     Questo servizio è stato integrato per fornire la funzionalità di ricerca e autocompletamento degli indirizzi.
 }
 
+\vspace{1em}
+
 \subsection{Strumenti di sviluppo e amministrazione}\label{subsec:strumenti-di-sviluppo-e-amministrazione}
 
 \techitem{capitoli/figure/logos/intellij}{IntelliJ IDEA~\cite{intellij_idea_website}}{
@@ -75,6 +85,8 @@ Questa sezione descrive le piattaforme di terze parti e gli strumenti che hanno 
     è la piattaforma \emph{low-code} utilizzata per costruire rapidamente la \textbf{dashboard di amministrazione} interna.
 }
 
+\vspace{1em}
+
 \subsection{Version Control e Code Hosting}\label{subsec:version-control-e-code-hosting}
 
 \techitem{capitoli/figure/logos/git}{Git~\cite{git_website}}{
@@ -84,6 +96,8 @@ Questa sezione descrive le piattaforme di terze parti e gli strumenti che hanno 
 \techitem{capitoli/figure/logos/github}{GitHub~\cite{github_website}}{
     è la piattaforma di \textbf{code hosting} che ospita il repository Git del progetto, integrata con la pipeline di CI/CD di Vercel.
 }
+
+\vspace{1em}
 
 \subsection{Strumenti di documentazione e modellazione}\label{subsec:strumenti-di-documentazione-e-modellazione}
 

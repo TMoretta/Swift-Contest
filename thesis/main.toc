@@ -29,13 +29,14 @@
 \contentsline {subsection}{\numberline {2.5.1}Entità fondamentali}{18}{subsection.2.5.1}%
 \contentsline {subsection}{\numberline {2.5.2}Vincoli chiave del dominio}{18}{subsection.2.5.2}%
 \contentsline {chapter}{\numberline {3}Tecnologie e strumenti utilizzati}{20}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Stack tecnologico principale}{20}{section.3.1}%
-\contentsline {subsection}{\numberline {3.1.1}Frontend: Flutter e Dart}{21}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Backend: Supabase, PL/pgSQL e TypeScript}{21}{subsection.3.1.2}%
-\contentsline {section}{\numberline {3.2}Piattaforme, strumenti e servizi}{22}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Piattaforme di distribuzione e servizi Cloud}{22}{subsection.3.2.1}%
+\contentsline {section}{\numberline {3.1}Framework, piattaforme e linguaggi}{20}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Framework Frontend}{21}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Framework e piattaforme Backend}{21}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Linguaggi di programmazione}{22}{subsection.3.1.3}%
+\contentsline {section}{\numberline {3.2}Strumenti, servizi e piattaforme di supporto}{22}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Piattaforme di distribuzione e servizi Cloud}{23}{subsection.3.2.1}%
 \contentsline {subsection}{\numberline {3.2.2}Strumenti di sviluppo e amministrazione}{23}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Version Control e Code Hosting}{23}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.3}Version Control e Code Hosting}{24}{subsection.3.2.3}%
 \contentsline {subsection}{\numberline {3.2.4}Strumenti di documentazione e modellazione}{24}{subsection.3.2.4}%
 \contentsline {chapter}{\numberline {4}Progettazione e implementazione del sistema}{25}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Linee guida progettuali}{25}{section.4.1}%
