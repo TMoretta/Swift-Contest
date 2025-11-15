@@ -3,7 +3,7 @@
 \chapter{Contesto e analisi del sistema}\label{ch:contesto-e-analisi-del-sistema}
 
 \section{Il problema: frammentazione e inefficienza nella gestione dei contest}\label{sec:problema-frammentazione-inefficienza}
-La gestione di un contest, specialmente in ambiti creativi, è un processo che coinvolge una molteplicità di attori (organizzatori, partecipanti, giurati) e fasi operative sequenziali e dipendenti.
+La gestione di un contest è un processo che coinvolge una molteplicità di attori (organizzatori, partecipanti, giurati) e fasi operative sequenziali e dipendenti.
 L'approccio tradizionale si affida a un assemblaggio di strumenti generici e non integrati, creando un flusso di lavoro \emph{discontinuo}, \emph{inefficiente} e \emph{soggetto a errori}.
 
 Le criticità di questo modello possono essere analizzate nel dettaglio:
@@ -91,7 +91,7 @@ L'analisi del dominio ha permesso di identificare i seguenti attori principali:
 
 \newpage
 
-\subsection{Casi d'Uso: Gestione Account e Funzionalità Generali}\label{subsec:casi-uso-gestione-account-funzionalita}
+\subsection{Casi d'Uso: gestione account e funzionalità generali}\label{subsec:casi-uso-gestione-account-funzionalita}
 Questa area copre le funzionalità di base legate all'accesso e alla gestione dell'account utente.
 Include i processi di autenticazione, la modifica del profilo personale e la gestione delle notifiche interne.
 
@@ -104,7 +104,7 @@ Include i processi di autenticazione, la modifica del profilo personale e la ges
 
 \newpage
 
-\subsection{Casi d'Uso: Gestione del Ciclo di Vita del contest}\label{subsec:casi-uso-gestione-ciclo-vita-contest}
+\subsection{Casi d'Uso: gestione del ciclo di vita del contest}\label{subsec:casi-uso-gestione-ciclo-vita-contest}
 Questa è l'area funzionale più vasta e descrive il cuore del processo organizzativo.
 Copre la creazione di un contest, la gestione dei suoi membri (partecipanti e giurati) e la sottomissione dei lavori.
 Gli attori principali in questo contesto sono l'\emph{Organizzatore} e il \emph{Partecipante}.
@@ -118,7 +118,7 @@ Gli attori principali in questo contesto sono l'\emph{Organizzatore} e il \emph{
 
 \newpage
 
-\subsection{Casi d'Uso: Gestione delle Votazioni e dei Risultati}\label{subsec:casi-uso-gestione-votazioni-risultati}
+\subsection{Casi d'Uso: gestione delle votazioni e dei risultati}\label{subsec:casi-uso-gestione-votazioni-risultati}
 Questa sezione si concentra interamente sul processo critico della votazione.
 Include la configurazione del form di voto, la conduzione della sessione di voto (anche con restrizioni di geolocalizzazione) e la generazione e pubblicazione delle classifiche.
 Gli attori principali qui sono l'\emph{Organizzatore} e il \emph{Giurato}.
@@ -132,7 +132,7 @@ Gli attori principali qui sono l'\emph{Organizzatore} e il \emph{Giurato}.
 
 \newpage
 
-\subsection{Casi d'Uso: Amministrazione del Sistema}\label{subsec:casi-uso-amministrazione-sistema}
+\subsection{Casi d'Uso: amministrazione del sistema}\label{subsec:casi-uso-amministrazione-sistema}
 Quest'ultima area isola le funzionalità di amministrazione, che non sono accessibili tramite l'applicazione principale ma attraverso una dashboard esterna.
 Queste operazioni sono riservate all'attore \emph{Amministratore} e sono fondamentali per la manutenzione e la moderazione della piattaforma.
 
@@ -162,7 +162,7 @@ I requisiti del sistema sono stati classificati secondo il modello \textbf{FURPS
     \item \textbf{RF-11: Gestione Classifiche e Risultati}: Il sistema deve permettere all'\emph{Organizzatore} di generare una classifica per ogni singola giuria, di esportare i risultati grezzi in formato Excel e di pubblicare una classifica finale in formato PDF\@.
     \item \textbf{RF-12: Visualizzazione dei Risultati}: Il sistema deve permettere a \emph{Partecipanti} e \emph{Giurati} di un contest di visualizzare e scaricare le classifiche finali pubblicate dall'organizzatore.
     \item \textbf{RF-13: Notifiche Inbox}: Il sistema deve fornire a ogni utente autenticato una inbox per ricevere notifiche generate automaticamente da eventi di sistema.
-    \item \textbf{RF-14: Amministrazione del Sistema}: Il sistema deve esporre un'interfaccia sicura per permettere a un \emph{Amministratore} di eseguire operazioni di alto livello, come la visualizzazione di tutti gli utenti o la rimozione forzata di un contest.
+    \item \textbf{RF-14: Amministrazione del Sistema}: Il sistema deve esporre un'interfaccia sicura per permettere a un \emph{Amministratore} di eseguire operazioni di alto livello, come la visualizzazione di tutti gli utenti o l'eliminazione forzata di un contest.
 \end{itemize}
 
 \subsection{Requisiti non funzionali}\label{subsec:requisiti-non-funzionali}

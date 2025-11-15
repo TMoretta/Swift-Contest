@@ -671,11 +671,11 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
     \label{lst:resend_invocation}
 \end{longlisting}
 
-\section{Architettura di Sicurezza: Principio del Minimo Privilegio e Accesso Mediato}\label{sec:architettura-di-sicurezza:-principio-del-minimo-privilegio-e-accesso-mediato}
+\section{Architettura di sicurezza: Principio del Minimo Privilegio}\label{sec:architettura-di-sicurezza:-principio-del-minimo-privilegio}
 La sicurezza è un requisito trasversale che ha guidato l'intera progettazione del backend.
 È stato adottato un rigoroso modello basato sul \textbf{Principio del Minimo Privilegio (PoLP)}, il cui assunto fondamentale è negare l'accesso per default e concederlo solo in modo esplicito e controllato.
 
-\subsection{Strategia di Implementazione: Centralizzazione della Logica di Autorizzazione}\label{subsec:strategia-di-implementazione:-centralizzazione-della-logica-di-autorizzazione}
+\subsection{Strategia di implementazione: centralizzazione della logica di autorizzazione}\label{subsec:strategia-di-implementazione:-centralizzazione-della-logica-di-autorizzazione}
 Per implementare il Principio del Minimo Privilegio, si sarebbero potute seguire due strategie principali:
 \begin{enumerate}
     \item Definire policy di \textbf{Row Level Security (RLS)}~\cite{postgresql_docs} granulari per ogni tabella e per ogni operazione (SELECT, INSERT, UPDATE, DELETE).
@@ -686,7 +686,7 @@ Sebbene un approccio ibrido con un doppio livello di controllo (sia RLS che cont
 La logica di autorizzazione è stata interamente centralizzata all'interno delle Funzioni RPC e delle Edge Functions.
 Questa scelta è stata un \textbf{compromesso consapevole}, motivato dalla necessità di ottimizzare i tempi di sviluppo e la manutenibilità: gestire una logica di autorizzazione complessa in un unico punto (il codice della funzione) è risultato più rapido e meno prono a errori rispetto a dover mantenere sincronizzate decine di policy RLS scritte in SQL.
 
-\subsection{Il Ruolo della RLS e dell'API come "Gatekeeper"}\label{subsec:il-ruolo-della-rls-e-dell'api-come-gatekeeper}
+\subsection{Il ruolo della RLS e dell'API come "Gatekeeper"}\label{subsec:il-ruolo-della-rls-e-dell'api-come-gatekeeper}
 In questo modello, la RLS gioca comunque un ruolo fondamentale, ma più semplice: \textbf{agisce come un "firewall" di default}.
 Su tutte le tabelle è stata abilitata la RLS con una policy di \texttt{DENY} implicita.
 Questo garantisce che la chiave API usata dal client Flutter (\texttt{anon\_key}) non abbia, di per sé, alcun permesso diretto di leggere o scrivere dati.
@@ -698,7 +698,7 @@ L'accesso ai dati è quindi interamente mediato da un'API sicura:
 \end{itemize}
 Queste funzioni, agendo da ``gatekeeper'', contengono al loro interno tutta la logica di autorizzazione (es.\ ``l'utente è l'organizzatore di questo contest?''), verificando l'identità del chiamante tramite \texttt{auth.uid()} prima di eseguire qualsiasi operazione.
 
-\subsection{L'Eccezione Necessaria: le Policy RLS per il Servizio Realtime}\label{subsec:l'eccezione-necessaria:-le-policy-rls-per-il-servizio-realtime}
+\subsection{L'eccezione necessaria: le policy RLS per il servizio Realtime}\label{subsec:l'eccezione-necessaria:-le-policy-rls-per-il-servizio-realtime}
 Esiste un'eccezione mirata a questa strategia.
 Il servizio \textbf{Supabase Realtime} basa il suo meccanismo di autorizzazione proprio sulle policy RLS della tabella.
 Per permettere a un client di ``ascoltare'' le modifiche, è stato necessario definire policy di \texttt{SELECT} granulari, ma esclusivamente per le due tabelle esposte al servizio Realtime: \texttt{messages} e \texttt{voting\_sessions}.
@@ -732,7 +732,7 @@ Il seguente listato mostra la policy implementata per la tabella \texttt{voting\
     \label{lst:rls_realtime_policy}
 \end{longlisting}
 
-\subsection{Misure di Sicurezza Aggiuntive}\label{subsec:misure-di-sicurezza-aggiuntive}
+\subsection{Misure di sicurezza aggiuntive}\label{subsec:misure-di-sicurezza-aggiuntive}
 Oltre al modello ibrido RLS/RPC, la sicurezza del sistema è rafforzata da altre misure:
 \begin{itemize}
     \item \textbf{Protezione delle API Esterne}: le chiavi segrete per servizi come Resend e Google Places sono memorizzate in Supabase e accessibili solo dalle Edge Functions.
@@ -780,13 +780,13 @@ I vantaggi principali di questo approccio sono:
     \item \textbf{Riutilizzo e Scalabilità dell'architettura}: Permette di riutilizzare la stessa logica di sicurezza (RLS, RPC, \texttt{AuthGuard}) sia per gli utenti normali che per quelli anonimi e apre la strada a future evoluzioni del sistema di account.
 \end{itemize}
 
-\section{Progettazione e Implementazione degli Strumenti di Amministrazione}
+\section{Progettazione e implementazione degli strumenti di amministrazione}
 \label{sec:admin_tools}
 
 Oltre all'applicazione destinata agli utenti finali, un sistema software robusto richiede strumenti adeguati per la sua gestione, moderazione e manutenzione.
 In linea con l'obiettivo di concentrare le risorse di sviluppo sull'applicazione principale destinata agli utenti finali, per la gestione del sistema si è adottata una \textbf{strategia di sviluppo rapido}: invece di investire tempo nella creazione di un pannello di amministrazione da zero, si è scelto di utilizzare \textbf{Retool}, una piattaforma low-code specializzata nella creazione rapida di strumenti interni.
 
-\subsection{Esigenza di un Pannello di Amministrazione}\label{subsec:esigenza-di-un-pannello-di-amministrazione}
+\subsection{Esigenza di un pannello di amministrazione}\label{subsec:esigenza-di-un-pannello-di-amministrazione}
 Sebbene la dashboard di Supabase offra un accesso completo al database, essa è uno strumento pensato per gli sviluppatori, non per gli amministratori di sistema.
 La necessità di un pannello di amministrazione dedicato nasce quindi da requisiti operativi critici che, pur essendo tecnicamente possibili, \textbf{non sono gestibili in modo semplice, sicuro e rapido} tramite l'interfaccia standard di Supabase:
 \begin{itemize}
@@ -794,7 +794,7 @@ La necessità di un pannello di amministrazione dedicato nasce quindi da requisi
     \item \textbf{Moderazione Contenuti}: la possibilità per un amministratore di ispezionare e, se necessario, rimuovere forzatamente un contest che viola i termini di servizio.
 \end{itemize}
 
-\subsection{Scelta di Retool per lo Sviluppo Rapido}\label{subsec:scelta-di-retool-per-lo-sviluppo-rapido}
+\subsection{Scelta di Retool per lo sviluppo rapido}\label{subsec:scelta-di-retool-per-lo-sviluppo-rapido}
 La scelta di Retool è stata strategica e motivata da:
 \begin{itemize}
     \item \textbf{Velocità di Sviluppo}: ha permesso di costruire un'interfaccia admin funzionale in poche ore, invece che in settimane, concentrando le risorse di sviluppo sull'applicazione principale.
@@ -802,11 +802,11 @@ La scelta di Retool è stata strategica e motivata da:
     \item \textbf{Sicurezza Configurabile}: offre meccanismi per gestire segreti (come le chiavi API) e configurare le chiamate in modo sicuro.
 \end{itemize}
 
-\subsection{Architettura di Comunicazione Sicura tra Retool e Supabase}\label{subsec:architettura-di-comunicazione-sicura-tra-retool-e-supabase}
+\subsection{Architettura di comunicazione sicura tra Retool e Supabase}\label{subsec:architettura-di-comunicazione-sicura-tra-retool-e-supabase}
 La sicurezza è stata la priorità nella progettazione dell'integrazione.
 L'accesso ai dati non è mai diretto, ma mediato da un'API sicura esposta dal backend Supabase, con due meccanismi distinti:
 
-\subsubsection{Accesso tramite Utente Dedicato e Funzioni RPC}
+\subsubsection{Accesso tramite utente dedicato e funzioni RPC}
 Per le operazioni che richiedono solo l'accesso al database (es.\ visualizzare la lista di utenti), è stato creato un utente PostgreSQL dedicato, \texttt{retool}, con permessi minimi.
 Le query da Retool invocano funzioni RPC con prefisso \texttt{admin\_*}, che al loro interno verificano che il chiamante (\texttt{session\_user}) sia esattamente \texttt{retool}, bloccando qualsiasi altro tentativo di accesso.
 
@@ -921,7 +921,7 @@ Questo approccio garantisce che solo un'applicazione autorizzata possa invocare 
 \end{longlisting}
 
 
-\subsection{Funzionalità Implementate nel Pannello}\label{subsec:funzionalita-implementate-nel-pannello}
+\subsection{Funzionalità implementate nel pannello}\label{subsec:funzionalita-implementate-nel-pannello}
 La dashboard sviluppata in Retool fornisce all'amministratore le seguenti funzionalità chiave:
 \begin{itemize}
     \item \textbf{Una tabella} per la visualizzazione e la ricerca di tutti gli utenti registrati.

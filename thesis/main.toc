@@ -18,10 +18,10 @@
 \contentsline {subsection}{\numberline {2.2.3}Posizionamento di Swift Contest}{8}{subsection.2.2.3}%
 \contentsline {section}{\numberline {2.3}Attori e casi d’uso}{8}{section.2.3}%
 \contentsline {subsection}{\numberline {2.3.1}Attori del sistema}{9}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Casi d'Uso: Gestione Account e Funzionalità Generali}{10}{subsection.2.3.2}%
-\contentsline {subsection}{\numberline {2.3.3}Casi d'Uso: Gestione del Ciclo di Vita del contest}{11}{subsection.2.3.3}%
-\contentsline {subsection}{\numberline {2.3.4}Casi d'Uso: Gestione delle Votazioni e dei Risultati}{12}{subsection.2.3.4}%
-\contentsline {subsection}{\numberline {2.3.5}Casi d'Uso: Amministrazione del Sistema}{13}{subsection.2.3.5}%
+\contentsline {subsection}{\numberline {2.3.2}Casi d'Uso: gestione account e funzionalità generali}{10}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Casi d'Uso: gestione del ciclo di vita del contest}{11}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Casi d'Uso: gestione delle votazioni e dei risultati}{12}{subsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.3.5}Casi d'Uso: amministrazione del sistema}{13}{subsection.2.3.5}%
 \contentsline {section}{\numberline {2.4}Requisiti del sistema}{13}{section.2.4}%
 \contentsline {subsection}{\numberline {2.4.1}Requisiti funzionali (Functionality)}{13}{subsection.2.4.1}%
 \contentsline {subsection}{\numberline {2.4.2}Requisiti non funzionali}{15}{subsection.2.4.2}%
@@ -31,12 +31,12 @@
 \contentsline {chapter}{\numberline {3}Tecnologie e strumenti utilizzati}{20}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Stack tecnologico principale}{20}{section.3.1}%
 \contentsline {subsection}{\numberline {3.1.1}Frontend: Flutter e Dart}{21}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Backend: Supabase, PL/pgSQL e TypeScript}{22}{subsection.3.1.2}%
-\contentsline {section}{\numberline {3.2}Piattaforme, Strumenti e Servizi}{23}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Piattaforme di distribuzione e Servizi Cloud}{23}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}Strumenti di Sviluppo e Amministrazione}{23}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Version Control e Code Hosting}{24}{subsection.3.2.3}%
-\contentsline {subsection}{\numberline {3.2.4}Strumenti di Documentazione e Modellazione}{24}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.1.2}Backend: Supabase, PL/pgSQL e TypeScript}{21}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Piattaforme, strumenti e servizi}{22}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Piattaforme di distribuzione e servizi Cloud}{22}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Strumenti di sviluppo e amministrazione}{23}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Version Control e Code Hosting}{23}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Strumenti di documentazione e modellazione}{24}{subsection.3.2.4}%
 \contentsline {chapter}{\numberline {4}Progettazione e implementazione del sistema}{25}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Linee guida progettuali}{25}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Architettura del frontend: il pattern MVVM con BLoC}{26}{section.4.2}%
@@ -61,19 +61,19 @@
 \contentsline {section}{\numberline {4.4}Architettura del backend}{43}{section.4.4}%
 \contentsline {subsection}{\numberline {4.4.1}Funzioni RPC (Remote Procedure Call)}{43}{subsection.4.4.1}%
 \contentsline {subsection}{\numberline {4.4.2}Edge Functions}{46}{subsection.4.4.2}%
-\contentsline {section}{\numberline {4.5}Architettura di Sicurezza: Principio del Minimo Privilegio e Accesso Mediato}{49}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}Strategia di Implementazione: Centralizzazione della Logica di Autorizzazione}{49}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Il Ruolo della RLS e dell'API come "Gatekeeper"}{50}{subsection.4.5.2}%
-\contentsline {subsection}{\numberline {4.5.3}L'Eccezione Necessaria: le Policy RLS per il Servizio Realtime}{50}{subsection.4.5.3}%
-\contentsline {subsection}{\numberline {4.5.4}Misure di Sicurezza Aggiuntive}{51}{subsection.4.5.4}%
+\contentsline {section}{\numberline {4.5}Architettura di sicurezza: Principio del Minimo Privilegio}{49}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Strategia di implementazione: centralizzazione della logica di autorizzazione}{49}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Il ruolo della RLS e dell'API come "Gatekeeper"}{50}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}L'eccezione necessaria: le policy RLS per il servizio Realtime}{50}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Misure di sicurezza aggiuntive}{51}{subsection.4.5.4}%
 \contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{51}{section*.32}%
-\contentsline {section}{\numberline {4.6}Progettazione e Implementazione degli Strumenti di Amministrazione}{53}{section.4.6}%
-\contentsline {subsection}{\numberline {4.6.1}Esigenza di un Pannello di Amministrazione}{54}{subsection.4.6.1}%
-\contentsline {subsection}{\numberline {4.6.2}Scelta di Retool per lo Sviluppo Rapido}{54}{subsection.4.6.2}%
-\contentsline {subsection}{\numberline {4.6.3}Architettura di Comunicazione Sicura tra Retool e Supabase}{54}{subsection.4.6.3}%
-\contentsline {subsubsection}{Accesso tramite Utente Dedicato e Funzioni RPC}{54}{section*.33}%
+\contentsline {section}{\numberline {4.6}Progettazione e implementazione degli strumenti di amministrazione}{53}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Esigenza di un pannello di amministrazione}{54}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Scelta di Retool per lo sviluppo rapido}{54}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Architettura di comunicazione sicura tra Retool e Supabase}{54}{subsection.4.6.3}%
+\contentsline {subsubsection}{Accesso tramite utente dedicato e funzioni RPC}{54}{section*.33}%
 \contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{56}{section*.36}%
-\contentsline {subsection}{\numberline {4.6.4}Funzionalità Implementate nel Pannello}{58}{subsection.4.6.4}%
+\contentsline {subsection}{\numberline {4.6.4}Funzionalità implementate nel pannello}{58}{subsection.4.6.4}%
 \contentsline {chapter}{\numberline {5}Distribuzione e prodotto finale}{59}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Strategia di distribuzione}{59}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Distribuzione web su Vercel}{60}{section.5.2}%

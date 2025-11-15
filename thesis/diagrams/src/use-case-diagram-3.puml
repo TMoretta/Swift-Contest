@@ -46,7 +46,7 @@ package "Gestione Votazioni e Classifiche" {
 
   usecase "Genera classifica" as UC_GenerateRanking
   usecase "Pubblica classifica" as UC_PublishRanking
-  usecase "Ritira classifica" as UC_UnpublishRanking
+  usecase "Elimina classifica\npubblicata" as UC_UnpublishRanking
   usecase "Scarica classifica" as UC_DownloadRanking
 
   usecase "Esporta risultati\ndella votazione" as UC_ExportVotingResults
