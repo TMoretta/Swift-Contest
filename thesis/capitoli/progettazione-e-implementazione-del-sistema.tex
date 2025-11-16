@@ -686,8 +686,8 @@ Sebbene un approccio ibrido con un doppio livello di controllo (sia RLS che cont
 La logica di autorizzazione è stata interamente centralizzata all'interno delle Funzioni RPC e delle Edge Functions.
 Questa scelta è stata un \textbf{compromesso consapevole}, motivato dalla necessità di ottimizzare i tempi di sviluppo e la manutenibilità: gestire una logica di autorizzazione complessa in un unico punto (il codice della funzione) è risultato più rapido e meno prono a errori rispetto a dover mantenere sincronizzate decine di policy RLS scritte in SQL.
 
-\subsection{Il ruolo della RLS e dell'API come "Gatekeeper"}\label{subsec:il-ruolo-della-rls-e-dell'api-come-gatekeeper}
-In questo modello, la RLS gioca comunque un ruolo fondamentale, ma più semplice: \textbf{agisce come un "firewall" di default}.
+\subsection{Il ruolo della RLS e dell'API come ``Gatekeeper''}\label{subsec:il-ruolo-della-rls-e-dell'api-come-gatekeeper}
+In questo modello, la RLS gioca comunque un ruolo fondamentale, ma più semplice: \textbf{agisce come un ``firewall'' di default}.
 Su tutte le tabelle è stata abilitata la RLS con una policy di \texttt{DENY} implicita.
 Questo garantisce che la chiave API usata dal client Flutter (\texttt{anon\_key}) non abbia, di per sé, alcun permesso diretto di leggere o scrivere dati.
 

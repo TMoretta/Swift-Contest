@@ -64,7 +64,7 @@
 \contentsline {subsection}{\numberline {4.4.2}Edge Functions}{46}{subsection.4.4.2}%
 \contentsline {section}{\numberline {4.5}Architettura di sicurezza: Principio del Minimo Privilegio}{49}{section.4.5}%
 \contentsline {subsection}{\numberline {4.5.1}Strategia di implementazione: centralizzazione della logica di autorizzazione}{49}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Il ruolo della RLS e dell'API come "Gatekeeper"}{50}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.2}Il ruolo della RLS e dell'API come ``Gatekeeper''}{50}{subsection.4.5.2}%
 \contentsline {subsection}{\numberline {4.5.3}L'eccezione necessaria: le policy RLS per il servizio Realtime}{50}{subsection.4.5.3}%
 \contentsline {subsection}{\numberline {4.5.4}Misure di sicurezza aggiuntive}{51}{subsection.4.5.4}%
 \contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{51}{section*.32}%
@@ -98,7 +98,6 @@
 \contentsline {section}{\numberline {6.2}Risultati ottenuti}{78}{section.6.2}%
 \contentsline {section}{\numberline {6.3}Conoscenze acquisite}{79}{section.6.3}%
 \contentsline {section}{\numberline {6.4}Valutazione personale}{80}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Considerazioni finali}{81}{section.6.5}%
 \contentsline {chapter}{Glossario}{82}{section*.62}%
 \contentsline {chapter}{Bibliografia}{88}{section*.62}%
 \contentsline {chapter}{Sitografia}{89}{section*.62}%
