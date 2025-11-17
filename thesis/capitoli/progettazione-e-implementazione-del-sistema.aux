@@ -54,68 +54,72 @@
 \@writefile{toc}{\contentsline {paragraph}{Cancellazione tramite trigger per relazioni uno-a-uno}{39}{section*.25}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Cancellazione di dati esterni tramite Edge Functions}{40}{section*.26}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{Snapshot dei dati tramite denormalizzazione controllata}{40}{section*.27}\protected@file@percent }
-\@writefile{lol}{\contentsline {listing}{\numberline {4.6}{\ignorespaces Definizione delle tabelle di sessione con attributi di snapshot e gestione della cancellazione.}}{43}{listing.caption.28}\protected@file@percent }
-\newlabel{lst:snapshot_attributes}{{4.6}{43}{Definizione delle tabelle di sessione con attributi di snapshot e gestione della cancellazione}{listing.caption.28}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.6}{\ignorespaces Definizione della tabella \texttt  {voting\_session\_participants} per lo snapshot dei dati dei partecipanti.}}{42}{listing.caption.28}\protected@file@percent }
+\newlabel{lst:snapshot_participants}{{4.6}{42}{Definizione della tabella \texttt {voting\_session\_participants} per lo snapshot dei dati dei partecipanti}{listing.caption.28}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.7}{\ignorespaces Definizione della tabella \texttt  {voting\_session\_juries} per lo snapshot dei dati delle giurie.}}{42}{listing.caption.29}\protected@file@percent }
+\newlabel{lst:snapshot_juries}{{4.7}{42}{Definizione della tabella \texttt {voting\_session\_juries} per lo snapshot dei dati delle giurie}{listing.caption.29}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.8}{\ignorespaces Definizione della tabella \texttt  {voting\_session\_jurors} per lo snapshot dei dati dei giurati.}}{43}{listing.caption.30}\protected@file@percent }
+\newlabel{lst:snapshot_jurors}{{4.8}{43}{Definizione della tabella \texttt {voting\_session\_jurors} per lo snapshot dei dati dei giurati}{listing.caption.30}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Implicazioni del design del form di voto sull'aggregazione dei risultati}{43}{subsection.4.3.3}\protected@file@percent }
 \newlabel{subsec:implicazioni-del-design-del-form-di-voto-sull'aggregazione-dei-risultati}{{4.3.3}{43}{Implicazioni del design del form di voto sull'aggregazione dei risultati}{subsection.4.3.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}Architettura del backend}{44}{section.4.4}\protected@file@percent }
-\newlabel{sec:architettura-del-backend}{{4.4}{44}{Architettura del backend}{section.4.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Funzioni RPC (Remote Procedure Call)}{44}{subsection.4.4.1}\protected@file@percent }
-\newlabel{subsec:funzioni-rpc-(remote-procedure-call)}{{4.4.1}{44}{Funzioni RPC (Remote Procedure Call)}{subsection.4.4.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Architettura del backend}{45}{section.4.4}\protected@file@percent }
+\newlabel{sec:architettura-del-backend}{{4.4}{45}{Architettura del backend}{section.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Funzioni RPC (Remote Procedure Call)}{45}{subsection.4.4.1}\protected@file@percent }
+\newlabel{subsec:funzioni-rpc-(remote-procedure-call)}{{4.4.1}{45}{Funzioni RPC (Remote Procedure Call)}{subsection.4.4.1}{}}
 \gdef \LT@i {\LT@entry 
     {1}{122.25443pt}\LT@entry 
     {1}{188.4044pt}\LT@entry 
     {1}{122.25443pt}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Elenco esemplificativo delle Funzioni RPC del sistema.}}{46}{table.4.1}\protected@file@percent }
-\newlabel{tab:rpc_functions}{{4.1}{46}{Elenco esemplificativo delle Funzioni RPC del sistema}{table.4.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Elenco esemplificativo delle funzioni RPC del sistema.}}{46}{table.4.1}\protected@file@percent }
+\newlabel{tab:rpc_functions}{{4.1}{46}{Elenco esemplificativo delle funzioni RPC del sistema}{table.4.1}{}}
 \gdef \LT@ii {\LT@entry 
     {1}{122.25443pt}\LT@entry 
     {1}{188.4044pt}\LT@entry 
     {1}{122.25443pt}}
-\@writefile{lol}{\contentsline {listing}{\numberline {4.7}{\ignorespaces Estratto dalla funzione ``juror\_submit\_votes'' che mostra la validazione server-side dei valori degli slider.}}{47}{listing.caption.29}\protected@file@percent }
-\newlabel{lst:juror_submit_votes_validation}{{4.7}{47}{Estratto dalla funzione ``juror\_submit\_votes'' che mostra la validazione server-side dei valori degli slider}{listing.caption.29}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.9}{\ignorespaces Implementazione della funzione RPC ``organizer\_cancel\_voting\_session'', che mostra il pattern di controllo dei permessi lato server.}}{47}{listing.caption.31}\protected@file@percent }
+\newlabel{lst:rpc_security_check_example}{{4.9}{47}{Implementazione della funzione RPC ``organizer\_cancel\_voting\_session'', che mostra il pattern di controllo dei permessi lato server}{listing.caption.31}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Edge Functions}{47}{subsection.4.4.2}\protected@file@percent }
 \newlabel{subsec:edge-functions}{{4.4.2}{47}{Edge Functions}{subsection.4.4.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Elenco esemplificativo delle Edge Functions del sistema.}}{48}{table.4.2}\protected@file@percent }
 \newlabel{tab:edge_functions}{{4.2}{48}{Elenco esemplificativo delle Edge Functions del sistema}{table.4.2}{}}
-\@writefile{lol}{\contentsline {listing}{\numberline {4.8}{\ignorespaces Estratto dalla Edge Function ``organizer-invite-juror'' che mostra l'invocazione dell'API di Resend.}}{49}{listing.caption.30}\protected@file@percent }
-\newlabel{lst:resend_invocation}{{4.8}{49}{Estratto dalla Edge Function ``organizer-invite-juror'' che mostra l'invocazione dell'API di Resend}{listing.caption.30}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.10}{\ignorespaces Estratto dalla Edge Function ``organizer-invite-juror'' che mostra l'invocazione dell'API di Resend.}}{50}{listing.caption.32}\protected@file@percent }
+\newlabel{lst:resend_invocation}{{4.10}{50}{Estratto dalla Edge Function ``organizer-invite-juror'' che mostra l'invocazione dell'API di Resend}{listing.caption.32}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.5}Architettura di sicurezza: Principio del Minimo Privilegio}{50}{section.4.5}\protected@file@percent }
 \newlabel{sec:architettura-di-sicurezza:-principio-del-minimo-privilegio}{{4.5}{50}{Architettura di sicurezza: Principio del Minimo Privilegio}{section.4.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Strategia di implementazione: centralizzazione della logica di autorizzazione}{50}{subsection.4.5.1}\protected@file@percent }
 \newlabel{subsec:strategia-di-implementazione:-centralizzazione-della-logica-di-autorizzazione}{{4.5.1}{50}{Strategia di implementazione: centralizzazione della logica di autorizzazione}{subsection.4.5.1}{}}
 \@writefile{brf}{\backcite{0@postgresql_docs}{{50}{1}{Item.16}}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Il ruolo della RLS e dell'API come ``Gatekeeper''}{50}{subsection.4.5.2}\protected@file@percent }
-\newlabel{subsec:il-ruolo-della-rls-e-dell'api-come-gatekeeper}{{4.5.2}{50}{Il ruolo della RLS e dell'API come ``Gatekeeper''}{subsection.4.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Il ruolo della RLS e dell'API come ``Gatekeeper''}{51}{subsection.4.5.2}\protected@file@percent }
+\newlabel{subsec:il-ruolo-della-rls-e-dell'api-come-gatekeeper}{{4.5.2}{51}{Il ruolo della RLS e dell'API come ``Gatekeeper''}{subsection.4.5.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.5.3}L'eccezione necessaria: le policy RLS per il servizio Realtime}{51}{subsection.4.5.3}\protected@file@percent }
 \newlabel{subsec:l'eccezione-necessaria:-le-policy-rls-per-il-servizio-realtime}{{4.5.3}{51}{L'eccezione necessaria: le policy RLS per il servizio Realtime}{subsection.4.5.3}{}}
-\@writefile{lol}{\contentsline {listing}{\numberline {4.9}{\ignorespaces Policy RLS di tipo SELECT per la tabella ``voting\_sessions'', necessaria per il servizio Realtime.}}{52}{listing.caption.31}\protected@file@percent }
-\newlabel{lst:rls_realtime_policy}{{4.9}{52}{Policy RLS di tipo SELECT per la tabella ``voting\_sessions'', necessaria per il servizio Realtime}{listing.caption.31}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.11}{\ignorespaces Policy RLS di tipo SELECT per la tabella ``voting\_sessions'', necessaria per il servizio Realtime.}}{52}{listing.caption.33}\protected@file@percent }
+\newlabel{lst:rls_realtime_policy}{{4.11}{52}{Policy RLS di tipo SELECT per la tabella ``voting\_sessions'', necessaria per il servizio Realtime}{listing.caption.33}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.5.4}Misure di sicurezza aggiuntive}{52}{subsection.4.5.4}\protected@file@percent }
 \newlabel{subsec:misure-di-sicurezza-aggiuntive}{{4.5.4}{52}{Misure di sicurezza aggiuntive}{subsection.4.5.4}{}}
-\@writefile{toc}{\contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{52}{section*.32}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.6}Progettazione e implementazione degli strumenti di amministrazione}{54}{section.4.6}\protected@file@percent }
-\newlabel{sec:admin_tools}{{4.6}{54}{Progettazione e implementazione degli strumenti di amministrazione}{section.4.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.1}Esigenza di un pannello di amministrazione}{54}{subsection.4.6.1}\protected@file@percent }
-\newlabel{subsec:esigenza-di-un-pannello-di-amministrazione}{{4.6.1}{54}{Esigenza di un pannello di amministrazione}{subsection.4.6.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{53}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Progettazione e implementazione degli strumenti di amministrazione}{55}{section.4.6}\protected@file@percent }
+\newlabel{sec:admin_tools}{{4.6}{55}{Progettazione e implementazione degli strumenti di amministrazione}{section.4.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.1}Esigenza di un pannello di amministrazione}{55}{subsection.4.6.1}\protected@file@percent }
+\newlabel{subsec:esigenza-di-un-pannello-di-amministrazione}{{4.6.1}{55}{Esigenza di un pannello di amministrazione}{subsection.4.6.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.6.2}Scelta di Retool per lo sviluppo rapido}{55}{subsection.4.6.2}\protected@file@percent }
 \newlabel{subsec:scelta-di-retool-per-lo-sviluppo-rapido}{{4.6.2}{55}{Scelta di Retool per lo sviluppo rapido}{subsection.4.6.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.3}Architettura di comunicazione sicura tra Retool e Supabase}{55}{subsection.4.6.3}\protected@file@percent }
-\newlabel{subsec:architettura-di-comunicazione-sicura-tra-retool-e-supabase}{{4.6.3}{55}{Architettura di comunicazione sicura tra Retool e Supabase}{subsection.4.6.3}{}}
-\@writefile{toc}{\contentsline {subsubsection}{Accesso tramite utente dedicato e funzioni RPC}{55}{section*.33}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Flusso di una chiamata sicura da Retool a una Funzione RPC.}}{56}{figure.caption.34}\protected@file@percent }
-\newlabel{fig:retool_rpc_call}{{4.4}{56}{Flusso di una chiamata sicura da Retool a una Funzione RPC}{figure.caption.34}{}}
-\@writefile{lol}{\contentsline {listing}{\numberline {4.10}{\ignorespaces Validazione del chiamante all'interno di una funzione RPC per l'amministrazione.}}{57}{listing.caption.35}\protected@file@percent }
-\newlabel{lst:rpc_admin_validation}{{4.10}{57}{Validazione del chiamante all'interno di una funzione RPC per l'amministrazione}{listing.caption.35}{}}
-\@writefile{toc}{\contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{57}{section*.36}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{58}{figure.caption.37}\protected@file@percent }
-\newlabel{fig:retool_edge_call}{{4.5}{58}{Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API}{figure.caption.37}{}}
-\@writefile{lol}{\contentsline {listing}{\numberline {4.11}{\ignorespaces Validazione della chiave API all'interno di una Edge Function amministrativa.}}{59}{listing.caption.38}\protected@file@percent }
-\newlabel{lst:api_key_validation}{{4.11}{59}{Validazione della chiave API all'interno di una Edge Function amministrativa}{listing.caption.38}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.3}Architettura di comunicazione sicura tra Retool e Supabase}{56}{subsection.4.6.3}\protected@file@percent }
+\newlabel{subsec:architettura-di-comunicazione-sicura-tra-retool-e-supabase}{{4.6.3}{56}{Architettura di comunicazione sicura tra Retool e Supabase}{subsection.4.6.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Accesso tramite utente dedicato e funzioni RPC}{56}{section*.35}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Flusso di una chiamata sicura da Retool a una Funzione RPC.}}{56}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:retool_rpc_call}{{4.4}{56}{Flusso di una chiamata sicura da Retool a una Funzione RPC}{figure.caption.36}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.12}{\ignorespaces Validazione del chiamante all'interno di una funzione RPC per l'amministrazione.}}{57}{listing.caption.37}\protected@file@percent }
+\newlabel{lst:rpc_admin_validation}{{4.12}{57}{Validazione del chiamante all'interno di una funzione RPC per l'amministrazione}{listing.caption.37}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{57}{section*.38}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{58}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:retool_edge_call}{{4.5}{58}{Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API}{figure.caption.39}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {4.13}{\ignorespaces Validazione della chiave API all'interno di una Edge Function amministrativa.}}{59}{listing.caption.40}\protected@file@percent }
+\newlabel{lst:api_key_validation}{{4.13}{59}{Validazione della chiave API all'interno di una Edge Function amministrativa}{listing.caption.40}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.6.4}Funzionalità implementate nel pannello}{59}{subsection.4.6.4}\protected@file@percent }
 \newlabel{subsec:funzionalita-implementate-nel-pannello}{{4.6.4}{59}{Funzionalità implementate nel pannello}{subsection.4.6.4}{}}
 \@setckpt{capitoli/progettazione-e-implementazione-del-sistema}{
-\setcounter{page}{60}
+\setcounter{page}{61}
 \setcounter{equation}{0}
 \setcounter{enumi}{3}
 \setcounter{enumii}{0}
@@ -143,7 +147,7 @@
 \setcounter{continuedfloat}{0}
 \setcounter{subfigure}{0}
 \setcounter{subtable}{0}
-\setcounter{listing}{11}
+\setcounter{listing}{13}
 \setcounter{tabx@nest}{0}
 \setcounter{listtotal}{0}
 \setcounter{listcount}{0}
@@ -261,7 +265,7 @@
 \setcounter{parentequation}{0}
 \setcounter{FancyVerbLine}{39}
 \setcounter{linenumber}{1}
-\setcounter{LN@truepage}{70}
+\setcounter{LN@truepage}{72}
 \setcounter{FancyVerbWriteLine}{0}
 \setcounter{FancyVerbBufferLine}{67}
 \setcounter{FV@TrueTabGroupLevel}{0}

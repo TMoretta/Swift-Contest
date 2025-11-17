@@ -58,3 +58,5 @@
 \glossaryentry{Jetpack Compose?\glossentry{jetpackcompose}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Kotlin Multiplatform (KMP)?\glossentry{kmp}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Jetpack Compose Multiplatform?\glossentry{composemultiplatform}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{SECURITY DEFINER?\glossentry{security_definer}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{Row Level Security (RLS)?\glossentry{rls_principle}|setentrycounter[]{page}"\glsnumberformat}{1}

@@ -20,7 +20,7 @@ skinparam participant {
 ' =======================================
 ' Definizione dei Partecipanti
 ' =======================================
-actor Amministratore
+actor Amministratore as Admin
 participant "Retool Dashboard" as Retool
 participant "Edge Function\n(es. admin-delete-account)" as Edge
 ' MODIFICA: Sostituito con partecipanti specifici

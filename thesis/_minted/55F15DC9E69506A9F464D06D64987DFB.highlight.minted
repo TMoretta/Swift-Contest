@@ -1,5 +1,5 @@
 \begin{MintedVerbatim}[commandchars=\\\{\}]
-\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Estratto da una funzione come \PYGZsq{}admin\PYGZus{}get\PYGZus{}all\PYGZus{}accounts()\PYGZsq{}}
+\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Estratto dalla funzione \PYGZsq{}admin\PYGZus{}get\PYGZus{}all\PYGZus{}accounts()\PYGZsq{}}
 
 \PYG{k}{CREATE}\PYG{+w}{ }\PYG{k}{OR}\PYG{+w}{ }\PYG{k}{REPLACE}\PYG{+w}{ }\PYG{k}{FUNCTION}\PYG{+w}{ }\PYG{n}{admin\PYGZus{}get\PYGZus{}all\PYGZus{}accounts}\PYG{p}{()}
 \PYG{k}{RETURNS}\PYG{+w}{ }\PYG{k}{SETOF}\PYG{+w}{ }\PYG{n}{profiles}\PYG{+w}{ }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} o un altro tipo di ritorno}

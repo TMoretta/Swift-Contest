@@ -76,7 +76,7 @@ Le Edge Functions, scritte in TypeScript, vengono anch'esse distribuite tramite 
     \midrule
 
     \textbf{Storage} &
-    Archiviazione sicura di tutti i file binari caricati dagli utenti, come le immagini dei contest e i file dei lavori.
+    Archiviazione sicura di tutti i file caricati dagli utenti, come le immagini dei contest e i file dei lavori.
     &
     Nessun file è pubblico.
     L'accesso avviene esclusivamente tramite \emph{signed URL} temporanei generati lato server. \\
@@ -103,6 +103,8 @@ Le Edge Functions, scritte in TypeScript, vengono anch'esse distribuite tramite 
     \caption{Riepilogo delle componenti Supabase e del loro utilizzo nel progetto.}
     \label{tab:supabase_components}
 \end{longtable}
+
+\newpage
 
 \section{Dashboard amministrativa (Retool)}\label{sec:dashboard-amministrativa-(retool)}
 Per le attività di amministrazione avanzata, come la moderazione degli utenti e la gestione dei contenuti, è stata creata una dashboard interna utilizzando \textbf{Retool}~\cite{retool_website}.
@@ -178,6 +180,8 @@ Da qui, l'utente può inoltre navigare alla pagina \textbf{Impostazioni Account}
     \caption{Le schermate per la gestione delle impostazioni dell'app e dell'account utente.}
     \label{fig:settings-flow}
 \end{figure}
+
+\newpage
 
 \subsection{Flusso dell'organizzatore}\label{subsec:flusso-organizzatore}
 L'organizzatore è l'attore con il set di funzionalità più ricco.
@@ -375,25 +379,27 @@ Una volta che una sessione di voto è terminata, dalla tab \textbf{Voting} l'org
     \label{fig:ranking-generation}
 \end{figure}
 
+\newpage
+
 \subsection{Flusso del partecipante}\label{subsec:flusso-del-partecipante}
 Il percorso del partecipante è focalizzato sulla \textbf{sottomissione del proprio lavoro} prima della scadenza, tramite un form guidato a tre passaggi.
 Una volta completata, può visualizzare un riepilogo del lavoro caricato nella tab \textbf{Work}.
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}[t]{0.30\textwidth}
+    \begin{minipage}[t]{0.25\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/participant/submit-work-step1}
         \subcaption{Passo 1: dati}
         \label{fig:submit_work_1}
     \end{minipage}\hfill
-    \begin{minipage}[t]{0.30\textwidth}
+    \begin{minipage}[t]{0.25\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/participant/submit-work-step2}
         \subcaption{Passo 2: immagini}
         \label{fig:submit_work_2}
     \end{minipage}\hfill
-    \begin{minipage}[t]{0.30\textwidth}
+    \begin{minipage}[t]{0.25\textwidth}
         \centering
         \includegraphics[width=\linewidth]{capitoli/figure/participant/submit-work-step3}
         \subcaption{Passo 3: file}
@@ -405,10 +411,12 @@ Una volta completata, può visualizzare un riepilogo del lavoro caricato nella t
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.30\textwidth]{capitoli/figure/participant/submitted-work}
+    \includegraphics[width=0.25\textwidth]{capitoli/figure/participant/submitted-work}
     \caption{La tab ``Work'' del partecipante dopo aver sottomesso il proprio lavoro.}
     \label{fig:participant_work_submitted}
 \end{figure}
+
+\newpage
 
 \subsection{Flusso del giurato}\label{subsec:flusso-del-giurato}
 Un \textbf{giurato nominato}, dopo l'autenticazione, accede alla sua \textbf{Home Page}, dove visualizza i contest a cui è stato assegnato.

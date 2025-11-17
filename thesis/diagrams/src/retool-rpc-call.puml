@@ -20,7 +20,7 @@ skinparam participant {
 ' =======================================
 ' Definizione dei Partecipanti
 ' =======================================
-actor Amministratore
+actor Amministratore as Admin
 participant "Retool Dashboard" as Retool
 participant "RPC Function\n(es. admin_get_all_accounts)" as RPC
 database "PostgreSQL DB" as DB

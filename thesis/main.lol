@@ -3,9 +3,11 @@
 \contentsline {listing}{\numberline {4.3}{\ignorespaces Esempio di validatore centralizzato e suo utilizzo in un widget.}}{33}{listing.caption.17}%
 \contentsline {listing}{\numberline {4.4}{\ignorespaces Definizione dell'estensione ``ColorSchemeX'' per aggiungere colori personalizzati al tema.}}{35}{listing.caption.18}%
 \contentsline {listing}{\numberline {4.5}{\ignorespaces Implementazione del loader non-intrusivo tramite Overlay e Dart Extensions.}}{36}{listing.caption.21}%
-\contentsline {listing}{\numberline {4.6}{\ignorespaces Definizione delle tabelle di sessione con attributi di snapshot e gestione della cancellazione.}}{43}{listing.caption.28}%
-\contentsline {listing}{\numberline {4.7}{\ignorespaces Estratto dalla funzione ``juror\_submit\_votes'' che mostra la validazione server-side dei valori degli slider.}}{47}{listing.caption.29}%
-\contentsline {listing}{\numberline {4.8}{\ignorespaces Estratto dalla Edge Function ``organizer-invite-juror'' che mostra l'invocazione dell'API di Resend.}}{49}{listing.caption.30}%
-\contentsline {listing}{\numberline {4.9}{\ignorespaces Policy RLS di tipo SELECT per la tabella ``voting\_sessions'', necessaria per il servizio Realtime.}}{52}{listing.caption.31}%
-\contentsline {listing}{\numberline {4.10}{\ignorespaces Validazione del chiamante all'interno di una funzione RPC per l'amministrazione.}}{57}{listing.caption.35}%
-\contentsline {listing}{\numberline {4.11}{\ignorespaces Validazione della chiave API all'interno di una Edge Function amministrativa.}}{59}{listing.caption.38}%
+\contentsline {listing}{\numberline {4.6}{\ignorespaces Definizione della tabella \texttt {voting\_session\_participants} per lo snapshot dei dati dei partecipanti.}}{42}{listing.caption.28}%
+\contentsline {listing}{\numberline {4.7}{\ignorespaces Definizione della tabella \texttt {voting\_session\_juries} per lo snapshot dei dati delle giurie.}}{42}{listing.caption.29}%
+\contentsline {listing}{\numberline {4.8}{\ignorespaces Definizione della tabella \texttt {voting\_session\_jurors} per lo snapshot dei dati dei giurati.}}{43}{listing.caption.30}%
+\contentsline {listing}{\numberline {4.9}{\ignorespaces Implementazione della funzione RPC ``organizer\_cancel\_voting\_session'', che mostra il pattern di controllo dei permessi lato server.}}{47}{listing.caption.31}%
+\contentsline {listing}{\numberline {4.10}{\ignorespaces Estratto dalla Edge Function ``organizer-invite-juror'' che mostra l'invocazione dell'API di Resend.}}{50}{listing.caption.32}%
+\contentsline {listing}{\numberline {4.11}{\ignorespaces Policy RLS di tipo SELECT per la tabella ``voting\_sessions'', necessaria per il servizio Realtime.}}{52}{listing.caption.33}%
+\contentsline {listing}{\numberline {4.12}{\ignorespaces Validazione del chiamante all'interno di una funzione RPC per l'amministrazione.}}{57}{listing.caption.37}%
+\contentsline {listing}{\numberline {4.13}{\ignorespaces Validazione della chiave API all'interno di una Edge Function amministrativa.}}{59}{listing.caption.40}%

@@ -392,7 +392,6 @@ Questa tecnica garantisce:
     \item \textbf{Performance ottimizzate}: i dati di snapshot vengono letti direttamente, evitando query con join.
 \end{enumerate}
 
-% Estratto del DDL SQL che mostra la definizione degli attributi di snapshot.
 \begin{longlisting}
     \begin{minted}{postgresql}
     -- Definizione della tabella `voting_session_participants`
@@ -414,11 +413,17 @@ Questa tecnica garantisce:
         UNIQUE (voting_session_id, order_index),
 
         FOREIGN KEY (voting_session_id) REFERENCES public.voting_sessions (id) ON DELETE CASCADE,
-        -- ON DELETE SET NULL: se la partecipazione originale viene eliminata (es. l'utente viene rimosso dal contest),
+        -- ON DELETE SET NULL: se la partecipazione originale viene eliminata,
         -- lo snapshot sopravvive, garantendo l'integrità dei voti.
         FOREIGN KEY (participation_id) REFERENCES public.participations (id) ON DELETE SET NULL
     );
+    \end{minted}
+    \caption{Definizione della tabella \texttt{voting\_session\_participants} per lo snapshot dei dati dei partecipanti.}
+    \label{lst:snapshot_participants}
+\end{longlisting}
 
+\begin{longlisting}
+    \begin{minted}{postgresql}
     -- Definizione della tabella `voting_session_juries`
 
     CREATE TABLE public.voting_session_juries (
@@ -438,7 +443,13 @@ Questa tecnica garantisce:
         -- lo snapshot sopravvive per mantenere l'integrità dei voti.
         FOREIGN KEY (jury_id) REFERENCES public.juries (id) ON DELETE SET NULL
     );
+    \end{minted}
+    \caption{Definizione della tabella \texttt{voting\_session\_juries} per lo snapshot dei dati delle giurie.}
+    \label{lst:snapshot_juries}
+\end{longlisting}
 
+\begin{longlisting}
+    \begin{minted}{postgresql}
     -- Definizione della tabella `voting_session_jurors`
 
     CREATE TABLE public.voting_session_jurors (
@@ -465,12 +476,12 @@ Questa tecnica garantisce:
         -- il suo record di sessione sopravvive per mantenere la coerenza.
         FOREIGN KEY (juration_id) REFERENCES public.jurations (id) ON DELETE SET NULL,
         -- ON DELETE SET NULL: se l'account del giurato viene eliminato,
-        -- lo snapshot sopravvive, garantendo l'integrità dei voti.
+        -- il suo voto rimane registrato ma anonimizzato.
         FOREIGN KEY (juror_id) REFERENCES public.profiles (id) ON DELETE SET NULL
     );
     \end{minted}
-    \caption{Definizione delle tabelle di sessione con attributi di snapshot e gestione della cancellazione.}
-    \label{lst:snapshot_attributes}
+    \caption{Definizione della tabella \texttt{voting\_session\_jurors} per lo snapshot dei dati dei giurati.}
+    \label{lst:snapshot_jurors}
 \end{longlisting}
 
 \subsection{Implicazioni del design del form di voto sull'aggregazione dei risultati}\label{subsec:implicazioni-del-design-del-form-di-voto-sull'aggregazione-dei-risultati}
@@ -489,6 +500,8 @@ Questa è una limitazione consapevole del progetto, un compromesso accettato per
 
 Per mantenere questa flessibilità anche nella fase finale, il sistema non impone una classifica globale, ma permette all'organizzatore di \textbf{pubblicare qualsiasi classifica in formato PDF}.
 Questa scelta di design gli conferisce la \textbf{massima libertà}: può decidere di pubblicare la classifica di una singola giuria, oppure può elaborare esternamente una classifica globale personalizzata e caricarla come file PDF. In entrambi i casi, una volta pubblicata, la classifica diventa disponibile per il download a tutti i partecipanti e giurati del contest all'interno dell'applicazione.
+
+\newpage
 
 \section{Architettura del backend}\label{sec:architettura-del-backend}
 Il backend è costruito interamente su Supabase e la sua architettura è definita da un'API sicura composta da un insieme di Funzioni RPC ed Edge Functions.
@@ -556,51 +569,41 @@ La scelta di utilizzare le RPC come strato di accesso ai dati primario, invece d
     Il token della giuria deve essere valido. \\
 
     \bottomrule
-    \caption{Elenco esemplificativo delle Funzioni RPC del sistema.}
+    \caption{Elenco esemplificativo delle funzioni RPC del sistema.}
     \label{tab:rpc_functions}
 \end{longtable}
 
-% Inserire qui un estratto significativo dalla funzione PL/pgSQL `juror_submit_votes`, mostrando la validazione di un campo slider prima dell'inserimento.
+A seguire, un esempio concreto di una funzione RPC, \texttt{\seqsplit{organizer\_cancel\_voting\_session}}.
+Questo listato è particolarmente significativo perché dimostra in modo chiaro e conciso il pattern di sicurezza adottato: la funzione, eseguita come SECURITY DEFINER, verifica esplicitamente che l'utente chiamante sia l'organizzatore del contest prima di procedere con qualsiasi modifica, implementando così il principio di accesso mediato da API\@.
+
 \begin{longlisting}
     \begin{minted}{postgresql}
-    -- STEP 2.5: VALIDATE VOTE VALUES
-    -- Controlla in modo efficiente se qualche valore di tipo 'slider' nel payload JSON
-    -- è al di fuori del suo range min/max definito o non è un numero valido.
-    IF EXISTS (
-      -- Utilizza una Common Table Expression (CTE) per "spacchettare" il payload JSON
-      -- in una tabella temporanea di righe e colonne.
-      WITH unpacked_votes AS (
-        SELECT
-          (value->>'voting_form_field_id')::uuid as field_id,
-          (value->>'value')::text as value
-        FROM jsonb_array_elements(p_votes_payload)
-      )
-      -- Seleziona le righe che violano le regole di validazione.
-      SELECT 1
-      FROM unpacked_votes uv
-      -- Unisce i voti spacchettati con la tabella dei campi del form
-      -- per ottenere i metadati di ogni campo (tipo, min, max).
-      JOIN public.voting_form_fields vff ON vff.id = uv.field_id
-      WHERE
-        -- Applica il controllo solo ai campi di tipo 'slider'.
-        vff.type = 'slider'
-        AND (
-          -- Condizione 1: Il valore non è una stringa di un numero intero.
-          NOT (uv.value ~ '^-?\d+$')
-          -- Condizione 2: Oppure, se è un intero, è fuori dai limiti.
-          OR uv.value::integer < vff.slider_min_value
-          OR uv.value::integer > vff.slider_max_value
-        )
-    ) THEN
-      -- Se anche solo una riga viola le condizioni, solleva un'eccezione
-      -- e interrompe la transazione, impedendo l'inserimento dei dati.
-      RAISE EXCEPTION 'Invalid vote value: A slider value is outside its allowed range or is not a valid number.';
-    END IF;
+    CREATE OR REPLACE FUNCTION organizer_cancel_voting_session (p_voting_session_id uuid)
+    RETURNS void
+    LANGUAGE plpgsql
+    SECURITY DEFINER SET search_path = public, extensions
+    AS $$
+    BEGIN
+      -- SECURITY CHECK: Verifica che l'utente sia l'organizzatore del contest.
+      IF NOT EXISTS (
+        SELECT 1
+        FROM public.voting_sessions vs
+        JOIN public.contests c ON vs.contest_id = c.id
+        WHERE vs.id = p_voting_session_id AND c.organizer_id = auth.uid()
+      ) THEN
+        RAISE EXCEPTION 'Voting session not found or access denied.';
+      END IF;
 
-    -- Se la validazione passa, la funzione procede con l'inserimento dei voti...
+      -- Se il controllo passa, procede con l'aggiornamento.
+      UPDATE public.voting_sessions
+      SET
+        session_status = 'cancelled'
+      WHERE id = p_voting_session_id;
+    END;
+    $$;
     \end{minted}
-    \caption{Estratto dalla funzione ``juror\_submit\_votes'' che mostra la validazione server-side dei valori degli slider.}
-    \label{lst:juror_submit_votes_validation}
+    \caption{Implementazione della funzione RPC ``organizer\_cancel\_voting\_session'', che mostra il pattern di controllo dei permessi lato server.}
+    \label{lst:rpc_security_check_example}
 \end{longlisting}
 
 \subsection{Edge Functions}\label{subsec:edge-functions}
@@ -644,6 +647,9 @@ Le Edge Functions, scritte in TypeScript ed eseguite su Deno, gestiscono operazi
     \caption{Elenco esemplificativo delle Edge Functions del sistema.}
     \label{tab:edge_functions}
 \end{longtable}
+
+Per illustrare concretamente il ruolo delle Edge Functions nell'interagire con servizi esterni, il listato seguente mostra un estratto significativo della funzione \texttt{organizer-invite-juror}.
+Questo esempio è particolarmente rappresentativo perché dimostra un flusso di lavoro che non sarebbe stato possibile implementare in una semplice RPC: la funzione prima interagisce con il database per generare un token e creare un record di invito, e successivamente invoca un servizio di terze parti (l'API di Resend) per inviare l'email di invito.
 
 % Inserire qui un estratto di codice TypeScript dalla Edge Function `organizer-invite-juror` che mostra l'invocazione dell'API di Resend.
 \begin{longlisting}
@@ -716,7 +722,7 @@ La sicurezza è un requisito trasversale che ha guidato l'intera progettazione d
 \subsection{Strategia di implementazione: centralizzazione della logica di autorizzazione}\label{subsec:strategia-di-implementazione:-centralizzazione-della-logica-di-autorizzazione}
 Per implementare il Principio del Minimo Privilegio, si sarebbero potute seguire due strategie principali:
 \begin{enumerate}
-    \item Definire policy di \textbf{Row Level Security (RLS)}~\cite{postgresql_docs} granulari per ogni tabella e per ogni operazione (SELECT, INSERT, UPDATE, DELETE).
+    \item Definire policy di \textbf{Row Level Security (RLS)}~\cite{postgresql_docs} granulari, ovvero regole a livello di database che filtrano le righe visibili o modificabili da un utente in base alla sua identità o ai suoi permessi, per ogni tabella e per ogni operazione (SELECT, INSERT, UPDATE, DELETE).
     \item Centralizzare tutti i controlli di autorizzazione all'interno di un'API di accesso ai dati (RPC e Edge Functions).
 \end{enumerate}
 
@@ -731,8 +737,8 @@ Questo garantisce che la chiave API usata dal client Flutter (\texttt{anon\_key}
 
 L'accesso ai dati è quindi interamente mediato da un'API sicura:
 \begin{itemize}
-    \item \textbf{Funzioni RPC \texttt{SECURITY DEFINER}}: per la maggior parte delle operazioni sul database.
-    \item \textbf{Edge Functions}: per operazioni complesse e interazioni con servizi esterni.
+    \item \textbf{Funzioni RPC}: per la maggior parte delle operazioni sul database.
+    \item \textbf{Edge Functions}: per interazioni con servizi esterni.
 \end{itemize}
 Queste funzioni, agendo da ``gatekeeper'', contengono al loro interno tutta la logica di autorizzazione (es.\ ``l'utente è l'organizzatore di questo contest?''), verificando l'identità del chiamante tramite \texttt{auth.uid()} prima di eseguire qualsiasi operazione.
 
@@ -858,7 +864,7 @@ Le query da Retool invocano funzioni RPC con prefisso \texttt{admin\_*}, che al 
 % Inserire qui un estratto di codice PL/pgSQL che mostra la validazione del session_user in una funzione RPC amministrativa.
 \begin{longlisting}
     \begin{minted}{postgresql}
-    -- Estratto da una funzione come 'admin_get_all_accounts()'
+    -- Estratto dalla funzione 'admin_get_all_accounts()'
 
     CREATE OR REPLACE FUNCTION admin_get_all_accounts()
     RETURNS SETOF profiles -- o un altro tipo di ritorno
@@ -914,7 +920,7 @@ Questo approccio garantisce che solo un'applicazione autorizzata possa invocare 
 % Inserire qui un estratto di codice TypeScript che mostra la validazione della X-API-Key in una Edge Function amministrativa.
 \begin{longlisting}
     \begin{minted}{typescript}
-    // Estratto da una Edge Function come 'admin-delete-account/index.ts'
+    // Estratto dalla Edge Function 'admin-delete-account/index.ts'
 
 	// ... (all'interno della funzione Deno.serve)
 	try {

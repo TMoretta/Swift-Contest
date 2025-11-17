@@ -1,5 +1,5 @@
 \begin{MintedVerbatim}[commandchars=\\\{\}]
-\PYG{+w}{    }\PYG{c+c1}{// Estratto da una Edge Function come \PYGZsq{}admin\PYGZhy{}delete\PYGZhy{}account/index.ts\PYGZsq{}}
+\PYG{+w}{    }\PYG{c+c1}{// Estratto dalla Edge Function \PYGZsq{}admin\PYGZhy{}delete\PYGZhy{}account/index.ts\PYGZsq{}}
 
 \PYG{+w}{	}\PYG{c+c1}{// ... (all\PYGZsq{}interno della funzione Deno.serve)}
 \PYG{+w}{	}\PYG{k}{try}\PYG{+w}{ }\PYG{p}{\PYGZob{}}

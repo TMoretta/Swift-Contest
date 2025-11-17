@@ -1,0 +1,25 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{CREATE}\PYG{+w}{ }\PYG{k}{OR}\PYG{+w}{ }\PYG{k}{REPLACE}\PYG{+w}{ }\PYG{k}{FUNCTION}\PYG{+w}{ }\PYG{n}{organizer\PYGZus{}cancel\PYGZus{}voting\PYGZus{}session}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{p\PYGZus{}voting\PYGZus{}session\PYGZus{}id}\PYG{+w}{ }\PYG{n+nb}{uuid}\PYG{p}{)}
+\PYG{k}{RETURNS}\PYG{+w}{ }\PYG{n+nb}{void}
+\PYG{k}{LANGUAGE}\PYG{+w}{ }\PYG{n}{plpgsql}
+\PYG{k}{SECURITY}\PYG{+w}{ }\PYG{k}{DEFINER}\PYG{+w}{ }\PYG{k}{SET}\PYG{+w}{ }\PYG{n}{search\PYGZus{}path}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{public}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{extensions}
+\PYG{k}{AS}\PYG{+w}{ }\PYG{l+s}{\PYGZdl{}}\PYG{l+s}{\PYGZdl{}}
+\PYG{k}{BEGIN}
+\PYG{+w}{  }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} SECURITY CHECK: Verifica che l\PYGZsq{}utente sia l\PYGZsq{}organizzatore del contest.}
+\PYG{+w}{  }\PYG{k}{IF}\PYG{+w}{ }\PYG{k}{NOT}\PYG{+w}{ }\PYG{k}{EXISTS}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{    }\PYG{k}{SELECT}\PYG{+w}{ }\PYG{l+m+mf}{1}
+\PYG{+w}{    }\PYG{k}{FROM}\PYG{+w}{ }\PYG{n}{public}\PYG{l+m+mf}{.}\PYG{n}{voting\PYGZus{}sessions}\PYG{+w}{ }\PYG{n}{vs}
+\PYG{+w}{    }\PYG{k}{JOIN}\PYG{+w}{ }\PYG{n}{public}\PYG{l+m+mf}{.}\PYG{n}{contests}\PYG{+w}{ }\PYG{n}{c}\PYG{+w}{ }\PYG{k}{ON}\PYG{+w}{ }\PYG{n}{vs}\PYG{l+m+mf}{.}\PYG{n}{contest\PYGZus{}id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{c}\PYG{l+m+mf}{.}\PYG{n}{id}
+\PYG{+w}{    }\PYG{k}{WHERE}\PYG{+w}{ }\PYG{n}{vs}\PYG{l+m+mf}{.}\PYG{n}{id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{p\PYGZus{}voting\PYGZus{}session\PYGZus{}id}\PYG{+w}{ }\PYG{k}{AND}\PYG{+w}{ }\PYG{n}{c}\PYG{l+m+mf}{.}\PYG{n}{organizer\PYGZus{}id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{auth}\PYG{l+m+mf}{.}\PYG{n}{uid}\PYG{p}{()}
+\PYG{+w}{  }\PYG{p}{)}\PYG{+w}{ }\PYG{k}{THEN}
+\PYG{+w}{    }\PYG{k}{RAISE}\PYG{+w}{ }\PYG{k}{EXCEPTION}\PYG{+w}{ }\PYG{l+s+s1}{\PYGZsq{}Voting session not found or access denied.\PYGZsq{}}\PYG{p}{;}
+\PYG{+w}{  }\PYG{k}{END}\PYG{+w}{ }\PYG{k}{IF}\PYG{p}{;}
+
+\PYG{+w}{  }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Se il controllo passa, procede con l\PYGZsq{}aggiornamento.}
+\PYG{+w}{  }\PYG{k}{UPDATE}\PYG{+w}{ }\PYG{n}{public}\PYG{l+m+mf}{.}\PYG{n}{voting\PYGZus{}sessions}
+\PYG{+w}{  }\PYG{k}{SET}
+\PYG{+w}{    }\PYG{n}{session\PYGZus{}status}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s+s1}{\PYGZsq{}cancelled\PYGZsq{}}
+\PYG{+w}{  }\PYG{k}{WHERE}\PYG{+w}{ }\PYG{n}{id}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{p\PYGZus{}voting\PYGZus{}session\PYGZus{}id}\PYG{p}{;}
+\PYG{k}{END}\PYG{p}{;}
+\PYG{l+s}{\PYGZdl{}}\PYG{l+s}{\PYGZdl{}}\PYG{p}{;}
+\end{MintedVerbatim}
