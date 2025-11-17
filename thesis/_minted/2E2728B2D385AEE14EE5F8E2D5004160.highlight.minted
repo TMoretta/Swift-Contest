@@ -13,7 +13,7 @@
 
 \PYG{+w}{        }\PYG{n}{\PYGZus{}entry}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{OverlayEntry}\PYG{p}{(}
 \PYG{+w}{          }\PYG{n+nl}{builder:}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{\PYGZus{}}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{=\PYGZgt{}}\PYG{+w}{ }\PYG{k}{const}\PYG{+w}{ }\PYG{n}{Positioned}\PYG{p}{.}\PYG{n}{fill}\PYG{p}{(}
-\PYG{+w}{            }\PYG{c+c1}{// ObscuredLoader è un widget custom con sfondo sfocato}
+\PYG{+w}{            }\PYG{c+c1}{// ObscuredLoader è un widget custom con sfondo oscurato}
 \PYG{+w}{            }\PYG{n+nl}{child:}\PYG{+w}{ }\PYG{n}{ObscuredLoader}\PYG{p}{(),}
 \PYG{+w}{          }\PYG{p}{),}
 \PYG{+w}{        }\PYG{p}{);}

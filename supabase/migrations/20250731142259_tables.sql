@@ -169,7 +169,9 @@ CREATE TABLE voting_session_participants (
   work_description varchar(1000) NOT NULL,
   work_images_paths text[] NOT NULL,
   UNIQUE (voting_session_id, participation_id),
-  UNIQUE (voting_session_id, order_index)
+  UNIQUE (voting_session_id, order_index),
+  FOREIGN KEY (voting_session_id) REFERENCES voting_sessions (id) ON DELETE CASCADE,
+  FOREIGN KEY (participation_id) REFERENCES participations (id) ON DELETE SET NULL
 );
 
 CREATE TABLE voting_session_juries (

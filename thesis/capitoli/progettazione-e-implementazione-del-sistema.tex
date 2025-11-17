@@ -70,7 +70,7 @@ Per risolvere questo problema, è stata creata una funzione di ordine superiore,
 Come mostrato nel listato seguente, questa funzione utilizza un blocco \texttt{try...catch} per intercettare le eccezioni specifiche di Supabase e mapparle in classi di \textbf{Failure} personalizzate e sicure.
 Queste \emph{Failure} sono oggetti semplici che rappresentano un fallimento in modo astratto (es. \texttt{NetworkFailure}, \texttt{ServerFailure}), senza contenere dettagli tecnici.
 
-Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \textbf{\texttt{Either}}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}~\cite{fpdart_package}. \texttt{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra'' (\emph{Right}), che rappresenta il successo.
+Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \texttt{\texttt{Either}}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}~\cite{fpdart_package}. \textbf{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra'' (\emph{Right}), che rappresenta il successo.
 
 Il tipo di ritorno \texttt{Either<Failure, T>} formalizza quindi questo contratto: la funzione restituirà o un oggetto di tipo \texttt{Failure} (a sinistra) o il dato atteso di tipo \texttt{T} (a destra).
 Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usare blocchi \texttt{try...catch}, permettendogli di gestire in modo pulito, dichiarativo e fortemente tipizzato sia il caso di successo che quello di fallimento, semplicemente ispezionando il contenuto di \texttt{Either}.
@@ -178,7 +178,7 @@ Per garantire l'integrità dei dati e fornire un feedback immediato all'utente, 
 Invece di definire la logica di validazione all'interno dei singoli widget, \textbf{tutte le funzioni di validazione sono state centralizzate} in un unico file, \texttt{lib/utils/validators/validators.dart}.
 Questo approccio, basato su funzioni pure, offre due vantaggi significativi:
 \begin{itemize}
-    \item \textbf{Riutilizzabilità}: La stessa funzione, ad esempio \texttt{emailValidator}, può essere riutilizzata in più punti dell'applicazione (es.\ pagina di login, registrazione, modifica profilo) senza duplicazione di codice.
+    \item \textbf{Riutilizzabilità}: La stessa funzione, ad esempio \texttt{emailValidator}, può essere riutilizzata in più punti dell'applicazione (es.\ pagina di login, registrazione) senza duplicazione di codice.
     \item \textbf{Manutenibilità}: Se una regola di validazione deve essere modificata (es.\ la complessità minima di una password), la modifica viene effettuata in un unico punto, garantendo coerenza in tutta l'applicazione.
 \end{itemize}
 
@@ -224,8 +224,10 @@ Per risolvere questo problema in modo pulito e scalabile, invece di definire col
 Un'estensione (\emph{extension}) permette di \textbf{aggiungere nuove funzionalità a una classe esistente}, anche se non si ha accesso al suo codice sorgente.
 In questo caso, è stata creata un'estensione sulla classe \texttt{ColorScheme} di Flutter per ``arricchirla'' con i colori semantici personalizzati richiesti dall'applicazione.
 
-Come mostrato nel listato seguente, l'estensione \texttt{ColorSchemeX} aggiunge nuovi \emph{getter} (es. \texttt{success}, \texttt{warning}) alla classe \texttt{ColorScheme}.
-Questi nuovi colori diventano così parte integrante del tema e possono essere richiamati in qualsiasi punto dell'applicazione in modo sicuro e coerente tramite \texttt{Theme.of(context).colorScheme.success}, ereditando automaticamente i cambiamenti tra tema chiaro e scuro.
+Come mostrato nel listato seguente, l'estensione ColorSchemeX aggiunge nuovi getter (es.\ success, warning) alla classe ColorScheme.
+Questi nuovi colori diventano così parte integrante del tema.
+Per gestire l'adattamento tra tema chiaro e scuro, ogni getter personalizzato accede alla proprietà brightness della ColorScheme e, tramite un'espressione condizionale, restituisce il valore cromatico appropriato.
+In questo modo, un singolo richiamo come Theme.of(context).colorScheme.success restituisce il colore corretto sia in modalità chiara che scura, garantendo coerenza visiva in tutta l'applicazione.
 
 \begin{longlisting}
     \begin{minted}{dart}
@@ -233,11 +235,17 @@ Questi nuovi colori diventano così parte integrante del tema e possono essere r
 
         extension ColorSchemeX on ColorScheme {
             // Colore per indicare successo (es. notifiche positive)
-            Color get success => const Color(0xFF28a745);
+            Color get success => brightness == Brightness.light
+                ? const Color(0xFF28a745) // Verde brillante per tema chiaro
+                : const Color(0xFF218838); // Verde più scuro per tema scuro
+
             Color get onSuccess => const Color(0xFFFFFFFF);
 
             // Colore per avvisi
-            Color get warning => const Color(0xFFffc107);
+            Color get warning => brightness == Brightness.light
+                ? const Color(0xFFffc107) // Giallo per tema chiaro
+                : const Color(0xFFd39e00); // Giallo ocra per tema scuro
+
             Color get onWarning => const Color(0xFF212529);
 
             // Altri colori personalizzati...
@@ -278,7 +286,7 @@ Questo garantisce che, indipendentemente da come o perché la pagina viene distr
 
             _entry = OverlayEntry(
               builder: (_) => const Positioned.fill(
-                // ObscuredLoader è un widget custom con sfondo sfocato
+                // ObscuredLoader è un widget custom con sfondo oscurato
                 child: ObscuredLoader(),
               ),
             );
@@ -306,13 +314,13 @@ Questo garantisce che, indipendentemente da come o perché la pagina viene distr
 \newpage
 
 \section{Progettazione del database}\label{sec:progettazione-del-database}
-Il modello concettuale del dominio, descritto nel Capitolo 2, è stato tradotto in un modello logico e fisico implementato su un database \textbf{PostgreSQL}, gestito tramite la piattaforma Supabase.
+Il modello concettuale del dominio, descritto nel Capitolo 2, è stato tradotto in un modello fisico implementato su un database \textbf{PostgreSQL}, gestito tramite la piattaforma Supabase.
 La progettazione si è concentrata su tre pilastri: integrità dei dati, sicurezza e performance.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{capitoli/figure/diagrams/database}
-    \caption{Diagramma Entità-Relazioni (ERD) dello schema del database.}
+    \caption{Diagramma Entità-Relazioni (ERD) dello schema ``public'' del database.}
     \label{fig:database}
 \end{figure}
 
@@ -343,7 +351,7 @@ Una decisione di design fondamentale è stata quella di adottare una strategia d
 Data questa scelta, la gestione della cancellazione dei dati correlati è diventata un aspetto critico, risolto con un approccio a più livelli.
 
 \paragraph{Cancellazione a cascata tramite \texttt{ON DELETE CASCADE}}
-Per le relazioni di composizione forte e dirette, dove l'entità ``figlia'' non ha dipendenze esterne come \emph{file nello Storage}, è stata utilizzata la politica \textbf{\texttt{ON DELETE CASCADE}}.
+Per le relazioni di composizione forte e dirette, dove l'entità ``figlia'' non ha dipendenze esterne come \emph{file} nello Storage, è stata utilizzata la politica \textbf{\texttt{ON DELETE CASCADE}}.
 L'esempio più calzante è la relazione tra \texttt{voting\_forms} e \texttt{voting\_form\_fields}.
 Poiché i campi di un form non hanno senso di esistere senza il form stesso, l'eliminazione di un record in \texttt{voting\_forms} provoca la cancellazione automatica e a cascata di tutti i record correlati in \texttt{voting\_form\_fields}.
 Questo approccio delega interamente la logica di pulizia al database, garantendo massima efficienza e consistenza dei dati con il minimo sforzo implementativo.
@@ -390,45 +398,74 @@ Questa tecnica garantisce:
     -- Definizione della tabella `voting_session_participants`
 
     CREATE TABLE public.voting_session_participants (
-    id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-    voting_session_id uuid NOT NULL REFERENCES public.voting_sessions(id) ON DELETE CASCADE,
+        id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+        created_at timestamptz NOT NULL DEFAULT now(),
+        voting_session_id uuid NOT NULL,
+        participation_id uuid,
+        order_index int NOT NULL,
 
-    -- Riferimento opzionale al record di partecipazione originale.
-    -- ON DELETE SET NULL: se il partecipante viene rimosso dal contest,
-    -- lo snapshot sopravvive, garantendo l'integrità dei voti.
-    participation_id uuid REFERENCES public.participations(id) ON DELETE SET NULL,
+        -- --- Attributi di Snapshot ---
+        -- Dati "congelati" al momento dell'avvio della sessione.
+        participant_full_name varchar(70) NOT NULL,
+        work_name varchar(50) NOT NULL,
+        work_description varchar(1000) NOT NULL,
+        work_images_paths text[] NOT NULL,
 
-    order_index int NOT NULL,
+        UNIQUE (voting_session_id, participation_id),
+        UNIQUE (voting_session_id, order_index),
 
-    -- --- Attributi di Snapshot ---
-    -- Dati "congelati" al momento dell'avvio della sessione.
-    participant_full_name varchar(70) NOT NULL,
-    work_name varchar(50) NOT NULL,
-    work_description varchar(1000) NOT NULL,
-    work_images_paths text[] NOT NULL,
+        FOREIGN KEY (voting_session_id) REFERENCES public.voting_sessions (id) ON DELETE CASCADE,
+        -- ON DELETE SET NULL: se il partecipante viene rimosso dal contest,
+        -- lo snapshot sopravvive, garantendo l'integrità dei voti.
+        FOREIGN KEY (participation_id) REFERENCES public.participations (id) ON DELETE SET NULL
+    );
 
-    UNIQUE (voting_session_id, participation_id),
-    UNIQUE (voting_session_id, order_index)
+    -- Definizione della tabella `voting_session_juries`
+
+    CREATE TABLE public.voting_session_juries (
+        id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+        created_at timestamptz NOT NULL DEFAULT now(),
+        voting_session_id uuid NOT NULL,
+        jury_id uuid,
+
+        -- --- Attributi di Snapshot ---
+        jury_name varchar(50) NOT NULL,
+        jury_type jury_type NOT NULL,
+
+        UNIQUE (voting_session_id, jury_id),
+
+        FOREIGN KEY (voting_session_id) REFERENCES public.voting_sessions (id) ON DELETE CASCADE,
+        -- ON DELETE SET NULL: se la giuria originale viene eliminata,
+        -- lo snapshot sopravvive per mantenere l'integrità dei voti.
+        FOREIGN KEY (jury_id) REFERENCES public.juries (id) ON DELETE SET NULL
     );
 
     -- Definizione della tabella `voting_session_jurors`
 
     CREATE TABLE public.voting_session_jurors (
-    id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-    voting_session_id uuid NOT NULL REFERENCES public.voting_sessions(id) ON DELETE CASCADE,
-    voting_session_jury_id uuid NOT NULL REFERENCES public.voting_session_juries(id) ON DELETE CASCADE,
+        id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+        created_at timestamptz NOT NULL DEFAULT now(),
+        voting_session_id uuid NOT NULL,
+        voting_session_jury_id uuid NOT NULL,
 
-    -- Riferimento opzionale al giurato.
-    -- ON DELETE SET NULL: se l'account del giurato viene eliminato,
-    -- il suo voto rimane registrato ma anonimizzato.
-    juror_id uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
+        -- Riferimento alla "juration" se è un giurato nominato.
+        juration_id uuid,
+        -- Riferimento al profilo (per giurati semplici e nominati).
+        juror_id uuid,
 
-    has_submitted bool NOT NULL DEFAULT false,
+        has_submitted bool NOT NULL DEFAULT false,
 
-    -- --- Attributo di Snapshot ---
-    juror_full_name varchar(70) NOT NULL,
+        -- --- Attributo di Snapshot ---
+        juror_full_name varchar(70) NOT NULL,
 
-    UNIQUE (voting_session_jury_id, juror_id)
+        UNIQUE (voting_session_jury_id, juror_id),
+
+        FOREIGN KEY (voting_session_id) REFERENCES public.voting_sessions (id) ON DELETE CASCADE,
+        FOREIGN KEY (voting_session_jury_id) REFERENCES public.voting_session_juries (id) ON DELETE CASCADE,
+        FOREIGN KEY (juration_id) REFERENCES public.jurations (id) ON DELETE SET NULL,
+        -- ON DELETE SET NULL: se l'account del giurato viene eliminato,
+        -- il suo voto rimane registrato ma anonimizzato.
+        FOREIGN KEY (juror_id) REFERENCES public.profiles (id) ON DELETE SET NULL
     );
     \end{minted}
     \caption{Definizione delle tabelle di sessione con attributi di snapshot e gestione della cancellazione.}
