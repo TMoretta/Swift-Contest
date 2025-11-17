@@ -13,8 +13,8 @@
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Architettura Client-Server del sistema Swift Contest con backend BaaS.}}{26}{figure.caption.10}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Architettura del Client MVVM con BLoC.}}{27}{figure.caption.11}%
 \contentsline {figure}{\numberline {4.3}{\ignorespaces Diagramma Entità-Relazioni (ERD) dello schema ``public'' del database.}}{37}{figure.caption.22}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Flusso di una chiamata sicura da Retool a una Funzione RPC.}}{55}{figure.caption.34}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{57}{figure.caption.37}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Flusso di una chiamata sicura da Retool a una Funzione RPC.}}{56}{figure.caption.34}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{58}{figure.caption.37}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {5.1}{\ignorespaces Diagramma di distribuzione dell'architettura completa di Swift Contest.}}{61}{figure.caption.39}%
 \contentsline {figure}{\numberline {5.2}{\ignorespaces Pagina di accesso dell'applicazione web distribuita su Vercel.}}{62}{figure.caption.40}%

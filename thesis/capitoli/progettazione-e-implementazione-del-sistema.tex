@@ -70,7 +70,7 @@ Per risolvere questo problema, è stata creata una funzione di ordine superiore,
 Come mostrato nel listato seguente, questa funzione utilizza un blocco \texttt{try...catch} per intercettare le eccezioni specifiche di Supabase e mapparle in classi di \textbf{Failure} personalizzate e sicure.
 Queste \emph{Failure} sono oggetti semplici che rappresentano un fallimento in modo astratto (es. \texttt{NetworkFailure}, \texttt{ServerFailure}), senza contenere dettagli tecnici.
 
-Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \texttt{\texttt{Either}}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}~\cite{fpdart_package}. \textbf{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra'' (\emph{Right}), che rappresenta il successo.
+Il risultato di questa mappatura viene quindi incapsulato utilizzando il tipo \texttt{Either}, fornito dal pacchetto di programmazione funzionale \texttt{fpdart}~\cite{fpdart_package}. \textbf{Either} è un tipo di dato che può contenere solo uno di due valori possibili: un valore di ``sinistra'' (\emph{Left}), che per convenzione rappresenta il fallimento, o un valore di ``destra'' (\emph{Right}), che rappresenta il successo.
 
 Il tipo di ritorno \texttt{Either<Failure, T>} formalizza quindi questo contratto: la funzione restituirà o un oggetto di tipo \texttt{Failure} (a sinistra) o il dato atteso di tipo \texttt{T} (a destra).
 Questo approccio elimina la necessità per il codice chiamante (il BLoC) di usare blocchi \texttt{try...catch}, permettendogli di gestire in modo pulito, dichiarativo e fortemente tipizzato sia il caso di successo che quello di fallimento, semplicemente ispezionando il contenuto di \texttt{Either}.
@@ -337,7 +337,7 @@ Le tabelle cardine includono:
     \item \texttt{works}: contiene i dati dei lavori sottomessi dai partecipanti.
     \item \texttt{voting\_forms} e \texttt{voting\_form\_fields}: definiscono la struttura dei moduli di voto.
     \item \texttt{voting\_sessions}: rappresenta una sessione di voto.
-    \item \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}: rappresentano i membri coinvolti in una specifica sessione di voto, oltre a contenere gli snapshot dei dati per quella sessione.
+    \item \texttt{voting\_session\_juries}, \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}: rappresentano i membri coinvolti in una specifica sessione di voto, oltre a contenere gli snapshot dei dati per quella sessione.
     \item \texttt{voting\_form\_submissions} e \texttt{voting\_form\_submission\_values}: memorizzano i voti inviati dai giurati.
 \end{itemize}
 
@@ -374,16 +374,16 @@ Questa logica non poteva essere implementata in una funzione RPC, poiché queste
 Per garantire l'immutabilità e l'auditabilità del processo di voto, è stato implementato un \textbf{meccanismo di snapshot dei dati}, una delle scelte architetturali più importanti del backend.
 
 Quando un organizzatore avvia una \emph{VotingSession} tramite la funzione RPC \texttt{organizer\_start\_voting\_session}, il sistema non si limita a collegare le entità esistenti, ma esegue una forma di \textbf{denormalizzazione controllata}, \emph{duplicando intenzionalmente} alcuni dati per disaccoppiare il processo di voto dallo stato corrente del contest.
-Per ogni partecipante e giurato coinvolto, vengono create nuove righe in tabelle di sessione dedicate (es.\ \texttt{voting\_session\_participants}, \texttt{voting\_session\_jurors}).
+Questo processo viene applicato a tutte le entità chiave della sessione: per ogni \textbf{partecipante}, \textbf{giuria} e \textbf{giurato} coinvolto, vengono create nuove righe in tabelle di sessione dedicate \texttt{voting\_session\_participants}, (\texttt{voting\_session\_juries} e \texttt{voting\_session\_jurors}).
 
 Queste nuove righe contengono non solo le chiavi esterne ai record originali, ma anche una copia statica degli attributi più importanti al momento dell'avvio.
-Come mostrato nel listato seguente, la tabella \texttt{voting\_session\_participants} include, oltre a \texttt{participation\_id}, anche i campi \texttt{participant\_full\_name}, \texttt{work\_name}, ecc.
+Ad esempio, la tabella \texttt{voting\_session\_juries} memorizza il nome della giuria (\texttt{jury\_name}), mentre \texttt{voting\_session\_participants} include il nome del partecipante (\texttt{participant\_full\_name}), il nome del suo lavoro (\texttt{work\_name}), e così via.
 
-Una scelta di design cruciale è l'uso della clausola \textbf{\texttt{ON DELETE SET NULL}} sulla chiave esterna \texttt{participation\_id}.
-Questo significa che se il partecipante originale dovesse essere eliminato dal sistema, il record dello snapshot \emph{non} verrebbe cancellato, ma manterrebbe solo il riferimento a \texttt{NULL}.
+Una scelta di design cruciale è l'uso della clausola \textbf{\texttt{ON DELETE SET NULL}} sulle chiavi esterne.
+Questo significa che se l'entità originale dovesse essere eliminata dal sistema (es.\ un partecipante), il record dello snapshot \emph{non} verrebbe cancellato, ma manterrebbe solo il riferimento a \texttt{NULL}.
 Ciò dimostra che la vera ``fonte di verità'' per la sessione di voto sono gli attributi di snapshot, garantendo che i voti espressi rimangano validi e auditabili anche se le entità originali cessano di esistere.
 
-Lo stesso principio si applica a \texttt{voting\_session\_jurors}, dove \texttt{juror\_id} è fondamentale per tracciare se un giurato ha già votato, ma può essere impostato a \texttt{NULL} in caso di cancellazione dell'account senza invalidare il voto già espresso.
+In \texttt{voting\_session\_jurors}, in particolare, \texttt{juror\_id} è fondamentale per tracciare se un giurato ha già votato, ma può essere impostato a \texttt{NULL} in caso di cancellazione dell'account senza invalidare il voto già espresso.
 
 Questa tecnica garantisce:
 \begin{enumerate}
@@ -405,7 +405,6 @@ Questa tecnica garantisce:
         order_index int NOT NULL,
 
         -- --- Attributi di Snapshot ---
-        -- Dati "congelati" al momento dell'avvio della sessione.
         participant_full_name varchar(70) NOT NULL,
         work_name varchar(50) NOT NULL,
         work_description varchar(1000) NOT NULL,
@@ -415,7 +414,7 @@ Questa tecnica garantisce:
         UNIQUE (voting_session_id, order_index),
 
         FOREIGN KEY (voting_session_id) REFERENCES public.voting_sessions (id) ON DELETE CASCADE,
-        -- ON DELETE SET NULL: se il partecipante viene rimosso dal contest,
+        -- ON DELETE SET NULL: se la partecipazione originale viene eliminata (es. l'utente viene rimosso dal contest),
         -- lo snapshot sopravvive, garantendo l'integrità dei voti.
         FOREIGN KEY (participation_id) REFERENCES public.participations (id) ON DELETE SET NULL
     );
@@ -462,9 +461,11 @@ Questa tecnica garantisce:
 
         FOREIGN KEY (voting_session_id) REFERENCES public.voting_sessions (id) ON DELETE CASCADE,
         FOREIGN KEY (voting_session_jury_id) REFERENCES public.voting_session_juries (id) ON DELETE CASCADE,
+        -- ON DELETE SET NULL: se il giurato viene rimosso dalla giuria,
+        -- il suo record di sessione sopravvive per mantenere la coerenza.
         FOREIGN KEY (juration_id) REFERENCES public.jurations (id) ON DELETE SET NULL,
         -- ON DELETE SET NULL: se l'account del giurato viene eliminato,
-        -- il suo voto rimane registrato ma anonimizzato.
+        -- lo snapshot sopravvive, garantendo l'integrità dei voti.
         FOREIGN KEY (juror_id) REFERENCES public.profiles (id) ON DELETE SET NULL
     );
     \end{minted}
