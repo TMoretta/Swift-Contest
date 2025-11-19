@@ -81,6 +81,7 @@
 % abstract
 \renewcommand{\abstractname}{Abstract}
 \include{capitoli/abstract}
+\include{capitoli/abstract-english}
 
 \frontmatter
 % quello che segue è in numerazione romana e i capitoli non verranno numerati
@@ -102,25 +103,26 @@
 
 
 \backmatter
+\phantomsection
+\addcontentsline{toc}{chapter}{Glossario}
 \printglossary
+\clearpage
 
 % bibliografia in stile IEEE
 
 % --- 1. Stampa la Bibliografia (fonti scritte) ---
-%\addcontentsline{toc}{chapter}{Bibliografia}
-\printbibliography[
-    title={Bibliografia},
-    filter=written, % Applica il filtro per le fonti scritte
-    heading=bibintoc    % Aggiunge il titolo all'indice dei contenuti
-]
+\phantomsection
+\addcontentsline{toc}{chapter}{Riferimenti}
+\printbibliography[title=Riferimenti]
+\clearpage
 %\clearpage
 % --- 2. Stampa la Sitografia (fonti web) ---
 %\addcontentsline{toc}{chapter}{Sitografia}
-\printbibliography[
-    title={Sitografia},
-    filter=web,         % Applica il filtro per le fonti web
-    heading=bibintoc    % Aggiunge il titolo all'indice dei contenuti
-]
+%\printbibliography[
+%    title={Sitografia},
+%    filter=web,         % Applica il filtro per le fonti web
+%    heading=bibintoc    % Aggiunge il titolo all'indice dei contenuti
+%]
 
 %\addcontentsline{toc}{chapter}{\bibname}
 %\bibliographystyle{IEEEtran}
@@ -131,8 +133,9 @@
 %\bibliographystyleweb{IEEEtran} % Usa lo stesso stile (o uno diverso se vuoi)
 %\bibliographyweb{references} % Cerca le voci citate con \citeweb nello stesso file
 
-% ringraziamenti
 \include{covermatter/disclaimer}
+
+% ringraziamenti
 \include{covermatter/ringraziamenti}
 
 % se hai intenzione di donare un albero tramite treedom

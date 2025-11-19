@@ -1,8 +1,8 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
-\contentsline {chapter}{Elenco delle figure}{v}{section*.1}%
-\contentsline {chapter}{Elenco delle tabelle}{vii}{section*.1}%
-\contentsline {chapter}{Elenco dei listati}{viii}{section*.1}%
+\contentsline {chapter}{Elenco delle figure}{v}{section*.2}%
+\contentsline {chapter}{Elenco delle tabelle}{vii}{section*.3}%
+\contentsline {chapter}{Elenco dei listati}{viii}{section*.4}%
 \contentsline {chapter}{\numberline {1}Introduzione}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Motivazioni e contesto}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Obiettivi del progetto}{2}{section.1.2}%
@@ -13,8 +13,8 @@
 \contentsline {section}{\numberline {2.2}Stato dell’arte e analisi delle alternative}{7}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Strumenti generici adattati: lo ``Status Quo''}{7}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Piattaforme per domini correlati}{7}{subsection.2.2.2}%
-\contentsline {subsubsection}{Piattaforme di e-voting}{7}{section*.3}%
-\contentsline {subsubsection}{Piattaforme per la gestione di eventi}{8}{section*.4}%
+\contentsline {subsubsection}{Piattaforme di e-voting}{7}{section*.6}%
+\contentsline {subsubsection}{Piattaforme per la gestione di eventi}{8}{section*.7}%
 \contentsline {subsection}{\numberline {2.2.3}Posizionamento di Swift Contest}{8}{subsection.2.2.3}%
 \contentsline {section}{\numberline {2.3}Attori e casi d’uso}{8}{section.2.3}%
 \contentsline {subsection}{\numberline {2.3.1}Attori del sistema}{9}{subsection.2.3.1}%
@@ -42,22 +42,22 @@
 \contentsline {section}{\numberline {4.1}Linee guida progettuali}{25}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Architettura del frontend: il pattern MVVM con BLoC}{26}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}Implementazione del ViewModel: il pattern BLoC}{28}{subsection.4.2.1}%
-\contentsline {subsubsection}{Gestione centralizzata degli errori nel repository}{28}{section*.12}%
-\contentsline {subsubsection}{Gestione dell'uguaglianza degli oggetti con Equatable}{30}{section*.14}%
+\contentsline {subsubsection}{Gestione centralizzata degli errori nel repository}{28}{section*.15}%
+\contentsline {subsubsection}{Gestione dell'uguaglianza degli oggetti con Equatable}{30}{section*.17}%
 \contentsline {subsection}{\numberline {4.2.2}Navigazione con AutoRoute}{31}{subsection.4.2.2}%
 \contentsline {subsection}{\numberline {4.2.3}Strategia di navigazione e passaggio dei dati}{32}{subsection.4.2.3}%
-\contentsline {subsubsection}{Validazione dell'input utente e gestione dei form}{32}{section*.16}%
+\contentsline {subsubsection}{Validazione dell'input utente e gestione dei form}{32}{section*.19}%
 \contentsline {subsection}{\numberline {4.2.4}Design system e theming}{33}{subsection.4.2.4}%
-\contentsline {subsubsection}{Gestione del feedback di caricamento: l'OverlayLoader}{35}{section*.19}%
-\contentsline {paragraph}{Gestione del ciclo di vita e prevenzione dei ``leak''}{35}{section*.20}%
+\contentsline {subsubsection}{Gestione del feedback di caricamento: l'OverlayLoader}{35}{section*.22}%
+\contentsline {paragraph}{Gestione del ciclo di vita e prevenzione dei ``leak''}{35}{section*.23}%
 \contentsline {section}{\numberline {4.3}Progettazione del database}{37}{section.4.3}%
 \contentsline {subsection}{\numberline {4.3.1}Schema fisico e tabelle principali}{37}{subsection.4.3.1}%
 \contentsline {subsection}{\numberline {4.3.2}Scelte di design chiave}{38}{subsection.4.3.2}%
-\contentsline {subsubsection}{Integrità referenziale e strategia di cancellazione}{39}{section*.23}%
-\contentsline {paragraph}{Cancellazione a cascata tramite \texttt {ON DELETE CASCADE}}{39}{section*.24}%
-\contentsline {paragraph}{Cancellazione tramite trigger per relazioni uno-a-uno}{39}{section*.25}%
-\contentsline {paragraph}{Cancellazione di dati esterni tramite Edge Functions}{40}{section*.26}%
-\contentsline {subsubsection}{Snapshot dei dati tramite denormalizzazione controllata}{40}{section*.27}%
+\contentsline {subsubsection}{Integrità referenziale e strategia di cancellazione}{39}{section*.26}%
+\contentsline {paragraph}{Cancellazione a cascata tramite \texttt {ON DELETE CASCADE}}{39}{section*.27}%
+\contentsline {paragraph}{Cancellazione tramite trigger per relazioni uno-a-uno}{39}{section*.28}%
+\contentsline {paragraph}{Cancellazione di dati esterni tramite Edge Functions}{40}{section*.29}%
+\contentsline {subsubsection}{Snapshot dei dati tramite denormalizzazione controllata}{40}{section*.30}%
 \contentsline {subsection}{\numberline {4.3.3}Implicazioni del design del form di voto sull'aggregazione dei risultati}{43}{subsection.4.3.3}%
 \contentsline {section}{\numberline {4.4}Architettura del backend}{45}{section.4.4}%
 \contentsline {subsection}{\numberline {4.4.1}Funzioni RPC (Remote Procedure Call)}{45}{subsection.4.4.1}%
@@ -67,13 +67,13 @@
 \contentsline {subsection}{\numberline {4.5.2}Il ruolo della RLS e dell'API come ``Gatekeeper''}{51}{subsection.4.5.2}%
 \contentsline {subsection}{\numberline {4.5.3}L'eccezione necessaria: le policy RLS per il servizio Realtime}{51}{subsection.4.5.3}%
 \contentsline {subsection}{\numberline {4.5.4}Misure di sicurezza aggiuntive}{52}{subsection.4.5.4}%
-\contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{53}{section*.34}%
+\contentsline {subsubsection}{Gestione dei Giurati Semplici: il pattern dell'autenticazione anonima}{53}{section*.37}%
 \contentsline {section}{\numberline {4.6}Progettazione e implementazione degli strumenti di amministrazione}{55}{section.4.6}%
 \contentsline {subsection}{\numberline {4.6.1}Esigenza di un pannello di amministrazione}{55}{subsection.4.6.1}%
 \contentsline {subsection}{\numberline {4.6.2}Scelta di Retool per lo sviluppo rapido}{55}{subsection.4.6.2}%
 \contentsline {subsection}{\numberline {4.6.3}Architettura di comunicazione sicura tra Retool e Supabase}{56}{subsection.4.6.3}%
-\contentsline {subsubsection}{Accesso tramite utente dedicato e funzioni RPC}{56}{section*.35}%
-\contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{57}{section*.38}%
+\contentsline {subsubsection}{Accesso tramite utente dedicato e funzioni RPC}{56}{section*.38}%
+\contentsline {subsubsection}{Accesso tramite Edge Functions e API Key}{57}{section*.41}%
 \contentsline {subsection}{\numberline {4.6.4}Funzionalità implementate nel pannello}{59}{subsection.4.6.4}%
 \contentsline {chapter}{\numberline {5}Distribuzione e prodotto finale}{61}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Strategia di distribuzione}{61}{section.5.1}%
@@ -85,20 +85,19 @@
 \contentsline {subsection}{\numberline {5.6.1}Accesso e autenticazione}{67}{subsection.5.6.1}%
 \contentsline {subsection}{\numberline {5.6.2}Gestione delle impostazioni}{67}{subsection.5.6.2}%
 \contentsline {subsection}{\numberline {5.6.3}Flusso dell'organizzatore}{69}{subsection.5.6.3}%
-\contentsline {paragraph}{Creazione di un nuovo contest}{69}{section*.47}%
-\contentsline {paragraph}{Configurazione dei dettagli del contest}{70}{section*.49}%
-\contentsline {paragraph}{Gestione della sessione di voto}{72}{section*.52}%
-\contentsline {paragraph}{Analisi dei risultati e classifiche}{74}{section*.55}%
+\contentsline {paragraph}{Creazione di un nuovo contest}{69}{section*.50}%
+\contentsline {paragraph}{Configurazione dei dettagli del contest}{70}{section*.52}%
+\contentsline {paragraph}{Gestione della sessione di voto}{72}{section*.55}%
+\contentsline {paragraph}{Analisi dei risultati e classifiche}{74}{section*.58}%
 \contentsline {subsection}{\numberline {5.6.4}Flusso del partecipante}{76}{subsection.5.6.4}%
 \contentsline {subsection}{\numberline {5.6.5}Flusso del giurato}{77}{subsection.5.6.5}%
-\contentsline {paragraph}{Procedura di votazione}{77}{section*.61}%
+\contentsline {paragraph}{Procedura di votazione}{77}{section*.64}%
 \contentsline {subsection}{\numberline {5.6.6}Flusso del giurato semplice (ospite)}{79}{subsection.5.6.6}%
 \contentsline {chapter}{\numberline {6}Conclusioni}{80}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Sintesi del lavoro svolto}{80}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Risultati ottenuti}{80}{section.6.2}%
 \contentsline {section}{\numberline {6.3}Conoscenze acquisite}{81}{section.6.3}%
 \contentsline {section}{\numberline {6.4}Valutazione personale}{82}{section.6.4}%
-\contentsline {chapter}{Glossario}{84}{section*.64}%
-\contentsline {chapter}{Bibliografia}{91}{section*.64}%
-\contentsline {chapter}{Sitografia}{92}{section*.64}%
-\contentsline {chapter}{Disclaimer sui Marchi Registrati}{95}{section*.64}%
+\contentsline {chapter}{Glossario}{84}{section*.67}%
+\contentsline {chapter}{Riferimenti}{91}{section*.69}%
+\contentsline {chapter}{Disclaimer sui Marchi Registrati}{94}{section*.70}%
