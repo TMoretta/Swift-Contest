@@ -1,0 +1,66 @@
+@startuml
+
+!theme sunlust
+skinparam dpi 300
+skinparam backgroundColor transparent
+
+skinparam actorStyle awesome
+skinparam shadowing false
+
+autonumber "<b>[0]"
+
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #555555
+}
+skinparam participant {
+  backgroundColor #E6F3FF
+  borderColor #3995D7
+                    }
+
+                    ' =======================================
+                    ' Definizione dei Partecipanti
+                    ' =======================================
+                    actor "Utente\n(es. Organizzatore)" as User
+                    participant "Client Flutter" as App
+                    participant "Supabase API Gateway" as Gateway
+
+                    ' --- MODIFICA: Usato "box" invece di "package" ---
+                    box "Backend Supabase"
+    participant "RPC Function\n(es. start_voting_session)" as RPC
+    database "Database (Tabelle)" as DB
+end box
+' --- FINE MODIFICA ---
+
+
+' =======================================
+' Flusso della Chiamata Sicura
+' =======================================
+User -> App : Clicca "Avvia Sessione di Voto"
+
+App -> Gateway : Invoca la funzione RPC\n(con JWT Token)
+
+Gateway -> RPC : Esegue la chiamata
+activate RPC
+
+RPC -> DB : **Controllo di Sicurezza**:\nSELECT 1 FROM contests\nWHERE id = p_contest_id\nAND organizer_id = auth.uid()
+activate DB
+        DB --> RPC : Restituisce il risultato del controllo
+        deactivate DB
+
+        alt <color:#006400>Autorizzazione Concessa</color>
+            RPC -> DB : Esegue la logica principale\n(es. crea lo snapshot dei dati)
+            activate DB
+    DB --> RPC : Operazione completata
+    deactivate DB
+    RPC --> Gateway : Success (es. 200 OK)
+else <color:red>Autorizzazione Negata</color>
+    RPC --> Gateway : Error: 'Permission Denied' (es. 403 Forbidden)
+end
+
+Gateway --> App : Restituisce il risultato
+       deactivate RPC
+
+       App --> User : Mostra notifica di successo/errore
+
+       @enduml
