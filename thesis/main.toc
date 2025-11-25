@@ -98,6 +98,4 @@
 \contentsline {section}{\numberline {6.2}Risultati ottenuti}{80}{section.6.2}%
 \contentsline {section}{\numberline {6.3}Conoscenze acquisite}{81}{section.6.3}%
 \contentsline {section}{\numberline {6.4}Valutazione personale}{82}{section.6.4}%
-\contentsline {chapter}{Glossario}{84}{section*.67}%
-\contentsline {chapter}{Riferimenti}{91}{section*.69}%
-\contentsline {chapter}{Disclaimer sui Marchi Registrati}{94}{section*.70}%
+\contentsline {chapter}{Riferimenti}{84}{section*.67}%

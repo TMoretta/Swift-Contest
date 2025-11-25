@@ -1,36 +1,24 @@
-\glossaryentry{SoC?\glossentry{soc}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{PoLP?\glossentry{polp}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{MVVM?\glossentry{mvvm}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{BLoC?\glossentry{bloc}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{BaaS?\glossentry{baas}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{API?\glossentry{api}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{RPC?\glossentry{rpc}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{JWT?\glossentry{jwt}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{CI/CD?\glossentry{cicd}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{IaC?\glossentry{iac}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{ERD?\glossentry{erd}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{UML?\glossentry{uml}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{RLS?\glossentry{rls}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{FURPS+?\glossentry{furps}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{APK?\glossentry{apk}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{GDPR?\glossentry{gdpr}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{JIT?\glossentry{jit}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{AOT?\glossentry{aot}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{DSL?\glossentry{dsl}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{SPA?\glossentry{spa}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{PAT?\glossentry{pat}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{SSoT?\glossentry{ssot}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{SSoT (Single Source of Truth)?\glossentry{ssot}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{SoC (Separation of Concerns)?\glossentry{soc}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{PoLP (Principle of Least Privilege)?\glossentry{polp}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{MVVM (Model-View-ViewModel)?\glossentry{mvvm_pattern}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{BLoC (Business Logic Component)?\glossentry{bloc_pattern}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Repository Pattern?\glossentry{repository_pattern}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Singleton Pattern?\glossentry{singleton_pattern}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Hard Delete vs Soft Delete?\glossentry{hard_soft_delete}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{RLS (Row Level Security)?\glossentry{rls_principle}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{SECURITY DEFINER?\glossentry{security_definer}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{API (Application Programming Interface)?\glossentry{api}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{BaaS (Backend-as-a-Service)?\glossentry{baas}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{CI/CD (Continuous Integration/Continuous Deployment)?\glossentry{cicd}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Cross-Platform?\glossentry{crossplatform}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Edge Function?\glossentry{edgefunctions}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{RPC (Remote Procedure Call)?\glossentry{rpc}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{IaC (Infrastructure as Code)?\glossentry{iac}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{JWT (JSON Web Token)?\glossentry{jwt}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{SPA (Single Page Application)?\glossentry{spa}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{PAT (Personal Access Token)?\glossentry{pat}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Snapshot (dei dati)?\glossentry{snapshot}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{End-to-end?\glossentry{e2e}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{Soluzione Verticale?\glossentry{verticalsolution}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{Classe Associativa?\glossentry{associativeclass}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Denormalizzazione?\glossentry{denormalization}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Token?\glossentry{token}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Either (Tipo di Dato)?\glossentry{either_type}|setentrycounter[]{page}"\glsnumberformat}{1}
@@ -43,6 +31,17 @@
 \glossaryentry{Deep Linking?\glossentry{deeplinking}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Low-code?\glossentry{lowcode}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Hot Reload?\glossentry{hotreload}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{JIT (Just-In-Time Compilation)?\glossentry{jit}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{AOT (Ahead-Of-Time Compilation)?\glossentry{aot}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{DSL (Domain-Specific Language)?\glossentry{dsl}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{APK (Android Package Kit)?\glossentry{apk}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{GDPR (General Data Protection Regulation)?\glossentry{gdpr}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{ERD (Entity-Relationship Diagram)?\glossentry{erd}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{UML (Unified Modeling Language)?\glossentry{uml}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{FURPS+?\glossentry{furps}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{End-to-end?\glossentry{e2e}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{Soluzione Verticale?\glossentry{verticalsolution}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{Classe Associativa?\glossentry{associativeclass}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Dart?\glossentry{dart}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{PL/pgSQL?\glossentry{plpgsql}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{TypeScript?\glossentry{typescript}|setentrycounter[]{page}"\glsnumberformat}{1}
@@ -58,5 +57,3 @@
 \glossaryentry{Jetpack Compose?\glossentry{jetpackcompose}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Kotlin Multiplatform (KMP)?\glossentry{kmp}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{Jetpack Compose Multiplatform?\glossentry{composemultiplatform}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{SECURITY DEFINER?\glossentry{security_definer}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{Row Level Security (RLS)?\glossentry{rls_principle}|setentrycounter[]{page}"\glsnumberformat}{1}
