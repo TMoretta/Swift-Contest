@@ -2,13 +2,13 @@
 \babel@toc {italian}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Confronto tra il flusso di lavoro tradizionale e l'approccio integrato di Swift Contest.}}{6}{figure.caption.5}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Diagramma dei casi d'uso: gestione account e funzionalità generali.}}{10}{figure.caption.8}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Diagramma dei casi d'uso: gestione del ciclo di vita del contest.}}{11}{figure.caption.9}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces Diagramma dei casi d'uso: gestione delle votazioni e dei risultati.}}{12}{figure.caption.10}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces Diagramma dei casi d'uso: amministrazione del sistema.}}{13}{figure.caption.11}%
-\contentsline {figure}{\numberline {2.6}{\ignorespaces Diagramma delle classi concettuale.}}{17}{figure.caption.12}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Confronto tra il flusso di lavoro tradizionale e l'approccio integrato di Swift Contest.}}{11}{figure.caption.5}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramma dei casi d'uso: gestione account e funzionalità generali.}}{15}{figure.caption.8}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagramma dei casi d'uso: gestione del ciclo di vita del contest.}}{16}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Diagramma dei casi d'uso: gestione delle votazioni e dei risultati.}}{17}{figure.caption.10}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Diagramma dei casi d'uso: amministrazione del sistema.}}{18}{figure.caption.11}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Diagramma delle classi concettuale.}}{22}{figure.caption.12}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Architettura Client-Server del sistema Swift Contest con backend BaaS.}}{26}{figure.caption.13}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Architettura del Client MVVM con BLoC.}}{27}{figure.caption.14}%

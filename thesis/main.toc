@@ -8,36 +8,36 @@
 \contentsline {section}{\numberline {1.2}Obiettivi del progetto}{2}{section.1.2}%
 \contentsline {section}{\numberline {1.3}Contributi progettuali e ingegneristici}{3}{section.1.3}%
 \contentsline {section}{\numberline {1.4}Struttura del documento}{4}{section.1.4}%
-\contentsline {chapter}{\numberline {2}Contesto e analisi del sistema}{5}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Il problema: frammentazione e inefficienza nella gestione dei contest}{5}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Stato dell’arte e analisi delle alternative}{7}{section.2.2}%
-\contentsline {subsection}{\numberline {2.2.1}Strumenti generici adattati: lo ``Status Quo''}{7}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}Piattaforme per domini correlati}{7}{subsection.2.2.2}%
-\contentsline {subsubsection}{Piattaforme di e-voting}{7}{section*.6}%
-\contentsline {subsubsection}{Piattaforme per la gestione di eventi}{8}{section*.7}%
-\contentsline {subsection}{\numberline {2.2.3}Posizionamento di Swift Contest}{8}{subsection.2.2.3}%
-\contentsline {section}{\numberline {2.3}Attori e casi d’uso}{8}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Attori del sistema}{9}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Casi d'Uso: gestione account e funzionalità generali}{10}{subsection.2.3.2}%
-\contentsline {subsection}{\numberline {2.3.3}Casi d'Uso: gestione del ciclo di vita del contest}{11}{subsection.2.3.3}%
-\contentsline {subsection}{\numberline {2.3.4}Casi d'Uso: gestione delle votazioni e dei risultati}{12}{subsection.2.3.4}%
-\contentsline {subsection}{\numberline {2.3.5}Casi d'Uso: amministrazione del sistema}{13}{subsection.2.3.5}%
-\contentsline {section}{\numberline {2.4}Requisiti del sistema}{13}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Requisiti funzionali (Functionality)}{13}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Requisiti non funzionali}{15}{subsection.2.4.2}%
-\contentsline {section}{\numberline {2.5}Modello del dominio}{17}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Entità fondamentali}{18}{subsection.2.5.1}%
-\contentsline {subsection}{\numberline {2.5.2}Vincoli chiave del dominio}{18}{subsection.2.5.2}%
-\contentsline {chapter}{\numberline {3}Tecnologie e strumenti utilizzati}{20}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Framework, piattaforme e linguaggi}{20}{section.3.1}%
-\contentsline {subsection}{\numberline {3.1.1}Framework Frontend}{21}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Framework e piattaforme Backend}{21}{subsection.3.1.2}%
-\contentsline {subsection}{\numberline {3.1.3}Linguaggi di programmazione}{22}{subsection.3.1.3}%
-\contentsline {section}{\numberline {3.2}Strumenti, servizi e piattaforme di supporto}{22}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Piattaforme di distribuzione e servizi Cloud}{23}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}Strumenti di sviluppo e amministrazione}{23}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Version Control e Code Hosting}{24}{subsection.3.2.3}%
-\contentsline {subsection}{\numberline {3.2.4}Strumenti di documentazione e modellazione}{24}{subsection.3.2.4}%
+\contentsline {chapter}{\numberline {2}Tecnologie e strumenti utilizzati}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Framework, piattaforme e linguaggi}{5}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Framework Frontend}{6}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Framework e piattaforme Backend}{6}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Linguaggi di programmazione}{7}{subsection.2.1.3}%
+\contentsline {section}{\numberline {2.2}Strumenti, servizi e piattaforme di supporto}{7}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Piattaforme di distribuzione e servizi Cloud}{8}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Strumenti di sviluppo e amministrazione}{8}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Version Control e Code Hosting}{9}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Strumenti di documentazione e modellazione}{9}{subsection.2.2.4}%
+\contentsline {chapter}{\numberline {3}Contesto e analisi del sistema}{10}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Il problema: frammentazione e inefficienza nella gestione dei contest}{10}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Stato dell’arte e analisi delle alternative}{12}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Strumenti generici adattati: lo ``Status Quo''}{12}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Piattaforme per domini correlati}{12}{subsection.3.2.2}%
+\contentsline {subsubsection}{Piattaforme di e-voting}{12}{section*.6}%
+\contentsline {subsubsection}{Piattaforme per la gestione di eventi}{13}{section*.7}%
+\contentsline {subsection}{\numberline {3.2.3}Posizionamento di Swift Contest}{13}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Attori e casi d’uso}{13}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Attori del sistema}{14}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Casi d'Uso: gestione account e funzionalità generali}{15}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Casi d'Uso: gestione del ciclo di vita del contest}{16}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Casi d'Uso: gestione delle votazioni e dei risultati}{17}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}Casi d'Uso: amministrazione del sistema}{18}{subsection.3.3.5}%
+\contentsline {section}{\numberline {3.4}Requisiti del sistema}{18}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Requisiti funzionali (Functionality)}{18}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Requisiti non funzionali}{20}{subsection.3.4.2}%
+\contentsline {section}{\numberline {3.5}Modello del dominio}{22}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Entità fondamentali}{23}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Vincoli chiave del dominio}{23}{subsection.3.5.2}%
 \contentsline {chapter}{\numberline {4}Progettazione e implementazione del sistema}{25}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Linee guida progettuali}{25}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Architettura del frontend: il pattern MVVM con BLoC}{26}{section.4.2}%
