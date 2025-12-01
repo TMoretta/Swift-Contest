@@ -82,70 +82,6 @@
       \verb https://supabase.com/docs
       \endverb
     \endentry
-    \entry{helios_voting}{online}{}{}
-      \name{author}{1}{}{%
-        {{hash=dc10b98d1ed54eb3a80022aa3b38e7ca}{%
-           family={Adida},
-           familyi={A\bibinitperiod},
-           given={Ben},
-           giveni={B\bibinitperiod}}}%
-      }
-      \strng{namehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \strng{fullhash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \strng{fullhashraw}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \strng{bibnamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \strng{authorbibnamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \strng{authornamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \strng{authorfullhash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \strng{authorfullhashraw}{dc10b98d1ed54eb3a80022aa3b38e7ca}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{title}{Helios Voting}
-      \field{urlday}{1}
-      \field{urlmonth}{11}
-      \field{urlyear}{2025}
-      \field{year}{2025}
-      \field{urldateera}{ce}
-      \verb{urlraw}
-      \verb https://heliosvoting.org/
-      \endverb
-      \verb{url}
-      \verb https://heliosvoting.org/
-      \endverb
-    \endentry
-    \entry{eventbrite_website}{online}{}{}
-      \name{author}{1}{}{%
-        {{hash=7314785d652ebc067604e72e3d80884a}{%
-           family={{Eventbrite, Inc.}},
-           familyi={E\bibinitperiod}}}%
-      }
-      \strng{namehash}{7314785d652ebc067604e72e3d80884a}
-      \strng{fullhash}{7314785d652ebc067604e72e3d80884a}
-      \strng{fullhashraw}{7314785d652ebc067604e72e3d80884a}
-      \strng{bibnamehash}{7314785d652ebc067604e72e3d80884a}
-      \strng{authorbibnamehash}{7314785d652ebc067604e72e3d80884a}
-      \strng{authornamehash}{7314785d652ebc067604e72e3d80884a}
-      \strng{authorfullhash}{7314785d652ebc067604e72e3d80884a}
-      \strng{authorfullhashraw}{7314785d652ebc067604e72e3d80884a}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{title}{Eventbrite}
-      \field{urlday}{1}
-      \field{urlmonth}{11}
-      \field{urlyear}{2025}
-      \field{year}{2025}
-      \field{urldateera}{ce}
-      \verb{urlraw}
-      \verb https://www.eventbrite.com/
-      \endverb
-      \verb{url}
-      \verb https://www.eventbrite.com/
-      \endverb
-    \endentry
     \entry{firebase_docs}{online}{}{}
       \name{author}{1}{}{%
         {{hash=8b36e9207c24c76e6719268e49201d94}{%
@@ -161,8 +97,8 @@
       \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
       \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
       \field{extraname}{2}
-      \field{sortinit}{7}
-      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{title}{Firebase documentation}
@@ -192,8 +128,8 @@
       \strng{authornamehash}{917cf2b2062aec0c604dbecc106084cd}
       \strng{authorfullhash}{917cf2b2062aec0c604dbecc106084cd}
       \strng{authorfullhashraw}{917cf2b2062aec0c604dbecc106084cd}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{title}{PostgreSQL documentation}
@@ -224,8 +160,8 @@
       \strng{authorfullhash}{8b36e9207c24c76e6719268e49201d94}
       \strng{authorfullhashraw}{8b36e9207c24c76e6719268e49201d94}
       \field{extraname}{3}
-      \field{sortinit}{9}
-      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{title}{Dart documentation}
@@ -255,8 +191,8 @@
       \strng{authornamehash}{140864078aeca1c7c35b4beb33c53c34}
       \strng{authorfullhash}{140864078aeca1c7c35b4beb33c53c34}
       \strng{authorfullhashraw}{140864078aeca1c7c35b4beb33c53c34}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{title}{TypeScript documentation}
@@ -536,8 +472,8 @@
       \strng{authornamehash}{9e991784a7de86b867cc684c4745f4dd}
       \strng{authorfullhash}{9e991784a7de86b867cc684c4745f4dd}
       \strng{authorfullhashraw}{9e991784a7de86b867cc684c4745f4dd}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{title}{PlantUML}
@@ -551,6 +487,70 @@
       \endverb
       \verb{url}
       \verb https://plantuml.com/
+      \endverb
+    \endentry
+    \entry{helios_voting}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=dc10b98d1ed54eb3a80022aa3b38e7ca}{%
+           family={Adida},
+           familyi={A\bibinitperiod},
+           given={Ben},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{fullhash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{fullhashraw}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{bibnamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authorbibnamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authornamehash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authorfullhash}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \strng{authorfullhashraw}{dc10b98d1ed54eb3a80022aa3b38e7ca}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Helios Voting}
+      \field{urlday}{1}
+      \field{urlmonth}{11}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://heliosvoting.org/
+      \endverb
+      \verb{url}
+      \verb https://heliosvoting.org/
+      \endverb
+    \endentry
+    \entry{eventbrite_website}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=7314785d652ebc067604e72e3d80884a}{%
+           family={{Eventbrite, Inc.}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{fullhash}{7314785d652ebc067604e72e3d80884a}
+      \strng{fullhashraw}{7314785d652ebc067604e72e3d80884a}
+      \strng{bibnamehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authorbibnamehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authornamehash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authorfullhash}{7314785d652ebc067604e72e3d80884a}
+      \strng{authorfullhashraw}{7314785d652ebc067604e72e3d80884a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Eventbrite}
+      \field{urlday}{1}
+      \field{urlmonth}{11}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.eventbrite.com/
+      \endverb
+      \verb{url}
+      \verb https://www.eventbrite.com/
       \endverb
     \endentry
     \entry{bloc_docs}{online}{}{}

@@ -1,19 +1,17 @@
 \begin{titlepage}
     \begin{abstract}
-        La gestione tradizionale di contest, basata su strumenti eterogenei, è un processo frammentato e insicuro che compromette l’integrità dei dati e il coordinamento in tempo reale.
-        L'analisi dello stato dell'arte ha confermato un \textbf{vuoto di mercato} per soluzioni verticali, motivando la progettazione di \textbf{Swift Contest}: una piattaforma software \emph{end-to-end}, sicura e multipiattaforma.
+        The management of contests, based on disjointed tools, is a fragmented and insecure process that compromises data integrity and real-time coordination.
+        The state-of-the-art analysis confirmed a \textbf{market gap} for vertical solutions, motivating the design of \textbf{Swift Contest}: a secure, cross-platform, and \emph{end-to-end} software platform.
 
-        Per soddisfare i requisiti emersi dall’analisi, è stato selezionato uno stack tecnologico moderno.
-        L’esigenza di sviluppo \emph{cross-platform} ha guidato la scelta del framework \textbf{Flutter}, mentre la necessità di un backend robusto e relazionale ha portato all’adozione di \textbf{Supabase (PostgreSQL)}.
-        La logica serverless è stata implementata in modo strategico: le \textbf{Funzioni RPC} in PL/pgSQL garantiscono l'\textbf{atomicità delle transazioni}, mentre le \textbf{Edge Functions} in TypeScript gestiscono le \textbf{interazioni con API esterne e con lo Storage}.
+        To meet the requirements identified during the analysis, a modern technology stack was selected.
+        The need for \emph{cross-platform} development led to the choice of the \textbf{Flutter} framework, while the requirement for a robust, relational backend prompted the adoption of \textbf{Supabase (PostgreSQL)}.
+        Serverless logic was implemented strategically: \textbf{RPC Functions} in PL/pgSQL ensure the \textbf{atomicity of database transactions}, while \textbf{Edge Functions} in TypeScript handle \textbf{interactions with external APIs and Storage}.
 
-        La progettazione del sistema si fonda su un’architettura sicura basata sul \textbf{Principio del Minimo Privilegio (PoLP)}, dove la \textbf{Row Level Security (RLS) e un'API controllata} lavorano in sinergia per mediare ogni accesso ai dati.
-        Sul frontend, il pattern \textbf{MVVM con BLoC} garantisce la separazione delle responsabilità, mentre sul backend, il \textbf{meccanismo di snapshot} assicura l’integrità del voto.
-        Un sistema di \textbf{autenticazione ibrido} supporta inoltre l’accesso sicuro per ``Giurati Ospiti'' tramite autenticazione anonima.
+        The system's design is founded on a secure architecture based on the \textbf{Principle of Least Privilege (PoLP)}, where \textbf{Row Level Security (RLS) and a controlled API} work in synergy to mediate all data access.
+        On the frontend, the \textbf{MVVM with BLoC} pattern ensures a separation of concerns, while on the backend, a \textbf{snapshot mechanism} guarantees voting integrity.
+        A \textbf{hybrid authentication system} also supports secure access for ``Guest Jurors'' via anonymous authentication.
 
-        La fase finale del progetto ha visto la distribuzione delle sue componenti: le \textbf{migrazioni IaC e le funzioni serverless} sono state rilasciate sull'infrastruttura \textbf{Supabase}, il client web è stato distribuito su \textbf{Vercel} tramite pipeline di CI/CD e l'artefatto Android su \textbf{GitHub}.
-        Il risultato è un \textbf{prototipo completo e funzionante}.
-        In conclusione, Swift Contest non solo valida la fattibilità dell'approccio architetturale, ma si configura come un \textbf{blueprint robusto e scalabile} per la creazione di applicazioni collaborative sicure, dimostrando come un ecosistema tecnologico moderno possa colmare una reale esigenza di mercato.
-        \\[1cm]
+        The final project phase involved deploying its components on dedicated platforms: IaC migrations and serverless functions on the \textbf{Supabase} infrastructure, the web client on \textbf{Vercel} via CI/CD pipelines, and the Android artifact on \textbf{GitHub}. \textbf{This process led to the creation of a complete and working prototype}.
+        In conclusion, Swift Contest not only validates the feasibility of the architectural approach but also stands as a \textbf{robust and scalable blueprint} for building secure collaborative applications, demonstrating how a modern technology ecosystem can fill a tangible market need.
     \end{abstract}
 \end{titlepage}

@@ -1,15 +1,15 @@
 [0] Config.pm:328> INFO - This is Biber 2.21
 [0] Config.pm:331> INFO - Logfile is 'main.blg'
-[54] biber-MSWIN64:342> INFO - === 
-[73] Biber.pm:421> INFO - Reading 'C:\Users\Tommaso\Desktop\Swift-Contest\thesis\main.bcf'
-[128] Biber.pm:1002> INFO - Found 25 citekeys in bib section 0
-[135] Biber.pm:4487> INFO - Processing section 0
-[141] Biber.pm:4678> INFO - Looking for bibtex file 'references.bib' for section 0
-[164] bibtex.pm:1713> INFO - LaTeX decoding ...
-[173] bibtex.pm:1519> INFO - Found BibTeX data source 'C:\Users\Tommaso\Desktop\Swift-Contest\thesis\references.bib'
-[228] UCollate.pm:68> INFO - Overriding locale 'it-IT' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[228] UCollate.pm:68> INFO - Overriding locale 'it-IT' defaults 'variable = shifted' with 'variable = non-ignorable'
-[228] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'it-IT'
-[228] Biber.pm:4313> INFO - No sort tailoring available for locale 'it-IT'
-[238] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
-[242] bbl.pm:779> INFO - Output to main.bbl
+[81] biber-MSWIN64:342> INFO - === 
+[102] Biber.pm:421> INFO - Reading 'C:\Users\Tommaso\Desktop\Swift-Contest\thesis\main.bcf'
+[156] Biber.pm:1002> INFO - Found 25 citekeys in bib section 0
+[163] Biber.pm:4487> INFO - Processing section 0
+[169] Biber.pm:4678> INFO - Looking for bibtex file 'references.bib' for section 0
+[199] bibtex.pm:1713> INFO - LaTeX decoding ...
+[215] bibtex.pm:1519> INFO - Found BibTeX data source 'C:\Users\Tommaso\Desktop\Swift-Contest\thesis\references.bib'
+[268] UCollate.pm:68> INFO - Overriding locale 'it-IT' defaults 'variable = shifted' with 'variable = non-ignorable'
+[268] UCollate.pm:68> INFO - Overriding locale 'it-IT' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[269] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'it-IT'
+[269] Biber.pm:4313> INFO - No sort tailoring available for locale 'it-IT'
+[278] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
+[283] bbl.pm:779> INFO - Output to main.bbl
