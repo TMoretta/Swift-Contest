@@ -1,14 +1,18 @@
 \begin{titlepage}
     \begin{abstract}
-        Traditional contest management is a fragmented and inefficient process, characterized by the use of generic, non-integrated tools that lead to significant challenges in security, data integrity, and transparency.
-        This thesis addresses these issues through the design, implementation, and deployment of Swift Contest, a comprehensive, cross-platform software solution.
+        The management of contests, based on disjointed tools, is a fragmented and insecure process that compromises data integrity and real-time coordination.
+        The state-of-the-art analysis confirmed a \textbf{market gap} for vertical solutions, motivating the design of \textbf{Swift Contest}: a secure, cross-platform, and \emph{end-to-end} software platform.
 
-        The system is built on a modern client-server architecture, featuring a frontend developed with Flutter and a backend powered by Supabase, which provides a comprehensive suite of managed services, including authentication, storage, and serverless logic.
-        The design is guided by core software engineering principles, namely the Separation of Concerns (SoC) and the Principle of Least Privilege (PoLP), ensuring that all data access is mediated through a secure API layer.
+        To meet the requirements identified during the analysis, a modern technology stack was selected.
+        The need for \emph{cross-platform} development led to the choice of the \textbf{Flutter} framework, while the requirement for a robust, relational backend prompted the adoption of \textbf{Supabase (PostgreSQL)}.
+        Serverless logic was implemented strategically: \textbf{RPC Functions} in PL/pgSQL ensure the \textbf{atomicity of database transactions}, while \textbf{Edge Functions} in TypeScript handle \textbf{interactions with external APIs and Storage}.
 
-        This work demonstrates the feasibility of building a complex, secure, and scalable system using an accessible technology stack, validating the effectiveness of a single-codebase approach for development and cost optimization.
-        The resulting prototype is an integrated and robust application, ready for a field validation phase.
-        It effectively addresses the inefficiencies of traditional processes and provides a solid foundation for future developments in the field of collaborative platforms.
+        The system's design is founded on a secure architecture based on the \textbf{Principle of Least Privilege (PoLP)}, where \textbf{Row Level Security (RLS) and a controlled API} work in synergy to mediate all data access.
+        On the frontend, the \textbf{MVVM with BLoC} pattern ensures a separation of concerns, while on the backend, a \textbf{snapshot mechanism} guarantees voting integrity.
+        A \textbf{hybrid authentication system} also supports secure access for ``Guest Jurors'' via anonymous authentication.
+
+        The final project phase involved deploying its components: \textbf{IaC migrations and serverless functions} were released to the \textbf{Supabase} infrastructure; the web client was deployed on \textbf{Vercel} via CI/CD pipelines; and the Android artifact on \textbf{GitHub}, culminating in a \textbf{complete and working prototype}.
+        In conclusion, Swift Contest not only validates the feasibility of the architectural approach but also stands as a \textbf{robust and scalable blueprint} for building secure collaborative applications, demonstrating how a modern technology ecosystem can fill a tangible market need.
         \\[1cm]
     \end{abstract}
 \end{titlepage}
