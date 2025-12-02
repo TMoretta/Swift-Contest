@@ -8,10 +8,11 @@
         Serverless logic was implemented strategically: \textbf{RPC Functions} in PL/pgSQL ensure the \textbf{atomicity of database transactions}, while \textbf{Edge Functions} in TypeScript handle \textbf{interactions with external APIs and Storage}.
 
         The system's design is founded on a secure architecture based on the \textbf{Principle of Least Privilege (PoLP)}, where \textbf{Row Level Security (RLS) and a controlled API} work in synergy to mediate all data access.
-        On the frontend, the \textbf{MVVM with BLoC} pattern ensures a separation of concerns, while on the backend, a \textbf{snapshot mechanism} guarantees voting integrity.
+        On the frontend, the pattern \textbf{MVVM with BLoC} ensures \textbf{Separation of Concerns (SoC)}, while on the backend, a \textbf{snapshot mechanism} guarantees voting integrity.
         A \textbf{hybrid authentication system} also supports secure access for ``Guest Jurors'' via anonymous authentication.
 
-        The final project phase involved deploying its components on dedicated platforms: IaC migrations and serverless functions on the \textbf{Supabase} infrastructure, the web client on \textbf{Vercel} via CI/CD pipelines, and the Android artifact on \textbf{GitHub}. \textbf{This process led to the creation of a complete and working prototype}.
+        The final project phase involved deploying its components on dedicated platforms: IaC migrations and serverless functions on the \textbf{Supabase} infrastructure, the web client on \textbf{Vercel} via CI/CD pipelines, and the Android artifact on \textbf{GitHub}.
+        This process led to the creation of a \textbf{complete and working prototype}.
         In conclusion, Swift Contest not only validates the feasibility of the architectural approach but also stands as a \textbf{robust and scalable blueprint} for building secure collaborative applications, demonstrating how a modern technology ecosystem can fill a tangible market need.
     \end{abstract}
 \end{titlepage}
