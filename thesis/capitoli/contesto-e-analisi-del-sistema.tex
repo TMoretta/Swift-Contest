@@ -71,6 +71,39 @@ Il loro scopo è completamente diverso e non risultano realisticamente adattabil
 L'analisi conferma che Swift Contest si posiziona in un \textbf{vuoto di mercato e tecnologico}.
 Non mira a competere con le piattaforme di e-voting o di gestione eventi, ma a creare una \textbf{nuova categoria di prodotto}: una soluzione verticale, integrata e accessibile, progettata specificamente per le esigenze di organizzatori, partecipanti e giurati di un contest.
 
+\section{Panoramica Funzionale di Swift Contest}\label{sec:panoramica-funzionale}
+Prima di analizzare in dettaglio i casi d'uso e i requisiti formali, è utile fornire una panoramica funzionale di alto livello del sistema \textbf{Swift Contest}.
+La piattaforma è progettata per orchestrare l'intero ciclo di vita di un contest, servendo tre ruoli utente principali, più un ruolo amministrativo:
+
+\begin{itemize}
+    \item \textbf{L'Organizzatore}: L'utente che crea e gestisce l'evento.
+    È responsabile della configurazione del contest, della creazione delle giurie e della gestione dei partecipanti.
+    \item \textbf{Il Partecipante}: L'utente che si iscrive a un contest per sottomettere il proprio lavoro.
+    \item \textbf{Il Giurato}: L'utente incaricato di valutare i lavori.
+    Il sistema supporta due tipologie di \textbf{giurie} per la massima flessibilità:
+    \begin{itemize}
+        \item \textbf{Giuria Nominata}: Composta da \textbf{utenti registrati} e autenticati, invitati personalmente dall'organizzatore.
+        Nel contesto del sistema, questi vengono definiti \textbf{Giurati Nominati}.
+        \item \textbf{Giuria Semplice}: Permette la partecipazione tramite un token di accesso sicuro, abbassando la barriera d'ingresso.
+        Gli utenti che accedono in questa modalità, definiti \textbf{Giurati Semplici}, non necessitano di una registrazione permanente, ma vengono gestiti tramite un meccanismo di \textbf{autenticazione anonima} che garantisce la sicurezza e l'unicità del voto.
+    \end{itemize}
+    \item \textbf{L'Amministratore}: Un ruolo con privilegi elevati che, tramite una dashboard esterna, supervisiona il sistema, gestisce gli utenti e modera i contenuti.
+\end{itemize}
+
+Il flusso operativo principale, interamente gestito dalla piattaforma, si articola nelle seguenti fasi:
+\begin{enumerate}
+    \item \textbf{Creazione e Configurazione}: L'organizzatore crea un nuovo contest, definendone le regole, le date e le giurie (sia nominate che semplici).
+    \item \textbf{Invito e Composizione}: L'organizzatore invita i partecipanti e i giurati nominati. \textbf{Il sistema genera e invia automaticamente} email contenenti token di accesso univoci.
+    \item \textbf{Iscrizione e Sottomissione}: Gli utenti invitati utilizzano il loro token per iscriversi al contest.
+    I partecipanti, una volta iscritti, possono caricare i loro lavori entro la scadenza.
+    \item \textbf{Votazione}: La fase di votazione guida i giurati (sia nominati che semplici) attraverso un form di valutazione strutturato, che li accompagna in un percorso definito: prima con \textbf{campi di valutazione generali}, poi con \textbf{schede dedicate a ogni singolo partecipante}, e infine con \textbf{campi conclusivi}.
+    L'accesso è differenziato: i \textbf{Giurati Nominati} accedono direttamente dalla loro dashboard, mentre i \textbf{Giurati Semplici} utilizzano un token di sessione associato a ciascuna giuria semplice (tramite QR code o inserimento manuale).
+    Questo secondo flusso è reso sicuro da un meccanismo di \textbf{autenticazione anonima} che non richiede una registrazione permanente.
+    \item \textbf{Analisi e Pubblicazione}: Al termine della votazione, l'organizzatore accede a un pannello di analisi dei risultati, da cui può generare le classifiche per ogni giuria e pubblicare i risultati finali, rendendoli visibili a tutti i membri del contest.
+\end{enumerate}
+
+Questa architettura funzionale centralizzata è il cuore della soluzione proposta per superare la frammentazione dei processi tradizionali.
+
 \section{Attori e casi d’uso}\label{sec:attori-e-casi-duso}
 Il sistema è progettato per servire diversi tipi di utenti, ciascuno con un ruolo e un insieme di permessi ben definiti.
 L'interazione tra questi attori e le funzionalità del sistema è stata modellata attraverso una serie di diagrammi dei Casi d'Uso, suddivisi in pacchetti logici (packages) che legano funzionalità della stessa categoria per migliorarne leggibilità e modularità.

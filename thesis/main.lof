@@ -4,34 +4,34 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces Confronto tra il flusso di lavoro tradizionale e l'approccio integrato di Swift Contest.}}{11}{figure.caption.5}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramma dei casi d'uso: gestione account e funzionalità generali.}}{15}{figure.caption.8}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagramma dei casi d'uso: gestione del ciclo di vita del contest.}}{16}{figure.caption.9}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Diagramma dei casi d'uso: gestione delle votazioni e dei risultati.}}{17}{figure.caption.10}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Diagramma dei casi d'uso: amministrazione del sistema.}}{18}{figure.caption.11}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Diagramma delle classi concettuale.}}{22}{figure.caption.12}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramma dei casi d'uso: gestione account e funzionalità generali.}}{17}{figure.caption.8}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagramma dei casi d'uso: gestione del ciclo di vita del contest.}}{18}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Diagramma dei casi d'uso: gestione delle votazioni e dei risultati.}}{19}{figure.caption.10}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Diagramma dei casi d'uso: amministrazione del sistema.}}{20}{figure.caption.11}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Diagramma delle classi concettuale.}}{24}{figure.caption.12}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Architettura Client-Server del sistema Swift Contest con backend BaaS.}}{26}{figure.caption.13}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Architettura del Client MVVM con BLoC.}}{27}{figure.caption.14}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Diagramma Entità-Relazioni (ERD) dello schema ``public'' del database.}}{37}{figure.caption.25}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Flusso di una chiamata sicura da Retool a una Funzione RPC.}}{56}{figure.caption.39}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{58}{figure.caption.42}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Architettura Client-Server del sistema Swift Contest con backend BaaS.}}{28}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Architettura del Client MVVM con BLoC.}}{29}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Diagramma Entità-Relazioni (ERD) dello schema ``public'' del database.}}{39}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Flusso di una chiamata sicura da Retool a una Funzione RPC.}}{58}{figure.caption.39}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Flusso di una chiamata sicura da Retool a una Edge Function, protetta da una chiave API.}}{60}{figure.caption.42}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Diagramma di distribuzione dell'architettura completa di Swift Contest.}}{62}{figure.caption.44}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Pagina di accesso dell'applicazione web distribuita su Vercel.}}{63}{figure.caption.45}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces La dashboard di amministrazione sviluppata in Retool, che mostra l'elenco degli utenti registrati.}}{66}{figure.caption.46}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Le schermate del flusso di autenticazione dell'applicazione.}}{67}{figure.caption.47}%
-\contentsline {figure}{\numberline {5.5}{\ignorespaces Le schermate per la gestione delle impostazioni dell'app e dell'account utente.}}{68}{figure.caption.48}%
-\contentsline {figure}{\numberline {5.6}{\ignorespaces La home page dell'organizzatore.}}{69}{figure.caption.49}%
-\contentsline {figure}{\numberline {5.7}{\ignorespaces Le tre schermate del form guidato per la creazione di un nuovo contest.}}{70}{figure.caption.51}%
-\contentsline {figure}{\numberline {5.8}{\ignorespaces Le principali tab di gestione all'interno di un contest.}}{71}{figure.caption.53}%
-\contentsline {figure}{\numberline {5.9}{\ignorespaces Le viste di dettaglio per i due tipi di giuria e la configurazione del form di voto.}}{72}{figure.caption.54}%
-\contentsline {figure}{\numberline {5.10}{\ignorespaces I passaggi per la configurazione di una nuova sessione di voto.}}{73}{figure.caption.56}%
-\contentsline {figure}{\numberline {5.11}{\ignorespaces La schermata di una sessione di voto attiva (live).}}{73}{figure.caption.57}%
-\contentsline {figure}{\numberline {5.12}{\ignorespaces Visualizzazione dei voti inviati da un giurato, suddivisi per scope.}}{74}{figure.caption.59}%
-\contentsline {figure}{\numberline {5.13}{\ignorespaces La pagina per la generazione della classifica di una giuria.}}{75}{figure.caption.60}%
-\contentsline {figure}{\numberline {5.14}{\ignorespaces Le tre schermate del form guidato per la sottomissione di un lavoro.}}{76}{figure.caption.61}%
-\contentsline {figure}{\numberline {5.15}{\ignorespaces La tab ``Work'' del partecipante dopo aver sottomesso il proprio lavoro.}}{76}{figure.caption.62}%
-\contentsline {figure}{\numberline {5.16}{\ignorespaces Le schermate principali per il flusso del giurato nominato.}}{77}{figure.caption.63}%
-\contentsline {figure}{\numberline {5.17}{\ignorespaces Le quattro fasi principali della procedura di votazione guidata per il giurato.}}{78}{figure.caption.65}%
-\contentsline {figure}{\numberline {5.18}{\ignorespaces I tre passaggi per l'accesso di un giurato semplice (ospite) alla piattaforma.}}{79}{figure.caption.66}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Diagramma di distribuzione dell'architettura completa di Swift Contest.}}{64}{figure.caption.44}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Pagina di accesso dell'applicazione web distribuita su Vercel.}}{65}{figure.caption.45}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces La dashboard di amministrazione sviluppata in Retool, che mostra l'elenco degli utenti registrati.}}{68}{figure.caption.46}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Le schermate del flusso di autenticazione dell'applicazione.}}{69}{figure.caption.47}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Le schermate per la gestione delle impostazioni dell'app e dell'account utente.}}{70}{figure.caption.48}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces La home page dell'organizzatore.}}{71}{figure.caption.49}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Le tre schermate del form guidato per la creazione di un nuovo contest.}}{72}{figure.caption.51}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Le principali tab di gestione all'interno di un contest.}}{73}{figure.caption.53}%
+\contentsline {figure}{\numberline {5.9}{\ignorespaces Le viste di dettaglio per i due tipi di giuria e la configurazione del form di voto.}}{74}{figure.caption.54}%
+\contentsline {figure}{\numberline {5.10}{\ignorespaces I passaggi per la configurazione di una nuova sessione di voto.}}{75}{figure.caption.56}%
+\contentsline {figure}{\numberline {5.11}{\ignorespaces La schermata di una sessione di voto attiva (live).}}{75}{figure.caption.57}%
+\contentsline {figure}{\numberline {5.12}{\ignorespaces Visualizzazione dei voti inviati da un giurato, suddivisi per scope.}}{76}{figure.caption.59}%
+\contentsline {figure}{\numberline {5.13}{\ignorespaces La pagina per la generazione della classifica di una giuria.}}{77}{figure.caption.60}%
+\contentsline {figure}{\numberline {5.14}{\ignorespaces Le tre schermate del form guidato per la sottomissione di un lavoro.}}{78}{figure.caption.61}%
+\contentsline {figure}{\numberline {5.15}{\ignorespaces La tab ``Work'' del partecipante dopo aver sottomesso il proprio lavoro.}}{78}{figure.caption.62}%
+\contentsline {figure}{\numberline {5.16}{\ignorespaces Le schermate principali per il flusso del giurato nominato.}}{79}{figure.caption.63}%
+\contentsline {figure}{\numberline {5.17}{\ignorespaces Le quattro fasi principali della procedura di votazione guidata per il giurato.}}{80}{figure.caption.65}%
+\contentsline {figure}{\numberline {5.18}{\ignorespaces I tre passaggi per l'accesso di un giurato semplice (ospite) alla piattaforma.}}{81}{figure.caption.66}%
 \addvspace {10\p@ }
