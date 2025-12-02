@@ -5,13 +5,14 @@
 
         Swift Contest è progettato per orchestrare l'intero ciclo di vita di un contest, servendo ruoli chiave come l'\textbf{Organizzatore}, il \textbf{Partecipante} e il \textbf{Giurato}.
         Il sistema gestisce fasi cruciali dalla creazione e configurazione, all'invito e iscrizione, alla sottomissione dei lavori, fino alla votazione strutturata e all'analisi dei risultati.
-        Il sistema prevede due tipi di giurie: ``\textbf{Giurie Nominate}'', per giurati invitati a iscriversi formalmente al contest, e ``\textbf{Giurie Semplici}'', che permettono l'accesso alla sessione di votazione tramite un token condiviso, supportando anche utenti non registrati attraverso un meccanismo di \textbf{autenticazione anonima}.
+        Il sistema prevede due tipi di giurie: \textbf{``Giurie Nominate''}, per giurati invitati a iscriversi formalmente al contest, e \textbf{``Giurie Semplici''}, che permettono l'accesso alla \textbf{sessione di voto} tramite un token condiviso, supportando anche utenti non registrati attraverso un meccanismo di \textbf{autenticazione anonima}.
         L'applicazione è sviluppata in \textbf{Flutter} per garantire un'esperienza \emph{cross-platform} coerente su Web e Android, con un backend robusto basato su \textbf{Supabase (PostgreSQL)}.
 
         La progettazione del sistema si fonda su un’architettura sicura basata sul \textbf{Principio del Minimo Privilegio (PoLP)}, dove la \textbf{Row Level Security (RLS) e un'API controllata} lavorano in sinergia per mediare ogni accesso ai dati.
         Sul frontend, il pattern \textbf{MVVM con BLoC} garantisce la \textbf{Separazione delle Responsabilità (SoC)}, mentre sul backend, il \textbf{meccanismo di snapshot} assicura l’integrità del voto.
 
         La fase finale del progetto ha visto la distribuzione delle sue componenti su piattaforme dedicate: le migrazioni IaC e le funzioni serverless sull'infrastruttura \textbf{Supabase}, il client web su \textbf{Vercel} tramite pipeline di CI/CD e l'artefatto Android su \textbf{GitHub}.
+        Questo processo ha portato alla realizzazione di un \textbf{prototipo completo e funzionante}.
         In conclusione, Swift Contest non solo valida la fattibilità dell'approccio architetturale, ma si configura come un \textbf{blueprint robusto e scalabile} per la creazione di applicazioni collaborative sicure, dimostrando come un ecosistema tecnologico moderno possa colmare una reale esigenza di mercato.
     \end{abstract}
 \end{titlepage}
