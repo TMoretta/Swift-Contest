@@ -121,20 +121,6 @@ class OrganizerContestDetailsPageBloc
     );
   }
 
-  // FutureOr<void> _editVotingSessionName(
-  //   OrganizerContestDetailsPageEditVotingSessionName event,
-  //   Emitter<OrganizerContestDetailsPageState> emit,
-  // ) async {
-  //   emit(state.copyWith(status: BlocStatus.loading, sourceEvent: event));
-  //
-  //   final eitherDeleteInvitation = await _organizerRepository.updateVotingSessionName(
-  //       votingSessionId: event.votingSessionId, name: event.name);
-  //   eitherDeleteInvitation.fold(
-  //     (failure) => emit(state.copyWith(status: BlocStatus.failure, message: failure.message)),
-  //     (success) => emit(state.copyWith(status: BlocStatus.success)),
-  //   );
-  // }
-
   FutureOr<void> _removeParticipant(
     OrganizerContestDetailsPageRemoveParticipant event,
     Emitter<OrganizerContestDetailsPageState> emit,

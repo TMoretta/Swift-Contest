@@ -54,6 +54,4 @@ class OrganizerWorkDetailsPageBloc
           (success) => emit(state.copyWith(status: BlocStatus.success, workFileUrl: success)),
     );
   }
-
-
 }

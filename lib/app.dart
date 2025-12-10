@@ -58,36 +58,6 @@ class _AppState extends State<App> {
     _appRouter = AppRouter(authBloc: authBloc);
   }
 
-  // Future<void> _initDeepLinks(BuildContext context) async {
-  //   // Gestisce il link iniziale che ha aperto l'app (da terminata).
-  //   final initialUri = await _appLinks.getInitialLink();
-  //   if (initialUri != null) {
-  //     if (context.mounted) {
-  //       if (initialUri.scheme == 'https' && initialUri.host == 'www.swiftcontest.com') {
-  //         Logger.info('Link iniziale ricevuto: $initialUri');
-  //         context.read<DeepLinkBloc>().add(DeepLinkSetPending(initialUri));
-  //       }
-  //     }
-  //   }
-  //
-  //   // Gestisce i link ricevuti mentre l'app è in primo piano.
-  //   _deepLinkSubscription = _appLinks.uriLinkStream.listen((uri) {
-  //     if (context.mounted) {
-  //       if (uri.scheme == 'https' && uri.host == 'www.swiftcontest.com') {
-  //         Logger.info('Link ricevuto con app aperta: $uri');
-  //         context.read<DeepLinkBloc>().add(DeepLinkSetPending(uri));
-  //         context.router.replaceAll([RootRoute()]);
-  //       }
-  //     }
-  //   });
-  // }
-
-  // @override
-  // void dispose() {
-  //   _deepLinkSubscription?.cancel();
-  //   super.dispose();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return BlocSelector<ThemeBloc, ThemeState, AppTheme>(

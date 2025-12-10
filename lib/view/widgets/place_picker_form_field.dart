@@ -20,10 +20,9 @@ class PlacePickerFormField extends StatelessWidget {
   final Widget? suffix;
   final TextStyle? suffixStyle;
 
-
   const PlacePickerFormField({
     required this.controller,
-     this.focusNode,
+    this.focusNode,
     this.label,
     this.validator,
     this.autovalidateMode,
@@ -106,104 +105,3 @@ class PlacePickerFormField extends StatelessWidget {
     );
   }
 }
-
-// Future<GooglePlace?> showLocationSearchDialog({
-//   required BuildContext context,
-// }) async {
-//   final TextEditingController searchController = TextEditingController();
-//   GooglePlaceSuggestion? selectedSuggestion;
-//   final placePickerFormFieldBloc = context.read<PlacePickerFormFieldBloc>();
-//   final formKey = GlobalKey<FormState>();
-//
-//   return await showDialog<GooglePlace?>(
-//     context: context,
-//     builder: (context) {
-//       return BlocProvider.value(
-//         value: placePickerFormFieldBloc,
-//         child: BlocListener<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
-//           listener: (context, state) {
-//             if (state.message != null) {
-//               showSnackBar(context: context, text: state.message!);
-//             }
-//             if (state.status.isSuccess && state.sourceEvent is PlacePickerFormFieldFetchPlace) {
-//               context.pop(state.googlePlace);
-//             }
-//           },
-//           child: AlertDialog(
-//             title: const Text('Location'),
-//             content: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
-//                   builder: (context, state) {
-//                     return SizedBox(
-//                       width: 250,
-//                       child: Form(
-//                         key: formKey,
-//                         child: CustomTextFormField(
-//                           borderType: InputBorderType.outlined,
-//                           controller: searchController,
-//                           label: 'Search',
-//                           validator: (_) => (selectedSuggestion == null) ? 'Select a result' : null,
-//                           prefixIcon: Icon(Icons.search, size: 24),
-//                           onChanged: (value) async => context
-//                               .read<PlacePickerFormFieldBloc>()
-//                               .add(PlacePickerFormFieldSearchPlaceSuggestions(query: value)),
-//                         ),
-//                       ),
-//                     );
-//                   },
-//                 ),
-//                 const SizedBox(height: 10),
-//                 BlocBuilder<PlacePickerFormFieldBloc, PlacePickerFormFieldState>(
-//                   builder: (context, state) {
-//                     if (state.googlePlaceSuggestions == null ||
-//                         state.googlePlaceSuggestions!.isEmpty) {
-//                       return VoidWidget();
-//                     } else {
-//                       final suggestions = state.googlePlaceSuggestions!;
-//                       return SizedBox(
-//                         height: 150,
-//                         child: ListView(
-//                           shrinkWrap: true,
-//                           children: [
-//                             for (var suggestion in suggestions)
-//                               ListTile(
-//                                 title: Text(suggestion.address),
-//                                 onTap: () {
-//                                   searchController.text = suggestion.address;
-//                                   selectedSuggestion = suggestion;
-//                                 },
-//                               )
-//                           ],
-//                         ),
-//                       );
-//                     }
-//                   },
-//                 ),
-//               ],
-//             ),
-//             actions: [
-//               TextButton(
-//                 onPressed: () {
-//                   context.router.pop();
-//                 },
-//                 child: const Text('Cancel'),
-//               ),
-//               TextButton(
-//                 onPressed: () {
-//                   if (formKey.currentState?.validate() ?? false) {
-//                     context
-//                         .read<PlacePickerFormFieldBloc>()
-//                         .add(PlacePickerFormFieldFetchPlace(id: selectedSuggestion!.placeId));
-//                   }
-//                 },
-//                 child: Text('Confirm'),
-//               )
-//             ],
-//           ),
-//         ),
-//       );
-//     },
-//   );
-// }

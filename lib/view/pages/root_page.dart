@@ -30,11 +30,6 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        // if (state.blocStatus.isSuccess || state.blocStatus.isFailure) {
-        //   if (!kIsWeb) {
-        //     FlutterNativeSplash.remove();
-        //   }
-        // }
         if (state.message != null) {
           showSnackBar(context: context, text: state.message!);
         }
@@ -91,80 +86,5 @@ class _RootPageState extends State<RootPage> {
         );
       },
     );
-    // return MultiBlocListener(
-    //   listeners: [
-    //     BlocListener<AuthBloc, AuthState>(
-    //       listener: (context, state) {
-    //         if (state.message != null) {
-    //           showSnackBar(context: context, text: state.message!);
-    //         }
-    //         if (state.blocStatus.isSuccess) {
-    //           if (state.authStatus.isAuthenticated) {
-    //             context.read<DeepLinkBloc>().add(DeepLinkHandlePending());
-    //           } else if (state.authStatus.isUnauthenticated) {
-    //             //* If success and not authenticated go to sign in page
-    //             context.router.replace(SignInRoute());
-    //           }
-    //         }
-    //       },
-    //     ),
-    //     BlocListener<DeepLinkBloc, DeepLinkState>(
-    //       listener: (context, state) {
-    //         if (state.message != null) {
-    //           showSnackBar(context: context, text: state.message!);
-    //         }
-    //         if(state.status.)
-    //         if (state.status.isSuccess) {
-    //           if (state.sourceEvent is DeepLinkHandleParticipantInvite) {
-    //             context.router.push(ParticipantHomeRoute());
-    //           }
-    //
-    //           final prefRole = context.read<AuthBloc>().state.profile!.prefRole;
-    //           switch (prefRole) {
-    //             case ContestRole.organizer:
-    //               context.router.replace(OrganizerHomeRoute());
-    //               break;
-    //             case ContestRole.participant:
-    //               context.router.replace(ParticipantHomeRoute());
-    //               break;
-    //             case ContestRole.juror:
-    //               context.router.replace(JurorHomeRoute());
-    //               break;
-    //           }
-    //         }
-    //       },
-    //     ),
-    //   ],
-    //   child: BlocBuilder<AuthBloc, AuthState>(
-    //     builder: (context, state) {
-    //       return Scaffold(
-    //         body: SafeArea(
-    //           child: Builder(
-    //             builder: (context) {
-    //               if (state.blocStatus.isFailure) {
-    //                 return Center(
-    //                   child: Column(
-    //                     mainAxisSize: MainAxisSize.min,
-    //                     children: [
-    //                       MyLogo(),
-    //                       SizedBox(height: 32),
-    //                       FilledButton(
-    //                         onPressed: () async => context.read<AuthBloc>().add(AuthFetch()),
-    //                         child: Text('Retry'),
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 );
-    //               }
-    //               return Center(
-    //                 child: MyLogo(),
-    //               );
-    //             },
-    //           ),
-    //         ),
-    //       );
-    //     },
-    //   ),
-    // );
   }
 }

@@ -43,13 +43,6 @@ class ParticipantContestDetailsPageBloc
       (success) => contestDetailsBundle = success,
     );
 
-    // final eitherParticipation = await _participantRepository.getParticipationBundle(contestId: event.contestId, participantId: event.participantId);
-    // if(eitherParticipation.isLeft()) {
-    //   emit(state.copyWith(status: BlocStatus.failure, message: eitherParticipation.getLeft().toNullable()!.message));
-    //   return;
-    // }
-    // final participationBundle = eitherParticipation.getRight().toNullable()!;
-
     emit(state.copyWith(
         status: BlocStatus.success,
         isInitialized: true,

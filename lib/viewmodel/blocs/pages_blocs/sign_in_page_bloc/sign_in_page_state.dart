@@ -6,30 +6,24 @@ final class SignInPageState extends Equatable {
   final SignInPageEvent? sourceEvent;
   final String? message;
   final VotingSession? votingSession;
-  // final SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle;
 
   const SignInPageState({
     required this.status,
     this.sourceEvent,
     this.message,
     this.votingSession,
-    // this.simpleJurorAndVotingSessionBundle,
   });
 
 
 factory SignInPageState.fromJson(Map<String, dynamic> json) {
     return SignInPageState(
       status: BlocStatus.values.byName(json['status']),
-      // simpleJurorAndVotingSessionBundle: json['simple_juror_and_voting_session_bundle'] != null
-      //     ? SimpleJurorAndVotingSessionBundle.fromJson(json['simple_juror_and_voting_session_bundle'] as Map<String, dynamic>)
-      //     : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'status': status.name,
-      // 'simple_juror_and_voting_session_bundle': simpleJurorAndVotingSessionBundle?.toJson(),
     };
   }
 
@@ -38,14 +32,12 @@ factory SignInPageState.fromJson(Map<String, dynamic> json) {
     SignInPageEvent? sourceEvent,
     String? message,
     VotingSession? votingSession,
-    // SimpleJurorAndVotingSessionBundle? simpleJurorAndVotingSessionBundle,
   }) {
     return SignInPageState(
       status: status,
       sourceEvent: sourceEvent ?? this.sourceEvent,
       message: message,
       votingSession: votingSession ?? this.votingSession,
-      // simpleJurorAndVotingSessionBundle: simpleJurorAndVotingSessionBundle ?? this.simpleJurorAndVotingSessionBundle,
     );
   }
 
@@ -55,6 +47,5 @@ factory SignInPageState.fromJson(Map<String, dynamic> json) {
         sourceEvent,
         message,
         votingSession,
-        // simpleJurorAndVotingSessionBundle,
       ];
 }
