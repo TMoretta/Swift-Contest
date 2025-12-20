@@ -80,7 +80,7 @@ To run this project locally, you will need Flutter, Docker, and the Supabase CLI
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/your-username/swift-contest.git
+    git clone https://github.com/TMoretta/Swift-Contest.git
     cd swift-contest
     ```
 
@@ -109,6 +109,15 @@ To run this project locally, you will need Flutter, Docker, and the Supabase CLI
     flutter pub get
     flutter run
     ```
+
+## 🔐 Edge Functions Secrets
+
+You must set the following secrets in your Supabase project (under **Edge Functions > Secrets**) to enable full functionality:
+
+- `GOOGLE_PLACES_API_KEY`: Required for the **Google Places API** to enable address autocomplete and location verification.
+- `RESEND_API_KEY`: Used by **Resend** to send transactional emails (e.g., OTPs, invitations).
+- `GITHUB_PAT`: A GitHub Personal Access Token used to fetch the latest APK release from the repository for in-app updates.
+- `RETOOL_API_KEY`: A custom secret key used to authenticate requests coming from the **Retool** admin dashboard, ensuring that only authorized admin tools can invoke sensitive functions (like user deletion).
 
 ---
 
