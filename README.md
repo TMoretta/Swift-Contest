@@ -85,7 +85,7 @@ To run this project locally, you will need Flutter, Docker, and the Supabase CLI
     ```
 
 2.  **Set up Supabase environment variables:**
-    - Create a `.env` file in the root of the project.
+    - Edit `.env` file in the root of the project.
     - Add your Supabase project URL and `anon` key:
       ```env
       SUPABASE_URL=https://<your-project-ref>.supabase.co
